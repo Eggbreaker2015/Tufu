@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4aa8f3f7379a305b790488b9fc1bce5, type: 3}
+  m_Name: Event Style Config
+  m_EditorClassIdentifier:
+  Styles:
+  - Key: crystal_event
+  - Key: crystal_event_roster
+  Currencies:
+  - Key: red_crystal
+    Sprite: {fileID: 21300000, guid: 395e11211b0da56409428d4b65fcd072, type: 2}
+    PrefixSprite: {fileID: 21300000, guid: ce146ecdac2aec44aabfcb2223179758, type: 2}
+    MinimapSprite: {fileID: 21300000, guid: 1c5ffeaa046f8d7479860a8cf9f61c90, type: 2}
+    Color: {r: 1, g: 0.14901961, b: 0.30588236, a: 1}
+  - Key: blue_crystal
+    Sprite: {fileID: 21300000, guid: 6deaf9837aa1a6f45b1f0e02b4d66a96, type: 2}
+    PrefixSprite: {fileID: 21300000, guid: fd31fdc015567874e82023aa87bd92ad, type: 2}
+    MinimapSprite: {fileID: 21300000, guid: 1c5ffeaa046f8d7479860a8cf9f61c90, type: 2}
+    Color: {r: 0.23137255, g: 0.6156863, b: 1, a: 1}
+  DifficultyStyles:
+  - Difficulty: 0
+    Sprite: {fileID: 21300000, guid: a59d0c5251baa444d8b2a6b52fc80a85, type: 2}
+    GlowColor: {r: 0.29411766, g: 0.90196085, b: 0.18823531, a: 1}
+  - Difficulty: 1
+    Sprite: {fileID: 21300000, guid: c0caba08ab40f8544b4684758f274eab, type: 2}
+    GlowColor: {r: 1, g: 0.68235296, b: 0, a: 1}
+  - Difficulty: 2
+    Sprite: {fileID: 21300000, guid: 1d892da6d1a663f45a3da6a617a6eff2, type: 2}
+    GlowColor: {r: 0.9294118, g: 0.07450981, b: 0.33333334, a: 1}
+  ProgressBarStyle:
+    Mob:
+      NotPassed: {fileID: 21300000, guid: f00f8de74b8bf49428a45429f615bb4a, type: 2}
+      Passed: {fileID: 21300000, guid: 12b13835923066b4188f57bee0c37a40, type: 2}
+      Failed: {fileID: 21300000, guid: 036098b9bcc6a2043ade3c97ff6d286d, type: 2}
+    Boss:
+      NotPassed: {fileID: 21300000, guid: 552f84ac771a68a41af566ecf4d0ce4a, type: 2}
+      Passed: {fileID: 0}
+      Failed: {fileID: 21300000, guid: 241861fa5fdfc34428ef09f41416768e, type: 2}
+    GrandBoss:
+      NotPassed: {fileID: 21300000, guid: eaa5aeee94329a1478662679df6999dd, type: 2}
+      Passed: {fileID: 21300000, guid: b1571d04ccb9b684284db77d529a5ea0, type: 2}
+      Failed: {fileID: 21300000, guid: c63af7891dbe29e4e8aa7d73026cc519, type: 2}
+  TimeSprite: {fileID: 21300000, guid: b1546510e91648e4b93dd5384ade7b0f, type: 2}
+  GiftSprite: {fileID: 21300000, guid: 3bff7e25c90341248a7519666a60cbb0, type: 2}
+  FailSprite: {fileID: 21300000, guid: 8c855e5c8a77ddc4aa898438b31f4d67, type: 2}

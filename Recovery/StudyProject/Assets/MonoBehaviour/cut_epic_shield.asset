@@ -1,0 +1,178 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: cut_epic_shield
+  m_EditorClassIdentifier:
+  Key: sunwheel_deflector
+  Rarity: 3
+  SlotType: 2
+  DamageType: 1
+  DamageStatTypeFlat: 16
+  DamageStatTypePercent: 17
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 4f45a2e3732f80f40add5a9246837b39, type: 2}
+  DivineIcon: {fileID: 21300000, guid: bc49daf0d8590ec408805528b8bfba59, type: 2}
+  Prefab: {fileID: 114884547391421755, guid: 02672df0383239846ac0f4994ca4d9cc, type: 2}
+  DivinePrefab: {fileID: 114884547391421755, guid: 02672df0383239846ac0f4994ca4d9cc, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: helmet_cut_rare_ability_1
+    Trigger: 6
+    Conditions:
+    - rid: 536242270135124086
+    Effects:
+    - rid: 536242270135124087
+    - rid: 536242270135124088
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.2
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.24
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.28
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.32
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.36
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.45
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: helmet_cut_rare_ability_2
+    Trigger: 3
+    Conditions: []
+    Effects:
+    - rid: 536242270135124089
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 2
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 5
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 7
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: helmet_cut_rare_ability_3
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 536242270135124090
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.1
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 536242270135124086
+      type: {class: CombatCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Mode: 1
+        Timeout: 5
+    - rid: 536242270135124087
+      type: {class: AddStatPassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 0
+        ModifierType: 3
+        Source: 3
+        ValueScaling: 0
+        NormalizeAboveThreshold: 0
+        ScalingStat: 0
+    - rid: 536242270135124088
+      type: {class: SpawnPlayerVfxWhilePassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        AddressableKey: Assets/Prefabs/Vfx/Abilities/SpeedupTrigger.prefab
+        HeightOffset: 1
+        Rotation: {x: -90, y: 0, z: 0}
+    - rid: 536242270135124089
+      type: {class: GrantRandomStatPerDistanceEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Distance: 200
+        DailyLimit: 100
+        ModifierType: 0
+        Source: 2
+        StatPool: 180000002100000017000000
+    - rid: 536242270135124090
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 0
+        ModifierType: 3
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1

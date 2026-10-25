@@ -1,0 +1,164 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: buck_legendary_shield
+  m_EditorClassIdentifier:
+  Key: cogsmith_plate
+  Rarity: 4
+  SlotType: 2
+  DamageType: 3
+  DamageStatTypeFlat: 20
+  DamageStatTypePercent: 21
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: dddef8c8e8c8edd40aa6d46e0121cba1, type: 2}
+  DivineIcon: {fileID: 21300000, guid: d8a5af5ce0b86ef46b65a22f96994c88, type: 2}
+  Prefab: {fileID: 114243736805655561, guid: ea2bdcff0356e5d44ac1a8ef09990442, type: 2}
+  DivinePrefab: {fileID: 114243736805655561, guid: ea2bdcff0356e5d44ac1a8ef09990442, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: shield_smash_legendary_ability_1
+    Trigger: 13
+    Conditions: []
+    Effects:
+    - rid: 6613836734708056266
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.5
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.55
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.65
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.7
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 1
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_smash_legendary_ability_2
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972269
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.06
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.07
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.08
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.09
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_smash_legendary_ability_3
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972270
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.06
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.08
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 6613836593968972269
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 33
+        ModifierType: 6
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972270
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 34
+        ModifierType: 6
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836734708056266
+      type: {class: BuffNextHitDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 0
+        ScalingStat: 0

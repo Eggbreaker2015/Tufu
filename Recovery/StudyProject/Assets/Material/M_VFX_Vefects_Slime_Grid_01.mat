@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_VFX_Vefects_Slime_Grid_01
+  m_Shader: {fileID: 4800000, guid: f08cbb6e76d3a2e4d8d146a9f14c75cb, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties:
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+      _Matcap:
+        m_Texture: {fileID: 2800000, guid: 6aa8eef350796f148af46707bc498f09, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _NormalTriplanarTexture:
+        m_Texture: {fileID: 2800000, guid: a34e1b794c9eb1149bdcc9a50f9b1ba6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+      _WPOTriplanarTexture:
+        m_Texture: {fileID: 2800000, guid: e1580485713fd95408cab54c39883edd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: {}
+    m_Floats:
+      _AlphaCutoff: 0.5
+      _EmissionMultiply: 1.5
+      _EnvironmentReflections: 1
+      _FrBias: 0.1
+      _FrPower: 2
+      _FrScale: 2
+      _HueShift: 0
+      _HueShiftSpeed: 0
+      _MatcapDesaturate: 0
+      _NormalIntensity: 0.5
+      _NormalTiling: 0.7
+      _NormalTriplanarContrast: 0.5
+      _OverallTilesMultiply: 2
+      _QueueControl: 0
+      _QueueOffset: 0
+      _ReceiveShadows: 1
+      _Smooth: 0.1
+      _Spec: 0
+      _SpecularHighlights: 1
+      _TriplanarContrast: 0.1
+      _WPOIntensity: 0.1
+      _WPOTriplanarContrast: 0.1
+      __dirty: 0
+    m_Colors:
+      _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+      _FrColor: {r: 0.23055862, g: 0.6981132, b: 0.15477037, a: 0}
+      _MatcapTint: {r: 0.93819284, g: 1, b: 0, a: 0}
+      _NoiseSpeed: {r: 0.1, g: 0.3, b: 0, a: 0}
+      _NormalTile: {r: 0.03, g: 0.03, b: 0.03, a: 0}
+      _NormalTileOffsetCustom: {r: 0, g: 0, b: 0, a: 0}
+      _NormalTileSpeed: {r: 0.001, g: 0.02, b: -0.02, a: 0}
+      _WPOTile: {r: 0.03, g: 0.03, b: 0.03, a: 0}
+      _WPOTileOffsetCustom: {r: 0, g: 0, b: 0, a: 0}
+      _WPOTileSpeed: {r: 0.05, g: 0.07, b: 0.05, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 0

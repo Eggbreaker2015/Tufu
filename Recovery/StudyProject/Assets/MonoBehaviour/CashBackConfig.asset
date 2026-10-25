@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa93369a949767a43b6fb92c714e6dcf, type: 3}
+  m_Name: CashBackConfig
+  m_EditorClassIdentifier:
+  Enabled: 1
+  PeriodMinutes: 1440
+  Levels:
+  - VipLevel: 3
+    Percent: 0.1
+  - VipLevel: 5
+    Percent: 0.15
+  - VipLevel: 8
+    Percent: 0.2

@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 302b92d923c4addb016db3224458da8e, type: 3}
+  m_Name: First Buy Pack Rewards Config
+  m_EditorClassIdentifier:
+  Rewards:
+  - rid: 310045328165568797
+  - rid: 310045328165568796
+  - rid: 310045328165568795
+  - rid: 6966833995105435751
+  references:
+    version: 2
+    RefIds:
+    - rid: 310045328165568795
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 6b035a82b7db23143bd1a7e62e031ee7, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 310045328165568796
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 771120d87368ebe46ad60386f97837c6, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 310045328165568797
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 3d2ccd94bbe0e6f4593c45775bd5dd46, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 6966833995105435751
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 10
+        Name:
+        Source: 0
+        ModifierType: 0

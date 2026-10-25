@@ -1,0 +1,62 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.6.3f1
+CRC: 390526586
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d1a76edda697791193297015aff9c70f
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: a2f88227ceb75c05026ef8049e942c1c
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: c40a4f5e381228acd0d248a6f26bfbd4
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: a97665c02b01f3d1241334ac50188814, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c1424ec0f0e1a8d5c339cafd551512f4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2f90a752e7f40a7f1052e1d35e143070, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7d35e9a374486f3ed8ebaf850034a90b, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 198
+  Script: {instanceID: 0}
+- Class: 199
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Vector3
+Assets:
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/MegaLightning.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SwordCrit_Slime.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/HealTrigger1.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Mark.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/ReflectionStrike.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/ShockLightning.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SpeedupTrigger.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_1.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SuperCrit_Blue.prefab
+- Assets/JMO Assets/Epic Toon FX/Prefabs/Combat/Brawling/Stun/StunnedCirclingStars.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_3.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Shocked.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/DeathEvasion.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_2.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/HealTriggerSmall.prefab
+- Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SwordHit_Slime.prefab
+Dependencies: []

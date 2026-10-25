@@ -1,0 +1,1031 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42d4bafd5168fe8978cba4ee0c384bc, type: 3}
+  m_Name: Quest Config
+  m_EditorClassIdentifier:
+  Givers:
+  - GiverKey: qg_0
+    SideChainKey: quest_0
+    HubChainKey:
+    Portrait: {fileID: 21300000, guid: 2fb45f760d43d4542b08037c188a745b, type: 2}
+    MinimapIcon: {fileID: 21300000, guid: 4b4c7929d09ebdd4cabbac5dcf44f918, type: 2}
+    OverrideMinimapHighlightColor: 0
+    MinimapHighlightColor: {r: 1, g: 1, b: 1, a: 1}
+  - GiverKey: qg_1
+    SideChainKey: quest_1
+    HubChainKey: quest_2
+    Portrait: {fileID: 21300000, guid: afcbc077bb0eb0945abfe685e59ad0ca, type: 2}
+    MinimapIcon: {fileID: 21300000, guid: eb763e0b1d68cff44a4ce9fa7cac5ab8, type: 2}
+    OverrideMinimapHighlightColor: 0
+    MinimapHighlightColor: {r: 1, g: 1, b: 1, a: 1}
+  - GiverKey: qg_2
+    SideChainKey: quest_3
+    HubChainKey:
+    Portrait: {fileID: 21300000, guid: a9b66ce46f92d274a997ed3542c890bb, type: 2}
+    MinimapIcon: {fileID: 21300000, guid: 5a2e000eefa41564f8644ea9c44a63e9, type: 2}
+    OverrideMinimapHighlightColor: 1
+    MinimapHighlightColor: {r: 0.28627455, g: 0.91819704, b: 1, a: 1}
+  - GiverKey: qg_3
+    SideChainKey: quest_4
+    HubChainKey:
+    Portrait: {fileID: 21300000, guid: afcbc077bb0eb0945abfe685e59ad0ca, type: 2}
+    MinimapIcon: {fileID: 21300000, guid: eb763e0b1d68cff44a4ce9fa7cac5ab8, type: 2}
+    OverrideMinimapHighlightColor: 0
+    MinimapHighlightColor: {r: 1, g: 1, b: 1, a: 1}
+  - GiverKey: qg_4
+    SideChainKey: quest_5
+    HubChainKey:
+    Portrait: {fileID: 21300000, guid: a7f056eb77dff534b8ddf15a2cdd8d05, type: 2}
+    MinimapIcon: {fileID: 21300000, guid: 8442e79f0ea4f6e4fb1173c270c97a5a, type: 2}
+    OverrideMinimapHighlightColor: 0
+    MinimapHighlightColor: {r: 1, g: 1, b: 1, a: 1}
+  - GiverKey: qg_5
+    SideChainKey: quest_6
+    HubChainKey:
+    Portrait: {fileID: 21300000, guid: 2708800f0c288e941a540e92437f33dd, type: 2}
+    MinimapIcon: {fileID: 21300000, guid: 39d2ce883a5c62f43898bef076c78fef, type: 2}
+    OverrideMinimapHighlightColor: 0
+    MinimapHighlightColor: {r: 1, g: 1, b: 1, a: 1}
+  Chains:
+  - ChainKey: quest_0
+    IsPrologue: 1
+    Role: 0
+    QuestGiverKey: qg_0
+    UnlocksAfterChainKey:
+    ChainNameKey: QUEST_CHAIN_NAME_0
+    ChainDescriptionKey: QUEST_CHAIN_DESC_0
+    ChainIcon: {fileID: 0}
+    MobEvasionPercent: 0
+    MobHealthRegenMaxHealthPercent: 0
+    MobAttackMultiplier: 1
+    MobHealthMultiplier: 1
+    MobAttackCooldown: 1
+    MobLifestealMaxHealthPercent: 0
+    MobReflectionMaxHealthPercent: 0
+    Steps:
+    - StepKey: quest_c0_step_1
+      NpcNameKey: QUEST_NPC_NAME_1
+      Monologue:
+      - TextKey: QUEST_STEP_1_LINE_1
+        Clip: {fileID: 8300000, guid: 6ff031a2a430d8b4aa3952d45fae672f, type: 3}
+      - TextKey: QUEST_STEP_1_LINE_2
+        Clip: {fileID: 8300000, guid: 7b79457fbeee24e448effb505f5bb94d, type: 3}
+      - TextKey: QUEST_STEP_1_LINE_3
+        Clip: {fileID: 8300000, guid: 75deae920e9ff294892cd4dd13f0ab2d, type: 3}
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_1
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_BOSS
+      HasCutscene: 0
+      Prefab: {fileID: 0}
+      LocationNumber: 1
+      OptimumTime: 0
+      IsDays: 1
+      StatRewards: []
+    HubTokenSlots: []
+    FinaleNpcNameKey:
+    FinaleMonologue: []
+    ChainReward: []
+  - ChainKey: quest_1
+    IsPrologue: 0
+    Role: 0
+    QuestGiverKey: qg_1
+    UnlocksAfterChainKey: quest_0
+    ChainNameKey: QUEST_CHAIN_NAME_1
+    ChainDescriptionKey: QUEST_CHAIN_DESC_1
+    ChainIcon: {fileID: 21300000, guid: 50495fc6f15be194aa3059d0daf352ab, type: 2}
+    MobEvasionPercent: 0
+    MobHealthRegenMaxHealthPercent: 2
+    MobAttackMultiplier: 1
+    MobHealthMultiplier: 1
+    MobAttackCooldown: 1
+    MobLifestealMaxHealthPercent: 0
+    MobReflectionMaxHealthPercent: 0
+    Steps:
+    - StepKey: quest_c1_step_1
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_1
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 1
+      Prefab: {fileID: 114919942235722503, guid: 931f4b3ffdd498245990eeca754043f2, type: 2}
+      LocationNumber: 3
+      OptimumTime: 2
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 12
+        ModifierType: 0
+        Source: 0
+        Value: 20
+        Param: 0
+        StringParam:
+    - StepKey: quest_c1_step_2
+      NpcNameKey: QUEST_NPC_NAME_1
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_2
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: 931f4b3ffdd498245990eeca754043f2, type: 2}
+      LocationNumber: 3
+      OptimumTime: 2.3
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 2
+        ModifierType: 0
+        Source: 0
+        Value: 10
+        Param: 0
+        StringParam:
+    - StepKey: quest_c1_step_3
+      NpcNameKey: QUEST_NPC_NAME_1
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_3
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: 931f4b3ffdd498245990eeca754043f2, type: 2}
+      LocationNumber: 3
+      OptimumTime: 2.5
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 12
+        ModifierType: 0
+        Source: 0
+        Value: 30
+        Param: 0
+        StringParam:
+    - StepKey: quest_c1_step_4
+      NpcNameKey: QUEST_NPC_NAME_1
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_4
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: 931f4b3ffdd498245990eeca754043f2, type: 2}
+      LocationNumber: 3
+      OptimumTime: 2.8
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 1
+        ModifierType: 0
+        Source: 0
+        Value: 1000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c1_step_5
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue:
+      - TextKey: QUEST_STEP_2_LINE_1
+        Clip: {fileID: 8300000, guid: 5bec7ec9a6b94be4187ee2a4a0b6c336, type: 3}
+      PostCutsceneMonologue:
+      - TextKey: QUEST_STEP_3_LINE_1
+        Clip: {fileID: 8300000, guid: b0b1c262844dfe9478d69b5a42373805, type: 3}
+      - TextKey: QUEST_STEP_3_LINE_2
+        Clip: {fileID: 8300000, guid: bca77409c2413a548992380e119c9725, type: 3}
+      StepNameKey: QUEST_STEP_NAME_5
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_BOSS
+      HasCutscene: 1
+      Prefab: {fileID: 114919942235722503, guid: 99ad29d6e6eb6194690055a0ceedfa0b, type: 2}
+      LocationNumber: 3
+      OptimumTime: 3.1
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 12
+        ModifierType: 0
+        Source: 0
+        Value: 50
+        Param: 0
+        StringParam:
+    HubTokenSlots: []
+    FinaleNpcNameKey:
+    FinaleMonologue: []
+    ChainReward:
+    - rid: 8663340215023698186
+    - rid: 2001718200998822006
+  - ChainKey: quest_2
+    IsPrologue: 0
+    Role: 1
+    QuestGiverKey: qg_1
+    UnlocksAfterChainKey:
+    ChainNameKey: QUEST_CHAIN_NAME_2
+    ChainDescriptionKey: QUEST_CHAIN_DESC_2
+    ChainIcon: {fileID: 21300000, guid: 85d1f5655ef9dc74f9f296e82b0cb8d7, type: 2}
+    MobEvasionPercent: 80
+    MobHealthRegenMaxHealthPercent: 0
+    MobAttackMultiplier: 1
+    MobHealthMultiplier: 0.35
+    MobAttackCooldown: 1.3
+    MobLifestealMaxHealthPercent: 0
+    MobReflectionMaxHealthPercent: 0
+    Steps: []
+    HubTokenSlots:
+    - TokenKey: quest.dynamite
+      SourceChainKey: quest_1
+      Icon: {fileID: 0}
+      DisplayNameKey: QUEST_CURRENCY_DYNAMITE
+      DeliveryNpcNameKey:
+      DeliveryMonologue: []
+    - TokenKey: quest.helmet
+      SourceChainKey: quest_3
+      Icon: {fileID: 0}
+      DisplayNameKey: QUEST_CURRENCY_HELMET
+      DeliveryNpcNameKey: QUEST_NPC_NAME_1
+      DeliveryMonologue: []
+    - TokenKey: quest.pickaxe
+      SourceChainKey: quest_4
+      Icon: {fileID: 0}
+      DisplayNameKey: QUEST_CURRENCY_PICKAXE
+      DeliveryNpcNameKey:
+      DeliveryMonologue: []
+    - TokenKey: quest.mine_cart
+      SourceChainKey: quest_5
+      Icon: {fileID: 0}
+      DisplayNameKey: QUEST_CURRENCY_MINE_CART
+      DeliveryNpcNameKey:
+      DeliveryMonologue: []
+    - TokenKey: quest.gas_mask
+      SourceChainKey: quest_6
+      Icon: {fileID: 0}
+      DisplayNameKey: QUEST_CURRENCY_GAS_MASK
+      DeliveryNpcNameKey: QUEST_NPC_NAME_2
+      DeliveryMonologue: []
+    FinaleNpcNameKey: QUEST_NPC_NAME_2
+    FinaleMonologue:
+    - TextKey: QUEST_STEP_4_LINE_1
+      Clip: {fileID: 8300000, guid: e3bdb4ba020a6e24095d20365183a364, type: 3}
+    - TextKey: QUEST_STEP_4_LINE_2
+      Clip: {fileID: 8300000, guid: 8f219668fc7c1814c88c14782cc676dc, type: 3}
+    ChainReward:
+    - rid: 8663340272555917466
+    - rid: 2001718223906537589
+  - ChainKey: quest_3
+    IsPrologue: 0
+    Role: 0
+    QuestGiverKey: qg_2
+    UnlocksAfterChainKey: quest_1
+    ChainNameKey: QUEST_CHAIN_NAME_3
+    ChainDescriptionKey: QUEST_CHAIN_DESC_3
+    ChainIcon: {fileID: 21300000, guid: 1b2a2cff474162046bcdfca39771086b, type: 2}
+    MobEvasionPercent: 80
+    MobHealthRegenMaxHealthPercent: 0
+    MobAttackMultiplier: 1
+    MobHealthMultiplier: 0.35
+    MobAttackCooldown: 1
+    MobLifestealMaxHealthPercent: 0
+    MobReflectionMaxHealthPercent: 0
+    Steps:
+    - StepKey: quest_c2_step_1
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_1
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114107629493147155, guid: 186b3ede63035174cb6be41b36d82735, type: 2}
+      LocationNumber: 4
+      OptimumTime: 4.5
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 2
+        ModifierType: 0
+        Source: 0
+        Value: 30
+        Param: 0
+        StringParam:
+    - StepKey: quest_c2_step_2
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_2
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114107629493147155, guid: 186b3ede63035174cb6be41b36d82735, type: 2}
+      LocationNumber: 4
+      OptimumTime: 5.2
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 8
+        ModifierType: 0
+        Source: 0
+        Value: 80
+        Param: 0
+        StringParam:
+    - StepKey: quest_c2_step_3
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_3
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114107629493147155, guid: 186b3ede63035174cb6be41b36d82735, type: 2}
+      LocationNumber: 4
+      OptimumTime: 6
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 1
+        ModifierType: 0
+        Source: 0
+        Value: 5000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c2_step_4
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_4
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114107629493147155, guid: 186b3ede63035174cb6be41b36d82735, type: 2}
+      LocationNumber: 5
+      OptimumTime: 7
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 6
+        ModifierType: 0
+        Source: 0
+        Value: 80
+        Param: 0
+        StringParam:
+    - StepKey: quest_c2_step_5
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_5
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114107629493147155, guid: 186b3ede63035174cb6be41b36d82735, type: 2}
+      LocationNumber: 5
+      OptimumTime: 8
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 16
+        ModifierType: 0
+        Source: 0
+        Value: 300
+        Param: 0
+        StringParam:
+    - StepKey: quest_c2_step_6
+      NpcNameKey: QUEST_NPC_NAME_2
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_6
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_BOSS
+      HasCutscene: 0
+      Prefab: {fileID: 114344419225485095, guid: ac98121b6af31d441ad0a0ecee32f8de, type: 2}
+      LocationNumber: 5
+      OptimumTime: 9
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 22
+        ModifierType: 0
+        Source: 0
+        Value: 100
+        Param: 0
+        StringParam:
+    HubTokenSlots: []
+    FinaleNpcNameKey:
+    FinaleMonologue: []
+    ChainReward:
+    - rid: 8663340215023698294
+    - rid: 2001718223906537585
+  - ChainKey: quest_4
+    IsPrologue: 0
+    Role: 0
+    QuestGiverKey: qg_3
+    UnlocksAfterChainKey: quest_3
+    ChainNameKey: QUEST_CHAIN_NAME_4
+    ChainDescriptionKey: QUEST_CHAIN_DESC_4
+    ChainIcon: {fileID: 21300000, guid: 9b8f5790425491041a7ac120d9d1f706, type: 2}
+    MobEvasionPercent: 0
+    MobHealthRegenMaxHealthPercent: 0
+    MobAttackMultiplier: 0.4
+    MobHealthMultiplier: 1.4
+    MobAttackCooldown: 1
+    MobLifestealMaxHealthPercent: 0
+    MobReflectionMaxHealthPercent: 65
+    Steps:
+    - StepKey: quest_c3_step_1
+      NpcNameKey: QUEST_NPC_NAME_3
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_1
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: aa9a34093181a80498e37430881b22f5, type: 2}
+      LocationNumber: 6
+      OptimumTime: 10
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 12
+        ModifierType: 0
+        Source: 0
+        Value: 120
+        Param: 0
+        StringParam:
+    - StepKey: quest_c3_step_2
+      NpcNameKey: QUEST_NPC_NAME_3
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_2
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: aa9a34093181a80498e37430881b22f5, type: 2}
+      LocationNumber: 6
+      OptimumTime: 12
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 2
+        ModifierType: 0
+        Source: 0
+        Value: 50
+        Param: 0
+        StringParam:
+    - StepKey: quest_c3_step_3
+      NpcNameKey: QUEST_NPC_NAME_3
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_3
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: aa9a34093181a80498e37430881b22f5, type: 2}
+      LocationNumber: 6
+      OptimumTime: 13
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 14
+        ModifierType: 0
+        Source: 0
+        Value: 500
+        Param: 0
+        StringParam:
+    - StepKey: quest_c3_step_4
+      NpcNameKey: QUEST_NPC_NAME_3
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_4
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: aa9a34093181a80498e37430881b22f5, type: 2}
+      LocationNumber: 7
+      OptimumTime: 14
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 1
+        ModifierType: 0
+        Source: 0
+        Value: 5000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c3_step_5
+      NpcNameKey: QUEST_NPC_NAME_3
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_5
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: aa9a34093181a80498e37430881b22f5, type: 2}
+      LocationNumber: 7
+      OptimumTime: 15
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 20
+        ModifierType: 0
+        Source: 0
+        Value: 500
+        Param: 0
+        StringParam:
+    - StepKey: quest_c3_step_6
+      NpcNameKey: QUEST_NPC_NAME_3
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_6
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114919942235722503, guid: aa9a34093181a80498e37430881b22f5, type: 2}
+      LocationNumber: 7
+      OptimumTime: 17
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 8
+        ModifierType: 0
+        Source: 0
+        Value: 300
+        Param: 0
+        StringParam:
+    - StepKey: quest_c3_step_7
+      NpcNameKey: QUEST_NPC_NAME_3
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_7
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_BOSS
+      HasCutscene: 0
+      Prefab: {fileID: 114632746491512912, guid: 1878ee2336e66d0458eacd429d7b4e26, type: 2}
+      LocationNumber: 7
+      OptimumTime: 19
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 20
+        ModifierType: 0
+        Source: 0
+        Value: 2000
+        Param: 0
+        StringParam:
+    HubTokenSlots: []
+    FinaleNpcNameKey:
+    FinaleMonologue: []
+    ChainReward:
+    - rid: 8663340215023698295
+    - rid: 2001718223906537586
+  - ChainKey: quest_5
+    IsPrologue: 0
+    Role: 0
+    QuestGiverKey: qg_4
+    UnlocksAfterChainKey: quest_4
+    ChainNameKey: QUEST_CHAIN_NAME_5
+    ChainDescriptionKey: QUEST_CHAIN_DESC_5
+    ChainIcon: {fileID: 21300000, guid: 4fe9311956b8e9a4985881e09ace71ee, type: 2}
+    MobEvasionPercent: 0
+    MobHealthRegenMaxHealthPercent: 0
+    MobAttackMultiplier: 1
+    MobHealthMultiplier: 1
+    MobAttackCooldown: 3
+    MobLifestealMaxHealthPercent: 0
+    MobReflectionMaxHealthPercent: 0
+    Steps:
+    - StepKey: quest_c4_step_1
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_1
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114967328832014496, guid: 91fded72737b8bc4f9cbf85ab4824875, type: 2}
+      LocationNumber: 8
+      OptimumTime: 20
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 16
+        ModifierType: 0
+        Source: 0
+        Value: 1000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c4_step_2
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_2
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114967328832014496, guid: 91fded72737b8bc4f9cbf85ab4824875, type: 2}
+      LocationNumber: 8
+      OptimumTime: 22
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 23
+        ModifierType: 6
+        Source: 0
+        Value: 0.01
+        Param: 0
+        StringParam:
+    - StepKey: quest_c4_step_3
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_3
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114967328832014496, guid: 91fded72737b8bc4f9cbf85ab4824875, type: 2}
+      LocationNumber: 8
+      OptimumTime: 24
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 6
+        ModifierType: 0
+        Source: 0
+        Value: 250
+        Param: 0
+        StringParam:
+    - StepKey: quest_c4_step_4
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_4
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114967328832014496, guid: 91fded72737b8bc4f9cbf85ab4824875, type: 2}
+      LocationNumber: 8
+      OptimumTime: 26
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 22
+        ModifierType: 0
+        Source: 0
+        Value: 300
+        Param: 0
+        StringParam:
+    - StepKey: quest_c4_step_5
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_5
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114967328832014496, guid: 91fded72737b8bc4f9cbf85ab4824875, type: 2}
+      LocationNumber: 9
+      OptimumTime: 28
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 24
+        ModifierType: 6
+        Source: 0
+        Value: 0.01
+        Param: 0
+        StringParam:
+    - StepKey: quest_c4_step_6
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_6
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114967328832014496, guid: 91fded72737b8bc4f9cbf85ab4824875, type: 2}
+      LocationNumber: 9
+      OptimumTime: 30
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 2
+        ModifierType: 0
+        Source: 0
+        Value: 400
+        Param: 0
+        StringParam:
+    - StepKey: quest_c4_step_7
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_7
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114967328832014496, guid: 91fded72737b8bc4f9cbf85ab4824875, type: 2}
+      LocationNumber: 9
+      OptimumTime: 32
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 14
+        ModifierType: 0
+        Source: 0
+        Value: 2000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c4_step_8
+      NpcNameKey: QUEST_NPC_NAME_4
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_8
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_BOSS
+      HasCutscene: 0
+      Prefab: {fileID: 114719342369648492, guid: b03cd57544ce43f489cfcff311843be9, type: 2}
+      LocationNumber: 9
+      OptimumTime: 34
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 12
+        ModifierType: 0
+        Source: 0
+        Value: 1000
+        Param: 0
+        StringParam:
+    HubTokenSlots: []
+    FinaleNpcNameKey:
+    FinaleMonologue: []
+    ChainReward:
+    - rid: 8663340215023698296
+    - rid: 2001718223906537587
+  - ChainKey: quest_6
+    IsPrologue: 0
+    Role: 0
+    QuestGiverKey: qg_5
+    UnlocksAfterChainKey: quest_5
+    ChainNameKey: QUEST_CHAIN_NAME_6
+    ChainDescriptionKey: QUEST_CHAIN_DESC_6
+    ChainIcon: {fileID: 21300000, guid: c698d91db89f29d478de290481b1a076, type: 2}
+    MobEvasionPercent: 50
+    MobHealthRegenMaxHealthPercent: 8
+    MobAttackMultiplier: 0.8
+    MobHealthMultiplier: 1.5
+    MobAttackCooldown: 1
+    MobLifestealMaxHealthPercent: 0
+    MobReflectionMaxHealthPercent: 0
+    Steps:
+    - StepKey: quest_c5_step_1
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_1
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 10
+      OptimumTime: 36
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 8
+        ModifierType: 0
+        Source: 0
+        Value: 1200
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_2
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_2
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 10
+      OptimumTime: 40
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 20
+        ModifierType: 0
+        Source: 0
+        Value: 3000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_3
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_3
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 10
+      OptimumTime: 44
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 1
+        ModifierType: 0
+        Source: 0
+        Value: 50000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_4
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_4
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 11
+      OptimumTime: 48
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 16
+        ModifierType: 0
+        Source: 0
+        Value: 3000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_5
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_5
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 11
+      OptimumTime: 52
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 22
+        ModifierType: 0
+        Source: 0
+        Value: 1800
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_6
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_6
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 11
+      OptimumTime: 56
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 6
+        ModifierType: 0
+        Source: 0
+        Value: 1500
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_7
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_7
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 12
+      OptimumTime: 60
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 25
+        ModifierType: 6
+        Source: 0
+        Value: 0.1
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_8
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_8
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 12
+      OptimumTime: 64
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 2
+        ModifierType: 0
+        Source: 0
+        Value: 1500
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_9
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_9
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_REGULAR
+      HasCutscene: 0
+      Prefab: {fileID: 114672306508523268, guid: 72a04ec7b1a96a248a715de4444df82b, type: 2}
+      LocationNumber: 12
+      OptimumTime: 68
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 14
+        ModifierType: 0
+        Source: 0
+        Value: 4000
+        Param: 0
+        StringParam:
+    - StepKey: quest_c5_step_10
+      NpcNameKey: QUEST_NPC_NAME_5
+      Monologue: []
+      PostCutsceneMonologue: []
+      StepNameKey: QUEST_STEP_NAME_10
+      StepShortDescKey: QUEST_STEP_SHORT_DESC_BOSS
+      HasCutscene: 0
+      Prefab: {fileID: 114808113985169905, guid: 5776b7c89a86cd340a2c4dff309389a9, type: 2}
+      LocationNumber: 12
+      OptimumTime: 72
+      IsDays: 1
+      StatRewards:
+      - Name:
+        StatType: 12
+        ModifierType: 0
+        Source: 0
+        Value: 5000
+        Param: 0
+        StringParam:
+    HubTokenSlots: []
+    FinaleNpcNameKey:
+    FinaleMonologue: []
+    ChainReward:
+    - rid: 8663340215023698297
+    - rid: 2001718223906537588
+  references:
+    version: 2
+    RefIds:
+    - rid: 2001718200998822006
+      type: {class: ItemSlotReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        SlotKey: weapon_3
+    - rid: 2001718223906537585
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 22
+        Value: 200
+        Name:
+        Source: 18
+        ModifierType: 0
+    - rid: 2001718223906537586
+      type: {class: ItemSlotReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        SlotKey: weapon_4
+    - rid: 2001718223906537587
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 100000
+        Name:
+        Source: 18
+        ModifierType: 0
+    - rid: 2001718223906537588
+      type: {class: SoulReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        SoulKey: great
+        Amount: 10
+    - rid: 2001718223906537589
+      type: {class: SoulReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        SoulKey: divine
+        Amount: 1
+    - rid: 8663340215023698186
+      type: {class: CurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: quest.dynamite
+        Amount: 1
+    - rid: 8663340215023698294
+      type: {class: CurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: quest.helmet
+        Amount: 1
+    - rid: 8663340215023698295
+      type: {class: CurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: quest.pickaxe
+        Amount: 1
+    - rid: 8663340215023698296
+      type: {class: CurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: quest.mine_cart
+        Amount: 1
+    - rid: 8663340215023698297
+      type: {class: CurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: quest.gas_mask
+        Amount: 1
+    - rid: 8663340272555917466
+      type: {class: MineUnlockReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data: {}

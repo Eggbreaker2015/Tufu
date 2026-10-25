@@ -1,0 +1,176 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: stab_rare_helmet
+  m_EditorClassIdentifier:
+  Key: demon_horns
+  Rarity: 2
+  SlotType: 1
+  DamageType: 0
+  DamageStatTypeFlat: 14
+  DamageStatTypePercent: 15
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 775bf54d1cac55a4ebdc94e4089340f9, type: 2}
+  DivineIcon: {fileID: 21300000, guid: 142d04b7c884af24db8656514e7d336e, type: 2}
+  Prefab: {fileID: 114025901758691103, guid: a930eecc0ade2274ba6106fcceaae10f, type: 2}
+  DivinePrefab: {fileID: 114025901758691103, guid: a930eecc0ade2274ba6106fcceaae10f, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: shield_pierce_rare_ability_1
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 5501376090532216956
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.01
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.011
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.012
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.013
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.014
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.016
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.018
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.02
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_pierce_rare_ability_2
+    Trigger: 12
+    Conditions:
+    - rid: 5501376090532216957
+    - rid: 5501376090532216958
+    Effects:
+    - rid: 5501376090532216959
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 6
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 7
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 10
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 12
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_pierce_rare_ability_3
+    Trigger: 16
+    Conditions: []
+    Effects:
+    - rid: 5501376090532216960
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.02
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.03
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.04
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.05
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5501376090532216956
+      type: {class: AddStatPassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 2
+        ModifierType: 4
+        Source: 3
+        ValueScaling: 1
+        NormalizeAboveThreshold: 0
+        ScalingStat: 0
+    - rid: 5501376090532216957
+      type: {class: HealthThresholdCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Subject: 0
+        Mode: 0
+        UseAbilityChance: 0
+        UseAbilityValue: 0
+        Threshold: 0.5
+    - rid: 5501376090532216958
+      type: {class: CooldownCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Cooldown: 120
+        ScaleByValue: 0
+    - rid: 5501376090532216959
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 2
+        ModifierType: 4
+        Source: 3
+        Duration: 8
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 5501376090532216960
+      type: {class: HealPercentEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        VfxSize: 0

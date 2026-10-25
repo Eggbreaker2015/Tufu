@@ -1,0 +1,379 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29c02a8050a8dd97f0959cafb5162531, type: 3}
+  m_Name: Sounds Config
+  m_EditorClassIdentifier:
+  entries:
+  - Key: player_hit
+    Clips:
+    - {fileID: 8300000, guid: e870bc9fece5a38499ba2d92ede04e73, type: 3}
+    - {fileID: 8300000, guid: 077223531895f4a4f9dd602b667e573f, type: 3}
+    - {fileID: 8300000, guid: 7e2309fb9a47a554a8b18b852f9e308b, type: 3}
+    - {fileID: 8300000, guid: 09a54e444efab9f4eb406ff3f8a773be, type: 3}
+    - {fileID: 8300000, guid: cf105a15d9dce7a46a747ec6f69f55bc, type: 3}
+    - {fileID: 8300000, guid: cea5117416bdb204e9d2bbd460f4cb94, type: 3}
+    Volume: 0.2
+  - Key: item_evolve
+    Clips:
+    - {fileID: 8300000, guid: aed94e01482c45346b98b2a91ff330bf, type: 3}
+    Volume: 1
+  - Key: tap
+    Clips:
+    - {fileID: 8300000, guid: 0b44be601e33d0748887197bb6a8ad7b, type: 3}
+    Volume: 1
+  - Key: devour
+    Clips:
+    - {fileID: 8300000, guid: 9bae641b8c28adf4b83c60a9ad507776, type: 3}
+    - {fileID: 8300000, guid: 1bd9afeb9c08418499135a1cb4f31f67, type: 3}
+    - {fileID: 8300000, guid: 69b6a16c81841d54c81746860d10ba71, type: 3}
+    Volume: 1
+  - Key: unlock
+    Clips:
+    - {fileID: 8300000, guid: ce9e57c5d20887a449abf1adad5fc299, type: 3}
+    Volume: 1
+  - Key: upgrade_weapon
+    Clips:
+    - {fileID: 8300000, guid: 9f37d8be2c85a964ea8075196fc9884e, type: 3}
+    - {fileID: 8300000, guid: 0fb13dc61c92b184eadf7aae79d1d575, type: 3}
+    - {fileID: 8300000, guid: 6bb18b21e2a829b4a9659be0c3bed79a, type: 3}
+    Volume: 1
+  - Key: chest_open
+    Clips:
+    - {fileID: 8300000, guid: d544f22e689c50a46b93606c1eed197d, type: 3}
+    Volume: 0.8
+  - Key: chest_buy
+    Clips:
+    - {fileID: 8300000, guid: 701fafc108256b949a78d92fcdcfa3a9, type: 3}
+    Volume: 1
+  - Key: rays_riser
+    Clips:
+    - {fileID: 8300000, guid: 774f13280571226449bafcaa1c4037dc, type: 3}
+    Volume: 1
+  - Key: item_first_evolve
+    Clips:
+    - {fileID: 8300000, guid: 108aa9f8672750842aef70b0defb8f30, type: 3}
+    Volume: 1
+  - Key: weapon_cut_impact
+    Clips:
+    - {fileID: 8300000, guid: c84eba50bebf9224ab49771141f8982c, type: 3}
+    - {fileID: 8300000, guid: f36e94807dbf30b48abfbe893d82cd59, type: 3}
+    - {fileID: 8300000, guid: 360b8c9d20698fa49b435aa090f78b68, type: 3}
+    Volume: 0.8
+  - Key: weapon_pierce_impact
+    Clips:
+    - {fileID: 8300000, guid: 9207e5d30528eee4781540921a3cf126, type: 3}
+    - {fileID: 8300000, guid: 7b21d1cb025ccac4b87c76aa65f97fbc, type: 3}
+    - {fileID: 8300000, guid: 72fcd25d63ae8844e82816f5cbf365bd, type: 3}
+    Volume: 0.7
+  - Key: weapon_smash_impact
+    Clips:
+    - {fileID: 8300000, guid: 5a834b54db89cf648b24f1737d3fd3f4, type: 3}
+    - {fileID: 8300000, guid: 2a6824ccacc3eec4698509fdd45476aa, type: 3}
+    - {fileID: 8300000, guid: 72b7f82840f0dae49bf5f5a8b3fc7344, type: 3}
+    Volume: 0.6
+  - Key: weapon_smash_impact_static
+    Clips:
+    - {fileID: 8300000, guid: 5a834b54db89cf648b24f1737d3fd3f4, type: 3}
+    - {fileID: 8300000, guid: 2a6824ccacc3eec4698509fdd45476aa, type: 3}
+    - {fileID: 8300000, guid: 72b7f82840f0dae49bf5f5a8b3fc7344, type: 3}
+    Volume: 1
+  - Key: weapon_impact_tree
+    Clips:
+    - {fileID: 8300000, guid: 6b85dd3b70d67404ba773eef5191e71a, type: 3}
+    - {fileID: 8300000, guid: eacc14ca88443aa4897abe1879416d0a, type: 3}
+    - {fileID: 8300000, guid: df3789a26b27ff541ae17c90acf6ae09, type: 3}
+    Volume: 0.22
+  - Key: chest_riser
+    Clips:
+    - {fileID: 8300000, guid: 7ea31e209eeae7048b0efb0a77113b43, type: 3}
+    Volume: 1
+  - Key: devour_event
+    Clips:
+    - {fileID: 8300000, guid: a1bfaf8823c511843a2ec7c4fe494e6e, type: 3}
+    - {fileID: 8300000, guid: 2842ee97885539a43b597a0868705bc3, type: 3}
+    - {fileID: 8300000, guid: 39a4b449b4d90ca439e7db6d44976804, type: 3}
+    Volume: 1
+  - Key: spawn_lightning
+    Clips:
+    - {fileID: 8300000, guid: 884838a0b2c57bd4684345ba97ec61c9, type: 3}
+    - {fileID: 8300000, guid: b2d2fb870a1d9914fb97695efadfcb33, type: 3}
+    - {fileID: 8300000, guid: 31fe22381986b7149afdc322b11c7ab1, type: 3}
+    - {fileID: 8300000, guid: ab57dff28426d5e4a9a1435d7db69ed7, type: 3}
+    Volume: 0.6
+  - Key: rage_level_up
+    Clips:
+    - {fileID: 8300000, guid: b4a330376e8834440a9d9c0664b63bd7, type: 3}
+    Volume: 0.33
+  - Key: lethal_ignore
+    Clips:
+    - {fileID: 8300000, guid: 5a57811118c9986419115b30117a71c9, type: 3}
+    Volume: 0.2
+  - Key: mark_apply
+    Clips:
+    - {fileID: 8300000, guid: f2baead29f558284fa707ea0214d1545, type: 3}
+    Volume: 0.33
+  - Key: heal_big
+    Clips:
+    - {fileID: 8300000, guid: 8abf92a81e6789145945050684c71645, type: 3}
+    Volume: 0.3
+  - Key: crystal_enchant
+    Clips:
+    - {fileID: 8300000, guid: f069256e64a40ef42a72a35add42e3c5, type: 3}
+    Volume: 0.55
+  - Key: crystal_equip
+    Clips:
+    - {fileID: 8300000, guid: dd266db9622ca01428b49a2dff78c699, type: 3}
+    Volume: 1
+  - Key: crystal_sell
+    Clips:
+    - {fileID: 8300000, guid: 31b8ab997944f3c4ea486a8fe2f888f2, type: 3}
+    Volume: 0.65
+  - Key: geode_hit
+    Clips:
+    - {fileID: 8300000, guid: 1472f0c195701184cb9ad11bef1a179b, type: 3}
+    Volume: 1
+  - Key: graph_open
+    Clips:
+    - {fileID: 8300000, guid: 5c840624d53dc2442b8423968e20e387, type: 3}
+    Volume: 0.63
+  - Key: upgrade_purchase
+    Clips:
+    - {fileID: 8300000, guid: 02f8aea3f7bee6f4bbb5991d82ee3854, type: 3}
+    - {fileID: 8300000, guid: 03a2ebbd49e5d5d418b6b0a0bc90d8fe, type: 3}
+    - {fileID: 8300000, guid: 091a2316f1c4d974b845962225f0facb, type: 3}
+    - {fileID: 8300000, guid: 9379aab65144be34f983ce90bae9e34c, type: 3}
+    Volume: 1
+  - Key: crystal_equip
+    Clips:
+    - {fileID: 8300000, guid: dd266db9622ca01428b49a2dff78c699, type: 3}
+    Volume: 0.65
+  - Key: transition_open
+    Clips:
+    - {fileID: 8300000, guid: d6dee3e6f239e7342a432de9c005d130, type: 3}
+    Volume: 0.8
+  - Key: transition_close
+    Clips:
+    - {fileID: 8300000, guid: 5491ae327a1d6f14d8b70e83ea5681a7, type: 3}
+    Volume: 0.8
+  - Key: boss_fight_start
+    Clips:
+    - {fileID: 8300000, guid: 9a6303680415af14590d323a490c87c1, type: 3}
+    Volume: 0.8
+  - Key: hit_bar_change
+    Clips:
+    - {fileID: 8300000, guid: 49ab4624a0a52b04591e84c079077654, type: 3}
+    - {fileID: 8300000, guid: bb56b6da85d127344a59370cde8aacc7, type: 3}
+    - {fileID: 8300000, guid: 7160f6b9b5af8774db46b9072d73fdb1, type: 3}
+    - {fileID: 8300000, guid: 6f073a4b7c268164985b90c7469560d1, type: 3}
+    - {fileID: 8300000, guid: 9e84623082b97d942a5ccad04d4f3de1, type: 3}
+    Volume: 0.885
+  - Key: boss_tower_raid
+    Clips:
+    - {fileID: 8300000, guid: 8a3ac0c7260216943b440b28e35db018, type: 3}
+    Volume: 0.8
+  - Key: boss_tower_win
+    Clips:
+    - {fileID: 8300000, guid: 3426175bfea21254ea81329c4c82653e, type: 3}
+    Volume: 0.47
+  - Key: boss_tower_lose
+    Clips:
+    - {fileID: 8300000, guid: ecae62c7e8cc88a45956d515bf0580a4, type: 3}
+    Volume: 0.65
+  - Key: chains_break
+    Clips:
+    - {fileID: 8300000, guid: 3bcdedbd81a2b99409aeb791b70d330c, type: 3}
+    Volume: 0.65
+  - Key: shop_souls_buy
+    Clips:
+    - {fileID: 8300000, guid: 0c26a24b4fe3af2419daa35ea879f43d, type: 3}
+    Volume: 0.5
+  - Key: node_open
+    Clips:
+    - {fileID: 8300000, guid: d6dee3e6f239e7342a432de9c005d130, type: 3}
+    Volume: 0.8
+  - Key: node_close
+    Clips:
+    - {fileID: 8300000, guid: 5491ae327a1d6f14d8b70e83ea5681a7, type: 3}
+    Volume: 0.8
+  - Key: graph_close
+    Clips:
+    - {fileID: 8300000, guid: e81fa9013f6f32b45bb90f993dbe72af, type: 3}
+    Volume: 0.8
+  - Key: graph_regular_buy
+    Clips:
+    - {fileID: 8300000, guid: a3c49389b71ccc643b6da683e023e094, type: 3}
+    Volume: 0.8
+  - Key: graph_regular_final_buy
+    Clips:
+    - {fileID: 8300000, guid: b8f93c8710aaf8447846e79308fe2fee, type: 3}
+    Volume: 0.65
+  - Key: graph_unregular_buy
+    Clips:
+    - {fileID: 8300000, guid: 330a8464289461747b2aa518d5c8d9d8, type: 3}
+    Volume: 0.7
+  - Key: mass_sell_start
+    Clips:
+    - {fileID: 8300000, guid: 31b8ab997944f3c4ea486a8fe2f888f2, type: 3}
+    Volume: 0.6
+  - Key: mass_sell
+    Clips:
+    - {fileID: 8300000, guid: 49ab4624a0a52b04591e84c079077654, type: 3}
+    - {fileID: 8300000, guid: bb56b6da85d127344a59370cde8aacc7, type: 3}
+    - {fileID: 8300000, guid: 7160f6b9b5af8774db46b9072d73fdb1, type: 3}
+    - {fileID: 8300000, guid: 6f073a4b7c268164985b90c7469560d1, type: 3}
+    - {fileID: 8300000, guid: 9e84623082b97d942a5ccad04d4f3de1, type: 3}
+    Volume: 0.6
+  - Key: enchant_charging
+    Clips:
+    - {fileID: 8300000, guid: 8f3aea9f1b2887a4dbdac58c35f9e32a, type: 3}
+    Volume: 0.8
+  - Key: enchant_failed
+    Clips:
+    - {fileID: 8300000, guid: 68d75280fc827974693b6d05f32b5c2e, type: 3}
+    Volume: 0.5
+  - Key: crystal_upgrade
+    Clips:
+    - {fileID: 8300000, guid: dbfe3ccd9974dc6438f33563a76a9989, type: 3}
+    Volume: 1
+  - Key: shop_gems_small
+    Clips:
+    - {fileID: 8300000, guid: 40a61da56715b5949a8743ceedc605a1, type: 3}
+    Volume: 0.6
+  - Key: shop_gems_big
+    Clips:
+    - {fileID: 8300000, guid: f287c43aba2c015439a9b649734e7a85, type: 3}
+    Volume: 0.5
+  - Key: pin
+    Clips:
+    - {fileID: 8300000, guid: 8b8ad7739048e8648a236c5461a2cf1b, type: 3}
+    Volume: 1
+  - Key: unpin
+    Clips:
+    - {fileID: 8300000, guid: 6b26b6ad37230f445a86d528df156418, type: 3}
+    Volume: 0.8
+  - Key: light_tap
+    Clips:
+    - {fileID: 8300000, guid: 0b44be601e33d0748887197bb6a8ad7b, type: 3}
+    Volume: 0.8
+  - Key: berserk_death
+    Clips:
+    - {fileID: 8300000, guid: 3a012d11608960e47a7f795f8c97b29a, type: 3}
+    Volume: 0.8
+  - Key: crab_death
+    Clips:
+    - {fileID: 8300000, guid: f6f5f5c20c5384a4f8993ef7c51daf30, type: 3}
+    Volume: 1.4
+  - Key: slime_death
+    Clips:
+    - {fileID: 8300000, guid: 8200b52b78c7fa148ae03e884e928151, type: 3}
+    - {fileID: 8300000, guid: ec99823ea959a6249bdf40ea249ec204, type: 3}
+    Volume: 0.6
+  - Key: slime_spawn
+    Clips:
+    - {fileID: 8300000, guid: 24fd795da4138d7439081247ff0e3068, type: 3}
+    Volume: 0.1
+  - Key: lich_death
+    Clips:
+    - {fileID: 8300000, guid: cd1cbc15ffa81ce48993ad8f3fed49ce, type: 3}
+    Volume: 0.8
+  - Key: vampire_death
+    Clips:
+    - {fileID: 8300000, guid: e8d56d70fe099cd4bbcafab026bdd1e3, type: 3}
+    Volume: 0.8
+  - Key: vampire_summon_spawn
+    Clips:
+    - {fileID: 8300000, guid: ec2eced3bd9d1a34a942cf90348dfc6f, type: 3}
+    Volume: 0.8
+  - Key: vampire_summon_death
+    Clips:
+    - {fileID: 8300000, guid: 88446b802e6cefa4e87c013b89193780, type: 3}
+    Volume: 0.8
+  - Key: vikings_death
+    Clips:
+    - {fileID: 8300000, guid: 9e5446a74eeafde4da09f5dcfe13afa5, type: 3}
+    Volume: 0.65
+  - Key: vikings_revival
+    Clips:
+    - {fileID: 8300000, guid: 3b5771c744d48d14197bb59849a98aa2, type: 3}
+    Volume: 0.6
+  - Key: slime_fall
+    Clips:
+    - {fileID: 8300000, guid: 24fd795da4138d7439081247ff0e3068, type: 3}
+    Volume: 0.5
+  - Key: mail_claim
+    Clips:
+    - {fileID: 8300000, guid: da08d4629f4cffe418d28dd2e5818713, type: 3}
+    Volume: 1
+  - Key: pass_claim
+    Clips:
+    - {fileID: 8300000, guid: 4a2cf8fbe41085040882a88a7ccbe8cf, type: 3}
+    Volume: 1
+  - Key: quest_crystal_shatter
+    Clips:
+    - {fileID: 8300000, guid: c96e09715aee4cd419c4408be4a4d8c2, type: 3}
+    Volume: 1
+  - Key: crystal_respawn_charge
+    Clips:
+    - {fileID: 8300000, guid: d51a0bab571334e42b9a12ced42ae2bf, type: 3}
+    Volume: 1
+  - Key: features_pop_up
+    Clips:
+    - {fileID: 8300000, guid: 94be98ce7ac9bca4d90fbe5e06ee2077, type: 3}
+    Volume: 1
+  - Key: map_chest_open
+    Clips:
+    - {fileID: 8300000, guid: ac9e0294dac0a2d41aef3029d94c00de, type: 3}
+    Volume: 1
+  - Key: vip_chest_open
+    Clips:
+    - {fileID: 8300000, guid: 039ee4ec481470446aca6b74bc77e45b, type: 3}
+    Volume: 1
+  - Key: vip_or_graph_level_up
+    Clips:
+    - {fileID: 8300000, guid: 5ca9dd158f930e84aa6247e09ae39bbb, type: 3}
+    Volume: 0.4
+  - Key: enchant_extra_health_activate
+    Clips:
+    - {fileID: 8300000, guid: da8287a059edb29478b0302dfdbd6658, type: 3}
+    Volume: 1
+  - Key: app_launch
+    Clips:
+    - {fileID: 8300000, guid: b4c9ed34801bef043af41b4d5450fe92, type: 3}
+    Volume: 1
+  - Key: amulet_unlock
+    Clips:
+    - {fileID: 8300000, guid: 4537fa5f596b8fc42a9dce36953c16d0, type: 3}
+    Volume: 1
+  - Key: amulet_unlock_popup
+    Clips:
+    - {fileID: 8300000, guid: 585824dfd36872544bc92b1ef4a056c9, type: 3}
+    Volume: 0.8
+  - Key: enchant_success_step_1
+    Clips:
+    - {fileID: 8300000, guid: fef2b8e830a1ea347be49e8ebcdfb582, type: 3}
+    Volume: 1
+  - Key: enchant_success_step_2
+    Clips:
+    - {fileID: 8300000, guid: b95c667bea401d24c9998c01930b23a0, type: 3}
+    Volume: 1
+  - Key: enchant_success_step_3
+    Clips:
+    - {fileID: 8300000, guid: 09b9797e22c68e54cbb50a15472379cf, type: 3}
+    Volume: 1
+  - Key: enchant_success_step_4
+    Clips:
+    - {fileID: 8300000, guid: ae819ef9ce6da91408d8581a236f2500, type: 3}
+    Volume: 1
+  - Key: hook
+    Clips:
+    - {fileID: 8300000, guid: e936ce9e4ff60024cb2167d1711a0d2d, type: 3}
+    Volume: 1

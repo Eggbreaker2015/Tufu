@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab5086746f8d4ab3f9598d131ba579f, type: 3}
+  m_Name: Crystal Roster Event Config
+  m_EditorClassIdentifier:
+  Key: crystal_event_roster
+  Currencies:
+  - red_crystal
+  - blue_crystal
+  RequiredLocationNumber: 4
+  StartIntervals:
+  - StartHour: 0
+    StartMinute: 0
+    EndHour: 20
+    EndMinute: 0
+  IntervalDays: 0
+  PossibleWeapons: 010000000000000003000000
+  PossibleResists: 010000000000000003000000
+  WeaponResistMode: 1
+  CrystalRoster: {fileID: 11400000, guid: 529e9a630057c1644a174f5eaef90e1d, type: 2}
+  DifficultySettings: []
+  Boosters:
+  - Key: crystal_golems
+    Type: 0
+    FirstIcon: {fileID: 21300000, guid: 5ec5332670be44340afd32c25e67fc41, type: 2}
+    SecondIcon: {fileID: 21300000, guid: 8f9c9da2646682240bc1be9750f363a9, type: 2}
+    BaseGemCost: 50
+    GemCostIncrement: 25
+    SpawnCount: 15
+    ProductKey: 0
+    TokenSprite: {fileID: 0}
+    Rewards: []
+    MaxPurchases: 5
+    IsUnlimited: 1
+  - Key: crystal_boost_1
+    Type: 1
+    FirstIcon: {fileID: 21300000, guid: 1a9846edb8f4ab44782d399ce218769b, type: 2}
+    SecondIcon: {fileID: 21300000, guid: eab40904510d42c4192252fcd5be2e80, type: 2}
+    BaseGemCost: 0
+    GemCostIncrement: 0
+    SpawnCount: 0
+    ProductKey: 10
+    TokenSprite: {fileID: 21300000, guid: 0076ff3c27a96614c810447d7ef05571, type: 2}
+    Rewards:
+    - rid: 5032589075903939126
+    - rid: 5032589075903939127
+    - rid: 5032589075903939128
+    MaxPurchases: 1
+    IsUnlimited: 0
+  - Key: crystal_boost_2
+    Type: 1
+    FirstIcon: {fileID: 21300000, guid: 1a9846edb8f4ab44782d399ce218769b, type: 2}
+    SecondIcon: {fileID: 21300000, guid: eab40904510d42c4192252fcd5be2e80, type: 2}
+    BaseGemCost: 0
+    GemCostIncrement: 0
+    SpawnCount: 0
+    ProductKey: 11
+    TokenSprite: {fileID: 21300000, guid: 603a2fd89d57ab642a25ae0ef8dd5b68, type: 2}
+    Rewards:
+    - rid: 5032589075903939129
+    - rid: 5032589075903939130
+    - rid: 5032589075903939131
+    MaxPurchases: 1
+    IsUnlimited: 0
+  EventStartViewKey: Assets/Prefabs/UI/Event/Roster/RosterEventStart.prefab
+  EventProgressViewKey: Assets/Prefabs/UI/Event/Roster/RosterEventProgress.prefab
+  EventEndViewKey: Assets/Prefabs/UI/Event/Roster/RosterEventEnds.prefab
+  EventTutorialViewKey: Assets/Prefabs/UI/Event/Roster/RosterEventTutorial.prefab
+  EventTimeIsOverViewKey: Assets/Prefabs/UI/Event/Roster/RosterEventTimeIsOver.prefab
+  references:
+    version: 2
+    RefIds:
+    - rid: 5032589075903939126
+      type: {class: EventCurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: red_crystal
+        Amount: 40
+    - rid: 5032589075903939127
+      type: {class: EventCurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: blue_crystal
+        Amount: 40
+    - rid: 5032589075903939128
+      type: {class: EventReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        ExtraDurationMinutes: 30
+    - rid: 5032589075903939129
+      type: {class: EventCurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: red_crystal
+        Amount: 100
+    - rid: 5032589075903939130
+      type: {class: EventCurrencyReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Key: blue_crystal
+        Amount: 100
+    - rid: 5032589075903939131
+      type: {class: EventReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        ExtraDurationMinutes: 60

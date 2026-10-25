@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: div smash legendary
+  m_EditorClassIdentifier:
+  Key: coolHammer_div
+  Rarity: 5
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 0
+  AttackCooldown: 3
+  SimulationDpsWeaponMultiplier: 1.6
+  Number: 5
+  AnimationCastPoint: 0.726
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: 0fec96448b6b6704f979381d28542577, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114099118695303065, guid: f3092cc9432c1e646ae956d137336126, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: buck_legendary_ability_div
+    Trigger: 2
+    Conditions:
+    - rid: 5034610377483092200
+    Effects:
+    - rid: 5034610377483092201
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 4
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092200
+      type: {class: TargetCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Mode: 2
+    - rid: 5034610377483092201
+      type: {class: EmpowerHitEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 0

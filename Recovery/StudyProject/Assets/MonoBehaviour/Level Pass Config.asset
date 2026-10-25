@@ -1,0 +1,2763 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221d460d256afc8133f76761b8d29dac, type: 3}
+  m_Name: Level Pass Config
+  m_EditorClassIdentifier:
+  Passes:
+  - Key: island_pass_1
+    ProductKey: 30
+    Tiers:
+    - Islands: 01000000
+      Trigger: 0
+      RequiredCount: 20
+      FreeReward:
+        rid: 4404483479237296232
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296233
+    - Islands: 01000000
+      Trigger: 0
+      RequiredCount: 50
+      FreeReward:
+        rid: 4404483479237296234
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296235
+    - Islands: 01000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296236
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296237
+    - Islands: 02000000
+      Trigger: 0
+      RequiredCount: 30
+      FreeReward:
+        rid: 4404483479237296238
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296239
+    - Islands: 02000000
+      Trigger: 0
+      RequiredCount: 75
+      FreeReward:
+        rid: 4404483479237296240
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296241
+    - Islands: 02000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296242
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296243
+    - Islands: 03000000
+      Trigger: 0
+      RequiredCount: 40
+      FreeReward:
+        rid: 4404483479237296244
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296245
+    - Islands: 03000000
+      Trigger: 0
+      RequiredCount: 100
+      FreeReward:
+        rid: 4404483479237296246
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296247
+    - Islands: 03000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296248
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296249
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 750
+      FreeReward:
+        rid: 4404483479237296250
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296251
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 1250
+      FreeReward:
+        rid: 4404483479237296252
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296253
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 2000
+      FreeReward:
+        rid: 4404483479237296254
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296255
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 2500
+      FreeReward:
+        rid: 4404483479237296256
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296257
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 3000
+      FreeReward:
+        rid: 4404483479237296258
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296259
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 3500
+      FreeReward:
+        rid: 4404483479237296260
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296261
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 4000
+      FreeReward:
+        rid: 4404483479237296262
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296263
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 4500
+      FreeReward:
+        rid: 4404483479237296264
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296265
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 5000
+      FreeReward:
+        rid: 4404483479237296266
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296267
+    - Islands: 010000000200000003000000
+      Trigger: 0
+      RequiredCount: 5500
+      FreeReward:
+        rid: 4404483479237296268
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296269
+  - Key: island_pass_2
+    ProductKey: 31
+    Tiers:
+    - Islands: 04000000
+      Trigger: 0
+      RequiredCount: 50
+      FreeReward:
+        rid: 4404483479237296270
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296271
+    - Islands: 04000000
+      Trigger: 0
+      RequiredCount: 125
+      FreeReward:
+        rid: 4404483479237296272
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296273
+    - Islands: 04000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296274
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296275
+    - Islands: 05000000
+      Trigger: 0
+      RequiredCount: 60
+      FreeReward:
+        rid: 4404483479237296276
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296277
+    - Islands: 05000000
+      Trigger: 0
+      RequiredCount: 150
+      FreeReward:
+        rid: 4404483479237296278
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296279
+    - Islands: 05000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296280
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296281
+    - Islands: 06000000
+      Trigger: 0
+      RequiredCount: 70
+      FreeReward:
+        rid: 4404483479237296282
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296283
+    - Islands: 06000000
+      Trigger: 0
+      RequiredCount: 175
+      FreeReward:
+        rid: 4404483479237296284
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296285
+    - Islands: 06000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296286
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296287
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 1500
+      FreeReward:
+        rid: 4404483479237296288
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296289
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 2300
+      FreeReward:
+        rid: 4404483479237296290
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296291
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 3100
+      FreeReward:
+        rid: 4404483479237296292
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296293
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 3900
+      FreeReward:
+        rid: 4404483479237296294
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296295
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 4700
+      FreeReward:
+        rid: 4404483479237296296
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296297
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 5500
+      FreeReward:
+        rid: 4404483479237296298
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296299
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 6300
+      FreeReward:
+        rid: 4404483479237296300
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296301
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 7100
+      FreeReward:
+        rid: 4404483479237296302
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296303
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 7900
+      FreeReward:
+        rid: 4404483479237296304
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296305
+    - Islands: 040000000500000006000000
+      Trigger: 0
+      RequiredCount: 8700
+      FreeReward:
+        rid: 4404483479237296306
+      PaidRewardMultiplier: 8
+      PaidReward:
+        rid: 4404483479237296307
+  - Key: island_pass_3
+    ProductKey: 32
+    Tiers:
+    - Islands: 07000000
+      Trigger: 0
+      RequiredCount: 80
+      FreeReward:
+        rid: 4404483479237296308
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296309
+    - Islands: 07000000
+      Trigger: 0
+      RequiredCount: 200
+      FreeReward:
+        rid: 4404483479237296310
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296311
+    - Islands: 07000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296312
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296313
+    - Islands: 08000000
+      Trigger: 0
+      RequiredCount: 100
+      FreeReward:
+        rid: 4404483479237296314
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296315
+    - Islands: 08000000
+      Trigger: 0
+      RequiredCount: 250
+      FreeReward:
+        rid: 4404483479237296316
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296317
+    - Islands: 08000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296318
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296319
+    - Islands: 09000000
+      Trigger: 0
+      RequiredCount: 120
+      FreeReward:
+        rid: 4404483479237296320
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296321
+    - Islands: 09000000
+      Trigger: 0
+      RequiredCount: 300
+      FreeReward:
+        rid: 4404483479237296322
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296323
+    - Islands: 09000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296324
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296325
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 3000
+      FreeReward:
+        rid: 4404483479237296326
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296327
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 4000
+      FreeReward:
+        rid: 4404483479237296328
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296329
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 5000
+      FreeReward:
+        rid: 4404483479237296330
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296331
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 6000
+      FreeReward:
+        rid: 4404483479237296332
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296333
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 7000
+      FreeReward:
+        rid: 4404483479237296334
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296335
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 8000
+      FreeReward:
+        rid: 4404483479237296336
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296337
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 9000
+      FreeReward:
+        rid: 4404483479237296338
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296339
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 10000
+      FreeReward:
+        rid: 4404483479237296340
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296341
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 11000
+      FreeReward:
+        rid: 4404483479237296342
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296343
+    - Islands: 070000000800000009000000
+      Trigger: 0
+      RequiredCount: 12000
+      FreeReward:
+        rid: 4404483479237296344
+      PaidRewardMultiplier: 10
+      PaidReward:
+        rid: 4404483479237296345
+  - Key: island_pass_4
+    ProductKey: 33
+    Tiers:
+    - Islands: 0a000000
+      Trigger: 0
+      RequiredCount: 120
+      FreeReward:
+        rid: 4404483479237296346
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296347
+    - Islands: 0a000000
+      Trigger: 0
+      RequiredCount: 300
+      FreeReward:
+        rid: 4404483479237296348
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296349
+    - Islands: 0a000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296350
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296351
+    - Islands: 0b000000
+      Trigger: 0
+      RequiredCount: 140
+      FreeReward:
+        rid: 4404483479237296352
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296353
+    - Islands: 0b000000
+      Trigger: 0
+      RequiredCount: 350
+      FreeReward:
+        rid: 4404483479237296354
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296355
+    - Islands: 0b000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296356
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296357
+    - Islands: 0c000000
+      Trigger: 0
+      RequiredCount: 160
+      FreeReward:
+        rid: 4404483479237296358
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296359
+    - Islands: 0c000000
+      Trigger: 0
+      RequiredCount: 400
+      FreeReward:
+        rid: 4404483479237296360
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296361
+    - Islands: 0c000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296362
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296363
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 4000
+      FreeReward:
+        rid: 4404483479237296364
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296365
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 5500
+      FreeReward:
+        rid: 4404483479237296366
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296367
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 7000
+      FreeReward:
+        rid: 4404483479237296368
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296369
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 8500
+      FreeReward:
+        rid: 4404483479237296370
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296371
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 10000
+      FreeReward:
+        rid: 4404483479237296372
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296373
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 11500
+      FreeReward:
+        rid: 4404483479237296374
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296375
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 13000
+      FreeReward:
+        rid: 4404483479237296376
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296377
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 14500
+      FreeReward:
+        rid: 4404483479237296378
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296379
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 16000
+      FreeReward:
+        rid: 4404483479237296380
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296381
+    - Islands: 0a0000000b0000000c000000
+      Trigger: 0
+      RequiredCount: 17500
+      FreeReward:
+        rid: 4404483479237296382
+      PaidRewardMultiplier: 12
+      PaidReward:
+        rid: 4404483479237296383
+  - Key: island_pass_5
+    ProductKey: 34
+    Tiers:
+    - Islands: 0d000000
+      Trigger: 0
+      RequiredCount: 160
+      FreeReward:
+        rid: 4404483479237296384
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296385
+    - Islands: 0d000000
+      Trigger: 0
+      RequiredCount: 400
+      FreeReward:
+        rid: 4404483479237296386
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296387
+    - Islands: 0d000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296388
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296389
+    - Islands: 0e000000
+      Trigger: 0
+      RequiredCount: 160
+      FreeReward:
+        rid: 4404483479237296390
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296391
+    - Islands: 0e000000
+      Trigger: 0
+      RequiredCount: 400
+      FreeReward:
+        rid: 4404483479237296392
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296393
+    - Islands: 0e000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296394
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296395
+    - Islands: 0f000000
+      Trigger: 0
+      RequiredCount: 160
+      FreeReward:
+        rid: 4404483479237296396
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296397
+    - Islands: 0f000000
+      Trigger: 0
+      RequiredCount: 400
+      FreeReward:
+        rid: 4404483479237296398
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296399
+    - Islands: 0f000000
+      Trigger: 1
+      RequiredCount: 1
+      FreeReward:
+        rid: 4404483479237296400
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296401
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 7000
+      FreeReward:
+        rid: 4404483479237296402
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296403
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 9000
+      FreeReward:
+        rid: 4404483479237296404
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296405
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 11000
+      FreeReward:
+        rid: 4404483479237296406
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296407
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 13000
+      FreeReward:
+        rid: 4404483479237296408
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296409
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 15000
+      FreeReward:
+        rid: 4404483479237296410
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296411
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 17000
+      FreeReward:
+        rid: 4404483479237296412
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296413
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 19000
+      FreeReward:
+        rid: 4404483479237296414
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296415
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 21000
+      FreeReward:
+        rid: 4404483479237296416
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296417
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 23000
+      FreeReward:
+        rid: 4404483479237296418
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296419
+    - Islands: 0d0000000e0000000f000000
+      Trigger: 0
+      RequiredCount: 25000
+      FreeReward:
+        rid: 4404483479237296420
+      PaidRewardMultiplier: 15
+      PaidReward:
+        rid: 4404483479237296421
+  references:
+    version: 2
+    RefIds:
+    - rid: 4404483479237296232
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 10
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296233
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 20
+    - rid: 4404483479237296234
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 3
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296235
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 20
+    - rid: 4404483479237296236
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 3
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296237
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296238
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 60
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296239
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 25
+    - rid: 4404483479237296240
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 2
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296241
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 25
+    - rid: 4404483479237296242
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 3
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296243
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296244
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 70
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296245
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296246
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 6
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296247
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296248
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 100
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296249
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296250
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 4
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296251
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296252
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 5
+    - rid: 4404483479237296253
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 0.02
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296254
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 220
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296255
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296256
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 5
+    - rid: 4404483479237296257
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 0.02
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296258
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 10
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296259
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296260
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 5
+    - rid: 4404483479237296261
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 0.02
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296262
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 7
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296263
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296264
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 5
+    - rid: 4404483479237296265
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 0.02
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296266
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 20
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296267
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296268
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296269
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 0.02
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296270
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 2
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296271
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296272
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 20
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296273
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 30
+    - rid: 4404483479237296274
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 100
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296275
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296276
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 10
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296277
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 40
+    - rid: 4404483479237296278
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 30
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296279
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 40
+    - rid: 4404483479237296280
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 140
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296281
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296282
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 20
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296283
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296284
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 40
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296285
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296286
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 190
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296287
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296288
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 7
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296289
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296290
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296291
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296292
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 430
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296293
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296294
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296295
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296296
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 50
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296297
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296298
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296299
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296300
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 50
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296301
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296302
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296303
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296304
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 70
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296305
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296306
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 20
+    - rid: 4404483479237296307
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 20
+        Value: 0.03
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296308
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 20
+        Value: 70
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296309
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296310
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 30
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296311
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 50
+    - rid: 4404483479237296312
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 220
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296313
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296314
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 30
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296315
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 60
+    - rid: 4404483479237296316
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 90
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296317
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 60
+    - rid: 4404483479237296318
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 440
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296319
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296320
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 50
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296321
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 70
+    - rid: 4404483479237296322
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 180
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296323
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 70
+    - rid: 4404483479237296324
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 390
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296325
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 0.04
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296326
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 20
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296327
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 80
+    - rid: 4404483479237296328
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296329
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 0.04
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296330
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 1040
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296331
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 80
+    - rid: 4404483479237296332
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296333
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 0.04
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296334
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 90
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296335
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 80
+    - rid: 4404483479237296336
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296337
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 0.04
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296338
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 150
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296339
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 80
+    - rid: 4404483479237296340
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296341
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 0.04
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296342
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 290
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296343
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 80
+    - rid: 4404483479237296344
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 20
+    - rid: 4404483479237296345
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 20
+        Value: 0.04
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296346
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 20
+        Value: 360
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296347
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 80
+    - rid: 4404483479237296348
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 30
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296349
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 80
+    - rid: 4404483479237296350
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 990
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296351
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 0.07
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296352
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 110
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296353
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 90
+    - rid: 4404483479237296354
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 370
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296355
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 90
+    - rid: 4404483479237296356
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 1620
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296357
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 0.07
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296358
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 130
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296359
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296360
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 590
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296361
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296362
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 1460
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296363
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296364
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 30
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296365
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296366
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296367
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296368
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 4070
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296369
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296370
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296371
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296372
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 80
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296373
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296374
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296375
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296376
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 590
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296377
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296378
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296379
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296380
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 940
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296381
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296382
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 20
+    - rid: 4404483479237296383
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 20
+        Value: 0.05
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296384
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 20
+        Value: 950
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296385
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296386
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 130
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296387
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 100
+    - rid: 4404483479237296388
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 2940
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296389
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 0.08
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296390
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 450
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296391
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 120
+    - rid: 4404483479237296392
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 3750
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296393
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 120
+    - rid: 4404483479237296394
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 12900
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296395
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 0.08
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296396
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 190
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296397
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 150
+    - rid: 4404483479237296398
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 1790
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296399
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 150
+    - rid: 4404483479237296400
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 4980
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296401
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296402
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 2
+        Value: 90
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296403
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 150
+    - rid: 4404483479237296404
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296405
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 6
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296406
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 1
+        Value: 20820
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296407
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 150
+    - rid: 4404483479237296408
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296409
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 12
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296410
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 8
+        Value: 330
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296411
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 150
+    - rid: 4404483479237296412
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296413
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296414
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 16
+        Value: 6000
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296415
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 150
+    - rid: 4404483479237296416
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 10
+    - rid: 4404483479237296417
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4
+    - rid: 4404483479237296418
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 14
+        Value: 2860
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4404483479237296419
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 150
+    - rid: 4404483479237296420
+      type: {class: GemsReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        Gems: 20
+    - rid: 4404483479237296421
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey:
+        Type: 20
+        Value: 0.06
+        Name: level_pass
+        Source: 7
+        ModifierType: 4

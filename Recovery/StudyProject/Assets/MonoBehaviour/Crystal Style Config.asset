@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bff091a6f6e8a306bfe8a9833dda4fc5, type: 3}
+  m_Name: Crystal Style Config
+  m_EditorClassIdentifier:
+  Variants:
+  - Color: 0
+    SpritesByLevel:
+    - {fileID: 21300000, guid: 4de62b89e4d8f7c459e803ece076bab3, type: 2}
+    - {fileID: 21300000, guid: 137f7ae51e802a74596ba7bcbd2db5b1, type: 2}
+    - {fileID: 21300000, guid: 5de4eeba3b59e1b43b0ee055ed93921f, type: 2}
+    - {fileID: 21300000, guid: 93a297e734c5f2848b9df132ae5f61ed, type: 2}
+    - {fileID: 21300000, guid: 9052eb65eb403e043a92536300e9a5f7, type: 2}
+  - Color: 1
+    SpritesByLevel:
+    - {fileID: 21300000, guid: 591516134e9e7b541abebebb105d0bce, type: 2}
+    - {fileID: 21300000, guid: 6e7e6db64f9192542b70ade3e9c74da1, type: 2}
+    - {fileID: 21300000, guid: 93183d1a50361a34386e9a5e8162139b, type: 2}
+    - {fileID: 21300000, guid: 1507c133f5e7ff24780e9c8c15d47d0a, type: 2}
+    - {fileID: 21300000, guid: b44debf0ca505c34c9bc789098ca97f2, type: 2}
+  - Color: 2
+    SpritesByLevel:
+    - {fileID: 21300000, guid: db777595606fd9d4088e1ae7b3ca3077, type: 2}
+    - {fileID: 21300000, guid: 9b8bb4411d6ce164a85f446573689a59, type: 2}
+    - {fileID: 21300000, guid: 9f71bb8e0bf165346bb8eebc56cfa704, type: 2}
+    - {fileID: 21300000, guid: 52291d5818581c94785b68c1a04a908c, type: 2}
+    - {fileID: 21300000, guid: c655d12c0a8123f45b487efa281cdffd, type: 2}
+  EnchantmentIcons:
+  - Level: 0
+    Sprite: {fileID: 0}
+  - Level: 1
+    Sprite: {fileID: 21300000, guid: bb2ba9460e00f314b98a45235d9b6363, type: 2}
+  - Level: 2
+    Sprite: {fileID: 21300000, guid: 6b2f30082fd619848b2f2e377af443c6, type: 2}
+  - Level: 3
+    Sprite: {fileID: 21300000, guid: d5304dc938175a8489a541dbb36540ed, type: 2}
+  - Level: 4
+    Sprite: {fileID: 21300000, guid: c7c0abba127f78d429cfbbca0226a8bb, type: 2}
+  - Level: 5
+    Sprite: {fileID: 21300000, guid: a4e9e60f604f67740acd6f08e4002af6, type: 2}
+  RarityBackgrounds:
+  - Rarity: 0
+    Sprite: {fileID: 21300000, guid: e8402b10665ddd742829468d31eb4e81, type: 2}
+    Color: {r: 0.7688679, g: 0.9345126, b: 1, a: 1}
+  - Rarity: 1
+    Sprite: {fileID: 21300000, guid: 4047f4efbc5c1114b8bfd732924301d6, type: 2}
+    Color: {r: 0.59607846, g: 1, b: 0.24705882, a: 1}
+  - Rarity: 2
+    Sprite: {fileID: 21300000, guid: d286a8951f486c8469a09a8471dbf348, type: 2}
+    Color: {r: 0.24705882, g: 0.9764706, b: 1, a: 1}
+  - Rarity: 3
+    Sprite: {fileID: 21300000, guid: 6e2eef00f36a2ac46b10d32b1ee16bc8, type: 2}
+    Color: {r: 0.8980392, g: 0.34117648, b: 0.9843137, a: 1}
+  - Rarity: 4
+    Sprite: {fileID: 21300000, guid: fa49608895cfd314b8b43a3652875b63, type: 2}
+    Color: {r: 1, g: 0.8745098, b: 0.16862746, a: 1}

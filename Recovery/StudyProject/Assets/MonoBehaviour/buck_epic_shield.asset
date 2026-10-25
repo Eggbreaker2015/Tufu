@@ -1,0 +1,170 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: buck_epic_shield
+  m_EditorClassIdentifier:
+  Key: prismcore_ward
+  Rarity: 3
+  SlotType: 2
+  DamageType: 3
+  DamageStatTypeFlat: 20
+  DamageStatTypePercent: 21
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: a6a31012ac75e744c863f17711757c08, type: 2}
+  DivineIcon: {fileID: 21300000, guid: d97705bad5fef264db3d0ed65db23f4d, type: 2}
+  Prefab: {fileID: 114884547391421755, guid: e7a12fc4bf792c8469087a129eab76f3, type: 2}
+  DivinePrefab: {fileID: 114884547391421755, guid: e7a12fc4bf792c8469087a129eab76f3, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: shield_smash_epic_ability_1
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 5034610377483092202
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.1
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.11
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.14
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.18
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_smash_epic_ability_2
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972266
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.25
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.35
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.45
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_smash_epic_ability_3
+    Trigger: 14
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972267
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.1
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092202
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 28
+        ModifierType: 0
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972266
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 29
+        ModifierType: 6
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972267
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 28
+        ModifierType: 0
+        Source: 3
+        Duration: 7
+        ValueScaling: 4
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1

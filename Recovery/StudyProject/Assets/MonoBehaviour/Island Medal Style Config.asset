@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f9154515d86abb47d672d0b7e031fe3, type: 3}
+  m_Name: Island Medal Style Config
+  m_EditorClassIdentifier:
+  Styles:
+  - Level: 1
+    Sprite: {fileID: 21300000, guid: 283c3150c85367f46a3cc85c1a136529, type: 2}
+    LevelColor: {r: 0.34901962, g: 0.14901961, b: 0.050980393, a: 1}
+  - Level: 2
+    Sprite: {fileID: 21300000, guid: 76df9f40eed11764b93006a26f94b066, type: 2}
+    LevelColor: {r: 0.5529412, g: 0.25882354, b: 0.23137255, a: 1}
+  - Level: 3
+    Sprite: {fileID: 21300000, guid: 7151cd75948286c4fbcc772683143306, type: 2}
+    LevelColor: {r: 0.35686275, g: 0.3882353, b: 0.7294118, a: 1}
+  - Level: 4
+    Sprite: {fileID: 21300000, guid: da8af820a1e61c84c8f2a140d9f5aec9, type: 2}
+    LevelColor: {r: 0.5686275, g: 0.1882353, b: 0, a: 1}
+  - Level: 5
+    Sprite: {fileID: 21300000, guid: c0f18b98f0b2fd34b8e567591ad1df29, type: 2}
+    LevelColor: {r: 0, g: 0.32941177, b: 0.7176471, a: 1}

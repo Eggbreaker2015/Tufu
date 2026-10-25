@@ -1,0 +1,363 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f98804bb6c4c7f352f84d51cb3b561ce, type: 3}
+  m_Name: Meta Stats Config
+  m_EditorClassIdentifier:
+  Stats:
+  - Key: location_enemy_reward
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: crystal_blacksmithing
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_BLACKSMITHING
+    Format: 0
+    Icon: {fileID: 21300000, guid: 38d8a92373bc98f48ad1008ca46db798, type: 2}
+  - Key: crystal_enchantment
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_ENCHANTMENT
+    Format: 0
+    Icon: {fileID: 21300000, guid: 6d996e946c35c6442990ef2782632b7c, type: 2}
+  - Key: crystal_max_geodes
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_MAX_GEODES
+    Format: 0
+    Icon: {fileID: 21300000, guid: d0b76a12204dbae4b942c878720ae243, type: 2}
+  - Key: crystal_geode_timer
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_GEODE_TIMER
+    Format: 2
+    Icon: {fileID: 21300000, guid: 1c1fc2f8b9a90c542b611053aa338718, type: 2}
+  - Key: crystal_sell_price_bonus
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_SELL_PRICE_BONUS
+    Format: 1
+    Icon: {fileID: 21300000, guid: deca741452938b843ad259520ce8d71a, type: 2}
+  - Key: crystal_crystals_quality
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_CRYSTALS_QUALITY
+    Format: 1
+    Icon: {fileID: 21300000, guid: 9f1296d5df7a706448f3005b09dbb810, type: 2}
+  - Key: crystal_enchant_efficiency
+    BaseValue: 1
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_ENCHANT_EFFICIENCY
+    Format: 1
+    Icon: {fileID: 21300000, guid: d1aa15477e1f1e64ea8ec73c8db51bff, type: 2}
+  - Key: tower_damage
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_TOWER_DAMAGE
+    Format: 1
+    Icon: {fileID: 21300000, guid: b85e510e214664946a58cbb73912ef26, type: 2}
+  - Key: tower_damage_reduction
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_TOWER_DAMAGE_REDUCTION
+    Format: 1
+    Icon: {fileID: 21300000, guid: 4dc342c5ad9434b44a719be0f380b5f7, type: 2}
+  - Key: stat_drop
+    BaseValue: 1
+    ShowInCalculator: 1
+    NameKey: META_STAT_STAT_DROP
+    Format: 0
+    Icon: {fileID: 21300000, guid: a5724690805da1d48aaff951f1b40173, type: 2}
+  - Key: crystal_max_enchant_stones
+    BaseValue: 1
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_MAX_ENCHANT_STONES
+    Format: 0
+    Icon: {fileID: 21300000, guid: 385ecb36a2b1ec640b25c6a49f988a27, type: 2}
+  - Key: crystal_slots
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: crystal_base_stat_bonus
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_BASE_STAT_BONUS
+    Format: 1
+    Icon: {fileID: 21300000, guid: 9f1296d5df7a706448f3005b09dbb810, type: 2}
+  - Key: tower_drop_bonus_percent
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_TOWER_DROP_BONUS_PERCENT
+    Format: 1
+    Icon: {fileID: 21300000, guid: 3447baf1d5afb7d4682b31034c9c8d39, type: 2}
+  - Key: tower_drop_legend_per_floor
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_TOWER_DROP_LEGEND_PER_FLOOR
+    Format: 0
+    Icon: {fileID: 21300000, guid: 07666c6a6a3476d4dbb75bd4c9602eca, type: 2}
+  - Key: tower_boss_weakness
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_TOWER_BOSS_WEAKNESS
+    Format: 1
+    Icon: {fileID: 21300000, guid: 6fc8484604a845f4c9935e361d69df90, type: 2}
+  - Key: soul_drop_bonus
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_SOUL_DROP_BONUS
+    Format: 1
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: crystal_timer_on_kill_reduce
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_CRYSTAL_TIMER_ON_KILL_REDUCE
+    Format: 3
+    Icon: {fileID: 21300000, guid: 9449b6a3bd5e3604abc9dca137b8a4a4, type: 2}
+  - Key: items_rarity_charges
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_ITEMS_RARITY_CHARGES
+    Format: 0
+    Icon: {fileID: 21300000, guid: dbe79fbbde69bfa40985ce9d87bcc6d9, type: 2}
+  - Key: items_rarity_drop_amount
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_ITEMS_RARITY_DROP_AMOUNT
+    Format: 0
+    Icon: {fileID: 21300000, guid: b07ca6b39d3a7aa4bb09469c4dbf890d, type: 2}
+  - Key: items_rarity_timer
+    BaseValue: 1
+    ShowInCalculator: 1
+    NameKey: META_STAT_ITEMS_RARITY_TIMER
+    Format: 0
+    Icon: {fileID: 21300000, guid: 4ec2b8ad60e629442b6a31bdeed836dc, type: 2}
+  - Key: map_spawner_timer_reduce
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey: META_STAT_MAP_SPAWNER_TIMER_REDUCE
+    Format: 3
+    Icon: {fileID: 21300000, guid: 4ec2b8ad60e629442b6a31bdeed836dc, type: 2}
+  - Key: extra_mark
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_EXTRA_MARK
+    Format: 1
+    Icon: {fileID: 21300000, guid: 1018370bda9b83d429948a5c0fb79b28, type: 2}
+  - Key: evasion_mark
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: mark_lifesteal
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: empowered_lightning
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_EMPOWERED_LIGHTNING
+    Format: 1
+    Icon: {fileID: 21300000, guid: 56988c0313e96eb44989dc7ae9c02b11, type: 2}
+  - Key: lightning_damage
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_LIGHTNING_DAMAGE
+    Format: 1
+    Icon: {fileID: 21300000, guid: a227e3416501fd7428c0b592f09f2e7a, type: 2}
+  - Key: hammer_regen
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: rage_damage_reduce
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: rage_extra_health
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: rage_extra_hit
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: weak_spawner_extra_range
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: event_golem_extra_range
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: event_golem_damage
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: block_to_supercrit
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_BLOCK_TO_SUPERCRIT
+    Format: 1
+    Icon: {fileID: 21300000, guid: 40cc9de116487c343aca6da5c6a82536, type: 2}
+  - Key: souls_rarity_amount
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_SOULS_RARITY_AMOUNT
+    Format: 0
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: souls_drop_unlock
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_unlock
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_legendary_drop
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_items_drop
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_tickets
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_BOSS_TOWER_TICKETS
+    Format: 0
+    Icon: {fileID: 21300000, guid: b98a6d02e36b13741aeb17d6a7ddb2c2, type: 2}
+  - Key: boss_tower_berserker
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_vikings
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_hydra
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_crab
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_lich
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: boss_tower_vampire
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: crystal_chest_ench_level
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey: META_STAT_CRYSTAL_CHEST_ENCH_LEVEL
+    Format: 0
+    Icon: {fileID: 21300000, guid: c96ebf8aa007adf468776fa7b21dfa91, type: 2}
+  - Key: economy_item_abilities_chance
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_ECONOMY_ITEM_ABILITIES_CHANCE
+    Format: 1
+    Icon: {fileID: 21300000, guid: 326c46bdb2bc1234e910eaeea2533d14, type: 2}
+  - Key: chest_level
+    BaseValue: 1
+    ShowInCalculator: 1
+    NameKey: META_STAT_CHEST_LEVEL
+    Format: 0
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: crystal_guarantee_enchant
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey: META_STAT_CRYSTAL_GUARANTEE_ENCHANT
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: free_chest
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: feature_unlock
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: crystal_enchantment_unlock
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: crystal_enchant_extra_attempts
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_EXTRA_ATTEMPTS
+    Format: 0
+    Icon: {fileID: 21300000, guid: 58908744631ef0d4a9d89c9f30066d3b, type: 2}
+  - Key: loadout_button
+    BaseValue: 0
+    ShowInCalculator: 0
+    NameKey:
+    Format: 0
+    Icon: {fileID: 0}
+  - Key: island_medal_bonus
+    BaseValue: 0
+    ShowInCalculator: 1
+    NameKey: META_STAT_ISLAND_MEDALS
+    Format: 1
+    Icon: {fileID: 0}

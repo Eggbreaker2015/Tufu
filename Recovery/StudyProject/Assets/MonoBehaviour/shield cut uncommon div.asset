@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: shield cut uncommon div
+  m_EditorClassIdentifier:
+  Key: stone_disk_div
+  Rarity: 5
+  SlotType: 2
+  DamageType: 1
+  DamageStatTypeFlat: 16
+  DamageStatTypePercent: 17
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 1
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 83d8a0d4f97983d4aa70e66aa8640ec4, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114099118695303065, guid: f8e18225c683d2940bfe1ac41449e3c7, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: uncommon_cut_shield_ability_div
+    Trigger: 6
+    Conditions:
+    - rid: 5034610377483092274
+    Effects:
+    - rid: 5034610377483092272
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 0.4
+    Chance: 0
+    StackLimit: 3
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  - Key: uncommon_cut_shield_ability_div_2
+    Trigger: 6
+    Conditions:
+    - rid: 5034610377483092291
+    Effects:
+    - rid: 5034610377483092290
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 0.15
+    Chance: 0
+    StackLimit: 3
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092272
+      type: {class: AllWeaponsDamageMultiplierEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 5034610377483092274
+      type: {class: WeaponSetCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Mode: 0
+        RequiredCount: 3
+    - rid: 5034610377483092290
+      type: {class: AddStatPassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 17
+        ModifierType: 0
+        Source: 1
+        ValueScaling: 0
+        NormalizeAboveThreshold: 0
+        ScalingStat: 0
+    - rid: 5034610377483092291
+      type: {class: WeaponSetCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Mode: 0
+        RequiredCount: 3

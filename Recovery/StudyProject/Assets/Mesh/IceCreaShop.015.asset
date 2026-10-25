@@ -1,0 +1,178 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!43 &4300000
+Mesh:
+  serializedVersion: 12
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: IceCreaShop.015
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 132
+    topology: 0
+    baseVertex: 0
+    firstVertex: 0
+    vertexCount: 64
+    localAABB:
+      m_Center: {x: 0.4617909, y: 0.60819876, z: -0.2030912}
+      m_Extent: {x: 0.1457909, y: 0.012864381, z: 0.347337}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes:
+  m_RootBoneNameHash: 0
+  m_BonesAABB: []
+  m_VariableBoneCountWeights:
+    m_Data:
+  m_MeshCompression: 3
+  m_IsReadable: 0
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexFormat: 0
+  m_IndexBuffer:
+  m_VertexData:
+    serializedVersion: 3
+    m_VertexCount: 0
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 0
+    _typelessdata:
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 192
+      m_Range: 1.1714914
+      m_Start: -0.5504282
+      m_Data: ddffffe5fcff7f39ffff4876ff3f92f3ff6f41bdff2359efff5f76ffbf05f3ff0f40f7ff0350efff00d4fbbf05f3a76f41f7e903307ffa00749fbe05f5a60f40bde95b307ffa48769f3e92f3a7ff65f7e97f596ffa48d69bfe97f3a7ffe5fcff2339ffff5fce9f3e92f3ff6fc1fce95b30ffff00cc9f3e00f3a7ffe5fcff7fd9fdff5f769ffe97f5feff65bde97fd97dfa16749f3e92ddff8f64f7ff5b30ffff00cc9f3e00dda70f40f7ff03506ffa00d4fb3f00f5a68f64bde97f59efff5fd6fb3f92ddff8f64f7e923596ffa48d6fb3f92f5a60f40bde95b50efff16d4fb3f00dda76f41f7ff5b50efff16d49bbe05
+      m_BitSize: 10
+    m_UV:
+      m_NumItems: 128
+      m_Range: 0.30417252
+      m_Start: 0.36048865
+      m_Data: 00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00d200d200d200d200d200d200d200d200d200d200d200d200d200e800e800d200e800d200e800d200d200e800e800d200e800d200d200d200e800e800e800d200d200e800d200e800d200d200e800e800e800d200d200e800d200d200e800e800d200e800e800d2
+      m_BitSize: 8
+    m_Normals:
+      m_NumItems: 128
+      m_Range: 1.999748
+      m_Start: -0.999874
+      m_Data: e00ffee00ffee00ffee00ffee00ffee00ffe2000022000022000022000022000022000023ff8833ff8833ff8833ff883200882200882200882000880000880200882200882200882000880000880200882200882000880000880200882200882
+      m_BitSize: 6
+    m_Tangents:
+      m_NumItems: 128
+      m_Range: 1
+      m_Start: 0
+      m_Data: 3ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff0033ff003
+      m_BitSize: 6
+    m_Weights:
+      m_NumItems: 0
+      m_Data:
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 64
+      m_Data: 000000003f0000f0
+      m_BitSize: 1
+    m_TangentSigns:
+      m_NumItems: 128
+      m_Data:
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data:
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data:
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 132
+      m_Data: 402000c2300844010c85010cc47110c88124ca9128cbc1340ef3340fd43c11243d8c343dd42451d5545953755958a6615bb671d9d6719dc7759f078622288ea3488e64699ea889a6eacaaa6cdbb26eebbe702cc3f24cd7366ddf78aee3facef73eefff
+      m_BitSize: 6
+    m_UVInfo: 5
+  m_LocalAABB:
+    m_Center: {x: 0.4617909, y: 0.60819876, z: -0.2030912}
+    m_Extent: {x: 0.14693494, y: 0.014008416, z: 0.34848103}
+  m_MeshUsageFlags: 0
+  m_CookingOptions: 30
+  m_BakedConvexCollisionMesh:
+  m_BakedTriangleCollisionMesh:
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
+  m_MeshOptimizationFlags: -1
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path:
+  m_MeshLodInfo:
+    serializedVersion: 2
+    m_LodSelectionCurve:
+      m_LodSlope: 0
+      m_LodBias: 0
+    m_NumLevels: 1
+    m_SubMeshes:
+    - serializedVersion: 2
+      m_Levels:
+      - m_IndexStart: 0
+        m_IndexCount: 0

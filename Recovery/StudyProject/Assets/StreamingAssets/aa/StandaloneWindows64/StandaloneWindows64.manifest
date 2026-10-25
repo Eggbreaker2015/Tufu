@@ -1,0 +1,12 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.6.3f1
+CRC: 67011105
+HashAppended: 0
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: recovered_0.bundle
+      Dependencies: {}
+    Info_1:
+      Name: recovered_1.bundle
+      Dependencies: {}

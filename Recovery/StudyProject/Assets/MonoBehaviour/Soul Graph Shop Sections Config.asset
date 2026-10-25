@@ -1,0 +1,235 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d80c6ef2fae2eca5eaa8408dafd3d20, type: 3}
+  m_Name: Soul Graph Shop Sections Config
+  m_EditorClassIdentifier:
+  Sections:
+  - Title: SoulsEpic
+    HeaderBackgroundColor: {r: 0.87843144, g: 0.15294118, b: 0.9960785, a: 1}
+    Columns: 3
+    PassBanners: 0100000003000000
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 0
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: souls_10
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: huge
+      FreeValue: 0
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 0
+    - Key: souls_11
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: huge
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 1
+    - Key: souls_12
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: huge
+      FreeValue: 0
+      Value: 350
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 2
+  - Title: SoulsRare
+    HeaderBackgroundColor: {r: 0.23529413, g: 0.76470596, b: 1, a: 1}
+    Columns: 3
+    PassBanners:
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 0
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: souls_7
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: elite
+      FreeValue: 0
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 0
+    - Key: souls_8
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: elite
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 1
+    - Key: souls_9
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: elite
+      FreeValue: 0
+      Value: 350
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 2
+  - Title: SoulsUncommon
+    HeaderBackgroundColor: {r: 0.10980393, g: 1, b: 0.48235297, a: 1}
+    Columns: 3
+    PassBanners:
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 0
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: souls_4
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: large
+      FreeValue: 0
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 0
+    - Key: souls_5
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: large
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 1
+    - Key: souls_6
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: large
+      FreeValue: 0
+      Value: 350
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 2
+  - Title: SoulsCommon
+    HeaderBackgroundColor: {r: 0.68235296, g: 0.85098046, b: 0.91372555, a: 1}
+    Columns: 3
+    PassBanners:
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 0
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: souls_1
+      LotType: 4
+      IsFree: 1
+      CanClaimOnFirstDay: 1
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: common
+      FreeValue: 0
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 0
+    - Key: souls_2
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: common
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 1
+    - Key: souls_3
+      LotType: 4
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey: common
+      FreeValue: 0
+      Value: 350
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+      IconType: 2

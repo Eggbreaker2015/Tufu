@@ -1,0 +1,366 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02372bbed916703ab949ad1b7e160204, type: 3}
+  m_Name: Crystal Config
+  m_EditorClassIdentifier:
+  UnlockMinute: 1800
+  Slots:
+  - Key: crystal_slot_1
+    UnlockedByDefault: 1
+    UnlockSource: 0
+    UnlockUpgradeKey:
+  - Key: crystal_slot_2
+    UnlockedByDefault: 0
+    UnlockSource: 4
+    UnlockUpgradeKey: crystal_slot2_unlock
+  - Key: crystal_slot_3
+    UnlockedByDefault: 0
+    UnlockSource: 1
+    UnlockUpgradeKey: graph_crystal_slot2_unlock_5_1
+  - Key: crystal_slot_4
+    UnlockedByDefault: 0
+    UnlockSource: 3
+    UnlockUpgradeKey:
+  - Key: crystal_slot_5
+    UnlockedByDefault: 0
+    UnlockSource: 2
+    UnlockUpgradeKey:
+  BaseGeodeTimerMinutes: 60
+  MinGeodeTimerMinutes: 30
+  BaseMaxGeodes: 3
+  AbsoluteMaxGeodes: 30
+  ObjectiveGeodesRequiredForRespawn: 50
+  ObjectiveSnapshotBaseDay: 40
+  ObjectiveSnapshotDayStep: 16
+  ObjectiveReflectionDamageMultiplier: 0.02
+  ObjectivePoiHighlightColor: {r: 0.32156864, g: 0.77254903, b: 1, a: 1}
+  BaseMaxEnchantmentStones: 0
+  MaxEnchantLevel: 5
+  BaseEnchEfficiencyCoef: 1
+  MaxEnchEfficiencyCoef: 1.5
+  EnchantCurrentValueMultiplier: 0.1
+  EnchantPreMaturityPenaltyBase: 1.27
+  EnchantMaturityDefs:
+  - Rarity: 0
+    MaturityLevel: 4
+    MaturityChancePercent: 40
+    PostMaturityChanceStepPercent: 5
+  - Rarity: 1
+    MaturityLevel: 8
+    MaturityChancePercent: 30
+    PostMaturityChanceStepPercent: 2
+  - Rarity: 2
+    MaturityLevel: 14
+    MaturityChancePercent: 25
+    PostMaturityChanceStepPercent: 1
+  - Rarity: 3
+    MaturityLevel: 23
+    MaturityChancePercent: 20
+    PostMaturityChanceStepPercent: 0.3
+  - Rarity: 4
+    MaturityLevel: 32
+    MaturityChancePercent: 18
+    PostMaturityChanceStepPercent: 0.1
+  EnchantFlatSnapshotMultipliers:
+  - Rarity: 0
+    Multiplier: 0.3
+  - Rarity: 1
+    Multiplier: 0.3
+  - Rarity: 2
+    Multiplier: 0.3
+  - Rarity: 3
+    Multiplier: 0.35
+  - Rarity: 4
+    Multiplier: 0.4
+  EnchantFlatSnapshotMinuteOffsets:
+  - EnchantLevel: 1
+    ExtraMinutes: 0
+    Multiplier: 1
+  - EnchantLevel: 2
+    ExtraMinutes: 120
+    Multiplier: 0.5
+  - EnchantLevel: 3
+    ExtraMinutes: 300
+    Multiplier: 0.5
+  - EnchantLevel: 4
+    ExtraMinutes: 600
+    Multiplier: 0.5
+  - EnchantLevel: 5
+    ExtraMinutes: 900
+    Multiplier: 0.5
+  BaseStatPool: 06000000080000000c0000000e0000001000000014000000020000000100000016000000
+  MagicStatPool:
+  RarityWeights:
+  - Rarity: 0
+    MaturityLevel: 1
+    PreMaturityDecayCoef: 1
+    BaseWeight: 100
+    BaseGrowValue: 0
+  - Rarity: 1
+    MaturityLevel: 10
+    PreMaturityDecayCoef: 1.1
+    BaseWeight: 35
+    BaseGrowValue: 0
+  - Rarity: 2
+    MaturityLevel: 20
+    PreMaturityDecayCoef: 1.035
+    BaseWeight: 10
+    BaseGrowValue: 0.05
+  - Rarity: 3
+    MaturityLevel: 35
+    PreMaturityDecayCoef: 1.03
+    BaseWeight: 5
+    BaseGrowValue: 0.02
+  - Rarity: 4
+    MaturityLevel: 50
+    PreMaturityDecayCoef: 1.025
+    BaseWeight: 1
+    BaseGrowValue: 0.005
+  RarityStatMultipliers:
+  - Rarity: 0
+    Multiplier: 0.12
+  - Rarity: 1
+    Multiplier: 0.15
+  - Rarity: 2
+    Multiplier: 0.22
+  - Rarity: 3
+    Multiplier: 0.3
+  - Rarity: 4
+    Multiplier: 0.45
+  SnapshotBaseMinute: 800
+  SnapshotMaxMinute: 17200
+  SnapshotPower: 1.04
+  SnapshotRarityBonus: 100
+  SnapshotMaxBlacksmithing: 217
+  SnapshotStartBonusMinute: 1200
+  SnapshotStartBonusMultiplier: 0.4
+  GreenCrystalStatMultiplier: 0.6
+  BlueCrystalStatMultiplier: 2
+  RedCrystalStatMultiplier: 1.6
+  SellPriceMaxBonusPercent: 400
+  SpecialStats:
+  - StatType: 23
+    ModifierType: 6
+    ValuesByEnchantLevel:
+    - 2
+    - 2.5
+    - 3
+    - 3.5
+    - 4
+    LockedByDefault: 0
+  - StatType: 24
+    ModifierType: 6
+    ValuesByEnchantLevel:
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    LockedByDefault: 0
+  - StatType: 25
+    ModifierType: 6
+    ValuesByEnchantLevel:
+    - 30
+    - 45
+    - 60
+    - 80
+    - 100
+    LockedByDefault: 0
+  - StatType: 33
+    ModifierType: 6
+    ValuesByEnchantLevel:
+    - 4
+    - 5
+    - 6
+    - 8
+    - 9
+    LockedByDefault: 0
+  - StatType: 34
+    ModifierType: 6
+    ValuesByEnchantLevel:
+    - 4
+    - 5
+    - 6
+    - 8
+    - 9
+    LockedByDefault: 0
+  - StatType: 0
+    ModifierType: 6
+    ValuesByEnchantLevel:
+    - 5
+    - 7
+    - 9
+    - 11
+    - 14
+    LockedByDefault: 0
+  - StatType: 1
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 5
+    - 6
+    - 8
+    - 10
+    - 14
+    LockedByDefault: 0
+  - StatType: 2
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 12
+    - 16
+    - 22
+    - 30
+    - 40
+    LockedByDefault: 0
+  - StatType: 22
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 12
+    - 16
+    - 22
+    - 30
+    - 40
+    LockedByDefault: 0
+  - StatType: 9
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 4
+    - 8
+    - 14
+    - 20
+    - 28
+    LockedByDefault: 0
+  - StatType: 17
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 4
+    - 8
+    - 14
+    - 20
+    - 28
+    LockedByDefault: 0
+  - StatType: 7
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 4
+    - 8
+    - 14
+    - 20
+    - 28
+    LockedByDefault: 0
+  - StatType: 15
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 4
+    - 8
+    - 14
+    - 20
+    - 28
+    LockedByDefault: 0
+  - StatType: 13
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 4
+    - 8
+    - 14
+    - 20
+    - 28
+    LockedByDefault: 0
+  - StatType: 21
+    ModifierType: 4
+    ValuesByEnchantLevel:
+    - 4
+    - 8
+    - 14
+    - 20
+    - 28
+    LockedByDefault: 0
+  LegendarySuperCritBonus: 30
+  LegendarySuperCritPerEnchant: 20
+  LegendaryTowerDamageBonus: 10
+  LegendaryTowerDamageBonusPerEnchant: 5
+  LegendaryTowerDamageReduction: 10
+  LegendaryTowerDamageReductionPerEnchant: 5
+  LegendaryStatDropBonus: 4
+  LegendaryStatDropBonusPerEnchant: 4
+  LegendarySellPriceBonus: 200
+  LegendarySellPriceBonusPerEnchant: 200
+  LegendaryEnhancedEnchantBonus: 10
+  LegendaryEnhancedEnchantBonusPerEnchant: 2
+  LegendarySuperCritChanceBonus: 4
+  LegendarySuperCritChancePerEnchant: 1
+  LegendaryMaxMarksPerEnchant: 1
+  LegendaryDamagePerRageLevelBase: 1
+  LegendaryDamagePerRageLevelPerEnchant: 1
+  LegendaryEconomyProcChancePerEnchant: 1
+  LegendaryHammerLightningChancePerEnchant: 1
+  LegendaryAbilityIcons:
+  - Ability: 0
+    Sprite: {fileID: 21300000, guid: 9d8e7e165dbdfdf48b7fe81e7193e668, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 1
+    Sprite: {fileID: 21300000, guid: 1d8e8325f06ef474399703b93e92d009, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 2
+    Sprite: {fileID: 21300000, guid: e1c6ee39f7466354a972f0fb43e22796, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 3
+    Sprite: {fileID: 21300000, guid: 59d6fa0791b37ba4b8e468f0e99a5442, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 4
+    Sprite: {fileID: 21300000, guid: eab51d44a8b4a54479de2e36d102683d, type: 2}
+    HideInGlobalStats: 1
+    HideInOwnStats: 0
+  - Ability: 5
+    Sprite: {fileID: 21300000, guid: 59d6fa0791b37ba4b8e468f0e99a5442, type: 2}
+    HideInGlobalStats: 1
+    HideInOwnStats: 1
+  - Ability: 6
+    Sprite: {fileID: 21300000, guid: 539997fb52d2f90419e44c79a79c1f2c, type: 2}
+    HideInGlobalStats: 1
+    HideInOwnStats: 0
+  - Ability: 7
+    Sprite: {fileID: 21300000, guid: e61b9e1a28c73e34b89bf8d651aadd74, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 8
+    Sprite: {fileID: 21300000, guid: 69ea7195563697d43a29dff86ae0d771, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 9
+    Sprite: {fileID: 21300000, guid: 973f8be92445ce0468868f74b5ed55b6, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 10
+    Sprite: {fileID: 21300000, guid: 97cf8faf4387d984b94e89cc9d9c829a, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  - Ability: 11
+    Sprite: {fileID: 21300000, guid: 834394c867444da48b6a64f2126d01f5, type: 2}
+    HideInGlobalStats: 0
+    HideInOwnStats: 0
+  PassExtraMaxGeodes: 6
+  PassGeodeTimerReductionSeconds: 600
+  PassBlacksmithingBonus: 4
+  PassEnchantmentBonus: 2
+  PassMaxEnchantStonesBonus: 1
+  PassPriceUsd: 18
+  PassDurationDays: 30
+  PassSlotIcon: {fileID: 21300000, guid: 3407ed944633bb343a13293c72240761, type: 2}
+  PassGeodesIcon: {fileID: 21300000, guid: d0b76a12204dbae4b942c878720ae243, type: 2}
+  PassGeodeTimerIcon: {fileID: 21300000, guid: 1c1fc2f8b9a90c542b611053aa338718, type: 2}
+  PassBlacksmithingIcon: {fileID: 21300000, guid: 38d8a92373bc98f48ad1008ca46db798, type: 2}
+  PassEnchantmentIcon: {fileID: 21300000, guid: bbb6f6c056f6db440aa94909bf2312ea, type: 2}
+  PassEnchantStonesIcon: {fileID: 21300000, guid: 385ecb36a2b1ec640b25c6a49f988a27, type: 2}

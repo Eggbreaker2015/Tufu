@@ -1,0 +1,275 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5872730fd029b7c39ea325d8b3cd92c, type: 3}
+  m_Name: Icon Style Config
+  m_EditorClassIdentifier:
+  Styles:
+  - StatType: 0
+    Sprite: {fileID: 21300000, guid: 53ea40188821b0a4cae4b73fcdd3b7d4, type: 2}
+  - StatType: 1
+    Sprite: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - StatType: 2
+    Sprite: {fileID: 21300000, guid: 24f35ca0414e03a4280444076ed7f7dd, type: 2}
+  - StatType: 3
+    Sprite: {fileID: 21300000, guid: 8b00e5768e5928543b5ec8c8d6764e6d, type: 2}
+  - StatType: 4
+    Sprite: {fileID: 0}
+  - StatType: 5
+    Sprite: {fileID: 0}
+  - StatType: 6
+    Sprite: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - StatType: 7
+    Sprite: {fileID: 21300000, guid: 81fb3325c324d664fbf669d8e841dad1, type: 2}
+  - StatType: 8
+    Sprite: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - StatType: 9
+    Sprite: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - StatType: 10
+    Sprite: {fileID: 21300000, guid: c7d2d3ab2e960d644906dcf51ad83118, type: 2}
+  - StatType: 11
+    Sprite: {fileID: 21300000, guid: e803328342fd8ad429da6eaf16948d83, type: 2}
+  - StatType: 12
+    Sprite: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - StatType: 13
+    Sprite: {fileID: 21300000, guid: 989951bafe362aa409e671e18064dcf9, type: 2}
+  - StatType: 14
+    Sprite: {fileID: 21300000, guid: 563de73715e0dcf439f8cfd54a844a3b, type: 2}
+  - StatType: 15
+    Sprite: {fileID: 21300000, guid: 8b64215b4a7c4484fa1f4a92cce603cf, type: 2}
+  - StatType: 16
+    Sprite: {fileID: 21300000, guid: 0888156c98571764dadae2d9fa031589, type: 2}
+  - StatType: 17
+    Sprite: {fileID: 21300000, guid: c5570237519c2074f93e84a0630f13bf, type: 2}
+  - StatType: 18
+    Sprite: {fileID: 21300000, guid: 9f4af7ec215de334a818ef343fa2b042, type: 2}
+  - StatType: 19
+    Sprite: {fileID: 21300000, guid: f669b58e764285445be9c0bdae939808, type: 2}
+  - StatType: 20
+    Sprite: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - StatType: 21
+    Sprite: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - StatType: 22
+    Sprite: {fileID: 21300000, guid: 8d4223abea6c0e7478d4fe42ebe8eda2, type: 2}
+  - StatType: 32
+    Sprite: {fileID: 21300000, guid: 423628e26c13d1e4396a00c6f9241f30, type: 2}
+  - StatType: 23
+    Sprite: {fileID: 21300000, guid: 512f23d7900b68241a7fc6703af88307, type: 2}
+  - StatType: 24
+    Sprite: {fileID: 21300000, guid: 88f02c60ed58c174985458a5eabe1347, type: 2}
+  - StatType: 25
+    Sprite: {fileID: 21300000, guid: 12d58be3fb380a041b59d09b67c1ccae, type: 2}
+  - StatType: 26
+    Sprite: {fileID: 21300000, guid: 34a75799317e73e45be0fa62938afbf8, type: 2}
+  - StatType: 27
+    Sprite: {fileID: 21300000, guid: 9d3e1702c27045246828d59947c0543e, type: 2}
+  - StatType: 28
+    Sprite: {fileID: 21300000, guid: 0c1f6b72295cfed4ea575464f8297499, type: 2}
+  - StatType: 29
+    Sprite: {fileID: 21300000, guid: 977ed493b788a354c8d1b5a23c8de6e2, type: 2}
+  - StatType: 30
+    Sprite: {fileID: 21300000, guid: 1740d24c34ceea041b87d12d0665f9a2, type: 2}
+  - StatType: 31
+    Sprite: {fileID: 21300000, guid: 4e409634656ad9f4eb0c36403f6c9607, type: 2}
+  - StatType: 33
+    Sprite: {fileID: 21300000, guid: 38ddcd420361c12488b708b45c92e19e, type: 2}
+  - StatType: 34
+    Sprite: {fileID: 21300000, guid: 046f93b82ff27754480ab8b1353baf23, type: 2}
+  ResistStyles:
+  - WeaponType: 0
+    Effective:
+      Low: {fileID: 21300000, guid: 3af1ebd97125b044c98872402c4ae475, type: 2}
+      Medium: {fileID: 21300000, guid: 744022f56b149f748ab4a9b533eb4928, type: 2}
+      High: {fileID: 21300000, guid: a35c1abdcd194af4a8eff45b121981e7, type: 2}
+      Neutral: {fileID: 21300000, guid: a5d093bc7cd5ddc40975dec08bba12af, type: 2}
+    Ineffective:
+      Low: {fileID: 21300000, guid: a5247d303ae1c364ca140f8218571d69, type: 2}
+      Medium: {fileID: 21300000, guid: 3aa9de18c53b86648a55a91c9aec89e0, type: 2}
+      High: {fileID: 21300000, guid: 1cfe0bb7bef77a8408b54b5ff366cffb, type: 2}
+      Neutral: {fileID: 21300000, guid: a5d093bc7cd5ddc40975dec08bba12af, type: 2}
+  - WeaponType: 1
+    Effective:
+      Low: {fileID: 21300000, guid: 4bccad6c97a27924e87eca6274913588, type: 2}
+      Medium: {fileID: 21300000, guid: da8451ef7b1c5cf4ab07e67ce2b19faf, type: 2}
+      High: {fileID: 21300000, guid: 1b0654d0ddba9b84eb497341777c0ab3, type: 2}
+      Neutral: {fileID: 21300000, guid: daa25e0b011d40d4daed50ef9e3e104e, type: 2}
+    Ineffective:
+      Low: {fileID: 21300000, guid: 822f1e87ee8113641b49e2a9b21820a4, type: 2}
+      Medium: {fileID: 21300000, guid: 46e21c4b72132514da628115557bb795, type: 2}
+      High: {fileID: 21300000, guid: dbfda06a55b8abe41b8ecd2010408f2d, type: 2}
+      Neutral: {fileID: 21300000, guid: daa25e0b011d40d4daed50ef9e3e104e, type: 2}
+  - WeaponType: 2
+    Effective:
+      Low: {fileID: 0}
+      Medium: {fileID: 0}
+      High: {fileID: 21300000, guid: 1442d74d6b280fc49ae0fd02ba3f437e, type: 2}
+      Neutral: {fileID: 21300000, guid: 6f3ba5bd82f81774f9c0f143d6bf8962, type: 2}
+    Ineffective:
+      Low: {fileID: 0}
+      Medium: {fileID: 0}
+      High: {fileID: 0}
+      Neutral: {fileID: 0}
+  - WeaponType: 3
+    Effective:
+      Low: {fileID: 21300000, guid: 1135d86ea6e8bc54da0026ef1fab1602, type: 2}
+      Medium: {fileID: 21300000, guid: d7fb35ffe1084854f8042687d60f17eb, type: 2}
+      High: {fileID: 21300000, guid: c70ce0650a19b9e459f36b576b155a84, type: 2}
+      Neutral: {fileID: 21300000, guid: bb56fa3e57f278c41b7bccfb790355bc, type: 2}
+    Ineffective:
+      Low: {fileID: 21300000, guid: 45b447b67ec2bf04aaa7f799e1593f36, type: 2}
+      Medium: {fileID: 21300000, guid: 8596b2282fba5ae41a03e50fe22967a4, type: 2}
+      High: {fileID: 21300000, guid: 1c64ad357979b8e4099c063401d4f0ca, type: 2}
+      Neutral: {fileID: 21300000, guid: bb56fa3e57f278c41b7bccfb790355bc, type: 2}
+  WeaponTypeStyles:
+  - WeaponType: 0
+    Sprite: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - WeaponType: 1
+    Sprite: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - WeaponType: 2
+    Sprite: {fileID: 21300000, guid: c7d2d3ab2e960d644906dcf51ad83118, type: 2}
+  - WeaponType: 3
+    Sprite: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - WeaponType: 4
+    Sprite: {fileID: 21300000, guid: 34a75799317e73e45be0fa62938afbf8, type: 2}
+  WeaponTypeMinimizedStyles:
+  - WeaponType: 0
+    Sprite: {fileID: 21300000, guid: 4eadc7332c8a0d1478751b62dd5d8982, type: 2}
+  - WeaponType: 1
+    Sprite: {fileID: 21300000, guid: 24d87eb64eea1934d83d1cabca94a0ec, type: 2}
+  - WeaponType: 3
+    Sprite: {fileID: 21300000, guid: 760316172ee56604fbfa6ef62ca4e960, type: 2}
+  - WeaponType: 2
+    Sprite: {fileID: 0}
+  - WeaponType: 4
+    Sprite: {fileID: 21300000, guid: 34a75799317e73e45be0fa62938afbf8, type: 2}
+  ArmorTypeMinimizedStyles:
+  - WeaponType: 1
+    Sprite: {fileID: 21300000, guid: 25a3745890ad3fb458aaa716e7baa8d5, type: 2}
+  - WeaponType: 0
+    Sprite: {fileID: 21300000, guid: 1809cb0023ccfc24cbb88aca39db4fc1, type: 2}
+  - WeaponType: 3
+    Sprite: {fileID: 21300000, guid: 0f91069b3328ea74db477317d19b9835, type: 2}
+  - WeaponType: 2
+    Sprite: {fileID: 0}
+  - WeaponType: 4
+    Sprite: {fileID: 21300000, guid: 34a75799317e73e45be0fa62938afbf8, type: 2}
+  ItemRarityStyles:
+  - Rarity: 0
+    Sprite: {fileID: 21300000, guid: e8402b10665ddd742829468d31eb4e81, type: 2}
+    EvolvedSprite: {fileID: 21300000, guid: 368b12e45d94bb245b79970eb2361f86, type: 2}
+    UseLargeRarityBg: 0
+    HasGradient: 0
+    Gradient:
+      topLeft: {r: 0, g: 0, b: 0, a: 0}
+      topRight: {r: 0, g: 0, b: 0, a: 0}
+      bottomLeft: {r: 0, g: 0, b: 0, a: 0}
+      bottomRight: {r: 0, g: 0, b: 0, a: 0}
+  - Rarity: 1
+    Sprite: {fileID: 21300000, guid: 4047f4efbc5c1114b8bfd732924301d6, type: 2}
+    EvolvedSprite: {fileID: 21300000, guid: 45bf9fc61ca5e964f8a8e94e0604285c, type: 2}
+    UseLargeRarityBg: 0
+    HasGradient: 0
+    Gradient:
+      topLeft: {r: 0, g: 0, b: 0, a: 0}
+      topRight: {r: 0, g: 0, b: 0, a: 0}
+      bottomLeft: {r: 0, g: 0, b: 0, a: 0}
+      bottomRight: {r: 0, g: 0, b: 0, a: 0}
+  - Rarity: 2
+    Sprite: {fileID: 21300000, guid: d286a8951f486c8469a09a8471dbf348, type: 2}
+    EvolvedSprite: {fileID: 21300000, guid: faa2dd47a878a4a4a9e91de8f288229d, type: 2}
+    UseLargeRarityBg: 0
+    HasGradient: 0
+    Gradient:
+      topLeft: {r: 0, g: 0, b: 0, a: 0}
+      topRight: {r: 0, g: 0, b: 0, a: 0}
+      bottomLeft: {r: 0, g: 0, b: 0, a: 0}
+      bottomRight: {r: 0, g: 0, b: 0, a: 0}
+  - Rarity: 3
+    Sprite: {fileID: 21300000, guid: 6e2eef00f36a2ac46b10d32b1ee16bc8, type: 2}
+    EvolvedSprite: {fileID: 21300000, guid: e4487f88e44449749b0af0640c20d204, type: 2}
+    UseLargeRarityBg: 0
+    HasGradient: 0
+    Gradient:
+      topLeft: {r: 0, g: 0, b: 0, a: 0}
+      topRight: {r: 0, g: 0, b: 0, a: 0}
+      bottomLeft: {r: 0, g: 0, b: 0, a: 0}
+      bottomRight: {r: 0, g: 0, b: 0, a: 0}
+  - Rarity: 4
+    Sprite: {fileID: 21300000, guid: fa49608895cfd314b8b43a3652875b63, type: 2}
+    EvolvedSprite: {fileID: 21300000, guid: e9a995a261b4c8740aa0f9993712116f, type: 2}
+    UseLargeRarityBg: 0
+    HasGradient: 0
+    Gradient:
+      topLeft: {r: 0, g: 0, b: 0, a: 0}
+      topRight: {r: 0, g: 0, b: 0, a: 0}
+      bottomLeft: {r: 0, g: 0, b: 0, a: 0}
+      bottomRight: {r: 0, g: 0, b: 0, a: 0}
+  - Rarity: 5
+    Sprite: {fileID: 21300000, guid: 73a02a8ab04074845a83255c68cdbff1, type: 2}
+    EvolvedSprite: {fileID: 21300000, guid: 73a02a8ab04074845a83255c68cdbff1, type: 2}
+    UseLargeRarityBg: 0
+    HasGradient: 1
+    Gradient:
+      topLeft: {r: 0.9372549, g: 0.31764707, b: 0.6901961, a: 1}
+      topRight: {r: 0.9372549, g: 0.31764707, b: 0.6901961, a: 1}
+      bottomLeft: {r: 0.99607843, g: 0.7254902, b: 0.14509805, a: 1}
+      bottomRight: {r: 0.99607843, g: 0.7254902, b: 0.14509805, a: 1}
+  - Rarity: 6
+    Sprite: {fileID: 21300000, guid: edeae104171e3cc479ab693dd176c79e, type: 2}
+    EvolvedSprite: {fileID: 21300000, guid: edeae104171e3cc479ab693dd176c79e, type: 2}
+    UseLargeRarityBg: 1
+    HasGradient: 1
+    Gradient:
+      topLeft: {r: 0.2509804, g: 1, b: 0.92941177, a: 1}
+      topRight: {r: 0.2509804, g: 1, b: 0.92941177, a: 1}
+      bottomLeft: {r: 0.8039216, g: 0.3647059, b: 1, a: 1}
+      bottomRight: {r: 0.8039216, g: 0.3647059, b: 1, a: 1}
+  SlotTypeStyles:
+  - SlotType: 0
+    Sprite: {fileID: 21300000, guid: 85c2861710e918147a4254f73d468406, type: 2}
+    UnlockSprite: {fileID: 21300000, guid: 192b03d877db455458bdfd34f1591f35, type: 2}
+  - SlotType: 1
+    Sprite: {fileID: 21300000, guid: 499b7200a33c69d449a655e814edc17f, type: 2}
+    UnlockSprite: {fileID: 21300000, guid: 763ce018914783547a80762213546282, type: 2}
+  - SlotType: 2
+    Sprite: {fileID: 21300000, guid: cfc9ea355e8ddf44abb28dc47689c173, type: 2}
+    UnlockSprite: {fileID: 21300000, guid: 6072407aaac1f2047b8ebf66916998ce, type: 2}
+  MinimapStyle:
+    Player: {fileID: 21300000, guid: 59c48331d31f9fe469fee016c877e48e, type: 2}
+    Enemy: {fileID: 21300000, guid: 2784c5eabe01a2d4881f073ba7b66356, type: 2}
+    Boss: {fileID: 21300000, guid: 0d1b951fa111cda4a8c7f4dd7a7367b9, type: 2}
+    EliteBoss: {fileID: 21300000, guid: 985ad4cee76c4f641a7f28be23f6a56e, type: 2}
+    OpenedGate: {fileID: 21300000, guid: 205607fa27f25ff42b532781cfee02ec, type: 2}
+    ClosedGate: {fileID: 21300000, guid: 66e6da6cc5d49804b9a0a5fd864d3e25, type: 2}
+    SpawnerTimer: {fileID: 21300000, guid: 88748f02c0791194d8ec1ed43ede7d57, type: 2}
+    EventMob: {fileID: 21300000, guid: 29437dad56756e541aeca88cb34af23a, type: 2}
+    QuestMob: {fileID: 21300000, guid: 18d0606908ee7d745bb7c4337748263c, type: 2}
+    EventMiniBoss: {fileID: 21300000, guid: 7b4a78a83aa4f9643a876b51f5334ebb, type: 2}
+    EventBoss: {fileID: 21300000, guid: d40bbe19a3d9a794dbb00df5d6fe77e6, type: 2}
+    Crystal: {fileID: 21300000, guid: 6fcfffc12c3cea74a815a27f72acba7d, type: 2}
+    Portal: {fileID: 21300000, guid: bbf17779c6e9a834fb97b104b88280f4, type: 2}
+    PortalWithTickets: {fileID: 21300000, guid: 3753b45642b12874caa84eaf50bb9224, type: 2}
+    PoiHighlightColor: {r: 1, g: 0.7647059, b: 0.2784314, a: 1}
+  StarsStyle:
+    Empty: {fileID: 21300000, guid: 9decbe6f284e14843a0fa9837ec4e409, type: 2}
+    Silver: {fileID: 21300000, guid: d8e8335bb745f6a468c075b9de140645, type: 2}
+    Gold: {fileID: 21300000, guid: e4ae2dbea07a3f64597d5b4268013279, type: 2}
+    Pink: {fileID: 21300000, guid: bad2d393fba04cd44a1271daf171391a, type: 2}
+    Red: {fileID: 21300000, guid: 7fce581d20164b44b938851b7ceb0a80, type: 2}
+  GemsSprite: {fileID: 21300000, guid: 16b77e559ec5506419cd48d78f1c6a7e, type: 2}
+  VipPointsSprite: {fileID: 21300000, guid: ce68dceb3e7413a4f877eb9a3318216e, type: 2}
+  LevelPassSprite: {fileID: 21300000, guid: 4060885a8f412ee4d8a7f42610d3a453, type: 2}
+  NoAdsSprite: {fileID: 21300000, guid: d8608a136ba48eb49a39136a00651154, type: 2}
+  SoulPassSprite: {fileID: 21300000, guid: 43e4532e73948274582c6f327a84ba14, type: 2}
+  CrystalPassSprite: {fileID: 21300000, guid: a8a9b8d2bbb6ab240b25bc4b5dad70a4, type: 2}
+  ChaoticSoulOfferSprite: {fileID: 21300000, guid: 6a5634097b8a0b045a6eabdb92a33e1e, type: 2}
+  ItemSlotUnlockSprite: {fileID: 21300000, guid: f9e3c6e6cbd89364c993aae68c3d3136, type: 2}
+  MineUnlockSprite: {fileID: 21300000, guid: 85d1f5655ef9dc74f9f296e82b0cb8d7, type: 2}

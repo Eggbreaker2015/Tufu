@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c236a36c49621db748a617110fa8a7, type: 3}
+  m_Name: Localization Font Settings
+  m_EditorClassIdentifier:
+  baseFontAssets: []
+  latinFallbackFont: {fileID: 11400000, guid: e1fec9ef8459c94498c49d74d5a1ac30, type: 2}
+  localeFontBindings:
+  - Locale: ko
+    FontAsset: {fileID: 11400000, guid: 3a9c157aed85fb34db2cb355c9f021f8, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: bbbc4551310e95f4f9e30668b262600b, type: 2}
+  - Locale: ja
+    FontAsset: {fileID: 11400000, guid: 3ba568a9cc108ae4094b726cb5178837, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: 100b19f392423b844bc1de3850f5ff50, type: 2}
+  - Locale: zh
+    FontAsset: {fileID: 11400000, guid: 3d4eabe6c76e34c46a083f2085516dac, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: d532430b835f321419c3e2b4d72f5023, type: 2}
+  - Locale: ru
+    FontAsset: {fileID: 11400000, guid: 0471dbd8866005045aa1807ce18d044c, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: 34570300ea4286043a76a7a8ad4cd6e1, type: 2}
+  - Locale: uk
+    FontAsset: {fileID: 11400000, guid: 0471dbd8866005045aa1807ce18d044c, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: 34570300ea4286043a76a7a8ad4cd6e1, type: 2}
+  - Locale: tr
+    FontAsset: {fileID: 11400000, guid: 0471dbd8866005045aa1807ce18d044c, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: 34570300ea4286043a76a7a8ad4cd6e1, type: 2}
+  - Locale: pl
+    FontAsset: {fileID: 11400000, guid: 0471dbd8866005045aa1807ce18d044c, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: 34570300ea4286043a76a7a8ad4cd6e1, type: 2}
+  fallbackFontMaterialBindings:
+  - FontAsset: {fileID: 11400000, guid: c489ec4bdb4002b4f96fdece10c2ba41, type: 2}
+    ClearMaterial: {fileID: 2100000, guid: b7f812515b4dfd94099838bc7f93e1ce, type: 2}

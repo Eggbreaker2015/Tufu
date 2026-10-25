@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: div smash rare
+  m_EditorClassIdentifier:
+  Key: hammer_div
+  Rarity: 5
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 0
+  AttackCooldown: 1.5
+  SimulationDpsWeaponMultiplier: 1
+  Number: 3
+  AnimationCastPoint: 0.726
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: 9c0afda3aeacdbe4d89886fbdca1bd05, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114884547391421755, guid: 7f9a687f883d2f746993d48ee9f91562, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: rare_buck_div_ability
+    Trigger: 2
+    Conditions:
+    - rid: 5034610377483092180
+    Effects:
+    - rid: 5034610377483092181
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 2
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092180
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 5034610377483092181
+      type: {class: StunEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}

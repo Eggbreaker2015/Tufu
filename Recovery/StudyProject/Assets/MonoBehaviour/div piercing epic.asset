@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: div piercing epic
+  m_EditorClassIdentifier:
+  Key: coolpike_div
+  Rarity: 5
+  SlotType: 0
+  DamageType: 0
+  DamageStatTypeFlat: 6
+  DamageStatTypePercent: 7
+  FlatDamage: 0
+  AttackCooldown: 0.6
+  SimulationDpsWeaponMultiplier: 1
+  Number: 4
+  AnimationCastPoint: 0.4
+  AnimationBackPoint: 0.6
+  Icon: {fileID: 21300000, guid: 5d4fcdfc2e2ae7449a965e952eb34040, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114884547391421755, guid: 87021775abde7c543b196422b6b98b93, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: epic_pierce_div_ability
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 5034610377483092092
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 0.2
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092092
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 7
+        ModifierType: 1
+        Source: 3
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1

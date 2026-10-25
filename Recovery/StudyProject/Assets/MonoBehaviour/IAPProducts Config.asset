@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6fb4328b08d7648746629fd52319a0b, type: 3}
+  m_Name: IAPProducts Config
+  m_EditorClassIdentifier:
+  products:
+  - key: 1
+    inAppValue: 20
+  - key: 2
+    inAppValue: 50
+  - key: 3
+    inAppValue: 100
+  - key: 4
+    inAppValue: 200
+  - key: 5
+    inAppValue: 500
+  - key: 6
+    inAppValue: 1000
+  - key: 10
+    inAppValue: 30
+  - key: 11
+    inAppValue: 250
+  - key: 20
+    inAppValue: 290
+  - key: 30
+    inAppValue: 120
+  - key: 31
+    inAppValue: 200
+  - key: 32
+    inAppValue: 300
+  - key: 33
+    inAppValue: 450
+  - key: 34
+    inAppValue: 600
+  - key: 40
+    inAppValue: 180
+  - key: 41
+    inAppValue: 180
+  - key: 42
+    inAppValue: 300

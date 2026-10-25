@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f59d94de48b2096d60bef0cf3add743d, type: 3}
+  m_Name: Cut
+  m_EditorClassIdentifier:
+  <AnimationDurationCap>k__BackingField: 1
+  AttackTargetPositionOffset: {x: 0, y: 0, z: 0}
+  <TravelEndPositionOffset>k__BackingField: {x: 0, y: 0, z: 0}
+  <WindupOffset>k__BackingField: {x: -1, y: -1, z: -3}
+  <AngleOffset>k__BackingField: 100
+  <WindupOffsetSpace>k__BackingField: 1
+  <WeaponTopAxis>k__BackingField: 0
+  <WeaponBladeAxis>k__BackingField: 5
+  <OvertravelRatio>k__BackingField: 0.5
+  <OvertravelDirectionAngle>k__BackingField: 0
+  <WindupRatio>k__BackingField: 0.4
+  <TravelRatio>k__BackingField: 0.25009066
+  <ReturnRatio>k__BackingField: 0.34990937
+  <WindupTravelType>k__BackingField: 1
+  <WindupPathFormula>k__BackingField: 0
+  <WindupStraightening>k__BackingField: 1
+  <WindupEase>k__BackingField: 15
+  <WindupScaleEase>k__BackingField: 14
+  <WindupRotationEase>k__BackingField: 12
+  <TravelTravelType>k__BackingField: 1
+  <TravelPathFormula>k__BackingField: 0
+  <TravelStraightening>k__BackingField: 1
+  <TravelEase>k__BackingField: 11
+  <TravelScaleEase>k__BackingField: 1
+  <TravelRotationEase>k__BackingField: 1
+  <OvertravelTravelType>k__BackingField: 1
+  <OvertravelPathFormula>k__BackingField: 0
+  <OvertravelStraightening>k__BackingField: 1
+  <OvertravelEase>k__BackingField: 6
+  <OvertravelScaleEase>k__BackingField: 1
+  <OvertravelRotationEase>k__BackingField: 1
+  <ReturnTravelType>k__BackingField: 0
+  <ReturnPathFormula>k__BackingField: 0
+  <ReturnStraightening>k__BackingField: 1
+  <ReturnEase>k__BackingField: 8
+  <ReturnScaleEase>k__BackingField: 1
+  <ReturnRotationEase>k__BackingField: 1
+  <Windup>k__BackingField:
+    RotationOffset: {x: 0, y: 90, z: -90}
+    ScaleMultiplier: {x: 4, y: 4, z: 4}
+  <Hit>k__BackingField:
+    RotationOffset: {x: 0, y: 90, z: 90}
+    ScaleMultiplier: {x: 4, y: 4, z: 4}
+  <Overtravel>k__BackingField:
+    RotationOffset: {x: 0, y: 90, z: 90}
+    ScaleMultiplier: {x: 3, y: 3, z: 3}

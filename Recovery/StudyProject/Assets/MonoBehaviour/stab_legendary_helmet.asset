@@ -1,0 +1,192 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: stab_legendary_helmet
+  m_EditorClassIdentifier:
+  Key: runekeeper_face
+  Rarity: 4
+  SlotType: 1
+  DamageType: 0
+  DamageStatTypeFlat: 14
+  DamageStatTypePercent: 15
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: e596d50072c61a14196178c326034cf2, type: 2}
+  DivineIcon: {fileID: 21300000, guid: 95bfa79fd259f0f4bbe9f428c9f59734, type: 2}
+  Prefab: {fileID: 114099118695303065, guid: c3b7636a33efa204384fd16005a72277, type: 2}
+  DivinePrefab: {fileID: 114099118695303065, guid: c3b7636a33efa204384fd16005a72277, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: helmet_pierce_legendary_ability_1
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972246
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0
+    Chance: 0.12
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 1
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0
+      ChanceOverride: 0.13
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0
+      ChanceOverride: 0.14
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0
+      ChanceOverride: 0.16
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0
+      ChanceOverride: 0.18
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0
+      ChanceOverride: 0.2
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0
+      ChanceOverride: 0.22
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0
+      ChanceOverride: 0.25
+      StacksOverride: 0
+  - Key: helmet_pierce_legendary_ability_2
+    Trigger: 17
+    Conditions:
+    - rid: 6613836593968972248
+    Effects:
+    - rid: 6613836593968972247
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.2
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.24
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.28
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.32
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.36
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: helmet_pierce_legendary_ability_3
+    Trigger: 17
+    Conditions:
+    - rid: 6613836593968972249
+    Effects:
+    - rid: 6613836593968972251
+    - rid: 6613836670183669985
+    - rid: 6613836670183669986
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.2
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 6613836593968972246
+      type: {class: LethalIgnorePassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Mode: 0
+    - rid: 6613836593968972247
+      type: {class: HealPercentEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        VfxSize: 1
+    - rid: 6613836593968972248
+      type: {class: CooldownCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Cooldown: 30
+        ScaleByValue: 0
+    - rid: 6613836593968972249
+      type: {class: CooldownCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Cooldown: 30
+        ScaleByValue: 0
+    - rid: 6613836593968972251
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 9
+        ModifierType: 0
+        Source: 3
+        Duration: 5
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836670183669985
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 7
+        ModifierType: 0
+        Source: 3
+        Duration: 5
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836670183669986
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 13
+        ModifierType: 0
+        Source: 3
+        Duration: 5
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1

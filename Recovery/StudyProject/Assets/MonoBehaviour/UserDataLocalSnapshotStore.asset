@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 042c04602cc72a4554b8d53af5c066a4, type: 3}
+  m_Name: UserDataLocalSnapshotStore
+  m_EditorClassIdentifier:
+  editorSnapshotsFolder: Assets/Codebase/SaveStore/LocalSnapshots
+  snapshots:
+  - CreatedAtIso: 2026-08-05T23:35:00.2799756Z
+    data: {fileID: 4900000, guid: de9d3f733a292ae4391cf57d4b8b97c5, type: 3}
+    info:
+      gems: 21733
+      playtime: 956
+      level: 9
+      items: 47
+  - CreatedAtIso: 2026-08-12T19:26:06.5501016Z
+    data: {fileID: 4900000, guid: 0ceb2d260d33688409c3039ad9b3b28b, type: 3}
+    info:
+      gems: 21733
+      playtime: 957
+      level: 9
+      items: 47

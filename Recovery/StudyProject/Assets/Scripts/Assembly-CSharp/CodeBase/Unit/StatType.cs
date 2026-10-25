@@ -1,0 +1,42 @@
+namespace Codebase.Unit
+{
+	public enum StatType
+	{
+		MovementSpeed = 0,
+		Health = 1,
+		HealthRegen = 2,
+		Damage = 3,
+		AttackRange = 4,
+		AttackCooldown = 5,
+		StabDamageFlat = 6,
+		StabDamagePercent = 7,
+		CutDamageFlat = 8,
+		CutDamagePercent = 9,
+		MagicDamageFlat = 10,
+		MagicDamagePercent = 11,
+		BuckshotDamageFlat = 12,
+		BuckshotDamagePercent = 13,
+		StabDefenceFlat = 14,
+		StabDefencePercent = 15,
+		CutDefenceFlat = 16,
+		CutDefencePercent = 17,
+		MagicDefenceFlat = 18,
+		MagicDefencePercent = 19,
+		BuckshotDefenceFlat = 20,
+		BuckshotDefencePercent = 21,
+		LifestealFlat = 22,
+		Evasion = 23,
+		CritChance = 24,
+		CritDamagePercent = 25,
+		UniversalDefenceFlat = 26,
+		UniversalDefencePercent = 27,
+		SuperCritChance = 28,
+		SuperCritDamagePercent = 29,
+		GlobalAttack = 30,
+		GlobalDefence = 31,
+		LifestealPercent = 32,
+		BlockChance = 33,
+		BlockAmount = 34,
+		VisualScaleMultiplier = 35
+	}
+}

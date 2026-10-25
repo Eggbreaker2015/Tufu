@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: smash common
+  m_EditorClassIdentifier:
+  Key: paddle
+  Rarity: 0
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 0
+  AttackCooldown: 2
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.68
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: add2d5116b612634babfc50375e1efc8, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114618682377417806, guid: ddda467f567113b48a6e65c4bac014f8, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: weapon_smash_common_ability_1
+    Trigger: 1
+    Conditions:
+    - rid: 6613836593968972090
+    Effects:
+    - rid: 6613836593968972089
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 12
+    Chance: 0.1
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 18
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 24
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 4
+      ValueOverride: 32
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 40
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 6
+      ValueOverride: 50
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 60
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 70
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 9
+      ValueOverride: 80
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 90
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 100
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 120
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 140
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 160
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 180
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 6613836593968972089
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 12
+        ModifierType: 0
+        Source: 2
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972090
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0

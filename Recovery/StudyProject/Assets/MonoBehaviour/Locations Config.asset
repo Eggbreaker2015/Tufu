@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 901408c025f61137d160d805fea764a5, type: 3}
+  m_Name: Locations Config
+  m_EditorClassIdentifier:
+  Locations:
+  - Name: Meadowlands
+    Number: 1
+    PreferredWeaponType: 1
+    PreferredArmorType: 1
+    NewMusic: {fileID: 8300000, guid: 3b1365eee35f67a4dad806d93dbbd627, type: 3}
+  - Name: Dusty Gulch
+    Number: 2
+    PreferredWeaponType: 0
+    PreferredArmorType: 0
+    NewMusic: {fileID: 8300000, guid: a8a0dd1941d52b8489fe63a83b310b64, type: 3}
+  - Name: Crystal Tundra
+    Number: 3
+    PreferredWeaponType: 3
+    PreferredArmorType: 3
+    NewMusic: {fileID: 8300000, guid: d13140bbd34f03d42b6a43c86715c263, type: 3}
+  - Name: Desert Mines
+    Number: 4
+    PreferredWeaponType: 1
+    PreferredArmorType: 1
+    NewMusic: {fileID: 8300000, guid: 63b3af391616f7e419e555a8bc12b835, type: 3}
+  - Name: Sun Isles
+    Number: 5
+    PreferredWeaponType: 1
+    PreferredArmorType: 0
+    NewMusic: {fileID: 8300000, guid: a8712bc28f2ec104987528d0c48d5c59, type: 3}
+  - Name: Candyland
+    Number: 6
+    PreferredWeaponType: 0
+    PreferredArmorType: 3
+    NewMusic: {fileID: 8300000, guid: 20e1a5d6973689c49939ed51bcb1fbeb, type: 3}
+  - Name: Pirate Shores
+    Number: 7
+    PreferredWeaponType: 3
+    PreferredArmorType: 1
+    NewMusic: {fileID: 8300000, guid: 482113649c23d4d488a60b56c9de22f8, type: 3}
+  - Name: Shroomvale
+    Number: 8
+    PreferredWeaponType: 1
+    PreferredArmorType: 0
+    NewMusic: {fileID: 8300000, guid: 47b51fc29c4abcc4bb0f6b5febda63ff, type: 3}
+  - Name: Ember Isles
+    Number: 9
+    PreferredWeaponType: 0
+    PreferredArmorType: 3
+    NewMusic: {fileID: 8300000, guid: 24e05e2728284c745bec88a0f03480cd, type: 3}
+  - Name: Abandoned Polar Outpost
+    Number: 10
+    PreferredWeaponType: 3
+    PreferredArmorType: 1
+    NewMusic: {fileID: 8300000, guid: d13140bbd34f03d42b6a43c86715c263, type: 3}
+  - Name: Twisted Island
+    Number: 11
+    PreferredWeaponType: 1
+    PreferredArmorType: 0
+    NewMusic: {fileID: 8300000, guid: 2c9faed0c18187a44aa0be1c1584e0cf, type: 3}
+  - Name: Ancient Workshop
+    Number: 12
+    PreferredWeaponType: 0
+    PreferredArmorType: 3
+    NewMusic: {fileID: 8300000, guid: 909f29cc7f4e8204f9b6f1ecf34d2435, type: 3}
+  - Name: Lost Ship
+    Number: 13
+    PreferredWeaponType: 3
+    PreferredArmorType: 1
+    NewMusic: {fileID: 8300000, guid: 4b0f396caeee7ce4e81697f19f630ba1, type: 3}
+  - Name: Deity Village
+    Number: 14
+    PreferredWeaponType: 1
+    PreferredArmorType: 0
+    NewMusic: {fileID: 8300000, guid: 32fe82ab581a9b7469d11c937b7651a5, type: 3}
+  - Name: Hundred Graves
+    Number: 15
+    PreferredWeaponType: 0
+    PreferredArmorType: 3
+    NewMusic: {fileID: 8300000, guid: e436daf396c44a34fa3344d3d7b1d0f5, type: 3}
+  - Name: 'Nightwood '
+    Number: 16
+    PreferredWeaponType: 3
+    PreferredArmorType: 1
+    NewMusic: {fileID: 8300000, guid: e436daf396c44a34fa3344d3d7b1d0f5, type: 3}
+  - Name: Vampire's Sanctum
+    Number: 17
+    PreferredWeaponType: 1
+    PreferredArmorType: 0
+    NewMusic: {fileID: 8300000, guid: e436daf396c44a34fa3344d3d7b1d0f5, type: 3}

@@ -1,0 +1,1505 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 400ff829212bbdac62c62817d0cd1c59, type: 3}
+  m_Name: Amulet Upgrade Config
+  m_EditorClassIdentifier:
+  Seed: 1563235
+  TargetEdgeLength: 280
+  MinimumNodeDistance: 260
+  LayoutIterations: 80
+  InitialLayoutJitter: 15
+  PathThickness: 40
+  PathTileScale: 0.03
+  Upgrades:
+  - Key: graph_souls_drop_unlock_common_1_1
+    RequiredUpgradeKeys: []
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 1f0ddbecf18965845a3329616147ce52, type: 2}
+  - Key: graph_health_flat_1_2
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_common_1_1
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - Key: graph_cut_damage_flat_1_3
+    RequiredUpgradeKeys:
+    - graph_health_flat_1_2
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - Key: graph_cut_damage_percent_1_4
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_1_3
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - Key: graph_movement_speed_percent_1_5
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_1_3
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 53ea40188821b0a4cae4b73fcdd3b7d4, type: 2}
+  - Key: graph_chest_level_1_6
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_1_3
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: graph_souls_drop_common_amount_1_7
+    RequiredUpgradeKeys:
+    - graph_health_flat_1_2
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_souls_drop_common_amount_1_8
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_1_7
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_souls_drop_unlock_trees_1_9
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_1_7
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 11bded34d601ff14cb34979e2203768b, type: 2}
+  - Key: graph_cut_damage_flat_1_10
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_common_1_1
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - Key: graph_items_drop_common_1_11
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_1_10
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: b07ca6b39d3a7aa4bb09469c4dbf890d, type: 2}
+  - Key: graph_items_timer_common_1_12
+    RequiredUpgradeKeys:
+    - graph_items_drop_common_1_11
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 4ec2b8ad60e629442b6a31bdeed836dc, type: 2}
+  - Key: graph_items_charges_common_1_13
+    RequiredUpgradeKeys:
+    - graph_items_drop_common_1_11
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: dbe79fbbde69bfa40985ce9d87bcc6d9, type: 2}
+  - Key: graph_items_drop_common_1_14
+    RequiredUpgradeKeys:
+    - graph_items_drop_common_1_11
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: b07ca6b39d3a7aa4bb09469c4dbf890d, type: 2}
+  - Key: graph_health_flat_1_15
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_1_10
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - Key: graph_health_percent_1_16
+    RequiredUpgradeKeys:
+    - graph_health_flat_1_15
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: c4db71a9df715f64186be06db723bfa5, type: 2}
+  - Key: graph_souls_drop_unlock_uncommon_1_17
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_common_1_1
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 8aeb6ef62bbf08449ad608a982ca5568, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_1_18
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_uncommon_1_17
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_souls_drop_common_amount_1_19
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_uncommon_1_17
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_smash_defence_flat_1_20
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_uncommon_1_17
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - Key: graph_smash_defence_percent_1_21
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_1_20
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - Key: graph_smash_defence_flat_1_22
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_1_7
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - Key: graph_cut_damage_percent_1_23
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_1_20
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - Key: graph_health_percent_1_24
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_1_3
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: c4db71a9df715f64186be06db723bfa5, type: 2}
+  - Key: graph_smash_defence_percent_1_25
+    RequiredUpgradeKeys:
+    - graph_health_flat_1_15
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - Key: graph_loadout_button_1_26
+    RequiredUpgradeKeys:
+    - graph_health_flat_1_2
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: ca33c8a95bbe18946a4856891fefcad5, type: 2}
+  - Key: graph_items_drop_common_1_27
+    RequiredUpgradeKeys:
+    - graph_items_drop_common_1_14
+    RequiredAmuletLevel: 1
+    Icon: {fileID: 21300000, guid: b07ca6b39d3a7aa4bb09469c4dbf890d, type: 2}
+  - Key: graph_souls_drop_unlock_rare_2_1
+    RequiredUpgradeKeys: []
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 13b2e2115f62d634f9f8712acdabf7b5, type: 2}
+  - Key: graph_weak_spawner_extra_range_2_2
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_2_3
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: caeff9998948128488d434736b599492, type: 2}
+  - Key: graph_map_spawner_timer_reduce_2_3
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_rare_2_1
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 8406c23f53b289b4485aedf9f33f86ed, type: 2}
+  - Key: graph_map_spawner_drop_island1_2_4
+    RequiredUpgradeKeys:
+    - graph_weak_spawner_extra_range_2_2
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 39c1e8c23a2f5ed4fb220fa37e3a68a1, type: 2}
+  - Key: graph_map_spawner_drop_island2_2_5
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island2_2_28
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: adb6155dd615f494e9c30bd2221892e0, type: 2}
+  - Key: graph_map_spawner_drop_island3_2_6
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island3_2_29
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: ea32ef6aca065de4c83f76bf7582577d, type: 2}
+  - Key: graph_souls_drop_epic_amount_2_7
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_2_3
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: c256eb16cbd728445b08cc206a1e71e2, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_2_8
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_2_3
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_2_9
+    RequiredUpgradeKeys:
+    - graph_souls_drop_uncommon_amount_2_8
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_cut_defence_flat_2_10
+    RequiredUpgradeKeys:
+    - graph_souls_drop_uncommon_amount_2_8
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 0888156c98571764dadae2d9fa031589, type: 2}
+  - Key: graph_cut_defence_percent_2_11
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_2_10
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: c5570237519c2074f93e84a0630f13bf, type: 2}
+  - Key: graph_pierce_damage_flat_2_12
+    RequiredUpgradeKeys:
+    - graph_souls_drop_uncommon_amount_2_8
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - Key: graph_pierce_damage_percent_2_13
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_2_12
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 81fb3325c324d664fbf669d8e841dad1, type: 2}
+  - Key: graph_souls_drop_rare_amount_2_14
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_rare_2_1
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 00d132cbc1bfa9b41ad9c5033183c7fa, type: 2}
+  - Key: graph_souls_drop_common_amount_2_15
+    RequiredUpgradeKeys:
+    - graph_souls_drop_rare_amount_2_14
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_souls_drop_rare_amount_2_16
+    RequiredUpgradeKeys:
+    - graph_souls_drop_rare_amount_2_14
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 00d132cbc1bfa9b41ad9c5033183c7fa, type: 2}
+  - Key: graph_lifesteal_flat_2_17
+    RequiredUpgradeKeys:
+    - graph_souls_drop_rare_amount_2_14
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 8d4223abea6c0e7478d4fe42ebe8eda2, type: 2}
+  - Key: graph_lifesteal_percent_2_18
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_2_17
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 423628e26c13d1e4396a00c6f9241f30, type: 2}
+  - Key: graph_evasion_percent_2_19
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_2_17
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 512f23d7900b68241a7fc6703af88307, type: 2}
+  - Key: graph_items_drop_uncommon_2_20
+    RequiredUpgradeKeys:
+    - graph_souls_drop_unlock_rare_2_1
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 58aaad2b58d33164181ee752444a9107, type: 2}
+  - Key: graph_items_charges_uncommon_2_21
+    RequiredUpgradeKeys:
+    - graph_items_drop_uncommon_2_20
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 4297b22f23e138547b2777f94eefa3aa, type: 2}
+  - Key: graph_items_timer_uncommon_2_22
+    RequiredUpgradeKeys:
+    - graph_items_drop_uncommon_2_20
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: d9ae9f7e5ca371b4e94ecd768d0a14d0, type: 2}
+  - Key: graph_chest_level_2_23
+    RequiredUpgradeKeys:
+    - graph_items_drop_uncommon_2_20
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: graph_items_drop_uncommon_2_24
+    RequiredUpgradeKeys:
+    - graph_chest_level_2_23
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 58aaad2b58d33164181ee752444a9107, type: 2}
+  - Key: graph_cut_defence_percent_2_25
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_2_12
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: c5570237519c2074f93e84a0630f13bf, type: 2}
+  - Key: graph_pierce_damage_percent_2_26
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_2_17
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 81fb3325c324d664fbf669d8e841dad1, type: 2}
+  - Key: graph_lifesteal_percent_2_27
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_2_10
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 423628e26c13d1e4396a00c6f9241f30, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island2_2_28
+    RequiredUpgradeKeys:
+    - graph_weak_spawner_extra_range_2_2
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 0ddad4ddde3b4324cb1a432f8081779e, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island3_2_29
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island2_2_28
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 7e0a1224b92c6e545856f8d13e2bf9bf, type: 2}
+  - Key: graph_weak_spawner_extra_range_island2_2_30
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island2_2_28
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: 446fdb080a34bff488a2547add0cb5f9, type: 2}
+  - Key: graph_weak_spawner_extra_range_island3_2_31
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island3_2_29
+    RequiredAmuletLevel: 2
+    Icon: {fileID: 21300000, guid: ddbc64d023f1df0488cecc282dd1bddb, type: 2}
+  - Key: graph_boss_tower_tickets_3_1
+    RequiredUpgradeKeys: []
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: b98a6d02e36b13741aeb17d6a7ddb2c2, type: 2}
+  - Key: graph_health_regen_flat_3_2
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_3_1
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 24f35ca0414e03a4280444076ed7f7dd, type: 2}
+  - Key: graph_hammer_regen_3_3
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_3_2
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 49e267808cf8f4f4fab561266906f998, type: 2}
+  - Key: graph_smash_damage_flat_3_4
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_3_2
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - Key: graph_smash_damage_percent_3_5
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_3_4
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 989951bafe362aa409e671e18064dcf9, type: 2}
+  - Key: graph_pierce_defence_flat_3_6
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_3_4
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 563de73715e0dcf439f8cfd54a844a3b, type: 2}
+  - Key: graph_pierce_defence_percent_3_7
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_3_6
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 8b64215b4a7c4484fa1f4a92cce603cf, type: 2}
+  - Key: graph_souls_drop_common_amount_3_8
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_3_2
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_items_drop_rare_3_9
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_3_1
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 713edb5fc7f408a4f8ac727918a797d0, type: 2}
+  - Key: graph_items_timer_rare_3_10
+    RequiredUpgradeKeys:
+    - graph_items_drop_rare_3_9
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: ac79c68b822b3d94ba090d34d0912944, type: 2}
+  - Key: graph_items_charges_rare_3_11
+    RequiredUpgradeKeys:
+    - graph_items_drop_rare_3_9
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 8968d515bfec53648aa0cc619041c219, type: 2}
+  - Key: graph_chest_level_3_12
+    RequiredUpgradeKeys:
+    - graph_items_drop_rare_3_9
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: graph_economy_item_abilities_chance_3_13
+    RequiredUpgradeKeys:
+    - graph_items_drop_rare_3_9
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 326c46bdb2bc1234e910eaeea2533d14, type: 2}
+  - Key: graph_free_chest_weekly_3_14
+    RequiredUpgradeKeys:
+    - graph_chest_level_3_12
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 2443bc8f1f26b3a4b815f85afb43ef34, type: 2}
+  - Key: graph_free_chest_daily_3_15
+    RequiredUpgradeKeys:
+    - graph_free_chest_weekly_3_14
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 2443bc8f1f26b3a4b815f85afb43ef34, type: 2}
+  - Key: graph_smash_damage_flat_3_16
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_3_1
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - Key: graph_pierce_defence_flat_3_17
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_3_16
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 563de73715e0dcf439f8cfd54a844a3b, type: 2}
+  - Key: graph_health_regen_flat_3_18
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_3_17
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 24f35ca0414e03a4280444076ed7f7dd, type: 2}
+  - Key: graph_health_regen_percent_3_19
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_3_18
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: ed750b9cfd90c3d4aa69e8eedd0f31b9, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_3_20
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_3_16
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_boss_tower_damage_reduction_3_21
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_3_16
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 4dc342c5ad9434b44a719be0f380b5f7, type: 2}
+  - Key: graph_boss_tower_damage_3_22
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_3_16
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: b85e510e214664946a58cbb73912ef26, type: 2}
+  - Key: graph_crit_chance_3_23
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_3_22
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 88f02c60ed58c174985458a5eabe1347, type: 2}
+  - Key: graph_crit_damage_percent_3_24
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_3_22
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 12d58be3fb380a041b59d09b67c1ccae, type: 2}
+  - Key: graph_pierce_defence_percent_3_25
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_3_18
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 8b64215b4a7c4484fa1f4a92cce603cf, type: 2}
+  - Key: graph_smash_damage_percent_3_26
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_3_6
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 989951bafe362aa409e671e18064dcf9, type: 2}
+  - Key: graph_health_regen_percent_3_27
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_3_2
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: ed750b9cfd90c3d4aa69e8eedd0f31b9, type: 2}
+  - Key: graph_boss_tower_unlock_berserker_4_1
+    RequiredUpgradeKeys: []
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 0fd218cd607693345b0d564fb0135d20, type: 2}
+  - Key: graph_cut_damage_flat_4_2
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_berserker_4_1
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - Key: graph_cut_damage_percent_4_3
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_4_2
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - Key: graph_lifesteal_flat_4_4
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_4_2
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 8d4223abea6c0e7478d4fe42ebe8eda2, type: 2}
+  - Key: graph_lifesteal_percent_4_5
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_4_4
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 423628e26c13d1e4396a00c6f9241f30, type: 2}
+  - Key: graph_smash_defence_flat_4_6
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_4_2
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - Key: graph_smash_defence_percent_4_7
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_4_6
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - Key: graph_crystals_sell_all_unlock_4_8
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_berserker_4_1
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 7f6d6ee73d602f749930ff3bd708c6e8, type: 2}
+  - Key: graph_items_charges_common_4_9
+    RequiredUpgradeKeys:
+    - graph_crystals_sell_all_unlock_4_8
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: dbe79fbbde69bfa40985ce9d87bcc6d9, type: 2}
+  - Key: graph_items_drop_common_4_10
+    RequiredUpgradeKeys:
+    - graph_items_charges_common_4_9
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: b07ca6b39d3a7aa4bb09469c4dbf890d, type: 2}
+  - Key: graph_boss_tower_weakness_4_11
+    RequiredUpgradeKeys:
+    - graph_crystals_sell_all_unlock_4_8
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 6fc8484604a845f4c9935e361d69df90, type: 2}
+  - Key: graph_map_spawner_timer_reduce_4_12
+    RequiredUpgradeKeys:
+    - graph_souls_drop_uncommon_amount_3_20
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: c8d3f5ee69b76c642a195234d309c9ef, type: 2}
+  - Key: graph_map_spawner_drop_island4_4_13
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_4_12
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 548aee9bc2e1b3b4e824f82feef294e7, type: 2}
+  - Key: graph_map_spawner_drop_island5_4_14
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island5_4_40
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: 8ea60b17c204bbc4bac06e69858b151d, type: 2}
+  - Key: graph_map_spawner_drop_island6_4_15
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island6_4_41
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 17f37ac9070d28c41a3ef8791d016837, type: 2}
+  - Key: graph_boss_tower_unlock_vampire_4_16
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_berserker_4_1
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 5b408931bb9e3d6499f2f9a8242be6e6, type: 2}
+  - Key: graph_health_flat_4_17
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_vampire_4_16
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - Key: graph_health_percent_4_18
+    RequiredUpgradeKeys:
+    - graph_health_flat_4_17
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: c4db71a9df715f64186be06db723bfa5, type: 2}
+  - Key: graph_chest_level_4_19
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_vampire_4_16
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: graph_block_chance_4_20
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_vampire_4_16
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 38ddcd420361c12488b708b45c92e19e, type: 2}
+  - Key: graph_rage_extra_health_4_21
+    RequiredUpgradeKeys:
+    - graph_block_chance_4_20
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 848399635383c4f428155598f9a59eff, type: 2}
+  - Key: graph_block_amount_4_22
+    RequiredUpgradeKeys:
+    - graph_block_chance_4_20
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 046f93b82ff27754480ab8b1353baf23, type: 2}
+  - Key: graph_pierce_damage_flat_4_23
+    RequiredUpgradeKeys:
+    - graph_block_chance_4_20
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - Key: graph_pierce_damage_percent_4_24
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_4_23
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 81fb3325c324d664fbf669d8e841dad1, type: 2}
+  - Key: graph_boss_tower_unlock_lich_4_25
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_vampire_4_16
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 0be6342b18cc39647bccdc856a6befd6, type: 2}
+  - Key: graph_cut_defence_flat_4_26
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_lich_4_25
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 0888156c98571764dadae2d9fa031589, type: 2}
+  - Key: graph_cut_defence_percent_4_27
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_4_26
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: c5570237519c2074f93e84a0630f13bf, type: 2}
+  - Key: graph_souls_drop_common_amount_4_28
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_lich_4_25
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_4_29
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_4_28
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_souls_drop_rare_amount_4_30
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_4_28
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 00d132cbc1bfa9b41ad9c5033183c7fa, type: 2}
+  - Key: graph_items_charges_epic_4_31
+    RequiredUpgradeKeys:
+    - graph_boss_tower_unlock_lich_4_25
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 5089733187ffc5f49a9cdbc9bfbfd85b, type: 2}
+  - Key: graph_items_drop_epic_4_32
+    RequiredUpgradeKeys:
+    - graph_items_charges_epic_4_31
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 744df77cf3c89d341ab5df24129e66d7, type: 2}
+  - Key: graph_items_timer_epic_4_33
+    RequiredUpgradeKeys:
+    - graph_items_charges_epic_4_31
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: c8e83020ce7141b4ca67de6e7053a7b8, type: 2}
+  - Key: graph_health_percent_4_34
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_4_6
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: c4db71a9df715f64186be06db723bfa5, type: 2}
+  - Key: graph_cut_damage_percent_4_35
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_4_4
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - Key: graph_smash_defence_percent_4_36
+    RequiredUpgradeKeys:
+    - graph_items_charges_common_4_9
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - Key: graph_cut_defence_percent_4_37
+    RequiredUpgradeKeys:
+    - graph_health_flat_4_17
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: c5570237519c2074f93e84a0630f13bf, type: 2}
+  - Key: graph_lifesteal_percent_4_38
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_4_26
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 423628e26c13d1e4396a00c6f9241f30, type: 2}
+  - Key: graph_pierce_damage_percent_4_39
+    RequiredUpgradeKeys:
+    - graph_items_charges_epic_4_31
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 81fb3325c324d664fbf669d8e841dad1, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island5_4_40
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_4_12
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: d42fe2d4811b8d74cabd21239b9b6590, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island6_4_41
+    RequiredUpgradeKeys:
+    - graph_crystals_sell_all_unlock_4_8
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 0aed907a90eee484e80892414440bbe9, type: 2}
+  - Key: graph_super_crit_chance_4_42
+    RequiredUpgradeKeys:
+    - graph_cut_damage_percent_4_3
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 0c1f6b72295cfed4ea575464f8297499, type: 2}
+  - Key: graph_super_crit_damage_percent_4_43
+    RequiredUpgradeKeys:
+    - graph_cut_damage_percent_4_3
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 977ed493b788a354c8d1b5a23c8de6e2, type: 2}
+  - Key: graph_weak_spawner_extra_range_island4_4_44
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_4_12
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: f22fff9d259171a46b92c5d18a49939f, type: 2}
+  - Key: graph_weak_spawner_extra_range_island5_4_45
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island5_4_40
+    RequiredAmuletLevel: 3
+    Icon: {fileID: 21300000, guid: bf9a88f6f2122ed41a6030b97e299586, type: 2}
+  - Key: graph_weak_spawner_extra_range_island6_4_46
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island6_4_41
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 77bbbe93f98e4f24490ad24d95cd9658, type: 2}
+  - Key: graph_event_golem_extra_range_4_47
+    RequiredUpgradeKeys:
+    - graph_event_golem_damage_4_48
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: f63f4afd4bdec24498c00fee4d204f2c, type: 2}
+  - Key: graph_event_golem_damage_4_48
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island6_4_41
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 8f9c9da2646682240bc1be9750f363a9, type: 2}
+  - Key: graph_crystal_slot2_unlock_5_1
+    RequiredUpgradeKeys: []
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 6d8ed4d756edf7341bba2eb7a98deb55, type: 2}
+  - Key: graph_smash_damage_flat_5_2
+    RequiredUpgradeKeys:
+    - graph_crystal_slot2_unlock_5_1
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - Key: graph_empowered_lightning_5_3
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_5_2
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 56988c0313e96eb44989dc7ae9c02b11, type: 2}
+  - Key: graph_pierce_defence_flat_5_4
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_5_2
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 563de73715e0dcf439f8cfd54a844a3b, type: 2}
+  - Key: graph_pierce_defence_percent_5_5
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_5_4
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 8b64215b4a7c4484fa1f4a92cce603cf, type: 2}
+  - Key: graph_health_flat_5_6
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_5_2
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - Key: graph_rage_damage_reduce_5_7
+    RequiredUpgradeKeys:
+    - graph_health_flat_5_6
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 62ba8166d5752d64b8f5a4cc8e6dfaed, type: 2}
+  - Key: graph_cut_damage_flat_5_8
+    RequiredUpgradeKeys:
+    - graph_health_flat_5_6
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - Key: graph_cut_damage_percent_5_9
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_5_8
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - Key: graph_crystal_blacksmithing_5_10
+    RequiredUpgradeKeys:
+    - graph_crystal_slot2_unlock_5_1
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 38d8a92373bc98f48ad1008ca46db798, type: 2}
+  - Key: graph_health_regen_flat_5_11
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_5_10
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 24f35ca0414e03a4280444076ed7f7dd, type: 2}
+  - Key: graph_pierce_defence_flat_5_12
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_5_11
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 563de73715e0dcf439f8cfd54a844a3b, type: 2}
+  - Key: graph_mark_lifesteal_5_13
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_5_12
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 68ecf69662a58e440882f792a222c232, type: 2}
+  - Key: graph_crystals_open_all_unlock_5_14
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_5_10
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 7f6d6ee73d602f749930ff3bd708c6e8, type: 2}
+  - Key: graph_health_regen_flat_5_15
+    RequiredUpgradeKeys:
+    - graph_crystals_open_all_unlock_5_14
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 24f35ca0414e03a4280444076ed7f7dd, type: 2}
+  - Key: graph_health_regen_percent_5_16
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_5_15
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: ed750b9cfd90c3d4aa69e8eedd0f31b9, type: 2}
+  - Key: graph_crystal_enchantment_5_17
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_5_10
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: bbb6f6c056f6db440aa94909bf2312ea, type: 2}
+  - Key: graph_crystal_guarantee_enchant_5_18
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_5_17
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: ead0df8d4b2d7714d8cbed38601f6187, type: 2}
+  - Key: graph_crystal_enchantment_stones_5_19
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_5_17
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 385ecb36a2b1ec640b25c6a49f988a27, type: 2}
+  - Key: graph_health_flat_5_20
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_5_17
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - Key: graph_health_percent_5_21
+    RequiredUpgradeKeys:
+    - graph_health_flat_5_20
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: c4db71a9df715f64186be06db723bfa5, type: 2}
+  - Key: graph_smash_defence_flat_5_22
+    RequiredUpgradeKeys:
+    - graph_health_flat_5_20
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - Key: graph_smash_defence_percent_5_23
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_5_22
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - Key: graph_boss_tower_tickets_5_24
+    RequiredUpgradeKeys:
+    - graph_crystal_slot2_unlock_5_1
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: b98a6d02e36b13741aeb17d6a7ddb2c2, type: 2}
+  - Key: graph_boss_tower_items_drop_5_25
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_5_24
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 3447baf1d5afb7d4682b31034c9c8d39, type: 2}
+  - Key: graph_boss_tower_hydra_5_26
+    RequiredUpgradeKeys:
+    - graph_boss_tower_items_drop_5_25
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 48173397cc0268646b46001e5fa234f9, type: 2}
+  - Key: graph_boss_tower_damage_5_27
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_5_24
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: b85e510e214664946a58cbb73912ef26, type: 2}
+  - Key: graph_boss_tower_damage_reduction_5_28
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_5_27
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 4dc342c5ad9434b44a719be0f380b5f7, type: 2}
+  - Key: graph_chest_level_5_29
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_5_24
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: graph_boss_tower_crab_5_30
+    RequiredUpgradeKeys:
+    - graph_chest_level_5_29
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 76a93fa5f86369347bad9dfb804149d8, type: 2}
+  - Key: graph_smash_damage_flat_5_31
+    RequiredUpgradeKeys:
+    - graph_chest_level_5_29
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - Key: graph_smash_damage_percent_5_32
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_5_31
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 989951bafe362aa409e671e18064dcf9, type: 2}
+  - Key: graph_souls_drop_epic_amount_5_33
+    RequiredUpgradeKeys:
+    - graph_crystal_slot2_unlock_5_1
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: c256eb16cbd728445b08cc206a1e71e2, type: 2}
+  - Key: graph_smash_defence_flat_5_34
+    RequiredUpgradeKeys:
+    - graph_souls_drop_epic_amount_5_33
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - Key: graph_map_spawner_drop_island9_5_35
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island9_5_53
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: fa2bc238f2388974da6854c2f2c55987, type: 2}
+  - Key: graph_map_spawner_drop_island8_5_36
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island8_5_52
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 389ff8ae5da3b054fb85a8f99652ecf0, type: 2}
+  - Key: graph_map_spawner_drop_island7_5_37
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_5_43
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: ba75922a5a838164e83759b14b5a9e83, type: 2}
+  - Key: graph_souls_drop_common_amount_5_38
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_5_34
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_5_39
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_5_38
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_economy_item_abilities_chance_5_40
+    RequiredUpgradeKeys:
+    - graph_souls_drop_epic_amount_5_33
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 326c46bdb2bc1234e910eaeea2533d14, type: 2}
+  - Key: graph_cut_damage_flat_5_41
+    RequiredUpgradeKeys:
+    - graph_economy_item_abilities_chance_5_40
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - Key: graph_crystal_sell_price_bonus_5_42
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_5_11
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: eab51d44a8b4a54479de2e36d102683d, type: 2}
+  - Key: graph_map_spawner_timer_reduce_5_43
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island6_4_41
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 649ad7d665a7095468ce0e67fc0a8763, type: 2}
+  - Key: graph_items_drop_uncommon_5_44
+    RequiredUpgradeKeys:
+    - graph_items_charges_uncommon_5_45
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 58aaad2b58d33164181ee752444a9107, type: 2}
+  - Key: graph_items_charges_uncommon_5_45
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island8_5_52
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 4297b22f23e138547b2777f94eefa3aa, type: 2}
+  - Key: graph_health_regen_percent_5_46
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_5_31
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: ed750b9cfd90c3d4aa69e8eedd0f31b9, type: 2}
+  - Key: graph_smash_damage_percent_5_47
+    RequiredUpgradeKeys:
+    - graph_boss_tower_items_drop_5_25
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 989951bafe362aa409e671e18064dcf9, type: 2}
+  - Key: graph_pierce_defence_percent_5_48
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_5_15
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 8b64215b4a7c4484fa1f4a92cce603cf, type: 2}
+  - Key: graph_smash_defence_percent_5_49
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_5_8
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - Key: graph_health_percent_5_50
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_5_22
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: c4db71a9df715f64186be06db723bfa5, type: 2}
+  - Key: graph_cut_damage_percent_5_51
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_5_38
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island8_5_52
+    RequiredUpgradeKeys:
+    - graph_souls_drop_epic_amount_5_33
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 556552780c6dc544ea32c0d2e8ab1ba9, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island9_5_53
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island8_5_52
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 32664bb510d90c447bc20d8331d62e6d, type: 2}
+  - Key: graph_crystal_enchantment_5_54
+    RequiredUpgradeKeys:
+    - graph_crystals_open_all_unlock_5_14
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 5aa0086c20e499f428aea3229bddfdd8, type: 2}
+  - Key: graph_weak_spawner_extra_range_island7_5_55
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_5_43
+    RequiredAmuletLevel: 4
+    Icon: {fileID: 21300000, guid: 1dbf589c20095394ab3eaa72bc450f2b, type: 2}
+  - Key: graph_weak_spawner_extra_range_island8_5_56
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island8_5_52
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 9bb12e73a085524408144d96daaa9f44, type: 2}
+  - Key: graph_weak_spawner_extra_range_island9_5_57
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island9_5_53
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: f8c5b15c7915cfe4db7b4d59c6aeedd7, type: 2}
+  - Key: graph_boss_tower_legendary_drop_5_58
+    RequiredUpgradeKeys:
+    - graph_boss_tower_items_drop_5_25
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 53fe5bb50619bfb4aa5fd3a05f2d1f86, type: 2}
+  - Key: graph_boss_tower_legendary_drop_5_59
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_5_27
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 1fc7b9f06e9585a4cb4fa3188e2d171e, type: 2}
+  - Key: graph_boss_tower_legendary_drop_5_60
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_reduction_5_28
+    RequiredAmuletLevel: 5
+    Icon: {fileID: 21300000, guid: 3b9fda3b6242d204cb49f22e33200762, type: 2}
+  - Key: graph_items_charges_legendary_6_1
+    RequiredUpgradeKeys: []
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 0763058c8e285f44c99faa37002e335e, type: 2}
+  - Key: graph_crystals_filter_unlock_6_2
+    RequiredUpgradeKeys:
+    - graph_items_charges_legendary_6_1
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 6fa4cc79c37c6b64cbaa93c9af070ee7, type: 2}
+  - Key: graph_crystal_blacksmithing_6_3
+    RequiredUpgradeKeys:
+    - graph_crystals_filter_unlock_6_2
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 38d8a92373bc98f48ad1008ca46db798, type: 2}
+  - Key: graph_smash_damage_flat_6_4
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_6_3
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - Key: graph_smash_damage_percent_6_5
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_6_4
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 989951bafe362aa409e671e18064dcf9, type: 2}
+  - Key: graph_lightning_damage_6_6
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_6_4
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: a227e3416501fd7428c0b592f09f2e7a, type: 2}
+  - Key: graph_crystal_enchantment_6_7
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_6_3
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: bbb6f6c056f6db440aa94909bf2312ea, type: 2}
+  - Key: graph_crystal_max_geodes_6_8
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_6_7
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: d216fde8001bc8d49835c1bf67761105, type: 2}
+  - Key: graph_crystal_geode_timer_6_9
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_6_7
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 1c1fc2f8b9a90c542b611053aa338718, type: 2}
+  - Key: graph_pierce_defence_flat_6_10
+    RequiredUpgradeKeys:
+    - graph_crystals_filter_unlock_6_2
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 563de73715e0dcf439f8cfd54a844a3b, type: 2}
+  - Key: graph_pierce_damage_flat_6_11
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_6_10
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - Key: graph_pierce_damage_percent_6_12
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_6_11
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 81fb3325c324d664fbf669d8e841dad1, type: 2}
+  - Key: graph_crit_damage_percent_6_13
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_6_10
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 12d58be3fb380a041b59d09b67c1ccae, type: 2}
+  - Key: graph_items_charges_rare_6_14
+    RequiredUpgradeKeys:
+    - graph_items_charges_legendary_6_1
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 8968d515bfec53648aa0cc619041c219, type: 2}
+  - Key: graph_chest_level_6_15
+    RequiredUpgradeKeys:
+    - graph_items_charges_rare_6_14
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: graph_smash_damage_flat_6_16
+    RequiredUpgradeKeys:
+    - graph_chest_level_6_15
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: cfe196187b525bc478e79884895441e4, type: 2}
+  - Key: graph_boss_tower_weakness_6_17
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_6_16
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 6fc8484604a845f4c9935e361d69df90, type: 2}
+  - Key: graph_pierce_defence_flat_6_18
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_6_16
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 563de73715e0dcf439f8cfd54a844a3b, type: 2}
+  - Key: graph_pierce_defence_percent_6_19
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_6_18
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 8b64215b4a7c4484fa1f4a92cce603cf, type: 2}
+  - Key: graph_boss_tower_items_drop_6_20
+    RequiredUpgradeKeys:
+    - graph_pierce_defence_flat_6_18
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 3447baf1d5afb7d4682b31034c9c8d39, type: 2}
+  - Key: graph_crystal_chest_ench_level_6_21
+    RequiredUpgradeKeys:
+    - graph_chest_level_6_15
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: c96ebf8aa007adf468776fa7b21dfa91, type: 2}
+  - Key: graph_health_regen_flat_6_22
+    RequiredUpgradeKeys:
+    - graph_items_drop_rare_6_36
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 24f35ca0414e03a4280444076ed7f7dd, type: 2}
+  - Key: graph_boss_tower_vampire_6_23
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_6_22
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 52be27aa67d88dc4fbb4d9c56160f7bf, type: 2}
+  - Key: graph_boss_tower_lich_6_24
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_6_22
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: ba569468397a17a40b5677b7efb14e26, type: 2}
+  - Key: graph_lifesteal_flat_6_25
+    RequiredUpgradeKeys:
+    - graph_items_charges_legendary_6_1
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 8d4223abea6c0e7478d4fe42ebe8eda2, type: 2}
+  - Key: graph_pierce_damage_flat_6_26
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_6_25
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - Key: graph_cut_defence_flat_6_27
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_6_26
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 0888156c98571764dadae2d9fa031589, type: 2}
+  - Key: graph_crit_chance_6_28
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_6_27
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 88f02c60ed58c174985458a5eabe1347, type: 2}
+  - Key: graph_extra_mark_6_29
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_6_27
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 1018370bda9b83d429948a5c0fb79b28, type: 2}
+  - Key: graph_souls_drop_common_amount_6_30
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_6_25
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_souls_drop_rare_amount_6_31
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_6_30
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 00d132cbc1bfa9b41ad9c5033183c7fa, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_6_32
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_6_30
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_health_regen_flat_6_33
+    RequiredUpgradeKeys:
+    - graph_souls_drop_uncommon_amount_6_32
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 24f35ca0414e03a4280444076ed7f7dd, type: 2}
+  - Key: graph_health_regen_percent_6_34
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_6_33
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: ed750b9cfd90c3d4aa69e8eedd0f31b9, type: 2}
+  - Key: graph_block_to_supercrit_6_35
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_6_33
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 40cc9de116487c343aca6da5c6a82536, type: 2}
+  - Key: graph_items_drop_rare_6_36
+    RequiredUpgradeKeys:
+    - graph_items_charges_rare_6_14
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 713edb5fc7f408a4f8ac727918a797d0, type: 2}
+  - Key: graph_lifesteal_flat_6_37
+    RequiredUpgradeKeys:
+    - graph_health_regen_flat_6_22
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 8d4223abea6c0e7478d4fe42ebe8eda2, type: 2}
+  - Key: graph_lifesteal_percent_6_38
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_6_37
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 423628e26c13d1e4396a00c6f9241f30, type: 2}
+  - Key: graph_cut_defence_flat_6_39
+    RequiredUpgradeKeys:
+    - graph_items_drop_rare_6_36
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 0888156c98571764dadae2d9fa031589, type: 2}
+  - Key: graph_cut_defence_percent_6_40
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_6_39
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: c5570237519c2074f93e84a0630f13bf, type: 2}
+  - Key: graph_evasion_percent_6_41
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_6_39
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 512f23d7900b68241a7fc6703af88307, type: 2}
+  - Key: graph_crystal_sell_price_bonus_6_42
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_6_3
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: eab51d44a8b4a54479de2e36d102683d, type: 2}
+  - Key: graph_crystal_enchantment_6_43
+    RequiredUpgradeKeys:
+    - graph_crystal_sell_price_bonus_6_42
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 9c37a30c1cbaea44cabbb26aee034622, type: 2}
+  - Key: graph_crystal_enchantment_stones_6_45
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_6_43
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 385ecb36a2b1ec640b25c6a49f988a27, type: 2}
+  - Key: graph_super_crit_chance_6_46
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_6_26
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 0c1f6b72295cfed4ea575464f8297499, type: 2}
+  - Key: graph_super_crit_damage_percent_6_47
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_6_26
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 977ed493b788a354c8d1b5a23c8de6e2, type: 2}
+  - Key: graph_event_golem_damage_6_48
+    RequiredUpgradeKeys:
+    - graph_smash_damage_flat_6_16
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 8f9c9da2646682240bc1be9750f363a9, type: 2}
+  - Key: graph_boss_tower_tickets_7_1
+    RequiredUpgradeKeys: []
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: b98a6d02e36b13741aeb17d6a7ddb2c2, type: 2}
+  - Key: graph_map_spawner_timer_reduce_7_2
+    RequiredUpgradeKeys:
+    - graph_crystals_filter_unlock_6_2
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 341171ae601843f4d9c7fb0dacc21c43, type: 2}
+  - Key: graph_cut_damage_flat_7_3
+    RequiredUpgradeKeys:
+    - graph_souls_drop_rare_amount_7_11
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - Key: graph_smash_defence_flat_7_4
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_7_3
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - Key: graph_smash_defence_percent_7_5
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_7_4
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 567d4cbd5e1a52d43a2578492c91dc5d, type: 2}
+  - Key: graph_souls_drop_uncommon_amount_7_6
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_7_4
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 52b370a5e3837af43a730a4ccf416e33, type: 2}
+  - Key: graph_pierce_damage_flat_7_7
+    RequiredUpgradeKeys:
+    - graph_souls_drop_uncommon_amount_7_6
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - Key: graph_pierce_damage_percent_7_8
+    RequiredUpgradeKeys:
+    - graph_pierce_damage_flat_7_7
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 81fb3325c324d664fbf669d8e841dad1, type: 2}
+  - Key: graph_map_spawner_drop_island10_7_9
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_7_2
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: b07b30791e4692f438eb5d95793c36c8, type: 2}
+  - Key: graph_map_spawner_drop_island11_7_10
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island11_7_46
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: b1f3712f9170d704db42acd20de3adad, type: 2}
+  - Key: graph_souls_drop_rare_amount_7_11
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_7_1
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 00d132cbc1bfa9b41ad9c5033183c7fa, type: 2}
+  - Key: graph_map_spawner_drop_island12_7_12
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island12_7_47
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: e7e0fd31ca3a51c4b9d1f2bb1c9bb988, type: 2}
+  - Key: graph_map_spawner_drop_island13_7_13
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island13_7_48
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 123ff95d99c5c794f8b37ea8b45e0984, type: 2}
+  - Key: graph_map_spawner_drop_island14_7_14
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island14_7_49
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 2bf4809241337604080eda75d556b0a5, type: 2}
+  - Key: graph_cut_defence_flat_7_15
+    RequiredUpgradeKeys:
+    - graph_souls_drop_rare_amount_7_11
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 0888156c98571764dadae2d9fa031589, type: 2}
+  - Key: graph_cut_defence_percent_7_16
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_7_15
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: c5570237519c2074f93e84a0630f13bf, type: 2}
+  - Key: graph_souls_drop_common_amount_7_17
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_7_1
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: d4affe982cd5f354d8752e3fa07b81cd, type: 2}
+  - Key: graph_health_flat_7_18
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_7_17
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - Key: graph_cut_damage_flat_7_19
+    RequiredUpgradeKeys:
+    - graph_health_flat_7_18
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 68dcfde65807afb4d860d5e408d12110, type: 2}
+  - Key: graph_cut_damage_percent_7_20
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_7_19
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 2780f33992f7c854f9644ef7140b832d, type: 2}
+  - Key: graph_rage_extra_hit_7_21
+    RequiredUpgradeKeys:
+    - graph_cut_damage_flat_7_19
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 22bb77810430ec140b227d01284daf11, type: 2}
+  - Key: graph_crystal_enchant_efficiency_7_22
+    RequiredUpgradeKeys:
+    - graph_boss_tower_tickets_7_1
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 66fdebdd7f5c78f4094fd3f776174db3, type: 2}
+  - Key: graph_smash_defence_flat_7_23
+    RequiredUpgradeKeys:
+    - graph_crystal_enchant_efficiency_7_22
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 6ea6baae17f6851419fd96265e3fa59e, type: 2}
+  - Key: graph_health_flat_7_24
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_7_23
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: d9e97b93ab325b64da78167c49490584, type: 2}
+  - Key: graph_health_percent_7_25
+    RequiredUpgradeKeys:
+    - graph_health_flat_7_24
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: c4db71a9df715f64186be06db723bfa5, type: 2}
+  - Key: graph_lifesteal_flat_7_26
+    RequiredUpgradeKeys:
+    - graph_smash_defence_flat_7_23
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 8d4223abea6c0e7478d4fe42ebe8eda2, type: 2}
+  - Key: graph_evasion_mark_7_27
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_7_26
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 468e0f50dbd3a984c8bd6a4fc83e8f73, type: 2}
+  - Key: graph_economy_item_abilities_chance_7_28
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_7_26
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 326c46bdb2bc1234e910eaeea2533d14, type: 2}
+  - Key: graph_chest_level_7_29
+    RequiredUpgradeKeys:
+    - graph_crystal_enchant_efficiency_7_22
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: ab6753f55b0d7b041831d16b88dd296d, type: 2}
+  - Key: graph_crystal_blacksmithing_7_30
+    RequiredUpgradeKeys:
+    - graph_chest_level_7_29
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 38d8a92373bc98f48ad1008ca46db798, type: 2}
+  - Key: graph_crystal_enchantment_7_31
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_7_30
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: bbb6f6c056f6db440aa94909bf2312ea, type: 2}
+  - Key: graph_cut_defence_flat_7_32
+    RequiredUpgradeKeys:
+    - graph_crystal_blacksmithing_7_30
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 0888156c98571764dadae2d9fa031589, type: 2}
+  - Key: graph_lifesteal_flat_7_33
+    RequiredUpgradeKeys:
+    - graph_cut_defence_flat_7_32
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 8d4223abea6c0e7478d4fe42ebe8eda2, type: 2}
+  - Key: graph_lifesteal_percent_7_34
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_7_33
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 423628e26c13d1e4396a00c6f9241f30, type: 2}
+  - Key: graph_boss_tower_damage_reduction_7_35
+    RequiredUpgradeKeys:
+    - graph_chest_level_7_29
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 4dc342c5ad9434b44a719be0f380b5f7, type: 2}
+  - Key: graph_boss_tower_vikings_7_36
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_reduction_7_35
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 86c3a6ec8108dae48a0ee0655a200430, type: 2}
+  - Key: graph_boss_tower_berserker_7_37
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_reduction_7_35
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: fb8aeeb1cfdd5554c8e1c6a4e8717048, type: 2}
+  - Key: graph_crystal_timer_on_kill_reduce_7_38
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_7_31
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 1c1fc2f8b9a90c542b611053aa338718, type: 2}
+  - Key: graph_boss_tower_legendary_drop_7_39
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_reduction_7_35
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 08b27824bb37b6d4da0434aa8370cfb8, type: 2}
+  - Key: graph_boss_tower_damage_7_40
+    RequiredUpgradeKeys:
+    - graph_chest_level_7_29
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: b85e510e214664946a58cbb73912ef26, type: 2}
+  - Key: graph_pierce_damage_flat_7_41
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_7_40
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: a29f1767b1b7377478560fc687618bb1, type: 2}
+  - Key: graph_movement_speed_percent_7_42
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_7_40
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 53ea40188821b0a4cae4b73fcdd3b7d4, type: 2}
+  - Key: graph_block_chance_7_43
+    RequiredUpgradeKeys:
+    - graph_health_flat_7_24
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 38ddcd420361c12488b708b45c92e19e, type: 2}
+  - Key: graph_block_amount_7_44
+    RequiredUpgradeKeys:
+    - graph_health_flat_7_24
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 046f93b82ff27754480ab8b1353baf23, type: 2}
+  - Key: graph_crystal_sell_price_bonus_7_45
+    RequiredUpgradeKeys:
+    - graph_crystal_enchantment_7_31
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: eab51d44a8b4a54479de2e36d102683d, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island11_7_46
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_7_2
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 5c21764b589dd024b8b71cf80589120f, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island12_7_47
+    RequiredUpgradeKeys:
+    - graph_souls_drop_rare_amount_7_11
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: c597578523bf51f4e990ea70a1568d53, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island13_7_48
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island12_7_47
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 53480d547bd430741b5c63bf4a12b70c, type: 2}
+  - Key: graph_map_spawner_timer_reduce_island14_7_49
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island13_7_48
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: e862de8cda6b0f84fa7fc9ddbda3b724, type: 2}
+  - Key: graph_crystal_enchantment_7_50
+    RequiredUpgradeKeys:
+    - graph_crystal_sell_price_bonus_7_45
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 98302dc5c263ff642ab4bbb0a765108d, type: 2}
+  - Key: graph_weak_spawner_extra_range_island10_7_51
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_7_2
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 27029d980d8f2a245ac82a30825457eb, type: 2}
+  - Key: graph_weak_spawner_extra_range_island11_7_52
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island11_7_46
+    RequiredAmuletLevel: 6
+    Icon: {fileID: 21300000, guid: 1c2efe9b9e7abe14385b79e580c710af, type: 2}
+  - Key: graph_weak_spawner_extra_range_island12_7_53
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island12_7_47
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 436557a7b0185ad468ee50db2a7f8a20, type: 2}
+  - Key: graph_weak_spawner_extra_range_island13_7_54
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island13_7_48
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 29e3b632d17a2464b8a84f04779d57aa, type: 2}
+  - Key: graph_weak_spawner_extra_range_island14_7_55
+    RequiredUpgradeKeys:
+    - graph_map_spawner_timer_reduce_island14_7_49
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: b009f89841b27af45aa0ae7b198f4e71, type: 2}
+  - Key: graph_boss_tower_legendary_drop_7_56
+    RequiredUpgradeKeys:
+    - graph_lifesteal_flat_7_26
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 2f7f84a6161a7d041aa01c3738462cb1, type: 2}
+  - Key: graph_boss_tower_legendary_drop_7_57
+    RequiredUpgradeKeys:
+    - graph_boss_tower_damage_7_40
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: e0063b349c1ef7f428eed4905cc5e439, type: 2}
+  - Key: graph_boss_tower_legendary_drop_7_58
+    RequiredUpgradeKeys:
+    - graph_souls_drop_common_amount_7_17
+    RequiredAmuletLevel: 7
+    Icon: {fileID: 21300000, guid: 07666c6a6a3476d4dbb75bd4c9602eca, type: 2}

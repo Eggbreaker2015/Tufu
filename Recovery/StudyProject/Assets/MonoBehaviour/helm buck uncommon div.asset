@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: helm buck uncommon div
+  m_EditorClassIdentifier:
+  Key: spiked_dome_div
+  Rarity: 5
+  SlotType: 1
+  DamageType: 3
+  DamageStatTypeFlat: 20
+  DamageStatTypePercent: 21
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 1
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: d3fe6f69bb84c154480a9df397896e2e, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114985305603660343, guid: c2b82722c03964746ae05a6e505f6aa0, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: uncommon_buck_helm_ability_div
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 5034610377483092093
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 0.2
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  - Key: uncommon_buck_helm_ability_div_2
+    Trigger: 9
+    Conditions:
+    - rid: 5034610377483092094
+    Effects:
+    - rid: 5034610377483092095
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 1.25
+    Chance: 1
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092093
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 21
+        ModifierType: 0
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 5034610377483092094
+      type: {class: TargetCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Mode: 0
+    - rid: 5034610377483092095
+      type: {class: DoubleLootEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}

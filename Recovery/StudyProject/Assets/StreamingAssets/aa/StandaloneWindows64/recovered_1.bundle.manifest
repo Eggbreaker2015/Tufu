@@ -1,0 +1,655 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.6.3f1
+CRC: 609335460
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 702bfbf0fe446c055e1c7aa57d930ff7
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8054847960117d08ce623f37fe8d5822
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 8d7cd20f9450b256e85dd3c8ffdb3bfe
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
+- Class: 82
+  Script: {instanceID: 0}
+- Class: 83
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 947937735, guid: 51d416298da925c4bc3446d2565589fc, type: 3}
+- Class: 114
+  Script: {fileID: 1870418351, guid: 51d416298da925c4bc3446d2565589fc, type: 3}
+- Class: 114
+  Script: {fileID: -260397373, guid: 1d5468d33a8d820db0af8abbbe9faebd, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9524293963e96c663f690cb62855053d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1afd895a1aa48ac8f4fe41ba9e4ce7df, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a8aac3eee24d0c850516a6292d81d3d2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b9c83edbc9ddc97285c021c72052a37c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a57dd7e889c6f0c7534983b048718198, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8329250c8ad9088a83eef32e4cfbf184, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e5640584619c17ae148f702775baef22, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3be04df1e966b0bdec78329965b11636, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0382759c9201eeacf169629c81e45d7c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 735da47f1b7495aa355fe5fd7cf5969b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2c695dd396c42f96e3bd3cfe2d1c3702, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 832f1276249435ecc98665aa7141a2d9, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fca61fdd975294ee5ba7d7a8e75b64f4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 611b3a58d73c63ccb22954f84af0dc5b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f67ba420950f86cd9e78df8c74adb776, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 750ea8bfd6a23f43115c15e19180af1f, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9ea16ee72e093272569399ffaefd8d80, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a921162834932b07fed5883f275a2145, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: aada80c9ee88fc3a067e5efb485bd603, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5b651e9d76d457ab1e31c4695e0a00b1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f00b2cda3e85c1f4871ba93c8cecd24e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: cd7a1b8fb8f492138fd873b3579bf204, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1d2e2ce44944f9432040f13ab6879aa3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 272206035cf5d14455fae6bf72de8ebd, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 39bcafa37d4bd7b86484c4e0c8e319ba, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2084a4949d7384d5a35b9080da22e47f, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a91158b54293dc3d099cf5f84ac1c9f7, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6e4ab7b4e7d43974fa303e6151c416bf, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: da2173b679f5454f7f113b5356c62130, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2f72cbbbc19dd1a9fda01e2608f436b8, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d3bf65b1092e6f6a192b6eb616fb4cd2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b852df2e671907d8291097f5ab2f4255, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a469753254a078e46fb541b04dbc9af7, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2c5d7e4d36adb6634619ddde3a5bb09e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8ffcea5f0b4021cfc99960cc2379459b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f3af865d76c7216e29e06d15b65345d8, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4df39b9d1b8c0ecfc0f67e4030e13cee, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8d130642fa06ce987a61027cdf2062b1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c65176ae0c5c6a1cc6b8d27955e9170c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a974703d5f21a7b10eb46e12b17fe74b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0a05420fa624fea029953126c82974c3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 66d3d83e22d922f31ca86a9195e52f4b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 175007da125850d1c0863624061c9277, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9e807fe572ebf0f7536e339b160de868, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: eb1112a697b4576bb8d1cf03a0f02500, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 26d6418dad0f9719f0d9039665d6f5cb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f50c7f1bd2604906495f0f15c7cf8626, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 49a6c87dcf718ed9a352b53074247928, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4671a7fa37b78eb214c6ba15b8c2f065, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 276772cbd000d1ac0803cd0474f48312, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 458a9068dfc695ba45a102b9d25d862d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e54622624852a1d87607db9647c995ef, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: be56c493038ed04b9b58ca6a314a1b00, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5498793846a8aed8a61e3f9f9bfe81ad, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: cb3cb6d71c14dbc93ec95a218c4adb91, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 22d0893a839d0b228e2c213116780453, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4098483aff9167263e9b09b7bf6ba435, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0c1030f5625c78e90bd5c742c2fa6187, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4ccacf3dee42716d7b9aa86b7efda9d2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1e9a98105d3b4e08084d1ac51505d8cf, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 450c64ce5d821df9fbd3d61849f59c21, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6e4968f813f384c754ad8e07b14d7257, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 23e15b0ee30ae5bddf69d7fd6b6b27d3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 91e837b37663e6c7ddfe55661b00e73b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5ed0dd3e59b41d8f0d25e3a840437d83, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c22bc6d91020661747980de31a5213db, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ab1e27f998a9013d3f99019f38729e38, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 784771472d8c4c4f31cb5564bf60208a, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6c26a52aed91526891834eb57c0a68cb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9a32a1eabb0382a24e314897b93744a3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 22b7984b1fd757f2648bca0a93b5e2b5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d1ba6ea9a521c36b0c5c388e8eb4ff0c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6a22372d436b37cda5118d8f1d20f4d3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 566d62a60dfc077d215173ef47fd17a1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 02c56b0034c726744a18594278516bae, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 409e1006b3982f7439d01a4dfe5160ef, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 07662b5e85a298df18b677f2c35ecb9e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bc13a9e982d41707acac3dd10a8465de, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 352b8029346a0194226a72933a8d9535, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 79a9cb84d4117fc62767e52f8180ffa3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 56ca6f7c5690a52bcc1692a8ffc963d3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f4b9fa8eaa89ed2ec5cd0752c7b1b668, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ee8a30ce90ad549d8e4898a3c93b2636, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 83f14d061e26d2df820a616bb7c3685e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f78c1af754775c953c1c6ca170e9d5bd, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d468699c841bf23a7e7b6a740cb31250, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 427c9cff16e8819a3af9070151cbd235, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6172e22f705a79627ba2084c136baa9e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6ab6f87e1d4ae6ce7a044d1e789675e3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 456359e9caafe92e84d272bf2e7ffcd4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: edf90d21920f25d2168fe4a8f0ab1a29, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 89b6bfce6d534af54399fda19f12e58b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6f8e098257ea08ef7f4fc0b01d21eb82, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 87a07f9e0c178b903b8fff054b04a781, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f934bebe914baadcce1bf4a6ccd0850, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 31e4ecd1f870f76ca7e7e1af76947e22, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7c2b2ed716088f1c7aeec4c30eea7ff9, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a3f16ee00e53454261b7d77cf28c7c1e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6a559f5bb01e4cbd210f5d0ec7637a9c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d89243b3e968d6ab32222ab22628ff95, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4a21bd07db3eb5aebb43e5016f69e3f6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 09735ed6efb3426b162d5c2ef314e666, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b658203bad8960fd1225b29ea81198f0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a6bb8e0ab00ebf0a795e6afd4f55d3fc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7ec223c376aa81ff83f563249c988c85, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4f608126eaf6d5b9e4900c1eab8de262, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3c9ea0e01918f31cb6b3d63cdbbf4d04, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3023286557b97e9dc8365aafe3a5196f, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2a8070bf1b30362e49c4f607a6953338, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4ebea9800a3b9e06f353ba44e80cf4be, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9a95c68b684f9a3a64b3ac35b1195214, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6c27633b71da908bd73c869a7ff67179, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 13d3bce0e3b29ef99a28d63ac51bd038, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 126111049f7f0cb8dfa98ea982c0bd89, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a9d4fa17f59901d872bc1e889ec9fac7, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 01ac1917a950abe0b308a3fc18699047, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 96bf0d5781ec11dea34454d3da2f1a63, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c5bdd74473719131a043cafa0e79cf5a, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fcd5de5920c241dcf910ea776bc91472, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8c45b226b1557d39300262a97384ab8f, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 04fb00ed6dc93678238dee9fd9648d07, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6443208bcef09240bdb5bcff9ac8f04e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 938d3c3b5cf69d07b8ea84c79e69dc50, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e2e6ffc715edc1ad4b0c033e068ee54e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 94f8103da2367e0db15479defec8b232, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 04a8877280b53e0eb7253863acc8f0b1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a0d01ecaae6f600788b5613ed518f481, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4f0dd1d30a64b542293b0d23f295223d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 36e37312f890b7d8e4d0c2f064538973, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fceb7406b3daf0fb86d7bc148f800a93, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c5378be1d5b6d8e8c30920efa9d1110b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f52f715105a705c9ef15d502e332bcc4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ffe668840f6520588485b33866cbf846, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5ce7ab9415fdcb4a9e4fd5e09d884728, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0c41f20b82305cb3e5719c68f41dc1d8, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b39f10ed0033538154afc7bb28e9103a, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: eb856f78b48e894560c8f699673a04a2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 60697ed1b1d080b135650f2a3e90354f, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e8d0e983c0269d946103b912be6383d6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c53487d2cc3d6c2e979f24a8664d2dae, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f0b85ed07b7d4bc43537f6c59c2e72a0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3e60e732a3815172d9a5cfa62b64a943, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bea040e07e5d436d27063e0efc5c64d3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 11cdaa7c081353c8949c00e9cc9622cb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3aa89d8667e1c1697ae7a40d0873057c, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 587cf355352fe885ab17865117fc3842, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f6cb5a0ed847d2aa115fe5f4efbe130, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e9539d2a89919aae2b067126f7cc5146, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 95808816cfa82940b414d7f26a63ae3e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 36eb89d4a0e04d2802ed4963d703fb70, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a82c4ed2ad286432798832642f7465d4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dd84537f2126eafbb99ab699cb47c310, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 185a1bd949cb35381a5907b17e49e504, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9016b957cf7526706c25b055c3b0211d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 608d658f02a40914236fb612de0d0e96, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e4dee34139617d07d67ad6f5ffcf93dc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 460d820cd3b8abed963afa5f2301a876, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3ee924192c42ab8f5d27a0093e6f4634, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 99483f07550474e1ee5d773dd4ccc824, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3008426c28d7a49d1da533bfefc65cbb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5122490ad2be760ea7e859f1f1664135, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f0e202913fbd066a37bca36a6524a047, type: 3}
+- Class: 114
+  Script: {fileID: -667331979, guid: 67dfb1fdfb2b407222eda8e23ac8b724, type: 3}
+- Class: 114
+  Script: {fileID: -1620774994, guid: 67dfb1fdfb2b407222eda8e23ac8b724, type: 3}
+- Class: 114
+  Script: {fileID: 1453722849, guid: 67dfb1fdfb2b407222eda8e23ac8b724, type: 3}
+- Class: 114
+  Script: {fileID: 1392445389, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: 1741964061, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: 1301386320, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: -2095666955, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: -405508275, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: -765806418, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: 1679637790, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: -1200242548, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: -146154839, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: 1367256648, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: -2061169968, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: 1573420865, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: -113659843, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: 2109663825, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 114
+  Script: {fileID: 1297475563, guid: d3e719b59ab71ba3f6b398058c866280, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+- Class: 225
+  Script: {instanceID: 0}
+- Class: 241
+  Script: {instanceID: 0}
+- Class: 243
+  Script: {instanceID: 0}
+- Class: 245
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.AbilityDef
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.AbilityLevelScale
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.Conditions.ChanceCondition
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.Conditions.WearingItemCondition
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.Effects.AddStatEffect
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.Effects.AddStatPassiveEffect
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.Effects.AllWeaponsDamageMultiplierEffect
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.Abilities.Effects.BoostAbilityValueEffect
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.UI.Settings.SettingsLanguageOption
+- AssemblyName: Assembly-CSharp
+  ClassName: Codebase.UI.Shop.ShopItemIconSet
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.AnchoredPositionMoveToPositionDOTweenActionBase
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.DOTweenAnimationStep
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.FadeCanvasGroupDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.FadeGraphicDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.FillImageDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.InvokeCallbackAnimationStep
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.MoveToPositionDOTweenActionBase
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.MoveToTargetDOTweenActionBase
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.PunchPositionDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.PunchScaleDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.RectTransformSizeDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.RotateToEulerAnglesFromTransformRotateDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.RotateToEulerAnglesRotateDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.ScaleDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.SetGameObjectActiveStep
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.SetTargetRectTransformPropertiesStep
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.ShakePositionDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.ShakeScaleDOTweenAction
+- AssemblyName: BrunoMikoski.AnimationSequencer
+  ClassName: BrunoMikoski.AnimationSequencer.WaitForIntervalStep
+- AssemblyName: ParticleImage
+  ClassName: AssetKits.ParticleImage.Burst
+- AssemblyName: ParticleImage
+  ClassName: AssetKits.ParticleImage.Module
+- AssemblyName: ParticleImage
+  ClassName: AssetKits.ParticleImage.SeparatedMinMaxCurve
+- AssemblyName: ParticleImage
+  ClassName: AssetKits.ParticleImage.SpeedRange
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.FaceInfo_Legacy
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.FontAssetCreationSettings
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.KerningTable
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.LigatureSubstitutionRecord
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_Character
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_FontFeatureTable
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_FontWeightPair
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_InputField/OnChangeEvent
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_InputField/SelectionEvent
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_InputField/SubmitEvent
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_InputField/TextSelectionEvent
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.TMP_InputField/TouchScreenKeyboardEvent
+- AssemblyName: Unity.TextMeshPro
+  ClassName: TMPro.VertexGradient
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Color
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Color32
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.ArgumentCache
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.PersistentCallGroup
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.PersistentListenerMode
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.UnityEvent
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.LayerMask
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.RectOffset
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Vector2
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Vector2Int
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Vector3
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Vector4
+- AssemblyName: UnityEngine.ParticleSystemModule
+  ClassName: UnityEngine.ParticleSystem/MinMaxCurve
+- AssemblyName: UnityEngine.ParticleSystemModule
+  ClassName: UnityEngine.ParticleSystem/MinMaxGradient
+- AssemblyName: UnityEngine.TextCoreFontEngineModule
+  ClassName: UnityEngine.TextCore.FaceInfo
+- AssemblyName: UnityEngine.TextCoreFontEngineModule
+  ClassName: UnityEngine.TextCore.Glyph
+- AssemblyName: UnityEngine.TextCoreFontEngineModule
+  ClassName: UnityEngine.TextCore.GlyphMetrics
+- AssemblyName: UnityEngine.TextCoreFontEngineModule
+  ClassName: UnityEngine.TextCore.GlyphRect
+- AssemblyName: UnityEngine.TextCoreFontEngineModule
+  ClassName: UnityEngine.TextCore.LowLevel.GlyphAdjustmentRecord
+- AssemblyName: UnityEngine.TextCoreFontEngineModule
+  ClassName: UnityEngine.TextCore.LowLevel.GlyphPairAdjustmentRecord
+- AssemblyName: UnityEngine.TextCoreFontEngineModule
+  ClassName: UnityEngine.TextCore.LowLevel.GlyphValueRecord
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.AnimationTriggers
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Button/ButtonClickedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.ColorBlock
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.MaskableGraphic/CullStateChangedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Navigation
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.ScrollRect/ScrollRectEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Scrollbar/ScrollEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Slider/SliderEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.SpriteState
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Toggle/ToggleEvent
+Assets:
+- Assets/Prefabs/UI/BossTower/BossRaidRewardView.prefab
+- Assets/Prefabs/UI/Amulet/AmuletUpgradesGraph.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/CrystalRespawnedView.prefab
+- Assets/Prefabs/UI/Event/EventStart.prefab
+- Assets/Prefabs/UI/SecretChestButtonView.prefab
+- Assets/Prefabs/UI/Mines/Quests/QuestsMinesEntrance.prefab
+- Assets/Prefabs/UI/Event/Roster/RosterRewardsPopup.prefab
+- Assets/Prefabs/UI/BossTower/BossTowerBossDetailsView.prefab
+- Assets/Prefabs/UI/AlertDialogView.prefab
+- Assets/Prefabs/UI/BossTower/BossRaidVictoryView.prefab
+- Assets/Prefabs/UI/Amulet/AmuletProgressPopup.prefab
+- Assets/Prefabs/UI/Mines/Quests/QuestsWindow.prefab
+- Assets/Prefabs/UI/Rewarded/GemsOffer.prefab
+- Assets/Prefabs/UI/Settings/SettingNotificationsPopupView.prefab
+- Assets/Prefabs/UI/Rewarded/RewardedOffer.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/CrystalsUnlockView.prefab
+- Assets/Prefabs/UI/Stats/StatDetailsPopupView.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalRarityChances.prefab
+- Assets/Prefabs/UI/Amulet/AmuletTutorial.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalEnchantmentResult.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalContextView.prefab
+- Assets/Prefabs/UI/Underworld/UnderworldGateView.prefab
+- Assets/Prefabs/UI/Background.prefab
+- Assets/Prefabs/UI/Event/Roster/RosterEventEndLeagueNotificationView.prefab
+- Assets/Prefabs/UI/Event/Roster/RosterEventTimeIsOver.prefab
+- Assets/Prefabs/UI/VIP/VIP.prefab
+- Assets/Prefabs/UI/Cheats/DebugConsole.prefab
+- Assets/Prefabs/UI/Shop/Shop.prefab
+- Assets/Prefabs/UI/Event/EventTutorial.prefab
+- Assets/Prefabs/UI/Map/MapIslandMedalUpgradeView.prefab
+- Assets/Prefabs/UI/LevelPass/LevelPassPurchase.prefab
+- Assets/Prefabs/UI/ItemSlotUnlockView.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsView.prefab
+- Assets/Prefabs/UI/ItemMiniView.prefab
+- Assets/Prefabs/UI/RateUs.prefab
+- Assets/Prefabs/UI/Mines/Quests/QuestPopup.prefab
+- Assets/Prefabs/UI/Amulet/AmuletSoulHarvestedView.prefab
+- Assets/Prefabs/UI/Settings/SettingPromoCodeView.prefab
+- Assets/Prefabs/UI/FirstBuyPack.prefab
+- Assets/Prefabs/UI/Shop/ChestChancesInfo.prefab
+- Assets/Prefabs/UI/Stats/StatDescriptionView.prefab
+- Assets/Prefabs/UI/EvolveItemView.prefab
+- Assets/Prefabs/UI/BossTower/BossTowerPortalUnlockView.prefab
+- Assets/Prefabs/UI/LevelPass/LevelPass.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalUpgradesView.prefab
+- Assets/Prefabs/UI/Settings/SettingsLanguageSelect.prefab
+- Assets/Prefabs/UI/Event/EventTimeisOver.prefab
+- Assets/Prefabs/UI/Event/Roster/RosterEventProgress.prefab
+- Assets/Prefabs/UI/Event/Roster/RosterEventTutorial.prefab
+- Assets/Prefabs/UI/VipLocationNotification.prefab
+- Assets/Prefabs/UI/Event/Roster/RosterEventStart.prefab
+- Assets/Prefabs/UI/Amulet/AmuletUnlockView.prefab
+- Assets/Prefabs/UI/BossTower/BossTowerHub.prefab
+- Assets/Prefabs/UI/VIP/VipProgressPopup.prefab
+- Assets/Prefabs/UI/GlobalUpdateScreen.prefab
+- Assets/Prefabs/UI/Rewarded/BuyGemsPopup.prefab
+- Assets/Prefabs/UI/Mines/Dialogue/DialogueWindow.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsBlacksmithView.prefab
+- Assets/Prefabs/UI/Event/Roster/RosterEventEnds.prefab
+- Assets/Prefabs/UI/BossTower/BossTutorialView.prefab
+- Assets/Prefabs/UI/PendingOrder.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsEnchantmentView.prefab
+- Assets/Prefabs/UI/ChestOpenView.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsEnchantmentTutorial.prefab
+- Assets/Prefabs/UI/Event/BossHuntProgress.prefab
+- Assets/Prefabs/UI/Amulet/AmuletGraphLevelUnlockView.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/CrystalStatsFilterView.prefab
+- Assets/Prefabs/UI/Event/EventEnds.prefab
+- Assets/Prefabs/UI/PurchaseReward.prefab
+- Assets/Prefabs/UI/BossTower/BossTowerLeaveView.prefab
+- Assets/Prefabs/UI/BossTower/BossRaidDefeatView.prefab
+- Assets/Prefabs/UI/Event/EventProgress.prefab
+- Assets/Prefabs/UI/Amulet/Crystals/CrystalsTutorial.prefab
+Dependencies: []

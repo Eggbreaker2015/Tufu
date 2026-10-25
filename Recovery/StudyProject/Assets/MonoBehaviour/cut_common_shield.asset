@@ -1,0 +1,178 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: cut_common_shield
+  m_EditorClassIdentifier:
+  Key: stone_bind
+  Rarity: 0
+  SlotType: 2
+  DamageType: 1
+  DamageStatTypeFlat: 16
+  DamageStatTypePercent: 17
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: f35275bd594180441b4d50feffd249ad, type: 2}
+  DivineIcon: {fileID: 21300000, guid: 7b2dc7ef033c8da4293ee383c2fc7389, type: 2}
+  Prefab: {fileID: 114884547391421755, guid: 633674a0f9b586642be91fc40b68c8f9, type: 2}
+  DivinePrefab: {fileID: 114884547391421755, guid: 633674a0f9b586642be91fc40b68c8f9, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: shield_cut_common_ability_1
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 5034610377483092101
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.25
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.35
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.45
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.7
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_cut_common_ability_2
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972271
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.3
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.45
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.75
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 1.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_cut_common_ability_3
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972272
+    - rid: 6613836593968972273
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.004
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.005
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.0065
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.008
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092101
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 17
+        ModifierType: 4
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972271
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 22
+        ModifierType: 4
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972272
+      type: {class: AddStatPassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 22
+        ModifierType: 4
+        Source: 3
+        ValueScaling: 1
+        NormalizeAboveThreshold: 0
+        ScalingStat: 0
+    - rid: 6613836593968972273
+      type: {class: AddStatPassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 17
+        ModifierType: 4
+        Source: 3
+        ValueScaling: 1
+        NormalizeAboveThreshold: 0
+        ScalingStat: 0

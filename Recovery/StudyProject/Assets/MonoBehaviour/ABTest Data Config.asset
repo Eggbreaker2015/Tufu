@@ -1,0 +1,222 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06481367962ce4e5d679aa582c85232f, type: 3}
+  m_Name: ABTest Data Config
+  m_EditorClassIdentifier:
+  developCohortsMode: 1
+  omitDefaultFieldsInGeneratedDataJson: 0
+  beautifyGeneratedJson: 1
+  rewardedDelayFromStart:
+    rules:
+    variants: []
+  enemyHpDamageMult:
+    rules: A
+    variants:
+    - variant: A
+      data:
+        damageMultiplier:
+          defaultValue: 1
+          overridesByLocation:
+            keyData:
+            valueData: []
+        rewardedValueMultiplier: 0.5
+    - variant: B
+      data:
+        damageMultiplier:
+          defaultValue: 1.5
+          overridesByLocation:
+            keyData: 01000000020000000300000004000000
+            valueData:
+            - 1.1
+            - 1.2
+            - 1.3
+            - 1.4
+        rewardedValueMultiplier: 0.5
+  noAds:
+    rules: A
+    variants:
+    - variant: A
+      data:
+        enabled: 0
+        rewardedOfferDuration: 30
+        adCooldown: 30
+        maxAdsPerDay: 0
+    - variant: B
+      data:
+        enabled: 0
+        rewardedOfferDuration: 30
+        adCooldown: 150
+        maxAdsPerDay: 30
+    - variant: C
+      data:
+        enabled: 1
+        rewardedOfferDuration: 30
+        adCooldown: 30
+        maxAdsPerDay: 0
+    - variant: D
+      data:
+        enabled: 1
+        rewardedOfferDuration: 30
+        adCooldown: 150
+        maxAdsPerDay: 30
+  levelPass:
+    rules:
+    variants: []
+  rpmOldAlgorithm:
+    rules: A
+    variants:
+    - variant: A
+      data:
+        enabled: 0
+    - variant: B
+      data:
+        enabled: 1
+  fastRPMParams:
+    rules: AB
+    variants:
+    - variant: A
+      data:
+        fightTimeSeconds: 10
+        maxHealthLossMultiplier: 1
+    - variant: B
+      data:
+        fightTimeSeconds: 15
+        maxHealthLossMultiplier: 5
+  soulPass:
+    rules: AB
+    variants:
+    - variant: A
+      data:
+        enabled: 0
+    - variant: B
+      data:
+        enabled: 1
+  crystalPass:
+    rules: AB
+    variants:
+    - variant: A
+      data:
+        enabled: 0
+        inAppMagicDustMultiplier: 1
+    - variant: B
+      data:
+        enabled: 1
+        inAppMagicDustMultiplier: 1
+  offerwall:
+    rules: AB
+    variants:
+    - variant: A
+      data:
+        enabled: 0
+        lastLocationUnlocked: 1
+    - variant: B
+      data:
+        enabled: 1
+        lastLocationUnlocked: 1
+  patchCompensationGems:
+    rules: A
+    variants:
+    - variant: A
+      data:
+        useFixedGems: 0
+        fixedGems: 0
+    - variant: B
+      data:
+        useFixedGems: 1
+        fixedGems: 200
+  commonRewardMultipliers:
+    rules: A
+    variants:
+    - variant: A
+      data:
+        rewardedStatValueMultiplier:
+          defaultValue: 1
+          overridesByLocation:
+            keyData:
+            valueData: []
+        inAppStatValueMultiplier:
+          defaultValue: 1
+          overridesByLocation:
+            keyData:
+            valueData: []
+        attackStatValueMultiplier: 1
+        armorStatValueMultiplier: 1
+        sustainStatValueMultiplier: 1
+        inAppAttackStatValueMultiplier: 1
+        inAppArmorStatValueMultiplier: 1
+        inAppSustainStatValueMultiplier: 1
+        soulValueMultiplier:
+          defaultValue: 1
+          overridesByLocation:
+            keyData:
+            valueData: []
+        crystalDustValueMultiplier:
+          defaultValue: 1
+          overridesByLocation:
+            keyData:
+            valueData: []
+  spawnerCooldowns:
+    rules: A
+    variants:
+    - variant: A
+      data:
+        nonElite:
+          cooldownMinutes:
+            defaultValue: 30
+            overridesByLocation:
+              keyData: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d000000
+              valueData:
+              - 4
+              - 6
+              - 8
+              - 10
+              - 12
+              - 14
+              - 16
+              - 18
+              - 20
+              - 22
+              - 24
+              - 26
+              - 28
+          charges:
+            defaultValue: 3
+            overridesByLocation:
+              keyData:
+              valueData:
+        elite:
+          cooldownMinutes:
+            defaultValue: 180
+            overridesByLocation:
+              keyData: 01000000020000000300000004000000
+              valueData:
+              - 60
+              - 90
+              - 120
+              - 150
+          charges:
+            defaultValue: 2
+            overridesByLocation:
+              keyData:
+              valueData:
+  enchantFailureDustCashback:
+    rules: ABC
+    variants:
+    - variant: A
+      data:
+        rpm: 0
+    - variant: B
+      data:
+        rpm: 1
+    - variant: C
+      data:
+        rpm: 3

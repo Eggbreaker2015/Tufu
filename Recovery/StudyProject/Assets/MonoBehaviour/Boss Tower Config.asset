@@ -1,0 +1,1085 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 518165587baa6eae3718fff6a5390419, type: 3}
+  m_Name: Boss Tower Config
+  m_EditorClassIdentifier:
+  BaseTickets: 3
+  ArmorBossOptimumTimeOffsetMinutes: 500
+  Bosses:
+  - Key: lava_crab
+    ArenaKey: atlantic
+    DisplayName: lava_crab
+    FullPortrait: {fileID: 21300000, guid: 6b4bb0ed0e996ce408b7af62356f85b8, type: 2}
+    PortraitScale: 1
+    PortraitItemOffset: {x: 0, y: 0, z: 0}
+    Prefab: {fileID: 114900271049623953, guid: 03289bbcafdb87143b407cfd6db42104, type: 2}
+    Stats:
+    - BaseValue: 3819046
+      Type: 1
+    - BaseValue: 7
+      Type: 0
+    - BaseValue: 64430
+      Type: 3
+    - BaseValue: 3.3
+      Type: 4
+    - BaseValue: 1
+      Type: 5
+    WeaponType: 0
+    ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+    AggroRange: 9999
+    AggroDuration: 9999
+    IsFlying: 0
+    Rewards:
+    - rid: 2957545098541269119
+    - rid: 2957545098541269118
+    - rid: 2957545098541269120
+    - rid: 2957545098541269121
+    - rid: 2957545098541269117
+    Behaviors:
+    - rid: 2957545098541269124
+    isUnlockedByDefault: 1
+    UnlockUpgradeKey:
+    AverageFightTime: 55
+    Difficulty: 0.75
+    EliteAverageFightTime: 110
+    EliteDifficulty: 2
+    BossUpgradeKeys:
+    - graph_boss_tower_crab_5_30
+  - Key: hydra
+    ArenaKey: atlantic
+    DisplayName: hydra
+    FullPortrait: {fileID: 21300000, guid: 7c6e9aa78ba37c042a1e08480b39a02d, type: 2}
+    PortraitScale: 1
+    PortraitItemOffset: {x: -50, y: 0, z: 0}
+    Prefab: {fileID: 114571718729274231, guid: 4cf3e9a41c9457d4ea18f0221981bb19, type: 2}
+    Stats:
+    - BaseValue: 651787252
+      Type: 1
+    - BaseValue: 6
+      Type: 0
+    - BaseValue: 12747680
+      Type: 3
+    - BaseValue: 3.3
+      Type: 4
+    - BaseValue: 1
+      Type: 5
+    WeaponType: 1
+    ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+    AggroRange: 9999
+    AggroDuration: 9999
+    IsFlying: 0
+    Rewards:
+    - rid: 5034610476071780468
+    - rid: 5034610476071780467
+    - rid: 5034610476071780466
+    - rid: 3701077729687371994
+    - rid: 5034610476071780463
+    Behaviors:
+    - rid: 6613836734708056305
+    isUnlockedByDefault: 1
+    UnlockUpgradeKey:
+    AverageFightTime: 10
+    Difficulty: 0.75
+    EliteAverageFightTime: 12
+    EliteDifficulty: 1
+    BossUpgradeKeys:
+    - graph_boss_tower_hydra_5_26
+  - Key: vikings
+    ArenaKey: nordic
+    DisplayName: vikings
+    FullPortrait: {fileID: 21300000, guid: 2569c40718911ec4c9da43cfc6a3ffc9, type: 2}
+    PortraitScale: 1.5
+    PortraitItemOffset: {x: -80, y: 0, z: 0}
+    Prefab: {fileID: 114436073260064126, guid: 6bfa6d47e35411047b7f506a0bad6bed, type: 2}
+    Stats:
+    - BaseValue: 543156043
+      Type: 1
+    - BaseValue: 4
+      Type: 0
+    - BaseValue: 14112800
+      Type: 3
+    - BaseValue: 3.3
+      Type: 4
+    - BaseValue: 1
+      Type: 5
+    WeaponType: 3
+    ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+    AggroRange: 9999
+    AggroDuration: 9999
+    IsFlying: 0
+    Rewards:
+    - rid: 3701077729687371922
+    - rid: 3701077729687371923
+    - rid: 3701077729687371921
+    - rid: 3701077729687371920
+    - rid: 3701077729687371919
+    Behaviors:
+    - rid: 6613836734708056293
+    isUnlockedByDefault: 1
+    UnlockUpgradeKey:
+    AverageFightTime: 15
+    Difficulty: 0.75
+    EliteAverageFightTime: 20
+    EliteDifficulty: 1
+    BossUpgradeKeys:
+    - graph_boss_tower_vikings_7_36
+  - Key: berserker
+    ArenaKey: nordic
+    DisplayName: berserker
+    FullPortrait: {fileID: 21300000, guid: 8ddadd839ea4a834c8a6c4a504ff0d1d, type: 2}
+    PortraitScale: 1
+    PortraitItemOffset: {x: 0, y: 0, z: 0}
+    Prefab: {fileID: 114699617135816954, guid: 92deffab3bc68d6498e99c6bd9d0c8ed, type: 2}
+    Stats:
+    - BaseValue: 1744872910.3627164
+      Type: 1
+    - BaseValue: 4
+      Type: 0
+    - BaseValue: 8679699.811872574
+      Type: 3
+    - BaseValue: 3.3
+      Type: 4
+    - BaseValue: 1
+      Type: 5
+    WeaponType: 3
+    ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+    AggroRange: 9999
+    AggroDuration: 9999
+    IsFlying: 0
+    Rewards:
+    - rid: 5501376311826841726
+    - rid: 5501376311826841727
+    - rid: 5501376311826841724
+    - rid: 5501376311826841725
+    - rid: 5501376311826841722
+    - rid: 5501376311826841723
+    - rid: 5501376311826841720
+    - rid: 5501376311826841721
+    - rid: 5501376311826841718
+    - rid: 5501376311826841719
+    Behaviors:
+    - rid: 2957545064034730112
+    isUnlockedByDefault: 0
+    UnlockUpgradeKey: graph_boss_tower_unlock_berserker_4_1
+    AverageFightTime: 55
+    Difficulty: 0.8
+    EliteAverageFightTime: 110
+    EliteDifficulty: 0.8
+    BossUpgradeKeys:
+    - graph_boss_tower_berserker_7_37
+  - Key: vampire_king
+    ArenaKey: necrotic
+    DisplayName: vampire_king
+    FullPortrait: {fileID: 21300000, guid: f3dab3ffd0384bb44a45f5e7feb7a907, type: 2}
+    PortraitScale: 1
+    PortraitItemOffset: {x: 0, y: 0, z: 0}
+    Prefab: {fileID: 114344419225485095, guid: dccb5777cddae0247a13259462867d7c, type: 2}
+    Stats:
+    - BaseValue: 3129092473
+      Type: 1
+    - BaseValue: 2.5
+      Type: 0
+    - BaseValue: 11827770
+      Type: 3
+    - BaseValue: 3.3
+      Type: 4
+    - BaseValue: 1
+      Type: 5
+    - BaseValue: 0
+      Type: 27
+    WeaponType: 0
+    ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+    AggroRange: 9999
+    AggroDuration: 9999
+    IsFlying: 0
+    Rewards:
+    - rid: 5501376311826841715
+    - rid: 5501376311826841714
+    - rid: 5501376311826841717
+    - rid: 5501376311826841716
+    - rid: 2957545087062769785
+    - rid: 2957545087062769786
+    - rid: 2957545087062769783
+    - rid: 2957545087062769784
+    - rid: 2957545087062769782
+    - rid: 3701077729687371995
+    Behaviors:
+    - rid: 2957545087062769789
+    isUnlockedByDefault: 0
+    UnlockUpgradeKey: graph_boss_tower_unlock_vampire_4_16
+    AverageFightTime: 50
+    Difficulty: 1.2
+    EliteAverageFightTime: 100
+    EliteDifficulty: 1.3
+    BossUpgradeKeys:
+    - graph_boss_tower_vampire_6_23
+  - Key: lich
+    ArenaKey: necrotic
+    DisplayName: lich
+    FullPortrait: {fileID: 21300000, guid: 1efb2aeb68f76bc41ba7d54bed08eade, type: 2}
+    PortraitScale: 1
+    PortraitItemOffset: {x: 0, y: 0, z: 0}
+    Prefab: {fileID: 114658330495870062, guid: 24142c92574475844ad68898a3d0bab3, type: 2}
+    Stats:
+    - BaseValue: 8940264209
+      Type: 1
+    - BaseValue: 6
+      Type: 0
+    - BaseValue: 10087060
+      Type: 3
+    - BaseValue: 3.3
+      Type: 4
+    - BaseValue: 1
+      Type: 5
+    WeaponType: 1
+    ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+    AggroRange: 9999
+    AggroDuration: 9999
+    IsFlying: 0
+    Rewards:
+    - rid: 5501376311826841736
+    - rid: 5501376311826841737
+    - rid: 5501376311826841734
+    - rid: 5501376311826841735
+    - rid: 5501376311826841732
+    - rid: 5501376311826841733
+    - rid: 5501376311826841730
+    - rid: 5501376311826841731
+    - rid: 5501376311826841728
+    - rid: 5501376311826841729
+    Behaviors:
+    - rid: 2957545075652690043
+    isUnlockedByDefault: 0
+    UnlockUpgradeKey: graph_boss_tower_unlock_lich_4_25
+    AverageFightTime: 70
+    Difficulty: 1
+    EliteAverageFightTime: 200
+    EliteDifficulty: 1
+    BossUpgradeKeys:
+    - graph_boss_tower_lich_6_24
+  DailyRaidsMaxCount: 3
+  ArenaMusic: {fileID: 8300000, guid: be8cc6f9e7c84254784cead42c9e499c, type: 3}
+  FightMusic: {fileID: 8300000, guid: 5a9ff8de69b73e745bb02d18f2f77002, type: 3}
+  bossItemWeaponDrops:
+  - rarity: 0
+    floorStart: 0
+    addItemDrop: 0.7
+    modItemDrop: 1
+    startItemDrop: 7
+  - rarity: 1
+    floorStart: 0
+    addItemDrop: 0.4
+    modItemDrop: 1
+    startItemDrop: 5
+  - rarity: 2
+    floorStart: 3
+    addItemDrop: 0.22
+    modItemDrop: 1
+    startItemDrop: 3
+  - rarity: 3
+    floorStart: 10
+    addItemDrop: 0.05
+    modItemDrop: 1
+    startItemDrop: 2
+  - rarity: 4
+    floorStart: 0
+    addItemDrop: 0
+    modItemDrop: 1
+    startItemDrop: 0
+  bossItemArmorDrops:
+  - rarity: 0
+    floorStart: 0
+    addItemDrop: 0.6
+    modItemDrop: 1
+    startItemDrop: 4
+  - rarity: 1
+    floorStart: 0
+    addItemDrop: 0.35
+    modItemDrop: 1
+    startItemDrop: 3
+  - rarity: 2
+    floorStart: 5
+    addItemDrop: 0.15
+    modItemDrop: 1
+    startItemDrop: 2
+  - rarity: 3
+    floorStart: 10
+    addItemDrop: 0.06
+    modItemDrop: 1
+    startItemDrop: 1
+  - rarity: 4
+    floorStart: 0
+    addItemDrop: 0
+    modItemDrop: 1
+    startItemDrop: 0
+  BossSpawnVfxPrefab: {fileID: 198587765826080250, guid: e4e9a2ce2979af146ba4846110d5feb2, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 2957545064034730112
+      type: {class: BerserkerBossConfig, ns: Codebase.BossTower, asm: Assembly-CSharp}
+      data:
+        RagePerSecond: 10
+        CastDuration: 1.5
+        RageDecreaseOnPlayerLevelUp: 0.2
+        RageThresholds:
+        - 60
+        - 150
+        - 300
+        - 500
+        BonusSpeedPerLevel: 2
+        BonusAttackRangePercentPerLevel: 0
+    - rid: 2957545075652690043
+      type: {class: LichBossConfig, ns: Codebase.BossTower, asm: Assembly-CSharp}
+      data:
+        SkeletonInterval: 1.4
+        SkeletonSpawnRadius: 12
+        MaxMarks: 5
+        SkeletonDeathMarkChance: 0.33
+        SpawnVfxLifetime: 2
+        EscapeDistance: 8
+        EscapeThreatCooldown: 2
+        SkeletonConfig:
+          Key:
+          Prefab: {fileID: 114689364072382846, guid: a802012287f530c43a38d703d16e9047, type: 2}
+          SpawnArea: {x: 0, y: 0}
+          SpawnAreaRotation: 0
+          Count: 0
+          Stats:
+          - BaseValue: 50000
+            Type: 1
+          - BaseValue: 1.6
+            Type: 0
+          - BaseValue: 608430
+            Type: 3
+          - BaseValue: 3.3
+            Type: 4
+          - BaseValue: 1
+            Type: 5
+          WeaponType: 1
+          ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+          Cooldown: 1
+          BigCooldown: 0
+          ChargesBeforeBigRespawn: 0
+          SyncBigRespawnToUtc: 0
+          ShowCooldown: 0
+          AggroRange: 9999
+          AggroDuration: 9999
+          IsStatic: 0
+          DisableAfterFirstClear: 0
+          LocationNumber: 0
+          StatRewards: []
+          ItemReward: {fileID: 0}
+          SlotReward:
+          PortalGemReward: 0
+          SoulReward:
+          SoulAlwaysAvailable: 0
+          CurrencyReward:
+          CurrencyRewardAmount: 1
+          Gates: []
+          RewardedPoolIndex: 0
+          IsDays: 0
+          OptimumTime: 0
+          RelativeOptimumTime: 0
+          AverageFightTime: 0
+          PriorityMultiplier: 1
+          HandBalance: 0
+          Difficulty: 1
+          IsEliteBoss: 0
+          IsVip: 0
+          RequiredVipLevel: 0
+          IsEvent: 0
+          EventDef:
+            Key:
+            UnitType: 0
+            Variants: []
+          NonSelectable: 0
+          IsSpecial: 0
+          IsFlying: 0
+          IsDummy: 0
+          WanderRadius: 0
+          WanderDwellTime: 0
+          IsBossFightPart: 1
+        SpawnVfxPrefab: {fileID: 198243736805655561, guid: 01b9d28c1901e3e41807db30bf89dc1b, type: 2}
+        EvolutionStages:
+        - UpgradeTime: 5
+          Prefab: {fileID: 114689364072382846, guid: 8a8da01ac07a9114d80f3158b161a947, type: 2}
+          VfxPrefab: {fileID: 198243736805655561, guid: 01b9d28c1901e3e41807db30bf89dc1b, type: 2}
+          Stats:
+          - Type: 0
+            Multiplier: 0.4
+          - Type: 3
+            Multiplier: 0.6
+          - Type: 1
+            Multiplier: 0.003
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+        - UpgradeTime: 5
+          Prefab: {fileID: 114215879266689626, guid: 3ac9c22bc97746744803006871ac8826, type: 2}
+          VfxPrefab: {fileID: 198243736805655561, guid: 01b9d28c1901e3e41807db30bf89dc1b, type: 2}
+          Stats:
+          - Type: 0
+            Multiplier: 0.7
+          - Type: 3
+            Multiplier: 0.7
+          - Type: 1
+            Multiplier: 0.006
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+        - UpgradeTime: 5
+          Prefab: {fileID: 114689364072382846, guid: dfe1cb7602e5277419859947b8294423, type: 2}
+          VfxPrefab: {fileID: 198243736805655561, guid: 01b9d28c1901e3e41807db30bf89dc1b, type: 2}
+          Stats:
+          - Type: 0
+            Multiplier: 1.2
+          - Type: 3
+            Multiplier: 0.8
+          - Type: 1
+            Multiplier: 0.012
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+        - UpgradeTime: 5
+          Prefab: {fileID: 114354824845356902, guid: b0d627af405160745bc44b5b8cee64e2, type: 2}
+          VfxPrefab: {fileID: 198243736805655561, guid: 01b9d28c1901e3e41807db30bf89dc1b, type: 2}
+          Stats:
+          - Type: 0
+            Multiplier: 1.6
+          - Type: 3
+            Multiplier: 1.1
+          - Type: 1
+            Multiplier: 0.016
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+        - UpgradeTime: 5
+          Prefab: {fileID: 114384403120170545, guid: 8775f50b18043df409fa5682f20a455e, type: 2}
+          VfxPrefab: {fileID: 198243736805655561, guid: 01b9d28c1901e3e41807db30bf89dc1b, type: 2}
+          Stats:
+          - Type: 0
+            Multiplier: 2
+          - Type: 3
+            Multiplier: 2
+          - Type: 1
+            Multiplier: 0.03
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+    - rid: 2957545087062769782
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 5056bee3efb5baf4596dd3d93e3f9b87, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545087062769783
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 9cf9ca4caae67594aa8cc591412c76a0, type: 2}
+        Rarity: 1
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545087062769784
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: ccac29766f59ab74499837c9b66a2667, type: 2}
+        Rarity: 2
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545087062769785
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 9aa8018f21dff02478ebb09c36d14a5e, type: 2}
+        Rarity: 3
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545087062769786
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: d0627d033b22e444eb7ca4da3cbd5468, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545087062769789
+      type: {class: VampireBossConfig, ns: Codebase.BossTower, asm: Assembly-CSharp}
+      data:
+        SpiritInterval: 8
+        SpiritCount: 4
+        HealPercent: 0.1
+        DamageBoostPercent: 0.5
+        ArmorBoostPercent: 0.25
+        SpeedBoostPerSpirit: 2
+        SpiritReachDistance: 3
+        SpiritPrefab: {fileID: 114689364072382846, guid: 482935ad5c4ec3646b1ce436e0f9a966, type: 2}
+        SpiritConfig:
+          Key:
+          Prefab: {fileID: 0}
+          SpawnArea: {x: 0, y: 0}
+          SpawnAreaRotation: 0
+          Count: 0
+          Stats:
+          - BaseValue: 99999990
+            Type: 1
+          - BaseValue: 2
+            Type: 0
+          - BaseValue: 0
+            Type: 3
+          - BaseValue: -1
+            Type: 4
+          - BaseValue: 0
+            Type: 5
+          WeaponType: 0
+          ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+          Cooldown: 1
+          BigCooldown: 0
+          ChargesBeforeBigRespawn: 0
+          SyncBigRespawnToUtc: 0
+          ShowCooldown: 0
+          AggroRange: -1
+          AggroDuration: 0
+          IsStatic: 0
+          DisableAfterFirstClear: 0
+          LocationNumber: 0
+          StatRewards: []
+          ItemReward: {fileID: 0}
+          SlotReward:
+          PortalGemReward: 0
+          SoulReward:
+          SoulAlwaysAvailable: 0
+          CurrencyReward:
+          CurrencyRewardAmount: 1
+          Gates: []
+          RewardedPoolIndex: 0
+          IsDays: 0
+          OptimumTime: 0
+          RelativeOptimumTime: 0
+          AverageFightTime: 0
+          PriorityMultiplier: 1
+          HandBalance: 0
+          Difficulty: 1
+          IsEliteBoss: 0
+          IsVip: 0
+          RequiredVipLevel: 0
+          IsEvent: 0
+          EventDef:
+            Key:
+            UnitType: 0
+            Variants: []
+          NonSelectable: 0
+          IsSpecial: 0
+          IsFlying: 0
+          IsDummy: 0
+          WanderRadius: 0
+          WanderDwellTime: 0
+          IsBossFightPart: 1
+        SpiritVfx: {fileID: 198703437598541787, guid: 1f83a3e09fcac8349bc021ac496aa53e, type: 2}
+        SpiritVfxLifetime: 1
+        SpiritSoulVfx: {fileID: 198724804207875695, guid: 52e5816755b7cf940b8a26f0cf34582f, type: 2}
+        SpiritSoulForceField: {fileID: 330724804207875695, guid: 4ff8343da07f93843bd6e4c0d2bb0089, type: 2}
+        VampireBuffVfx: {fileID: 198618682377417806, guid: 53e55f082daa65e45843fd2497aefa98, type: 2}
+        SpiritSpawnVfx: {fileID: 198884547391421755, guid: 4a0ecfa33ecbea843934e23d083628a0, type: 2}
+        HandEffectPrefab: {fileID: 198618682377417806, guid: 8b3058ff362f8ae45ac66c2f9bededda, type: 2}
+        SpiritStats:
+        - Type: 0
+          Multiplier: 1
+        - Type: 1
+          Multiplier: 0.1
+        - Type: 3
+          Multiplier: 0
+        - Type: 5
+          Multiplier: 1
+        - Type: 4
+          Multiplier: 1
+    - rid: 2957545098541269117
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 734ff42ab0c867f43a94879316328847, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545098541269118
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 3c3afe32d87894847acebd0adb554e15, type: 2}
+        Rarity: 1
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545098541269119
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: c46774bd9d99e21488c60ec23f7eac89, type: 2}
+        Rarity: 2
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545098541269120
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: d13b6b57a31ca52409d12d59bfce6d1d, type: 2}
+        Rarity: 3
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545098541269121
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 3d2ccd94bbe0e6f4593c45775bd5dd46, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 2957545098541269124
+      type: {class: LavaCrabBossConfig, ns: Codebase.BossTower, asm: Assembly-CSharp}
+      data:
+        HitsToExplode: 10
+        ExplosionDelay: 3
+        DamageMultiplier: 15
+        HealPercent: 0.05
+        ExplosionVfxPrefab: {fileID: 198061268324235159, guid: ac1edd30db625334a8fef243161ed44d, type: 2}
+        ExplosionVfxLifetime: 2
+    - rid: 3701077729687371919
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 04511fb93d95c0d449840a0f6bd72590, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 3701077729687371920
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 771120d87368ebe46ad60386f97837c6, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 3701077729687371921
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: ceb50345062c5bf40acab59d6659f23a, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 3701077729687371922
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 149b82039e9696940808d80f5d715322, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 3701077729687371923
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 07d9ad6fd281810458a72f3e69884b4a, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 3701077729687371994
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 6b035a82b7db23143bd1a7e62e031ee7, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 3701077729687371995
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: e1c591dfd094e2c4797137a6d464009f, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5034610476071780463
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 86595206efc9bb1479df8bd511647d35, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5034610476071780466
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 3d9adb7da08495c45bc4a049fe5d9ae6, type: 2}
+        Rarity: 1
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5034610476071780467
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: d257f1533d00e874c998d13ae28ef170, type: 2}
+        Rarity: 2
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5034610476071780468
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 472259280d1a1e9478e5aa76d9074fdb, type: 2}
+        Rarity: 3
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841714
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 9aea589b6c28d7040a8d4a6db0700845, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841715
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 56940ebad32924d44bd1dcbe9dc2f41a, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841716
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: c9f0bd65a6c48b440a93bfb4de6254b7, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841717
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: d8a6385bf395af446be13ec44ed70e3a, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841718
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 76f04328f9e77464282866b024ba0062, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841719
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 9ef664dcaf8ee1743bb539955595c82c, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841720
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 43cc52f62226c5b43a2d57d9788432be, type: 2}
+        Rarity: 1
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841721
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 9298a272036f1ef4096532c85aadadce, type: 2}
+        Rarity: 2
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841722
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 2f4cdb13ede1a5643b83dc8898fb06b8, type: 2}
+        Rarity: 3
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841723
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 7a0272912a5d29b439ca005e265854ad, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841724
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 04cd25ca8f9116b4598f15c1d55df016, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841725
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 87bdc813432b2c0448cc4dea1390150a, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841726
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 170676dd6a94dd74981d8bfd7cf7eb94, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841727
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 3bda4f8e4132814429caef7dbd07d575, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841728
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 731ef1e2653d7d54d986685df44e4e9e, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841729
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: d9ef3a7d3b1f48b4fb23a07c1c883bec, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841730
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: c26a48952a81f6144bbc717cdcd21d32, type: 2}
+        Rarity: 1
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841731
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 2931f7c287c9eda42886ea922c375eeb, type: 2}
+        Rarity: 2
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841732
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: e85780b649a4ab74f84a52c739f81eaf, type: 2}
+        Rarity: 3
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841733
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 1577c047808629344b53f70bef787b3e, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841734
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 9b4606296ed69bc4fb5a8a88ef1182d6, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841735
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 910b0b3441570954b9cd10adedcb2a23, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841736
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 2c413fe517a9271418e93244f42a836e, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 5501376311826841737
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: fb229a836a4d4864cbea092a010c02c8, type: 2}
+        Rarity: 4
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 6613836734708056293
+      type: {class: VikingsBossConfig, ns: Codebase.BossTower, asm: Assembly-CSharp}
+      data:
+        BuffPerDeadAlly: 0.5
+        AggroRange: 9999
+        AggroDuration: 9999
+        DebuffPerRageLevel: 0.3
+        DebuffDuration: 6
+        ScaleStep: 0.2
+        AdditionalVikings:
+        - Prefab: {fileID: 114107629493147155, guid: 4e0fe44283daa2a408f30ea696fe252b, type: 2}
+          WeaponType: 3
+          ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+          SpawnOffset: {x: 8, y: 0, z: 7}
+          SpawnRotationY: -85
+          MinionStats:
+          - Type: 1
+            Multiplier: 1.8
+          - Type: 3
+            Multiplier: 1
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+          - Type: 0
+            Multiplier: 0.4
+          GhostPrefab: {fileID: 114344419225485095, guid: 7c0a4c5e9f55b4c4f84a361cf872c2ca, type: 2}
+        - Prefab: {fileID: 114344419225485095, guid: a01e372a241b11449bd373c40b2ed89b, type: 2}
+          WeaponType: 3
+          ArmorConfig: {fileID: 11400000, guid: 88c48727784a0ec4489733200d44d0e7, type: 2}
+          SpawnOffset: {x: -8.2, y: 0, z: 7}
+          SpawnRotationY: 85
+          MinionStats:
+          - Type: 1
+            Multiplier: 0.65
+          - Type: 3
+            Multiplier: 1
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+          - Type: 0
+            Multiplier: 2
+          GhostPrefab: {fileID: 114967328832014496, guid: 90bec1d7525af9345a3de11bcb24b2c6, type: 2}
+        GhostViewPrefab: {fileID: 114919942235722503, guid: a8e68df66b7c4d447a87c346a565178f, type: 2}
+        BuffVfxPrefab: {fileID: 198724804207875695, guid: 5d5f13f362f97834998e44d0ffaa5d03, type: 2}
+        BuffTargetVfxPrefab: {fileID: 198703437598541787, guid: 056bc2083dcdc4d498e13527a1cb7586, type: 2}
+        BuffForceFieldPrefab: {fileID: 330724804207875695, guid: 4ff8343da07f93843bd6e4c0d2bb0089, type: 2}
+        HandEffectPrefab: {fileID: 198618682377417806, guid: 96594bcfa637d4b44bb9ba78ccc6161a, type: 2}
+    - rid: 6613836734708056305
+      type: {class: HydraBossConfig, ns: Codebase.BossTower, asm: Assembly-CSharp}
+      data:
+        MaxSplits: 2
+        SpawnCount: 2
+        SizeMultiplier: 1
+        ChildSpawnRadius: 5
+        SplitPrefabs:
+        - {fileID: 114641204913154593, guid: c48d0b33c6aa4d14ebaacdbdb18d9684, type: 2}
+        - {fileID: 114344419225485095, guid: c1af559c7b499194fb0128eb2c5c845e, type: 2}
+        - {fileID: 114344419225485095, guid: 65601e46348fbb64fb6f24b5bae1c2ad, type: 2}
+        GenerationStats:
+        - Stats:
+          - Type: 0
+            Multiplier: 1
+          - Type: 3
+            Multiplier: 0.9
+          - Type: 1
+            Multiplier: 1.2
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+        - Stats:
+          - Type: 0
+            Multiplier: 0.5
+          - Type: 3
+            Multiplier: 0.8
+          - Type: 1
+            Multiplier: 1.4
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+        - Stats:
+          - Type: 0
+            Multiplier: 0.25
+          - Type: 3
+            Multiplier: 0.7
+          - Type: 1
+            Multiplier: 2.2
+          - Type: 4
+            Multiplier: 1
+          - Type: 5
+            Multiplier: 1
+        SpawnProjectilePrefab: {fileID: 1709254077376921, guid: f7ce1fc290eb26941a0ea1b80beb33ba, type: 2}
+        SpawnProjectileSpeed: 14
+        DeathVfxPrefab: {fileID: 198243736805655561, guid: 358337e36d1f1dd43b43f037b46c7988, type: 2}
+        DeathVfxLifetime: 2

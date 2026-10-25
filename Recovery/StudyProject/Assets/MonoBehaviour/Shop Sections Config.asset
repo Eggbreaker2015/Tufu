@@ -1,0 +1,550 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f394041df3b0bc78ed4c1b5430f5ce43, type: 3}
+  m_Name: Shop Sections Config
+  m_EditorClassIdentifier:
+  Sections:
+  - Title: Gems
+    HeaderBackgroundColor: {r: 0.972549, g: 0.46666667, b: 0.9411765, a: 1}
+    Columns: 3
+    PassBanners:
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 1
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: gems_1
+      LotType: 0
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 200
+      RequiredLocationNumber: 0
+      Cost: 0
+      ProductKey: 1
+      Sprite: {fileID: 21300000, guid: b6e74cac6d0ed6a4d8e0d0bb143a551a, type: 2}
+      IconType: 0
+    - Key: gems_2
+      LotType: 0
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 500
+      RequiredLocationNumber: 0
+      Cost: 0
+      ProductKey: 2
+      Sprite: {fileID: 21300000, guid: ff0a4480fe978bb4a85c44b40dedddae, type: 2}
+      IconType: 0
+    - Key: gems_3
+      LotType: 0
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 1200
+      RequiredLocationNumber: 0
+      Cost: 0
+      ProductKey: 3
+      Sprite: {fileID: 21300000, guid: 46b018bdd508ae44b97c91584b167a30, type: 2}
+      IconType: 0
+    - Key: gems_4
+      LotType: 0
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 2500
+      RequiredLocationNumber: 0
+      Cost: 0
+      ProductKey: 4
+      Sprite: {fileID: 21300000, guid: 0abed11323f44bc4f9cd8480e7ae3390, type: 2}
+      IconType: 0
+    - Key: gems_5
+      LotType: 0
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 6500
+      RequiredLocationNumber: 0
+      Cost: 0
+      ProductKey: 5
+      Sprite: {fileID: 21300000, guid: 459a7036c17afba408f79795aed8044e, type: 2}
+      IconType: 0
+    - Key: gems_6
+      LotType: 0
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 0
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 14000
+      RequiredLocationNumber: 0
+      Cost: 0
+      ProductKey: 6
+      Sprite: {fileID: 21300000, guid: f72c309b173355242b9bbc1c744bfabc, type: 2}
+      IconType: 0
+  - Title: Damage
+    HeaderBackgroundColor: {r: 0.12156863, g: 0.8, b: 0.98039216, a: 1}
+    Columns: 3
+    PassBanners:
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 0
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: damage_1
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 0
+      StatType: 8
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: damage_2
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 8
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: damage_3
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 8
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 350
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+    - Key: damage_4
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 1
+      StatType: 6
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 2
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: damage_5
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 6
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 2
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: damage_6
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 6
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 350
+      RequiredLocationNumber: 2
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+    - Key: damage_7
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 1
+      StatType: 12
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 3
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: damage_8
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 12
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 3
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: damage_9
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 12
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 350
+      RequiredLocationNumber: 3
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+  - Title: Health
+    HeaderBackgroundColor: {r: 1, g: 0.1882353, b: 0.3019608, a: 1}
+    Columns: 3
+    PassBanners:
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 0
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: health_1
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 0
+      StatType: 1
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: health_2
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 1
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: health_3
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 1
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 360
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+    - Key: regen_1
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 0
+      StatType: 2
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: regen_2
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 2
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: regen_3
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 2
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 360
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+    - Key: lifesteal_1
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 0
+      StatType: 22
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 0
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: lifesteal_2
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 22
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 0
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: lifesteal_3
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 22
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 360
+      RequiredLocationNumber: 0
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+  - Title: Defense
+    HeaderBackgroundColor: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
+    Columns: 3
+    PassBanners:
+    HasExtraHeader: 0
+    HasExtraInfo: 0
+    HasOfferWallSection: 0
+    ExtraTitle:
+    ExtraHeaderBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+    Lots:
+    - Key: defence_1
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 1
+      StatType: 16
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 5
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: defence_2
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 16
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 5
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: defence_3
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 16
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 360
+      RequiredLocationNumber: 5
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+    - Key: defence_4
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 1
+      StatType: 14
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 5
+      Value: 30
+      RequiredLocationNumber: 6
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: defence_5
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 14
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 6
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: defence_6
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 14
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 360
+      RequiredLocationNumber: 6
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2
+    - Key: defence_7
+      LotType: 1
+      IsFree: 1
+      CanClaimOnFirstDay: 1
+      StatType: 20
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 6
+      Value: 30
+      RequiredLocationNumber: 7
+      Cost: 50
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 0
+    - Key: defence_8
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 20
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 130
+      RequiredLocationNumber: 7
+      Cost: 200
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 1
+    - Key: defence_9
+      LotType: 1
+      IsFree: 0
+      CanClaimOnFirstDay: 0
+      StatType: 20
+      ChestKey:
+      CurrencyKey:
+      SoulKey:
+      FreeValue: 0
+      Value: 360
+      RequiredLocationNumber: 7
+      Cost: 550
+      ProductKey: 0
+      Sprite: {fileID: 0}
+      IconType: 2

@@ -1,0 +1,162 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: stab_epic_helmet
+  m_EditorClassIdentifier:
+  Key: graveeye_visor
+  Rarity: 3
+  SlotType: 1
+  DamageType: 0
+  DamageStatTypeFlat: 14
+  DamageStatTypePercent: 15
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 85842c287f185944998c27316ecd1357, type: 2}
+  DivineIcon: {fileID: 21300000, guid: 458bf69c5350cf646b588a45feb7e302, type: 2}
+  Prefab: {fileID: 114884547391421755, guid: 67e0010ffc653ad4cbb5f189eedd2a3d, type: 2}
+  DivinePrefab: {fileID: 114884547391421755, guid: 67e0010ffc653ad4cbb5f189eedd2a3d, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: helmet_pierce_epic_ability_1
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 5034610377483092215
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.1
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.11
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.14
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.18
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: helmet_pierce_epic_ability_2
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972242
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.25
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.35
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.45
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: helmet_pierce_epic_ability_3
+    Trigger: 16
+    Conditions: []
+    Effects:
+    - rid: 6613836670183669990
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.1
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092215
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 28
+        ModifierType: 6
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972242
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 29
+        ModifierType: 6
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836670183669990
+      type: {class: BuffNextHitSuperCritEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}

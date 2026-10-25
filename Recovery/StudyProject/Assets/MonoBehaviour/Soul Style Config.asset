@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 838f290b36e22c878a8cc704a1382ade, type: 3}
+  m_Name: Soul Style Config
+  m_EditorClassIdentifier:
+  Styles:
+  - Key: common
+    Icon: {fileID: 21300000, guid: ad227c16d0c43e542bdd44f52fcad9f3, type: 2}
+    Color: {r: 0.68235296, g: 0.85098046, b: 0.91372555, a: 1}
+    HasGlow: 0
+  - Key: large
+    Icon: {fileID: 21300000, guid: 8aeb6ef62bbf08449ad608a982ca5568, type: 2}
+    Color: {r: 0.10980393, g: 1, b: 0.48235297, a: 1}
+    HasGlow: 0
+  - Key: elite
+    Icon: {fileID: 21300000, guid: 13b2e2115f62d634f9f8712acdabf7b5, type: 2}
+    Color: {r: 0.23529413, g: 0.76470596, b: 1, a: 1}
+    HasGlow: 0
+  - Key: huge
+    Icon: {fileID: 21300000, guid: e556cec6cf99fa64cbfaf568df2bd2a7, type: 2}
+    Color: {r: 0.8705883, g: 0.16078432, b: 0.9921569, a: 1}
+    HasGlow: 0
+  - Key: great
+    Icon: {fileID: 21300000, guid: 986eccf06d0bc3646b3c1d1201bac093, type: 2}
+    Color: {r: 1, g: 0.6745098, b: 0, a: 1}
+    HasGlow: 0
+  - Key: divine
+    Icon: {fileID: 21300000, guid: 8dea266a1914fd3418e56e5d297235a1, type: 2}
+    Color: {r: 0.91372555, g: 0.8313726, b: 0.27450982, a: 1}
+    HasGlow: 1
+  - Key: chaotic
+    Icon: {fileID: 21300000, guid: 6a5634097b8a0b045a6eabdb92a33e1e, type: 2}
+    Color: {r: 0.35686275, g: 0.4156863, b: 0.9176471, a: 1}
+    HasGlow: 1

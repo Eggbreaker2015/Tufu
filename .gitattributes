@@ -1,0 +1,17 @@
+* text=auto
+*.cs text
+*.shader text
+*.hlsl text
+*.cginc text
+*.md text
+*.json text
+*.meta text
+*.asset text
+*.prefab text
+*.unity text
+*.dll binary
+*.bundle binary
+*.bin binary
+
+# The original Main scene is about 82 MiB; keep it out of normal Git blobs.
+Recovery/StudyProject/Assets/Scenes/Main.unity filter=lfs diff=lfs merge=lfs -text

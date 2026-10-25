@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: smash legendary
+  m_EditorClassIdentifier:
+  Key: coolHammer
+  Rarity: 4
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 15000
+  AttackCooldown: 1.7
+  SimulationDpsWeaponMultiplier: 1.3
+  Number: 0
+  AnimationCastPoint: 0.763
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: dfaf83f176bb52444909ed44c3bbceb2, type: 2}
+  DivineIcon: {fileID: 21300000, guid: 0fec96448b6b6704f979381d28542577, type: 2}
+  Prefab: {fileID: 114099118695303065, guid: 7858b2a4bfe79dd4f93109a0deaddc3e, type: 2}
+  DivinePrefab: {fileID: 114099118695303065, guid: 7858b2a4bfe79dd4f93109a0deaddc3e, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: weapon_smash_legendary_ability_1
+    Trigger: 2
+    Conditions:
+    - rid: 6613836593968972164
+    Effects:
+    - rid: 6613836593968972165
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0
+    Chance: 0.12
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 1
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0
+      ChanceOverride: 0.14
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0
+      ChanceOverride: 0.16
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0
+      ChanceOverride: 0.18
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0
+      ChanceOverride: 0.2
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0
+      ChanceOverride: 0.22
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0
+      ChanceOverride: 0.24
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0
+      ChanceOverride: 0.3
+      StacksOverride: 0
+  - Key: weapon_smash_legendary_ability_2
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972166
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.5
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.7
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 1
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: weapon_smash_legendary_ability_3
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972174
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.1
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 6613836593968972164
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 6613836593968972165
+      type: {class: SpawnLightningEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        DamageMultiplier: 1
+    - rid: 6613836593968972166
+      type: {class: LightningDamageBonusEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 0
+        ScalingStat: 0
+    - rid: 6613836593968972174
+      type: {class: BonusDamagePerConsumedShockOnTargetEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}

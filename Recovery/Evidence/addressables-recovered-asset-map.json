@@ -1,0 +1,1255 @@
+{
+  "passed": true,
+  "originalAssetCount": 89,
+  "matched": 89,
+  "comparison": "Exact hierarchy order, object names, active flags and component class IDs; local transform float32 export decimal precision tolerance absolute 1e-5 or relative 1e-6; no source asset mutation",
+  "mapping": [
+    {
+      "originalInternalId": "Assets/JMO Assets/Epic Toon FX/Prefabs/Combat/Brawling/Stun/StunnedCirclingStars.prefab",
+      "exportedPath": "Assets/JMO Assets/Epic Toon FX/Prefabs/Combat/Brawling/Stun/StunnedCirclingStars.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "cc1942b4dd164a11c143d7dcd08ac93fc9aad5552d40adbce4dae05d3713e610",
+      "exportedTreeSha256": "54e12874cfa8668a6de823d12aeb33e6b7f0e9de207977907a80fa522f2c2186",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "2ed06ab528b7c474eb9246421cd7c791",
+        "Assets/Prefabs/Vfx/Abilities/Stunned.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/DeathEvasion.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/DeathEvasion.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "147ca7ec47cc3a464aeda91e103657f12ed74206e919adb8c6cec4c18f9356d2",
+      "exportedTreeSha256": "71db9b169b6de14282032b20c13659d5ce9e9fb54ec7bf4c11e812a1213c6622",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/Vfx/Abilities/DeathEvasion.prefab",
+        "d7ae0645c7f0d8b47a4b663c3689c3d2"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/HealTrigger1.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/HealTrigger1.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "65e8bd812173ca7208feec92c99c2715583879160b4b33b0e9bfec2e84d7b6b6",
+      "exportedTreeSha256": "82e92e41d7a285070bc89c63fccc4350861f2dbc0e4812084c94d94b4c15b9e5",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/Vfx/Abilities/HealBig.prefab",
+        "f04f2e196167d0a4b9075204957a2adf"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/HealTriggerSmall.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/HealTriggerSmall.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "97fa48e89fba6b0792986fd666bdb9e0b9fad72ca7568a30e3c1806bdd2d2940",
+      "exportedTreeSha256": "d69c1f88c14f17d4cae3c888214594bbbbafe722eed5e3aced8044d2a7276e06",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "015ec4758d51cf04294fabca3515af68",
+        "Assets/Prefabs/Vfx/Abilities/HealSmall.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Mark.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Mark.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "2d1c9621bdb63d20947a7addf583ca292c7f000b53766a3e2db8795ed5b9fe94",
+      "exportedTreeSha256": "08a17c417f552f2882633f72d614e9e5936654135df63f215a03b727390d0a84",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/Vfx/Abilities/ApplyMark.prefab",
+        "b88ebe0e7511db741812cf4b08870818"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/MegaLightning.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/MegaLightning.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "4e5a964a45eeb3685e05c264c2ff9754d63b08830d21f422ee3ff70ae1f9d626",
+      "exportedTreeSha256": "c77ef1779626e2e8c3608d80ba5b8658d46ded29d0116fbaecf871b6b64860e4",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "43a567f340152d745b629f0f84beb1aa",
+        "Assets/Prefabs/Vfx/Abilities/MegaLightning.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_1.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_1.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "fb59785a47af34dfa43fc689f90b5a3ef19aa721a5bc2439424189818f221e43",
+      "exportedTreeSha256": "f85b80c06a6e0605de8bddf264ed62be1e5986ee1ca16e710ca8c7116ebd6f54",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "64432c2420c176f4db81d9fe3c845727",
+        "Assets/Prefabs/Vfx/Abilities/RageLevelUp1.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_2.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_2.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "88f7891280c97c05779c728be265ef40907ab0e4d1080fb7a1425206f3bc09ae",
+      "exportedTreeSha256": "3334ac775ae47487d6c94d23e30fdf40d77507a2306bf6d5bc3b99a876113245",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/Vfx/Abilities/RageLevelUp2.prefab",
+        "eb475ee184fd1b94eb18e09a3a22e8ce"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_3.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Rage_Stage_3.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "d61b06c9de32bd22d29d0017c576efb4dd06de85b3f051c0b7a77c5004a3ee9e",
+      "exportedTreeSha256": "9c4b280217fb30867a1585a669b58ba305d6846b3207a9081b78ae72449bc51f",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "4646fadcc9d70444ca2b59dfbd5436c5",
+        "Assets/Prefabs/Vfx/Abilities/RageLevelUp3.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/ReflectionStrike.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/ReflectionStrike.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "c2da748993a91b21eb31108e8dd555ff802cf4ea65cef056c422b4d8d9e791ad",
+      "exportedTreeSha256": "aa97836265e1d21291802be018ef8a08077fc1bdfc95ce8a4afb3baf59a7d6fe",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "03af4cd260bfe654087925db8e6c33b3",
+        "Assets/Prefabs/Vfx/Abilities/ReflectionStrike.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/ShockLightning.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/ShockLightning.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "8b9d5e2c150da20c708301d7760173d418daf6531039752b466a3cf58ea8177c",
+      "exportedTreeSha256": "652df2ebc5cef933b83c1769649193ad0c0b10d6243652b06242eda79a70e47d",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/Vfx/Abilities/ShockLightning.prefab",
+        "cd5c5f7159b84b54d9d418b158fe1efb"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Shocked.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/Shocked.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "2d8535d23307e94c6bbeff589a97a66f86942b7590fcef3a2139a5794497e17b",
+      "exportedTreeSha256": "b16d9d816f99309a0e4c913d4d2870c8be156407dfded506f5af229f5270e552",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "8a672fe8d751d7f4d8e6aa3cca07e26f",
+        "Assets/Prefabs/Vfx/Abilities/ApplyShock.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SpeedupTrigger.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SpeedupTrigger.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "f63d0bf32641a6783082e9bb9ca1c45420d24823b6795eeacf73f3dda6430ffd",
+      "exportedTreeSha256": "1bd1d7c02348ab7212b17846229b767768f53382edee52b5820ed4fdb1931a11",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "55395d9ea24af034baaf0504883152c5",
+        "Assets/Prefabs/Vfx/Abilities/SpeedupTrigger.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SuperCrit_Blue.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SuperCrit_Blue.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "94dbc79a41a748610bc72e4d2ee2c1d872d10896d19837ac28c76c09a79c2d27",
+      "exportedTreeSha256": "7233a9aa385adb1cfa3539beb6058042eff0d6b7d9a293d96ad95ba87ea98ca6",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/Vfx/Abilities/SuperCrit_Blue.prefab",
+        "aebe045549c54b44e887210ace923824"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SwordCrit_Slime.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SwordCrit_Slime.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "8aeb26f4497d3890757c88ae9cb3ba8b711d204852f4613668be1278bc9f94d5",
+      "exportedTreeSha256": "196cfe1b3d2ecd6cce92fa044980126a610864011c2e3679322cab0c31e419ad",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "108ff9895dc2bb0468c1ce59c962ee3a",
+        "Assets/Prefabs/Vfx/Abilities/SwordCrit.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SwordHit_Slime.prefab",
+      "exportedPath": "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/SwordHit_Slime.prefab",
+      "bundle": "defaultlocalgroup_assets_all_009898eb6fb433483b8c2c999cceb7c1.bundle",
+      "nativeTreeSha256": "edec48b83790e2a8471d259317685ebe7ef2eb59d1ba576b041bf562c46b8fba",
+      "exportedTreeSha256": "ce04fed37cc349e4c01636e277b70a2e83277fe6b9066b30e878b50208bee2cc",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 2,
+      "keys": [
+        "351dec89524a0c64b97fd0eeb9fbbba1",
+        "Assets/Prefabs/Vfx/Abilities/SwordHit.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/AlertDialogView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/AlertDialogView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "9c5fe95855eae94575c3d014206a42844380d192dde795254e67bf3d871ccc5e",
+      "exportedTreeSha256": "9c5fe95855eae94575c3d014206a42844380d192dde795254e67bf3d871ccc5e",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/AlertDialogView.prefab",
+        "aeb35f031ecc6493bb43d5dd93e51c35"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/AmuletGraphLevelUnlockView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/AmuletGraphLevelUnlockView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "49b10f58dd54a373fe39b3761f7ad9b16bf1315b54dcaed0f8cf751b66864182",
+      "exportedTreeSha256": "548f7bc97ca6c8d3b5fefc04acee2d238534f4b5f7b14e332344d5fac30a3555",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Amulet/AmuletGraphLevelUnlockView.prefab",
+        "fbb93e631f4bc9c44943a524c7ca7aa4"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/AmuletProgressPopup.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/AmuletProgressPopup.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "dca0f08f3598c038b11f30907e4966f6afe0ffe73a6fd903a0541acbd79572fd",
+      "exportedTreeSha256": "264e7195a0c067caadffa0feb84482755ad276f4c67ca05f8edc151fae7ce01c",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Amulet/AmuletProgressPopup.prefab",
+        "bfe86d91ad9eee34988ae0517a987a2c"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/AmuletSoulHarvestedView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/AmuletSoulHarvestedView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "de2d80d1073642d7b74feee34cd5bd765736098baf1a120862952db429c32b6f",
+      "exportedTreeSha256": "f11d4d45c9d837f2a596218ba1e950b0ce3f768920783da4321c2c0b72dc2344",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Amulet/AmuletSoulHarvestedView.prefab",
+        "e6c55028d7e091644af7169fb39bb5c4"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/AmuletTutorial.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/AmuletTutorial.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "20a32bc50e2108eed0e3486dd725de6ccef169ece151b38b13814a0269dd858b",
+      "exportedTreeSha256": "2fa2080a0afe04085249958b251b86fd3bcb837c216c24b0bd3fa426fd3f238f",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Amulet/AmuletTutorial.prefab",
+        "d710d34a8f7563b4e91cc6fc42c71a79"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/AmuletUnlockView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/AmuletUnlockView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "78a6a6b6f8d33dd657bbb196b3ad5d48c7d802eeef0c9048ba9bc33a71d9c890",
+      "exportedTreeSha256": "f8f53cf605d8b1007f1ad07fe5142f3bdcffd31e21d1b9f90b438c93dd9af9e7",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "67aa7d02ef81b2344bbe57651eb7a9ed",
+        "Assets/Prefabs/UI/Amulet/AmuletUnlockView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/AmuletUpgradesGraph.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/AmuletUpgradesGraph.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "5ed69663d8eda7351812199b0e866f08cc291b07fe641c58be3004981e4a3f47",
+      "exportedTreeSha256": "9e362721a1375d783836f98ba2cea0631a3e6d4dd7dc6a59c1d062ea0568f3f8",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "36659c62107f2ea4bbd8b63e37cfd3a3",
+        "Assets/Prefabs/UI/Amulet/AmuletUpgradesGraph.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalContextView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalContextView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "bd9339c12967d3cd29270571a9b955e1522395aab6232378103d714afc55b264",
+      "exportedTreeSha256": "db8865c7d30d73ebfde029c542c2dc642279bda61ebeef16e1595bfc47cfd1f0",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalContextView.prefab",
+        "e761f8991c646954e9c608fd3a024809"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalEnchantmentResult.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalEnchantmentResult.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "a7fee2978fe0b2491c731735ea659f35932bc37ce414789e2b7359c4861e1404",
+      "exportedTreeSha256": "dcc10a5df00128e865b9e7b428f3bf83899c1a3007d14a2116c95bc6a2933992",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "1a64a4a87e561b544b1437ed62c0a504",
+        "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalEnchantmentResult.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalRarityChances.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalRarityChances.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "2341f21286f9bff0a2d203d57ba2a4a2e3b1a881ee44931dce27aad19203bda3",
+      "exportedTreeSha256": "2341f21286f9bff0a2d203d57ba2a4a2e3b1a881ee44931dce27aad19203bda3",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "6c7a1e9221cddab4288253a25cbc8cfd",
+        "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalRarityChances.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalUpgradesView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalUpgradesView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "539c6f65f3061c09ab8348ed4b89cd61d99cdd9eb7b2220f6bf0e3d1f993db11",
+      "exportedTreeSha256": "539c6f65f3061c09ab8348ed4b89cd61d99cdd9eb7b2220f6bf0e3d1f993db11",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "3ee8d69e5b7ea4549bfb7ff13216c9ba",
+        "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalUpgradesView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsBlacksmithView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsBlacksmithView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "8b2cb45b40678f033f126a15e0d60851b3331b8eb7f91d997efbb4973f58634b",
+      "exportedTreeSha256": "5885e592a1253185ad769a951fed36ff0ddbee4eb777e45710d9efb01dde5f50",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "3d050ae21bea3b84facc63441e438fa4",
+        "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsBlacksmithView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsEnchantmentTutorial.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsEnchantmentTutorial.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "84f625a549dec4cf7e5e47becf25077cbe73e42e7026e26822e0f95ba79c33a4",
+      "exportedTreeSha256": "e4dbc78a27208c79f94e4b49d1fb50badf1facf40dc33e789ae5b9c9fbe9bd84",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/Ui/Amulet/Crystals/AmuletCrystalsEnchantmentTutorial.prefab",
+        "d3275fe7fea7f49b9944c2864355fb03"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsEnchantmentView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsEnchantmentView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "ee6ceda179c1060a2b55ba23fb3017bceb8f312b0f89498f869726044076c872",
+      "exportedTreeSha256": "8ecbf22db2195e065003dda243aeaa0745838df13a2e6cf1a4021b33969844ac",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "8cb7dc162c2077c438dc9400b4ae8b81",
+        "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsEnchantmentView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "e1cf9e5a132c2643e8bd56d89176eb5773d3fd45f7ad57a1cbb77408543b0d14",
+      "exportedTreeSha256": "04605861918355e25127e2346f9aaf03c0ad92bb8318854ebf5fe277b88de3f9",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Amulet/Crystals/AmuletCrystalsView.prefab",
+        "c89e5839f6197c34fb2d0b982a4286f2"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/CrystalRespawnedView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/CrystalRespawnedView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "035ed1c1c8092fd564c50dae672bd61a555df5b792c3b0d51f994d24545f8cc3",
+      "exportedTreeSha256": "8039aa105ea9063fcae0181a9a41fc532056b344a57431b68d7173146aa97b0a",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "7a4b29f0b71652c409524f6c741dc413",
+        "Assets/Prefabs/UI/Amulet/Crystals/CrystalRespawnedView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/CrystalStatsFilterView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/CrystalStatsFilterView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "2be2986b304654e998c214e5c183a980b755affcfe3bdccc9e86bdbc7655d28d",
+      "exportedTreeSha256": "2be2986b304654e998c214e5c183a980b755affcfe3bdccc9e86bdbc7655d28d",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "3f31d44b2d823d044a1fc1d3cd02e434",
+        "Assets/Prefabs/UI/Amulet/Crystals/CrystalStatsFilterView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/CrystalsTutorial.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/CrystalsTutorial.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "5398f23b5d451fab9cca2a2cba7179c0e9a5991e2637a8e77254e2130560de60",
+      "exportedTreeSha256": "41d2c59b21bc6bcec4ed61120656aa899b5f0d8933d33a0fdd5a5acd249adac9",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "8de954ea195b4584191904969fb01f24",
+        "Assets/Prefabs/UI/Amulet/Crystals/CrystalsTutorial.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Amulet/Crystals/CrystalsUnlockView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Amulet/Crystals/CrystalsUnlockView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "9e90d13c62517e4d3b6e53ad0d670f3d93b9b3aca405a1f5f17f26fd640ddfb5",
+      "exportedTreeSha256": "cfcbf00b425344c59ec2635f1bac813946319063bdcc184d5d43e812b022f01b",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Amulet/Crystals/CrystalsUnlockView.prefab",
+        "fa790187ab937c84daed5e03808add44"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Background.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Background.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "44373609a0f4ee0a791b41314c98ea2db2bb3e9c482896b455cc1d6b18098458",
+      "exportedTreeSha256": "44373609a0f4ee0a791b41314c98ea2db2bb3e9c482896b455cc1d6b18098458",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "840dca030f6264a45b174ca6499f5701",
+        "Assets/Prefabs/UI/Background.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossRaidDefeatView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossRaidDefeatView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "edd7a2c8adbc2ea01fdba2e9c6ae6940f0f173a72bf8cf6874368327ce9a43e4",
+      "exportedTreeSha256": "0fc30588643e326fe96011249af32505b28c5731748ca7a22383dce4e2836743",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "126e56342560841728a5fc7f4f7a4411",
+        "Assets/Prefabs/UI/BossTower/BossRaidDefeatView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossRaidRewardView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossRaidRewardView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "d47a3731d608a2c33ec0410409898b28e47276e3f9b676b37c216eaac1d49004",
+      "exportedTreeSha256": "99534b0b87bd3476f81ad1b34b23cfaee8cfdc25c26a2f22146801312385e3cd",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "46d0252aacfe746f584a30495a421604",
+        "Assets/Prefabs/UI/BossTower/BossRaidRewardView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossRaidVictoryView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossRaidVictoryView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "b82f86c912c8fb5f6255d224217752a665ef80c7b22ad4650ef16d4aa5533f6f",
+      "exportedTreeSha256": "f3214723000d136db9c80e60513e789e304aef23188fc442cadf0a734fbfd23e",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "23e32257e878f40ab817c346e54c19a9",
+        "Assets/Prefabs/UI/BossTower/BossRaidVictoryView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossTowerBossDetailsView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossTowerBossDetailsView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "7387a352d5c840dd964faedee51790736751ffbafbeaff25740b3a9fbfcc4e42",
+      "exportedTreeSha256": "e08698de9ec93e4e37e6aacbeefc49b9804a3dcb9f5e679f2fe685047433a5f0",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/BossTower/BossTowerBossDetailsView.prefab",
+        "bf4f4f4e0962f4ce8b7b6ab75269aba9"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossTowerHub.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossTowerHub.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "684fde923cbede574dee2344eaa98d9e21c2860e6b157d0e6b5c354646ccce3c",
+      "exportedTreeSha256": "5d7b6c710ff57e904c893710fca71ffea6f6e3ada5f41fa13190fe989a39c373",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "07b64799bd00b5c49a0cb0e003bb0b1a",
+        "Assets/Prefabs/UI/BossTower/BossTowerHub.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossTowerLeaveView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossTowerLeaveView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "41de786c35d626f6e42b1c32b1384359ced2008cc31581742fb04cbd18588b87",
+      "exportedTreeSha256": "25cc0ba773a7fdde14483a91413e6e6bd0f8dc16998cf8229d3b88925d91a0d0",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "22505fa167213433190c7ba39cce7feb",
+        "Assets/Prefabs/UI/BossTower/BossTowerLeaveView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossTowerPortalUnlockView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossTowerPortalUnlockView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "c9b22eac34eb2667dd0e805ef135f3dd2b9243d448fde219a61ab2e7288edecc",
+      "exportedTreeSha256": "c9b22eac34eb2667dd0e805ef135f3dd2b9243d448fde219a61ab2e7288edecc",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/BossTower/BossTowerPortalUnlockView.prefab",
+        "a7ea970add8cc4034b29e3716f90ca3f"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/BossTower/BossTutorialView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/BossTower/BossTutorialView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "d4d931a6dc16e1a5327d566eb3e81913a4d0ef7032817e99320fc7f50e7b3f6f",
+      "exportedTreeSha256": "344e05fea0fa58dd38fbc03566fbfe94cd3b34e9b2a9c3d14b51181bc45d51ce",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "4fd8dac8a2c6c45ebacc90e53d5386e8",
+        "Assets/Prefabs/UI/BossTower/BossTutorialView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Cheats/DebugConsole.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Cheats/DebugConsole.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "2b0a89ccbefddd532e60f4aadda282bef1b17da3ccc6e4018cae352d644e9cdc",
+      "exportedTreeSha256": "2b0a89ccbefddd532e60f4aadda282bef1b17da3ccc6e4018cae352d644e9cdc",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "52148f8a38e4c184b896e393d46c4d80",
+        "Assets/Prefabs/UI/Cheats/DebugConsole.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/ChestOpenView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/ChestOpenView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "a39eeab684cbc696d590a1a0971f0aaeb8b65ac4c24e5cfdac7df19d9600c08f",
+      "exportedTreeSha256": "fc37c044b8f4ce7f7a423c9342729cfadb27a2c686599338ab26307e8c12a23c",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "9c4798cb81eaa5043a3b074fedd3690f",
+        "Assets/Prefabs/UI/ChestOpenView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/BossHuntProgress.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/BossHuntProgress.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "b257ecfa6dc6f1c8574b9c69637ec67ed5a8dc0b920c210d68a420f6e949a411",
+      "exportedTreeSha256": "28017f13830900a86da2b78a295b77fe478e9b6c061f0fc96122779135746f32",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "204959c926ae2a640a3ae07324884085",
+        "Assets/Prefabs/UI/Event/BossHuntProgress.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/EventEnds.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/EventEnds.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "61f3517a8eb3a873cd78b90146cefa13477c0c93239f856221ed4d1d2f5ef4e0",
+      "exportedTreeSha256": "0a5f0fbeaa73512c5b903be9d2f6a6c52cd8a35c9189a64a0e73588e4865a17e",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "841cccc3c76a44ef896cd0581d366f54",
+        "Assets/Prefabs/UI/Event/EventEnds.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/EventProgress.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/EventProgress.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "835c34e5e91bd50e465b2fc8fd280577413c68ec63cbe17f3c0554a2e5aab1c9",
+      "exportedTreeSha256": "ae2b7d435dbd76ccc2d5a685e6b3026e066d36bafeca2d453ad247508b166752",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "181f880249abd40d683da6404b5d851e",
+        "Assets/Prefabs/UI/Event/EventProgress.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/EventStart.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/EventStart.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "819deddb52e7762c31789a4644f8a2d8db9a11741fb01df1493559c4a84e42b2",
+      "exportedTreeSha256": "92f359b6e4948182f4905f33c9c664b45b279000dffbc4417b447fbc08b67f28",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Event/EventStart.prefab",
+        "baea905a5c8414fde812996d23f87cf4"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/EventTimeisOver.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/EventTimeisOver.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "744fa7d77c2e69000c80910f3541284edd81eaf784ef8c1e7b6fe7ae7799449c",
+      "exportedTreeSha256": "22a1e06b8518bc51c88be03d3cacad9ee5974bb1abeb9ea375fd366b6439164c",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "66bd6c921763b439ca3d8d1a5d03b98c",
+        "Assets/Prefabs/UI/Event/EventTimeIsOver.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/EventTutorial.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/EventTutorial.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "e9ab01d5a817b4af1b7ddc64690f78c9edad285ba1acaa2709015604197ba62d",
+      "exportedTreeSha256": "a5d3835e265fcb996858145dd5c28e9549e77d182d93eb0f7c32f545e6387487",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "3ad26e703a1004c1bb84bc2e6abca341",
+        "Assets/Prefabs/UI/Event/EventTutorial.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/Roster/RosterEventEndLeagueNotificationView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/Roster/RosterEventEndLeagueNotificationView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "6baa75c81cf07e5999043ff8d9d816203a0e059d8a79221429b7658e397ea742",
+      "exportedTreeSha256": "78eab07391cb653c641bd5e2f872db1ad654b32647a6aed66766760b38c1869a",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "1765c78456c5e43e291c0d4976cdf01d",
+        "Assets/Prefabs/UI/Event/Roster/RosterEventEndLeagueNotificationView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/Roster/RosterEventEnds.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/Roster/RosterEventEnds.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "169797010ada8eba84fb79b82dd64a4f3d157d643d30e71dae3d00729b4a041f",
+      "exportedTreeSha256": "394370d9a262fd78e05bd7d89ec4e300e6e0fedb24518c23bd7ecab053b1f494",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Event/Roster/RosterEventEnds.prefab",
+        "e1a50454fc8f2473eaf2b9a93978e00b"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/Roster/RosterEventProgress.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/Roster/RosterEventProgress.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "a23394be41f7a6096a276a29a1becf40535e86162ec78bb3243dc55a704294fb",
+      "exportedTreeSha256": "8d47e1807dcfb912bda59d7709913a3f2b102568085506c77fd6d9e8bfeb9cfa",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "8d0a371a9b46003489e76e97fdfa0a7d",
+        "Assets/Prefabs/UI/Event/Roster/RosterEventProgress.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/Roster/RosterEventStart.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/Roster/RosterEventStart.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "e4c4e2478484799a6b2c079ad7510c5a08f3fa644e19a67468f00e288b46f9a3",
+      "exportedTreeSha256": "53ba6ae29532b4100c5af5cc06575bb0fd1f1e4d92e0d5a49fd544b33150b38e",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "0f0da549be874d04498e0012391f1865",
+        "Assets/Prefabs/UI/Event/Roster/RosterEventStart.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/Roster/RosterEventTimeIsOver.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/Roster/RosterEventTimeIsOver.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "08cf8f86317a3c57d18e050a14369a52b16cd2a3b27d1598b97832e1fb0f9b24",
+      "exportedTreeSha256": "b0f63ba283244722553e53397e7b1285058787e7100d96c7b44d0272124c2510",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Event/Roster/RosterEventTimeIsOver.prefab",
+        "aae98ec6d3d014b7fac4032d9b3a8e5e"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/Roster/RosterEventTutorial.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/Roster/RosterEventTutorial.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "5ae6c3788cb986419e070633c8446be2d45ab10ea2de151eb0ee92a24e394a47",
+      "exportedTreeSha256": "00a8511f6fd455109adc507e71008df025684b46423b42613aa73ec3ff8d1b45",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Event/Roster/RosterEventTutorial.prefab",
+        "aaf172035140e63488c9bd806d98bd3c"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Event/Roster/RosterRewardsPopup.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Event/Roster/RosterRewardsPopup.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "6793745beb3c2837f4175782c59567f54535dc84b3eed0ed80457ed8ba16d210",
+      "exportedTreeSha256": "c5946f0d9dbf634400751e12ed05f7f1efec2a5513ef75df619c55e74a2cf952",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Event/Roster/RosterRewardsPopup.prefab",
+        "d4ce6da7a4fe2834c8b56041c00fe37f"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/EvolveItemView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/EvolveItemView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "9516d1847a7ef73e0cc41a6e60cc788c16a8dfa18c9091d09a8bf6aaa7ab9eae",
+      "exportedTreeSha256": "6d1bd58e94cca8a474d360fa4c3f199aa2a9d432571dab740939587bbed77bf8",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "16ac013effc43924b9c4707dc452008f",
+        "Assets/Prefabs/UI/EvolveItemView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/FirstBuyPack.prefab",
+      "exportedPath": "Assets/Prefabs/UI/FirstBuyPack.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "125bea455df131b63240321f3c021d4b9f708c835b5117554098cf4622192eb1",
+      "exportedTreeSha256": "9ea3f82663da914e0419584b0c8ae5af540543c1b7af1fb34f2d91172a6d908d",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "5a422295db16f4422b2f4c92dd6eb092",
+        "Assets/Prefabs/UI/FirstBuyPack.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/GlobalUpdateScreen.prefab",
+      "exportedPath": "Assets/Prefabs/UI/GlobalUpdateScreen.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "1dc17605ada6f5a876fa9374bb48cfa0f85781ebb9d1d9c90c1ad33d9936195d",
+      "exportedTreeSha256": "53a5c49a2bcec0fd8ab9249ffaea196ec134a912cf1ea347bad142765db8e463",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/GlobalUpdateScreen.prefab",
+        "d6a66df993d8c1947a0f8b87fdb59d8f"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/ItemMiniView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/ItemMiniView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "3a6c5d9603151b429b6ab81c7800be619275b99f10db32a711daeeac91e9ba26",
+      "exportedTreeSha256": "a82867d4ce55662fb2da189d6210158813a6b06101b1dc30033b62cb30485de8",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/ItemMiniView.prefab",
+        "c5a4e2e1a9872ba4bb6421ff91f5c4ba"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/ItemSlotUnlockView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/ItemSlotUnlockView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "702294f7710b7fefd038222bdeb9f13f3a03816de342f68bd3d475701a80bfff",
+      "exportedTreeSha256": "fced16f6aab2b615c36ffa58e262f3251c9b9abd2eca4aab9188e43bd4581f38",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "8bf85559e069a41a09b66f6cf3f1bb7d",
+        "Assets/Prefabs/UI/ItemSlotUnlockView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/LevelPass/LevelPass.prefab",
+      "exportedPath": "Assets/Prefabs/UI/LevelPass/LevelPass.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "e161dea3f2805aef8c63852fe81d009ece67bee9306a7119327008edcec79ac0",
+      "exportedTreeSha256": "a4b6d6216a4dde27e7f2cc901e73c0e96151b7b63749cf544ee942162dcdb898",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "48ec624117452aa4ba2bca6c6b69b020",
+        "Assets/Prefabs/UI/LevelPass/LevelPass.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/LevelPass/LevelPassPurchase.prefab",
+      "exportedPath": "Assets/Prefabs/UI/LevelPass/LevelPassPurchase.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "7b19ad7b297ceb28cc878a0eca2abb641dd297aec26804a844d070a66e61c0cb",
+      "exportedTreeSha256": "7cbfc7f0508a7f08cbfab393ed305c5baca88d6df9082592411219e7c6c03fc0",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "6ef87ed0e53602c499bb6a0a8b04a7ef",
+        "Assets/Prefabs/UI/LevelPass/LevelPassPurchase.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Map/MapIslandMedalUpgradeView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Map/MapIslandMedalUpgradeView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "7b9473e817df365e841be9ffc80f60aba85a7a75094dcfd5b74f3802436d4c45",
+      "exportedTreeSha256": "a453edd5856a06936e48c20a0160bf68bcc965bb4fe520eba9e044f2607eeb62",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "504570ea0d1440244953af41cd446ca2",
+        "Assets/Prefabs/UI/Map/MapIslandMedalUpgradeView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Mines/Dialogue/DialogueWindow.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Mines/Dialogue/DialogueWindow.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "ac868dd88e245341ea4fa58afbd5a5658e4e83a9db838781b3651c068184c06c",
+      "exportedTreeSha256": "ac868dd88e245341ea4fa58afbd5a5658e4e83a9db838781b3651c068184c06c",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "21baf82096d0df94db6caa7d8d762c07",
+        "Assets/Prefabs/UI/Mines/Dialogue/DialogueWindow.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Mines/Quests/QuestPopup.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Mines/Quests/QuestPopup.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "20c0ac053b0c6ffcf4c06570cf6508d9a3565c29cc3a64585a5a6f907c6741e4",
+      "exportedTreeSha256": "bbcf6aac5d5e61c58d1701aabae5e711dcfa5430adc4acac9ea479cd3abea619",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "31a66c74d722ded41b9565a993f69e61",
+        "Assets/Prefabs/UI/Mines/Quests/QuestPopup.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Mines/Quests/QuestsMinesEntrance.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Mines/Quests/QuestsMinesEntrance.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "ae68aa686920b4dbd3416fade34df1c324b9f44ab11a12c55d7fa5f127e83f80",
+      "exportedTreeSha256": "21795fd74e795c865cfba8dacdf2954c3540d5f3d2b4ee53a3137e9dd48e3e79",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "94a1eaebd839286468c09ee75c830cbc",
+        "Assets/Prefabs/UI/Mines/Quests/QuestsMinesEntrance.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Mines/Quests/QuestsWindow.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Mines/Quests/QuestsWindow.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "de3c818baf662b03c4c76c361d65d276822356ebb5c3aa8e3f047a5d887a0723",
+      "exportedTreeSha256": "de3c818baf662b03c4c76c361d65d276822356ebb5c3aa8e3f047a5d887a0723",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "09aa4efc7295fd54abeab55031a56536",
+        "Assets/Prefabs/UI/Mines/Quests/QuestsWindow.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/PendingOrder.prefab",
+      "exportedPath": "Assets/Prefabs/UI/PendingOrder.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "3d56e6715458ccf9662ec66050f1568d065bf27b4dc7e5b51fa9b572cb4b001b",
+      "exportedTreeSha256": "faa8ca41244156ef797f1863af7d3e73df48d96f6289ec332c4ec75badb042a2",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "46b0645115ad6b34cb82cd9ffe639322",
+        "Assets/Prefabs/UI/PendingOrder.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/PurchaseReward.prefab",
+      "exportedPath": "Assets/Prefabs/UI/PurchaseReward.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "5de218ffee1989eabbf84bd2946d30fa17ddadd0e84dfe9fea952b50ed7650a8",
+      "exportedTreeSha256": "8b8a467deaca50a5f71e47a8625f9011db48fc953ef7ddb37992f8b5aeabd001",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "643b7f46e7b842f43b9177c638c11441",
+        "Assets/Prefabs/UI/PurchaseReward.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/RateUs.prefab",
+      "exportedPath": "Assets/Prefabs/UI/RateUs.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "4e9dd9525c3a67ce6e6999fcce04ab760fb474fb0075179cd209c76ababb5be9",
+      "exportedTreeSha256": "42c74756a31a34c28e18a559b4ced670e0f72d6a9e42d3d3b8f3a3fa81a2b00c",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "9d605585055bd7545829a59fac813d67",
+        "Assets/Prefabs/UI/RateUs.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Rewarded/BuyGemsPopup.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Rewarded/BuyGemsPopup.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "27c7ab02d62e9ebff57281294ffbbc25d01ed7a120b2adaa6be230514407fe6a",
+      "exportedTreeSha256": "8b1e9e2b73e9674456c2e619e3449042a0acb580f821916df69056bdea142578",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "671a178925e5a874c89647a3b4d50577",
+        "Assets/Prefabs/UI/Rewarded/BuyGemsPopup.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Rewarded/GemsOffer.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Rewarded/GemsOffer.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "092fe61e210f471cd554ecf58af023f88f27a06b2a33c8028193b780798c8a01",
+      "exportedTreeSha256": "52fbcc8a4d2c626307ced780f9007688a2b399b222aeadaacfc2041c97bff686",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "83c387aa37a5c5c4e97b7f22c6b896b2",
+        "Assets/Prefabs/UI/Rewarded/GemsOffer.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Rewarded/RewardedOffer.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Rewarded/RewardedOffer.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "565e628cdefaf9b6b822d67cd783dd3512df3a80e990a937f8a2c19198c89852",
+      "exportedTreeSha256": "b76a851a7193bc00bb944c9262b3cf4a6915b35f2af4b8d941d6cf46a7acaefc",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "57fc1c3725ba74a468c909fb364dc2bd",
+        "Assets/Prefabs/UI/Rewarded/RewardedOffer.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/SecretChestButtonView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/SecretChestButtonView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "cd042b1035ab88df31a1bda1e37e5db422ce8fbfa821600c35cd96a4df4afe9a",
+      "exportedTreeSha256": "1d5a8ae3381ce134d0920fa444cd0edad8cb675d987c432fbca93e643583b550",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/SecretChestButtonView.prefab",
+        "b8768e8d03fd50a428c13bae6093f62f"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Settings/SettingNotificationsPopupView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Settings/SettingNotificationsPopupView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "7a8807790f6a3508fb8e609d4126578e6855dc604d8398bdfec085b47928cf7f",
+      "exportedTreeSha256": "01894db3d27b7aa8748fc8cdf35f64c5f36efda2635934cbfc448321c081b49a",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "6ad89b1075d744a99ab988ed9a0c48e7",
+        "Assets/Prefabs/UI/Settings/SettingNotificationsPopupView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Settings/SettingPromoCodeView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Settings/SettingPromoCodeView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "258587fe8aee0cb52f0ae6b688c2ffeb81ba3f9bc9abf5f7e89652f7dd882b42",
+      "exportedTreeSha256": "b27efbcac851b0a37839e85057e405d6ea690ee6d35bbededc62999c5426e47f",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "911e62064f5a7483991199c06c67d9bc",
+        "Assets/Prefabs/UI/Settings/SettingPromoCodeView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Settings/SettingsLanguageSelect.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Settings/SettingsLanguageSelect.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "6f6fdaa3db529333deebc0275ad29e1a3d2e066c0093dc52b7f37c4852b3558b",
+      "exportedTreeSha256": "2040442596c1c2e313cd7791bb3423ee9466366220f8896a8069a777b9f81b67",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Settings/SettingsLanguageSelect.prefab",
+        "e9ec5fcb0da06c14bafea6a7345e124c"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Shop/ChestChancesInfo.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Shop/ChestChancesInfo.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "3c8f1a02217523872822b671846279de7873816112a212214971fb3f9fd41cd0",
+      "exportedTreeSha256": "3c8f1a02217523872822b671846279de7873816112a212214971fb3f9fd41cd0",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "52f6071835006ad43855dea359722a83",
+        "Assets/Prefabs/UI/ChestChancesInfo.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Shop/Shop.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Shop/Shop.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "96fe61112a88cd8dfd58446eb87649103c29acf81af8fe2fc911f9c8536a3f6e",
+      "exportedTreeSha256": "41728c3b490156f4ff63b8c82493ed4c0cf494d5e8fd1f74ab4bd54a6b43fb99",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "6df810e56a919bd4587064aabd6aa9cb",
+        "Assets/Prefabs/UI/Shop.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Stats/StatDescriptionView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Stats/StatDescriptionView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "ad1a763acb639ef8c37514c3315b17b567ec8d76cb6a76f3e8e79d84a3f70026",
+      "exportedTreeSha256": "c6d7074e61a5f2e0a5b26b46b0277170bdc202b3c1de325418435c992e3eec80",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "81d0576c7ef1a3f4da84ffc6a1226648",
+        "Assets/Prefabs/UI/Stats/StatDescriptionView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Stats/StatDetailsPopupView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Stats/StatDetailsPopupView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "e1c79ce70eb9edd4f70ae41bce54ec49f37e9d4c4a1107869e828189599312c3",
+      "exportedTreeSha256": "d328f9134a262050b6c9a6a4d60ecc0ba341093e1701bcf2ec3f567d292bc9e4",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "83dec29708f19974db76303cde7e7902",
+        "Assets/Prefabs/UI/Stats/StatDetailsPopupView.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/Underworld/UnderworldGateView.prefab",
+      "exportedPath": "Assets/Prefabs/UI/Underworld/UnderworldGateView.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "6a246fa32f862fe2884b6d729497464730bded4983de2c7c3605d2c60b648134",
+      "exportedTreeSha256": "c661258a49d0f5e459220e93f4e6652daa65f6546cb9b7d13f68cb87d38bea64",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "Assets/Prefabs/UI/Underworld/UnderworldGateView.prefab",
+        "f61037d002ab1d14d8d40e651ecaf671"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/VIP/VIP.prefab",
+      "exportedPath": "Assets/Prefabs/UI/VIP/VIP.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "37feb0da23ea597ada4baf2d6e4eae4bf4251a87f73ca3e15c136fe62ce1c2f8",
+      "exportedTreeSha256": "850f6dd1cb485faa9c171d8e6ffa958036ac4135f828e0550ba622ead24510a4",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "1250b716208f545d5b0a44926a24cd42",
+        "Assets/Prefabs/UI/VIP/VIP.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/VIP/VipProgressPopup.prefab",
+      "exportedPath": "Assets/Prefabs/UI/VIP/VipProgressPopup.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "0310f6e99aa2d4b1a2cf42e4041f5fc384c810bce0e85845ece40f2cde860881",
+      "exportedTreeSha256": "c51a645cc0e63da04ff3212ae56cae0d259c401760faafeb98152dfd9dd5f089",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "8e4aab28d5dcb6f4688bd179d9d587d6",
+        "Assets/Prefabs/UI/VIP/VipProgressPopup.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    },
+    {
+      "originalInternalId": "Assets/Prefabs/UI/VipLocationNotification.prefab",
+      "exportedPath": "Assets/Prefabs/UI/VipLocationNotification.prefab",
+      "bundle": "ui_assets_all_da972032df00657fa1d3681b3017f102.bundle",
+      "nativeTreeSha256": "b155ae98a9c6cbed1ad056e66ff8818258ddcbae9b3dab95e8174de27e1cdd85",
+      "exportedTreeSha256": "ab2f8d7ccfdfdca42173312de566a87afd44a487221b461d3bee9830b786583a",
+      "serializedTreeMatches": true,
+      "identicalExportedCopies": 1,
+      "keys": [
+        "38018fc04cb5393498ba2efd802d2775",
+        "Assets/Prefabs/UI/VipLocationNotification.prefab"
+      ],
+      "resourceType": "UnityEngine.GameObject"
+    }
+  ],
+  "failures": []
+}

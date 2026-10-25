@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f9449bc5b2988d30c82eab2b9a5c0a6, type: 3}
+  m_Name: Chests Config
+  m_EditorClassIdentifier:
+  Chests:
+  - Key: knightly
+    Drops:
+    - ItemType: 0
+      Rarity: 0
+      Weight: 50
+    - ItemType: 0
+      Rarity: 1
+      Weight: 30
+    - ItemType: 0
+      Rarity: 2
+      Weight: 20
+    ClosedSprite: {fileID: 21300000, guid: 79c320eed3d88ff4f9cd9058fb477f3d, type: 2}
+    OpenedSprite: {fileID: 21300000, guid: 70f37e00c32961849a6a3fa64c845828, type: 2}
+  - Key: royal
+    Drops:
+    - ItemType: 0
+      Rarity: 3
+      Weight: 85
+    - ItemType: 0
+      Rarity: 4
+      Weight: 15
+    ClosedSprite: {fileID: 21300000, guid: faed0ffcc3b38684981dc65dd0fc6088, type: 2}
+    OpenedSprite: {fileID: 21300000, guid: 7156b08cae2f57d45b49b807cc72f301, type: 2}
+  - Key: armor
+    Drops:
+    - ItemType: 1
+      Rarity: 0
+      Weight: 60
+    - ItemType: 1
+      Rarity: 1
+      Weight: 30
+    - ItemType: 1
+      Rarity: 2
+      Weight: 10
+    ClosedSprite: {fileID: 21300000, guid: a7b200f5e4b99094aa27f26fc735e107, type: 2}
+    OpenedSprite: {fileID: 21300000, guid: fee216e20df6fc544beea085ba63fb41, type: 2}
+  - Key: general
+    Drops: []
+    ClosedSprite: {fileID: 21300000, guid: ffec75ed576b718478434c22579f29aa, type: 2}
+    OpenedSprite: {fileID: 21300000, guid: 3d4501fa5ce34bf429e9340ffc1cec1f, type: 2}
+  - Key: royal_armor
+    Drops:
+    - ItemType: 1
+      Rarity: 3
+      Weight: 80
+    - ItemType: 1
+      Rarity: 4
+      Weight: 20
+    ClosedSprite: {fileID: 21300000, guid: 7c600cb21116fe74099df5bcf039d0ed, type: 2}
+    OpenedSprite: {fileID: 21300000, guid: 7017c7bff94723042a01af52d8af2027, type: 2}
+  - Key: crystal
+    Drops: []
+    ClosedSprite: {fileID: 21300000, guid: 6cfa3614819b99c47a506946845a5044, type: 2}
+    OpenedSprite: {fileID: 21300000, guid: c10b012a611b16346a8ee528b47ec028, type: 2}

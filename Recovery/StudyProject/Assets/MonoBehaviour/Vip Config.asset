@@ -1,0 +1,433 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22fab3b7aea4f3a14d5dc197ebb1f704, type: 3}
+  m_Name: Vip Config
+  m_EditorClassIdentifier:
+  MaxLevel: 10
+  Features:
+  - rid: 310045351691682129
+  - rid: 310045351691682132
+  - rid: 310045351691682133
+  - rid: 310045351691682135
+  - rid: 310045351691682184
+  - rid: 8092930447313731860
+  - rid: 8092930447313731861
+  FeatureDescriptions:
+  - UnlockLevel: 1
+    LocalizationKey: VIP_stat_multiplier_1
+    UpgradeLevels: 02000000030000000400000005000000060000000700000008000000090000000a000000
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides:
+    - Level: 2
+      LocalizationKey: VIP_stat_multiplier_2
+    - Level: 3
+      LocalizationKey: VIP_stat_multiplier_3
+    - Level: 4
+      LocalizationKey: VIP_stat_multiplier_4
+    - Level: 5
+      LocalizationKey: VIP_stat_multiplier_5
+    - Level: 6
+      LocalizationKey: VIP_stat_multiplier_6
+    - Level: 7
+      LocalizationKey: VIP_stat_multiplier_7
+    - Level: 8
+      LocalizationKey: VIP_stat_multiplier_8
+    - Level: 9
+      LocalizationKey: VIP_stat_multiplier_9
+    - Level: 10
+      LocalizationKey: VIP_stat_multiplier_10
+  - UnlockLevel: 1
+    LocalizationKey: VIP_daily_chest_1
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 7
+    LocalizationKey: VIP_daily_chest_7
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 11400000, guid: 691e8b6ed4b09864b8706440d497411f, type: 2}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 2
+    LocalizationKey: VIP_daily_chest_2
+    UpgradeLevels: 0300000004000000050000000600000008000000090000000a000000
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides:
+    - Level: 3
+      LocalizationKey: VIP_daily_chest_3
+    - Level: 4
+      LocalizationKey: VIP_daily_chest_4
+    - Level: 5
+      LocalizationKey: VIP_daily_chest_5
+    - Level: 6
+      LocalizationKey: VIP_daily_chest_6
+    - Level: 8
+      LocalizationKey: VIP_daily_chest_8
+    - Level: 9
+      LocalizationKey: VIP_daily_chest_9
+    - Level: 10
+      LocalizationKey: VIP_daily_chest_10
+  - UnlockLevel: 2
+    LocalizationKey: VIP_vip_island_2
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 6
+    LocalizationKey: VIP_vip_island_6
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 3
+    LocalizationKey: VIP_cashback_3
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 5
+    LocalizationKey: VIP_cashback_5
+    UpgradeLevels: 08000000
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides:
+    - Level: 8
+      LocalizationKey: VIP_cashback_8
+  - UnlockLevel: 4
+    LocalizationKey: VIP_extra_weapon_slot_4
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 8
+    LocalizationKey: VIP_amulet_crystals_slot_8
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 9
+    LocalizationKey: VIP_crystal_enchant_extra_attempt_9
+    UpgradeLevels:
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  - UnlockLevel: 1
+    LocalizationKey: VIP_chest_level
+    UpgradeLevels: 02000000030000000400000005000000060000000700000008000000090000000a000000
+    PreviewItemConfig: {fileID: 0}
+    LevelLocalizationOverrides: []
+  RequiredExperiencePerLevel: 1400000050000000c80000005e01000058020000e8030000dc050000c409000088130000401f0000
+  references:
+    version: 2
+    RefIds:
+    - rid: 310045351691682129
+      type: {class: DailyChestConfig, ns: Codebase.VIP.Features, asm: Assembly-CSharp}
+      data:
+        UnlockLevel: 1
+        LevelConfigs:
+        - Level: 1
+          ChestIcon: {fileID: 21300000, guid: 4cc80f11cffca304daed5090a63cfd8e, type: 2}
+          Rewards:
+          - rid: 310045351691682143
+          - rid: 310045351691682145
+          - rid: 310045351691682146
+        - Level: 7
+          ChestIcon: {fileID: 21300000, guid: 22c4e1406bfefba4cb24209d61e80c01, type: 2}
+          Rewards:
+          - rid: 310045351691682151
+          - rid: 310045351691682152
+          - rid: 310045351691682153
+          - rid: 310045351691682154
+        - Level: 9
+          ChestIcon: {fileID: 21300000, guid: 22c4e1406bfefba4cb24209d61e80c01, type: 2}
+          Rewards:
+          - rid: 310045351691682155
+          - rid: 310045351691682156
+          - rid: 310045351691682157
+          - rid: 310045351691682158
+        - Level: 10
+          ChestIcon: {fileID: 21300000, guid: 22c4e1406bfefba4cb24209d61e80c01, type: 2}
+          Rewards:
+          - rid: 310045351691682159
+          - rid: 310045351691682160
+          - rid: 310045351691682161
+          - rid: 310045351691682162
+    - rid: 310045351691682132
+      type: {class: VipIslandConfig, ns: Codebase.VIP.Features, asm: Assembly-CSharp}
+      data:
+        UnlockLevel: 2
+        Island3UnlockLevel: 2
+        Island6UnlockLevel: 6
+    - rid: 310045351691682133
+      type: {class: AutoFarmConfig, ns: Codebase.VIP.Features, asm: Assembly-CSharp}
+      data:
+        UnlockLevel: 3
+        LevelConfigs:
+        - Level: 3
+          ResourceMultiplier: 1
+          RadiusMeters: 50
+          MaxDurationMinutes: 30
+        - Level: 5
+          ResourceMultiplier: 1
+          RadiusMeters: 200
+          MaxDurationMinutes: 40
+        - Level: 8
+          ResourceMultiplier: 2
+          RadiusMeters: 200
+          MaxDurationMinutes: 40
+    - rid: 310045351691682135
+      type: {class: ExtraWeaponSlotConfig, ns: Codebase.VIP.Features, asm: Assembly-CSharp}
+      data:
+        UnlockLevel: 4
+    - rid: 310045351691682143
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily1
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682145
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily2
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682146
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily3
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682151
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily1
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682152
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily2
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682153
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily3
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682154
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 691e8b6ed4b09864b8706440d497411f, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 310045351691682155
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily1
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682156
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily2
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682157
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily3
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682158
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 691e8b6ed4b09864b8706440d497411f, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 310045351691682159
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily1
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682160
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily2
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682161
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats:
+        DailyRotationStats: []
+        SaveKey: daily3
+        Type: 0
+        Value: 5
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 310045351691682162
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 691e8b6ed4b09864b8706440d497411f, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 1
+    - rid: 310045351691682184
+      type: {class: StatMultiplierConfig, ns: Codebase.VIP.Features, asm: Assembly-CSharp}
+      data:
+        UnlockLevel: 1
+        LevelConfigs:
+        - Level: 1
+          Multiplier: 2
+          Chance: 0.05
+        - Level: 2
+          Multiplier: 2
+          Chance: 0.1
+        - Level: 3
+          Multiplier: 2
+          Chance: 0.15
+        - Level: 4
+          Multiplier: 2
+          Chance: 0.2
+        - Level: 5
+          Multiplier: 3
+          Chance: 0.125
+        - Level: 6
+          Multiplier: 3
+          Chance: 0.15
+        - Level: 7
+          Multiplier: 3
+          Chance: 0.175
+        - Level: 8
+          Multiplier: 4
+          Chance: 0.13
+        - Level: 9
+          Multiplier: 4
+          Chance: 0.15
+        - Level: 10
+          Multiplier: 4
+          Chance: 0.17
+    - rid: 8092930447313731860
+      type: {class: VipCrystalSlotsConfig, ns: Codebase.VIP.Features, asm: Assembly-CSharp}
+      data:
+        UnlockLevel: 8
+        SlotKey: crystal_slot_4
+    - rid: 8092930447313731861
+      type: {class: VipCrystalEnchantExtraAttemptConfig, ns: Codebase.VIP.Features, asm: Assembly-CSharp}
+      data:
+        UnlockLevel: 9
+        ExtraAttempts: 1

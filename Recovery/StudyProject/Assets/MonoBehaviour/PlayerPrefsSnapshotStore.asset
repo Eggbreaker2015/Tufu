@@ -1,0 +1,3873 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 910a15161a7dc68fbb36bbe1f735eafb, type: 3}
+  m_Name: PlayerPrefsSnapshotStore
+  m_EditorClassIdentifier:
+  Snapshots:
+  - Name: 0.9
+    CreatedAtIso: 2025-09-28T06:32:13.8094431Z
+    Entries:
+    - Name: unity.cloud_userid_h2665564582
+      Value: NjEwYTMwZDUzMzEwNzYyNDU4NTlmNGI1NjBmNjUyNzYA
+      Kind: Binary
+    - Name: unity.player_sessionid_h1351336811
+      Value: MjI5NzUyOTg1NTYxODI5ODU1NwA=
+      Kind: Binary
+    - Name: unity.player_session_count_h922449978
+      Value: NDM5AA==
+      Kind: Binary
+    - Name: unity_connect.installation_id_h932087899
+      Value: YjBmYzM5NmYtNGY2MS1iOTA0LTVhZmMtNDdlNzY3NTc1MGY4AA==
+      Kind: Binary
+    - Name: unity_connect.session_id_h4145606137
+      Value: MGRiYmZkZGQtYmI4Ny0zMmI0LTBhMDMtYTdlNWYxNTQyZmE4AA==
+      Kind: Binary
+    - Name: unity_connect.mega_session_id_h1802243016
+      Value: NGM2YWRjOWUtYjcxNy00MjE0LWZiNGQtNTllNTM3OGUwMzI3AA==
+      Kind: Binary
+    - Name: AddressablesRuntimeDataPath_h2032495339
+      Value: R1VJRDozMTZjZDMxMjJjZGRlMGI0N2FkN2Y4YWU3NzVjYjI0YQA=
+      Kind: Binary
+    - Name: UnityGraphicsQuality_h1669003810
+      Value: 2
+      Kind: DWord
+    - Name: first_start_h3944110592
+      Value: 1
+      Kind: DWord
+    - Name: PlayerModelItems_h1729110271
+      Value: W3siS2V5Ijoia25pZmUiLCJMZXZlbCI6MX0seyJLZXkiOiJtaW5pc2F3IiwiTGV2ZWwiOjF9LHsiS2V5IjoicGlrZSIsIkxldmVsIjo0fSx7IktleSI6ImZvcmsiLCJMZXZlbCI6MX0seyJLZXkiOiJrYXRhbmEiLCJMZXZlbCI6MX0seyJLZXkiOiJkb3VibGVheGUiLCJMZXZlbCI6MX0seyJLZXkiOiJjb29scGlrZSIsIkxldmVsIjo1fSx7IktleSI6Im1haWxib3giLCJMZXZlbCI6NX0seyJLZXkiOiJwYWRkbGUiLCJMZXZlbCI6Nn1dAA==
+      Kind: Binary
+    - Name: PlayerModelItemSlots_h3253671899
+      Value: W3siS2V5IjpudWxsLCJTbG90VHlwZSI6MCwiSXNVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJmb3JrIiwiU2xvdFR5cGUiOjAsIklzVW5sb2NrZWQiOnRydWV9LHsiS2V5IjpudWxsLCJTbG90VHlwZSI6MCwiSXNVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOm51bGwsIlNsb3RUeXBlIjowLCJJc1VubG9ja2VkIjp0cnVlfSx7IktleSI6bnVsbCwiU2xvdFR5cGUiOjEsIklzVW5sb2NrZWQiOmZhbHNlfV0A
+      Kind: Binary
+    - Name: PlayerModelStats_h1727752152
+      Value: W3siQmFzZVZhbHVlIjoxMDAuMCwiU3RhdFR5cGUiOjEsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjEsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6NzMyNzMzMDU2LjB9LHsiTmFtZSI6InJld2FyZGVkIiwiU3RhdFR5cGUiOjEsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6NTAwLjB9XX0seyJCYXNlVmFsdWUiOjUuMCwiU3RhdFR5cGUiOjAsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjAsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6MC45MDAwMDAxfSx7Ik5hbWUiOiIiLCJTdGF0VHlwZSI6MCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjIsIlZhbHVlIjo2LjB9XX0seyJCYXNlVmFsdWUiOjAuNSwiU3RhdFR5cGUiOjIsIk1vZGlmaWVycyI6W3siTmFtZSI6InJld2FyZGVkIiwiU3RhdFR5cGUiOjIsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6Mi4wfSx7Ik5hbWUiOiJEZXZvdXJlZCIsIlN0YXRUeXBlIjoyLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MCwiVmFsdWUiOjUuMn1dfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MywiTW9kaWZpZXJzIjpbXX0seyJCYXNlVmFsdWUiOjMuNCwiU3RhdFR5cGUiOjQsIk1vZGlmaWVycyI6W119LHsiQmFzZVZhbHVlIjowLjAsIlN0YXRUeXBlIjo1LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MTQsIk1vZGlmaWVycyI6W119LHsiQmFzZVZhbHVlIjowLjAsIlN0YXRUeXBlIjoxNSwiTW9kaWZpZXJzIjpbXX0seyJCYXNlVmFsdWUiOjAuMCwiU3RhdFR5cGUiOjE2LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MTcsIk1vZGlmaWVycyI6W119LHsiQmFzZVZhbHVlIjowLjAsIlN0YXRUeXBlIjoyMCwiTW9kaWZpZXJzIjpbXX0seyJCYXNlVmFsdWUiOjAuMCwiU3RhdFR5cGUiOjIxLCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6NiwiTW9kaWZpZXJzIjpbeyJOYW1lIjoiRGV2b3VyZWQiLCJTdGF0VHlwZSI6NiwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjozOS4wfV19LHsiQmFzZVZhbHVlIjoxLjAsIlN0YXRUeXBlIjo3LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6OCwiTW9kaWZpZXJzIjpbeyJOYW1lIjoicmV3YXJkZWQiLCJTdGF0VHlwZSI6OCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjoxNS4wfSx7Ik5hbWUiOiJEZXZvdXJlZCIsIlN0YXRUeXBlIjo4LCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MCwiVmFsdWUiOjEuMH0seyJOYW1lIjoicmV3YXJkZWQiLCJTdGF0VHlwZSI6OCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjoxNS4wfV19LHsiQmFzZVZhbHVlIjoxLjAsIlN0YXRUeXBlIjo5LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MTIsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjEyLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MCwiVmFsdWUiOjE3NC4wfV19LHsiQmFzZVZhbHVlIjoxLjAsIlN0YXRUeXBlIjoxMywiTW9kaWZpZXJzIjpbXX1dAA==
+      Kind: Binary
+    - Name: PlayerModelPosition_h2018468480
+      Value: eyJ4Ijo0OC4xNDIwNDAyNTI2ODU1NSwieSI6MC4xNzc5MjYyNDIzNTE1MzE5OSwieiI6LTc4LjI0NDIwOTI4OTU1MDc4fQA=
+      Kind: Binary
+    - Name: HasSaved_h3316202042
+      Value: eWVzAA==
+      Kind: Binary
+    - Name: rewarded_try_attempt_h3369497057
+      Value: 0
+      Kind: DWord
+    - Name: Gates_h207736929
+      Value: eyJEYXRhIjpbeyJLZXkiOiJnYXRlcyAyICgxKSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDMgKDIpIiwiVW5sb2NrZWQiOmZhbHNlfSx7IktleSI6ImdhdGVzIDMgKDEpIiwiVW5sb2NrZWQiOmZhbHNlfSx7IktleSI6ImdhdGVzIDIgKDIpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMSkiLCJVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJnYXRlcyA0ICgxKSIsIlVubG9ja2VkIjpmYWxzZX1dfQA=
+      Kind: Binary
+    - Name: gpm_index_h1340342398
+      Value: 5
+      Kind: DWord
+    - Name: rewarded_watch_times_h3660047132
+      Value: 4
+      Kind: DWord
+    - Name: playtime_seconds_h878709192
+      Value: 3300
+      Kind: DWord
+    - Name: playtime_minutes_h4258616374
+      Value: 55
+      Kind: DWord
+    - Name: pool_index_h998034584
+      Value: 2
+      Kind: DWord
+    - Name: ItemSlots_h3592766759
+      Value: eyJEYXRhIjpbeyJTbG90VHlwZSI6MH0seyJTbG90VHlwZSI6MH0seyJTbG90VHlwZSI6MH0seyJTbG90VHlwZSI6MH0seyJTbG90VHlwZSI6MX1dfQA=
+      Kind: Binary
+  - Name: v1.2.0 completed
+    CreatedAtIso: 2025-12-13T00:54:06.8505390Z
+    Entries:
+    - Name: tree_1 (27)_d7e06e5f99f671342a96a1f035761c7d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_15d982323f53e6248b5112b2e74376df_nextSpawnTime
+      Value: 1764544989
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_d05ff6149d88ffb42afaba78410d4d61_nextSpawnTime
+      Value: 1765322576
+      Kind: DWord
+    - Name: tree_1 (25)_de0352bd86ad6c14293f379cb1affba0_nextSpawnTime
+      Value: 1765516135
+      Kind: DWord
+    - Name: tree_1 (28)_0c8a882d5e0935f478d01f196d894eda_nextSpawnTime
+      Value: 1765444229
+      Kind: DWord
+    - Name: tree_1 (25)_1c672895c18f7ea498cc49671a16d939_nextSpawnTime
+      Value: 1765499032
+      Kind: DWord
+    - Name: Spawner_elite cut_92803b9e33fd8e74c915749d7d250a14_cleared
+      Value: 1
+      Kind: DWord
+    - Name: playtime_elapsed
+      Value: 0.010523319
+      Kind: String
+    - Name: Spawner_1_easy (1)_fb87a95fef628fd4e9047467dd7bfa71_nextSpawnTime
+      Value: 1765498898
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_e0e63a1291a5e4c408788978b693a809_nextSpawnTime
+      Value: 1765444929
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_3a0abe33425e27d4bbbe6e0495362b0e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_0cba0bb9829a3e44c92c858c72fe8b49_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (20)_c4af102fe2dd6734c94070e442c081c4_nextSpawnTime
+      Value: 1765311386
+      Kind: DWord
+    - Name: tree_1 (26)_2e5a07533f458104fa1307979f3277f3_nextSpawnTime
+      Value: 1765516295
+      Kind: DWord
+    - Name: tree_1 (34)_0d9a7ef7084f0814bbb76dc70eccf810_nextSpawnTime
+      Value: 1765322462
+      Kind: DWord
+    - Name: tree_1 (38)_39412c2992a5a8b45af42858a77293dd_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_rare_helm_buck_a56a05155b080054b808ccf35d454161_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_d7e06e5f99f671342a96a1f035761c7d_nextSpawnTime
+      Value: 1765444299
+      Kind: DWord
+    - Name: Spawner_mid_cut_rare_d03a5b0043f7b3246941d7f51c72b897_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_b5b67ae59f3344e469951467dacc4a03_nextSpawnTime
+      Value: 1765517796
+      Kind: DWord
+    - Name: Spawner_1_medium (12)_31910b32900302743a3459800e1cea1e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_167460572ae35524287964d4523d348d_nextSpawnTime
+      Value: 1765444260
+      Kind: DWord
+    - Name: tree_1 (20)_8bb66e255eb99ad4686fd955af79bc1e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce_da0928953e498ef41a1eb8f8e68c29de_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_superboss_legendary_cut_68b9aec260de93046ab8b806e44785db_nextSpawnTime
+      Value: 1765541699
+      Kind: DWord
+    - Name: tree_1 (25)_0b90e2447b0a2bc4cad955d9cb755423_nextSpawnTime
+      Value: 1765444217
+      Kind: DWord
+    - Name: ice pike blocker (18)_c1c44cbf2fa7c7040a800abbb7a94b54_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (22)_ea5925dd36cee48459de2287ad95f7be_nextSpawnTime
+      Value: 1765444194
+      Kind: DWord
+    - Name: Spawner_elite_HP_a50bdf0a78de8a64db79888aebcbe59d_nextSpawnTime
+      Value: 1765458847
+      Kind: DWord
+    - Name: Spawner_1 (11)_cc1549daae838364cae75e0b35f5b7f7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_hard_stab_uncommon (1)_1c9b94f2bffedc8418162d2d852cb543_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (9)_faeab49141265094985e91532dbc3a24_nextSpawnTime
+      Value: 1763325390
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_rare_helm_buck_a56a05155b080054b808ccf35d454161_nextSpawnTime
+      Value: 1765444187
+      Kind: DWord
+    - Name: Spawner_mid_cut_epic_994500fd7ef9f04488d281bcec52111c_nextSpawnTime
+      Value: 1765323465
+      Kind: DWord
+    - Name: tree_1 (9)_ff178fa18dde3044ba46d3adebec8555_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (3)_41e9d353c4bed444781ffa54d5649f44_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_f435f738e6a245c4f8a33d15672117d4_nextSpawnTime
+      Value: 1765444260
+      Kind: DWord
+    - Name: Spawner_superboss_legendary_buck_f074ff7219f8ead4cb80740239887e8f_nextSpawnTime
+      Value: 1764551782
+      Kind: DWord
+    - Name: Spawner_1 (8)_fd39a62d956d50f4288c476c8696e41e_nextSpawnTime
+      Value: 1763325406
+      Kind: DWord
+    - Name: Spawner_1_elite buck_3ec1d9c49a7d58c498154f178dbaa05a_nextSpawnTime
+      Value: 1765516724
+      Kind: DWord
+    - Name: Spawner_1_medium (13)_a18e9943ddfdeee4792ce3538b87cd53_nextSpawnTime
+      Value: 1765455651
+      Kind: DWord
+    - Name: tree_1 (24)_b2894836394c7744aab5d921fd9be189_nextSpawnTime
+      Value: 1765321861
+      Kind: DWord
+    - Name: tree_1 (37)_be74c9e8c56fd824ab2e95ef733938c3_nextSpawnTime
+      Value: 1765322020
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_12bd28b16124950479c724f6c575f26f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_2eca20990f0a0684992e8ec80a6b09b4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite regen_c06fa4fa49f06e24b8995f7e88fd50fc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (5)_897ad603cb7da3a4e89fdc7d64c60a01_nextSpawnTime
+      Value: 1764505537
+      Kind: DWord
+    - Name: Spawner_shield_buck_common_1bf74848c2e688e48ac64951150d37ba_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy_d45cb9e7fb6376741a0f4f9a6f1d9df7_nextSpawnTime
+      Value: 1765444689
+      Kind: DWord
+    - Name: ice pike blocker (8)_634d29d0475c60f4fa43bd863e7ce454_cleared
+      Value: 1
+      Kind: DWord
+    - Name: playtime_active_minutes
+      Value: 2543
+      Kind: DWord
+    - Name: Spawner_1_easy (3)_c30cc5c145795e4418fb24b5bc6d6d0c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_ad42c01714949ee4baf0ef48c82f235e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_d05ff6149d88ffb42afaba78410d4d61_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_7c106fea8ebcf2448a24379ef852095d_nextSpawnTime
+      Value: 1765159767
+      Kind: DWord
+    - Name: tree_1 (21)_0608ad3457202ad4f97a22571d06ed4b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_13926cc472cca2f40978daae51ca3367_nextSpawnTime
+      Value: 1765455686
+      Kind: DWord
+    - Name: tree_1 (33)_a6cc60eb6fbbad741ad771366731b9c9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (7)_d81cdf7f63629dd4e8ffd9ffea44b1df_nextSpawnTime
+      Value: 1762957572
+      Kind: DWord
+    - Name: tree_1 (16)_b5d0471117bd5614eb2bf68831439a07_nextSpawnTime
+      Value: 1765445089
+      Kind: DWord
+    - Name: tree_1 (28)_a1e0ab5031bfb19439464830aef53d99_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_common_cut (2)_1362598e006fbf14693da3690c8a638e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (11)_4812b483e6cdcf6429cc5773ab9173f4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_mid_cut_rare_d03a5b0043f7b3246941d7f51c72b897_nextSpawnTime
+      Value: 1763154556
+      Kind: DWord
+    - Name: Spawner_boss (3)_747f840f3e1ae59419471d3f06d193a0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (4)_ea8899abba1df0f4d9298ef850ad70b0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight_234f8054fa57c8742a6e3063594ddf97_nextSpawnTime
+      Value: 1765455771
+      Kind: DWord
+    - Name: Spawner_1_easy (1)_e0d6d5411a1dd0949bd058cc2daa03a1_nextSpawnTime
+      Value: 1765444501
+      Kind: DWord
+    - Name: Spawner_1 (7)_9f410b8d1be8f4f41b843d899f026ae6_nextSpawnTime
+      Value: 1765311361
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_5d7b3eb5d453cdc49a79fc36e3e51962_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (20)_32238e1f90f69244581485cacfcaeb5b_nextSpawnTime
+      Value: 1765444331
+      Kind: DWord
+    - Name: tree_1 (17)_03159583dea7dae40904f177faa57c2f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (14)_9ad08cbc5a67f734e89255c264666130_nextSpawnTime
+      Value: 1764758094
+      Kind: DWord
+    - Name: tree_1 (34)_aeee950daf109a3479bba2e3599cd71a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (9)_dbd214c26b60cbb46a731335eb8255a2_nextSpawnTime
+      Value: 1765323014
+      Kind: DWord
+    - Name: Spawner_1 (6)_5ab1d40e8bd3ba7409a342b6462f92bd_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (2)_d9aad4f6510964b459c9c66f7a47c32c_nextSpawnTime
+      Value: 1764853590
+      Kind: DWord
+    - Name: tree_1 (48)_be3db29539f876c439d35606cf8d668c_nextSpawnTime
+      Value: 1765321780
+      Kind: DWord
+    - Name: __UNITY_PLAYERPREFS_VERSION__
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (1)_610b5246bb3b1b1438837613832f04a8_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_f3b0f1fadbbdab542ab20ef263568f14_nextSpawnTime
+      Value: 1765587321
+      Kind: DWord
+    - Name: Spawner_1_medium (17)_448eeda21e4c6024eab7450daa30d1bc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (9)_967c7802b230cd14d92152d703912145_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy_7cb78fc7e49badd4090ab8f83e1b35bd_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (14)_3337385e14123d14880e11846ddb55b7_nextSpawnTime
+      Value: 1762480403
+      Kind: DWord
+    - Name: Spawner_1 (17)_a744b36410fb7e8478fa9477a95bcd5b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (44)_4ae0ef60f69e38e42a32d7606250fff1_nextSpawnTime
+      Value: 1765516200
+      Kind: DWord
+    - Name: tree_1 (34)_752f8be53cde78543b0bfbe2fbde80cc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (42)_1d119e0dc471e42449bd59b8b4814485_nextSpawnTime
+      Value: 1765498844
+      Kind: DWord
+    - Name: Spawner_1 (14)_c8af81b2bbdb3e746ac4a6a2a96f4727_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (40)_9f3c3967041950942a8c128d5f95187c_nextSpawnTime
+      Value: 1765444222
+      Kind: DWord
+    - Name: tree_1 (27)_2eca20990f0a0684992e8ec80a6b09b4_nextSpawnTime
+      Value: 1765455447
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_4f46f9143634cf04e90bcffacf7fcbc8_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_625ff62757feecd418cccc2f6285d10b_nextSpawnTime
+      Value: 1765498930
+      Kind: DWord
+    - Name: tree_1 (36)_cd1062d836e87ac49bc9cb0c948951ba_nextSpawnTime
+      Value: 1765321893
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_68fb04f66596562449ecc969de3ebee3_nextSpawnTime
+      Value: 1765444601
+      Kind: DWord
+    - Name: Spawner_elite cut_eb5b65d82ca1cd645aa6805affcc90d4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_388be6fa6b07d1941b522a4645c960d3_nextSpawnTime
+      Value: 1765455313
+      Kind: DWord
+    - Name: tree_1 (38)_a53d9022d79cdaa4eb190f1c76ebcfa8_nextSpawnTime
+      Value: 1765311386
+      Kind: DWord
+    - Name: first_start
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite regen (1)_262e9dd94ec51654080b2624960562d8_nextSpawnTime
+      Value: 1765465875
+      Kind: DWord
+    - Name: tree_1 (38)_86ce41c2ee8a7834a8adde0587808a31_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (8)_8d8d8a443dad9a544aa0e747c49a18cd_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_edd017de218fe8b4db248fa3bab8a290_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (38)_a53d9022d79cdaa4eb190f1c76ebcfa8_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_b083444e5815b214cab391fa52e0a015_nextSpawnTime
+      Value: 1765455765
+      Kind: DWord
+    - Name: Spawner_1 (7)_9f410b8d1be8f4f41b843d899f026ae6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_0843d125384dd18489b5c4bd5a7b3d01_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_3221f0c43c924aa42ae92b6ae455ddb7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (20)_c49685014b3dc1d4b9e8ea53a4b91a54_nextSpawnTime
+      Value: 1763034080
+      Kind: DWord
+    - Name: tree_1 (23)_2a298e9c143a6b74db92a0d8063e692d_nextSpawnTime
+      Value: 1764263590
+      Kind: DWord
+    - Name: tree_1 (35)_09f051255fed40543aed01ba883bd9c6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_0cba0bb9829a3e44c92c858c72fe8b49_nextSpawnTime
+      Value: 1765444562
+      Kind: DWord
+    - Name: Spawner_1 (25)_fa06e6fba4788d1479605b59c53bd695_nextSpawnTime
+      Value: 1765311370
+      Kind: DWord
+    - Name: playtime_active_seconds
+      Value: 180
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_160bd349d9a0b0f4a888bffa4877ac5a_nextSpawnTime
+      Value: 1765444543
+      Kind: DWord
+    - Name: Gates
+      Value: '{"Data":[{"Key":"gates 1 (5)","Unlocked":true},{"Key":"gates 1 (12)","Unlocked":true},{"Key":"gates 1 (16)","Unlocked":true},{"Key":"gates 1 (1)","Unlocked":true},{"Key":"gates 1 (18)","Unlocked":true},{"Key":"gates 1 (4)","Unlocked":true},{"Key":"gates 1 (15)","Unlocked":true},{"Key":"gates 1 (13)","Unlocked":true},{"Key":"gates 1 (8)","Unlocked":true},{"Key":"gates 1 (9)","Unlocked":true},{"Key":"gates 1 (20)","Unlocked":true},{"Key":"gates 1 (10)","Unlocked":true},{"Key":"gates 1 (2)","Unlocked":true},{"Key":"gates 1 (11)","Unlocked":true},{"Key":"gates 1 (14)","Unlocked":true},{"Key":"gates 1 (6)","Unlocked":true},{"Key":"gates 1 (19)","Unlocked":true},{"Key":"gates 1 (7)","Unlocked":true},{"Key":"gates 1 (21)","Unlocked":true},{"Key":"gates 1 (3)","Unlocked":true},{"Key":"gates 1 (17)","Unlocked":true},{"Key":"gates 1 (22)","Unlocked":true}]}'
+      Kind: String
+    - Name: tree_1 (38)_4b2c069c805d7ca4eb036302a2b0bb57_nextSpawnTime
+      Value: 1765587347
+      Kind: DWord
+    - Name: Spawner_1 (8)_fd39a62d956d50f4288c476c8696e41e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_shield_buck_common_1bf74848c2e688e48ac64951150d37ba_nextSpawnTime
+      Value: 1765322383
+      Kind: DWord
+    - Name: Spawner_helm_buck_uncommon_87dc8bd360bd09d4882fa4e5f9b415ed_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (6)_deae81560849fb54cbffb76322964952_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (7)_4a1a3d1cdcc357740ab6fa0a0c6d559e_nextSpawnTime
+      Value: 1765322199
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce (3)_7e9d5cd54631e5e4fbcd453a0b74a408_nextSpawnTime
+      Value: 1764227185
+      Kind: DWord
+    - Name: Spawner_1_knight_9131a9305b0bcc44d88d4421fc9842f1_nextSpawnTime
+      Value: 1765587709
+      Kind: DWord
+    - Name: Spawner_1_medium (16)_175605c0bfeb6344b83c5e2a36584a21_nextSpawnTime
+      Value: 1765455628
+      Kind: DWord
+    - Name: tree_1 (28)_0b17bec8fd6ce0542a34ec825855845b_nextSpawnTime
+      Value: 1765444132
+      Kind: DWord
+    - Name: Spawner_1_easy (1)_232d13f623f552944a2cc3433d9ffc58_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_6203ad50f7e5e6341ad584a9011fdeaa_nextSpawnTime
+      Value: 1765444253
+      Kind: DWord
+    - Name: tree_1 (28)_e91ed7a3cddc7ee419f7b0249a5ec878_nextSpawnTime
+      Value: 1764546137
+      Kind: DWord
+    - Name: Spawner_1 (15)_afaa0e8dd6f73074f92fe2c25b8d30ed_nextSpawnTime
+      Value: 1765308686
+      Kind: DWord
+    - Name: tree_1 (13)_0a15b82799b2f2b49b3ebc5f5558bfdb_nextSpawnTime
+      Value: 1764081683
+      Kind: DWord
+    - Name: ice pike blocker_3f797c78385a9b94ba11635a3645d174_nextSpawnTime
+      Value: 1762497241
+      Kind: DWord
+    - Name: Spawner_1 (22)_ea5925dd36cee48459de2287ad95f7be_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (18)_f9661511698a70744b2e1cb66adaca56_nextSpawnTime
+      Value: 1765455694
+      Kind: DWord
+    - Name: tree_1 (22)_fa5274738775ee949bdd7b567fa94e21_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_180c66c76ab56844da79d3bf35e90e19_nextSpawnTime
+      Value: 1765587494
+      Kind: DWord
+    - Name: Spawner_1 (24)_b857cafaa0afcc64791214699ec3921c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (12)_d6aa23361cbf4d34f981d5b2caf4d90e_nextSpawnTime
+      Value: 1763816283
+      Kind: DWord
+    - Name: tree_1 (25)_44d55a3e2b72a194cafc2839ff4f0254_nextSpawnTime
+      Value: 1762785857
+      Kind: DWord
+    - Name: Spawner_elite regen_0f0c0ba08b6dc7e4695f06362258f92e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_c8af81b2bbdb3e746ac4a6a2a96f4727_nextSpawnTime
+      Value: 1764611056
+      Kind: DWord
+    - Name: Spawner_elite smash_acd962a89915f954482d060cff162a16_nextSpawnTime
+      Value: 1765504801
+      Kind: DWord
+    - Name: tree_1 (2)_d9aad4f6510964b459c9c66f7a47c32c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_hard_buck_uncommon_79f13aff36aa7234ca0cb456daad91fc_nextSpawnTime
+      Value: 1765322668
+      Kind: DWord
+    - Name: Spawner_1_knight_e439599c48c85ab45b1f26347fb408d9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_78d2017010410694696ff0043f842bf2_nextSpawnTime
+      Value: 1764757456
+      Kind: DWord
+    - Name: tree_1 (32)_f0e95598644732942aac3b76d2aeb1e3_nextSpawnTime
+      Value: 1765587282
+      Kind: DWord
+    - Name: ice pike blocker (3)_1a398f233b158e4439234ea044b9b8d6_nextSpawnTime
+      Value: 1762480437
+      Kind: DWord
+    - Name: Spawner_1_medium (4)_5e5c3eb9361b6f74784394d3e92f3f26_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_cabae2e2c05f0fe42a379543570d4058_nextSpawnTime
+      Value: 1765455485
+      Kind: DWord
+    - Name: tree_1 (22)_61f2b2d7d5ee4c041959c6127638702d_nextSpawnTime
+      Value: 1765455429
+      Kind: DWord
+    - Name: tree_1 (29)_2e3508f7a6fc4244e8e6e0a7ca1b3ac8_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (1)_8b04b3f5eeced1344b688d330fb2e2c7_nextSpawnTime
+      Value: 1765308623
+      Kind: DWord
+    - Name: tree_1 (20)_5ecc6cfac82faa5469a31794fa2091c9_nextSpawnTime
+      Value: 1765444266
+      Kind: DWord
+    - Name: Spawner_1 (15)_ecc9b770e81d2ef4eac397ff6abe168e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (47)_5833fe5d288d0e24483d9423517f11a1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_mid_smash_rare_29c284f3c4f408247bd33b094f1e66cb_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce (2)_3fd8e1a5049ac674cb49532ea6e6f1d0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (20)_c4af102fe2dd6734c94070e442c081c4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_c31eee2a3a4975b4188e9def9e54bc04_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (45)_6d20a3b0e9b812c47a2bc91847d820bc_nextSpawnTime
+      Value: 1765444184
+      Kind: DWord
+    - Name: tree_1 (24)_8f6931e9e6057a5409211da09090f6d7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (15)_a71fe6166411ea64ea16be809f2c0a7b_nextSpawnTime
+      Value: 1765498945
+      Kind: DWord
+    - Name: Spawner_1_hard_stab_uncommon_5a4ffd9a4fe825449814b58861418519_nextSpawnTime
+      Value: 1765444180
+      Kind: DWord
+    - Name: Spawner_mid_cut_epic_994500fd7ef9f04488d281bcec52111c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite cut_eb5b65d82ca1cd645aa6805affcc90d4_nextSpawnTime
+      Value: 1765328949
+      Kind: DWord
+    - Name: tree_1 (11)_dcea885f44677384593fbfe704ed4194_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_e91ed7a3cddc7ee419f7b0249a5ec878_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (3)_4d637ab8df7d819458c3dde4606f97a3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: impressions
+      Value: 460
+      Kind: DWord
+    - Name: Spawner_1_medium_0fd6451ff71a34245918c8c9f8fa3ade_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_963fe496a014de74fac5c8b0e98916e5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_a5bdfd25195dd1646b90d3984be428c3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (24)_700f1a3a1dd6e9b4398d3c4c4b06dcf7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (14)_b05d24d44bffc61438c1537ff97884f6_nextSpawnTime
+      Value: 1765322639
+      Kind: DWord
+    - Name: PlayerModelStats
+      Value: '[{"BaseValue":100.0,"StatType":1,"Modifiers":[{"Name":"Devoured","StatType":1,"ModifierType":0,"Source":0,"Value":2773428.0,"Duration":0.0},{"Name":"ads","StatType":1,"ModifierType":0,"Source":5,"Value":9911.0,"Duration":0.0},{"Name":"Shop","StatType":1,"ModifierType":0,"Source":4,"Value":131903.0,"Duration":0.0}]},{"BaseValue":1.0,"StatType":0,"Modifiers":[{"Name":"Devoured","StatType":0,"ModifierType":0,"Source":0,"Value":9859.0,"Duration":0.0}]},{"BaseValue":0.5,"StatType":2,"Modifiers":[{"Name":"Devoured","StatType":2,"ModifierType":0,"Source":0,"Value":57525.375,"Duration":0.0},{"Name":"ads","StatType":2,"ModifierType":0,"Source":5,"Value":2211.0,"Duration":0.0},{"Name":"Shop","StatType":2,"ModifierType":0,"Source":4,"Value":1913.0,"Duration":0.0}]},{"BaseValue":0.0,"StatType":3,"Modifiers":[]},{"BaseValue":3.4,"StatType":4,"Modifiers":[]},{"BaseValue":0.0,"StatType":5,"Modifiers":[]},{"BaseValue":0.0,"StatType":14,"Modifiers":[{"Name":"Shop","StatType":14,"ModifierType":0,"Source":4,"Value":7036.0,"Duration":0.0},{"Name":"ads","StatType":14,"ModifierType":0,"Source":5,"Value":85421.0,"Duration":0.0},{"Name":"Devoured","StatType":14,"ModifierType":0,"Source":0,"Value":190073.0,"Duration":0.0}]},{"BaseValue":0.0,"StatType":15,"Modifiers":[]},{"BaseValue":0.0,"StatType":16,"Modifiers":[{"Name":"Shop","StatType":16,"ModifierType":0,"Source":4,"Value":17064.0,"Duration":0.0},{"Name":"Devoured","StatType":16,"ModifierType":0,"Source":0,"Value":422265.0,"Duration":0.0},{"Name":"ads","StatType":16,"ModifierType":0,"Source":5,"Value":260315.0,"Duration":0.0}]},{"BaseValue":0.0,"StatType":17,"Modifiers":[]},{"BaseValue":0.0,"StatType":20,"Modifiers":[{"Name":"Shop","StatType":20,"ModifierType":0,"Source":4,"Value":7529.0,"Duration":0.0},{"Name":"Devoured","StatType":20,"ModifierType":0,"Source":0,"Value":213584.0,"Duration":0.0},{"Name":"ads","StatType":20,"ModifierType":0,"Source":5,"Value":205940.0,"Duration":0.0}]},{"BaseValue":0.0,"StatType":21,"Modifiers":[]},{"BaseValue":0.0,"StatType":6,"Modifiers":[{"Name":"Shop","StatType":6,"ModifierType":0,"Source":4,"Value":4627.0,"Duration":0.0},{"Name":"Devoured","StatType":6,"ModifierType":0,"Source":0,"Value":146211.0,"Duration":0.0},{"Name":"ads","StatType":6,"ModifierType":0,"Source":5,"Value":5499.0,"Duration":0.0},{"Name":"pierce_common_div_ability","StatType":6,"ModifierType":0,"Source":2,"Value":5754.0,"Duration":0.0}]},{"BaseValue":1.0,"StatType":7,"Modifiers":[{"Name":"epic_pierce_div_ability","StatType":7,"ModifierType":1,"Source":0,"Value":0.6,"Duration":0.0}]},{"BaseValue":0.0,"StatType":8,"Modifiers":[{"Name":"Devoured","StatType":8,"ModifierType":0,"Source":0,"Value":83010.22,"Duration":0.0},{"Name":"ads","StatType":8,"ModifierType":0,"Source":5,"Value":30523.0,"Duration":0.0},{"Name":"Shop","StatType":8,"ModifierType":0,"Source":4,"Value":4203.0,"Duration":0.0},{"Name":"common_cut_div_ability","StatType":8,"ModifierType":0,"Source":2,"Value":2943.0,"Duration":0.0}]},{"BaseValue":1.0,"StatType":9,"Modifiers":[]},{"BaseValue":0.0,"StatType":12,"Modifiers":[{"Name":"Devoured","StatType":12,"ModifierType":0,"Source":0,"Value":145942.0,"Duration":0.0},{"Name":"Shop","StatType":12,"ModifierType":0,"Source":4,"Value":5222.0,"Duration":0.0},{"Name":"ads","StatType":12,"ModifierType":0,"Source":5,"Value":4249.0,"Duration":0.0},{"Name":"buck_common_div_ability","StatType":12,"ModifierType":0,"Source":2,"Value":2724.0,"Duration":0.0}]},{"BaseValue":1.0,"StatType":13,"Modifiers":[]},{"BaseValue":0.0,"StatType":22,"Modifiers":[]},{"BaseValue":0.0,"StatType":23,"Modifiers":[{"Name":"Devoured","StatType":23,"ModifierType":0,"Source":0,"Value":4716.0,"Duration":0.0}]},{"BaseValue":1.0,"StatType":24,"Modifiers":[{"Name":"Devoured","StatType":24,"ModifierType":0,"Source":0,"Value":3198.0,"Duration":0.0}]},{"BaseValue":1.0,"StatType":25,"Modifiers":[{"Name":"Devoured","StatType":25,"ModifierType":0,"Source":0,"Value":3303.0,"Duration":0.0}]}]'
+      Kind: String
+    - Name: Spawner_1_easy (2)_1ad5c17a386e9e74e812a01707411afe_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (43)_df9fc49cebb59574d87048bfb18acbb7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (48)_408bc1be570fc2441a639a4e464e8090_nextSpawnTime
+      Value: 1765322484
+      Kind: DWord
+    - Name: Spawner_1 (4)_924f1353db1032a45ab4946aa2fbdc4a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_cut_rare_bdb4a2b865f5bb84bb516e3b388f9296_nextSpawnTime
+      Value: 1765444212
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_13926cc472cca2f40978daae51ca3367_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_e5cd6b16570a52b4e8c1e00c1467d593_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_hard_cut_uncommon (1)_c3d71ee4749069f4ab6c75e00a55b733_nextSpawnTime
+      Value: 1765322665
+      Kind: DWord
+    - Name: Spawner_1_medium (9)_a9c0f81f0782cf743aa5d73c330ee751_nextSpawnTime
+      Value: 1765455665
+      Kind: DWord
+    - Name: tree_1 (29)_f03e0a15100b35645ab0ac374ee72a68_nextSpawnTime
+      Value: 1764544966
+      Kind: DWord
+    - Name: Spawner_sheild_buck_uncommon_c81c017e24c70c8428e04ec60410f133_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_78d2017010410694696ff0043f842bf2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (10)_637ac703e86256c44978b6128798bc8b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_3a81cf5369cd8c94ab794bdbab6dd7e0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_2e5a07533f458104fa1307979f3277f3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (20)_67d3f9c86cd919443bb6552046e0ef8a_nextSpawnTime
+      Value: 1765455446
+      Kind: DWord
+    - Name: tree_1 (22)_a184109c56bfe5849834375a42bdcbdb_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (15)_afaa0e8dd6f73074f92fe2c25b8d30ed_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (6)_6fd4676b1b62b1c4da59fa00a85166cc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (34)_91bfc8704b79204408bac2109150a729_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (5)_dbae354f9688ec34a8328248725611c2_nextSpawnTime
+      Value: 1765444555
+      Kind: DWord
+    - Name: tree_1 (33)_9932efcb0886bf44780b73a7d1e12fb2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (8)_75aa2064b3c8a7d47ba78d22d0dc2919_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (45)_756166ec15b781e48b2787f5b4729f43_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (9)_967c7802b230cd14d92152d703912145_nextSpawnTime
+      Value: 1765455618
+      Kind: DWord
+    - Name: tree_1 (27)_963fe496a014de74fac5c8b0e98916e5_nextSpawnTime
+      Value: 1765498949
+      Kind: DWord
+    - Name: Spawner_1_medium (9)_a9c0f81f0782cf743aa5d73c330ee751_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (34)_0d9a7ef7084f0814bbb76dc70eccf810_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_c03410a61cd4a4d499cdab83908ea3e7_nextSpawnTime
+      Value: 1765516673
+      Kind: DWord
+    - Name: Spawner_1 (8)_5fd8205fc3de6f0469dae0a50ccd5b01_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (5)_b259bac5b3337324bb0febce1dd672a4_nextSpawnTime
+      Value: 1765455759
+      Kind: DWord
+    - Name: Spawner_1 (5)_526e33d5f47fa114ab38497064718e05_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_mid_smash_rare_29c284f3c4f408247bd33b094f1e66cb_nextSpawnTime
+      Value: 1765499866
+      Kind: DWord
+    - Name: tree_1 (28)_40f588645633c7347b0a63bd0c51aef3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (7)_7f9606b42bce4fe46bdeaa69977e0ae7_nextSpawnTime
+      Value: 1765321855
+      Kind: DWord
+    - Name: tree_1 (23)_fdf8fdfaa4b1bef40ae6f19b8fba73dc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (6)_b40d059c3c42b184b87c50b2d75f8124_nextSpawnTime
+      Value: 1765444524
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce (1)_bc6fc1f0dd0763d43a2d4bf37d2966ff_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_5d7b3eb5d453cdc49a79fc36e3e51962_nextSpawnTime
+      Value: 1765322680
+      Kind: DWord
+    - Name: ice pike blocker (18)_c1c44cbf2fa7c7040a800abbb7a94b54_nextSpawnTime
+      Value: 1763305080
+      Kind: DWord
+    - Name: Spawner_1 (5)_897ad603cb7da3a4e89fdc7d64c60a01_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (30)_9c6399e146e60d646b938fa7b532c72a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_3ba741405abd2d446b54a193fa94e95a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_3a81cf5369cd8c94ab794bdbab6dd7e0_nextSpawnTime
+      Value: 1765516479
+      Kind: DWord
+    - Name: Spawner_1 (14)_ebcbcfbbd67485948a7964c477f2f6f1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (4)_5c5952bec05aeac4cbb168f462934e2c_nextSpawnTime
+      Value: 1765516267
+      Kind: DWord
+    - Name: tree_1 (34)_752f8be53cde78543b0bfbe2fbde80cc_nextSpawnTime
+      Value: 1765498978
+      Kind: DWord
+    - Name: tree_1 (30)_cbfae7ece49f9f144addf739d3d25e5d_nextSpawnTime
+      Value: 1765587292
+      Kind: DWord
+    - Name: Spawner_boss_pier_common_slot_a292a5815fd5b834b95613871c7051cc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_2e3508f7a6fc4244e8e6e0a7ca1b3ac8_nextSpawnTime
+      Value: 1765498944
+      Kind: DWord
+    - Name: Spawner_1_medium_7f9cea7fb780ec54d8ded2e27b69f8b7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (46)_ee112acff6b5a074ab71c64f6c38e011_nextSpawnTime
+      Value: 1765498942
+      Kind: DWord
+    - Name: fb_achievements
+      Value: ecpm_5_usd;ecpm_5_usd_first_day;ecpm_25_usd;ecpm_25_usd_first_day;ecpm_35_usd;ecpm_35_usd_first_day;ecpm_45_usd;ecpm_45_usd_first_day;ecpm_65_usd;ecpm_65_usd_first_day;ecpm_85_usd;ecpm_85_usd_first_day;ecpm_100_usd;ecpm_100_usd_first_day;ad_revenue_0,5_usd;ad_revenue_0,5_usd_first_day;ad_impressions_10;ad_impressions_10_first_day;ad_revenue_1_usd;ad_revenue_1_usd_first_day;ad_impressions_20;ad_impressions_20_first_day;ad_impressions_25;ad_impressions_25_first_day;ad_revenue_2_usd;ad_revenue_2_usd_first_day;ad_impressions_40;ad_impressions_40_first_day;ad_impressions_45;ad_impressions_45_first_day;ad_revenue_3_usd;ad_revenue_3_usd_first_day;ad_impressions_60;ad_impressions_60_first_day;ad_impressions_80;ad_impressions_80_first_day;ad_revenue_4_usd;ad_revenue_4_usd_first_day;ad_impressions_100;ad_impressions_100_first_day;ad_revenue_6_usd;ad_revenue_6_usd_first_day;ad_impressions_200;ad_revenue_8_usd;ad_revenue_10_usd;
+      Kind: String
+    - Name: UnlockedLocationNumber
+      Value: 14
+      Kind: DWord
+    - Name: tree_1 (28)_82aee3672d4c332409efcd964b00b64f_nextSpawnTime
+      Value: 1765322557
+      Kind: DWord
+    - Name: Spawner_1_knight_234f8054fa57c8742a6e3063594ddf97_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite regen (1)_262e9dd94ec51654080b2624960562d8_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_fa5274738775ee949bdd7b567fa94e21_nextSpawnTime
+      Value: 1765321860
+      Kind: DWord
+    - Name: tree_1 (14)_7dbf8a724184607458f27625f6ee3bf6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite health_d0c5a49f76c541440a5d15980d497110_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_29376df6b613d974d87e0f157aa7d186_nextSpawnTime
+      Value: 1765322709
+      Kind: DWord
+    - Name: tree_1 (23)_2a298e9c143a6b74db92a0d8063e692d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_328813b23952f914ea1879c181a929de_nextSpawnTime
+      Value: 1765587324
+      Kind: DWord
+    - Name: tree_1 (35)_89a5db4c97b931b4a8efac1816ea4b15_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_a6cc60eb6fbbad741ad771366731b9c9_nextSpawnTime
+      Value: 1765308449
+      Kind: DWord
+    - Name: tree_1_e704718e55bb5cb46a48abe29890f736_nextSpawnTime
+      Value: 1765455356
+      Kind: DWord
+    - Name: tree_1 (14)_d9e63f2ca8f7b6349ba745b041b2afce_nextSpawnTime
+      Value: 1764610996
+      Kind: DWord
+    - Name: Spawner_elite cut_92803b9e33fd8e74c915749d7d250a14_nextSpawnTime
+      Value: 1765447651
+      Kind: DWord
+    - Name: tree_1 (26)_fe58513b5d310f641a83c1d44e58cfa5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (10)_c547ee51c223e9f4d8b36745525989b8_nextSpawnTime
+      Value: 1764506060
+      Kind: DWord
+    - Name: Spawner_1 (5)_526e33d5f47fa114ab38497064718e05_nextSpawnTime
+      Value: 1764853530
+      Kind: DWord
+    - Name: tree_1 (46)_ee112acff6b5a074ab71c64f6c38e011_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite cut def_ec34edde063ecb84c925fe5277d451a0_nextSpawnTime
+      Value: 1765601519
+      Kind: DWord
+    - Name: Spawner_1_easy_3b6bc05f369ab9b43b9dbef1c5c5c4ac_cleared
+      Value: 1
+      Kind: DWord
+    - Name: PortalGemsCollected
+      Value: 10
+      Kind: DWord
+    - Name: Spawner_uncommon_cut (1)_67d4980d9e28e624c9dc3851fda25e6a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_4919d136bd46d3842a9da0f7704a1ede_nextSpawnTime
+      Value: 1765444907
+      Kind: DWord
+    - Name: Spawner_elite_regen_2cb7a85cc956bfe418e8537c931563dc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (30)_5267b549dac425947bcfc33c0dad8f85_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_64195807ac1b24340b1fce69fb35363f_nextSpawnTime
+      Value: 1765444220
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_e04a6f14007e3ee4987c0d3a43227c24_nextSpawnTime
+      Value: 1765587677
+      Kind: DWord
+    - Name: Spawner_1 (11)_81af2281405b27a4a91646cb2b0f340e_nextSpawnTime
+      Value: 1765455718
+      Kind: DWord
+    - Name: Spawner_1_elite buck_3ec1d9c49a7d58c498154f178dbaa05a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_6522d1afbf3c7234ba9e481b4fa3e652_nextSpawnTime
+      Value: 1765444224
+      Kind: DWord
+    - Name: tree_1 (34)_7cedaaa2a038bcd4190307dc34aa2dc5_nextSpawnTime
+      Value: 1765321896
+      Kind: DWord
+    - Name: Spawner_1_knight_a88bebfac0910d642953e1fd71ac8b00_cleared
+      Value: 1
+      Kind: DWord
+    - Name: completed_rate_us
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (24)_367cac6c80f952e40a680f47f09c28f0_nextSpawnTime
+      Value: 1765498956
+      Kind: DWord
+    - Name: tree_1 (14)_7dbf8a724184607458f27625f6ee3bf6_nextSpawnTime
+      Value: 1762902214
+      Kind: DWord
+    - Name: tree_1 (39)_ce79225b1de87e34dbe97a557df138b7_nextSpawnTime
+      Value: 1765455532
+      Kind: DWord
+    - Name: tree_1 (19)_38076fe3ad633eb49955ae14fb88e761_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite smash_894b251c0434b8f4b914cd39c4acd721_nextSpawnTime
+      Value: 1765331223
+      Kind: DWord
+    - Name: tree_1 (21)_214d3a4fbf93c864086a21f4c0f1f39b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (35)_09f051255fed40543aed01ba883bd9c6_nextSpawnTime
+      Value: 1765498975
+      Kind: DWord
+    - Name: ice pike blocker (19)_0b528062cff0a5e45b1ca3c145ffd1c7_nextSpawnTime
+      Value: 1763305513
+      Kind: DWord
+    - Name: tree_1 (3)_5948b1de5d5f92849890dbfa6873b0b7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite smash_c26633ad2772866429380723ea76e283_nextSpawnTime
+      Value: 1765451310
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_c03410a61cd4a4d499cdab83908ea3e7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_09432f46bc1a5c14eb2b837f540265dd_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (9)_c159d58014367584aaa0972a33d69509_nextSpawnTime
+      Value: 1765321893
+      Kind: DWord
+    - Name: ice pike blocker (1)_3696b30824713fe4495961260f70fb1e_nextSpawnTime
+      Value: 1762441148
+      Kind: DWord
+    - Name: tree_1 (20)_32238e1f90f69244581485cacfcaeb5b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (12)_b0b234830487e914da29f10a21af201f_nextSpawnTime
+      Value: 1765322393
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_b3ec87b5cefde47489d5286ffbe1e5f6_nextSpawnTime
+      Value: 1765445417
+      Kind: DWord
+    - Name: Spawner_1 (10)_40b18344c519f7341bb014150e6f981b_nextSpawnTime
+      Value: 1765516379
+      Kind: DWord
+    - Name: tree_1 (27)_f2e4ffe0613f03541af643373ee520c5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelhealth_3
+      Value: 0
+      Kind: DWord
+    - Name: tree_1 (22)_ce046bc9fd4d75b49b8da0a4b50879ca_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelhealth_1
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelhealth_2
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_b3ec87b5cefde47489d5286ffbe1e5f6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (16)_5bbcc02b2be2bdb43bda23bced3fcc9d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (7)_eb8f8cae3535bc547b3f287a4da737e6_nextSpawnTime
+      Value: 1765455548
+      Kind: DWord
+    - Name: tree_1 (34)_e56816547bd06294bab1e1d275a79ba3_nextSpawnTime
+      Value: 1765444527
+      Kind: DWord
+    - Name: tree_1 (43)_35e4a952e49fd5e4186ed281eab13d89_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_ebcbcfbbd67485948a7964c477f2f6f1_nextSpawnTime
+      Value: 1765455453
+      Kind: DWord
+    - Name: tree_1 (24)_8f6931e9e6057a5409211da09090f6d7_nextSpawnTime
+      Value: 1765444269
+      Kind: DWord
+    - Name: tree_1 (30)_b35d48139b4781241885c91fdd2fb0ab_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_f9aaaa44ea2c78d4c9a8f427b47cdb4f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (5)_1b7a1536c21a74a4fba4e572166a184e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_7c106fea8ebcf2448a24379ef852095d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_4b1005691d6e0d14794f6cd3083b57ee_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_ea2540d7f101c4c49a72a805bb0f0106_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_12bd28b16124950479c724f6c575f26f_nextSpawnTime
+      Value: 1765322654
+      Kind: DWord
+    - Name: tree_1 (33)_8ef09c618519a3445a567f1f064a445c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite_regen_2cb7a85cc956bfe418e8537c931563dc_nextSpawnTime
+      Value: 1765451351
+      Kind: DWord
+    - Name: ice pike blocker (17)_74fd604fcb547ea4ba67bc2ac257c568_nextSpawnTime
+      Value: 1762480779
+      Kind: DWord
+    - Name: Spawner_boss_pier_common_slot_a292a5815fd5b834b95613871c7051cc_nextSpawnTime
+      Value: 1764505805
+      Kind: DWord
+    - Name: tree_1 (23)_bbfac5b6522fe38448e3d8d8278c76e9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (8)_8d8d8a443dad9a544aa0e747c49a18cd_nextSpawnTime
+      Value: 1764776652
+      Kind: DWord
+    - Name: tree_1 (31)_a9c94e514d124ff42a148750b225d66d_nextSpawnTime
+      Value: 1765498964
+      Kind: DWord
+    - Name: Spawner_1 (18)_37251f8c2686e1a4a8909b3f2b40f7fb_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (42)_e424b4d99bf33964f9bf2061dcdccfa2_nextSpawnTime
+      Value: 1765587314
+      Kind: DWord
+    - Name: tree_1 (21)_0608ad3457202ad4f97a22571d06ed4b_nextSpawnTime
+      Value: 1764544818
+      Kind: DWord
+    - Name: tree_1 (16)_15d0583daa188174b944fa9991427e3b_nextSpawnTime
+      Value: 1765322562
+      Kind: DWord
+    - Name: Screenmanager Resolution Width
+      Value: 1080
+      Kind: DWord
+    - Name: tree_1 (21)_6bb06708cf98f074ba00120e071f3114_nextSpawnTime
+      Value: 1765322644
+      Kind: DWord
+    - Name: ice pike blocker (9)_526d3027b67661b4c81015dad49b38e9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite pier_250c52c62adb1b64faf09a5412f880ea_nextSpawnTime
+      Value: 1765505965
+      Kind: DWord
+    - Name: Spawner_1 (2)_fa826c23de98bc64881b778e82408bcf_nextSpawnTime
+      Value: 1765455335
+      Kind: DWord
+    - Name: tree_1 (42)_9b03a0b0696073d40ab90b82ac5adf66_nextSpawnTime
+      Value: 1764610472
+      Kind: DWord
+    - Name: Spawner_1 (17)_51d02116bcfffe54784c2c9eb27b450c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_6203ad50f7e5e6341ad584a9011fdeaa_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_a9c94e514d124ff42a148750b225d66d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_60630e7f9abc2e94588b47abbcca9618_nextSpawnTime
+      Value: 1763599014
+      Kind: DWord
+    - Name: tree_1 (21)_7533bde0bbf639e4f9cc8eb2b7ddd408_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_95f3d296c4255ba4a8626504b398ebea_nextSpawnTime
+      Value: 1765308421
+      Kind: DWord
+    - Name: ice pike blocker (4)_6807a12daeb4b704fba951e4ac83f4ec_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (10)_d241e707b415f2c4da0c6136920cae5e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: game_loaded_once
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_90cb8f2e35ee2d246b599d56f4a67dd4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_cecc6fe196f3e2c4496ea70be4933520_nextSpawnTime
+      Value: 1765313407
+      Kind: DWord
+    - Name: Spawner_1_easy (2)_4d0bd0ac9ac5ad54faf54f799da4139f_nextSpawnTime
+      Value: 1765587271
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_3a0abe33425e27d4bbbe6e0495362b0e_nextSpawnTime
+      Value: 1765499347
+      Kind: DWord
+    - Name: Spawner_boss (3)_dec1a5821d53eec47b147b38b53f2bad_nextSpawnTime
+      Value: 1765456114
+      Kind: DWord
+    - Name: tree_1 (33)_8ef09c618519a3445a567f1f064a445c_nextSpawnTime
+      Value: 1765311383
+      Kind: DWord
+    - Name: tree_1 (16)_b5d0471117bd5614eb2bf68831439a07_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (24)_b857cafaa0afcc64791214699ec3921c_nextSpawnTime
+      Value: 1764610514
+      Kind: DWord
+    - Name: Spawner_1_hard_cut_uncommon (1)_c3d71ee4749069f4ab6c75e00a55b733_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (44)_4ae0ef60f69e38e42a32d7606250fff1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (35)_1c529753549b25b4bb06a710c46f5e56_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (9)_526d3027b67661b4c81015dad49b38e9_nextSpawnTime
+      Value: 1762608273
+      Kind: DWord
+    - Name: Spawner_boss (3)_95c982c8272c0e846bf22c3ce334db22_nextSpawnTime
+      Value: 1765585111
+      Kind: DWord
+    - Name: Spawner_1 (16)_ac7adf55e76fe7e4881f60c7751d558d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_cc76e468157054a4c97b916981e5fb4c_nextSpawnTime
+      Value: 1765322027
+      Kind: DWord
+    - Name: Spawner_1_medium_8bd4fbeaba7d191489c660fb0d9abf83_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_61f2b2d7d5ee4c041959c6127638702d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce_da0928953e498ef41a1eb8f8e68c29de_nextSpawnTime
+      Value: 1765498907
+      Kind: DWord
+    - Name: tree_1 (46)_cb8065939a284b04bb5a7f035bbf9bdb_nextSpawnTime
+      Value: 1765455540
+      Kind: DWord
+    - Name: Spawner_1_elite regen_56fb4a52b5154c44b895fdb3a1050c70_nextSpawnTime
+      Value: 1765530471
+      Kind: DWord
+    - Name: Spawner_1 (19)_2fd678d7da7bd5744958bd09925481e3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_1aad74bd45a81d84fb65367fc4537d25_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_4f46f9143634cf04e90bcffacf7fcbc8_nextSpawnTime
+      Value: 1765444470
+      Kind: DWord
+    - Name: tree_1 (13)_da80ad79483452541bc3bea7dea4ffd3_nextSpawnTime
+      Value: 1765321738
+      Kind: DWord
+    - Name: Spawner_1 (8)_87a29c301ec677f45ae25710d2c30058_nextSpawnTime
+      Value: 1764544870
+      Kind: DWord
+    - Name: PlayerModelItems
+      Value: '[{"Key":"knife","Level":11},{"Key":"minisaw","Level":13},{"Key":"pike","Level":100},{"Key":"fork","Level":94},{"Key":"pick","Level":44},{"Key":"mailbox","Level":95},{"Key":"paddle","Level":33},{"Key":"katana","Level":11},{"Key":"hammer","Level":60},{"Key":"doubleaxe","Level":31},{"Key":"coolpike","Level":30},{"Key":"iron_block","Level":80},{"Key":"oak_round","Level":40},{"Key":"wooden_horns","Level":48},{"Key":"mace","Level":61},{"Key":"slime_spawn","Level":39},{"Key":"abyss_maw","Level":61},{"Key":"iron_studs","Level":45},{"Key":"knife_div","Level":4},{"Key":"chainsawpike","Level":81},{"Key":"spiked_dome","Level":40},{"Key":"steel_guard","Level":38},{"Key":"stone_bind","Level":96},{"Key":"stone_disk","Level":111},{"Key":"pike_div","Level":6},{"Key":"coolHammer","Level":96},{"Key":"bronze_crest","Level":106},{"Key":"demon_horns","Level":96},{"Key":"scarlet_edge","Level":88},{"Key":"crimson_fang","Level":109},{"Key":"chainsaw","Level":91},{"Key":"mailbox_div","Level":3},{"Key":"ember_core","Level":110},{"Key":"paddle_div","Level":4},{"Key":"fork_div","Level":3},{"Key":"minisaw_div","Level":4},{"Key":"pick_div","Level":2},{"Key":"golden_spikes","Level":91},{"Key":"coolHammer_div","Level":1},{"Key":"hammer_div","Level":2},{"Key":"eagle_crest","Level":119},{"Key":"katana_div","Level":5},{"Key":"coolpike_div","Level":4},{"Key":"mace_div","Level":1},{"Key":"chainsawpike_div","Level":1},{"Key":"chainsaw_div","Level":1},{"Key":"doubleaxe_div","Level":1}]'
+      Kind: String
+    - Name: Spawner_1_knight (3)_1257f23f01114814b82277d1d5df4c22_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_a1e0ab5031bfb19439464830aef53d99_nextSpawnTime
+      Value: 1765455413
+      Kind: DWord
+    - Name: Spawner_1_medium (8)_3b776ccd3d87bd44b88a18b1de2fc046_nextSpawnTime
+      Value: 1765322602
+      Kind: DWord
+    - Name: Spawner_1_easy (2)_1ad5c17a386e9e74e812a01707411afe_nextSpawnTime
+      Value: 1765444092
+      Kind: DWord
+    - Name: Spawner_1 (13)_687448aa1f0da4a4aa5e7fb891ba657e_nextSpawnTime
+      Value: 1765516219
+      Kind: DWord
+    - Name: tree_1 (31)_e12d29d9567ceb7488dbf9bb98cdd2b9_nextSpawnTime
+      Value: 1765444233
+      Kind: DWord
+    - Name: tree_1 (38)_39412c2992a5a8b45af42858a77293dd_nextSpawnTime
+      Value: 1765321933
+      Kind: DWord
+    - Name: Spawner_1_medium_shield_cut_uncommon_1f79502dc08b7ee489dd7b6299eb6879_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_0b089ab7686e54c4ab6704c95154be69_nextSpawnTime
+      Value: 1765444270
+      Kind: DWord
+    - Name: tree_1 (45)_756166ec15b781e48b2787f5b4729f43_nextSpawnTime
+      Value: 1765444242
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_390b9aa5738f8af4aabfca1fbf1e9534_nextSpawnTime
+      Value: 1765444864
+      Kind: DWord
+    - Name: ice pike blocker (2)_e50957f24071cff40acf07b151ccfe01_nextSpawnTime
+      Value: 1762441142
+      Kind: DWord
+    - Name: Spawner_elite smash_1f4e92fe96ff92b4ba29e77e14cb07ee_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_b611ea98766fb554d902c3dfbbac8404_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_293536cbf3081484094ead4bd2f97135_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_fac5f4340f7bc0242be8b9900979b4f1_nextSpawnTime
+      Value: 1765311090
+      Kind: DWord
+    - Name: tree_1 (27)_2164dba9d80c418489f77dad8b742f1b_nextSpawnTime
+      Value: 1765321785
+      Kind: DWord
+    - Name: Spawner_1_easy_d45cb9e7fb6376741a0f4f9a6f1d9df7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_2a91d80b843553847acea18c4219d462_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (2)_6661e4e4ae66c6741bbb9dcf6805f48e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (30)_b83078b826a78f049ae9813215a25123_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (41)_4260917f211470c42813e2fe803effdd_nextSpawnTime
+      Value: 1765444236
+      Kind: DWord
+    - Name: tree_1 (48)_408bc1be570fc2441a639a4e464e8090_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (46)_c0807700cfff3724cbbf5c4028cdda3e_nextSpawnTime
+      Value: 1765444249
+      Kind: DWord
+    - Name: Spawner_1_medium (4)_8e02a2c97c85653449085e988fe22336_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_c51e41c55c620134cbb15baadae0c56b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_4898f0895caa15e448eada538c336e1f_nextSpawnTime
+      Value: 1765455411
+      Kind: DWord
+    - Name: tree_1 (17)_18b30c59bd2cd484d85741210327d7d0_nextSpawnTime
+      Value: 1763305347
+      Kind: DWord
+    - Name: tree_1 (25)_e8e2f6b5eb58ce54fa7fe287d3795c09_nextSpawnTime
+      Value: 1764545769
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (8)_03f7224001daede47a770179e67c4ab1_nextSpawnTime
+      Value: 1765160342
+      Kind: DWord
+    - Name: tree_1 (15)_ea116fe9cfc95f147af267ed39f536e5_nextSpawnTime
+      Value: 1764983138
+      Kind: DWord
+    - Name: tree_1 (45)_0cb5ba71b5a5d494ba98d0915164f39e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_common_cut (1)_5b1ce6e5c4191374d9bf7d48f96d49c0_nextSpawnTime
+      Value: 1765321916
+      Kind: DWord
+    - Name: tree_1 (27)_f2e4ffe0613f03541af643373ee520c5_nextSpawnTime
+      Value: 1765516273
+      Kind: DWord
+    - Name: haptics_enabled
+      Value: 0
+      Kind: DWord
+    - Name: ecpm
+      Value: 25.234312
+      Kind: String
+    - Name: Spawner_1 (9)_e834c0f4386342b47961f595fb31258e_nextSpawnTime
+      Value: 1764506055
+      Kind: DWord
+    - Name: tree_1 (11)_dcea885f44677384593fbfe704ed4194_nextSpawnTime
+      Value: 1764081515
+      Kind: DWord
+    - Name: tree_1 (27)_38b97b7835acd6c44959909a0fec2727_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_f9aaaa44ea2c78d4c9a8f427b47cdb4f_nextSpawnTime
+      Value: 1765308420
+      Kind: DWord
+    - Name: Spawner_1_medium_425af2faedf4a8e4398109f9adfacf55_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_8214a1b5c6c029f43bffadd5c66c19e1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (3)_c30cc5c145795e4418fb24b5bc6d6d0c_nextSpawnTime
+      Value: 1765444105
+      Kind: DWord
+    - Name: tree_1 (23)_128840e9f82d8dd43bc37038ca743708_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_15d982323f53e6248b5112b2e74376df_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (10)_fc57e265e6a06274387f9fe5a3c16f00_nextSpawnTime
+      Value: 1764505561
+      Kind: DWord
+    - Name: Spawner_1 (16)_2c3b71dcf1fc94e40bdf6c02ce013def_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_superboss_legendary_pierce_1e03c7f839c79a14abcbcb12b389ca08_nextSpawnTime
+      Value: 1765530525
+      Kind: DWord
+    - Name: pool_index
+      Value: 13
+      Kind: DWord
+    - Name: tree_1 (11)_4812b483e6cdcf6429cc5773ab9173f4_nextSpawnTime
+      Value: 1764505537
+      Kind: DWord
+    - Name: tree_1 (35)_33e4b335caa187147b8db42953fe4a5a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (15)_3b581bd56aa84ad4b9a0a24aa94211de_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_bcf607aa737145946acaefffe0ee0189_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_cabae2e2c05f0fe42a379543570d4058_cleared
+      Value: 1
+      Kind: DWord
+    - Name: playtime_minutes
+      Value: 3885
+      Kind: DWord
+    - Name: tree_1 (44)_2a74013fcfbaa7d4fb5dad0f01c57b9a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (47)_772b0d43a9b8379498b46d8b4e766730_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce (3)_7e9d5cd54631e5e4fbcd453a0b74a408_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (18)_f9661511698a70744b2e1cb66adaca56_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_e132fbb55e51fe047b62c4cfc9edf89b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_8bd4fbeaba7d191489c660fb0d9abf83_nextSpawnTime
+      Value: 1765455634
+      Kind: DWord
+    - Name: tree_1 (13)_cdee8ca148c30124299dbef233cce0f7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModeldamage_1
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_4dcf57b75f958ec43a4555a1d190d66f_nextSpawnTime
+      Value: 1765444267
+      Kind: DWord
+    - Name: tree_1 (28)_415da507b54844244b8e21c174a2353f_nextSpawnTime
+      Value: 1765444623
+      Kind: DWord
+    - Name: unity.cloud_userid
+      Value: c8cc2caad593ba2328c74e08de788d5c
+      Kind: String
+    - Name: Spawner_1_easy (5)_dbae354f9688ec34a8328248725611c2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModeldamage_4
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (16)_5bbcc02b2be2bdb43bda23bced3fcc9d_nextSpawnTime
+      Value: 1763305515
+      Kind: DWord
+    - Name: ShopLotModeldamage_5
+      Value: 0
+      Kind: DWord
+    - Name: dragon_ff2aad34a5ab7e74daadf5958f62f2ad_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModeldamage_2
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldamage_3
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1_common_cut_aacb3cdb50c75014f970bc563c73dc88_nextSpawnTime
+      Value: 1765321922
+      Kind: DWord
+    - Name: ShopLotModeldamage_8
+      Value: 0
+      Kind: DWord
+    - Name: tree_1 (49)_438aacbc19dedfc40b0d0aabbdf12df0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModeldamage_9
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldamage_6
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldamage_7
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_625ff62757feecd418cccc2f6285d10b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_4a27773846ab9bb46ac9685e5cc1648a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (24)_1b324ea20aef18348866d5020361790a_nextSpawnTime
+      Value: 1765322605
+      Kind: DWord
+    - Name: CurrentLocationNumber
+      Value: 9
+      Kind: DWord
+    - Name: tree_1 (20)_8bb66e255eb99ad4686fd955af79bc1e_nextSpawnTime
+      Value: 1764505655
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (10)_134326be3f3a2bc4f8c903f77993f50f_nextSpawnTime
+      Value: 1765517832
+      Kind: DWord
+    - Name: Spawner_1_pierc_uncommon_379bf798cf40f8045ad923c9f134f3cb_nextSpawnTime
+      Value: 1765444787
+      Kind: DWord
+    - Name: VisitedLastUnlockedLocation
+      Value: 1
+      Kind: DWord
+    - Name: PlayerModelItemSlots
+      Value: '[{"Key":"coolpike_div","SlotType":0,"IsUnlocked":true},{"Key":"pick_div","SlotType":0,"IsUnlocked":true},{"Key":"chainsawpike_div","SlotType":0,"IsUnlocked":true},{"Key":"fork_div","SlotType":0,"IsUnlocked":true},{"Key":"bronze_crest","SlotType":1,"IsUnlocked":true},{"Key":"oak_round","SlotType":2,"IsUnlocked":true}]'
+      Kind: String
+    - Name: tree_1 (15)_aadc68ee21ebd31418794c0f63d76123_nextSpawnTime
+      Value: 1765455470
+      Kind: DWord
+    - Name: tree_1 (23)_fdf8fdfaa4b1bef40ae6f19b8fba73dc_nextSpawnTime
+      Value: 1765444508
+      Kind: DWord
+    - Name: tree_1 (18)_7ee952991a8892c449ca977660c49bc4_nextSpawnTime
+      Value: 1764983140
+      Kind: DWord
+    - Name: tree_1 (19)_38076fe3ad633eb49955ae14fb88e761_nextSpawnTime
+      Value: 1764545652
+      Kind: DWord
+    - Name: tree_1 (32)_496cb86190ca49f48a279cc11141dd7a_nextSpawnTime
+      Value: 1763305173
+      Kind: DWord
+    - Name: tree_1 (37)_cec8944faceb6ea4fb6c49be1ccb5829_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce (2)_3fd8e1a5049ac674cb49532ea6e6f1d0_nextSpawnTime
+      Value: 1765498923
+      Kind: DWord
+    - Name: tree_1 (19)_7913877d087d4424588a5063a421d57f_nextSpawnTime
+      Value: 1765159385
+      Kind: DWord
+    - Name: HasSaved
+      Value: yes
+      Kind: String
+    - Name: Spawner_1 (13)_c7dd2be697bd7b3428578d596d5d78a9_nextSpawnTime
+      Value: 1764610461
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_stab_rare_13f8cc09886c1ae408292a4590699490_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_dec1a5821d53eec47b147b38b53f2bad_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_412748d6fbc8e694a9691ed572233c00_nextSpawnTime
+      Value: 1765444268
+      Kind: DWord
+    - Name: tree_1 (36)_cd1062d836e87ac49bc9cb0c948951ba_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (16)_ab006892ac9f7d54988f2269c0f0eecc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_4dcf57b75f958ec43a4555a1d190d66f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_e04a6f14007e3ee4987c0d3a43227c24_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_09432f46bc1a5c14eb2b837f540265dd_nextSpawnTime
+      Value: 1765444497
+      Kind: DWord
+    - Name: tree_1 (47)_2ac750a4b4c6e6c4d8a1eda22c242c98_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (13)_4d2a59b8423175f4994c0e003ecf9b37_nextSpawnTime
+      Value: 1763034042
+      Kind: DWord
+    - Name: Spawner_1_medium (11)_0f1a87e14eef63e4599344cc168228ca_nextSpawnTime
+      Value: 1765455745
+      Kind: DWord
+    - Name: Spawner_1 (11)_c3a169eefcc510e4b9daaf59e923789a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (13)_5983a5980d35a7944a53def895980547_nextSpawnTime
+      Value: 1765516153
+      Kind: DWord
+    - Name: tree_1 (26)_1ad87f069f14b004c9f95f00b5e09e47_nextSpawnTime
+      Value: 1765499021
+      Kind: DWord
+    - Name: tree_1 (39)_3ec23492f4fd9b34d910ad31e65d4d46_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_edd017de218fe8b4db248fa3bab8a290_nextSpawnTime
+      Value: 1765159862
+      Kind: DWord
+    - Name: tree_1 (47)_772b0d43a9b8379498b46d8b4e766730_nextSpawnTime
+      Value: 1764983312
+      Kind: DWord
+    - Name: tree_1 (21)_6bb06708cf98f074ba00120e071f3114_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite pier dmg_28ffe418ff1abdb42b670d6c4260be1e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_6522d1afbf3c7234ba9e481b4fa3e652_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (20)_87a10d02519a86840ac628830df0f2db_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_214d3a4fbf93c864086a21f4c0f1f39b_nextSpawnTime
+      Value: 1764505660
+      Kind: DWord
+    - Name: tree_1 (27)_38b97b7835acd6c44959909a0fec2727_nextSpawnTime
+      Value: 1765498933
+      Kind: DWord
+    - Name: Spawner_1 (10)_40b18344c519f7341bb014150e6f981b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: passedBalanceUpdate_1_2_0
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_1aad74bd45a81d84fb65367fc4537d25_nextSpawnTime
+      Value: 1765322447
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_160bd349d9a0b0f4a888bffa4877ac5a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (36)_4791c28b83867554fa3babda02d17e29_nextSpawnTime
+      Value: 1765516377
+      Kind: DWord
+    - Name: Spawner_uncommon_cut (1)_67d4980d9e28e624c9dc3851fda25e6a_nextSpawnTime
+      Value: 1765455845
+      Kind: DWord
+    - Name: Spawner_sheild_buck_uncommon_c81c017e24c70c8428e04ec60410f133_nextSpawnTime
+      Value: 1765322942
+      Kind: DWord
+    - Name: tree_1 (25)_c4d3a08d5e20f1c47833db7c40d7e74c_nextSpawnTime
+      Value: 1765321915
+      Kind: DWord
+    - Name: tree_1 (15)_3b581bd56aa84ad4b9a0a24aa94211de_nextSpawnTime
+      Value: 1765321734
+      Kind: DWord
+    - Name: Spawner_boss (3)_fc38d9c21b75684448f52167946ad683_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (24)_700f1a3a1dd6e9b4398d3c4c4b06dcf7_nextSpawnTime
+      Value: 1765322190
+      Kind: DWord
+    - Name: Spawner_1_hard_buck_uncommon (1)_0d7602a9fb00b174baaf2628932c04dc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (16)_ab006892ac9f7d54988f2269c0f0eecc_nextSpawnTime
+      Value: 1765311013
+      Kind: DWord
+    - Name: unity.player_session_count
+      Value: 225
+      Kind: String
+    - Name: Spawner_1_common_cut_aacb3cdb50c75014f970bc563c73dc88_cleared
+      Value: 1
+      Kind: DWord
+    - Name: optimum_time
+      Value: 3000.0
+      Kind: String
+    - Name: Spawner_boss (3)_58beec79b9594594984f66410b5dc7b1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_d35cf3be6a0c9d04eadc03e570e815b9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (5)_0a455eb3c3f38354eb27928529eb1115_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_3221f0c43c924aa42ae92b6ae455ddb7_nextSpawnTime
+      Value: 1764227224
+      Kind: DWord
+    - Name: tree_1 (24)_5bc041868c59664458703648f150c4b3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_373def4f51d63b44ebfe861602327562_nextSpawnTime
+      Value: 1765321906
+      Kind: DWord
+    - Name: tree_1 (14)_68204305741257140b79f7f376eb3ca5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (1)_3696b30824713fe4495961260f70fb1e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_pierc_rare_ba7138fb21e32ce4cbdc7c48cc90be7b_nextSpawnTime
+      Value: 1765499412
+      Kind: DWord
+    - Name: Spawner_1_medium_425af2faedf4a8e4398109f9adfacf55_nextSpawnTime
+      Value: 1765444684
+      Kind: DWord
+    - Name: tree_1 (6)_fa0eb1dc69eee28499b19f8a58d52ad7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (13)_ab446b6d1a4d820428a58823b0906437_nextSpawnTime
+      Value: 1764776735
+      Kind: DWord
+    - Name: Spawner_1_knight_ff9ae80304783a9488a20a203fdc4ff7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (5)_0a455eb3c3f38354eb27928529eb1115_nextSpawnTime
+      Value: 1765455483
+      Kind: DWord
+    - Name: tree_1 (15)_aadc68ee21ebd31418794c0f63d76123_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_20839bf3b6df8e24f9f92d67d8626d78_nextSpawnTime
+      Value: 1765498970
+      Kind: DWord
+    - Name: tree_1 (34)_7cedaaa2a038bcd4190307dc34aa2dc5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (15)_a71fe6166411ea64ea16be809f2c0a7b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_hard_stab_uncommon (1)_1c9b94f2bffedc8418162d2d852cb543_nextSpawnTime
+      Value: 1765516269
+      Kind: DWord
+    - Name: rewarded_watch_times
+      Value: 449
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_e0e63a1291a5e4c408788978b693a809_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_418a1c6615c6b9947ad139e0830836f3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight_b497ea5b768b45a4aad9e8e6dd65369c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_mid_smash_common_0590e3a5e4697af48a7a6b763040944c_nextSpawnTime
+      Value: 1764777148
+      Kind: DWord
+    - Name: tree_1 (10)_fc57e265e6a06274387f9fe5a3c16f00_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (38)_86ce41c2ee8a7834a8adde0587808a31_nextSpawnTime
+      Value: 1765444192
+      Kind: DWord
+    - Name: ice pike blocker (6)_ab1c266ee8334a942ad002333a5e1a18_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (12)_cd8765fbf5e22b446a018dbfb62870d1_nextSpawnTime
+      Value: 1765455450
+      Kind: DWord
+    - Name: Spawner_1_medium_common_pierce (1)_bc6fc1f0dd0763d43a2d4bf37d2966ff_nextSpawnTime
+      Value: 1765498932
+      Kind: DWord
+    - Name: tree_1 (46)_c0807700cfff3724cbbf5c4028cdda3e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_0b90e2447b0a2bc4cad955d9cb755423_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_superboss_legendary_pierce_1e03c7f839c79a14abcbcb12b389ca08_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite pier_76c659618889bdf4d9e6608fbcc5af99_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_7549513ffc98aeb4592eb65e3aa98d8f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss_cut_rare_c3f7a0c9126339745879e8e908bbd27a_nextSpawnTime
+      Value: 1765517211
+      Kind: DWord
+    - Name: tree_1 (34)_e56816547bd06294bab1e1d275a79ba3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (8)_5fd8205fc3de6f0469dae0a50ccd5b01_nextSpawnTime
+      Value: 1763324924
+      Kind: DWord
+    - Name: tree_1 (25)_3f76fd433e6bb8c4dabfc2c63ee50fbf_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy_7cb78fc7e49badd4090ab8f83e1b35bd_nextSpawnTime
+      Value: 1765444201
+      Kind: DWord
+    - Name: tree_1 (36)_3059cdb39ede6cf4a9705d32491bfe58_nextSpawnTime
+      Value: 1764610602
+      Kind: DWord
+    - Name: tree_1 (20)_67d3f9c86cd919443bb6552046e0ef8a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_bd7b17bb2df51b147a6c6f68d2ce1860_nextSpawnTime
+      Value: 1764470063
+      Kind: DWord
+    - Name: tree_1 (24)_1b324ea20aef18348866d5020361790a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_a184109c56bfe5849834375a42bdcbdb_nextSpawnTime
+      Value: 1765308588
+      Kind: DWord
+    - Name: tree_1 (23)_d35cf3be6a0c9d04eadc03e570e815b9_nextSpawnTime
+      Value: 1765587285
+      Kind: DWord
+    - Name: tree_1 (40)_0cad5b7f5cba51641b7c06a6f36db0b4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Screenmanager Resolution Height
+      Value: 2408
+      Kind: DWord
+    - Name: Spawner_1_medium (4)_5e5c3eb9361b6f74784394d3e92f3f26_nextSpawnTime
+      Value: 1765323006
+      Kind: DWord
+    - Name: tree_1 (30)_a4eccf90767219845a9b251796f253e8_nextSpawnTime
+      Value: 1765321888
+      Kind: DWord
+    - Name: fake_playtime_minutes
+      Value: 1321
+      Kind: DWord
+    - Name: tree_1 (28)_0b089ab7686e54c4ab6704c95154be69_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_167460572ae35524287964d4523d348d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (19)_68dc9e417cdf6684985c6ffa3633eab4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_20839bf3b6df8e24f9f92d67d8626d78_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_b8bf25fbbde16cc4da094e97e3b9994d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_4a27773846ab9bb46ac9685e5cc1648a_nextSpawnTime
+      Value: 1765516224
+      Kind: DWord
+    - Name: tree_1 (34)_98b58409cdebd854e92b4003875ad052_nextSpawnTime
+      Value: 1765516165
+      Kind: DWord
+    - Name: tree_1 (20)_9e2ebd58ce809fe4699265b5c0064490_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (42)_c723c567fb0604943967478b706cd31c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_95c982c8272c0e846bf22c3ce334db22_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_c0da370b2709af64aa6338e7e0212423_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (18)_2d523f3feeab5c94a81d2adac29b3121_nextSpawnTime
+      Value: 1765455371
+      Kind: DWord
+    - Name: ice pike blocker (3)_1a398f233b158e4439234ea044b9b8d6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (42)_c723c567fb0604943967478b706cd31c_nextSpawnTime
+      Value: 1765159408
+      Kind: DWord
+    - Name: Spawner_1_easy (1)_e0d6d5411a1dd0949bd058cc2daa03a1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (37)_cec8944faceb6ea4fb6c49be1ccb5829_nextSpawnTime
+      Value: 1764610513
+      Kind: DWord
+    - Name: Spawner_boss (3)_c59042909259a6640af65cfa631c6423_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (10)_ecad2bb084d83be4c81318e6126c2418_nextSpawnTime
+      Value: 1764983098
+      Kind: DWord
+    - Name: tree_1 (40)_9f3c3967041950942a8c128d5f95187c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (8)_6537f6faae3ca3b4fa1c07b011e10f25_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_shield_cut_uncommon_1f79502dc08b7ee489dd7b6299eb6879_nextSpawnTime
+      Value: 1765517190
+      Kind: DWord
+    - Name: tree_1 (33)_9932efcb0886bf44780b73a7d1e12fb2_nextSpawnTime
+      Value: 1765498918
+      Kind: DWord
+    - Name: tree_1 (31)_fac5f4340f7bc0242be8b9900979b4f1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_cut_rare_49802ecc96c19fb48afae104ce06a3a5_nextSpawnTime
+      Value: 1765444205
+      Kind: DWord
+    - Name: tree_1 (42)_9b03a0b0696073d40ab90b82ac5adf66_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (37)_24f18edf0d9f03846a40404fb66636fe_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (45)_6d20a3b0e9b812c47a2bc91847d820bc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (14)_d9e63f2ca8f7b6349ba745b041b2afce_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (15)_580ff45fdfca1c84c8fdc845578c96eb_nextSpawnTime
+      Value: 1762786424
+      Kind: DWord
+    - Name: tree_1 (23)_c258cc5e6808d8546b46870792928485_nextSpawnTime
+      Value: 1765321853
+      Kind: DWord
+    - Name: tree_1 (36)_835420e2c62a5d046a3b79a64551db3a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_cf38a249264378f49b6d7fb3ea295528_nextSpawnTime
+      Value: 1765322317
+      Kind: DWord
+    - Name: tree_1 (4)_399b2e3427f639940b62b4084100cd63_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (18)_f77e86e54fe792d45ab2b1e66c293203_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (21)_81d93afb6b3bb60469ffdb7962e76bb1_nextSpawnTime
+      Value: 1764610595
+      Kind: DWord
+    - Name: Spawner_elite_HP_a50bdf0a78de8a64db79888aebcbe59d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_747f840f3e1ae59419471d3f06d193a0_nextSpawnTime
+      Value: 1765602461
+      Kind: DWord
+    - Name: Spawner_1_medium (16)_175605c0bfeb6344b83c5e2a36584a21_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_c0da370b2709af64aa6338e7e0212423_nextSpawnTime
+      Value: 1765444384
+      Kind: DWord
+    - Name: Spawner_boss (3)_ee779b4ad520b3e4a998e24a9ada8d31_nextSpawnTime
+      Value: 1763416786
+      Kind: DWord
+    - Name: tree_1 (23)_e132fbb55e51fe047b62c4cfc9edf89b_nextSpawnTime
+      Value: 1765444158
+      Kind: DWord
+    - Name: tree_1 (29)_f849d9af73dc6854fb3c39447ddef01f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite pier dmg_28ffe418ff1abdb42b670d6c4260be1e_nextSpawnTime
+      Value: 1765461883
+      Kind: DWord
+    - Name: tree_1 (24)_e6fd8f60bc2a3a64cabc424e92ecf95f_nextSpawnTime
+      Value: 1765321910
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_cut_rare_49802ecc96c19fb48afae104ce06a3a5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (15)_bd62eea09572c26459e5bcfc4c29ef74_nextSpawnTime
+      Value: 1762564883
+      Kind: DWord
+    - Name: Spawner_1_knight_9131a9305b0bcc44d88d4421fc9842f1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (12)_e183c155a7daec14ba95eca1d54afe98_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (9)_ff178fa18dde3044ba46d3adebec8555_nextSpawnTime
+      Value: 1764263069
+      Kind: DWord
+    - Name: tree_1 (41)_4260917f211470c42813e2fe803effdd_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (35)_30d63aef3f9561c44995327f259aa060_nextSpawnTime
+      Value: 1765516181
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (10)_134326be3f3a2bc4f8c903f77993f50f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (6)_fa0eb1dc69eee28499b19f8a58d52ad7_nextSpawnTime
+      Value: 1765455486
+      Kind: DWord
+    - Name: ad_revenue
+      Value: 11.607783
+      Kind: String
+    - Name: Spawner_1 (19)_2fd678d7da7bd5744958bd09925481e3_nextSpawnTime
+      Value: 1765444616
+      Kind: DWord
+    - Name: tree_1 (31)_e12d29d9567ceb7488dbf9bb98cdd2b9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (3)_fa683f8f2c78ba54db7f3a70bd339a23_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (2)_4d0bd0ac9ac5ad54faf54f799da4139f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: dragon_ff2aad34a5ab7e74daadf5958f62f2ad_nextSpawnTime
+      Value: 1762391436
+      Kind: DWord
+    - Name: tree_1 (1)_8b04b3f5eeced1344b688d330fb2e2c7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_e34613ea2f02ca14285795bc7927b8a6_nextSpawnTime
+      Value: 1765530437
+      Kind: DWord
+    - Name: Spawner_1_easy (7)_4a1a3d1cdcc357740ab6fa0a0c6d559e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (21)_0e8f6aef521fb1944b61e5ce26d26975_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (12)_94d434c25633fcd40b99b7d735a5d906_nextSpawnTime
+      Value: 1765444190
+      Kind: DWord
+    - Name: tree_1 (29)_0843d125384dd18489b5c4bd5a7b3d01_nextSpawnTime
+      Value: 1765516128
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_fb70f8a1bebb45d449d76c2757d50fdf_nextSpawnTime
+      Value: 1765445442
+      Kind: DWord
+    - Name: Spawner_boss_smash_uncommon_49d77ebf696a2134983ec457e3e727ea_nextSpawnTime
+      Value: 1765309030
+      Kind: DWord
+    - Name: tree_1 (47)_2ac750a4b4c6e6c4d8a1eda22c242c98_nextSpawnTime
+      Value: 1765498974
+      Kind: DWord
+    - Name: tree_1 (28)_82aee3672d4c332409efcd964b00b64f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (5)_db1c6ce427e474b42914c6fa14b95aef_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (13)_a7001fbdfb19692428437d263288323a_nextSpawnTime
+      Value: 1765444340
+      Kind: DWord
+    - Name: ShopLotModelregen_1
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelregen_2
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1 (12)_2cd6782fe0b51c547b83986bc6b5bc98_nextSpawnTime
+      Value: 1765516378
+      Kind: DWord
+    - Name: Spawner_1 (8)_75aa2064b3c8a7d47ba78d22d0dc2919_nextSpawnTime
+      Value: 1764545587
+      Kind: DWord
+    - Name: ShopLotModelregen_3
+      Value: 0
+      Kind: DWord
+    - Name: tree_1 (35)_1c529753549b25b4bb06a710c46f5e56_nextSpawnTime
+      Value: 1764757409
+      Kind: DWord
+    - Name: ice pike blocker (14)_3337385e14123d14880e11846ddb55b7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_e34613ea2f02ca14285795bc7927b8a6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_f03e0a15100b35645ab0ac374ee72a68_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (11)_c3a169eefcc510e4b9daaf59e923789a_nextSpawnTime
+      Value: 1765308388
+      Kind: DWord
+    - Name: Spawner_boss (3)_b5b67ae59f3344e469951467dacc4a03_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (4)_3d5dcc34d30eb8c4ca255cde8080020c_nextSpawnTime
+      Value: 1765159750
+      Kind: DWord
+    - Name: tree_1 (39)_7f2ebfe82edb0b44d869ca94a30f66ff_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_bbfac5b6522fe38448e3d8d8278c76e9_nextSpawnTime
+      Value: 1765516134
+      Kind: DWord
+    - Name: Spawner_1 (17)_2fbd6eae402f5c443b806b3eb054db91_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (13)_358e6aa5707b8f746b67fbfcb8e4e70c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_1ad87f069f14b004c9f95f00b5e09e47_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_7f9cea7fb780ec54d8ded2e27b69f8b7_nextSpawnTime
+      Value: 1765499396
+      Kind: DWord
+    - Name: tree_1 (35)_50b478df0e50b114cb9ab543763c7553_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (3)_20f0fb106a6dec142b25aee52c527fc9_nextSpawnTime
+      Value: 1765444508
+      Kind: DWord
+    - Name: tree_1 (37)_be74c9e8c56fd824ab2e95ef733938c3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (16)_27c294f78a00fbf4b90e4981efce93b1_nextSpawnTime
+      Value: 1764545648
+      Kind: DWord
+    - Name: tree_1 (22)_3444a2855794c0643a72812a43b3de2e_nextSpawnTime
+      Value: 1765516090
+      Kind: DWord
+    - Name: tree_1 (48)_be3db29539f876c439d35606cf8d668c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_cecc6fe196f3e2c4496ea70be4933520_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (18)_cc857b6ec4e2055449105d22295ccef5_nextSpawnTime
+      Value: 1765444058
+      Kind: DWord
+    - Name: tree_1 (46)_cb8065939a284b04bb5a7f035bbf9bdb_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (43)_9d7dff39e51be0142966428c53060484_nextSpawnTime
+      Value: 1764610560
+      Kind: DWord
+    - Name: tree_1 (32)_bd7b17bb2df51b147a6c6f68d2ce1860_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (41)_0aa816bbd4935394cb8e2f1b630559fa_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (10)_28200b526476960488de250a232f4361_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_c31eee2a3a4975b4188e9def9e54bc04_nextSpawnTime
+      Value: 1764545254
+      Kind: DWord
+    - Name: Spawner_1_medium (15)_2d70225acf2b4f6499280fc811b489b1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (42)_f282bd0a12674c640882709407328d0b_nextSpawnTime
+      Value: 1765444243
+      Kind: DWord
+    - Name: unity.player_sessionid
+      Value: 6910212182841686177
+      Kind: String
+    - Name: tree_1 (24)_e6fd8f60bc2a3a64cabc424e92ecf95f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (38)_7dab41645522eb8448f5575267c9f210_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_bcf607aa737145946acaefffe0ee0189_nextSpawnTime
+      Value: 1765311341
+      Kind: DWord
+    - Name: Spawner_boss (3)_c59042909259a6640af65cfa631c6423_nextSpawnTime
+      Value: 1765444729
+      Kind: DWord
+    - Name: tree_1 (18)_2d523f3feeab5c94a81d2adac29b3121_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (13)_0a15b82799b2f2b49b3ebc5f5558bfdb_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (12)_92ff0020434b390428a71221fa50c3c0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (45)_0cb5ba71b5a5d494ba98d0915164f39e_nextSpawnTime
+      Value: 1765516199
+      Kind: DWord
+    - Name: Spawner_1_elite cut_62a286371f8dcb84b95c9d1ba8c2184e_nextSpawnTime
+      Value: 1765343407
+      Kind: DWord
+    - Name: tree_1 (34)_91bfc8704b79204408bac2109150a729_nextSpawnTime
+      Value: 1765444181
+      Kind: DWord
+    - Name: Spawner_1_hard_stab_uncommon_5a4ffd9a4fe825449814b58861418519_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (3)_1257f23f01114814b82277d1d5df4c22_nextSpawnTime
+      Value: 1765517800
+      Kind: DWord
+    - Name: tree_1 (15)_6caa1c036a631e64eb753987789eedc2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (39)_ce79225b1de87e34dbe97a557df138b7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (11)_a24914d40f495054f83dfd03d51ee193_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (12)_92ff0020434b390428a71221fa50c3c0_nextSpawnTime
+      Value: 1764776669
+      Kind: DWord
+    - Name: tree_1 (30)_a4eccf90767219845a9b251796f253e8_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_fc38d9c21b75684448f52167946ad683_nextSpawnTime
+      Value: 1765323463
+      Kind: DWord
+    - Name: tree_1 (28)_0c8a882d5e0935f478d01f196d894eda_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (36)_f4e776e1689c5a64d9d012243f25d048_nextSpawnTime
+      Value: 1765159436
+      Kind: DWord
+    - Name: Spawner_1_ea2540d7f101c4c49a72a805bb0f0106_nextSpawnTime
+      Value: 1765308594
+      Kind: DWord
+    - Name: ice pike blocker (2)_e50957f24071cff40acf07b151ccfe01_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_8c8b1b103e7d1dc49b2405895f9eddf9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss (3)_58beec79b9594594984f66410b5dc7b1_nextSpawnTime
+      Value: 1765322959
+      Kind: DWord
+    - Name: Spawner_1_elite regen_3e6ede2dff71b044fadaacdb5ca5b32d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_b611ea98766fb554d902c3dfbbac8404_nextSpawnTime
+      Value: 1765587305
+      Kind: DWord
+    - Name: tree_1 (25)_c4d3a08d5e20f1c47833db7c40d7e74c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite pier_76c659618889bdf4d9e6608fbcc5af99_nextSpawnTime
+      Value: 1765458395
+      Kind: DWord
+    - Name: Spawner_1 (13)_64c6102f386c8db499a0a592376beec0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_2c8bd3bbba33e6f4886283d9736273ad_nextSpawnTime
+      Value: 1765498966
+      Kind: DWord
+    - Name: tree_1 (27)_f3b0f1fadbbdab542ab20ef263568f14_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (15)_580ff45fdfca1c84c8fdc845578c96eb_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (18)_cc857b6ec4e2055449105d22295ccef5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_016cb40007c959b478f585ef922dcfe2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (42)_f282bd0a12674c640882709407328d0b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_f849d9af73dc6854fb3c39447ddef01f_nextSpawnTime
+      Value: 1765587288
+      Kind: DWord
+    - Name: tree_1 (22)_3444a2855794c0643a72812a43b3de2e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_85e311b1b6115b74c825221f5a1d12dd_nextSpawnTime
+      Value: 1763325507
+      Kind: DWord
+    - Name: Spawner_1 (9)_c159d58014367584aaa0972a33d69509_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (34)_aeee950daf109a3479bba2e3599cd71a_nextSpawnTime
+      Value: 1765444281
+      Kind: DWord
+    - Name: tree_1 (35)_8000daeffc62f0946a58ed45711a51a1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (11)_81af2281405b27a4a91646cb2b0f340e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_388be6fa6b07d1941b522a4645c960d3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_cut_rare_bdb4a2b865f5bb84bb516e3b388f9296_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (12)_d6aa23361cbf4d34f981d5b2caf4d90e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (34)_d14ae844a44eb144ab2e411a377525ea_nextSpawnTime
+      Value: 1765444272
+      Kind: DWord
+    - Name: tree_1 (15)_ea116fe9cfc95f147af267ed39f536e5_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (6)_6fd4676b1b62b1c4da59fa00a85166cc_nextSpawnTime
+      Value: 1765587967
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_68fb04f66596562449ecc969de3ebee3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_superboss_legendary_buck_f074ff7219f8ead4cb80740239887e8f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (40)_3de165238c68731498cd8d7a39a6e2ee_nextSpawnTime
+      Value: 1765498934
+      Kind: DWord
+    - Name: Spawner_1_medium (10)_d241e707b415f2c4da0c6136920cae5e_nextSpawnTime
+      Value: 1765455675
+      Kind: DWord
+    - Name: tree_1 (34)_98778b78ee2a61c49b3601fbec0c01e7_nextSpawnTime
+      Value: 1765455457
+      Kind: DWord
+    - Name: tree_1 (37)_24f18edf0d9f03846a40404fb66636fe_nextSpawnTime
+      Value: 1765444205
+      Kind: DWord
+    - Name: tree_1 (32)_496cb86190ca49f48a279cc11141dd7a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_cb83e667066002f40b1255d8f3e1e186_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (43)_35e4a952e49fd5e4186ed281eab13d89_nextSpawnTime
+      Value: 1765498931
+      Kind: DWord
+    - Name: tree_1 (15)_2555b6b92b4bb2642ac19e2f99d0b410_nextSpawnTime
+      Value: 1765455339
+      Kind: DWord
+    - Name: tree_1 (12)_e183c155a7daec14ba95eca1d54afe98_nextSpawnTime
+      Value: 1764505689
+      Kind: DWord
+    - Name: Spawner_1 (17)_a744b36410fb7e8478fa9477a95bcd5b_nextSpawnTime
+      Value: 1765498929
+      Kind: DWord
+    - Name: tree_1 (32)_e9ecb4ffd1afefa43b1a9f7066244c32_nextSpawnTime
+      Value: 1765444239
+      Kind: DWord
+    - Name: tree_1 (33)_d5ac49ad93c990a4bbba3f5338646a73_nextSpawnTime
+      Value: 1765444165
+      Kind: DWord
+    - Name: tree_1 (15)_2555b6b92b4bb2642ac19e2f99d0b410_cleared
+      Value: 1
+      Kind: DWord
+    - Name: PlayerModelPosition
+      Value: '{"x":-210.1192626953125,"y":2.764897584915161,"z":-111.73281860351563}'
+      Kind: String
+    - Name: Spawner_1 (13)_687448aa1f0da4a4aa5e7fb891ba657e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (19)_1601876c8bca6c44dbe31cc1e4f07449_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (13)_4d2a59b8423175f4994c0e003ecf9b37_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite regen_3e6ede2dff71b044fadaacdb5ca5b32d_nextSpawnTime
+      Value: 1765516679
+      Kind: DWord
+    - Name: tree_1 (26)_373def4f51d63b44ebfe861602327562_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_b083444e5815b214cab391fa52e0a015_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_d9bfa92eb28c38142af603c0804d93de_nextSpawnTime
+      Value: 1765455315
+      Kind: DWord
+    - Name: tree_1 (47)_5833fe5d288d0e24483d9423517f11a1_nextSpawnTime
+      Value: 1765444226
+      Kind: DWord
+    - Name: Spawner_1 (15)_ecc9b770e81d2ef4eac397ff6abe168e_nextSpawnTime
+      Value: 1765444601
+      Kind: DWord
+    - Name: tree_1 (39)_3ec23492f4fd9b34d910ad31e65d4d46_nextSpawnTime
+      Value: 1765311388
+      Kind: DWord
+    - Name: tree_1 (41)_0aa816bbd4935394cb8e2f1b630559fa_nextSpawnTime
+      Value: 1765444251
+      Kind: DWord
+    - Name: Spawner_1_hard_buck_uncommon_79f13aff36aa7234ca0cb456daad91fc_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (10)_ecad2bb084d83be4c81318e6126c2418_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_6abd874d52415f448a7373585292bfc6_nextSpawnTime
+      Value: 1764610518
+      Kind: DWord
+    - Name: rewarded_weights
+      Value: '{"Weights":[{"Type":0,"Weight":1.0},{"Type":1,"Weight":0.5},{"Type":2,"Weight":0.5},{"Type":3,"Weight":1.0},{"Type":4,"Weight":1.0},{"Type":5,"Weight":1.0},{"Type":6,"Weight":0.5},{"Type":7,"Weight":1.0},{"Type":8,"Weight":0.5},{"Type":9,"Weight":1.0},{"Type":10,"Weight":1.0},{"Type":11,"Weight":1.0},{"Type":12,"Weight":0.5},{"Type":13,"Weight":1.0},{"Type":14,"Weight":0.5},{"Type":15,"Weight":1.0},{"Type":16,"Weight":0.5},{"Type":17,"Weight":1.0},{"Type":18,"Weight":1.0},{"Type":19,"Weight":1.0},{"Type":20,"Weight":0.5},{"Type":21,"Weight":1.0},{"Type":22,"Weight":1.0},{"Type":23,"Weight":1.0},{"Type":24,"Weight":1.0},{"Type":25,"Weight":1.0}]}'
+      Kind: String
+    - Name: Spawner_1 (10)_28200b526476960488de250a232f4361_nextSpawnTime
+      Value: 1765455708
+      Kind: DWord
+    - Name: Spawner_1_knight (3)_4d637ab8df7d819458c3dde4606f97a3_nextSpawnTime
+      Value: 1765455623
+      Kind: DWord
+    - Name: tree_1 (22)_ce046bc9fd4d75b49b8da0a4b50879ca_nextSpawnTime
+      Value: 1765322618
+      Kind: DWord
+    - Name: tree_1 (13)_358e6aa5707b8f746b67fbfcb8e4e70c_nextSpawnTime
+      Value: 1765313546
+      Kind: DWord
+    - Name: tree_1 (25)_2a91d80b843553847acea18c4219d462_nextSpawnTime
+      Value: 1765444227
+      Kind: DWord
+    - Name: ab_tests
+      Value: '{"tests":[{"name":"frequent_rewarded","variant":"C","defaultString":"AB","lastRemoteString":"AB","defaultInitialized":true,"wasSelectedFromOldUserDefault":false},{"name":"adaptive_rewarded_value","variant":"B","defaultString":"AB","lastRemoteString":"AB","defaultInitialized":true,"wasSelectedFromOldUserDefault":false},{"name":"dynamic_rewarded_weights","variant":"B","defaultString":"AB","lastRemoteString":"AB","defaultInitialized":true,"wasSelectedFromOldUserDefault":false},{"name":"restricted_ecpm_ad_unit","variant":"A","defaultString":"AB","lastRemoteString":"AB","defaultInitialized":true,"wasSelectedFromOldUserDefault":false},{"name":"ad_banner","variant":"A","defaultString":"ABC","lastRemoteString":"ABC","defaultInitialized":true,"wasSelectedFromOldUserDefault":false},{"name":"ad_interstitial","variant":"B","defaultString":"AB","lastRemoteString":"AB","defaultInitialized":true,"wasSelectedFromOldUserDefault":false},{"name":"long_items_cooldown","variant":"B","defaultString":"AB","lastRemoteString":"AB","defaultInitialized":true,"wasSelectedFromOldUserDefault":false}]}'
+      Kind: String
+    - Name: Spawner_elite pierce_67e5f0617a7fa824ebf61acf4af767f4_nextSpawnTime
+      Value: 1765447676
+      Kind: DWord
+    - Name: Spawner_1_medium (13)_a18e9943ddfdeee4792ce3538b87cd53_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (34)_d14ae844a44eb144ab2e411a377525ea_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (6)_deae81560849fb54cbffb76322964952_nextSpawnTime
+      Value: 1765455613
+      Kind: DWord
+    - Name: Spawner_common_cut_5f961de704bc3a4449daef72da18c99a_nextSpawnTime
+      Value: 1764081733
+      Kind: DWord
+    - Name: tree_1 (32)_e9ecb4ffd1afefa43b1a9f7066244c32_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_pierc_uncommon_379bf798cf40f8045ad923c9f134f3cb_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_786d46ed3883f8746b668b3b958031f0_nextSpawnTime
+      Value: 1765159755
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_a6d4dc739240e2a48a14cfe738f01b85_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (20)_9e2ebd58ce809fe4699265b5c0064490_nextSpawnTime
+      Value: 1764505671
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_667652eebdcd2cc49b1dcf0cbf025201_nextSpawnTime
+      Value: 1765587521
+      Kind: DWord
+    - Name: tree_1 (33)_85e311b1b6115b74c825221f5a1d12dd_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (4)_924f1353db1032a45ab4946aa2fbdc4a_nextSpawnTime
+      Value: 1763805436
+      Kind: DWord
+    - Name: tree_1 (32)_f0e95598644732942aac3b76d2aeb1e3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_a33ffd32666e6444f8f23af56cf7299a_nextSpawnTime
+      Value: 1765160218
+      Kind: DWord
+    - Name: Spawner_1_knight_b497ea5b768b45a4aad9e8e6dd65369c_nextSpawnTime
+      Value: 1765445520
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (7)_dd3716a1752d9284a9199dc5b9b88ee0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: banner_ad_revenue
+      Value: 0.017638985
+      Kind: String
+    - Name: tree_1 (24)_1f00201390d8aa2479c3036fa8d0264f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight_a88bebfac0910d642953e1fd71ac8b00_nextSpawnTime
+      Value: 1765313494
+      Kind: DWord
+    - Name: tree_1 (23)_128840e9f82d8dd43bc37038ca743708_nextSpawnTime
+      Value: 1765498835
+      Kind: DWord
+    - Name: Spawner_elite_regen_b3be5b1d5f44b734e824fd9a1aa26c1c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (17)_18b30c59bd2cd484d85741210327d7d0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (39)_7f2ebfe82edb0b44d869ca94a30f66ff_nextSpawnTime
+      Value: 1765498949
+      Kind: DWord
+    - Name: tree_1 (15)_6caa1c036a631e64eb753987789eedc2_nextSpawnTime
+      Value: 1765444181
+      Kind: DWord
+    - Name: tree_1 (24)_5bc041868c59664458703648f150c4b3_nextSpawnTime
+      Value: 1765321913
+      Kind: DWord
+    - Name: Spawner_1_medium (11)_0f1a87e14eef63e4599344cc168228ca_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Screenmanager Fullscreen mode
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (6)_6a03312d6ec9e9b45aea5f64dc69d279_nextSpawnTime
+      Value: 1765455804
+      Kind: DWord
+    - Name: ice pike blocker (8)_634d29d0475c60f4fa43bd863e7ce454_nextSpawnTime
+      Value: 1762429365
+      Kind: DWord
+    - Name: tree_1 (36)_3059cdb39ede6cf4a9705d32491bfe58_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (2)_fa826c23de98bc64881b778e82408bcf_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (12)_f93e00487a95e4641888abcda66d516a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (43)_9d7dff39e51be0142966428c53060484_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_small_dragon_stab_rare_13f8cc09886c1ae408292a4590699490_nextSpawnTime
+      Value: 1765445229
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (7)_dd3716a1752d9284a9199dc5b9b88ee0_nextSpawnTime
+      Value: 1765323045
+      Kind: DWord
+    - Name: ice pike blocker (7)_d81cdf7f63629dd4e8ffd9ffea44b1df_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_mid_common_helm_2ef349f0069cf5e47897b1c467d4fa48_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_3ba741405abd2d446b54a193fa94e95a_nextSpawnTime
+      Value: 1765321905
+      Kind: DWord
+    - Name: Spawner_boss (3)_60630e7f9abc2e94588b47abbcca9618_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_common_cut (1)_5b1ce6e5c4191374d9bf7d48f96d49c0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_cc76e468157054a4c97b916981e5fb4c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_64195807ac1b24340b1fce69fb35363f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_f435f738e6a245c4f8a33d15672117d4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModeldefence_4
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_c258cc5e6808d8546b46870792928485_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelchest_1
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldefence_3
+      Value: 0
+      Kind: DWord
+    - Name: tree_1 (17)_03159583dea7dae40904f177faa57c2f_nextSpawnTime
+      Value: 1765516147
+      Kind: DWord
+    - Name: ShopLotModelchest_2
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldefence_2
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldefence_1
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelchest_3
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1_medium (5)_1b7a1536c21a74a4fba4e572166a184e_nextSpawnTime
+      Value: 1765587726
+      Kind: DWord
+    - Name: Spawner_1 (15)_15f2b6c3a9c1094468332360b82ee67e_nextSpawnTime
+      Value: 1765455341
+      Kind: DWord
+    - Name: Spawner_1_epic_buck_56cf8d2843f94034baf4255d6a50baa6_nextSpawnTime
+      Value: 1765313039
+      Kind: DWord
+    - Name: ShopLotModeldefence_9
+      Value: 0
+      Kind: DWord
+    - Name: tree_1 (30)_9c6399e146e60d646b938fa7b532c72a_nextSpawnTime
+      Value: 1765444335
+      Kind: DWord
+    - Name: ShopLotModelchest_4
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldefence_8
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1_easy (4)_5c5952bec05aeac4cbb168f462934e2c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (19)_0b528062cff0a5e45b1ca3c145ffd1c7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_helmet_pierce_common_ca55db0a726ed564885429fb2b106d1f_nextSpawnTime
+      Value: 1765311822
+      Kind: DWord
+    - Name: ShopLotModelchest_5
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldefence_7
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelchest_6
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModeldefence_6
+      Value: 0
+      Kind: DWord
+    - Name: banner_ecpm
+      Value: 0.23209192
+      Kind: String
+    - Name: Spawner_1 (6)_5ab1d40e8bd3ba7409a342b6462f92bd_nextSpawnTime
+      Value: 1763332901
+      Kind: DWord
+    - Name: ShopLotModeldefence_5
+      Value: 0
+      Kind: DWord
+    - Name: tree_1 (24)_51258164ecfae7e448769e52403b1a60_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_ad42c01714949ee4baf0ef48c82f235e_nextSpawnTime
+      Value: 1765323040
+      Kind: DWord
+    - Name: tree_1 (44)_2a74013fcfbaa7d4fb5dad0f01c57b9a_nextSpawnTime
+      Value: 1765444206
+      Kind: DWord
+    - Name: tree_1 (39)_521d0128d6473b641b24c71b368e6d92_nextSpawnTime
+      Value: 1765444269
+      Kind: DWord
+    - Name: Spawner_mid_smash_common_0590e3a5e4697af48a7a6b763040944c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite smash_c26633ad2772866429380723ea76e283_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (3)_20f0fb106a6dec142b25aee52c527fc9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (40)_efec92f4065447540b41da5ceb0979e2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (7)_1f0e20e975ac6d9469e9fa021871a4e9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (35)_30d63aef3f9561c44995327f259aa060_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss_dragon (3)_b7f0b35f3b8985441b9158e5876dc779_nextSpawnTime
+      Value: 1765588938
+      Kind: DWord
+    - Name: Spawner_1 (13)_ab446b6d1a4d820428a58823b0906437_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_3f76fd433e6bb8c4dabfc2c63ee50fbf_nextSpawnTime
+      Value: 1765321910
+      Kind: DWord
+    - Name: Spawner_1 (10)_6af33e0315ea1da49b9fd0767051584c_nextSpawnTime
+      Value: 1765321876
+      Kind: DWord
+    - Name: tree_1 (29)_4df362f1dc081a44dbe14d5ec3c194ce_nextSpawnTime
+      Value: 1762785853
+      Kind: DWord
+    - Name: Spawner_common_cut_5f961de704bc3a4449daef72da18c99a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (8)_87a29c301ec677f45ae25710d2c30058_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_e5cd6b16570a52b4e8c1e00c1467d593_nextSpawnTime
+      Value: 1765455794
+      Kind: DWord
+    - Name: tree_1 (30)_5267b549dac425947bcfc33c0dad8f85_nextSpawnTime
+      Value: 1765444257
+      Kind: DWord
+    - Name: tree_1 (44)_1df949d32f0dcaf418e8a7bd16063f12_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (2)_6661e4e4ae66c6741bbb9dcf6805f48e_nextSpawnTime
+      Value: 1765444609
+      Kind: DWord
+    - Name: tree_1 (42)_1d119e0dc471e42449bd59b8b4814485_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (5)_db1c6ce427e474b42914c6fa14b95aef_nextSpawnTime
+      Value: 1762480247
+      Kind: DWord
+    - Name: tree_1 (22)_d9bfa92eb28c38142af603c0804d93de_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_8c8b1b103e7d1dc49b2405895f9eddf9_nextSpawnTime
+      Value: 1765444146
+      Kind: DWord
+    - Name: tree_1 (20)_3437bfdfe12b6ba4783dbcb28523c4ca_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_de0352bd86ad6c14293f379cb1affba0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (5)_b259bac5b3337324bb0febce1dd672a4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (40)_35c85f27d2f0d3e4da4d018419dd351a_nextSpawnTime
+      Value: 1765516199
+      Kind: DWord
+    - Name: Spawner_1 (9)_e834c0f4386342b47961f595fb31258e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (38)_4b2c069c805d7ca4eb036302a2b0bb57_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (13)_5983a5980d35a7944a53def895980547_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_affed871a699456448cc2f8393858c8f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_c51e41c55c620134cbb15baadae0c56b_nextSpawnTime
+      Value: 1765444835
+      Kind: DWord
+    - Name: days_since_install
+      Value: 37
+      Kind: DWord
+    - Name: Spawner_1_elite cut def_ec34edde063ecb84c925fe5277d451a0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium_016cb40007c959b478f585ef922dcfe2_nextSpawnTime
+      Value: 1765516677
+      Kind: DWord
+    - Name: Spawner_1_medium (2)_180c66c76ab56844da79d3bf35e90e19_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (34)_98b58409cdebd854e92b4003875ad052_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (18)_37251f8c2686e1a4a8909b3f2b40f7fb_nextSpawnTime
+      Value: 1765444814
+      Kind: DWord
+    - Name: Spawner_1_elite cut_62a286371f8dcb84b95c9d1ba8c2184e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (23)_95f3d296c4255ba4a8626504b398ebea_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (35)_50b478df0e50b114cb9ab543763c7553_nextSpawnTime
+      Value: 1765322021
+      Kind: DWord
+    - Name: tree_1 (42)_e424b4d99bf33964f9bf2061dcdccfa2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (17)_74fd604fcb547ea4ba67bc2ac257c568_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite smash_1f4e92fe96ff92b4ba29e77e14cb07ee_nextSpawnTime
+      Value: 1765447640
+      Kind: DWord
+    - Name: tree_1 (28)_affed871a699456448cc2f8393858c8f_nextSpawnTime
+      Value: 1765322012
+      Kind: DWord
+    - Name: tree_1 (36)_4791c28b83867554fa3babda02d17e29_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (40)_35c85f27d2f0d3e4da4d018419dd351a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (19)_68dc9e417cdf6684985c6ffa3633eab4_nextSpawnTime
+      Value: 1765516080
+      Kind: DWord
+    - Name: tree_1 (24)_51258164ecfae7e448769e52403b1a60_nextSpawnTime
+      Value: 1765321856
+      Kind: DWord
+    - Name: Spawner_1_medium_0fd6451ff71a34245918c8c9f8fa3ade_nextSpawnTime
+      Value: 1765322219
+      Kind: DWord
+    - Name: Spawner_1_medium_4919d136bd46d3842a9da0f7704a1ede_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (40)_0cad5b7f5cba51641b7c06a6f36db0b4_nextSpawnTime
+      Value: 1765444262
+      Kind: DWord
+    - Name: Spawner_1_knight_ff9ae80304783a9488a20a203fdc4ff7_nextSpawnTime
+      Value: 1765499157
+      Kind: DWord
+    - Name: Spawner_1 (15)_15f2b6c3a9c1094468332360b82ee67e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (17)_2fbd6eae402f5c443b806b3eb054db91_nextSpawnTime
+      Value: 1763292070
+      Kind: DWord
+    - Name: Spawner_1 (25)_fa06e6fba4788d1479605b59c53bd695_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (30)_2e270d4e0ba544e41bdbadf8c6538055_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (14)_9ad08cbc5a67f734e89255c264666130_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (3)_41e9d353c4bed444781ffa54d5649f44_nextSpawnTime
+      Value: 1764263847
+      Kind: DWord
+    - Name: Spawner_elite regen_0f0c0ba08b6dc7e4695f06362258f92e_nextSpawnTime
+      Value: 1765332255
+      Kind: DWord
+    - Name: Spawner_1 (12)_2cd6782fe0b51c547b83986bc6b5bc98_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_helm_buck_uncommon_87dc8bd360bd09d4882fa4e5f9b415ed_nextSpawnTime
+      Value: 1765322964
+      Kind: DWord
+    - Name: tree_1 (40)_efec92f4065447540b41da5ceb0979e2_nextSpawnTime
+      Value: 1765516315
+      Kind: DWord
+    - Name: tree_1 (34)_98778b78ee2a61c49b3601fbec0c01e7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (39)_521d0128d6473b641b24c71b368e6d92_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (36)_835420e2c62a5d046a3b79a64551db3a_nextSpawnTime
+      Value: 1765444233
+      Kind: DWord
+    - Name: tree_1 (13)_a7001fbdfb19692428437d263288323a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (19)_7913877d087d4424588a5063a421d57f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_cb83e667066002f40b1255d8f3e1e186_nextSpawnTime
+      Value: 1764544812
+      Kind: DWord
+    - Name: Spawner_1 (12)_cd8765fbf5e22b446a018dbfb62870d1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (24)_1f00201390d8aa2479c3036fa8d0264f_nextSpawnTime
+      Value: 1765444266
+      Kind: DWord
+    - Name: ice pike blocker (15)_bd62eea09572c26459e5bcfc4c29ef74_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (13)_c7dd2be697bd7b3428578d596d5d78a9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (6)_ab1c266ee8334a942ad002333a5e1a18_nextSpawnTime
+      Value: 1762429356
+      Kind: DWord
+    - Name: Spawner_1_knight (1)_b8bf25fbbde16cc4da094e97e3b9994d_nextSpawnTime
+      Value: 1765499322
+      Kind: DWord
+    - Name: Spawner_superboss_legendary_cut_68b9aec260de93046ab8b806e44785db_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_415da507b54844244b8e21c174a2353f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (6)_6a03312d6ec9e9b45aea5f64dc69d279_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (41)_b5eb2f7c7eacaac4989815a55469e094_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (43)_df9fc49cebb59574d87048bfb18acbb7_nextSpawnTime
+      Value: 1765444208
+      Kind: DWord
+    - Name: Spawner_1 (12)_b0b234830487e914da29f10a21af201f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (32)_786d46ed3883f8746b668b3b958031f0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (26)_29376df6b613d974d87e0f157aa7d186_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (4)_8e02a2c97c85653449085e988fe22336_nextSpawnTime
+      Value: 1765455658
+      Kind: DWord
+    - Name: tree_1_e704718e55bb5cb46a48abe29890f736_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (11)_f913665ae5b35d34db6428edffb62a12_nextSpawnTime
+      Value: 1764544832
+      Kind: DWord
+    - Name: tree_1 (26)_fe58513b5d310f641a83c1d44e58cfa5_nextSpawnTime
+      Value: 1765308451
+      Kind: DWord
+    - Name: tree_1 (24)_367cac6c80f952e40a680f47f09c28f0_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (3)_5948b1de5d5f92849890dbfa6873b0b7_nextSpawnTime
+      Value: 1764263717
+      Kind: DWord
+    - Name: Spawner_1_elite pier_250c52c62adb1b64faf09a5412f880ea_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_412748d6fbc8e694a9691ed572233c00_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (7)_1f0e20e975ac6d9469e9fa021871a4e9_nextSpawnTime
+      Value: 1765455780
+      Kind: DWord
+    - Name: Spawner_1_medium (12)_31910b32900302743a3459800e1cea1e_nextSpawnTime
+      Value: 1765322743
+      Kind: DWord
+    - Name: tree_1 (24)_b2894836394c7744aab5d921fd9be189_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_e8e2f6b5eb58ce54fa7fe287d3795c09_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_elite regen_56fb4a52b5154c44b895fdb3a1050c70_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_390b9aa5738f8af4aabfca1fbf1e9534_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (36)_f4e776e1689c5a64d9d012243f25d048_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (4)_399b2e3427f639940b62b4084100cd63_nextSpawnTime
+      Value: 1763168025
+      Kind: DWord
+    - Name: Spawner_1_hard_cut_uncommon_60b9a452d0b38b84b94d222bc16d0ed2_nextSpawnTime
+      Value: 1765322688
+      Kind: DWord
+    - Name: tree_1 (21)_7533bde0bbf639e4f9cc8eb2b7ddd408_nextSpawnTime
+      Value: 1764611029
+      Kind: DWord
+    - Name: ice pike blocker_3f797c78385a9b94ba11635a3645d174_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (30)_b83078b826a78f049ae9813215a25123_nextSpawnTime
+      Value: 1765444544
+      Kind: DWord
+    - Name: Spawner_1_medium (15)_2d70225acf2b4f6499280fc811b489b1_nextSpawnTime
+      Value: 1765455752
+      Kind: DWord
+    - Name: tree_1 (35)_89a5db4c97b931b4a8efac1816ea4b15_nextSpawnTime
+      Value: 1765498824
+      Kind: DWord
+    - Name: Spawner_1 (12)_f93e00487a95e4641888abcda66d516a_nextSpawnTime
+      Value: 1763305271
+      Kind: DWord
+    - Name: Spawner_1_common_cut (2)_1362598e006fbf14693da3690c8a638e_nextSpawnTime
+      Value: 1765321875
+      Kind: DWord
+    - Name: tree_1 (28)_087b72409df021c4e933939086d49a72_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_0b17bec8fd6ce0542a34ec825855845b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_helmet_pierce_common_ca55db0a726ed564885429fb2b106d1f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (23)_8e31cf70f09c89d419796c851acd5aaa_nextSpawnTime
+      Value: 1765444292
+      Kind: DWord
+    - Name: tree_1 (44)_1df949d32f0dcaf418e8a7bd16063f12_nextSpawnTime
+      Value: 1765160241
+      Kind: DWord
+    - Name: tree_1 (35)_8000daeffc62f0946a58ed45711a51a1_nextSpawnTime
+      Value: 1765311373
+      Kind: DWord
+    - Name: Spawner_1 (17)_51d02116bcfffe54784c2c9eb27b450c_nextSpawnTime
+      Value: 1765444603
+      Kind: DWord
+    - Name: tree_1 (28)_2c8bd3bbba33e6f4886283d9736273ad_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (16)_2c3b71dcf1fc94e40bdf6c02ce013def_nextSpawnTime
+      Value: 1765444588
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_cf38a249264378f49b6d7fb3ea295528_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss_smash_uncommon_49d77ebf696a2134983ec457e3e727ea_cleared
+      Value: 1
+      Kind: DWord
+    - Name: music_volume
+      Value: 0.511824
+      Kind: String
+    - Name: tree_1 (31)_79ce004f83d74304d98f18bce55d9a22_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ice pike blocker (10)_637ac703e86256c44978b6128798bc8b_nextSpawnTime
+      Value: 1762427053
+      Kind: DWord
+    - Name: tree_1 (19)_a50285194e6af4f4d8a5a847033dc335_nextSpawnTime
+      Value: 1765455316
+      Kind: DWord
+    - Name: tree_1 (20)_5ecc6cfac82faa5469a31794fa2091c9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_hard_buck_uncommon (1)_0d7602a9fb00b174baaf2628932c04dc_nextSpawnTime
+      Value: 1765444178
+      Kind: DWord
+    - Name: rewarded_try_attempt
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1_pierc_rare_ba7138fb21e32ce4cbdc7c48cc90be7b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (28)_40f588645633c7347b0a63bd0c51aef3_nextSpawnTime
+      Value: 1765322631
+      Kind: DWord
+    - Name: Spawner_1_easy (4)_3d5dcc34d30eb8c4ca255cde8080020c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: banner_impressions
+      Value: 76
+      Kind: DWord
+    - Name: loading_delay
+      Value: 32.0
+      Kind: String
+    - Name: tree_1 (25)_44d55a3e2b72a194cafc2839ff4f0254_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (20)_3437bfdfe12b6ba4783dbcb28523c4ca_nextSpawnTime
+      Value: 1765498893
+      Kind: DWord
+    - Name: tree_1 (26)_15ad290d95609bb419a78187631488a6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (13)_64c6102f386c8db499a0a592376beec0_nextSpawnTime
+      Value: 1762785886
+      Kind: DWord
+    - Name: tree_1 (20)_87a10d02519a86840ac628830df0f2db_nextSpawnTime
+      Value: 1765516182
+      Kind: DWord
+    - Name: Spawner_elite pierce_67e5f0617a7fa824ebf61acf4af767f4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (38)_7dab41645522eb8448f5575267c9f210_nextSpawnTime
+      Value: 1765444241
+      Kind: DWord
+    - Name: high_quality_enabled
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (11)_cc1549daae838364cae75e0b35f5b7f7_nextSpawnTime
+      Value: 1765499023
+      Kind: DWord
+    - Name: tree_1 (24)_1a07b76ff024bc545936d42dddac7cfa_nextSpawnTime
+      Value: 1765587310
+      Kind: DWord
+    - Name: UnityInstallationId
+      Value: c8cc2caad593ba2328c74e08de788d5c
+      Kind: String
+    - Name: Spawner_1 (9)_faeab49141265094985e91532dbc3a24_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_epic_buck_56cf8d2843f94034baf4255d6a50baa6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (9)_dbd214c26b60cbb46a731335eb8255a2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (6)_b40d059c3c42b184b87c50b2d75f8124_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (3)_8214a1b5c6c029f43bffadd5c66c19e1_nextSpawnTime
+      Value: 1765455700
+      Kind: DWord
+    - Name: tree_1 (32)_6abd874d52415f448a7373585292bfc6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (11)_f913665ae5b35d34db6428edffb62a12_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelgems_6
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModelgems_5
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_667652eebdcd2cc49b1dcf0cbf025201_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelgems_2
+      Value: 0
+      Kind: DWord
+    - Name: ShopLotModelgems_1
+      Value: 0
+      Kind: DWord
+    - Name: tree_1 (13)_cdee8ca148c30124299dbef233cce0f7_nextSpawnTime
+      Value: 1765159443
+      Kind: DWord
+    - Name: Spawner_mid_common_helm_2ef349f0069cf5e47897b1c467d4fa48_nextSpawnTime
+      Value: 1765444749
+      Kind: DWord
+    - Name: Spawner_1 (21)_81d93afb6b3bb60469ffdb7962e76bb1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelgems_4
+      Value: 0
+      Kind: DWord
+    - Name: ice pike blocker (20)_c49685014b3dc1d4b9e8ea53a4b91a54_cleared
+      Value: 1
+      Kind: DWord
+    - Name: ShopLotModelgems_3
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_1 (12)_94d434c25633fcd40b99b7d735a5d906_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (22)_4b1005691d6e0d14794f6cd3083b57ee_nextSpawnTime
+      Value: 1765444289
+      Kind: DWord
+    - Name: Spawner_1_easy (1)_232d13f623f552944a2cc3433d9ffc58_nextSpawnTime
+      Value: 1765587257
+      Kind: DWord
+    - Name: tree_1 (13)_da80ad79483452541bc3bea7dea4ffd3_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_1c672895c18f7ea498cc49671a16d939_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite smash_acd962a89915f954482d060cff162a16_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (14)_68204305741257140b79f7f376eb3ca5_nextSpawnTime
+      Value: 1765455358
+      Kind: DWord
+    - Name: Spawner_medium_small_dragon (8)_03f7224001daede47a770179e67c4ab1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (7)_eb8f8cae3535bc547b3f287a4da737e6_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (30)_b35d48139b4781241885c91fdd2fb0ab_nextSpawnTime
+      Value: 1765444265
+      Kind: DWord
+    - Name: Spawner_1_hard_cut_uncommon_60b9a452d0b38b84b94d222bc16d0ed2_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (23)_8e31cf70f09c89d419796c851acd5aaa_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (10)_6af33e0315ea1da49b9fd0767051584c_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (29)_4df362f1dc081a44dbe14d5ec3c194ce_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (17)_448eeda21e4c6024eab7450daa30d1bc_nextSpawnTime
+      Value: 1765455788
+      Kind: DWord
+    - Name: tree_1 (29)_a5bdfd25195dd1646b90d3984be428c3_nextSpawnTime
+      Value: 1765498986
+      Kind: DWord
+    - Name: tree_1 (41)_b5eb2f7c7eacaac4989815a55469e094_nextSpawnTime
+      Value: 1765444148
+      Kind: DWord
+    - Name: tree_1 (28)_4898f0895caa15e448eada538c336e1f_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (8)_6537f6faae3ca3b4fa1c07b011e10f25_nextSpawnTime
+      Value: 1765444238
+      Kind: DWord
+    - Name: tree_1 (33)_7549513ffc98aeb4592eb65e3aa98d8f_nextSpawnTime
+      Value: 1765444513
+      Kind: DWord
+    - Name: Spawner_boss (3)_ee779b4ad520b3e4a998e24a9ada8d31_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (31)_79ce004f83d74304d98f18bce55d9a22_nextSpawnTime
+      Value: 1764545015
+      Kind: DWord
+    - Name: tree_1 (16)_875ce7934f168b94fb336f4087b6add9_nextSpawnTime
+      Value: 1765311110
+      Kind: DWord
+    - Name: tree_1 (30)_cbfae7ece49f9f144addf739d3d25e5d_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (16)_15d0583daa188174b944fa9991427e3b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (7)_7f9606b42bce4fe46bdeaa69977e0ae7_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (1)_fb87a95fef628fd4e9047467dd7bfa71_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy_3b6bc05f369ab9b43b9dbef1c5c5c4ac_nextSpawnTime
+      Value: 1765498933
+      Kind: DWord
+    - Name: Spawner_elite_regen_b3be5b1d5f44b734e824fd9a1aa26c1c_nextSpawnTime
+      Value: 1765503007
+      Kind: DWord
+    - Name: Spawner_1 (16)_ac7adf55e76fe7e4881f60c7751d558d_nextSpawnTime
+      Value: 1765321872
+      Kind: DWord
+    - Name: install_time
+      Value: 1762379953
+      Kind: String
+    - Name: tree_1 (19)_1601876c8bca6c44dbe31cc1e4f07449_nextSpawnTime
+      Value: 1765160062
+      Kind: DWord
+    - Name: tree_1 (14)_127280269429b0844907f58b27b4125e_nextSpawnTime
+      Value: 1763154005
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_3822d22bba39e7642921a0b08e52d795_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_easy (4)_ea8899abba1df0f4d9298ef850ad70b0_nextSpawnTime
+      Value: 1765444151
+      Kind: DWord
+    - Name: playtime_seconds
+      Value: 233100
+      Kind: DWord
+    - Name: tree_1 (28)_087b72409df021c4e933939086d49a72_nextSpawnTime
+      Value: 1765444303
+      Kind: DWord
+    - Name: tree_1 (33)_d5ac49ad93c990a4bbba3f5338646a73_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_328813b23952f914ea1879c181a929de_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight_e439599c48c85ab45b1f26347fb408d9_nextSpawnTime
+      Value: 1765499274
+      Kind: DWord
+    - Name: tree_1 (24)_1a07b76ff024bc545936d42dddac7cfa_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (27)_2164dba9d80c418489f77dad8b742f1b_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (8)_3b776ccd3d87bd44b88a18b1de2fc046_cleared
+      Value: 1
+      Kind: DWord
+    - Name: sound_volume
+      Value: 0.1350365
+      Kind: String
+    - Name: tree_1 (18)_f77e86e54fe792d45ab2b1e66c293203_nextSpawnTime
+      Value: 1764776827
+      Kind: DWord
+    - Name: tree_1 (35)_33e4b335caa187147b8db42953fe4a5a_nextSpawnTime
+      Value: 1765444247
+      Kind: DWord
+    - Name: tree_1 (40)_3de165238c68731498cd8d7a39a6e2ee_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_knight (2)_fb70f8a1bebb45d449d76c2757d50fdf_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_boss_cut_rare_c3f7a0c9126339745879e8e908bbd27a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (25)_a33ffd32666e6444f8f23af56cf7299a_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (11)_a24914d40f495054f83dfd03d51ee193_nextSpawnTime
+      Value: 1763153970
+      Kind: DWord
+    - Name: tree_1 (26)_15ad290d95609bb419a78187631488a6_nextSpawnTime
+      Value: 1765321786
+      Kind: DWord
+    - Name: ice pike blocker (4)_6807a12daeb4b704fba951e4ac83f4ec_nextSpawnTime
+      Value: 1762422998
+      Kind: DWord
+    - Name: tree_1 (21)_0e8f6aef521fb1944b61e5ce26d26975_nextSpawnTime
+      Value: 1765455473
+      Kind: DWord
+    - Name: tree_1 (30)_2e270d4e0ba544e41bdbadf8c6538055_nextSpawnTime
+      Value: 1765498938
+      Kind: DWord
+    - Name: Spawner_1_elite regen_c06fa4fa49f06e24b8995f7e88fd50fc_nextSpawnTime
+      Value: 1765465888
+      Kind: DWord
+    - Name: Spawner_1 (10)_c547ee51c223e9f4d8b36745525989b8_cleared
+      Value: 1
+      Kind: DWord
+    - Name: next_free_claim_reset
+      Value: 2025-12-13T03:00:00.0000000Z
+      Kind: String
+    - Name: Spawner_1_knight (2)_3822d22bba39e7642921a0b08e52d795_nextSpawnTime
+      Value: 1765455645
+      Kind: DWord
+    - Name: tree_1 (49)_438aacbc19dedfc40b0d0aabbdf12df0_nextSpawnTime
+      Value: 1765444412
+      Kind: DWord
+    - Name: Spawner_1_easy (3)_fa683f8f2c78ba54db7f3a70bd339a23_nextSpawnTime
+      Value: 1765516256
+      Kind: DWord
+    - Name: Spawner_1 (1)_610b5246bb3b1b1438837613832f04a8_nextSpawnTime
+      Value: 1765311053
+      Kind: DWord
+    - Name: Spawner_1_elite smash_894b251c0434b8f4b914cd39c4acd721_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (16)_27c294f78a00fbf4b90e4981efce93b1_cleared
+      Value: 1
+      Kind: DWord
+    - Name: selected-locale
+      Value: ru
+      Kind: String
+    - Name: tree_1 (26)_90cb8f2e35ee2d246b599d56f4a67dd4_nextSpawnTime
+      Value: 1763325409
+      Kind: DWord
+    - Name: Spawner_boss_dragon (3)_b7f0b35f3b8985441b9158e5876dc779_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1 (14)_418a1c6615c6b9947ad139e0830836f3_nextSpawnTime
+      Value: 1765455314
+      Kind: DWord
+    - Name: tree_1 (14)_127280269429b0844907f58b27b4125e_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (33)_293536cbf3081484094ead4bd2f97135_nextSpawnTime
+      Value: 1765516245
+      Kind: DWord
+    - Name: tree_1 (16)_875ce7934f168b94fb336f4087b6add9_cleared
+      Value: 1
+      Kind: DWord
+    - Name: tree_1 (19)_a50285194e6af4f4d8a5a847033dc335_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_elite health_d0c5a49f76c541440a5d15980d497110_nextSpawnTime
+      Value: 1765329668
+      Kind: DWord
+    - Name: tree_1 (18)_7ee952991a8892c449ca977660c49bc4_cleared
+      Value: 1
+      Kind: DWord
+    - Name: Spawner_1_medium (1)_a6d4dc739240e2a48a14cfe738f01b85_nextSpawnTime
+      Value: 1765444556
+      Kind: DWord
+    - Name: tree_1 (14)_b05d24d44bffc61438c1537ff97884f6_cleared
+      Value: 1
+      Kind: DWord
+  - Name: New Snapshot v1.3.1
+    CreatedAtIso: 2026-01-11T13:05:52.3444934Z
+    Entries:
+    - Name: unity.cloud_userid_h2665564582
+      Value: NjEwYTMwZDUzMzEwNzYyNDU4NTlmNGI1NjBmNjUyNzYA
+      Kind: Binary
+    - Name: unity.player_sessionid_h1351336811
+      Value: MzY4NDQ2OTkwNzQ0NTI1NzE1NAA=
+      Kind: Binary
+    - Name: unity.player_session_count_h922449978
+      Value: ODA3AA==
+      Kind: Binary
+    - Name: unity_connect.installation_id_h932087899
+      Value: YjBmYzM5NmYtNGY2MS1iOTA0LTVhZmMtNDdlNzY3NTc1MGY4AA==
+      Kind: Binary
+    - Name: unity_connect.session_id_h4145606137
+      Value: MzRjNzcwZmYtNDlhZS0xYWI0LWY5YmItZWY1ZjdhYjVjMzFmAA==
+      Kind: Binary
+    - Name: unity_connect.mega_session_id_h1802243016
+      Value: NzBlYTQxYTEtNTk5OC0yYzQ0LTViMzctMmNlMGRjNDY0N2QzAA==
+      Kind: Binary
+    - Name: AddressablesRuntimeDataPath_h2032495339
+      Value: R1VJRDozMTZjZDMxMjJjZGRlMGI0N2FkN2Y4YWU3NzVjYjI0YQA=
+      Kind: Binary
+    - Name: UnityGraphicsQuality_h1669003810
+      Value: 2
+      Kind: DWord
+    - Name: first_start_h3944110592
+      Value: 1
+      Kind: DWord
+    - Name: UnityInstallationId_h2692649995
+      Value: NjEwYTMwZDUzMzEwNzYyNDU4NTlmNGI1NjBmNjUyNzYA
+      Kind: Binary
+    - Name: selected-locale_h3890535593
+      Value: ZW4A
+      Kind: Binary
+    - Name: ab_tests_h2788239836
+      Value: eyJ0ZXN0cyI6W3sibmFtZSI6ImxvbmdfaXRlbXNfY29vbGRvd24iLCJ2YXJpYW50IjoiQSJ9LHsibmFtZSI6ImFudGlfYWZrIiwidmFyaWFudCI6IkIifSx7Im5hbWUiOiJlbmVteV9ocF9kYW1hZ2VfbXVsdCIsInZhcmlhbnQiOiJBIn0seyJuYW1lIjoicmVzdHJpY3RlZF9lY3BtX2FkX3VuaXQiLCJ2YXJpYW50IjoiQSJ9LHsibmFtZSI6IlJQTV9vcHRpbWlzdGljX3ZhbHVlIiwidmFyaWFudCI6IkIifSx7Im5hbWUiOiJmcmVxdWVudF9yZXdhcmRlZCIsInZhcmlhbnQiOiJCIn0seyJuYW1lIjoiZmlyc3RfYnV5X2J1bmRsZSIsInZhcmlhbnQiOiJBIn0seyJuYW1lIjoic3RhdF9zcGF3bmVyX2Nvb2xkb3duX211bHRpcGxpZXIiLCJ2YXJpYW50IjoiQSJ9LHsibmFtZSI6ImFkYXB0aXZlX3Jld2FyZGVkX3ZhbHVlIiwidmFyaWFudCI6IkIifSx7Im5hbWUiOiJkeW5hbWljX3Jld2FyZGVkX3dlaWdodHMiLCJ2YXJpYW50IjoiQiJ9LHsibmFtZSI6ImFkX2ludGVyc3RpdGlhbCIsInZhcmlhbnQiOiJCIn0seyJuYW1lIjoiYWRfYmFubmVyIiwidmFyaWFudCI6IkIifV19AA==
+      Kind: Binary
+    - Name: install_time_h1755125678
+      Value: MTc2ODAwNzIzMgA=
+      Kind: Binary
+    - Name: user_id_h2414288038
+      Value: WTlVN1BGMlFKNTdTAA==
+      Kind: Binary
+    - Name: game_loaded_once_h1196683979
+      Value: 1
+      Kind: DWord
+    - Name: next_free_claim_reset_h3730573590
+      Value: MjAyNi0wMS0xMlQwMzowMDowMC4wMDAwMDAwWgA=
+      Kind: Binary
+    - Name: cashback_period_id_h3314689855
+      Value: 20464
+      Kind: DWord
+    - Name: event_analytics_last_schedule_check_utc_h3294134827
+      Value: 1768161741
+      Kind: DWord
+    - Name: passedBalanceUpdate_1_2_0_h4132373582
+      Value: 1
+      Kind: DWord
+    - Name: passedStatusUpdate_1_3_0_h1614267741
+      Value: 1
+      Kind: DWord
+    - Name: purchase_recovery_completed_h2301285152
+      Value: 1
+      Kind: DWord
+    - Name: PlayerModelItems_h1729110271
+      Value: W3siS2V5Ijoia25pZmUiLCJMZXZlbCI6MTIyfSx7IktleSI6ImRvdWJsZWF4ZSIsIkxldmVsIjoxMjF9LHsiS2V5IjoiY2hhaW5zYXciLCJMZXZlbCI6MTIxfSx7IktleSI6ImthdGFuYSIsIkxldmVsIjoxMjJ9LHsiS2V5IjoibWluaXNhdyIsIkxldmVsIjoxMjN9LHsiS2V5IjoicGlrZSIsIkxldmVsIjoxMzJ9LHsiS2V5IjoiY29vbHBpa2UiLCJMZXZlbCI6MTIyfSx7IktleSI6ImNoYWluc2F3cGlrZSIsIkxldmVsIjoxMjF9LHsiS2V5IjoicGljayIsIkxldmVsIjoxMjJ9LHsiS2V5IjoiZm9yayIsIkxldmVsIjoxMzJ9LHsiS2V5IjoicGFkZGxlIiwiTGV2ZWwiOjEyMn0seyJLZXkiOiJtYWNlIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJjb29sSGFtbWVyIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJoYW1tZXIiLCJMZXZlbCI6MTMxfSx7IktleSI6Im1haWxib3giLCJMZXZlbCI6MTMyfSx7IktleSI6ImtuaWZlX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoibWluaXNhd19kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImthdGFuYV9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImRvdWJsZWF4ZV9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImNoYWluc2F3X2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoicGlrZV9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImNvb2xwaWtlX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoiY2hhaW5zYXdwaWtlX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoicGlja19kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImZvcmtfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJwYWRkbGVfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJtYWNlX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoiY29vbEhhbW1lcl9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImhhbW1lcl9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6Im1haWxib3hfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJpcm9uX2Jsb2NrIiwiTGV2ZWwiOjEzM30seyJLZXkiOiJicm9uemVfY3Jlc3QiLCJMZXZlbCI6MTIxfSx7IktleSI6InN0ZWVsX2d1YXJkIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJ3b29kZW5faG9ybnMiLCJMZXZlbCI6MTIyfSx7IktleSI6ImRlbW9uX2hvcm5zIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJkcmFnb25fc3Bpa2VzIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJzbGltZV9zcGF3biIsIkxldmVsIjoxMjF9LHsiS2V5IjoiZ29sZGVuX3NwaWtlcyIsIkxldmVsIjoxMjF9LHsiS2V5Ijoic3Bpa2VkX2RvbWUiLCJMZXZlbCI6MTIxfSx7IktleSI6InN0b25lX2JpbmQiLCJMZXZlbCI6MTIxfSx7IktleSI6ImVhZ2xlX2NyZXN0IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJzdG9uZV9kaXNrIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJvYWtfcm91bmQiLCJMZXZlbCI6MTIyfSx7IktleSI6ImNyaW1zb25fZmFuZyIsIkxldmVsIjoxMjF9LHsiS2V5Ijoic2NhcmxldF9lZGdlIiwiTGV2ZWwiOjEyMn0seyJLZXkiOiJhYnlzc19tYXciLCJMZXZlbCI6MTMyfSx7IktleSI6ImVtYmVyX2NvcmUiLCJMZXZlbCI6MTIxfSx7IktleSI6Imlyb25fc3R1ZHMiLCJMZXZlbCI6MTMxfSx7IktleSI6Im11c2hyb29tbWFuY2VyX2NhcCIsIkxldmVsIjoxMjF9LHsiS2V5IjoibXVzaHJvb21tYW5jZXJfc2hpZWxkIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJwcmlzbWNvcmVfZHJpbGxtYXNrIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJzdW53aGVlbF9jcm93biIsIkxldmVsIjoxMjF9LHsiS2V5IjoiZ3JhdmVleWVfdmlzb3IiLCJMZXZlbCI6MTIxfSx7IktleSI6InByaXNtY29yZV93YXJkIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJzdW53aGVlbF9kZWZsZWN0b3IiLCJMZXZlbCI6MTIxfSx7IktleSI6ImdyYXZlZXllX2FlZ2lzIiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJzbGltZV9zcGF3bl9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6InByaXNtY29yZV9kcmlsbG1hc2tfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJnb2xkZW5fc3Bpa2VzX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5Ijoic3Bpa2VkX2RvbWVfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJpcm9uX2Jsb2NrX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5Ijoic3Vud2hlZWxfY3Jvd25fZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJicm9uemVfY3Jlc3RfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJzdGVlbF9ndWFyZF9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6Indvb2Rlbl9ob3Juc19kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImdyYXZlZXllX3Zpc29yX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoiZGVtb25faG9ybnNfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJkcmFnb25fc3Bpa2VzX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoiYWJ5c3NfbWF3X2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoicHJpc21jb3JlX3dhcmRfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJlbWJlcl9jb3JlX2RpdiIsIkxldmVsIjoxMjF9LHsiS2V5IjoiaXJvbl9zdHVkc19kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6InN0b25lX2JpbmRfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJzdW53aGVlbF9kZWZsZWN0b3JfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJlYWdsZV9jcmVzdF9kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6InN0b25lX2Rpc2tfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJvYWtfcm91bmRfZGl2IiwiTGV2ZWwiOjEyMX0seyJLZXkiOiJncmF2ZWV5ZV9hZWdpc19kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6ImNyaW1zb25fZmFuZ19kaXYiLCJMZXZlbCI6MTIxfSx7IktleSI6InNjYXJsZXRfZWRnZV9kaXYiLCJMZXZlbCI6MTIxfV0A
+      Kind: Binary
+    - Name: PlayerModelItemSlots_h3253671899
+      Value: W3siS2V5IjoiY2hhaW5zYXdfZGl2IiwiU2xvdEtleSI6IndlYXBvbl8xIiwiU2xvdFR5cGUiOjAsIklzVW5sb2NrZWQiOnRydWUsIklzUGlubmVkIjpmYWxzZX0seyJLZXkiOiJkb3VibGVheGVfZGl2IiwiU2xvdEtleSI6IndlYXBvbl8yIiwiU2xvdFR5cGUiOjAsIklzVW5sb2NrZWQiOnRydWUsIklzUGlubmVkIjpmYWxzZX0seyJLZXkiOiJrYXRhbmFfZGl2IiwiU2xvdEtleSI6IndlYXBvbl8zIiwiU2xvdFR5cGUiOjAsIklzVW5sb2NrZWQiOnRydWUsIklzUGlubmVkIjpmYWxzZX0seyJLZXkiOiJtaW5pc2F3X2RpdiIsIlNsb3RLZXkiOiJ3ZWFwb25fNCIsIlNsb3RUeXBlIjowLCJJc1VubG9ja2VkIjp0cnVlLCJJc1Bpbm5lZCI6ZmFsc2V9LHsiS2V5Ijoia25pZmVfZGl2IiwiU2xvdEtleSI6IndlYXBvbl81X3ZpcCIsIlNsb3RUeXBlIjowLCJJc1VubG9ja2VkIjp0cnVlLCJJc1Bpbm5lZCI6ZmFsc2V9LHsiS2V5IjoicHJpc21jb3JlX2RyaWxsbWFza19kaXYiLCJTbG90S2V5IjoiaGVsbWV0XzEiLCJTbG90VHlwZSI6MSwiSXNVbmxvY2tlZCI6dHJ1ZSwiSXNQaW5uZWQiOmZhbHNlfSx7IktleSI6InByaXNtY29yZV93YXJkX2RpdiIsIlNsb3RLZXkiOiJzaGllbGRfMSIsIlNsb3RUeXBlIjoyLCJJc1VubG9ja2VkIjp0cnVlLCJJc1Bpbm5lZCI6ZmFsc2V9XQA=
+      Kind: Binary
+    - Name: PlayerModelStats_h1727752152
+      Value: W3siQmFzZVZhbHVlIjoxMDAuMCwiU3RhdFR5cGUiOjEsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjEsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6NjA1ODQyNS4wLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJyZXdhcmQiLCJTdGF0VHlwZSI6MSwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjoxNTY2NzIuMTI1LCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJtdXNocm9vbW1hbmNlcl9jYXBfYWJpbGl0eSIsIlN0YXRUeXBlIjoxLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MiwiVmFsdWUiOjExNzMwMC4wLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJDYXNoYmFjayIsIlN0YXRUeXBlIjoxLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6NiwiVmFsdWUiOjI5MjcwLjI3LCJEdXJhdGlvbiI6MC4wfV19LHsiQmFzZVZhbHVlIjoxLjAsIlN0YXRUeXBlIjowLCJNb2RpZmllcnMiOlt7Ik5hbWUiOiJEZXZvdXJlZCIsIlN0YXRUeXBlIjowLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MCwiVmFsdWUiOjEzLjI1LCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJDYXNoYmFjayIsIlN0YXRUeXBlIjowLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6NiwiVmFsdWUiOjEuOTg3NTAwMDcsIkR1cmF0aW9uIjowLjB9XX0seyJCYXNlVmFsdWUiOjAuNSwiU3RhdFR5cGUiOjIsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjIsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6MTM1Ny40LCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJyZXdhcmQiLCJTdGF0VHlwZSI6MiwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjoxMzMuNTM1NzIxLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJDYXNoYmFjayIsIlN0YXRUeXBlIjoyLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6NiwiVmFsdWUiOjEyMC4wNjAwMDUsIkR1cmF0aW9uIjowLjB9LHsiTmFtZSI6Im11c2hyb29tbWFuY2VyX3NoaWVsZF9hYmlsaXR5IiwiU3RhdFR5cGUiOjIsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjoyLCJWYWx1ZSI6MTQwLjIxOTk1NSwiRHVyYXRpb24iOjAuMH1dfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MywiTW9kaWZpZXJzIjpbXX0seyJCYXNlVmFsdWUiOjMuNCwiU3RhdFR5cGUiOjQsIk1vZGlmaWVycyI6W119LHsiQmFzZVZhbHVlIjowLjAsIlN0YXRUeXBlIjo1LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MTQsIk1vZGlmaWVycyI6W3siTmFtZSI6InJld2FyZCIsIlN0YXRUeXBlIjoxNCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjoxMzA5Mi45NDgyLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJDYXNoYmFjayIsIlN0YXRUeXBlIjoxNCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjoxOTYzLjk0MjI2LCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJEZXZvdXJlZCIsIlN0YXRUeXBlIjoxNCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjoxMjQwLjAsIkR1cmF0aW9uIjowLjB9XX0seyJCYXNlVmFsdWUiOjAuMCwiU3RhdFR5cGUiOjE1LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MTYsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjE2LCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MCwiVmFsdWUiOjQ3NTEyLjAsIkR1cmF0aW9uIjowLjB9LHsiTmFtZSI6IkV2ZW50Qmx1ZUdvbGVtIiwiU3RhdFR5cGUiOjE2LCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MCwiVmFsdWUiOjI1LjAsIkR1cmF0aW9uIjowLjB9LHsiTmFtZSI6IkNhc2hiYWNrIiwiU3RhdFR5cGUiOjE2LCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6NiwiVmFsdWUiOjUuNTUsIkR1cmF0aW9uIjowLjB9XX0seyJCYXNlVmFsdWUiOjAuMCwiU3RhdFR5cGUiOjE3LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MjAsIk1vZGlmaWVycyI6W3siTmFtZSI6InJld2FyZCIsIlN0YXRUeXBlIjoyMCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjo1MzQ5MC4xNTIzLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJEZXZvdXJlZCIsIlN0YXRUeXBlIjoyMCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjo2NDQwMC4wLCJEdXJhdGlvbiI6MC4wfV19LHsiQmFzZVZhbHVlIjowLjAsIlN0YXRUeXBlIjoyMSwiTW9kaWZpZXJzIjpbXX0seyJCYXNlVmFsdWUiOjAuMCwiU3RhdFR5cGUiOjYsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjYsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6MjYyMy4wLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJyZXdhcmQiLCJTdGF0VHlwZSI6NiwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjoxODE4MS44NjcyLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJFdmVudFJlZEdvbGVtIiwiU3RhdFR5cGUiOjYsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6MjAuMCwiRHVyYXRpb24iOjAuMH0seyJOYW1lIjoiRXZlbnRNb2IiLCJTdGF0VHlwZSI6NiwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjo1NjUuMjUzMSwiRHVyYXRpb24iOjAuMH0seyJOYW1lIjoiQ2FzaGJhY2siLCJTdGF0VHlwZSI6NiwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjoxMjUzLjY3NjE1LCJEdXJhdGlvbiI6MC4wfV19LHsiQmFzZVZhbHVlIjoxLjAsIlN0YXRUeXBlIjo3LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6OCwiTW9kaWZpZXJzIjpbeyJOYW1lIjoiRGV2b3VyZWQiLCJTdGF0VHlwZSI6OCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjo0MTUwLjUsIkR1cmF0aW9uIjowLjB9LHsiTmFtZSI6InJld2FyZCIsIlN0YXRUeXBlIjo4LCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6NiwiVmFsdWUiOjYxMzkuNDQ0MzQsIkR1cmF0aW9uIjowLjB9LHsiTmFtZSI6IkV2ZW50TW9iIiwiU3RhdFR5cGUiOjgsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6MTcxOS4wNDQ0MywiRHVyYXRpb24iOjAuMH0seyJOYW1lIjoiQ2FzaGJhY2siLCJTdGF0VHlwZSI6OCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjoxODcwLjM0ODM5LCJEdXJhdGlvbiI6MC4wfV19LHsiQmFzZVZhbHVlIjoxLjAsIlN0YXRUeXBlIjo5LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MTIsIk1vZGlmaWVycyI6W3siTmFtZSI6IkRldm91cmVkIiwiU3RhdFR5cGUiOjEyLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6MCwiVmFsdWUiOjg1MTMuMCwiRHVyYXRpb24iOjAuMH0seyJOYW1lIjoicmV3YXJkIiwiU3RhdFR5cGUiOjEyLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6NiwiVmFsdWUiOjEyMTQ2LjM1ODQsIkR1cmF0aW9uIjowLjB9LHsiTmFtZSI6IkNhc2hiYWNrIiwiU3RhdFR5cGUiOjEyLCJNb2RpZmllclR5cGUiOjAsIlNvdXJjZSI6NiwiVmFsdWUiOjQ5MS4yNTAwMzEsIkR1cmF0aW9uIjowLjB9XX0seyJCYXNlVmFsdWUiOjEuMCwiU3RhdFR5cGUiOjEzLCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MjIsIk1vZGlmaWVycyI6W119LHsiQmFzZVZhbHVlIjowLjAsIlN0YXRUeXBlIjoyMywiTW9kaWZpZXJzIjpbeyJOYW1lIjoiRGV2b3VyZWQiLCJTdGF0VHlwZSI6MjMsIk1vZGlmaWVyVHlwZSI6MCwiU291cmNlIjowLCJWYWx1ZSI6MzY0LjAsIkR1cmF0aW9uIjowLjB9XX0seyJCYXNlVmFsdWUiOjEuMCwiU3RhdFR5cGUiOjI0LCJNb2RpZmllcnMiOlt7Ik5hbWUiOiJEZXZvdXJlZCIsIlN0YXRUeXBlIjoyNCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjo1OC4wLCJEdXJhdGlvbiI6MC4wfSx7Ik5hbWUiOiJDYXNoYmFjayIsIlN0YXRUeXBlIjoyNCwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjYsIlZhbHVlIjowLjYsIkR1cmF0aW9uIjowLjB9XX0seyJCYXNlVmFsdWUiOjEuMCwiU3RhdFR5cGUiOjI1LCJNb2RpZmllcnMiOlt7Ik5hbWUiOiJEZXZvdXJlZCIsIlN0YXRUeXBlIjoyNSwiTW9kaWZpZXJUeXBlIjowLCJTb3VyY2UiOjAsIlZhbHVlIjoyLjAsIkR1cmF0aW9uIjowLjB9XX0seyJCYXNlVmFsdWUiOjAuMCwiU3RhdFR5cGUiOjI2LCJNb2RpZmllcnMiOltdfSx7IkJhc2VWYWx1ZSI6MC4wLCJTdGF0VHlwZSI6MjcsIk1vZGlmaWVycyI6W119LHsiQmFzZVZhbHVlIjowLjAsIlN0YXRUeXBlIjoyOCwiTW9kaWZpZXJzIjpbXX0seyJCYXNlVmFsdWUiOjEuMCwiU3RhdFR5cGUiOjI5LCJNb2RpZmllcnMiOltdfV0A
+      Kind: Binary
+    - Name: PlayerModelPosition_h2018468480
+      Value: eyJ4IjozMi40NjA5OTQ3MjA0NTg5ODcsInkiOjYuNzczNzMwMjc4MDE1MTM3LCJ6Ijo0NjUuNDc1Njc3NDkwMjM0NH0A
+      Kind: Binary
+    - Name: HasSaved_h3316202042
+      Value: eWVzAA==
+      Kind: Binary
+    - Name: rewarded_try_attempt_h3369497057
+      Value: 0
+      Kind: DWord
+    - Name: event_analytics_last_online_utc_h2926494680
+      Value: 1768137234
+      Kind: DWord
+    - Name: rewarded_weights_h1523086431
+      Value: eyJXZWlnaHRzIjpbeyJUeXBlIjowLCJXZWlnaHQiOjEuMH0seyJUeXBlIjoxLCJXZWlnaHQiOjAuNjEwMzc4MzI0OTg1NTA0Mn0seyJUeXBlIjoyLCJXZWlnaHQiOjAuNzUxNjE3OTY4MDgyNDI4fSx7IlR5cGUiOjMsIldlaWdodCI6MS4wfSx7IlR5cGUiOjQsIldlaWdodCI6MS4wfSx7IlR5cGUiOjUsIldlaWdodCI6MS4wfSx7IlR5cGUiOjYsIldlaWdodCI6MS4wfSx7IlR5cGUiOjcsIldlaWdodCI6MS4wfSx7IlR5cGUiOjgsIldlaWdodCI6MC42MTAzNzgzMjQ5ODU1MDQyfSx7IlR5cGUiOjksIldlaWdodCI6MS4wfSx7IlR5cGUiOjEwLCJXZWlnaHQiOjEuMH0seyJUeXBlIjoxMSwiV2VpZ2h0IjoxLjB9LHsiVHlwZSI6MTIsIldlaWdodCI6MC42OTYwNDkyMTM0MDk0MjM4fSx7IlR5cGUiOjEzLCJXZWlnaHQiOjEuMH0seyJUeXBlIjoxNCwiV2VpZ2h0IjowLjgxODU3OTI1NjUzNDU3NjR9LHsiVHlwZSI6MTUsIldlaWdodCI6MS4wfSx7IlR5cGUiOjE2LCJXZWlnaHQiOjAuODE4NTc5MjU2NTM0NTc2NH0seyJUeXBlIjoxNywiV2VpZ2h0IjoxLjB9LHsiVHlwZSI6MTgsIldlaWdodCI6MS4wfSx7IlR5cGUiOjE5LCJXZWlnaHQiOjEuMH0seyJUeXBlIjoyMCwiV2VpZ2h0IjoxLjB9LHsiVHlwZSI6MjEsIldlaWdodCI6MS4wfSx7IlR5cGUiOjIyLCJXZWlnaHQiOjEuMH0seyJUeXBlIjoyMywiV2VpZ2h0IjoxLjB9LHsiVHlwZSI6MjQsIldlaWdodCI6MS4wfSx7IlR5cGUiOjI1LCJXZWlnaHQiOjEuMH0seyJUeXBlIjoyNiwiV2VpZ2h0IjoxLjB9LHsiVHlwZSI6MjcsIldlaWdodCI6MS4wfSx7IlR5cGUiOjI4LCJXZWlnaHQiOjEuMH0seyJUeXBlIjoyOSwiV2VpZ2h0IjoxLjB9XX0A
+      Kind: Binary
+    - Name: playtime_active_seconds_h3453519675
+      Value: 60
+      Kind: DWord
+    - Name: playtime_active_minutes_h2921707205
+      Value: 17
+      Kind: DWord
+    - Name: playtime_seconds_h878709192
+      Value: 1080
+      Kind: DWord
+    - Name: playtime_minutes_h4258616374
+      Value: 18
+      Kind: DWord
+    - Name: Spawner_common_cut_336db068c79fca446a64db3f51021e31_nextSpawnTime_h3688595710
+      Value: 1768008816
+      Kind: DWord
+    - Name: tree_1 (11)_75e603fe187be8e418cf536806273cf2_nextSpawnTime_h2210362855
+      Value: 1768008616
+      Kind: DWord
+    - Name: tree_1 (13)_33ab2dd43c0d03a4486b21aed6175e55_nextSpawnTime_h323808299
+      Value: 1768009242
+      Kind: DWord
+    - Name: cashback_earned_stats_h953780431
+      Value: eyJEYXRhIjpbeyJUeXBlIjoxMiwiVmFsdWUiOjE4MjI2LjM1ODA2Mjc0NDE0fSx7IlR5cGUiOjIsIlZhbHVlIjoxMDc2LjE3NTcxMzMwMDcwNX0seyJUeXBlIjo2LCJWYWx1ZSI6MTM1MjAuMjc5Mjk2ODc1fSx7IlR5cGUiOjgsIlZhbHVlIjo1MDAuMH0seyJUeXBlIjoxLCJWYWx1ZSI6NjE1Mzk0Mi4wfSx7IlR5cGUiOjI1LCJWYWx1ZSI6Mi4wfSx7IlR5cGUiOjE0LCJWYWx1ZSI6MTI0MC4wfSx7IlR5cGUiOjIzLCJWYWx1ZSI6MzY0LjB9LHsiVHlwZSI6MjAsIlZhbHVlIjoxMTc4OTAuMTUyMzQzNzV9LHsiVHlwZSI6MTYsIlZhbHVlIjo0NzUwMC4wfSx7IlR5cGUiOjI0LCJWYWx1ZSI6NTQuMH1dfQA=
+      Kind: Binary
+    - Name: pool_index_h998034584
+      Value: 5
+      Kind: DWord
+    - Name: Spawner_boss_pier_common_slot_f42333def51b56d4a95a4752d9895572_nextSpawnTime_h4289255386
+      Value: 1768008897
+      Kind: DWord
+    - Name: UnlockedLocationNumber_h3916075914
+      Value: 17
+      Kind: DWord
+    - Name: VisitedLastUnlockedLocation_h998234931
+      Value: 1
+      Kind: DWord
+    - Name: Gates_h207736929
+      Value: eyJEYXRhIjpbeyJLZXkiOiJnYXRlcyAxICgxMSkiLCJVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJnYXRlcyAxICgxMikiLCJVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJnYXRlcyAxICgyMykiLCJVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJnYXRlcyAxICg4KSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDE3KSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDI0KSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDEwKSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDIxKSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDIyKSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDIwKSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDE5KSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDE4KSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDcpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMTUpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMTQpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMykiLCJVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJnYXRlcyAxICgxMykiLCJVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJnYXRlcyAxICg2KSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDIpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMjkpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMTYpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMjUpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoNSkiLCJVbmxvY2tlZCI6dHJ1ZX0seyJLZXkiOiJnYXRlcyAxICgxKSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDI2KSIsIlVubG9ja2VkIjp0cnVlfSx7IktleSI6ImdhdGVzIDEgKDQpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMjcpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoMjgpIiwiVW5sb2NrZWQiOnRydWV9LHsiS2V5IjoiZ2F0ZXMgMSAoOSkiLCJVbmxvY2tlZCI6dHJ1ZX1dfQA=
+      Kind: Binary
+    - Name: Spawner_uncommon_cut (1)_024c153d31def5b448d81d76eff69fe6_nextSpawnTime_h4109483999
+      Value: 1768009924
+      Kind: DWord
+    - Name: tree_1 (5)_61fee6dcc0d7ce04b9896851d6ef9d95_nextSpawnTime_h2066131506
+      Value: 1768008793
+      Kind: DWord
+    - Name: Spawner_1 (2)_6a1c4490b1b962547ab14a073dea39d2_nextSpawnTime_h948310564
+      Value: 1768009416
+      Kind: DWord
+    - Name: Spawner_1 (1)_dd005f73c6f35fd48af609928da2cd64_nextSpawnTime_h3761316459
+      Value: 1768009586
+      Kind: DWord
+    - Name: tree_1 (16)_360ecdd55e4314c4fb940ec23041e6bb_nextSpawnTime_h1559468505
+      Value: 1768112076
+      Kind: DWord
+    - Name: tree_1 (8)_3727eac3a488f2440bd94ff947ce51f6_nextSpawnTime_h1705424538
+      Value: 1768009141
+      Kind: DWord
+    - Name: CurrentLocationNumber_h390985170
+      Value: 16
+      Kind: DWord
+    - Name: Spawner_1_pierc_uncommon_76f1f05775265fc488e04138fd6cd769_nextSpawnTime_h4168367269
+      Value: 1768009430
+      Kind: DWord
+    - Name: tree_1 (15)_075ea625f7f7efb42856f3c6d37e4dff_nextSpawnTime_h2889015023
+      Value: 1768008951
+      Kind: DWord
+    - Name: tree_1 (18)_353f5aad85d3e6048857f8bee11dd832_nextSpawnTime_h3529916996
+      Value: 1768008962
+      Kind: DWord
+    - Name: Spawner_1 (12)_010d67a92016d23439aeead80277983d_nextSpawnTime_h2674281942
+      Value: 1768009442
+      Kind: DWord
+    - Name: tree_1 (19)_38fa99947b232ef4c8a707b57e0a20e0_nextSpawnTime_h3336215732
+      Value: 1768008963
+      Kind: DWord
+    - Name: tree_1 (27)_f8042444f7322bc4f915b5d58c5f51a7_nextSpawnTime_h43318220
+      Value: 1768008963
+      Kind: DWord
+    - Name: Spawner_1_pierc_rare_e3f9a8367b632ca41b8c540e79775810_nextSpawnTime_h1014300280
+      Value: 1768009444
+      Kind: DWord
+    - Name: tree_1 (23)_343734f4fde728c46ae82507e5d77983_nextSpawnTime_h2683104403
+      Value: 1768008964
+      Kind: DWord
+    - Name: Spawner_elite_regen_61c6f302dd8c1f949af85a5c9c19b847_nextSpawnTime_h2752144161
+      Value: 1768013045
+      Kind: DWord
+    - Name: Spawner_1 (11)_621a11782b6513843970e1e6f21ae090_nextSpawnTime_h96281115
+      Value: 1768008906
+      Kind: DWord
+    - Name: PortalGemsCollected_h4032415794
+      Value: 2
+      Kind: DWord
+    - Name: Spawner_boss_smash_uncommon_8a6cecab080f8b840bf8170704788a84_nextSpawnTime_h3787990450
+      Value: 1768009567
+      Kind: DWord
+    - Name: Spawner_mid_smash_common_2993681068f072b47832dc284c76f9cc_nextSpawnTime_h4278017273
+      Value: 1768009462
+      Kind: DWord
+    - Name: tree_1 (12)_ef0642dbfe5351a48a184ab7d2bf9264_nextSpawnTime_h1175212476
+      Value: 1768008982
+      Kind: DWord
+    - Name: Spawner_elite smash_3ee81bdc15aa50544a0b8ec5d418bb4e_nextSpawnTime_h1204017425
+      Value: 1768014864
+      Kind: DWord
+    - Name: Spawner_boss_cut_rare_cba88e1f66dfadc4aaee281dcb42708b_nextSpawnTime_h1926262035
+      Value: 1768010065
+      Kind: DWord
+    - Name: event_state_h2254930433
+      Value: 0
+      Kind: DWord
+    - Name: event_analytics_ready_stamp_crystal_event_h785591166
+      Value: MDhfMTBfMDFfMjYA
+      Kind: Binary
+    - Name: SeenEventTutorial_h16125816
+      Value: 1
+      Kind: DWord
+    - Name: event_difficulty_h270213925
+      Value: -1
+      Kind: DWord
+    - Name: event_weapon_type_h410657747
+      Value: eyJ2YWx1ZV9fIjoxfQA=
+      Kind: Binary
+    - Name: event_resist_type_h2338557563
+      Value: eyJ2YWx1ZV9fIjowfQA=
+      Kind: Binary
+    - Name: tree_1 (34)_cc0149c50047e2f4f98434601725238b_nextSpawnTime_h4099146134
+      Value: 1768009038
+      Kind: DWord
+    - Name: Spawner_1 (7)_79510181160ecf048ad302f8aeb0a0cb_nextSpawnTime_h3840234365
+      Value: 1768009695
+      Kind: DWord
+    - Name: tree_1 (13)_243d3f3a5027f6d4587d3138546dd68b_nextSpawnTime_h4041016733
+      Value: 1768008952
+      Kind: DWord
+    - Name: Spawner_1 (4)_1b76e88b217ba0543a84f3d3bbecc7ca_nextSpawnTime_h455387396
+      Value: 1768008956
+      Kind: DWord
+    - Name: tree_1 (22)_fd2f24148b89a6840adff7802fbdf585_nextSpawnTime_h2373696662
+      Value: 1768008958
+      Kind: DWord
+    - Name: tree_1 (24)_88f9942ee855e0f448793af9328932d5_nextSpawnTime_h2853273923
+      Value: 1768009141
+      Kind: DWord
+    - Name: Spawner_1 (14)_4b0fffc0c95ea9c4cb61e5c4ddec4e1b_nextSpawnTime_h1108505209
+      Value: 1768009262
+      Kind: DWord
+    - Name: Spawner_boss (3)_f5af98f5e4e80d448b528869c336de7d_nextSpawnTime_h3409507723
+      Value: 1768010705
+      Kind: DWord
+    - Name: tree_1 (27)_73faf97c1c03a874b8a365ada8313497_nextSpawnTime_h1046622975
+      Value: 1768009030
+      Kind: DWord
+    - Name: Spawner_1 (13)_f8dd40c991320514eb3a66a58f3b2987_nextSpawnTime_h1390173486
+      Value: 1768008941
+      Kind: DWord
+    - Name: tree_1 (15)_a9f8e454409fa5c48be659a0f78c1503_nextSpawnTime_h3678225462
+      Value: 1768009573
+      Kind: DWord
+    - Name: dragon_007650a566209ab4c90692423bcc0108_nextSpawnTime_h1804681000
+      Value: 1768012518
+      Kind: DWord
+    - Name: tree_1 (20)_0518d6b14bc11414997c4c553478dd42_nextSpawnTime_h2972686435
+      Value: 1768009046
+      Kind: DWord
+    - Name: event_snapshot_data_h149423861
+      Value: AA==
+      Kind: Binary
+    - Name: event_activated_at_seconds_h3657254813
+      Value: 0
+      Kind: DWord
+    - Name: event_last_played_slot_h2305270557
+      Value: eyJFdmVudEtleSI6ImNyeXN0YWxfZXZlbnQiLCJTbG90U3RhcnRVbml4U2Vjb25kcyI6MTc2ODAzMjAwMH0A
+      Kind: Binary
+    - Name: event_analytics_active_event_key_h2144290408
+      Value: Y3J5c3RhbF9ldmVudAA=
+      Kind: Binary
+    - Name: event_analytics_active_schedule_stamp_h2952820717
+      Value: MDhfMTBfMDFfMjYA
+      Kind: Binary
+    - Name: event_analytics_event_mobs_killed_h512539075
+      Value: 8
+      Kind: DWord
+    - Name: event_analytics_ads_watched_h547022558
+      Value: 0
+      Kind: DWord
+    - Name: event_analytics_playtime_minutes_h2316343436
+      Value: 7
+      Kind: DWord
+    - Name: EventSpawner_Golem_7e65cdc0b256ba64cbd2582453fb62e3_savedCount_h1657831627
+      Value: 0
+      Kind: DWord
+    - Name: EventSpawner_Golem_7e65cdc0b256ba64cbd2582453fb62e3_nextSpawnTime_h2462158724
+      Value: 0
+      Kind: DWord
+    - Name: event_progress_h162922731
+      Value: 0
+      Kind: DWord
+    - Name: event_analytics_last_completed_id_h3931172085
+      Value: Y3J5c3RhbF9ldmVudF8xNzY4MDMzOTc4AA==
+      Kind: Binary
+    - Name: event_currency_red_crystal_h44175968
+      Value: MAA=
+      Kind: Binary
+    - Name: event_currency_blue_crystal_h33002765
+      Value: MAA=
+      Kind: Binary
+    - Name: event_booster_crystal_golems_h1348371865
+      Value: 0
+      Kind: DWord
+    - Name: event_booster_crystal_boost_1_h1821777389
+      Value: 0
+      Kind: DWord
+    - Name: event_booster_crystal_boost_2_h1821777390
+      Value: 0
+      Kind: DWord
+    - Name: Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507_nextSpawnTime_h1010683659
+      Value: 0
+      Kind: DWord
+    - Name: Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507_savedCount_h3158854116
+      Value: 0
+      Kind: DWord
+    - Name: Eventspawner_MiniBoss_ae45f65b28328c04abd43feb495413ee_nextSpawnTime_h2213351492
+      Value: 0
+      Kind: DWord
+    - Name: Eventspawner_MiniBoss_ae45f65b28328c04abd43feb495413ee_savedCount_h1035941131
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_gems_1_h2301779088
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_gems_2_h2301779091
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_gems_3_h2301779090
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_gems_4_h2301779093
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_gems_5_h2301779092
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_gems_6_h2301779095
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_chest_1_h2499152325
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_chest_2_h2499152326
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_chest_3_h2499152327
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_chest_4_h2499152320
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_chest_5_h2499152321
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_chest_6_h2499152322
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_1_h3702480903
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_2_h3702480900
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_3_h3702480901
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_4_h3702480898
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_5_h3702480899
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_6_h3702480896
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_7_h3702480897
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_8_h3702480910
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_damage_9_h3702480911
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_health_1_h3070366064
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_health_2_h3070366067
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_health_3_h3070366066
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_regen_1_h2697869623
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_regen_2_h2697869620
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_regen_3_h2697869621
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_1_h4089726662
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_2_h4089726661
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_3_h4089726660
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_4_h4089726659
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_5_h4089726658
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_6_h4089726657
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_7_h4089726656
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_8_h4089726671
+      Value: 0
+      Kind: DWord
+    - Name: shop_lot_claimed_defence_9_h4089726670
+      Value: 0
+      Kind: DWord
+    - Name: Spawner_mid_common_helm_917976461ec63444bbad4f113bb7f0c0_nextSpawnTime_h1861704683
+      Value: 1768113171
+      Kind: DWord
+    - Name: tree_1 (21)_072b2c759cf3e71448210963391cfe87_nextSpawnTime_h4223704269
+      Value: 1768112091
+      Kind: DWord
+    - Name: tree_1 (24)_eaa1df679954583418834ecfd048d4f3_nextSpawnTime_h3446668948
+      Value: 1768112092
+      Kind: DWord
+    - Name: tree_1 (34)_9138247b180f2ba4c8d500bce67aaa4b_nextSpawnTime_h2301638032
+      Value: 1768009113
+      Kind: DWord
+    - Name: Spawner_boss (3)_bc2e140451c6ebf499cde623654dc144_nextSpawnTime_h2792682439
+      Value: 1768009908
+      Kind: DWord
+    - Name: Spawner_1 (11)_234ef34b340e2e64d9b766859c5a51c9_nextSpawnTime_h1511560654
+      Value: 1768009525
+      Kind: DWord
+    - Name: Spawner_1 (15)_b4bca5c812b08e441835ff1e10898109_nextSpawnTime_h2926752260
+      Value: 1768009146
+      Kind: DWord
+    - Name: tree_1 (23)_e7b16dcd90d194b4d9f023e360b9a1dc_nextSpawnTime_h2783580609
+      Value: 1768009129
+      Kind: DWord
+    - Name: Spawner_1 (14)_db0c7bf0aa974394e8a4db38f7c6312f_nextSpawnTime_h1494042063
+      Value: 1768009129
+      Kind: DWord
+    - Name: tree_1 (22)_72995488b27c0994995254c43fce11ac_nextSpawnTime_h439187553
+      Value: 1768009130
+      Kind: DWord
+    - Name: DeathsCount_h3560789481
+      Value: 15
+      Kind: DWord
+    - Name: tree_1 (1)_a52b795a7aeb0004abbd73f77d0f9d07_nextSpawnTime_h3727941744
+      Value: 1768009135
+      Kind: DWord
+    - Name: tree_1 (12)_f619881f90f1e6d41bbca6ea9cf394f7_nextSpawnTime_h2711495622
+      Value: 1768009577
+      Kind: DWord
+    - Name: tree_1 (14)_7b19fb3d34d616e488673565e83e3098_nextSpawnTime_h1652965056
+      Value: 1768112077
+      Kind: DWord
+    - Name: tree_1 (13)_4152e573f3ab1904c802f954763faa16_nextSpawnTime_h479167711
+      Value: 1768009514
+      Kind: DWord
+    - Name: Spawner_1 (9)_50b66719bd5198c44b947d1fabe8c48c_nextSpawnTime_h1608460343
+      Value: 1768009694
+      Kind: DWord
+    - Name: tree_1 (20)_9c3258cc33a5e2240b08c736041ce070_nextSpawnTime_h1955518427
+      Value: 1768009455
+      Kind: DWord
+    - Name: tree_1 (26)_973d15dd87d2ae5439cc22ee7505479e_nextSpawnTime_h1342240530
+      Value: 1768009485
+      Kind: DWord
+    - Name: tree_1 (23)_24de8d36840e87349a4ec2f73d8d8fc4_nextSpawnTime_h2676679232
+      Value: 1768009456
+      Kind: DWord
+    - Name: tree_1 (22)_84d9c1c58f61af0499f65aa538dfdc45_nextSpawnTime_h3733411573
+      Value: 1768009456
+      Kind: DWord
+    - Name: tree_1 (33)_2925d845e86aa1d4a830bca58dde6c49_nextSpawnTime_h3680528596
+      Value: 1768009487
+      Kind: DWord
+    - Name: Spawner_1 (11)_0378dca414b966647aa9e60f40362273_nextSpawnTime_h4233234531
+      Value: 1768009700
+      Kind: DWord
+    - Name: tree_1 (40)_83a0c48febc089a4ca2023aae1d83f53_nextSpawnTime_h1772741960
+      Value: 1768009522
+      Kind: DWord
+    - Name: Spawner_1 (12)_aa5d47556dd74c54c8e5d8789366e9e8_nextSpawnTime_h525464314
+      Value: 1768009703
+      Kind: DWord
+    - Name: tree_1 (44)_4303ed654d4f8664e922175c0b26359d_nextSpawnTime_h4285809164
+      Value: 1768009523
+      Kind: DWord
+    - Name: tree_1 (46)_cb86642f878b5d444a3f79588f5cae28_nextSpawnTime_h3411929727
+      Value: 1768009523
+      Kind: DWord
+    - Name: Spawner_1 (10)_931c032d4721ac4439c9db018df0bfd9_nextSpawnTime_h3256006981
+      Value: 1768009784
+      Kind: DWord
+    - Name: tree_1 (42)_06c400056b1eeae46872da2181662380_nextSpawnTime_h775549423
+      Value: 1768009628
+      Kind: DWord
+    - Name: tree_1 (48)_5ecf83ad95b726d4a9aa1926b91d076d_nextSpawnTime_h2822456144
+      Value: 1768009630
+      Kind: DWord
+    - Name: tree_1 (45)_6c298b2dc4b0eca4d876073ed12347c3_nextSpawnTime_h620691723
+      Value: 1768009633
+      Kind: DWord
+    - Name: tree_1 (47)_af04af96c23a4bb42a4fea169f5e2718_nextSpawnTime_h2253183759
+      Value: 1768009634
+      Kind: DWord
+    - Name: Spawner_1 (15)_92b8096efd3083144bd398c88944ad0e_nextSpawnTime_h2442381925
+      Value: 1768009647
+      Kind: DWord
+    - Name: tree_1 (23)_5f739803ba0fa62499437e9f785a01c6_nextSpawnTime_h937503952
+      Value: 1768009598
+      Kind: DWord
+    - Name: tree_1 (10)_80c082f4b6f47b047b42948c1b11e989_nextSpawnTime_h2295518299
+      Value: 1768010137
+      Kind: DWord
+    - Name: tree_1 (19)_c60b20bd79075e54fb493695463cec29_nextSpawnTime_h960491561
+      Value: 1768112070
+      Kind: DWord
+    - Name: tree_1 (14)_052e22a3d697e73429c7f41fc11fc597_nextSpawnTime_h227027758
+      Value: 1768112070
+      Kind: DWord
+    - Name: tree_1 (15)_d2e7e2d6bcb50df4f8e9daf696330655_nextSpawnTime_h584732078
+      Value: 1768112064
+      Kind: DWord
+    - Name: Spawner_1 (12)_ea83be2c6305e254d80537de7ef59719_nextSpawnTime_h3596868888
+      Value: 1768031663
+      Kind: DWord
+    - Name: Gems_h2088707321
+      Value: MTQwMDAA
+      Kind: Binary
+    - Name: Spawner_1 (6)_8d5c452054338684da7d7df9b6100d00_nextSpawnTime_h1081079816
+      Value: 1768010456
+      Kind: DWord
+    - Name: tree_1 (40)_8ddae974d7ae3be4583ab1f8f1b733f3_nextSpawnTime_h1467442069
+      Value: 1768112084
+      Kind: DWord
+    - Name: Spawner_vip_3 (1)_10c6bdf18e8c18f41b1193468ccfa335_nextSpawnTime_h516949381
+      Value: 1768032156
+      Kind: DWord
+    - Name: Spawner_vip_3 (2)_a516005768f0dd34e93746a6796de3b2_nextSpawnTime_h2083492630
+      Value: 1768032157
+      Kind: DWord
+    - Name: Spawner_vip_3 (4)_6a4e42a46b83ced42ae79a5597e4ee50_nextSpawnTime_h4188301206
+      Value: 1768032157
+      Kind: DWord
+    - Name: Spawner_vip_3 (3)_6810cbb8be704d14d85df2390cbce922_nextSpawnTime_h455765522
+      Value: 1768032158
+      Kind: DWord
+    - Name: Spawner_vip_3 (5)_54bf83bd208c27f46bf004ddbbecbd3a_nextSpawnTime_h2419628698
+      Value: 1768032158
+      Kind: DWord
+    - Name: tree_1 (29)_46893f458fe13fe44bcc688a0f381f60_nextSpawnTime_h4097145466
+      Value: 1768010718
+      Kind: DWord
+    - Name: Spawner_vip_3 (5)_6b71b8fbe46b3644fa287788aa799809_nextSpawnTime_h3380161679
+      Value: 1768133517
+      Kind: DWord
+    - Name: Spawner_vip_3 (3)_8c06d07eb36f1b74d85172abdf70b53c_nextSpawnTime_h1175438840
+      Value: 1768032195
+      Kind: DWord
+    - Name: Spawner_vip_3 (1)_e3e6ee7d1b28abb4da969786bb0745b7_nextSpawnTime_h1736724015
+      Value: 1768032195
+      Kind: DWord
+    - Name: Spawner_vip_3 (4)_0fdb30a8a2a4ec34e9cf2ebdb72cb0bb_nextSpawnTime_h1306290234
+      Value: 1768133516
+      Kind: DWord
+    - Name: Spawner_vip_3 (2)_61f58815fd5092447819eae53ee8d8e6_nextSpawnTime_h908748580
+      Value: 1768133515
+      Kind: DWord
+    - Name: days_since_install_h4237301241
+      Value: 1
+      Kind: DWord
+    - Name: Mails_Data_h3117230160
+      Value: eyJNYWlscyI6W119AA==
+      Kind: Binary
+    - Name: event_analytics_last_skipped_stamp_crystal_event_h3082372592
+      Value: MTZfMTFfMDFfMjYA
+      Kind: Binary
+    - Name: Spawner_1_204f565dc8ce4dd44b8125a84ce994e9_nextSpawnTime_h1476289194
+      Value: 1768112017
+      Kind: DWord
+    - Name: tree_1 (26)_8774f5302f067a64d94b9f6e2f76e044_nextSpawnTime_h4292755356
+      Value: 1768112109
+      Kind: DWord
+    - Name: Spawner_1 (17)_f5cc635ddc1015b4d8a47066bcd6b4cd_nextSpawnTime_h3865870230
+      Value: 1768112090
+      Kind: DWord
+    - Name: Spawner_1 (10)_fcb7c6725892f23419598b65c91a122a_nextSpawnTime_h3882604476
+      Value: 1768112473
+      Kind: DWord
+    - Name: tree_1 (27)_bd3e7d8038bddda4f8182097f1096934_nextSpawnTime_h680861054
+      Value: 1768112213
+      Kind: DWord
+    - Name: Spawner_15_medium_uncommon_pierce_shield (10)_8a8d91deca874fb4facfefd332503f02_nextSpawnTime_h3999860967
+      Value: 1768112236
+      Kind: DWord
+    - Name: Spawner_15_medium_common_pierce_helm (4)_0cda4bf72f15f4a47915c1cdcc272fe5_nextSpawnTime_h267399778
+      Value: 1768112195
+      Kind: DWord
+    - Name: Spawner_15_knight (2)_4b0e36e3f57f54f499718d1a921862cb_nextSpawnTime_h2940100972
+      Value: 1768113199
+      Kind: DWord
+    - Name: Spawner_15_medium_common_buck_shield (5)_001bc3658ceb98c4580e089a1cabd44d_nextSpawnTime_h2133283724
+      Value: 1768112273
+      Kind: DWord
+    - Name: event_baked_reward_daily1_h3527909664
+      Value: eyJUeXBlIjoyMCwiVmFsdWUiOjUzNDkwLjE1MjM0Mzc1fQA=
+      Kind: Binary
+    - Name: event_baked_reward_daily2_h3527909667
+      Value: eyJUeXBlIjo2LCJWYWx1ZSI6MTMwMjYuMjc5Mjk2ODc1fQA=
+      Kind: Binary
+    - Name: event_baked_reward_daily3_h3527909666
+      Value: eyJUeXBlIjoxMiwiVmFsdWUiOjExODQ1LjY5MTQwNjI1fQA=
+      Kind: Binary
+    - Name: DailyChestCooldownTimestamp_h2436472902
+      Value: 1768223474
+      Kind: DWord
+    - Name: Spawner_15_elite (3)_3efdddfdfe85d8a418a98417f2382bfd_nextSpawnTime_h345615200
+      Value: 1768136581
+      Kind: DWord
+    - Name: Spawner_17_easy (3)_932cc4f53ca3e1241b3eda1168ec8871_nextSpawnTime_h1362328347
+      Value: 1768112625
+      Kind: DWord
+    - Name: tree_17 (20)_c58e017cf4065cc4fbc82dc014f9db14_nextSpawnTime_h719613272
+      Value: 1768112873
+      Kind: DWord
+    - Name: Spawner_17_easy (5)_1ab5e2ab42564854e90bf6105ec64f13_nextSpawnTime_h3704586957
+      Value: 1768112606
+      Kind: DWord
+    - Name: Spawner_17_knight (2)_be5562d904308b84cb70231e000eba08_nextSpawnTime_h3696246656
+      Value: 1768113358
+      Kind: DWord
+    - Name: Spawner_17_death_1c2b475708fba0e4b8504207f1f89bd1_nextSpawnTime_h1354520012
+      Value: 1768142668
+      Kind: DWord
+    - Name: Spawner_17_elite (2)_b64d4d5102274c84ca10c41ced346019_nextSpawnTime_h3718931174
+      Value: 1768142676
+      Kind: DWord
+    - Name: tree_17 (6)_9a88b035d9bdc9a4285ab9f561cf32ce_nextSpawnTime_h1360002415
+      Value: 1768112902
+      Kind: DWord
+    - Name: Spawner_17_easy (1)_52530464dfd8ecb4f9ea5c0ac7149df7_nextSpawnTime_h4144091920
+      Value: 1768112542
+      Kind: DWord
+    - Name: Spawner_16_elite (5)_915d1e5833d4fc443a2297bc05adfd8b_nextSpawnTime_h3513714386
+      Value: 1768139723
+      Kind: DWord
+    - Name: Spawner_16_elite (2)_ddcc749c5f492e94b9e1e3b4fc5df5bc_nextSpawnTime_h4173161873
+      Value: 1768139730
+      Kind: DWord
+    - Name: tree_16 (16)_e1cbe019eabd94540aff2c20aef4991e_nextSpawnTime_h3398718450
+      Value: 1768112833
+      Kind: DWord
+    - Name: Spawner_16_knight (3)_62763a22e3313284898dddf001dc1bb3_nextSpawnTime_h1546260707
+      Value: 1768113437
+      Kind: DWord
+    - Name: tree_16 (18)_c204a738242010440b8171970655c92b_nextSpawnTime_h1924756136
+      Value: 1768112841
+      Kind: DWord

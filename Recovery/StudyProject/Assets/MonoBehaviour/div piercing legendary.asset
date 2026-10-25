@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: div piercing legendary
+  m_EditorClassIdentifier:
+  Key: chainsawpike_div
+  Rarity: 5
+  SlotType: 0
+  DamageType: 0
+  DamageStatTypeFlat: 6
+  DamageStatTypePercent: 7
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 2
+  Number: 5
+  AnimationCastPoint: 0.4
+  AnimationBackPoint: 0.6
+  Icon: {fileID: 21300000, guid: a562a293bc58d30499777147945d1c12, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114884547391421755, guid: 7ea148907ebf4a84b89ce981f4e9877d, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pierce_legendary_div_ability
+    Trigger: 2
+    Conditions: []
+    Effects:
+    - rid: 5034610377483092211
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 0.1
+    Chance: 0
+    StackLimit: 10
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 5034610377483092211
+      type: {class: WeaponStatStackEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 1
+        Duration: 30
+        ResetOnTargetChange: 0

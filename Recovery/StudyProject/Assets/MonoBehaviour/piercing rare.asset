@@ -1,0 +1,178 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: piercing rare
+  m_EditorClassIdentifier:
+  Key: pick
+  Rarity: 2
+  SlotType: 0
+  DamageType: 0
+  DamageStatTypeFlat: 6
+  DamageStatTypePercent: 7
+  FlatDamage: 0
+  AttackCooldown: 0.84
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.8125
+  AnimationBackPoint: 0.44
+  Icon: {fileID: 21300000, guid: 3fd70aae0cd3e07478a105e6e0de1fed, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114618682377417806, guid: bc881bb45ec7a824cbc8abcfee0403eb, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: weapon_pierce_rare_ability_1
+    Trigger: 0
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972041
+    - rid: 6613836593968972042
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.25
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.35
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.45
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.55
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: weapon_pierce_rare_ability_2
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 6613836593968972046
+    - rid: 6613836593968972047
+    ConditionMode: 0
+    UnlockLevel: 2
+    Value: 0.01
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.012
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.014
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.016
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.018
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.02
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: weapon_pierce_rare_ability_3
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 6613836670183669997
+    - rid: 6613836593968972049
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.03
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.04
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.05
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.06
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 6613836593968972041
+      type: {class: AddStatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 25
+        ModifierType: 6
+        Source: 1
+        Duration: 0
+        ValueScaling: 0
+        ScalingStat: 0
+        UseDailyProcLimit: 0
+        DailyProcLimit: 1
+    - rid: 6613836593968972042
+      type: {class: GuaranteedCritEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 6613836593968972046
+      type: {class: AddWeaponSuperCritChanceEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 3
+        ScalingStat: 0
+    - rid: 6613836593968972047
+      type: {class: IncreaseMaxMarksEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 0
+        Count: 1
+        Scaling: 0
+        ScalingStat: 0
+    - rid: 6613836593968972049
+      type: {class: IncreaseMaxMarksEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 0
+        Count: 1
+        Scaling: 0
+        ScalingStat: 0
+    - rid: 6613836670183669997
+      type: {class: AddWeaponSuperCritDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 3
+        ScalingStat: 0

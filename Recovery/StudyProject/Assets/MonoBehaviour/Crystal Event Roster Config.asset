@@ -1,0 +1,865 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7f787806c14554e8089f5d57cec8585, type: 3}
+  m_Name: Crystal Event Roster Config
+  m_EditorClassIdentifier:
+  ForecastSettings:
+    DurationMinutes: 120
+    InitialMobSpawnCount: 10
+    MinutesAhead: 1000
+    StepMinutes: 100
+    SnapshotsPerFrame: 3
+    RewardAllowedStats: 01000000020000001600000008000000060000000c000000100000000e00000014000000
+    AutoBalanceInput:
+      ForecastLocationNumber: 0
+      BossSnapshotTimingStep: 0
+      EnemyAttackType: 1
+      ResistStabbing: 0.5
+      ResistCutting: 1
+      ResistBuckshot: 0.5
+      EnemyStatsGrowthPerMinute: 0.02
+      DamageRampDelaySeconds: 5
+      DamageRampPercentPerSecond: 0.04
+      EventLastBossMinute: 150
+      EventEndMinute: 200
+      EventBossCount: 10
+      EventBossGamma: 1
+      EventBossMinutes:
+      - 0
+      - 10
+      - 25
+      - 40
+      - 55
+      - 60
+      - 80
+      - 100
+      - 120
+      - 135
+      - 150
+      - 165
+      - 180
+      - 195
+      - 210
+      - 300
+      - 400
+      - 500
+      - 600
+      - 700
+      RandomBossResists: 0
+      RewardMinutesMin: 5
+      RewardMinutesMax: 15
+      BossFightTimeSecondsMin: 15
+      BossFightTimeSecondsMax: 25
+      BossDifficultyMin: 0.6
+      BossDifficultyMax: 1
+      RewardMinutes: 7.5
+    EnemyPresets:
+      Golem:
+        FightTimeSeconds: 8
+        Difficulty: 0.2
+      Boss:
+        FightTimeSeconds: 20
+        Difficulty: 1
+      GrandBoss:
+        FightTimeSeconds: 40
+        Difficulty: 1
+  BossMinutes:
+  - 10
+  - 20
+  - 30
+  - 40
+  - 60
+  - 60
+  - 80
+  - 100
+  - 120
+  - 150
+  - 200
+  - 250
+  - 300
+  - 350
+  - 450
+  - 500
+  - 600
+  - 700
+  - 800
+  - 1000
+  Stages:
+  - Rewards:
+    - rid: 4520564508614983895
+    - rid: 4520564508614983896
+  - Rewards:
+    - rid: 4520564508614983897
+    - rid: 4520564508614983898
+  - Rewards:
+    - rid: 4520564508614983899
+    - rid: 4520564508614983900
+  - Rewards:
+    - rid: 4520564508614983901
+    - rid: 4520564508614983902
+  - Rewards:
+    - rid: 4520564508614983903
+  - Rewards:
+    - rid: 4520564508614983905
+    - rid: 4520564508614983906
+  - Rewards:
+    - rid: 4520564508614983907
+  - Rewards:
+    - rid: 4520564508614983910
+  - Rewards:
+    - rid: 4520564508614983912
+    - rid: 4520564508614983913
+    - rid: 4520564508614983914
+  - Rewards:
+    - rid: 4520564508614983915
+  - Rewards:
+    - rid: 4520564508614983917
+    - rid: 4520564508614983918
+    - rid: 4520564508614983919
+  - Rewards: []
+  - Rewards:
+    - rid: 4520564508614983923
+    - rid: 4520564508614983924
+  - Rewards:
+    - rid: 4520564508614983926
+    - rid: 4520564508614983927
+    - rid: 4520564508614983928
+    - rid: 4520564508614983925
+  - Rewards:
+    - rid: 4520564508614983921
+  - Rewards:
+    - rid: 4520564508614983932
+    - rid: 4520564508614983933
+    - rid: 4520564508614983934
+  - Rewards:
+    - rid: 4520564508614983935
+    - rid: 4520564508614983936
+    - rid: 4520564508614983937
+    - rid: 4520564508614983938
+  - Rewards:
+    - rid: 4520564508614983939
+    - rid: 4520564508614983941
+    - rid: 4520564508614983942
+  - Rewards:
+    - rid: 4520564508614983940
+  - Rewards: []
+  Milestones:
+  - RequiredCrystals: 50
+    Rewards:
+    - rid: 4520564508614983946
+    - rid: 4520564508614983947
+    - rid: 4520564508614983948
+  - RequiredCrystals: 180
+    Rewards:
+    - rid: 4520564508614983949
+    - rid: 4520564508614983950
+    - rid: 4520564508614983951
+  - RequiredCrystals: 400
+    Rewards:
+    - rid: 4520564508614983952
+  - RequiredCrystals: 800
+    Rewards:
+    - rid: 4520564508614983953
+    - rid: 4520564508614983954
+    - rid: 4520564508614983955
+  Leagues:
+  - Name: BRONZE
+    TitleColor: '#FFA348'
+    TextIcon: League_Atlas_0
+    SnapshotIslandNumber: 4
+    BossesToAdvance: 15
+    Icon: {fileID: 21300000, guid: 6619d6d25f18ab14c8deabfb290d46fe, type: 2}
+    innerBgColor: {r: 0.9622642, g: 0.7681129, b: 0.5764507, a: 1}
+    frameBgColor: {r: 0.8039216, g: 0.49803922, b: 0.19607843, a: 1}
+  - Name: SILVER
+    TitleColor: '#C0C0C0'
+    TextIcon: League_Atlas_1
+    SnapshotIslandNumber: 7
+    BossesToAdvance: 15
+    Icon: {fileID: 21300000, guid: 1f2d50848d65d954c9370f329b0e284d, type: 2}
+    innerBgColor: {r: 0.6431373, g: 0.65882355, b: 0.92941177, a: 1}
+    frameBgColor: {r: 0.38039216, g: 0.4392157, b: 0.8117647, a: 1}
+  - Name: GOLD
+    TitleColor: '#FFD700'
+    TextIcon: League_Atlas_2
+    SnapshotIslandNumber: 10
+    BossesToAdvance: 15
+    Icon: {fileID: 21300000, guid: 4479d8f6e8768a44f839af98736e570e, type: 2}
+    innerBgColor: {r: 1, g: 0.85155386, b: 0.495283, a: 1}
+    frameBgColor: {r: 0.9622642, g: 0.6792453, b: 0, a: 1}
+  - Name: PLATINUM
+    TitleColor: '#E5E4E2'
+    TextIcon: League_Atlas_3
+    SnapshotIslandNumber: 13
+    BossesToAdvance: 15
+    Icon: {fileID: 21300000, guid: d45f38c9023cf084ba72753e34b4f8e5, type: 2}
+    innerBgColor: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
+    frameBgColor: {r: 0.8980392, g: 0.89411765, b: 0.8862745, a: 1}
+  - Name: DIAMOND
+    TitleColor: '#B9F2FF'
+    TextIcon: League_Atlas_4
+    SnapshotIslandNumber: 16
+    BossesToAdvance: 15
+    Icon: {fileID: 21300000, guid: 0e7ead3d93e5fb3418fac61f5cedda44, type: 2}
+    innerBgColor: {r: 0, g: 0.8156863, b: 1, a: 1}
+    frameBgColor: {r: 0, g: 0.50980395, b: 0.7647059, a: 1}
+  references:
+    version: 2
+    RefIds:
+    - rid: 4520564508614983895
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 0
+        SlotType: 0
+        SaveKey: cr_0_weapon
+        Level: 2
+    - rid: 4520564508614983896
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 010000000200000016000000
+        DailyRotationStats: []
+        SaveKey: cr_0_stat
+        Type: 0
+        Value: 12
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983897
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 1
+        SlotType: 0
+        SaveKey: cr_1_weapon
+        Level: 2
+    - rid: 4520564508614983898
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 08000000060000000c000000
+        DailyRotationStats: []
+        SaveKey: cr_1_stat
+        Type: 0
+        Value: 14
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983899
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 2
+        SlotType: 0
+        SaveKey: cr_2_weapon
+        Level: 2
+    - rid: 4520564508614983900
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 100000000e00000014000000
+        DailyRotationStats: []
+        SaveKey: cr_2_attack
+        Type: 0
+        Value: 16
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983901
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 0
+        SlotType: 0
+        SaveKey: cr_3_weapon1
+        Level: 3
+    - rid: 4520564508614983902
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 1
+        SlotType: 0
+        SaveKey: cr_3_weapon2
+        Level: 3
+    - rid: 4520564508614983903
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 010000000200000016000000
+        DailyRotationStats: []
+        SaveKey: cr_4_attack
+        Type: 0
+        Value: 20
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983905
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 0
+        SlotType: 1
+        SaveKey: cr_5_armor
+        Level: 5
+    - rid: 4520564508614983906
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 08000000060000000c000000
+        DailyRotationStats: []
+        SaveKey: cr_5_stat
+        Type: 0
+        Value: 22
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983907
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 100000000e00000014000000
+        DailyRotationStats: []
+        SaveKey: cr_6_defence
+        Type: 0
+        Value: 24
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983910
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 0
+        SlotType: 0
+        SaveKey: cr_7_weapon
+        Level: 7
+    - rid: 4520564508614983912
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 1
+        SlotType: 0
+        SaveKey: cr_8_weapon
+        Level: 5
+    - rid: 4520564508614983913
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 010000000200000016000000
+        DailyRotationStats: []
+        SaveKey: cr_8_attack
+        Type: 0
+        Value: 28
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983914
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 1
+        SlotType: 1
+        SaveKey: cr_8_armor
+        Level: 3
+    - rid: 4520564508614983915
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 08000000060000000c000000
+        DailyRotationStats: []
+        SaveKey: cr_9_stat
+        Type: 0
+        Value: 30
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983917
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 3
+        SlotType: 0
+        SaveKey: cr_10_weapon
+        Level: 5
+    - rid: 4520564508614983918
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 2
+        SlotType: 2
+        SaveKey: cr_10_shield
+        Level: 5
+    - rid: 4520564508614983919
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 100000000e00000014000000
+        DailyRotationStats: []
+        SaveKey: cr_10_stat
+        Type: 0
+        Value: 32
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983921
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 100000000e00000014000000
+        DailyRotationStats: []
+        SaveKey: cr_14_defence
+        Type: 0
+        Value: 40
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983923
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 4
+        SlotType: 0
+        SaveKey: cr_12_weapon
+        Level: 5
+    - rid: 4520564508614983924
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 010000000200000016000000
+        DailyRotationStats: []
+        SaveKey: cr_12_attack
+        Type: 0
+        Value: 36
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983925
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 08000000060000000c000000
+        DailyRotationStats: []
+        SaveKey: cr_13_attack
+        Type: 0
+        Value: 38
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983926
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 0
+        SlotType: 2
+        SaveKey: cr_13_shield1
+        Level: 6
+    - rid: 4520564508614983927
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 1
+        SlotType: 2
+        SaveKey: cr_13_shield2
+        Level: 5
+    - rid: 4520564508614983928
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 2
+        SlotType: 2
+        SaveKey: cr_13_shield3
+        Level: 4
+    - rid: 4520564508614983932
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 0
+        SlotType: 0
+        SaveKey: cr_15_weapon1
+        Level: 10
+    - rid: 4520564508614983933
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 1
+        SlotType: 0
+        SaveKey: cr_15_weapon2
+        Level: 10
+    - rid: 4520564508614983934
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 2
+        SlotType: 0
+        SaveKey: cr_15_weapon3
+        Level: 8
+    - rid: 4520564508614983935
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 010000000200000016000000
+        DailyRotationStats: []
+        SaveKey: cr_16_defence
+        Type: 0
+        Value: 44
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983936
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 0
+        SlotType: 1
+        SaveKey: cr_16_armor1
+        Level: 10
+    - rid: 4520564508614983937
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 1
+        SlotType: 1
+        SaveKey: cr_16_armor2
+        Level: 10
+    - rid: 4520564508614983938
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 2
+        SlotType: 1
+        SaveKey: cr_16_armor3
+        Level: 8
+    - rid: 4520564508614983939
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 08000000060000000c000000
+        DailyRotationStats: []
+        SaveKey: cr_17_stat1
+        Type: 0
+        Value: 46
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983940
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        UseGpm: 1
+        CustomModifier: 0
+        DailyRotation: 0
+        AllowedStats: 100000000e00000014000000
+        DailyRotationStats: []
+        SaveKey: cr_18_defence
+        Type: 0
+        Value: 48
+        Name:
+        Source: 0
+        ModifierType: 0
+    - rid: 4520564508614983941
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 3
+        SlotType: 0
+        SaveKey: cr_17_weapon1
+        Level: 10
+    - rid: 4520564508614983942
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 1
+        Def: {fileID: 0}
+        Rarity: 4
+        SlotType: 0
+        SaveKey: cr_17_weapon2
+        Level: 5
+    - rid: 4520564508614983946
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 1
+        - Empty: 0
+          Type: 9
+        - Empty: 0
+          Type: 7
+        - Empty: 0
+          Type: 13
+        SaveKey:
+        Type: 0
+        Value: 1
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983947
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 2
+        - Empty: 0
+          Type: 21
+        - Empty: 0
+          Type: 17
+        - Empty: 0
+          Type: 15
+        SaveKey:
+        Type: 0
+        Value: 1
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983948
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 22
+        - Empty: 1
+          Type: 0
+        - Empty: 1
+          Type: 0
+        - Empty: 1
+          Type: 0
+        SaveKey:
+        Type: 0
+        Value: 1
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983949
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 1
+        - Empty: 0
+          Type: 9
+        - Empty: 0
+          Type: 7
+        - Empty: 0
+          Type: 13
+        SaveKey:
+        Type: 0
+        Value: 3
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983950
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 2
+        - Empty: 0
+          Type: 21
+        - Empty: 0
+          Type: 17
+        - Empty: 0
+          Type: 15
+        SaveKey:
+        Type: 0
+        Value: 3
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983951
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 22
+        - Empty: 1
+          Type: 0
+        - Empty: 1
+          Type: 0
+        - Empty: 1
+          Type: 0
+        SaveKey:
+        Type: 0
+        Value: 3
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983952
+      type: {class: ItemReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        Def: {fileID: 11400000, guid: 2235966b3d9e21748a043d2143910640, type: 2}
+        Rarity: 0
+        SlotType: 0
+        SaveKey:
+        Level: 5
+    - rid: 4520564508614983953
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 1
+        - Empty: 0
+          Type: 9
+        - Empty: 0
+          Type: 7
+        - Empty: 0
+          Type: 13
+        SaveKey:
+        Type: 0
+        Value: 15
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983954
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 2
+        - Empty: 0
+          Type: 21
+        - Empty: 0
+          Type: 17
+        - Empty: 0
+          Type: 15
+        SaveKey:
+        Type: 0
+        Value: 15
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7
+    - rid: 4520564508614983955
+      type: {class: StatReward, ns: Codebase.Rewards, asm: Assembly-CSharp}
+      data:
+        IsRandom: 0
+        UseGpm: 0
+        CustomModifier: 1
+        DailyRotation: 1
+        AllowedStats:
+        DailyRotationStats:
+        - Empty: 0
+          Type: 22
+        - Empty: 1
+          Type: 0
+        - Empty: 1
+          Type: 0
+        - Empty: 1
+          Type: 0
+        SaveKey:
+        Type: 0
+        Value: 15
+        Name: crystal_event
+        Source: 12
+        ModifierType: 7

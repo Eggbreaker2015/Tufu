@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: cut_legendary_helmet
+  m_EditorClassIdentifier:
+  Key: flare_shell
+  Rarity: 4
+  SlotType: 1
+  DamageType: 1
+  DamageStatTypeFlat: 16
+  DamageStatTypePercent: 17
+  FlatDamage: 0
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.67
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 3a9046cf710e8e24e8233f3392909ed6, type: 2}
+  DivineIcon: {fileID: 21300000, guid: acbf907646a863140bff950c362bac4e, type: 2}
+  Prefab: {fileID: 114099118695303065, guid: ad9b748fc5bbdc04d8040e768b3224ee, type: 2}
+  DivinePrefab: {fileID: 114099118695303065, guid: ad9b748fc5bbdc04d8040e768b3224ee, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: shield_cut_legendary_ability_1
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 5501375925149237357
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.01
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.011
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.012
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.013
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.014
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.016
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.018
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.02
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_cut_legendary_ability_2
+    Trigger: 7
+    Conditions:
+    - rid: 5501375925149237358
+    Effects:
+    - rid: 5501375925149237359
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 2
+    Chance: 0.1
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 2.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 2.8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 3.2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 3.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 4
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: shield_cut_legendary_ability_3
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 5501375925149237360
+    - rid: 5501375925149237361
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.002
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.003
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.004
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.005
+      ChanceOverride: 0
+      StacksOverride: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 5501375925149237357
+      type: {class: AddStatPassiveEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        StatType: 22
+        ModifierType: 4
+        Source: 3
+        ValueScaling: 1
+        NormalizeAboveThreshold: 0
+        ScalingStat: 0
+    - rid: 5501375925149237358
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 5501375925149237359
+      type: {class: BuffNextHitLifestealFlatEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 0
+        ScalingStat: 0
+    - rid: 5501375925149237360
+      type: {class: BoostAbilityChanceEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        TargetAbilityIndex: 1
+        ValueScaling: 3
+        ScalingStat: 0
+        BoostNextProcOnly: 0
+    - rid: 5501375925149237361
+      type: {class: IncreaseMaxMarksEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 0
+        Count: 1
+        Scaling: 0
+        ScalingStat: 0
