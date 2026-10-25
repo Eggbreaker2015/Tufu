@@ -10,6 +10,8 @@ namespace Codebase.UI
 
 		public void SetColor(Color color)
 		{
+			// Original APK ARM64 ELF VA 0x15d24c4: icon -> Graphic.set_color virtual call.
+			icon.color = color;
 		}
 	}
 }

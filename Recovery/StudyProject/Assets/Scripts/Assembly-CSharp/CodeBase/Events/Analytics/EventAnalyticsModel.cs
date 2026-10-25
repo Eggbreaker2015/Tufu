@@ -15,20 +15,26 @@ namespace Codebase.Events.Analytics
 		[Inject]
 		private ITimeService timeService;
 
-		public int LastOnlineUtcSeconds => 0;
+		// Original ELF VA0x14fc824; persisted online timestamp also gates the extension popup.
+		public int LastOnlineUtcSeconds => Data.LastOnlineUtcSeconds.Value;
 
 		public EventAnalyticsModel(Lifetime lifetime)
-			: base(default(Lifetime))
+			: base(lifetime)
 		{
 		}
 
 		public void MarkScheduleCheckUtc(int nowUtcSeconds)
-		{
-		}
+        {
+            // Original ELF VA0x14fc894.
+            Data.LastScheduleCheckUtcSeconds.Value = nowUtcSeconds;
+        }
 
 		public void HeartbeatUtc(int nowUtcSeconds)
-		{
-		}
+        {
+            // Original ELF VA0x14fc910: both stamps receive the same caller-provided seconds.
+            Data.LastOnlineUtcSeconds.Value = nowUtcSeconds;
+            Data.LastScheduleCheckUtcSeconds.Value = nowUtcSeconds;
+        }
 
 		public void MarkReady(EventModel eventModel, DateTime nowUtc)
 		{
@@ -88,8 +94,9 @@ namespace Codebase.Events.Analytics
 		}
 
 		private int NowUtcSeconds()
-		{
-			return 0;
-		}
+        {
+            // Original ELF VA0x14fd344; unused analytics methods remain outside this minimal restoration.
+            return unchecked((int)new DateTimeOffset(timeService.Now.ToDateTime().ToUniversalTime()).ToUnixTimeSeconds());
+        }
 	}
 }

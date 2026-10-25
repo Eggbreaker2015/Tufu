@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -60,20 +61,29 @@ namespace Codebase.UI.Events
 
 		public void Setup(int progress, int totalStages)
 		{
+			if (progressFill == null || stageTemplate == null) return;
+			progressFill.sizeDelta = new Vector2(progressFill.sizeDelta.x, stageTemplate.rect.height * Mathf.Clamp(progress, 0, totalStages));
+			if (isEnabled) return;
+			ScrollDown(progress, totalStages).Forget();
+			isEnabled = true;
 		}
 
-		[AsyncStateMachine(typeof(_003CScrollDown_003Ed__5))]
-		private UniTaskVoid ScrollDown(int progress, int totalStages)
+		private async UniTaskVoid ScrollDown(int progress, int totalStages)
 		{
-			return default;
+			await UniTask.Yield();
+			float contentHeight = content.rect.height;
+			float ownHeight = ((RectTransform)transform).rect.height;
+			content.DOLocalMoveY(ownHeight / totalStages * progress - contentHeight * 0.5f, 0.5f).SetEase(Ease.OutQuad);
 		}
 
 		private void OnDisable()
 		{
+			isEnabled = false;
 		}
 
 		private void LateUpdate()
 		{
+			progressFill.SetSiblingIndex(0);
 		}
 	}
 }

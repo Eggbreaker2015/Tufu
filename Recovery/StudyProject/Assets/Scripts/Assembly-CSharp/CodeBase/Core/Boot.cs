@@ -64,12 +64,9 @@ namespace Codebase.Core
             var disposer = Multicast.Disposer.WhileAppRunning;
             var rewardsInbox = new Multicast.Backend.BackendRewardInboxService(disposer);
             GameContext.Set<Multicast.RewardsInbox.IRewardsInboxService>(rewardsInbox);
-            Multicast.Payments.IPaymentsProvider provider;
-            if (Application.installerName == "ru.vk.store")
-                provider = new Multicast.Payments.RuStore.RuStorePaymentsProvider(disposer);
-            else
-                provider = new Multicast.Payments.Providers.PaymentWithAlternativesProvider(disposer, new Multicast.Payments.UnityIap.UnityIapPaymentsProvider(disposer), new Multicast.Payments.IPaymentsProvider[] { new Multicast.Payments.RuStore.RuStorePaymentsProvider(disposer) });
-            var payments = Multicast.Payments.PaymentsDebugLogExtensions.WithReportToDebugLog(Multicast.Payments.AppMetrica.PaymentsAppMetricaExtensions.WithReportToAppMetrica(new Multicast.Backend.BackendPaymentsService(disposer, provider, rewardsInbox), disposer), disposer);
+            // Learning adaptation: all purchase screens use the same local sandbox payment service.
+            var payments = new global::Codebase.Services.Purchases.StudyPaymentsService(GameContext.Get<global::Codebase.In_apps.UnityIAPManager>());
+            payments.Initialize();
             GameContext.Set<Multicast.Payments.IPaymentsService>(payments);
             var iapManager = new global::Codebase.In_apps.IAPManager(GameContext.Get<global::Codebase.In_apps.UnityIAPManager>(), payments);
             GameContext.Set(iapManager);

@@ -70,7 +70,7 @@ namespace Codebase.Integrations.Ads
             // Native ELF0x14c7f08.
             if (!isAdOffer) { OnGemsOfferClicked(); return; }
             if (userModel.NoAdsPurchased.Value) GrantRewardWithoutAd();
-            else if (MaxSdk.IsRewardedAdReady(ads.RewardedAdUnitId)) MaxSdk.ShowRewardedAd(ads.RewardedAdUnitId);
+            else if (ads.IsRewardedAdReady) ads.TryShowRewardedAd();
         }
 
 		private void GrantRewardWithoutAd()
@@ -112,7 +112,7 @@ namespace Codebase.Integrations.Ads
 		private void UpdateAdMode()
 		{
             // Native ELF0x14c8490.
-            if ((MaxSdk.IsRewardedAdReady(ads.RewardedAdUnitId) || userModel.NoAdsPurchased.Value) && ads.Duration > 0f) {
+            if ((ads.IsRewardedAdReady || userModel.NoAdsPurchased.Value) && ads.Duration > 0f) {
                 timer.fillAmount = ads.Duration / ads.MaxDuration;
                 if (!root.activeSelf) {
                     root.SetActive(true); doubleValue.SetActive(userModel.IsDoubleValue); value.text = userModel.CurrentRewardValue.Format(); timerText.text = ads.Duration.ToString("F0");

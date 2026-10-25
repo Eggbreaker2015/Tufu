@@ -22,7 +22,8 @@ namespace Codebase.Events
 
 		public EventStyle GetStyle(string eventKey)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x14dab34.
+			return Styles.First(item => item.Key == eventKey);
 		}
 
 		public EventCurrencyStyle GetCurrencyStyle(string currencyKey)
@@ -32,7 +33,8 @@ namespace Codebase.Events
 
 		public EventDifficultyStyle GetDifficultyStyle(EventDifficulty difficulty)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x14dad2c.
+			return DifficultyStyles.First(item => item.Difficulty == difficulty);
 		}
 	}
 }

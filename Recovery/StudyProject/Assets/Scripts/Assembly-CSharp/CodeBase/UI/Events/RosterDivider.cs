@@ -14,6 +14,10 @@ namespace Codebase.UI.Events
 
 		public void SetState(RosterDividerState rosterDivider)
 		{
+			PassedAndClaimedState.SetActive(false);
+			PassedNotClaimedState.SetActive(false);
+			if (rosterDivider == RosterDividerState.Claimed) PassedAndClaimedState.SetActive(true);
+			else if (rosterDivider == RosterDividerState.NotClaimed) PassedNotClaimedState.SetActive(true);
 		}
 	}
 }

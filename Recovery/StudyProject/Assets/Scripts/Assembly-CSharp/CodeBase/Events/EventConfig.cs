@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using Codebase.Enemy;
 using Codebase.UI;
@@ -56,12 +57,14 @@ namespace Codebase.Events
 
 		public EventDifficultySettings GetDifficultySettings(EventDifficulty difficulty)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x14d9198.
+			return DifficultySettings.FirstOrDefault(item => item.Difficulty == difficulty);
 		}
 
 		public bool HasDifficulty(EventDifficulty difficulty)
 		{
-			return false;
+			// Original APK ARM64 ELF VA 0x14d9288.
+			return DifficultySettings.Exists(item => item.Difficulty == difficulty);
 		}
 	}
 }

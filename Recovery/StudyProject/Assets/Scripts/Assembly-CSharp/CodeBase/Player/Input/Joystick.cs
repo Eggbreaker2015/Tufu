@@ -53,15 +53,53 @@ namespace Codebase.Player.Input
 		public void OnPointerUp(PointerEventData eventData)
 		{
 			// Native ELF VA 0x1466770: returns pad to its initial anchored position.
-			stick.anchoredPosition = Vector2.zero;
-			inputVector = Vector2.zero;
-			pad.anchoredPosition = defaultPosition;
+			ResetPointerInput();
 		}
 
 		public Vector2 GetInput()
 		{
-			// Native ELF VA 0x1466818.
-			return inputVector;
+			// Learning project extension: share the original movement/animation path.
+			if (!isActiveAndEnabled || !Application.isFocused || IsEditingText())
+				return Vector2.zero;
+
+			// The legacy axes already map WASD and arrow keys in InputManager.asset.
+			Vector2 keyboard = new Vector2(UnityEngine.Input.GetAxisRaw("Horizontal"), UnityEngine.Input.GetAxisRaw("Vertical"));
+			return keyboard.sqrMagnitude > 0f ? Vector2.ClampMagnitude(keyboard, 1f) : inputVector;
+		}
+
+		private static bool IsEditingText()
+		{
+#if UNITY_EDITOR
+			if (UnityEditor.EditorGUIUtility.editingTextField) return true;
+#endif
+			GameObject selected = EventSystem.current == null ? null : EventSystem.current.currentSelectedGameObject;
+			if (selected == null) return false;
+			UnityEngine.UI.InputField legacyField = selected.GetComponentInParent<UnityEngine.UI.InputField>();
+			if (legacyField != null && legacyField.isFocused) return true;
+			TMPro.TMP_InputField textField = selected.GetComponentInParent<TMPro.TMP_InputField>();
+			return textField != null && textField.isFocused;
+		}
+
+		private void OnDisable()
+		{
+			ResetPointerInput();
+		}
+
+		private void OnApplicationFocus(bool hasFocus)
+		{
+			if (!hasFocus) ResetPointerInput();
+		}
+
+		private void OnApplicationPause(bool paused)
+		{
+			if (paused) ResetPointerInput();
+		}
+
+		private void ResetPointerInput()
+		{
+			inputVector = Vector2.zero;
+			if (stick != null) stick.anchoredPosition = Vector2.zero;
+			if (pad != null) pad.anchoredPosition = defaultPosition;
 		}
 	}
 }

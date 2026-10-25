@@ -37,14 +37,26 @@ namespace Codebase.UI.VIP
 
 		protected override void Awake()
 		{
+            // Native 0x1604268.
+            base.Awake();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(OnButtonClick);
+            Initialize();
 		}
 
 		protected override void Render()
 		{
+            // Native 0x160432c.
+            notification.SetActive(vipModel.DailyChestCooldownRemaining == System.TimeSpan.Zero && vipModel.Level > 0);
+            visibilityAnimator.SetVisible(!bossTowerModel.IsFighting);
+            vipLevelTxt.text = string.Format("<sprite name=vip_2> {0}", vipModel.Level);
 		}
 
 		private void OnButtonClick()
 		{
+            // Native 0x1604490; bounded tail branch opens the original popup without background.
+            audioPlayer.PlaySoundOnce("tap");
+            navigator.Open<VipView>("Assets/Prefabs/UI/VIP/VIP.prefab");
 		}
 	}
 }

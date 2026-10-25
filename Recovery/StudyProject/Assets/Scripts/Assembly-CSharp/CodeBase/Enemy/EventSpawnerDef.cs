@@ -17,7 +17,7 @@ namespace Codebase.Enemy
 
 		public EventSpawnerVariant GetRandomVariant()
 		{
-			return null;
+			return Variants == null || Variants.Count == 0 ? null : Variants[UnityEngine.Random.Range(0, Variants.Count)];
 		}
 	}
 }

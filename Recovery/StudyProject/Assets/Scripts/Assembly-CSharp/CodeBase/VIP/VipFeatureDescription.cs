@@ -11,15 +11,18 @@ namespace Codebase.VIP
 
 		public string LocalizationKey;
 
-		public List<int> UpgradeLevels;
+		public List<int> UpgradeLevels = new List<int>();
 
 		public ItemConfig PreviewItemConfig;
 
-		public List<VipFeatureDescriptionLevel> LevelLocalizationOverrides;
+		public List<VipFeatureDescriptionLevel> LevelLocalizationOverrides = new List<VipFeatureDescriptionLevel>();
 
 		public string GetLocalizationKey(int level)
 		{
-			return null;
+            // Native 0x14abf5c: exact level override, then authored default (not nearest previous level).
+            foreach (VipFeatureDescriptionLevel entry in LevelLocalizationOverrides)
+                if (entry.Level == level) return entry.LocalizationKey;
+            return LocalizationKey;
 		}
 	}
 }

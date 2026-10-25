@@ -8,7 +8,8 @@ namespace Codebase.Events
 
 		public static bool IsCrystal(string key)
 		{
-			return false;
+			// Original APK ARM64 ELF VA 0x14da984.
+			return key == Crystal || key == CrystalRoster;
 		}
 	}
 }

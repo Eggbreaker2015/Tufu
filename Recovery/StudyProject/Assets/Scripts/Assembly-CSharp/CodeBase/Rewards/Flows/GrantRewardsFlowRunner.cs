@@ -1,66 +1,46 @@
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System;
 using Codebase.Core;
 using Codebase.Core.Flows;
+using Codebase.Rewards.Commands;
 using Codebase.Shop;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.CompilerServices;
+using UnityEngine;
 
 namespace Codebase.Rewards.Flows
 {
-	public class GrantRewardsFlowRunner : IFlowRunner<GrantRewardsFlow>, IFlowHandlerBase
-	{
-		[StructLayout((LayoutKind)3)]
-		[CompilerGenerated]
-		private struct _003CExecute_003Ed__2 : IAsyncStateMachine
-		{
-			public int _003C_003E1__state;
+    public class GrantRewardsFlowRunner : IFlowRunner<GrantRewardsFlow>, IFlowHandlerBase
+    {
+        [Inject] private ChestsConfig chestsConfig;
+        [Inject] private ChestQueueModel chestQueue;
 
-			public AsyncUniTaskMethodBuilder _003C_003Et__builder;
+        public async UniTask Execute(GrantRewardsFlow flow)
+        {
+            // Native wrapper0x1419e0c and bounded async MoveNext0x1419fd0-0x141a818.
+            if (flow.Rewards == null || flow.Rewards.Count == 0) return;
+            foreach (RewardBase reward in flow.Rewards)
+            {
+                if (reward is ChestReward) continue;
+                App.ExecuteCommand(new GrantRewardCommand { Reward = reward, SourcePath = flow.SourcePath });
+            }
+            // Original Delay is1 second, scaled time, PlayerLoopTiming numeric8.
+            await UniTask.Delay(TimeSpan.FromSeconds(1.0), false, (PlayerLoopTiming)8);
+            foreach (RewardBase reward in flow.Rewards)
+                if (reward is ChestReward chest) EnqueueChest(chest);
+            // Queue processing belongs to the existing App update flow. The original does not await queue-empty here.
+            App.RequestAppUpdateFlow();
+        }
 
-			public GrantRewardsFlow flow;
-
-			public GrantRewardsFlowRunner _003C_003E4__this;
-
-			private UniTask.Awaiter _003C_003Eu__1;
-
-			private void MoveNext()
-			{
-			}
-
-			void IAsyncStateMachine.MoveNext()
-			{
-				//ILSpy generated this explicit interface implementation from .override directive in MoveNext
-				this.MoveNext();
-			}
-
-			[DebuggerHidden]
-			private void SetStateMachine(IAsyncStateMachine stateMachine)
-			{
-			}
-
-			void IAsyncStateMachine.SetStateMachine(IAsyncStateMachine stateMachine)
-			{
-				//ILSpy generated this explicit interface implementation from .override directive in SetStateMachine
-				this.SetStateMachine(stateMachine);
-			}
-		}
-
-		[Inject]
-		private ChestsConfig chestsConfig;
-
-		[Inject]
-		private ChestQueueModel chestQueue;
-
-		[AsyncStateMachine(typeof(_003CExecute_003Ed__2))]
-		public UniTask Execute(GrantRewardsFlow flow)
-		{
-			return default;
-		}
-
-		private void EnqueueChest(ChestReward chestReward)
-		{
-		}
-	}
+        private void EnqueueChest(ChestReward chestReward)
+        {
+            // Native0x1419ec4: nonpositive amounts are skipped; no invented fallback chest.
+            if (chestReward == null || chestReward.Amount <= 0) return;
+            ChestDef chest = chestsConfig.Get(chestReward.Key);
+            if (chest == null)
+            {
+                Debug.LogError("Chest with key " + chestReward.Key + " not found");
+                return;
+            }
+            chestQueue.EnqueueChest(chest, chestReward.Amount);
+        }
+    }
 }

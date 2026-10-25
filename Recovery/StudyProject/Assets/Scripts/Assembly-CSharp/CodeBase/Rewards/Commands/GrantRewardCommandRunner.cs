@@ -126,8 +126,9 @@ namespace Codebase.Rewards.Commands
 			userModel.SoulPassPurchased.Value = true;
 			userModel.SoulPassPurchaseTime.Value = new DateTimeOffset(timeService.Now.ToDateTime()).ToUnixTimeSeconds();
 			audioPlayer.PlaySoundOnce("pass_claim");
-			App.ExecuteCommand(new CreateMailCommand { MailKey = "soul_pass_purchase", TemplateKey = "soul_pass_purchase", ReceiveTime = timeService.Now, ExpirationTime = timeService.Now.Add(TimeSpan.FromDays(30)), RewardObjects = new List<RewardBase> { new SoulReward { SoulKey = "divine", Amount = amuletConfig.PassOneTimeDivineSouls } }, ArchiveOnClaim = true });
-			App.ExecuteCommand(new SendSoulPassDailyMailCommand());
+            // Learning adaptation: the original purchase mail is delivered directly because mailbox restoration is excluded.
+            HandleSoulReward(new SoulReward { SoulKey = "divine", Amount = amuletConfig.PassOneTimeDivineSouls });
+            App.ExecuteCommand(new SendSoulPassDailyMailCommand());
 		}
 
 		private void HandleCrystalPassReward(CrystalPassReward reward)

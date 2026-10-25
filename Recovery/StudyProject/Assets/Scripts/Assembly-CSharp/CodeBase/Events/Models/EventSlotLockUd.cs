@@ -8,7 +8,7 @@ namespace Codebase.Events.Models
 
 		public UdValue<int> SlotStartUnixSeconds { get; }
 
-		public bool IsEmpty => false;
+		public bool IsEmpty => string.IsNullOrEmpty(EventKey.Value);
 
 		public EventSlotLockUd(UdArgs args) : base(args)
 {
@@ -18,15 +18,22 @@ namespace Codebase.Events.Models
 
 		public void Clear()
 		{
+			// Original APK ARM64 ELF VA 0x14e9048.
+			EventKey.Value = string.Empty;
+			SlotStartUnixSeconds.Value = 0;
 		}
 
 		public void Set(string eventKey, int slotStartUnixSeconds)
 		{
+			// Original APK ARM64 ELF VA 0x14e8f9c.
+			EventKey.Value = eventKey;
+			SlotStartUnixSeconds.Value = slotStartUnixSeconds;
 		}
 
 		public bool Matches(string eventKey, int slotStartUnixSeconds)
 		{
-			return false;
+			// Original APK ARM64 ELF VA 0x14e8ae0.
+			return EventKey.Value == eventKey && SlotStartUnixSeconds.Value == slotStartUnixSeconds;
 		}
 	}
 }

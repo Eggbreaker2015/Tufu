@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,12 +11,14 @@ namespace Codebase.Events
 
 		public EventConfig Get(string key)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x14daa08.
+			return Events.FirstOrDefault(item => item.Key == key);
 		}
 
 		public IEnumerable<EventConfig> GetAll()
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x14dab04.
+			return Events;
 		}
 	}
 }

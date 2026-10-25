@@ -22,17 +22,22 @@ namespace Codebase.LevelPass
 
 		private ComputedAtom<bool> __HasUnclaimedRewards;
 
-		public List<LevelPassDef> Passes => null;
+		public List<LevelPassDef> Passes => levelPassConfig.Passes; // Native0x14bb9b0.
 
 		public bool HasUnclaimedRewards => false;
 
 		public LevelPassModel(Lifetime lifetime)
-			: base(default(Lifetime))
+			: base(lifetime)
 		{
 		}
 
 		public override void Initialize()
 		{
+            // Native0x14bb594 and Lifetime callback0x14bddb8.
+            base.Initialize();
+            EnsurePassDataExists();
+            EnemySpawner.OnDied += OnEnemyDied;
+            Lifetime.Register(() => EnemySpawner.OnDied -= OnEnemyDied);
 		}
 
 		public int GetTierProgress(string passKey, int tierIndex)
@@ -62,11 +67,21 @@ namespace Codebase.LevelPass
 
 		public bool IsPassPurchased(LevelPassDef def)
 		{
-			return false;
+            // Native0x14bc21c.
+            LevelPassDataUd pass = GetPassData(def.Key);
+            return pass != null && pass.Purchased.Value;
 		}
 
 		public void MarkPassPurchased(string storeId)
 		{
+            // Native0x14bc398, predicate0x14bdecc. Match original store-specific ID through IAPManager.
+            var iap = GameContext.Get<Codebase.In_apps.IAPManager>();
+            foreach (LevelPassDef pass in levelPassConfig.Passes)
+            {
+                if (pass.ProductKey == Codebase.In_apps.ProductKey.None || iap.GetStoreId(pass.ProductKey) != storeId) continue;
+                GetOrCreatePassData(pass.Key).Purchased.Value = true;
+                return;
+            }
 		}
 
 		public void ClaimFreeReward(string passKey, int tierIndex)
@@ -97,16 +112,32 @@ namespace Codebase.LevelPass
 
 		private void EnsurePassDataExists()
 		{
+            // Native0x14bb73c: append missing UD tiers, preserve existing progress and claim flags.
+            foreach (LevelPassDef pass in levelPassConfig.Passes)
+            {
+                LevelPassDataUd data = GetOrCreatePassData(pass.Key);
+                while (data.Tiers.Count < pass.Tiers.Count) data.Tiers.Create();
+            }
 		}
 
 		private LevelPassDataUd GetPassData(string passKey)
 		{
-			return null;
+            // Native0x14bc2a0 and predicate0x14bdf0c: first matching persisted key, no creation.
+            foreach (LevelPassDataUd pass in Data.Passes)
+                if (pass.Key.Value == passKey) return pass;
+            return null;
 		}
 
 		private LevelPassDataUd GetOrCreatePassData(string passKey)
 		{
-			return null;
+            // Native0x14bc530.
+            LevelPassDataUd pass = GetPassData(passKey);
+            if (pass == null)
+            {
+                pass = Data.Passes.Create();
+                pass.Key.Value = passKey;
+            }
+            return pass;
 		}
 
 		private LevelPassTierDataUd GetTierData(string passKey, int tierIndex)

@@ -94,6 +94,9 @@ namespace Codebase.Analytics
 
 		public UdDictValue<int> FreeBoosterTokens { get; }
 
+        // Learning-only simulated orders; saved atomically with the granted rewards in this profile.
+        public UdDictValue<string> LocalPurchaseTransactions { get; }
+
 		public UserDataUd(UdArgs args) : base(args)
 {
     UserId = new global::Multicast.UserData.UdValue<global::System.String>(Child("user_id", true));
@@ -140,6 +143,7 @@ namespace Codebase.Analytics
     SoulPassLastDailyMailTime = new global::Multicast.UserData.UdValue<global::System.Double>(Child("soul_pass_last_daily_mail_time", true));
     ChaoticSoulOfferPurchased = new global::Multicast.UserData.UdValue<global::System.Boolean>(Child("chaotic_soul_offer_purchased", true));
     ChaoticSoulOfferPurchaseTime = new global::Multicast.UserData.UdValue<global::System.Double>(Child("chaotic_soul_offer_purchase_time", true));
+    LocalPurchaseTransactions = new UdDictValue<string>(Child("local_purchase_transactions", true));
     FreeBoosterTokens = new global::Multicast.UserData.UdDictValue<global::System.Int32>(Child("free_booster_tokens", true));
 }
 	}

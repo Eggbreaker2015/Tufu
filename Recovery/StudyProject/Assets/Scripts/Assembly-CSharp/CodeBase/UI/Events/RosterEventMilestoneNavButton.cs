@@ -17,6 +17,7 @@ namespace Codebase.UI.Events
 
 		public void SetupState(RosterDividerState state)
 		{
+			rosterDivider.SetState(state);
 		}
 	}
 }

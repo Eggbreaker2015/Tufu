@@ -433,7 +433,14 @@ namespace Codebase.Enemy
 
 		public void ResetEventSpawnData()
 		{
-		}
+            LastSpawnTime = 0;
+            SavedCount = 0;
+            madeFirstSpawn = false;
+            restoredEventSavedUnits = false;
+            awaitingMiniBossDevour = false;
+            nextProcessTime = 0;
+            Cooldown = 0f;
+        }
 
 		public void ResetForRespawn()
 		{
@@ -596,16 +603,39 @@ namespace Codebase.Enemy
 
 		public SpawnerView SetupView()
 		{
-			return null;
+			// Original ARM64 ELF VA 0x1503b50.
+			if (!config.ShowCooldown) return null;
+			var canvas = GameContext.Get<Codebase.UI.World.DynamicWorldCanvas>();
+			var instance = canvas.CreateNew(view);
+			canvas.AddTarget(transform, instance.transform as RectTransform);
+			instance.Initialize(this);
+			return instance;
 		}
 
 		public void MarkAllUnitsForEventDespawn()
 		{
-		}
+            foreach (EnemyUnit unit in new List<EnemyUnit>(units))
+            {
+                unit.CurrentHealth = 0;
+                var entity = unit.EntityProvider.Entity;
+                World.Default.GetStash<Codebase.Unit.Components.UnitDeadMarker>().Set(entity);
+                World.Default.GetStash<Codebase.Enemy.Components.EventDespawnRequest>().Set(entity,
+                    new Codebase.Enemy.Components.EventDespawnRequest { Spawner = this });
+            }
+        }
 
 		public void ProcessEventDespawn(EnemyUnit unit)
 		{
-		}
+            unit.OnDied -= HandleDeath;
+            unit.OnDevoured -= HandleDevour;
+            units.Remove(unit);
+            nextProcessTime = 0;
+            GameContext.Get<EnemiesModel>().RemoveEnemy(unit);
+            unitPool.Despawn(unit);
+            if (config.IsEvent && config.EventDef != null && config.EventDef.UnitType == EventUnitType.MiniBoss && units.Count == 0)
+                awaitingMiniBossDevour = false;
+            SyncMinimapAliveState();
+        }
 
 		public bool TrySpawn()
 		{
@@ -1110,7 +1140,35 @@ namespace Codebase.Enemy
 
 		private void ApplyEventPlanToConfig()
 		{
-		}
+            // Original APK ARM64 ELF VA 0x150639c; exact forecast override before EnemyUnit.Initialize.
+            var model = eventsRepository.CurrentEvent;
+            if (model == null || model.Key != config.EventDef.Key) return;
+            var unitType = config.EventDef.UnitType;
+            var enemyInfo = eventsRepository.GetEventEnemyInfo(unitType);
+            if (!enemyInfo.HasValue) return;
+            var enemy = enemyInfo.Value;
+            var resistType = model.Data.ResistType.Value;
+            config.WeaponType = enemy.AttackType;
+            foreach (var armor in config.ArmorConfig.Armors)
+                armor.Resist = armor.Type == resistType && armor.Type != WeaponType.Magic ? -0.9f : 0f;
+            var health = config.Stats.FirstOrDefault(stat => stat.Type == StatType.Health);
+            if (health != null) health.BaseValue = enemy.Health;
+            var damage = config.Stats.FirstOrDefault(stat => stat.Type == StatType.Damage);
+            if (damage != null) damage.BaseValue = enemy.Damage;
+            var rewardInfo = eventsRepository.GetEventRewardInfo(unitType);
+            if (!rewardInfo.HasValue || !rewardInfo.Value.HasReward) return;
+            var reward = rewardInfo.Value;
+            config.StatRewards.Clear();
+            config.StatRewards.Add(new StatModifier
+            {
+                Name = "event." + config.EventDef.Key + "." + unitType.ToString().ToLowerInvariant(),
+                Duration = 0f,
+                ModifierType = (ModifierType)0,
+                Source = (ModifierSource)0,
+                StatType = reward.RewardStatType,
+                Value = (float)reward.RewardValue,
+            });
+        }
 
 		private void HandleDeath(UnitCore unit)
 		{

@@ -13,7 +13,8 @@ namespace Codebase.Events
 
 		public EventProgressStageStyle GetStyle(ProgressStageType type)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x14daeac.
+			return type == ProgressStageType.Boss ? Boss : type == ProgressStageType.GrandBoss ? GrandBoss : Mob;
 		}
 	}
 }

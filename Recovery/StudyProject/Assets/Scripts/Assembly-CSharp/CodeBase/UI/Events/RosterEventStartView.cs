@@ -1,3 +1,8 @@
+using System;
+using UniMob;
+using System.Linq;
+using Codebase.Utilities;
+using Codebase.Rewards.Commands;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -159,83 +164,181 @@ namespace Codebase.UI.Events
 
 		private ComputedAtom<EventModel> __CurrentEvent;
 
-		private EventModel CurrentEvent => null;
+		private EventModel CurrentEvent
+        {
+            get
+            {
+                // Original APK ARM64 ELF VA 0x166a604.
+                LifetimeScopeExtension.ThrowIfDisposed(this);
+                if (__CurrentEvent == null) __CurrentEvent = CodeGenAtom.CreatePooled(this, null, () => CurrentEvent, false);
+                return __CurrentEvent.DirectEvaluate() ? eventsRepository.ScheduledEvent : __CurrentEvent.Value;
+            }
+        }
 
 		protected override void Awake()
 		{
+			// Original APK ARM64 ELF VA 0x166a730.
+			base.Awake();
+			closeButton.onClick.AddListener(HandleClose);
+			infoButton.onClick.AddListener(OpenTutorial);
+			startEventButton.onClick.AddListener(StartEvent);
 		}
 
 		protected override void Start()
 		{
+			// Original APK ARM64 ELF VA 0x166a874.
+			base.Start();
+			rewardsViewContainer = new ViewContainer<RewardView, RewardBase>(rewardsContent, rewardViewPrefab)
+			    .BindTo(Lifetime, GetSummaryRewards).Setup((view, reward) => { view.Setup(reward, RewardViewStyle.Simplified); view.SimplifiedRewardGlow.SetActive(false); });
 		}
 
 		public override void Initialize()
 		{
+			// Original APK ARM64 ELF VA 0x166ab58.
+			base.Initialize();
+			SetupEventInfo();
+			BuildPreviewEventPlan().Forget();
 		}
 
 		protected override void Render()
 		{
+			// Original APK ARM64 ELF VA 0x166aec0.
+			var model = CurrentEvent;
+			var plan = eventsRepository.EventPlan;
+			if (model == null || !plan.HasValue) return;
+			leagueProgressPanel.UpdateProgress(model, plan);
+			int index = plan.Value.LeagueIndex;
+			var leagues = model.Def.CrystalRoster.Leagues;
+			var league = leagues[index];
+			var next = leagues[Math.Min(leagues.Count - 1, index + 1)];
+			eventTitleText.text = "<color=" + league.TitleColor + ">" + LocalizationStrings.Get("EVENT_LEAGUE_TITLE_" + league.Name) + "</color>";
+			bossesCounterTxt.transform.parent.gameObject.SetActive(!model.MaxLeagueReached);
+			if (!model.MaxLeagueReached)
+			    bossesCounterTxt.text = LocalizationStrings.Get("EVENT_BOSSES_LEFT_TO_LEAGUE")
+			        .Replace("{color}", next.TitleColor ?? "")
+			        .Replace("{league}", LocalizationStrings.Get("EVENT_LEAGUE_NAME_" + next.Name))
+			        .Replace("{value}", (league.BossesToAdvance - model.Progress).ToString());
+			durationText.text = "<size=90%><sprite name=atlas_56></size> " +
+			    TimeLocalizer.GetFormatTime(model.Def.CrystalRoster.ForecastSettings.DurationMinutes * 60f, true);
 		}
 
 		private List<ForecastCrystalMilestonePlan> GetMilestones()
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x166b580.
+			return GetPlanMilestones() ?? new List<ForecastCrystalMilestonePlan>();
 		}
 
 		private List<RewardBase> GetMilestoneRewards(int milestoneIndex)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x166b758.
+			return ForecastCrystalRewardEntryHelper.ToRewards(GetPlanMilestones()[milestoneIndex].Rewards, itemsProvider);
 		}
 
 		private List<RewardBase> GetSummaryRewards()
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x166b7d4.
+			var all = new List<RewardBase>();
+			for (int index = 0; index < GetMilestones().Count; index++) all.AddRange(GetMilestoneRewards(index));
+			var result = all.OfType<StatReward>().GroupBy(reward => (reward.Type, reward.ModifierType))
+			    .Select(group => (RewardBase)new StatReward
+			    {
+			        Type = group.First().Type,
+			        ModifierType = group.First().ModifierType,
+			        CustomModifier = group.First().CustomModifier,
+			        Value = group.Sum(reward => reward.Value),
+			    }).Take(3).ToList();
+			var item = all.OfType<ItemReward>().FirstOrDefault(reward => GetItemDef(reward)?.Rarity == (Rarity)4);
+			if (item != null) result.Add(item);
+			return result;
 		}
 
 		private ItemConfig GetItemDef(ItemReward itemReward)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x166bbc4.
+			return itemReward.Def != null ? itemReward.Def : itemsProvider.Get(itemReward.BakedData.ItemKey);
 		}
 
 		private List<ForecastCrystalMilestonePlan> GetPlanMilestones()
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x166b5fc.
+			return eventsRepository.EventPlan?.CrystalMilestones;
 		}
 
 		private List<int> GetStageIndices()
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x166aa88.
+			return CurrentEvent?.Def?.CrystalRoster?.Stages != null ? Enumerable.Range(0, CurrentEvent.Def.CrystalRoster.Stages.Count).ToList() : new List<int>();
 		}
 
 		private void SetupEventInfo()
 		{
+			// Original APK ARM64 ELF VA 0x166ab9c.
+			var model = CurrentEvent;
+			if (model == null) return;
+			var location = playerModel.LastUnlockedLocation;
+			if (location != null)
+			{
+			    model.Data.WeaponType.Value = location.PreferredWeaponType;
+			    model.Data.ResistType.Value = location.PreferredArmorType;
+			}
+			if (weaknessInfo != null)
+			{
+			    Injector.InjectInto(weaknessInfo);
+			    weaknessInfo.Setup(model.Data.ResistType.Value, "ISLAND_WEAKNESS", weaknessColor);
+			}
+			if (attackInfo != null)
+			{
+			    Injector.InjectInto(attackInfo);
+			    attackInfo.Setup(model.Data.WeaponType.Value, "ISLAND_ATTACK", attackColor);
+			}
 		}
 
 		private void HandleClose()
 		{
+			// Original APK ARM64 ELF VA 0x166bc60.
+			audioPlayer.PlaySoundOnce("tap");
+			Close();
 		}
 
 		private void OpenTutorial()
 		{
+			// Original APK ARM64 ELF VA 0x166bd2c.
+			audioPlayer.PlaySoundOnce("tap");
+			navigator.Open<EventTutorialView>("Assets/Prefabs/UI/Event/Roster/RosterEventTutorial.prefab");
 		}
 
 		private void OpenRewards()
 		{
+			// Original APK ARM64 ELF VA 0x166be2c.
+			audioPlayer.PlaySoundOnce("tap");
+			navigator.Open<RosterEventRewardsView>("Assets/Prefabs/UI/Event/Roster/RosterRewardsPopup.prefab");
 		}
 
-		[AsyncStateMachine(typeof(_003CBuildPreviewEventPlan_003Ed__38))]
-		private UniTaskVoid BuildPreviewEventPlan()
+		private async UniTaskVoid BuildPreviewEventPlan()
 		{
-			return default;
+			// Original APK ARM64 ELF VA 0x166c390.
+			if (CurrentEvent == null) return;
+			await eventsRepository.BuildRosterEventPlanAsync(CurrentEvent.Key);
+			App.ExecuteCommand(new BakeRewardsCommand { BakeRosterEvent = true });
 		}
 
-		[AsyncStateMachine(typeof(_003CStartEvent_003Ed__39))]
-		private void StartEvent()
+		private async void StartEvent()
 		{
+			// Original APK ARM64 ELF VA 0x166c754.
+			if (CurrentEvent == null || isStartingEvent) return;
+			isStartingEvent = true;
+			startEventButton.interactable = false;
+			await eventsRepository.StartEventAsync(CurrentEvent.Key);
+			isStartingEvent = false;
+			startEventButton.interactable = true;
+			Close();
 		}
 
 		public override void Cleanup()
 		{
+			// Original APK ARM64 ELF VA 0x166bfd0.
+			base.Cleanup();
+			rewardsViewContainer?.Clear();
 		}
 	}
 }

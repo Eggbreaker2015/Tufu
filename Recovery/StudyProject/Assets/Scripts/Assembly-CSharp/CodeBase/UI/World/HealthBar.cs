@@ -1,3 +1,5 @@
+using System.Linq;
+using Codebase.Crystals.Objective;
 using BrunoMikoski.AnimationSequencer;
 using Codebase.Amulet;
 using Codebase.Core;
@@ -222,18 +224,60 @@ namespace Codebase.UI.World
             if (marksAnimation != null) marksAnimation.Play();
         }
 
-		private void RenderDummyStats()
-		{
-		}
+        private void RenderDummyStats()
+        {
+            // Original ARM64 ELF VA 0x16021ac; this only renders the existing dummy telemetry.
+            if (!isDummy || dummyStats == null) return;
+            ref DummyTargetTag dummy = ref dummyStash.Get(unit.EntityProvider.Entity, out bool exists);
+            if (!exists || !dummy.Data.IsInCombat) { dummyStats.text = string.Empty; return; }
+            dummyStats.text = string.Format("DPS: {0}\nTotal: {1}\nLast: {2}",
+                dummy.Data.Dps.Format(), dummy.Data.TotalDamage.Format(), dummy.Data.LastHitDamage.Format());
+        }
 
-		private void RenderDrops()
-		{
-		}
+        private void RenderDrops()
+        {
+            // Original ARM64 ELF VA 0x1600e5c. A preview never grants or multiplies rewards.
+            if (unit is PlayerUnit) return;
+            var enemy = (EnemyUnit)unit;
+            glow.SetActive(!string.IsNullOrWhiteSpace(enemy.Config.CurrencyReward));
+            drops.text = enemy.ItemReward != null ? "<sprite name=" + enemy.ItemReward.Icon.name + ">" : string.Empty;
+            var (currencyKey, currencyAmount) = GetEventCurrency(enemy);
+            if (currencyAmount > 0f)
+                drops.text += string.Format("{0}<sprite name={1}>", currencyAmount, eventStyleConfig.GetCurrencyStyle(currencyKey).Sprite.name);
+            if (enemy is CrystalUnit crystal && crystal.BlacksmithKillReward > 0)
+                drops.text += string.Format("{0}<sprite name=atlas_97>", crystal.BlacksmithKillReward);
+            foreach (var reward in enemy.StatRewards)
+            {
+                var preview = new StatModifier { Name = reward.Name, ModifierType = reward.ModifierType,
+                    Duration = reward.Duration, Source = reward.Source, Value = reward.Value, StatType = reward.StatType };
+                drops.text += string.Format("{0}<sprite name={1}>", preview, iconStyleConfig.Styles.First(style => style.StatType == preview.StatType).Sprite.name);
+            }
+            if (enemy.HasEmptyAmulet)
+                soul.text = "<size=130%><sprite name=" + currencyStyleConfig.GetIcon(enemy.Config.CurrencyReward).name + ">";
+            else if (enemy.HasSoul)
+                soul.text = "<sprite name=" + soulStyleConfig.GetIcon(enemy.SoulReward).name + ">";
+            else soul.text = string.Empty;
+            resists.text = string.Empty;
+            if (enemy.Config.ArmorConfig == null) return;
+            foreach (var armor in enemy.Config.ArmorConfig.Armors)
+            {
+                var style = iconStyleConfig.ResistStyles.First(value => value.WeaponType == armor.Type);
+                double resist = armor.Resist;
+                Sprite sprite = resist < -0.6 ? style.Effective.High : resist < -0.3 ? style.Effective.Medium :
+                    resist < -0.1 ? style.Effective.Low : resist > 0.6 ? style.Ineffective.High :
+                    resist > 0.3 ? style.Ineffective.Medium : resist > 0.1 ? style.Ineffective.Low : null;
+                if (sprite != null) resists.text += "<sprite name=" + sprite.name + ">";
+            }
+        }
 
-		private (string, float) GetEventCurrency(EnemyUnit unit)
-		{
-			return default;
-		}
+        private (string, float) GetEventCurrency(EnemyUnit unit)
+        {
+            // Original ARM64 ELF VA 0x1602448; the original matches event keys without a date gate.
+            var current = eventsRepository.CurrentEvent;
+            if (current != null && unit.Config.EventDef != null && unit.Config.EventDef.Key == current.Key && unit.EventUnitReward != null)
+                return (unit.EventUnitReward.CurrencyKey, unit.EventUnitReward.CurrencyAmount);
+            return (string.Empty, 0f);
+        }
 	}
 }
 

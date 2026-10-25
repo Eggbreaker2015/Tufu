@@ -24,10 +24,22 @@ namespace Codebase.Events
 
 		public void Open()
 		{
+			if (IsOpened) return;
+			IsOpened = true;
+			if (Obstacle != null) Obstacle.enabled = false;
+			if (OpenAnimation != null) OpenAnimation.Play();
 		}
 
 		public void Reset()
 		{
+			IsOpened = false;
+			if (Obstacle != null) Obstacle.enabled = true;
+			if (OpenAnimation != null)
+			{
+				OpenAnimation.Complete(true);
+				OpenAnimation.ClearPlayingSequence();
+				OpenAnimation.ResetToInitialState();
+			}
 		}
 	}
 }

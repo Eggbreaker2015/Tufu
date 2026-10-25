@@ -204,6 +204,9 @@ namespace CodeBase.Services.Cheats
 
 		public void Awake()
 		{
+            // Native 0x149c358: hide the authored debug panel and remove this component.
+            gameObject.SetActive(false);
+            UnityEngine.Object.Destroy(this);
 		}
 
 		private void Setup()

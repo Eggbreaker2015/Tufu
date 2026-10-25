@@ -8,7 +8,6 @@
 !/Docs/**
 !/Recovery/
 /Recovery/*
-!/Recovery/README.md
 !/Recovery/StudyProject/
 !/Recovery/Open-StudyProject.cmd
 !/Recovery/Open-StudyProject.ps1

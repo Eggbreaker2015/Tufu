@@ -153,8 +153,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -524,16 +531,16 @@ void f_frag_main()
     f_u_xlat9.x = sqrt(f_u_xlat9.x);
     f_u_xlat9.x = (-f_u_xlat1.x) + f_u_xlat9.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat9.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat9.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_28 = (-f_u_xlat9.x) + _325_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_28 = (f_u_xlat1.x * f_u_xlat16_28) + f_u_xlat9.x;
     f_u_xlat16 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -572,6 +579,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -614,8 +622,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -890,9 +905,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -904,7 +919,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -987,6 +1002,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -1024,8 +1040,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -1242,6 +1265,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -1297,16 +1321,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -1370,6 +1394,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -1407,8 +1432,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -1778,16 +1810,16 @@ void f_frag_main()
     f_u_xlat9.x = sqrt(f_u_xlat9.x);
     f_u_xlat9.x = (-f_u_xlat1.x) + f_u_xlat9.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat9.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat9.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_28 = (-f_u_xlat9.x) + _325_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_28 = (f_u_xlat1.x * f_u_xlat16_28) + f_u_xlat9.x;
     f_u_xlat16 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -1826,6 +1858,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -2286,8 +2319,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -2592,16 +2632,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -2653,6 +2693,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -2686,8 +2727,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -2987,16 +3035,16 @@ void f_frag_main()
     f_u_xlat9.x = sqrt(f_u_xlat9.x);
     f_u_xlat9.x = (-f_u_xlat1.x) + f_u_xlat9.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat9.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat9.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_28 = (-f_u_xlat9.x) + _325_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_28 = (f_u_xlat1.x * f_u_xlat16_28) + f_u_xlat9.x;
     f_u_xlat16 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -3031,6 +3079,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -3059,8 +3108,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -3359,16 +3415,16 @@ void f_frag_main()
     f_u_xlat10.x = sqrt(f_u_xlat10.x);
     f_u_xlat10.x = (-f_u_xlat3.x) + f_u_xlat10.x;
     f_u_xlat3.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat10.x) + f_u_xlat3.x;
-    f_u_xlat3.x = (f_u_xlat3.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat3.x = (f_u_xlat3.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat3.x = clamp(f_u_xlat3.x, 0.0f, 1.0f);
     f_u_xlat10 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat10 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat10;
     f_u_xlat10 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat10;
     f_u_xlat10 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat10.xy, f_u_xlat10.z);
-    f_u_xlat10.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat10.x = (f_u_xlat10.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat10.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat10.x = (f_u_xlat10.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_26 = (-f_u_xlat10.x) + _354_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_26 = (f_u_xlat3.x * f_u_xlat16_26) + f_u_xlat10.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -3407,6 +3463,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -3448,8 +3505,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -3621,6 +3685,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -3666,9 +3731,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -3680,7 +3745,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -3761,6 +3826,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -3803,8 +3869,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -4079,9 +4152,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -4093,7 +4166,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -4176,6 +4249,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -4583,8 +4657,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -4846,16 +4927,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -4906,6 +4987,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -4944,8 +5026,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -5129,9 +5218,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -5143,7 +5232,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -5222,6 +5311,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -5255,8 +5345,15 @@ float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -5475,9 +5572,9 @@ void f_frag_main()
     f_u_xlat2.y = _402.y;
     f_u_xlat2.z = _402.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -5489,7 +5586,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -5539,6 +5636,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -5576,8 +5674,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -5794,6 +5899,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -5849,16 +5955,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -5922,6 +6028,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -6307,8 +6414,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -6479,6 +6593,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -6511,16 +6626,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -6569,6 +6684,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -6602,8 +6718,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -6751,6 +6874,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -6805,16 +6929,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -6874,6 +6998,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -6902,8 +7027,15 @@ float4 _HColor;
 float4 _LightColor0;
 float _SingleIndirectColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -7046,6 +7178,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -7117,16 +7250,16 @@ void f_frag_main()
     f_u_xlat21 = dot(f_u_xlat8, f_u_xlat4);
     f_u_xlat2.x += (-f_u_xlat21);
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat21;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat21 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat4.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + _LightShadowData.x;
+    f_u_xlat21 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat4.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati4 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati4 *= 7;
     f_u_xlat16_7.x = (-f_u_xlat21) + _339_unity_Builtins2Array[f_u_xlati4 / 7].unity_SHCArray.w;
@@ -7177,6 +7310,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -7637,8 +7771,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -7943,16 +8084,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -8004,6 +8145,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -8037,8 +8179,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -8338,16 +8487,16 @@ void f_frag_main()
     f_u_xlat9.x = sqrt(f_u_xlat9.x);
     f_u_xlat9.x = (-f_u_xlat1.x) + f_u_xlat9.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat9.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat9.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_28 = (-f_u_xlat9.x) + _325_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_28 = (f_u_xlat1.x * f_u_xlat16_28) + f_u_xlat9.x;
     f_u_xlat16 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -8382,6 +8531,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -8410,8 +8560,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -8710,16 +8867,16 @@ void f_frag_main()
     f_u_xlat10.x = sqrt(f_u_xlat10.x);
     f_u_xlat10.x = (-f_u_xlat3.x) + f_u_xlat10.x;
     f_u_xlat3.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat10.x) + f_u_xlat3.x;
-    f_u_xlat3.x = (f_u_xlat3.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat3.x = (f_u_xlat3.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat3.x = clamp(f_u_xlat3.x, 0.0f, 1.0f);
     f_u_xlat10 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat10 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat10;
     f_u_xlat10 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat10;
     f_u_xlat10 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat10.xy, f_u_xlat10.z);
-    f_u_xlat10.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat10.x = (f_u_xlat10.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat10.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat10.x = (f_u_xlat10.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_26 = (-f_u_xlat10.x) + _354_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_26 = (f_u_xlat3.x * f_u_xlat16_26) + f_u_xlat10.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -8758,6 +8915,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -9828,8 +9986,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -10064,16 +10229,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -10122,6 +10287,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -10148,8 +10314,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -10389,16 +10562,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -10442,6 +10615,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -10473,8 +10647,15 @@ float4 _LightColor0;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -10837,16 +11018,16 @@ void f_frag_main()
     f_u_xlat8.x = sqrt(f_u_xlat8.x);
     f_u_xlat8.x = (-f_u_xlat1.x) + f_u_xlat8.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat8 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat8;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat8;
     f_u_xlat8 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat8.xy, f_u_xlat8.z);
-    f_u_xlat8.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat15 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + _LightShadowData.x;
+    f_u_xlat8.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat15 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_25 = (-f_u_xlat8.x) + _325_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_25 = (f_u_xlat1.x * f_u_xlat16_25) + f_u_xlat8.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -10886,6 +11067,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -10915,8 +11097,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -11212,16 +11401,16 @@ void f_frag_main()
     f_u_xlat9.x = sqrt(f_u_xlat9.x);
     f_u_xlat9.x = (-f_u_xlat1.x) + f_u_xlat9.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat9.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat9.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_28 = (-f_u_xlat9.x) + _325_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_28 = (f_u_xlat1.x * f_u_xlat16_28) + f_u_xlat9.x;
     f_u_xlat16 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -11251,6 +11440,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -11282,8 +11472,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -11645,16 +11842,16 @@ void f_frag_main()
     f_u_xlat8 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat8) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat8;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat8 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat24 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + _LightShadowData.x;
+    f_u_xlat8 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat24 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat8) + _523_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_10.x = (f_u_xlat0.x * f_u_xlat16_10.x) + f_u_xlat8;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -11759,6 +11956,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -11793,8 +11991,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -12146,16 +12351,16 @@ void f_frag_main()
     f_u_xlat13.x = sqrt(f_u_xlat13.x);
     f_u_xlat13.x = (-f_u_xlat1.x) + f_u_xlat13.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat13.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat13 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat13 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat13;
     f_u_xlat13 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat13;
     f_u_xlat13 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat13.xy, f_u_xlat13.z);
-    f_u_xlat13.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat25 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + _LightShadowData.x;
+    f_u_xlat13.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat25 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat13.x) + _579_unity_Builtins2Array[f_u_xlati0.z / 7].unity_SHCArray.w;
     f_u_xlat16_40 = (f_u_xlat1.x * f_u_xlat16_40) + f_u_xlat13.x;
     float4 _602 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -12225,6 +12430,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -12266,8 +12472,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -12439,6 +12652,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -12484,9 +12698,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -12498,7 +12712,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -12579,6 +12793,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -12924,8 +13139,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -13097,6 +13319,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -13129,16 +13352,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -13187,6 +13410,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -13224,8 +13448,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -13307,6 +13538,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -13351,9 +13583,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -13365,7 +13597,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -13442,6 +13674,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -13474,8 +13707,15 @@ float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -13557,6 +13797,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -13635,9 +13876,9 @@ void f_frag_main()
     f_u_xlat2.y = _234.y;
     f_u_xlat2.z = _234.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -13649,7 +13890,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -13697,6 +13938,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -14104,8 +14346,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -14367,16 +14616,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -14427,6 +14676,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -14465,8 +14715,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -14650,9 +14907,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -14664,7 +14921,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -14743,6 +15000,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -14776,8 +15034,15 @@ float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -14996,9 +15261,9 @@ void f_frag_main()
     f_u_xlat2.y = _402.y;
     f_u_xlat2.z = _402.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -15010,7 +15275,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -15060,6 +15325,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -15954,8 +16220,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -16126,16 +16399,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -16183,6 +16456,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -16211,8 +16485,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -16393,16 +16674,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -16445,6 +16726,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -16481,8 +16763,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -16782,9 +17071,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -16796,7 +17085,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -16853,6 +17142,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -16887,8 +17177,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -17072,9 +17369,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -17086,7 +17383,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -17157,6 +17454,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -17193,8 +17491,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -17501,9 +17806,9 @@ void f_frag_main()
     f_u_xlat0.y = _386.y;
     f_u_xlat0.z = _386.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -17515,7 +17820,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -17619,6 +17924,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -17658,8 +17964,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -17915,16 +18228,16 @@ void f_frag_main()
     f_u_xlat1.x = sqrt(f_u_xlat1.x);
     f_u_xlat1.x = (-f_u_xlat36) + f_u_xlat1.x;
     f_u_xlat36 = (unity_ShadowFadeCenterAndType.w * f_u_xlat1.x) + f_u_xlat36;
-    f_u_xlat36 = (f_u_xlat36 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat36 = (f_u_xlat36 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat36 = clamp(f_u_xlat36, 0.0f, 1.0f);
     f_u_xlat1 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat1;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat1;
     f_u_xlat1 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat1.xy, f_u_xlat1.z);
-    f_u_xlat1.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat13 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + _LightShadowData.x;
+    f_u_xlat1.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat13 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat1.x) + 1.0f;
     f_u_xlat16_40 = (f_u_xlat36 * f_u_xlat16_40) + f_u_xlat1.x;
     float4 _535 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -17993,6 +18306,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -18378,8 +18692,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -18550,6 +18871,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -18582,16 +18904,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -18640,6 +18962,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -18673,8 +18996,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -18822,6 +19152,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -18876,16 +19207,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -18945,6 +19276,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -18973,8 +19305,15 @@ float4 _HColor;
 float4 _LightColor0;
 float _SingleIndirectColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -19117,6 +19456,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -19188,16 +19528,16 @@ void f_frag_main()
     f_u_xlat21 = dot(f_u_xlat8, f_u_xlat4);
     f_u_xlat2.x += (-f_u_xlat21);
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat21;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat21 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat4.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + _LightShadowData.x;
+    f_u_xlat21 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat4.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati4 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati4 *= 7;
     f_u_xlat16_7.x = (-f_u_xlat21) + _339_unity_Builtins2Array[f_u_xlati4 / 7].unity_SHCArray.w;
@@ -19248,6 +19588,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -20070,8 +20411,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -20176,6 +20524,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -20207,16 +20556,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -20262,6 +20611,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -20288,8 +20638,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -20394,6 +20751,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -20434,16 +20792,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -20484,6 +20842,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -20515,8 +20874,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -20727,6 +21093,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -20790,16 +21157,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -20857,6 +21224,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -20886,8 +21254,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -21031,6 +21406,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -21085,16 +21461,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -21146,6 +21522,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -21177,8 +21554,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -21389,6 +21773,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -21459,16 +21844,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat7, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat22);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat22;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_9.x = (-f_u_xlat22) + _319_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -21573,6 +21958,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -21607,8 +21993,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -21757,6 +22150,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -21877,7 +22271,7 @@ void f_frag_main()
     f_u_xlat13.x = sqrt(f_u_xlat13.x);
     f_u_xlat13.x = (-f_u_xlat1.x) + f_u_xlat13.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat13.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlati0 *= 7;
     f_u_xlat13 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
@@ -21885,9 +22279,9 @@ void f_frag_main()
     f_u_xlat13 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat13;
     f_u_xlat13 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat13.xy, f_u_xlat13.z);
-    f_u_xlat13.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat25 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + _LightShadowData.x;
+    f_u_xlat13.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat25 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat13.x) + _375_unity_Builtins2Array[f_u_xlati0 / 7].unity_SHCArray.w;
     f_u_xlat16_40 = (f_u_xlat1.x * f_u_xlat16_40) + f_u_xlat13.x;
     float4 _399 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -21955,6 +22349,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -22670,8 +23065,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -22906,16 +23308,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -22964,6 +23366,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -22990,8 +23393,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -23231,16 +23641,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -23284,6 +23694,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -23315,8 +23726,15 @@ float4 _LightColor0;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -23679,16 +24097,16 @@ void f_frag_main()
     f_u_xlat8.x = sqrt(f_u_xlat8.x);
     f_u_xlat8.x = (-f_u_xlat1.x) + f_u_xlat8.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat8 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat8;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat8;
     f_u_xlat8 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat8.xy, f_u_xlat8.z);
-    f_u_xlat8.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat15 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + _LightShadowData.x;
+    f_u_xlat8.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat15 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_25 = (-f_u_xlat8.x) + _325_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_25 = (f_u_xlat1.x * f_u_xlat16_25) + f_u_xlat8.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -23728,6 +24146,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -23757,8 +24176,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -24054,16 +24480,16 @@ void f_frag_main()
     f_u_xlat9.x = sqrt(f_u_xlat9.x);
     f_u_xlat9.x = (-f_u_xlat1.x) + f_u_xlat9.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat9.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat17 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + _LightShadowData.x;
+    f_u_xlat9.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat17 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat9.x = (f_u_xlat9.x * f_u_xlat17) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_28 = (-f_u_xlat9.x) + _325_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_28 = (f_u_xlat1.x * f_u_xlat16_28) + f_u_xlat9.x;
     f_u_xlat16 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -24093,6 +24519,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -24124,8 +24551,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -24487,16 +24921,16 @@ void f_frag_main()
     f_u_xlat8 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat8) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat8;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat8 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat24 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + _LightShadowData.x;
+    f_u_xlat8 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat24 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat8) + _523_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_10.x = (f_u_xlat0.x * f_u_xlat16_10.x) + f_u_xlat8;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -24601,6 +25035,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -24635,8 +25070,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -24988,16 +25430,16 @@ void f_frag_main()
     f_u_xlat13.x = sqrt(f_u_xlat13.x);
     f_u_xlat13.x = (-f_u_xlat1.x) + f_u_xlat13.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat13.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat13 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat13 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat13;
     f_u_xlat13 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat13;
     f_u_xlat13 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat13.xy, f_u_xlat13.z);
-    f_u_xlat13.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat25 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + _LightShadowData.x;
+    f_u_xlat13.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat25 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat13.x) + _579_unity_Builtins2Array[f_u_xlati0.z / 7].unity_SHCArray.w;
     f_u_xlat16_40 = (f_u_xlat1.x * f_u_xlat16_40) + f_u_xlat13.x;
     float4 _602 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -25067,6 +25509,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -27286,8 +27729,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -27587,16 +28037,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -27644,6 +28094,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -27671,8 +28122,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -27902,16 +28360,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -27952,6 +28410,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -27981,8 +28440,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -28307,16 +28773,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -28368,6 +28834,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -28400,8 +28867,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -28716,16 +29190,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -28752,6 +29226,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -28783,8 +29258,15 @@ float4 _SColor;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -29147,16 +29629,16 @@ void f_frag_main()
     f_u_xlat8.x = sqrt(f_u_xlat8.x);
     f_u_xlat8.x = (-f_u_xlat1.x) + f_u_xlat8.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat8 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat8;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat8;
     f_u_xlat8 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat8.xy, f_u_xlat8.z);
-    f_u_xlat8.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat15 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + _LightShadowData.x;
+    f_u_xlat8.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat15 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_25 = (-f_u_xlat8.x) + _325_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_25 = (f_u_xlat1.x * f_u_xlat16_25) + f_u_xlat8.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -29195,6 +29677,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -29222,8 +29705,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -29516,16 +30006,16 @@ void f_frag_main()
     f_u_xlat8.x = sqrt(f_u_xlat8.x);
     f_u_xlat8.x = (-f_u_xlat1.x) + f_u_xlat8.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat8 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat8;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat8;
     f_u_xlat8 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat8.xy, f_u_xlat8.z);
-    f_u_xlat8.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat15 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + _LightShadowData.x;
+    f_u_xlat8.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat15 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_25 = (-f_u_xlat8.x) + _325_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_25 = (f_u_xlat1.x * f_u_xlat16_25) + f_u_xlat8.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -29562,6 +30052,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -29591,8 +30082,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -29871,16 +30369,16 @@ void f_frag_main()
     f_u_xlat3.x = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat22 += (-f_u_xlat3.x);
     f_u_xlat22 = (unity_ShadowFadeCenterAndType.w * f_u_xlat22) + f_u_xlat3.x;
-    f_u_xlat22 = (f_u_xlat22 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat22 = (f_u_xlat22 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat22 = clamp(f_u_xlat22, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat3.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat3.x = (f_u_xlat3.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat3.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat3.x = (f_u_xlat3.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat3.x) + _465_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_2.x = (f_u_xlat22 * f_u_xlat16_2.x) + f_u_xlat3.x;
     f_u_xlat16_2 = f_u_xlat16_0.xyw * f_u_xlat16_2.xxx;
@@ -29953,6 +30451,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -29979,8 +30478,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -30271,16 +30777,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _523_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -30353,6 +30859,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -30381,8 +30888,15 @@ float4 _HColor;
 float4 _LightColor0;
 float _SingleIndirectColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -30677,16 +31191,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _541_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -30757,6 +31271,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -31457,8 +31972,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -31630,6 +32152,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -31662,16 +32185,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -31720,6 +32243,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -31757,8 +32281,15 @@ float4 _EmissionMap_ST;
 Texture2D<float4> _EmissionMap;
 SamplerState sampler_EmissionMap;
 float4 _EmissionColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -31840,6 +32371,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -31884,9 +32416,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -31898,7 +32430,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -31975,6 +32507,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -32007,8 +32540,15 @@ float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -32090,6 +32630,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -32168,9 +32709,9 @@ void f_frag_main()
     f_u_xlat2.y = _234.y;
     f_u_xlat2.z = _234.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -32182,7 +32723,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -32230,6 +32771,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -32939,8 +33481,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -33022,6 +33571,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -33053,16 +33603,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -33108,6 +33658,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -33135,8 +33686,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -33218,6 +33776,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -33258,16 +33817,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -33308,6 +33867,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -33343,8 +33903,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -33516,6 +34083,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -33586,9 +34154,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -33600,7 +34168,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -33655,6 +34223,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -33688,8 +34257,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -33771,6 +34347,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -33815,9 +34392,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -33829,7 +34406,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -33898,6 +34475,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -33933,8 +34511,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -34106,6 +34691,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -34183,9 +34769,9 @@ void f_frag_main()
     f_u_xlat0.y = _213.y;
     f_u_xlat0.z = _213.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -34197,7 +34783,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -34299,6 +34885,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -34337,8 +34924,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -34420,6 +35014,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -34536,16 +35131,16 @@ void f_frag_main()
     f_u_xlat1.x = sqrt(f_u_xlat1.x);
     f_u_xlat1.x = (-f_u_xlat36) + f_u_xlat1.x;
     f_u_xlat36 = (unity_ShadowFadeCenterAndType.w * f_u_xlat1.x) + f_u_xlat36;
-    f_u_xlat36 = (f_u_xlat36 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat36 = (f_u_xlat36 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat36 = clamp(f_u_xlat36, 0.0f, 1.0f);
     f_u_xlat1 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat1;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat1;
     f_u_xlat1 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat1.xy, f_u_xlat1.z);
-    f_u_xlat1.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat13 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + _LightShadowData.x;
+    f_u_xlat1.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat13 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat1.x) + 1.0f;
     f_u_xlat16_40 = (f_u_xlat36 * f_u_xlat16_40) + f_u_xlat1.x;
     float4 _364 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -34612,6 +35207,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -35186,8 +35782,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -35358,16 +35961,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -35415,6 +36018,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -35443,8 +36047,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -35625,16 +36236,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -35677,6 +36288,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -35713,8 +36325,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -36014,9 +36633,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -36028,7 +36647,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -36085,6 +36704,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -36119,8 +36739,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -36304,9 +36931,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -36318,7 +36945,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -36389,6 +37016,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -36425,8 +37053,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -36733,9 +37368,9 @@ void f_frag_main()
     f_u_xlat0.y = _386.y;
     f_u_xlat0.z = _386.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -36747,7 +37382,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -36851,6 +37486,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -36890,8 +37526,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -37147,16 +37790,16 @@ void f_frag_main()
     f_u_xlat1.x = sqrt(f_u_xlat1.x);
     f_u_xlat1.x = (-f_u_xlat36) + f_u_xlat1.x;
     f_u_xlat36 = (unity_ShadowFadeCenterAndType.w * f_u_xlat1.x) + f_u_xlat36;
-    f_u_xlat36 = (f_u_xlat36 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat36 = (f_u_xlat36 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat36 = clamp(f_u_xlat36, 0.0f, 1.0f);
     f_u_xlat1 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat1;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat1;
     f_u_xlat1 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat1.xy, f_u_xlat1.z);
-    f_u_xlat1.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat13 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + _LightShadowData.x;
+    f_u_xlat1.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat13 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat1.x) + 1.0f;
     f_u_xlat16_40 = (f_u_xlat36 * f_u_xlat16_40) + f_u_xlat1.x;
     float4 _535 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -37225,6 +37868,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -39081,8 +39725,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -39345,16 +39996,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -39401,6 +40052,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -39430,8 +40082,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -39601,16 +40260,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -39650,6 +40309,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -39681,8 +40341,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -39970,16 +40637,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -40030,6 +40697,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -40064,8 +40732,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -40314,16 +40989,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -40349,6 +41024,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -40385,8 +41061,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -40686,9 +41369,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -40700,7 +41383,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -40756,6 +41439,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -40788,8 +41472,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -40999,9 +41690,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -41013,7 +41704,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -41064,6 +41755,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -41098,8 +41790,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -41283,9 +41982,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -41297,7 +41996,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -41389,6 +42088,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -41420,8 +42120,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -41636,9 +42343,9 @@ void f_frag_main()
     f_u_xlat0.y = _386.y;
     f_u_xlat0.z = _386.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -41650,7 +42357,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -41722,6 +42429,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -41755,8 +42463,15 @@ float _IndirectIntensity;
 float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -41975,9 +42690,9 @@ void f_frag_main()
     f_u_xlat2.y = _402.y;
     f_u_xlat2.z = _402.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -41989,7 +42704,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -42059,6 +42774,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -42944,8 +43660,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -43050,6 +43773,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -43081,16 +43805,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -43136,6 +43860,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -43162,8 +43887,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -43268,6 +44000,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -43308,16 +44041,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -43358,6 +44091,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -43389,8 +44123,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -43601,6 +44342,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -43664,16 +44406,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -43731,6 +44473,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -43760,8 +44503,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -43905,6 +44655,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -43959,16 +44710,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -44020,6 +44771,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -44051,8 +44803,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -44263,6 +45022,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -44333,16 +45093,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat7, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat22);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat22;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_9.x = (-f_u_xlat22) + _319_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -44447,6 +45207,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -44481,8 +45242,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -44631,6 +45399,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -44751,7 +45520,7 @@ void f_frag_main()
     f_u_xlat13.x = sqrt(f_u_xlat13.x);
     f_u_xlat13.x = (-f_u_xlat1.x) + f_u_xlat13.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat13.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlati0 *= 7;
     f_u_xlat13 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
@@ -44759,9 +45528,9 @@ void f_frag_main()
     f_u_xlat13 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat13;
     f_u_xlat13 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat13.xy, f_u_xlat13.z);
-    f_u_xlat13.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat25 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + _LightShadowData.x;
+    f_u_xlat13.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat25 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat13.x = (f_u_xlat13.x * f_u_xlat25) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat13.x) + _375_unity_Builtins2Array[f_u_xlati0 / 7].unity_SHCArray.w;
     f_u_xlat16_40 = (f_u_xlat1.x * f_u_xlat16_40) + f_u_xlat13.x;
     float4 _399 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -44829,6 +45598,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -46541,8 +47311,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -46713,6 +47490,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -46746,16 +47524,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -46800,6 +47578,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -46827,8 +47606,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -46933,6 +47719,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -46963,16 +47750,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -47010,6 +47797,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -47039,8 +47827,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -47211,6 +48006,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -47269,16 +48065,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -47327,6 +48123,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -47359,8 +48156,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -47465,6 +48269,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -47574,16 +48379,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -47607,6 +48412,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -47638,8 +48444,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -47850,6 +48663,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -47913,16 +48727,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -47979,6 +48793,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -48006,8 +48821,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -48149,6 +48971,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -48212,16 +49035,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -48273,6 +49096,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -48302,8 +49126,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -48447,6 +49278,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -48501,16 +49333,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -48583,6 +49415,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -48609,8 +49442,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -48751,6 +49591,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -48819,16 +49660,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _319_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -48901,6 +49742,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -48929,8 +49771,15 @@ float4 _HColor;
 float4 _LightColor0;
 float _SingleIndirectColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -49073,6 +49922,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -49144,16 +49994,16 @@ void f_frag_main()
     f_u_xlat21 = dot(f_u_xlat8, f_u_xlat4);
     f_u_xlat2.x += (-f_u_xlat21);
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat21;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat21 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat4.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + _LightShadowData.x;
+    f_u_xlat21 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat4.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati4 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati4 *= 7;
     f_u_xlat16_7.x = (-f_u_xlat21) + _339_unity_Builtins2Array[f_u_xlati4 / 7].unity_SHCArray.w;
@@ -49224,6 +50074,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -51151,8 +52002,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -51452,16 +52310,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -51509,6 +52367,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -51536,8 +52395,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -51767,16 +52633,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -51817,6 +52683,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -51846,8 +52713,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -52172,16 +53046,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -52233,6 +53107,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -52265,8 +53140,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -52581,16 +53463,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -52617,6 +53499,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -52648,8 +53531,15 @@ float4 _SColor;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -53012,16 +53902,16 @@ void f_frag_main()
     f_u_xlat8.x = sqrt(f_u_xlat8.x);
     f_u_xlat8.x = (-f_u_xlat1.x) + f_u_xlat8.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat8 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat8;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat8;
     f_u_xlat8 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat8.xy, f_u_xlat8.z);
-    f_u_xlat8.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat15 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + _LightShadowData.x;
+    f_u_xlat8.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat15 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_25 = (-f_u_xlat8.x) + _325_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_25 = (f_u_xlat1.x * f_u_xlat16_25) + f_u_xlat8.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -53060,6 +53950,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -53087,8 +53978,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -53381,16 +54279,16 @@ void f_frag_main()
     f_u_xlat8.x = sqrt(f_u_xlat8.x);
     f_u_xlat8.x = (-f_u_xlat1.x) + f_u_xlat8.x;
     f_u_xlat1.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat1.x;
-    f_u_xlat1.x = (f_u_xlat1.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat1.x = (f_u_xlat1.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat1.x = clamp(f_u_xlat1.x, 0.0f, 1.0f);
     f_u_xlat8 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat8;
     f_u_xlat8 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat8;
     f_u_xlat8 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat8.xy, f_u_xlat8.z);
-    f_u_xlat8.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat15 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + _LightShadowData.x;
+    f_u_xlat8.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat15 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8.x = (f_u_xlat8.x * f_u_xlat15) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_25 = (-f_u_xlat8.x) + _325_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_25 = (f_u_xlat1.x * f_u_xlat16_25) + f_u_xlat8.x;
     f_u_xlat14 = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -53427,6 +54325,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -53456,8 +54355,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -53736,16 +54642,16 @@ void f_frag_main()
     f_u_xlat3.x = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat22 += (-f_u_xlat3.x);
     f_u_xlat22 = (unity_ShadowFadeCenterAndType.w * f_u_xlat22) + f_u_xlat3.x;
-    f_u_xlat22 = (f_u_xlat22 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat22 = (f_u_xlat22 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat22 = clamp(f_u_xlat22, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat3.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat3.x = (f_u_xlat3.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat3.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat3.x = (f_u_xlat3.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat3.x) + _465_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_2.x = (f_u_xlat22 * f_u_xlat16_2.x) + f_u_xlat3.x;
     f_u_xlat16_2 = f_u_xlat16_0.xyw * f_u_xlat16_2.xxx;
@@ -53818,6 +54724,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -53844,8 +54751,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -54136,16 +55050,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _523_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -54218,6 +55132,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -54246,8 +55161,15 @@ float4 _HColor;
 float4 _LightColor0;
 float _SingleIndirectColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -54542,16 +55464,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _541_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -54622,6 +55544,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -57751,8 +58674,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -58052,16 +58982,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -58108,6 +59038,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -58133,8 +59064,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -58364,16 +59302,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -58418,6 +59356,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -58445,8 +59384,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -58676,16 +59622,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -58726,6 +59672,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -58750,8 +59697,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -59004,16 +59958,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -59038,6 +59992,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -59064,8 +60019,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -59305,16 +60267,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -59357,6 +60319,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -59389,8 +60352,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -59748,16 +60718,16 @@ void f_frag_main()
     f_u_xlat8 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat8) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat8;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat8 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat24 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + _LightShadowData.x;
+    f_u_xlat8 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat24 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat8) + _510_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_10.x = (f_u_xlat0.x * f_u_xlat16_10.x) + f_u_xlat8;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -59861,6 +60831,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -59888,8 +60859,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -60176,16 +61154,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _510_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -60258,6 +61236,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -61257,8 +62236,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -61340,6 +62326,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -61371,16 +62358,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -61426,6 +62413,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -61453,8 +62441,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -61536,6 +62531,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -61576,16 +62572,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -61626,6 +62622,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -61661,8 +62658,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -61834,6 +62838,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -61904,9 +62909,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -61918,7 +62923,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -61973,6 +62978,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -62006,8 +63012,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -62089,6 +63102,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -62133,9 +63147,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -62147,7 +63161,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -62216,6 +63230,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -62251,8 +63266,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -62424,6 +63446,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -62501,9 +63524,9 @@ void f_frag_main()
     f_u_xlat0.y = _213.y;
     f_u_xlat0.z = _213.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -62515,7 +63538,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -62617,6 +63640,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -62655,8 +63679,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -62738,6 +63769,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -62854,16 +63886,16 @@ void f_frag_main()
     f_u_xlat1.x = sqrt(f_u_xlat1.x);
     f_u_xlat1.x = (-f_u_xlat36) + f_u_xlat1.x;
     f_u_xlat36 = (unity_ShadowFadeCenterAndType.w * f_u_xlat1.x) + f_u_xlat36;
-    f_u_xlat36 = (f_u_xlat36 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat36 = (f_u_xlat36 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat36 = clamp(f_u_xlat36, 0.0f, 1.0f);
     f_u_xlat1 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat1;
     f_u_xlat1 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat1;
     f_u_xlat1 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat1.xy, f_u_xlat1.z);
-    f_u_xlat1.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat13 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + _LightShadowData.x;
+    f_u_xlat1.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat13 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat1.x = (f_u_xlat1.x * f_u_xlat13) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_40 = (-f_u_xlat1.x) + 1.0f;
     f_u_xlat16_40 = (f_u_xlat36 * f_u_xlat16_40) + f_u_xlat1.x;
     float4 _364 = float4(_SingleIndirectColor, _IndirectIntensity, _SingleIndirectColor, _SingleIndirectColor);
@@ -62930,6 +63962,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -64418,8 +65451,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -64591,6 +65631,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -64624,16 +65665,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -64678,6 +65719,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -64706,8 +65748,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -64789,6 +65838,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -64819,16 +65869,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -64866,6 +65916,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -64896,8 +65947,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -65069,6 +66127,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -65127,16 +66186,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -65185,6 +66244,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -65218,8 +66278,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -65301,6 +66368,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -65410,16 +66478,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -65443,6 +66511,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -65478,8 +66547,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -65651,6 +66727,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -65721,9 +66798,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -65735,7 +66812,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -65789,6 +66866,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -65820,8 +66898,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -65903,6 +66988,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -65973,9 +67059,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -65987,7 +67073,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -66036,6 +67122,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -66069,8 +67156,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -66152,6 +67246,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -66196,9 +67291,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -66210,7 +67305,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -66300,6 +67395,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -66330,8 +67426,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -66413,6 +67516,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -66488,9 +67592,9 @@ void f_frag_main()
     f_u_xlat0.y = _213.y;
     f_u_xlat0.z = _213.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -66502,7 +67606,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -66572,6 +67676,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -66604,8 +67709,15 @@ float _IndirectIntensity;
 float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -66687,6 +67799,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -66765,9 +67878,9 @@ void f_frag_main()
     f_u_xlat2.y = _234.y;
     f_u_xlat2.z = _234.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -66779,7 +67892,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -66847,6 +67960,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -68520,8 +69634,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -68784,16 +69905,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -68840,6 +69961,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -68869,8 +69991,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -69040,16 +70169,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -69089,6 +70218,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -69120,8 +70250,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -69409,16 +70546,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -69469,6 +70606,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -69503,8 +70641,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -69753,16 +70898,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -69788,6 +70933,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -69824,8 +70970,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -70125,9 +71278,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -70139,7 +71292,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -70195,6 +71348,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -70227,8 +71381,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -70438,9 +71599,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -70452,7 +71613,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -70503,6 +71664,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -70537,8 +71699,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -70722,9 +71891,9 @@ void f_frag_main()
     f_u_xlat0.y = _253.y;
     f_u_xlat0.z = _253.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -70736,7 +71905,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -70828,6 +71997,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -70859,8 +72029,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -71075,9 +72252,9 @@ void f_frag_main()
     f_u_xlat0.y = _386.y;
     f_u_xlat0.z = _386.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -71089,7 +72266,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -71161,6 +72338,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -71194,8 +72372,15 @@ float _IndirectIntensity;
 float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -71414,9 +72599,9 @@ void f_frag_main()
     f_u_xlat2.y = _402.y;
     f_u_xlat2.z = _402.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -71428,7 +72613,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -71498,6 +72683,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -74147,8 +75333,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -74411,16 +75604,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -74466,6 +75659,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -74493,8 +75687,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -74666,16 +75867,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -74719,6 +75920,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -74748,8 +75950,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -74919,16 +76128,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -74968,6 +76177,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -74994,8 +76204,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -75191,16 +76408,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -75224,6 +76441,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -75252,8 +76470,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -75434,16 +76659,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -75485,6 +76710,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -75522,8 +76748,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -75825,9 +77058,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -75839,7 +77072,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -75942,6 +77175,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -75974,8 +77208,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -76185,9 +77426,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -76199,7 +77440,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -76271,6 +77512,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -78062,8 +79304,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -78234,6 +79483,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -78267,16 +79517,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -78321,6 +79571,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -78348,8 +79599,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -78454,6 +79712,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -78484,16 +79743,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -78531,6 +79790,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -78560,8 +79820,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -78732,6 +79999,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -78790,16 +80058,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -78848,6 +80116,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -78880,8 +80149,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -78986,6 +80262,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -79095,16 +80372,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -79128,6 +80405,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -79159,8 +80437,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -79371,6 +80656,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -79434,16 +80720,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -79500,6 +80786,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -79527,8 +80814,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -79670,6 +80964,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -79733,16 +81028,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -79794,6 +81089,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -79823,8 +81119,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -79968,6 +81271,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -80022,16 +81326,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat21 += (-f_u_xlat22);
     f_u_xlat21 = (unity_ShadowFadeCenterAndType.w * f_u_xlat21) + f_u_xlat22;
-    f_u_xlat21 = (f_u_xlat21 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat21 = (f_u_xlat21 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat21 = clamp(f_u_xlat21, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_2.x = (-f_u_xlat22) + _255_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -80104,6 +81408,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -80130,8 +81435,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -80272,6 +81584,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -80340,16 +81653,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _319_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -80422,6 +81735,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -80450,8 +81764,15 @@ float4 _HColor;
 float4 _LightColor0;
 float _SingleIndirectColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -80594,6 +81915,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -80665,16 +81987,16 @@ void f_frag_main()
     f_u_xlat21 = dot(f_u_xlat8, f_u_xlat4);
     f_u_xlat2.x += (-f_u_xlat21);
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat21;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat21 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat4.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + _LightShadowData.x;
+    f_u_xlat21 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat4.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat21 = (f_u_xlat21 * f_u_xlat4.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati4 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati4 *= 7;
     f_u_xlat16_7.x = (-f_u_xlat21) + _339_unity_Builtins2Array[f_u_xlati4 / 7].unity_SHCArray.w;
@@ -80745,6 +82067,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -83131,8 +84454,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -83303,6 +84633,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -83336,16 +84667,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -83389,6 +84720,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -83414,8 +84746,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -83520,6 +84859,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -83552,16 +84892,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -83603,6 +84943,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -83630,8 +84971,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -83736,6 +85084,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -83766,16 +85115,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -83813,6 +85162,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -83837,8 +85187,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -83943,6 +85300,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -83999,16 +85357,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -84030,6 +85388,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -84056,8 +85415,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -84162,6 +85528,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -84202,16 +85569,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -84251,6 +85618,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -84283,8 +85651,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -84496,6 +85871,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -84561,16 +85937,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat7, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat22);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat22;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_9.x = (-f_u_xlat22) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -84674,6 +86050,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -84701,8 +86078,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -84844,6 +86228,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -84907,16 +86292,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -84989,6 +86374,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -87176,8 +88562,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -87477,16 +88870,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -87533,6 +88926,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -87558,8 +88952,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -87789,16 +89190,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -87843,6 +89244,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -87870,8 +89272,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -88101,16 +89510,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -88151,6 +89560,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -88175,8 +89585,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -88429,16 +89846,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -88463,6 +89880,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -88489,8 +89907,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -88730,16 +90155,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -88782,6 +90207,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -88814,8 +90240,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -89173,16 +90606,16 @@ void f_frag_main()
     f_u_xlat8 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat8) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat8;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat8 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat24 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + _LightShadowData.x;
+    f_u_xlat8 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat24 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat8 = (f_u_xlat8 * f_u_xlat24) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat8) + _510_unity_Builtins2Array[f_u_xlati8.y / 7].unity_SHCArray.w;
     f_u_xlat16_10.x = (f_u_xlat0.x * f_u_xlat16_10.x) + f_u_xlat8;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -89286,6 +90719,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -89313,8 +90747,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -89601,16 +91042,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _510_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -89683,6 +91124,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -91926,8 +93368,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -92229,16 +93678,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -92309,6 +93758,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -92334,8 +93784,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -92565,16 +94022,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -92619,6 +94076,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -95093,8 +96551,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -95266,6 +96731,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -95299,16 +96765,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -95353,6 +96819,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -95381,8 +96848,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -95464,6 +96938,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -95494,16 +96969,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -95541,6 +97016,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -95571,8 +97047,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -95744,6 +97227,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -95802,16 +97286,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_7.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_7.x = (f_u_xlat0.x * f_u_xlat16_7.x) + f_u_xlat5.x;
     f_u_xlat16_2.x = f_u_xlat16_7.x * f_u_xlat16_2.x;
@@ -95860,6 +97344,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -95893,8 +97378,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -95976,6 +97468,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -96085,16 +97578,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -96118,6 +97611,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -96153,8 +97647,15 @@ float _IndirectIntensity;
 Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -96326,6 +97827,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -96396,9 +97898,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -96410,7 +97912,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -96464,6 +97966,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -96495,8 +97998,15 @@ Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
 float _IndirectIntensity;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -96578,6 +98088,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -96648,9 +98159,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -96662,7 +98173,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -96711,6 +98222,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -96744,8 +98256,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -96827,6 +98346,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -96871,9 +98391,9 @@ void f_frag_main()
     f_u_xlat0.y = _75.y;
     f_u_xlat0.z = _75.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat6 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat6);
@@ -96885,7 +98405,7 @@ void f_frag_main()
     f_u_xlat12 = dot(f_u_xlat3, f_u_xlat2);
     f_u_xlat6.x = (-f_u_xlat12) + f_u_xlat6.x;
     f_u_xlat6.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat6.x) + f_u_xlat12;
-    f_u_xlat6.x = (f_u_xlat6.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat6.x = (f_u_xlat6.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat6.x = clamp(f_u_xlat6.x, 0.0f, 1.0f);
     f_u_xlat16_1.x = (f_u_xlat6.x * f_u_xlat16_1.x) + f_u_xlat0.x;
     f_u_xlat0.x = dot(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz);
@@ -96975,6 +98495,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -97005,8 +98526,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -97088,6 +98616,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -97163,9 +98692,9 @@ void f_frag_main()
     f_u_xlat0.y = _213.y;
     f_u_xlat0.z = _213.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -97177,7 +98706,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -97247,6 +98776,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -97279,8 +98809,15 @@ float _IndirectIntensity;
 float4 unity_SHAr;
 float4 unity_SHAg;
 float4 unity_SHAb;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -97362,6 +98899,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -97440,9 +98978,9 @@ void f_frag_main()
     f_u_xlat2.y = _234.y;
     f_u_xlat2.z = _234.z;
     float3 txVec0 = float3(f_u_xlat2.xy, f_u_xlat2.z);
-    f_u_xlat2.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat9.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + _LightShadowData.x;
+    f_u_xlat2.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat9.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat2.x = (f_u_xlat2.x * f_u_xlat9.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_8.x = (-f_u_xlat2.x) + 1.0f;
     f_u_xlat9 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat9.x = dot(f_u_xlat9, f_u_xlat9);
@@ -97454,7 +98992,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat5, f_u_xlat4);
     f_u_xlat9.x = (-f_u_xlat16) + f_u_xlat9.x;
     f_u_xlat9.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat9.x) + f_u_xlat16;
-    f_u_xlat9.x = (f_u_xlat9.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat9.x = (f_u_xlat9.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat9.x = clamp(f_u_xlat9.x, 0.0f, 1.0f);
     f_u_xlat16_8.x = (f_u_xlat9.x * f_u_xlat16_8.x) + f_u_xlat2.x;
     f_u_xlat16_1.x = f_u_xlat16_8.x * f_u_xlat16_1.x;
@@ -97522,6 +99060,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -99620,8 +101159,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -99793,6 +101339,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -99826,16 +101373,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -99879,6 +101426,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -99905,8 +101453,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -99988,6 +101543,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -100020,16 +101576,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -100071,6 +101627,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -100099,8 +101656,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -100182,6 +101746,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -100212,16 +101777,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -100259,6 +101824,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -100284,8 +101850,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -100367,6 +101940,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -100423,16 +101997,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -100454,6 +102028,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -100481,8 +102056,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -100564,6 +102146,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -100604,16 +102187,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -100653,6 +102236,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -100689,8 +102273,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -100862,6 +102453,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -100934,9 +102526,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -100948,7 +102540,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -101049,6 +102641,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -101080,8 +102673,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -101163,6 +102763,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -101233,9 +102834,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -101247,7 +102848,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -101317,6 +102918,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -103148,8 +104750,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -103412,16 +105021,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -103467,6 +105076,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -103494,8 +105104,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -103667,16 +105284,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -103720,6 +105337,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -103749,8 +105367,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -103920,16 +105545,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -103969,6 +105594,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -103995,8 +105621,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -104192,16 +105825,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -104225,6 +105858,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -104253,8 +105887,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -104435,16 +106076,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -104486,6 +106127,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -104523,8 +106165,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -104826,9 +106475,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -104840,7 +106489,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -104943,6 +106592,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -104975,8 +106625,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -105186,9 +106843,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -105200,7 +106857,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -105272,6 +106929,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -107165,8 +108823,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -107430,16 +109095,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -107509,6 +109174,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -107536,8 +109202,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -107709,16 +109382,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -107762,6 +109435,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -110352,8 +112026,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -110524,6 +112205,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -110557,16 +112239,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -110610,6 +112292,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -110635,8 +112318,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -110741,6 +112431,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -110773,16 +112464,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -110824,6 +112515,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -110851,8 +112543,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -110957,6 +112656,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -110987,16 +112687,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -111034,6 +112734,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -111058,8 +112759,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -111164,6 +112872,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -111220,16 +112929,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -111251,6 +112960,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -111277,8 +112987,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -111383,6 +113100,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -111423,16 +113141,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -111472,6 +113190,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -111504,8 +113223,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -111717,6 +113443,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD4;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -111782,16 +113509,16 @@ void f_frag_main()
     f_u_xlat22 = dot(f_u_xlat7, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat22);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat22;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat22 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat22 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat22 = (f_u_xlat22 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_9.x = (-f_u_xlat22) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -111895,6 +113622,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -111922,8 +113650,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -112065,6 +113800,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -112128,16 +113864,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -112210,6 +113946,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -113842,8 +115579,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -114014,6 +115758,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -114048,16 +115793,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -114125,6 +115870,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -114150,8 +115896,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -114256,6 +116009,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -114288,16 +116042,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -114339,6 +116093,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -116118,8 +117873,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -116421,16 +118183,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -116501,6 +118263,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -116526,8 +118289,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -116757,16 +118527,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -116811,6 +118581,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -120041,8 +121812,15 @@ float4 _MatCapColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -120214,6 +121992,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -120247,16 +122026,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -120300,6 +122079,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -120326,8 +122106,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -120409,6 +122196,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -120441,16 +122229,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -120492,6 +122280,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -120520,8 +122309,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -120603,6 +122399,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -120633,16 +122430,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -120680,6 +122477,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -120705,8 +122503,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -120788,6 +122593,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -120844,16 +122650,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6.x = (f_u_xlat0.x * f_u_xlat16_6.x) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6.x * f_u_xlat16_2.x;
@@ -120875,6 +122681,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -120902,8 +122709,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -120985,6 +122799,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -121025,16 +122840,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -121074,6 +122889,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -121110,8 +122926,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -121283,6 +123106,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -121355,9 +123179,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat8.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_10.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat8 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat8.x = dot(f_u_xlat8, f_u_xlat8);
@@ -121369,7 +123193,7 @@ void f_frag_main()
     f_u_xlat16 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat8.x = (-f_u_xlat16) + f_u_xlat8.x;
     f_u_xlat8.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat8.x) + f_u_xlat16;
-    f_u_xlat8.x = (f_u_xlat8.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat8.x = (f_u_xlat8.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat8.x = clamp(f_u_xlat8.x, 0.0f, 1.0f);
     f_u_xlat16_10.x = (f_u_xlat8.x * f_u_xlat16_10.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_10.x * f_u_xlat16_2.x;
@@ -121470,6 +123294,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -121501,8 +123326,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -121584,6 +123416,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -121654,9 +123487,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -121668,7 +123501,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -121738,6 +123571,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -123202,8 +125036,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -123375,6 +125216,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -123409,16 +125251,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -123486,6 +125328,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -123512,8 +125355,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -123595,6 +125445,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -123627,16 +125478,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -123678,6 +125529,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -125298,8 +127150,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -125563,16 +127422,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -125642,6 +127501,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -125669,8 +127529,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -125842,16 +127709,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -125895,6 +127762,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -128295,8 +130163,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -128467,6 +130342,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -128501,16 +130377,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -128578,6 +130454,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -128603,8 +130480,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -128709,6 +130593,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -128741,16 +130626,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -128792,6 +130677,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -130211,8 +132097,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -130499,16 +132392,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _510_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -130580,6 +132473,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -131812,8 +133706,15 @@ Texture2D<float4> _MatCapTex;
 SamplerState sampler_MatCapTex;
 float4 _MatCapColor;
 float _MatCapType;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -131985,6 +133886,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     float4 f_vs_TEXCOORD4 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -132019,16 +133921,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -132096,6 +133998,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD4 = stage_input.f_vs_TEXCOORD4;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -132122,8 +134025,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -132205,6 +134115,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -132237,16 +134148,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -132288,6 +134199,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -133606,8 +135518,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -133817,9 +135736,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -133831,7 +135750,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -133902,6 +135821,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -134477,8 +136397,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -134620,6 +136547,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -134683,16 +136611,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -134764,6 +136692,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -135237,8 +137166,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -135525,16 +137461,16 @@ void f_frag_main()
     f_u_xlat7 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat0.x = (-f_u_xlat7) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat7;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat7 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat21 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + _LightShadowData.x;
+    f_u_xlat7 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat21 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat7 = (f_u_xlat7 * f_u_xlat21) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat7) + _510_unity_Builtins2Array[f_u_xlati7.y / 7].unity_SHCArray.w;
     f_u_xlat16_9.x = (f_u_xlat0.x * f_u_xlat16_9.x) + f_u_xlat7;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -135606,6 +137542,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -135980,8 +137917,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -136211,16 +138155,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -136264,6 +138208,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -136295,8 +138240,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -136378,6 +138330,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -136448,9 +138401,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -136462,7 +138415,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -136531,6 +138484,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -136989,8 +138943,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -137200,9 +139161,9 @@ void f_frag_main()
     f_u_xlat0.y = _373.y;
     f_u_xlat0.z = _373.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -137214,7 +139175,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -137285,6 +139246,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -137594,8 +139556,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -137767,16 +139736,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -137819,6 +139788,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -137846,8 +139816,15 @@ float _IndirectIntensity;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -137989,6 +139966,7 @@ struct f_SPIRV_Cross_Input
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
     nointerpolation uint f_vs_SV_InstanceID0 : TEXCOORD3;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -138052,16 +140030,16 @@ void f_frag_main()
     f_u_xlat19 = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat0.x += (-f_u_xlat19);
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat19;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat3 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat3;
     f_u_xlat3 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat3;
     f_u_xlat3 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat3.xy, f_u_xlat3.z);
-    f_u_xlat19 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat3.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + _LightShadowData.x;
+    f_u_xlat19 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat3.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat19 = (f_u_xlat19 * f_u_xlat3.x) + RecoveryDirectionalShadowData().x;
     f_u_xlati3 = int(f_vs_SV_InstanceID0) + unity_BaseInstanceID;
     f_u_xlati3 *= 7;
     f_u_xlat16_8.x = (-f_u_xlat19) + _306_unity_Builtins2Array[f_u_xlati3 / 7].unity_SHCArray.w;
@@ -138133,6 +140111,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_SV_InstanceID0 = stage_input.f_vs_SV_InstanceID0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -138432,8 +140411,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -138538,6 +140524,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -138570,16 +140557,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -138620,6 +140607,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -138994,8 +140982,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -139225,16 +141220,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -139278,6 +141273,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -139570,8 +141566,15 @@ float4 unity_SHAb;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -139653,6 +141656,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -139723,9 +141727,9 @@ void f_frag_main()
     f_u_xlat0.y = _199.y;
     f_u_xlat0.z = _199.z;
     float3 txVec0 = float3(f_u_xlat0.xy, f_u_xlat0.z);
-    f_u_xlat0.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat7.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + _LightShadowData.x;
+    f_u_xlat0.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat7.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat0.x = (f_u_xlat0.x * f_u_xlat7.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_9.x = (-f_u_xlat0.x) + 1.0f;
     f_u_xlat7 = f_vs_TEXCOORD0.xyz + (-unity_ShadowFadeCenterAndType.xyz);
     f_u_xlat7.x = dot(f_u_xlat7, f_u_xlat7);
@@ -139737,7 +141741,7 @@ void f_frag_main()
     f_u_xlat14 = dot(f_u_xlat4, f_u_xlat3);
     f_u_xlat7.x = (-f_u_xlat14) + f_u_xlat7.x;
     f_u_xlat7.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat7.x) + f_u_xlat14;
-    f_u_xlat7.x = (f_u_xlat7.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat7.x = (f_u_xlat7.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat7.x = clamp(f_u_xlat7.x, 0.0f, 1.0f);
     f_u_xlat16_9.x = (f_u_xlat7.x * f_u_xlat16_9.x) + f_u_xlat0.x;
     f_u_xlat16_2.x = f_u_xlat16_9.x * f_u_xlat16_2.x;
@@ -139806,6 +141810,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -140053,8 +142058,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -140136,6 +142148,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -140168,16 +142181,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -140218,6 +142231,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -140527,8 +142541,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -140700,16 +142721,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -140752,6 +142773,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -141262,8 +143284,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -141368,6 +143397,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -141400,16 +143430,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -141450,6 +143480,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -142130,8 +144161,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -142213,6 +144251,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -142245,16 +144284,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -142295,6 +144334,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -150488,8 +152528,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -150723,16 +152770,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -150780,6 +152827,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -150805,8 +152853,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -151045,16 +153100,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -151097,6 +153152,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -151131,8 +153187,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -151387,16 +153450,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -151462,6 +153525,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -151491,8 +153555,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -151752,16 +153823,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _408 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -151822,6 +153893,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -157852,8 +159924,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -158024,16 +160103,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -158080,6 +160159,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -158107,8 +160187,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -158289,16 +160376,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -158340,6 +160427,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -158376,8 +160464,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -158581,16 +160676,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -158655,6 +160750,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -158686,8 +160782,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -158901,16 +161004,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _386 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -158970,6 +161073,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -162776,8 +164880,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -162882,6 +164993,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -162913,16 +165025,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -162967,6 +165079,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -162992,8 +165105,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -163098,6 +165218,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -163138,16 +165259,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -163187,6 +165308,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -163221,8 +165343,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -163345,6 +165474,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -163376,16 +165506,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -163448,6 +165578,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -163477,8 +165608,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -163601,6 +165739,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -163641,16 +165780,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _218 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -163708,6 +165847,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -170697,8 +172837,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -170927,16 +173074,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -170976,6 +173123,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -171007,8 +173155,15 @@ Texture2D<float4> _Ramp;
 SamplerState sampler_Ramp;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -171322,16 +173477,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -171357,6 +173512,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -171387,8 +173543,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -171638,16 +173801,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -171705,6 +173868,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -171740,8 +173904,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -172082,16 +174253,16 @@ void f_frag_main()
     f_u_xlat34 = sqrt(f_u_xlat34);
     f_u_xlat34 = (-f_u_xlat33) + f_u_xlat34;
     f_u_xlat33 = (unity_ShadowFadeCenterAndType.w * f_u_xlat34) + f_u_xlat33;
-    f_u_xlat33 = (f_u_xlat33 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat33 = (f_u_xlat33 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat33 = clamp(f_u_xlat33, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat34 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat28 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + _LightShadowData.x;
+    f_u_xlat34 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat28 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_35 = (-f_u_xlat34) + 1.0f;
     f_u_xlat16_35 = (f_u_xlat33 * f_u_xlat16_35) + f_u_xlat34;
     f_u_xlat33 = _LightTexture0.Sample(sampler_LightTexture0, f_u_xlat6).w;
@@ -172120,6 +174291,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -178342,8 +180514,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -178425,6 +180604,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -178456,16 +180636,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -178510,6 +180690,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -178536,8 +180717,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -178619,6 +180807,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -178659,16 +180848,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -178708,6 +180897,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -178743,8 +180933,15 @@ float4 _EmissionColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -178859,6 +181056,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -178890,16 +181088,16 @@ void f_frag_main()
     f_u_xlat5.x = dot(f_u_xlat5, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat5.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat5.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat5 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat5;
     f_u_xlat5 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat5;
     f_u_xlat5 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat5.xy, f_u_xlat5.z);
-    f_u_xlat5.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat5.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat5.x = (f_u_xlat5.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat5.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat5.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -178962,6 +181160,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -178992,8 +181191,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -179108,6 +181314,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -179148,16 +181355,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _218 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -179215,6 +181422,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -185512,8 +187720,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -185683,16 +187898,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -185731,6 +187946,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -185764,8 +187980,15 @@ Texture2D<float4> _Ramp;
 SamplerState sampler_Ramp;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -186014,16 +188237,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -186048,6 +188271,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -186080,8 +188304,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -186284,16 +188515,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -186350,6 +188581,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -186387,8 +188619,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -186676,16 +188915,16 @@ void f_frag_main()
     f_u_xlat34 = sqrt(f_u_xlat34);
     f_u_xlat34 = (-f_u_xlat33) + f_u_xlat34;
     f_u_xlat33 = (unity_ShadowFadeCenterAndType.w * f_u_xlat34) + f_u_xlat33;
-    f_u_xlat33 = (f_u_xlat33 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat33 = (f_u_xlat33 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat33 = clamp(f_u_xlat33, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat34 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat28 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + _LightShadowData.x;
+    f_u_xlat34 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat28 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_35 = (-f_u_xlat34) + 1.0f;
     f_u_xlat16_35 = (f_u_xlat33 * f_u_xlat16_35) + f_u_xlat34;
     f_u_xlat33 = _LightTexture0.Sample(sampler_LightTexture0, f_u_xlat6).w;
@@ -186713,6 +188952,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -194555,8 +196795,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -194661,6 +196908,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -194691,16 +196939,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -194737,6 +196985,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -194768,8 +197017,15 @@ Texture2D<float4> _Ramp;
 SamplerState sampler_Ramp;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -194874,6 +197130,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -194983,16 +197240,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -195015,6 +197272,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -195045,8 +197303,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -195169,6 +197434,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -195199,16 +197465,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -195263,6 +197529,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -195298,8 +197565,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -195422,6 +197696,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -195537,16 +197812,16 @@ void f_frag_main()
     f_u_xlat34 = sqrt(f_u_xlat34);
     f_u_xlat34 = (-f_u_xlat33) + f_u_xlat34;
     f_u_xlat33 = (unity_ShadowFadeCenterAndType.w * f_u_xlat34) + f_u_xlat33;
-    f_u_xlat33 = (f_u_xlat33 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat33 = (f_u_xlat33 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat33 = clamp(f_u_xlat33, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat34 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat28 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + _LightShadowData.x;
+    f_u_xlat34 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat28 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_35 = (-f_u_xlat34) + 1.0f;
     f_u_xlat16_35 = (f_u_xlat33 * f_u_xlat16_35) + f_u_xlat34;
     f_u_xlat33 = _LightTexture0.Sample(sampler_LightTexture0, f_u_xlat6).w;
@@ -195572,6 +197847,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -204101,8 +206377,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -204331,16 +206614,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -204384,6 +206667,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -204410,8 +206694,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -204640,16 +206931,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -204689,6 +206980,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -204712,8 +207004,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -204965,16 +207264,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6 = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6 = (f_u_xlat0.x * f_u_xlat16_6) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6 * f_u_xlat16_2.x;
@@ -204998,6 +207297,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -205023,8 +207323,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -205263,16 +207570,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -205314,6 +207621,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -205342,8 +207650,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -205593,16 +207908,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -205664,6 +207979,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -205694,8 +208010,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -205945,16 +208268,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -206012,6 +208335,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -206039,8 +208363,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -206289,16 +208620,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -206365,6 +208696,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -206394,8 +208726,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -206655,16 +208994,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _408 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -206724,6 +209063,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -214939,8 +217279,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -215022,6 +217369,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -215052,16 +217400,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -215098,6 +217446,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -215130,8 +217479,15 @@ Texture2D<float4> _Ramp;
 SamplerState sampler_Ramp;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -215213,6 +217569,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -215322,16 +217679,16 @@ void f_frag_main()
     f_u_xlat31 = sqrt(f_u_xlat31);
     f_u_xlat31 = (-f_u_xlat30) + f_u_xlat31;
     f_u_xlat30 = (unity_ShadowFadeCenterAndType.w * f_u_xlat31) + f_u_xlat30;
-    f_u_xlat30 = (f_u_xlat30 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat30 = (f_u_xlat30 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat30 = clamp(f_u_xlat30, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat31 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat6.x = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + _LightShadowData.x;
+    f_u_xlat31 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat6.x = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat31 = (f_u_xlat31 * f_u_xlat6.x) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_32 = (-f_u_xlat31) + 1.0f;
     f_u_xlat16_32 = (f_u_xlat30 * f_u_xlat16_32) + f_u_xlat31;
     f_u_xlat0.x = dot(f_u_xlat0, f_u_xlat1);
@@ -215354,6 +217711,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -215385,8 +217743,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -215501,6 +217866,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -215531,16 +217897,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -215595,6 +217961,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -215631,8 +217998,15 @@ SamplerState sampler_Ramp;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -215747,6 +218121,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -215862,16 +218237,16 @@ void f_frag_main()
     f_u_xlat34 = sqrt(f_u_xlat34);
     f_u_xlat34 = (-f_u_xlat33) + f_u_xlat34;
     f_u_xlat33 = (unity_ShadowFadeCenterAndType.w * f_u_xlat34) + f_u_xlat33;
-    f_u_xlat33 = (f_u_xlat33 * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat33 = (f_u_xlat33 * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat33 = clamp(f_u_xlat33, 0.0f, 1.0f);
     f_u_xlat9 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat9;
     f_u_xlat9 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat9;
     f_u_xlat9 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat9.xy, f_u_xlat9.z);
-    f_u_xlat34 = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat28 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + _LightShadowData.x;
+    f_u_xlat34 = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat28 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat34 = (f_u_xlat34 * f_u_xlat28) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_35 = (-f_u_xlat34) + 1.0f;
     f_u_xlat16_35 = (f_u_xlat33 * f_u_xlat16_35) + f_u_xlat34;
     f_u_xlat33 = _LightTexture0.Sample(sampler_LightTexture0, f_u_xlat6).w;
@@ -215897,6 +218272,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -223692,8 +226068,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -223865,16 +226248,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -223917,6 +226300,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -223945,8 +226329,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -224116,16 +226507,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -224164,6 +226555,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -224189,8 +226581,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -224386,16 +226785,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6 = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6 = (f_u_xlat0.x * f_u_xlat16_6) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6 * f_u_xlat16_2.x;
@@ -224418,6 +226817,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -224445,8 +226845,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -224627,16 +227034,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -224677,6 +227084,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -224707,8 +227115,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -224913,16 +227328,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -224983,6 +227398,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -225015,8 +227431,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -225219,16 +227642,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -225285,6 +227708,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -225314,8 +227738,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -225520,16 +227951,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -225595,6 +228026,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -225626,8 +228058,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -225841,16 +228280,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _386 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -225909,6 +228348,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -233694,8 +236134,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -233800,6 +236247,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -233832,16 +236280,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -233882,6 +236330,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -233908,8 +236357,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -234014,6 +236470,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -234044,16 +236501,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -234090,6 +236547,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -234113,8 +236571,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -234219,6 +236684,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -234275,16 +236741,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6 = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6 = (f_u_xlat0.x * f_u_xlat16_6) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6 * f_u_xlat16_2.x;
@@ -234305,6 +236771,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -234330,8 +236797,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -234436,6 +236910,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -234476,16 +236951,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -234524,6 +236999,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -234552,8 +237028,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -234676,6 +237159,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -234708,16 +237192,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -234776,6 +237260,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -234806,8 +237291,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -234930,6 +237422,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -234960,16 +237453,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -235024,6 +237517,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -235051,8 +237545,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -235175,6 +237676,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -235207,16 +237709,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -235280,6 +237782,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -235309,8 +237812,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -235433,6 +237943,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -235473,16 +237984,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _218 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -235539,6 +238050,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -244963,8 +247475,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -245193,16 +247712,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -245246,6 +247765,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -245270,8 +247790,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -245500,16 +248027,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -245553,6 +248080,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -245581,8 +248109,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -245832,16 +248367,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -245902,6 +248437,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -245930,8 +248466,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -246181,16 +248724,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -246252,6 +248795,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -252940,8 +255484,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -253023,6 +255574,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -253055,16 +255607,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -253105,6 +255657,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -253132,8 +255685,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -253215,6 +255775,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -253245,16 +255806,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -253291,6 +255852,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -253315,8 +255877,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -253398,6 +255967,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -253454,16 +256024,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_6 = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_6 = (f_u_xlat0.x * f_u_xlat16_6) + f_u_xlat4.x;
     f_u_xlat16_2.x = f_u_xlat16_6 * f_u_xlat16_2.x;
@@ -253484,6 +256054,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -253510,8 +256081,15 @@ float _RampSmoothing;
 float _RampThreshold;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -253593,6 +256171,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -253633,16 +256212,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     f_u_xlat2.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -253681,6 +256260,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -253710,8 +256290,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -253826,6 +256413,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -253858,16 +256446,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -253926,6 +256514,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -253957,8 +256546,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -254073,6 +256669,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -254103,16 +256700,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -254167,6 +256764,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -254195,8 +256793,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -254311,6 +256916,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -254343,16 +256949,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -254416,6 +257022,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -254446,8 +257053,15 @@ float _RampThreshold;
 float4 _SColor;
 float4 _HColor;
 float4 _LightColor0;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -254562,6 +257176,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -254602,16 +257217,16 @@ void f_frag_main()
     f_u_xlat6.x = dot(f_u_xlat6, f_u_xlat3);
     f_u_xlat2.x = (-f_u_xlat6.x) + f_u_xlat2.x;
     f_u_xlat2.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat2.x) + f_u_xlat6.x;
-    f_u_xlat2.x = (f_u_xlat2.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat2.x = (f_u_xlat2.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat2.x = clamp(f_u_xlat2.x, 0.0f, 1.0f);
     f_u_xlat6 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat6;
     f_u_xlat6 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat6;
     f_u_xlat6 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat6.xy, f_u_xlat6.z);
-    f_u_xlat6.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat10 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + _LightShadowData.x;
+    f_u_xlat6.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat10 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat6.x = (f_u_xlat6.x * f_u_xlat10) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_1.x = (-f_u_xlat6.x) + 1.0f;
     f_u_xlat16_1.x = (f_u_xlat2.x * f_u_xlat16_1.x) + f_u_xlat6.x;
     float2 _218 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -254668,6 +257283,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -263204,8 +265820,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -263377,16 +266000,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -263429,6 +266052,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -263455,8 +266079,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -263628,16 +266259,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -263680,6 +266311,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -263710,8 +266342,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -263916,16 +266555,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -263985,6 +266624,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -264015,8 +266655,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -264221,16 +266868,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -264291,6 +266938,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -271319,8 +273967,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -271425,6 +274080,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -271457,16 +274113,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -271507,6 +274163,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -271531,8 +274188,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -271637,6 +274301,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -271669,16 +274334,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -271719,6 +274384,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -271747,8 +274413,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -271871,6 +274544,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -271903,16 +274577,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -271970,6 +274644,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -271998,8 +274673,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -272122,6 +274804,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -272154,16 +274837,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -272222,6 +274905,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -277709,8 +280393,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -277939,16 +280630,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -277992,6 +280683,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -278020,8 +280712,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -278271,16 +280970,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -278341,6 +281040,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -284297,8 +286997,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -284380,6 +287087,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -284412,16 +287120,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -284462,6 +287170,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -284487,8 +287196,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -284570,6 +287286,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -284602,16 +287319,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -284652,6 +287369,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -284681,8 +287399,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -284797,6 +287522,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -284829,16 +287555,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -284896,6 +287622,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -284925,8 +287652,15 @@ float4 _LightColor0;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -285041,6 +287775,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -285073,16 +287808,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -285141,6 +287876,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -290145,8 +292881,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -290318,16 +293061,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -290370,6 +293113,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -290400,8 +293144,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -290606,16 +293357,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -290675,6 +293426,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -294642,8 +297394,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -294748,6 +297507,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -294780,16 +297540,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -294830,6 +297590,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -294858,8 +297619,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -294982,6 +297750,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -295014,16 +297783,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -295081,6 +297850,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -298086,8 +300856,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -298316,16 +301093,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -298369,6 +301146,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -298397,8 +301175,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -298648,16 +301433,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _379 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -298718,6 +301503,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -301821,8 +304607,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -301904,6 +304697,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -301936,16 +304730,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -301986,6 +304780,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -302015,8 +304810,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -302131,6 +304933,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -302163,16 +304966,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -302230,6 +305033,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -304988,8 +307792,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -305161,16 +307972,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -305213,6 +308024,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -305243,8 +308055,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -305449,16 +308268,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _357 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -305518,6 +308337,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.f_gl_FragCoord.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -307492,8 +310312,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -307598,6 +310425,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -307630,16 +310458,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -307680,6 +310508,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -307708,8 +310537,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 struct v_unity_Builtins0Array_Type
 {
@@ -307832,6 +310668,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -307864,16 +310701,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -307931,6 +310768,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -311171,8 +314009,15 @@ float4 _HColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -311254,6 +314099,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -311286,16 +314132,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     f_u_xlat0.x = dot(f_vs_NORMAL0, f_vs_NORMAL0);
@@ -311336,6 +314182,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;
@@ -311365,8 +314212,15 @@ float4 _SColor;
 Texture2D<float4> _BaseMap;
 SamplerState sampler_BaseMap;
 float4 _BaseColor;
+#if defined(UNITY_NO_SCREENSPACE_SHADOWS)
 Texture2D<float4> _ShadowMapTexture;
 SamplerState sampler_ShadowMapTexture;
+#else
+sampler2D _ShadowMapTexture;
+#endif
+float4 _ScreenParams;
+#include "RecoveryDirectionalShadows.cginc"
+
 float4 RecoveryColumn_unity_WorldToShadow(int index) { return transpose(unity_WorldToShadow[index / 4])[index % 4]; }
 static float4 v_gl_Position;
 static float4 v_in_POSITION0;
@@ -311481,6 +314335,7 @@ struct f_SPIRV_Cross_Input
     float3 f_vs_NORMAL0 : TEXCOORD0;
     float4 f_vs_TEXCOORD0 : TEXCOORD1;
     float4 f_vs_TEXCOORD1 : TEXCOORD2;
+    float4 recoveryPixelPosition : SV_Position;
     bool f_gl_FrontFacing : SV_IsFrontFace;
 };
 
@@ -311513,16 +314368,16 @@ void f_frag_main()
     f_u_xlat4.x = dot(f_u_xlat4, f_u_xlat1);
     f_u_xlat0.x = (-f_u_xlat4.x) + f_u_xlat0.x;
     f_u_xlat0.x = (unity_ShadowFadeCenterAndType.w * f_u_xlat0.x) + f_u_xlat4.x;
-    f_u_xlat0.x = (f_u_xlat0.x * _LightShadowData.z) + _LightShadowData.w;
+    f_u_xlat0.x = (f_u_xlat0.x * RecoveryDirectionalShadowData().z) + RecoveryDirectionalShadowData().w;
     f_u_xlat0.x = clamp(f_u_xlat0.x, 0.0f, 1.0f);
     f_u_xlat4 = f_vs_TEXCOORD0.yyy * RecoveryColumn_unity_WorldToShadow(1).xyz;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(0).xyz * f_vs_TEXCOORD0.xxx) + f_u_xlat4;
     f_u_xlat4 = (RecoveryColumn_unity_WorldToShadow(2).xyz * f_vs_TEXCOORD0.zzz) + f_u_xlat4;
     f_u_xlat4 += RecoveryColumn_unity_WorldToShadow(3).xyz;
     float3 txVec0 = float3(f_u_xlat4.xy, f_u_xlat4.z);
-    f_u_xlat4.x = hlslcc_zcmp_ShadowMapTexture.SampleCmpLevelZero(sampler_hlslcc_zcmp_ShadowMapTexture, txVec0.xy, txVec0.z);
-    f_u_xlat8 = (-_LightShadowData.x) + 1.0f;
-    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + _LightShadowData.x;
+    f_u_xlat4.x = RecoverySampleDirectionalShadow(txVec0);
+    f_u_xlat8 = (-RecoveryDirectionalShadowData().x) + 1.0f;
+    f_u_xlat4.x = (f_u_xlat4.x * f_u_xlat8) + RecoveryDirectionalShadowData().x;
     f_u_xlat16_2.x = (-f_u_xlat4.x) + 1.0f;
     f_u_xlat16_2.x = (f_u_xlat0.x * f_u_xlat16_2.x) + f_u_xlat4.x;
     float2 _183 = f_vs_TEXCOORD0.yy * transpose(unity_WorldToLight)[1].xy;
@@ -311580,6 +314435,7 @@ f_SPIRV_Cross_Output RecoveryFrag(f_SPIRV_Cross_Input stage_input)
     f_vs_TEXCOORD0 = stage_input.f_vs_TEXCOORD0;
     f_vs_NORMAL0 = stage_input.f_vs_NORMAL0;
     f_vs_TEXCOORD1 = stage_input.f_vs_TEXCOORD1;
+    RecoveryShadowScreenUV = stage_input.recoveryPixelPosition.xy / _ScreenParams.xy;
     f_frag_main();
     f_SPIRV_Cross_Output stage_output;
     stage_output.f_SV_Target0 = f_SV_Target0;

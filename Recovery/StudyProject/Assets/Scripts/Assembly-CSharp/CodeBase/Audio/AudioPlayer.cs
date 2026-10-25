@@ -32,6 +32,7 @@ namespace CodeBase.Audio
         private const float minDelayBetweenSounds = .1f;
         private MutableAtom<int> version;
         private CancellationTokenSource musicFadeCts;
+        private bool destroying;
         private ComputedAtom<float> __MusicVolume;
         private ComputedAtom<float> __SoundVolume;
         private ComputedAtom<bool> __SFXEnabled;
@@ -178,20 +179,63 @@ namespace CodeBase.Audio
         }
         private async UniTaskVoid PlayClipAsync(AudioSource audioSource, AudioClip clip, float volumeScale, CancellationToken cancellationToken)
         {
-            // 0x14a7f70 + MoveNext 0x14a8ef4; cancellation is swallowed but finally always stops/clears.
-            audioSource.PlayOneShot(clip, audioSource.volume * volumeScale);
-            try { await UniTask.Delay((int)(clip.length * 1000f), cancellationToken: cancellationToken); }
+            // Original playback/duration/stop-clear behavior; destruction now cancels the wait too.
+            if (destroying || audioSource == null) return;
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, destroyCancellationToken);
+            try
+            {
+                linked.Token.ThrowIfCancellationRequested();
+                audioSource.PlayOneShot(clip, audioSource.volume * volumeScale);
+                await UniTask.Delay((int)(clip.length * 1000f), cancellationToken: linked.Token);
+            }
             catch (OperationCanceledException) { }
-            finally { if (audioSource.isPlaying) audioSource.Stop(); audioSource.clip = null; }
+            finally
+            {
+                if (audioSource != null)
+                {
+                    if (audioSource.isPlaying) audioSource.Stop();
+                    audioSource.clip = null;
+                }
+            }
         }
         public async UniTask FadeMusic(bool mute)
         {
-            // 0x14a8394 + MoveNext 0x14a8680: mute .5s / restore 1.5s, cancel the previous request.
+            // Original mute0.5s/restore1.5s, cancel the previous request.
+            if (destroying) return;
             if (musicPlayer == null) { Debug.LogWarning("MusicPlayer not found on scene!"); return; }
-            musicFadeCts?.Cancel();
-            musicFadeCts = new CancellationTokenSource();
-            try { await musicPlayer.FadeMusicVolume(mute ? 0f : 1f, mute ? .5f : 1.5f, musicFadeCts.Token); }
+            CancelAndDispose(ref musicFadeCts);
+            var request = new CancellationTokenSource();
+            musicFadeCts = request;
+            try
+            {
+                await musicPlayer.FadeMusicVolume(mute ? 0f : 1f, mute ? .5f : 1.5f, request.Token);
+            }
             catch (OperationCanceledException) { }
+            finally
+            {
+                if (ReferenceEquals(musicFadeCts, request)) musicFadeCts = null;
+                request.Dispose();
+            }
+        }
+        // Local lifecycle compatibility: cancel before LifetimeMonoBehaviour disposes reactions.
+        // Detach the field before Cancel because cancellation can resume an awaiting method synchronously.
+        private static void CancelAndDispose(ref CancellationTokenSource source)
+        {
+            var previous = source;
+            source = null;
+            if (previous == null) return;
+            try { previous.Cancel(); }
+            finally { previous.Dispose(); }
+        }
+
+        protected override void OnDestroy()
+        {
+            destroying = true;
+            try
+            {
+                CancelAndDispose(ref musicFadeCts);
+            }
+            finally { base.OnDestroy(); }
         }
     }
 }

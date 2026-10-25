@@ -176,7 +176,7 @@ namespace Codebase.Analytics
 		public string CurrentRewardKey { get; set; }
 		public double CurrentRewardValue { get; set; }
 		public bool IsDoubleValue { get; set; }
-		public float RewardedDensity => 0f;
+		public float RewardedDensity => GetRewardedDensity(0f);
 
 		public UdValue<int> bannerImpressions
 		{
@@ -397,34 +397,58 @@ namespace Codebase.Analytics
 
 		public float GetRewardedDensity(float offsetMinutes)
 		{
-			return 0f;
+			// Original ARM64 ELF VA 0x15a9df8: reward equivalents per elapsed hour.
+			float elapsedMinutes = Math.Max(1f, Minutes.Value - offsetMinutes);
+			return (InAppsBoughtValueInRewarded.Value + RewardedWatchTimes.Value) / (elapsedMinutes / 60f);
 		}
 
 		public int GetFreeBoosterTokens(string productId)
 		{
-			return 0;
-		}
+            // Native 0x15aa84c.
+            return FreeBoosterTokens.TryGetValue(productId, out int count) ? count : 0;
+        }
 
 		public void AddFreeBoosterToken(string productId)
 		{
-		}
+            // Native 0x15aa8c8.
+            FreeBoosterTokens[productId] = unchecked(GetFreeBoosterTokens(productId) + 1);
+        }
 
 		public bool ConsumeFreeBoosterToken(string productId)
 		{
-			return false;
-		}
+            // Native 0x15aa94c.
+            int count = GetFreeBoosterTokens(productId);
+            if (count <= 0) return false;
+            int remaining = count - 1;
+            if (remaining == 0) FreeBoosterTokens.Remove(productId);
+            else FreeBoosterTokens[productId] = remaining;
+            return true;
+        }
 
 		public void ResetDailyAdsIfNeeded()
 		{
+			// Original ARM64 ELF VA 0x15aaa0c uses real UTC midnight, not the game time offset.
+			double utcMidnight = new DateTimeOffset(DateTimeOffset.UtcNow.Date, TimeSpan.Zero).ToUnixTimeSeconds();
+			if (utcMidnight > DailyAdsResetTime.Value)
+			{
+				DailyAdsWatched.Value = 0;
+				DailyAdsResetTime.Value = utcMidnight;
+			}
 		}
 
 		public bool CanWatchAd(int maxAdsPerDay)
 		{
-			return false;
+			// Original ARM64 ELF VA 0x15aab90: nonpositive limits bypass the daily reset.
+			if (maxAdsPerDay <= 0) return true;
+			ResetDailyAdsIfNeeded();
+			return DailyAdsWatched.Value < maxAdsPerDay;
 		}
 
 		public void IncrementDailyAds()
 		{
+			// Original ARM64 ELF VA 0x15aac1c.
+			ResetDailyAdsIfNeeded();
+			DailyAdsWatched.Value++;
 		}
 
 		public UserModel(Lifetime lifetime) : base(lifetime)

@@ -14,7 +14,8 @@ namespace Codebase.Events
 
 		public Sprite GetSprite(ProgressStageState state)
 		{
-			return null;
+			// Original APK ARM64 ELF VA 0x14daee0.
+			return state == ProgressStageState.Passed ? Passed : state == ProgressStageState.Failed ? Failed : NotPassed;
 		}
 	}
 }

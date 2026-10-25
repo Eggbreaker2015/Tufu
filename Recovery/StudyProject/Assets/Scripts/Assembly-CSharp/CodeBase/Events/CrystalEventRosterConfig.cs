@@ -19,7 +19,7 @@ namespace Codebase.Events
 		[SerializeField]
 		public List<CrystalRosterLeagueDef> Leagues;
 
-		public int StagesCount => 0;
+		public int StagesCount => BossMinutes != null ? BossMinutes.Count : 0;
 
 		public void FillTemplate()
 		{

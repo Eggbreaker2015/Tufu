@@ -28,10 +28,19 @@ namespace Codebase.UI.Events
 
 		protected override void Awake()
 		{
+			// Original APK ARM64 ELF VA 0x16607b8.
+			base.Awake();
+			closeButton.onClick.AddListener(OnCloseClick);
+			var item = new ItemModel(Lifetime, itemConfig) { Level = 1 };
+			itemView.Initialize(item, false);
 		}
 
 		private void OnCloseClick()
 		{
+			// Original APK ARM64 ELF VA 0x16608d8.
+			audioPlayer.PlaySoundOnce("tap");
+			playerModel.Data.SeenEventTutorial.Value = true;
+			Close();
 		}
 	}
 }
