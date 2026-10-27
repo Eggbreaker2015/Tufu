@@ -1,76 +1,52 @@
 using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using BrunoMikoski.AnimationSequencer;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.CompilerServices;
 using UnityEngine;
 
 namespace Codebase.ProximityView
 {
-	public class ProximityViewHideAnimation : MonoBehaviour
-	{
-		[StructLayout((LayoutKind)3)]
-		[CompilerGenerated]
-		private struct _003CHideRoutine_003Ed__5 : IAsyncStateMachine
-		{
-			public int _003C_003E1__state;
+    public class ProximityViewHideAnimation : MonoBehaviour
+    {
+        [SerializeField] private AnimationSequencerController hideAnimation;
+        private CancellationTokenSource cts;
 
-			public AsyncUniTaskVoidMethodBuilder _003C_003Et__builder;
+        // APK ARM64 0x143c3b8 / 0x143c3d8.
+        private void OnEnable() => hideAnimation.ResetToInitialState();
 
-			public ProximityViewHideAnimation _003C_003E4__this;
+        public void Show()
+        {
+            CancelHide();
+            hideAnimation.Kill(false);
+            hideAnimation.ResetToInitialState();
+        }
 
-			public CancellationToken token;
+        public void Hide(Action onComplete)
+        {
+            // APK 0x143c448.
+            CancelHide();
+            cts = new CancellationTokenSource();
+            HideRoutine(onComplete, cts.Token).Forget();
+        }
 
-			public Action onComplete;
+        private async UniTaskVoid HideRoutine(Action onComplete, CancellationToken token)
+        {
+            // APK MoveNext 0x143c5d0: a canceled hide must never despawn a reused view.
+            hideAnimation.ResetToInitialState();
+            await hideAnimation.PlayAsync();
+            if (!token.IsCancellationRequested) onComplete?.Invoke();
+        }
 
-			private UniTask.Awaiter _003C_003Eu__1;
+        private void CancelHide()
+        {
+            if (cts == null) return;
+            cts.Cancel();
+            cts.Dispose();
+            cts = null;
+        }
 
-			private void MoveNext()
-			{
-			}
-
-			void IAsyncStateMachine.MoveNext()
-			{
-				//ILSpy generated this explicit interface implementation from .override directive in MoveNext
-				this.MoveNext();
-			}
-
-			[DebuggerHidden]
-			private void SetStateMachine(IAsyncStateMachine stateMachine)
-			{
-			}
-
-			void IAsyncStateMachine.SetStateMachine(IAsyncStateMachine stateMachine)
-			{
-				//ILSpy generated this explicit interface implementation from .override directive in SetStateMachine
-				this.SetStateMachine(stateMachine);
-			}
-		}
-
-		[SerializeField]
-		private AnimationSequencerController hideAnimation;
-
-		private CancellationTokenSource cts;
-
-		private void OnEnable()
-		{
-		}
-
-		public void Show()
-		{
-		}
-
-		public void Hide(Action onComplete)
-		{
-		}
-
-		[AsyncStateMachine(typeof(_003CHideRoutine_003Ed__5))]
-		private UniTaskVoid HideRoutine(Action onComplete, CancellationToken token)
-		{
-			return default;
-		}
-	}
+        // Learning adaptation: no delayed pool callbacks after scene teardown.
+        private void OnDisable() => CancelHide();
+        private void OnDestroy() => CancelHide();
+    }
 }
