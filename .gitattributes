@@ -15,3 +15,6 @@
 
 # The original Main scene is about 82 MiB; keep it out of normal Git blobs.
 Recovery/StudyProject/Assets/Scenes/Main.unity filter=lfs diff=lfs merge=lfs -text
+
+# NavMesh assets are binary serialized; text conversion strips CR bytes and corrupts them.
+Recovery/StudyProject/Assets/NavMeshData/*.asset binary
