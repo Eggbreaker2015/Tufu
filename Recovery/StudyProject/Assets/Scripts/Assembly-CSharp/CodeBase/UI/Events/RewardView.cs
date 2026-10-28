@@ -210,6 +210,8 @@ namespace Codebase.UI.Events
 		{
 			// Native ELF VA 0x165b3b4.
 			this.reward = reward; viewStyle = style; this.isCashback = isCashback; this.isClaimed = isClaimed;
+			// A reused reward must reserve its width in the containing layout again.
+			layoutElement.enabled = true;
 			simplifiedSoulState.gameObject.SetActive(false);
 			SetMinSize(minDefaultItemSize.x, minDefaultItemSize.y);
 			RenderReward();
