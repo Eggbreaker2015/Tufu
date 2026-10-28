@@ -40,7 +40,8 @@
 - `Recovery/StudyProject/`：Unity 的 Assets、Packages、ProjectSettings 及必要运行资源。
 - `Recovery/Open-StudyProject.*`：启动脚本。
 - `Recovery/Rebuild-StudyAddressables.ps1`：需要时重建 Windows 本地 Addressables；所需小型工具随仓库保留。
-- `Docs/`：当前使用和恢复说明。
+- `Docs/`：当前使用和恢复说明；[数值公式清单](Docs/Balance/FormulaCatalog.md)。
+- `Balance/`：数值数据抽取器，把配置、刷怪点和模拟数据导出成 SQLite/CSV，见 [Balance/README.md](Balance/README.md)。
 
 旧导出工程、一次性诊断工具、截图、日志和过程文档已清理。原 APK、原生分析资料和存档备份仍在本地，由 Git ignore 排除。Unity 缓存、临时文件、构建产物和个人编辑器设置也不提交。
 

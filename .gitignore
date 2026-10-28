@@ -89,3 +89,9 @@ game_data_temp.bin
 game_data_backup.bin
 
 # Do not ignore DLLs, .meta, catalog.bin, bundles, textures or other game assets.
+
+# Balance model: extractor sources are tracked; the venv and regenerated outputs are not.
+!/Balance/
+/Balance/.venv/
+/Balance/out/
+__pycache__/
