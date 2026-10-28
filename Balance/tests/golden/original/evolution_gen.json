@@ -1,0 +1,772 @@
+{
+ "expectations": {
+  "G07.ablation_half_up.weapon_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 221
+  },
+  "G07.ablation_no_armor_prev.armor_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 111
+  },
+  "G07.ablation_no_min.armor_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 63
+  },
+  "G07.ablation_no_min.weapon_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 80
+  },
+  "G07.ablations_chained": {
+   "kind": "exact",
+   "note": "errors propagate through the recursion",
+   "source": "G07",
+   "value": {
+    "half_up": {
+     "armor_copy_value": 225,
+     "armor_value": 225,
+     "weapon_copy_value": 216,
+     "weapon_value": 202
+    },
+    "no_armor_prev": {
+     "armor_copy_value": 225,
+     "armor_value": 111,
+     "weapon_copy_value": 225,
+     "weapon_value": 225
+    },
+    "no_min": {
+     "armor_copy_value": 213,
+     "armor_value": 63,
+     "weapon_copy_value": 216,
+     "weapon_value": 80
+    }
+   }
+  },
+  "G07.ablations_one_step": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": {
+    "half_up": {
+     "armor_copy_value": 225,
+     "armor_value": 225,
+     "weapon_copy_value": 225,
+     "weapon_value": 221
+    },
+    "no_armor_prev": {
+     "armor_copy_value": 225,
+     "armor_value": 111,
+     "weapon_copy_value": 225,
+     "weapon_value": 225
+    },
+    "no_min": {
+     "armor_copy_value": 225,
+     "armor_value": 63,
+     "weapon_copy_value": 225,
+     "weapon_value": 80
+    }
+   }
+  },
+  "G07.armor_copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G07.armor_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G07.binary32_arithmetic": {
+   "kind": "exact",
+   "note": "floors and copy share in float instead of double: same rows",
+   "source": "G07",
+   "value": {
+    "armor_copy_value": 225,
+    "armor_value": 225,
+    "weapon_copy_value": 225,
+    "weapon_value": 225
+   }
+  },
+  "G07.copy_value_bindings": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": {
+    "armor|filled|floor": 135,
+    "armor|simulated|floor": 36,
+    "armor|simulated|share": 54,
+    "weapon|filled|floor": 130,
+    "weapon|simulated|floor": 14,
+    "weapon|simulated|share": 81
+   }
+  },
+  "G07.one_step": {
+   "kind": "exact",
+   "note": "each level fed the stored previous row (stage 4's replay)",
+   "source": "G07",
+   "value": {
+    "armor_copy_value": 225,
+    "armor_value": 225,
+    "weapon_copy_value": 225,
+    "weapon_value": 225
+   }
+  },
+  "G07.value_bindings": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": {
+    "armor|filled|armor_prev": 117,
+    "armor|filled|shards_min": 18,
+    "armor|simulated|heuristic": 48,
+    "armor|simulated|shards_min": 42,
+    "weapon|filled|shards_min": 130,
+    "weapon|simulated|heuristic": 79,
+    "weapon|simulated|shards_min": 16
+   }
+  },
+  "G07.weapon_copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G07.weapon_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G08.ablation_half_up": {
+   "kind": "exact",
+   "note": "",
+   "source": "G08",
+   "value": 439
+  },
+  "G08.half_even": {
+   "kind": "exact",
+   "note": "",
+   "source": "G08",
+   "value": 450
+  },
+  "G08.ties": {
+   "kind": "set",
+   "note": "rows with 100*Value/sv exactly .5 (ItemGrowth.md: 18)",
+   "source": "G08",
+   "value": [
+    "armor|Buckshot|Rare|E10",
+    "armor|Buckshot|Rare|E14",
+    "armor|Buckshot|Rare|E15",
+    "armor|Buckshot|Rare|E7",
+    "armor|Buckshot|Rare|E9",
+    "armor|Cutting|Rare|E10",
+    "armor|Cutting|Rare|E14",
+    "armor|Cutting|Rare|E15",
+    "armor|Cutting|Rare|E7",
+    "armor|Cutting|Rare|E9",
+    "armor|Stabbing|Rare|E10",
+    "armor|Stabbing|Rare|E14",
+    "armor|Stabbing|Rare|E15",
+    "armor|Stabbing|Rare|E7",
+    "armor|Stabbing|Rare|E9",
+    "weapon|Cutting|Legendary|E4",
+    "weapon|Stabbing|Uncommon|E10",
+    "weapon|Stabbing|Uncommon|E15"
+   ]
+  },
+  "G09.armor_sync_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_heuristic": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_shards": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_stat_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 48
+  },
+  "G09.armor_sync_time_chunk": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 48
+  },
+  "G09.armor_sync_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.filled_copy_value_frozen": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 265
+  },
+  "G09.filled_h_eq_last_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 265
+  },
+  "G09.filled_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 265
+  },
+  "G09.reference_shards_eq_table": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 570
+  },
+  "G09.reference_shards_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 570
+  },
+  "G09.universal_placeholders": {
+   "kind": "exact",
+   "note": "Value 1, CopyValue 0, every Reference* column 0",
+   "source": "G09",
+   "value": 150
+  },
+  "G09.universal_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 150
+  },
+  "G10.copied_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 120
+  },
+  "G10.copies_to_evolve": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 15
+  },
+  "G10.copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 15
+  },
+  "G10.copy_value_eq_share_of_increment": {
+   "kind": "exact",
+   "note": "consistency only (ItemGrowth.md 3.4)",
+   "source": "G10",
+   "value": 15
+  },
+  "G10.off_grid": {
+   "kind": "exact",
+   "note": "[L, Value, nice(Value)]: L = 11..14",
+   "source": "G10",
+   "value": [
+    [
+     11,
+     6600000.0,
+     6500000.0
+    ],
+    [
+     12,
+     7800000.0,
+     8000000.0
+    ],
+    [
+     13,
+     9100000.0,
+     9000000.0
+    ],
+    [
+     14,
+     10500000.0,
+     10000000.0
+    ]
+   ]
+  },
+  "G10.on_nice_grid": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 11
+  },
+  "G10.shards_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 30
+  },
+  "G10.value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 15
+  },
+  "G12.binary32_equal": {
+   "kind": "exact",
+   "note": "(float)TotalValue == ReferenceStatValue bit for bit",
+   "source": "G12",
+   "value": 16
+  },
+  "G12.bracket_checked": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 162
+  },
+  "G12.bracket_inside": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 157
+  },
+  "G12.bracket_outside": {
+   "kind": "set",
+   "note": "",
+   "source": "G12",
+   "value": [
+    [
+     "armor",
+     "Stabbing",
+     317,
+     [
+      "Cutting",
+      "Buckshot"
+     ]
+    ],
+    [
+     "armor",
+     "Stabbing",
+     336,
+     [
+      "Cutting",
+      "Buckshot"
+     ]
+    ],
+    [
+     "armor",
+     "Stabbing",
+     355,
+     [
+      "Cutting",
+      "Buckshot"
+     ]
+    ],
+    [
+     "armor",
+     "Stabbing",
+     375,
+     [
+      "Cutting",
+      "Buckshot"
+     ]
+    ],
+    [
+     "armor",
+     "Stabbing",
+     385,
+     [
+      "Cutting",
+      "Buckshot"
+     ]
+    ]
+   ]
+  },
+  "G12.bracket_outside_in_other_type": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 5
+  },
+  "G12.groups": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 178
+  },
+  "G12.groups_single_valued": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 178
+  },
+  "G12.rel_lt_1e-6": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 16
+  },
+  "G12.rows_at_snapshot_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 16
+  },
+  "R3.armor_levels": {
+   "kind": "exact",
+   "note": "",
+   "source": "R3",
+   "value": 30
+  },
+  "R3.armor_within_15pct": {
+   "kind": "min",
+   "note": "",
+   "source": "R3",
+   "value": 29
+  },
+  "R3.armor_within_5pct": {
+   "kind": "min",
+   "note": "",
+   "source": "R3",
+   "value": 23
+  },
+  "R3.best_levels": {
+   "kind": "exact",
+   "note": "",
+   "source": "R3",
+   "value": 65
+  },
+  "R3.best_nice_equal": {
+   "kind": "min",
+   "note": "ItemGrowth.md 5: 52",
+   "source": "R3",
+   "value": 52
+  },
+  "R3.best_within_5pct": {
+   "kind": "min",
+   "note": "",
+   "source": "R3",
+   "value": 59
+  },
+  "R3.plateau_equal": {
+   "kind": "exact",
+   "note": "",
+   "source": "R3",
+   "value": 85
+  },
+  "R3.plateau_levels": {
+   "kind": "exact",
+   "note": "",
+   "source": "R3",
+   "value": 85
+  },
+  "R3.weapon_levels": {
+   "kind": "exact",
+   "note": "",
+   "source": "R3",
+   "value": 35
+  },
+  "R3.weapon_within_15pct": {
+   "kind": "min",
+   "note": "",
+   "source": "R3",
+   "value": 34
+  },
+  "R3.weapon_within_5pct": {
+   "kind": "min",
+   "note": "",
+   "source": "R3",
+   "value": 28
+  },
+  "R4.armor_on_time_t150_max": {
+   "kind": "max",
+   "note": "design: 0.809",
+   "source": "R4",
+   "value": 0.808902
+  },
+  "R4.armor_on_time_t150_min": {
+   "kind": "min",
+   "note": "design: 0.803",
+   "source": "R4",
+   "value": 0.802894
+  },
+  "R4.armor_on_time_t150_n": {
+   "kind": "exact",
+   "note": "",
+   "source": "R4",
+   "value": 20
+  },
+  "R4.armor_value": {
+   "kind": "min",
+   "note": "",
+   "source": "R4",
+   "value": 43
+  },
+  "R4.armor_value_tc150": {
+   "kind": "min",
+   "note": "",
+   "source": "R4",
+   "value": 24
+  },
+  "R4.chained": {
+   "kind": "exact",
+   "note": "whole regenerated table (evolution_tables mode fitted_h)",
+   "source": "R4",
+   "value": {
+    "armor_copy_value": 39,
+    "armor_value": 51,
+    "weapon_copy_value": 182,
+    "weapon_value": 176
+   }
+  },
+  "R4.envelope_eps_max": {
+   "kind": "max",
+   "note": "design: +-0.0012",
+   "source": "R4",
+   "value": 0.00121
+  },
+  "R4.envelope_eps_min": {
+   "kind": "min",
+   "note": "design: +-0.0012",
+   "source": "R4",
+   "value": -0.00097
+  },
+  "R4.envelope_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "R4",
+   "value": 15
+  },
+  "R4.fit": {
+   "kind": "exact",
+   "note": "",
+   "source": "R4",
+   "value": {
+    "M_r": [
+     1.0,
+     1.25,
+     1.5,
+     1.875,
+     2.5
+    ],
+    "k_armor": 0.8035554700889712,
+    "k_t": {
+     "Buckshot": 0.5727465961152334,
+     "Cutting": 0.8019836447067437,
+     "Stabbing": 1.0025059057577064
+    }
+   }
+  },
+  "R4.late_out_of_sample_eps_max": {
+   "kind": "max",
+   "note": "design: 0.43%",
+   "source": "R4",
+   "value": 0.004316
+  },
+  "R4.late_out_of_sample_eps_median": {
+   "kind": "max",
+   "note": "design: 0.18%",
+   "source": "R4",
+   "value": 0.001823
+  },
+  "R4.late_out_of_sample_n": {
+   "kind": "exact",
+   "note": "",
+   "source": "R4",
+   "value": 17
+  },
+  "R4.one_step_all_rows": {
+   "kind": "min",
+   "note": "Value + CopyValue hits over all 450 rows, filled ones included",
+   "source": "R4",
+   "value": 754
+  },
+  "R4.weapon_value": {
+   "kind": "min",
+   "note": "",
+   "source": "R4",
+   "value": 72
+  },
+  "R4.weapon_value_tc200": {
+   "kind": "min",
+   "note": "",
+   "source": "R4",
+   "value": 32
+  },
+  "R4.weapon_value_tc50_199": {
+   "kind": "min",
+   "note": "",
+   "source": "R4",
+   "value": 34
+  },
+  "R4.weapon_value_tc_lt50": {
+   "kind": "min",
+   "note": "",
+   "source": "R4",
+   "value": 6
+  },
+  "R5.armor|Buckshot.on_time": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 6
+  },
+  "R5.armor|Buckshot.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 30
+  },
+  "R5.armor|Cutting.on_time": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 10
+  },
+  "R5.armor|Cutting.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 30
+  },
+  "R5.armor|Stabbing.on_time": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 15
+  },
+  "R5.armor|Stabbing.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 30
+  },
+  "R5.early": {
+   "kind": "exact",
+   "note": "tc is never before ceil(T)",
+   "source": "R5",
+   "value": 0
+  },
+  "R5.weapon|Buckshot.on_time": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 6
+  },
+  "R5.weapon|Buckshot.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 30
+  },
+  "R5.weapon|Cutting.on_time": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 9
+  },
+  "R5.weapon|Cutting.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 30
+  },
+  "R5.weapon|Stabbing.on_time": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 29
+  },
+  "R5.weapon|Stabbing.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "R5",
+   "value": 35
+  },
+  "nice.alternative_grids_value_hits": {
+   "kind": "exact",
+   "note": "ablation: other grids fail",
+   "source": "G07",
+   "value": {
+    "half_steps_everywhere": 190,
+    "half_steps_from_4_only": 419,
+    "two_digits": 316,
+    "unit_steps_from_4": 396
+   }
+  },
+  "nice.copy_values_on_grid": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 450
+  },
+  "nice.targets_moved_by_rounding": {
+   "kind": "exact",
+   "note": "rows where nice(target) != target: the rounding is tested there",
+   "source": "G07",
+   "value": 393
+  },
+  "nice.tie_rule_hits": {
+   "kind": "exact",
+   "note": "only half-to-even gets every midpoint",
+   "source": "G07",
+   "value": {
+    "down": 4,
+    "even": 6,
+    "up": 2
+   }
+  },
+  "nice.ties": {
+   "kind": "set",
+   "note": "midpoint targets; ItemGrowth.md 3.1 lists the 4 where half-up differs",
+   "source": "G07",
+   "value": [
+    "weapon|Buckshot|Epic|E6",
+    "weapon|Buckshot|Rare|E6",
+    "weapon|Buckshot|Uncommon|E2",
+    "weapon|Buckshot|Uncommon|E8",
+    "weapon|Stabbing|Legendary|E3",
+    "weapon|Stabbing|Rare|E6"
+   ]
+  },
+  "nice.values_on_grid": {
+   "kind": "exact",
+   "note": "450 generated rows",
+   "source": "G07",
+   "value": 450
+  },
+  "tables.fitted_h_rows_equal": {
+   "kind": "exact",
+   "note": "of 720 rows, chained",
+   "source": "R4",
+   "value": 473
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "evolution_gen"
+}
