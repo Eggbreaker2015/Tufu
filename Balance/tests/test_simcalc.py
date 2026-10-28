@@ -5,13 +5,17 @@ Design 3.3 G20, G21, R2, R2b; 7.3 "P8-oracle-simcalc". Golden suite ``simcalc``.
 
 from __future__ import annotations
 
+import hashlib
 import inspect
+import json
 import logging
 import math
 import re
 import warnings
+from dataclasses import fields, replace
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from tufu_balance.golden import at_least, at_most, check, exact, same_set
@@ -172,6 +176,11 @@ def test_r2_fitted_slots(ctx, days, evolved, load_fixture):
     ev, undetermined = evolved
     results = [sc.recompute_dps_defense(ctx, s, ev[s.time_chunk_index], *slots[s.time_chunk_index]) for s in days]
     n = _r2_numbers(results)
+    # Pin the K3 timing: K3(d-1) fits the stored data better, so the one-sided bounds alone would not notice.
+    lagged = [sc.recompute_dps_defense(ctx, s, ev[s.time_chunk_index], *slots[s.time_chunk_index], k3_offset=1)
+              for s in days]
+    per_snapshot = [[r.time_chunk_index, r.dps_max_rel_err, r.defense_max_rel_err] for r in results]
+    assert per_snapshot != [[r.time_chunk_index, r.dps_max_rel_err, r.defense_max_rel_err] for r in lagged]
     check("simcalc", {
         "R2.undetermined_evolved": exact(undetermined, source="R2", original=0),
         "R2.dps.exact": at_least(n["dps"]["exact"], source="R2", original=1),
@@ -186,6 +195,9 @@ def test_r2_fitted_slots(ctx, days, evolved, load_fixture):
         "R2.defense.max_tc": exact(n["defense"]["max_tc"], source="R2", original=9),
         "R2.defense.tc100_max": at_most(n["defense"]["tc100_max"], source="R2", original=0.00971),
         "R2.defense.last": at_most(n["defense"]["last"], source="R2", original=0.00115),
+        "R2.per_snapshot": exact(per_snapshot, source="R2", note="[TC, DPS max rel err, Defense max rel err] at K3(d)"),
+        "R2.ablation_k3_d_minus_1": exact(_r2_numbers(lagged), source="R2",
+                                          note="same with K3(d-1): fits better on every snapshot (fact for Z1)"),
     })
 
 
@@ -333,7 +345,7 @@ def test_soul_rpm(ctx, days):
     state = sc.snapshot_state(days[-1], ctx)
     rpm, souls, data = sc.calculate_rpm_value_time_chunk(ctx, state)
     keys = {x.spawner.soul_reward for x in data.values() if x.spawner.soul_reward}
-    assert set(souls) == keys and all(v >= sc.SOUL_RPM_FLOOR for v in souls.values())
+    assert keys < set(souls) == set(ctx.soul_keys) and all(souls[k] >= sc.SOUL_RPM_FLOOR for k in keys)
     again = sc.calculate_soul_rpm_values(ctx, sc.snapshot_state(days[0], ctx), {}, souls)
     assert again == souls  # monotonic: an empty spawnerData keeps every stored value
     assert set(rpm) == {int(t) for t in StatType}
@@ -353,15 +365,243 @@ def test_ab_rpm_multiplier(ctx):
 
 
 def test_ported_functions_carry_va():
-    ported = [i for i in REGISTRY.implementations if i.module.endswith(".simcalc")]
+    ported = [i for i in REGISTRY.implementations if i.module.endswith((".simcalc", ".ab"))]
     names = {i.qualname for i in ported}
     assert {"combat_caches", "calculate_dps_data", "calculate_defense_data", "best_armor_against_dps",
             "dps_against_spawner", "spawner_dps", "battle_regen", "resource_value", "spawner_reward_value",
             "spawner_data", "calculate_spawner_data", "rpm_survivable", "rpm_value_time_chunk",
-            "calculate_rpm_value_time_chunk", "calculate_soul_rpm_values", "rpm_config",
-            "player_ability_dps_multiplier", "player_ability_ehp_multiplier", "simulation_enemy_multiplier",
-            "SimCalcContext.location_multiplier"} <= names
+            "calculate_rpm_value_time_chunk", "calculate_soul_rpm_values", "rpm_config", "initial_rpm",
+            "initial_soul_rpm", "player_ability_dps_multiplier", "player_ability_ehp_multiplier",
+            "simulation_enemy_multiplier", "SimCalcContext.location_multiplier", "rpm_stat_value_multiplier"} <= names
+    soul_vas = {i.va for i in ported if i.qualname == "calculate_soul_rpm_values"}
+    assert {"0x13e6dd0", "0x13e8424", "0x13e86b8", "0x14889a4"} <= soul_vas
+    # ABTestService.cs is not recovered from native code and has no VA comments: its ports cannot carry one.
+    no_va_source = "CodeBase/ABTests/ABTestService.cs"
+    ab_service = REPO / "Recovery/StudyProject/Assets/Scripts/Assembly-CSharp" / no_va_source
+    assert "VA" not in ab_service.read_text(encoding="utf-8")
     for impl in ported:
-        if impl.provenance == Provenance.PORT.value:
+        if impl.provenance != Provenance.PORT.value:
+            continue
+        assert impl.code_ref, impl
+        if impl.code_ref.startswith(no_va_source):
+            assert impl.va is None, impl
+        else:
             assert impl.va and re.fullmatch(r"0x[0-9a-f]+", impl.va), impl
-            assert impl.code_ref, impl
+
+
+# ---------------------------------------------------------------- synthetic checks of the ported formulas
+
+def _fake(base: sc.SimSpawner, file_id: int, *, rewards=(), soul=None, item_key=None, **d_fields) -> sc.SimSpawner:
+    """A DAFC copy of ``base`` (charges limit = Count) with its own SpawnerId."""
+    d = replace(base.d, file_id=file_id, dafc=True, **d_fields)
+    return replace(base, d=d, stat_rewards=tuple(sc.StatReward(int(t), np.float32(v)) for t, v in rewards),
+                   soul_reward=soul, item_key=item_key)
+
+
+class _Multipliers:
+    """An ABTestConfig whose common reward multipliers are replaced."""
+
+    def __init__(self, config, data):
+        self._config, self._data = config, data
+
+    def common_reward_multipliers(self, variant):
+        return self._data
+
+    def __getattr__(self, name):
+        return getattr(self._config, name)
+
+
+@pytest.fixture(scope="module")
+def base_spawner(ctx):
+    return next(s for s in ctx.spawners if not s.d.is_static and not s.d.is_event and s.armors)
+
+
+def test_rpm_value_time_chunk_terms(ctx, sim_data, base_spawner):
+    state = sc.snapshot_state(sim_data.get_by_time_chunk_index(10), ctx)
+    h = state.stat(StatType.Health)
+    health = int(StatType.Health)
+
+    def one(c, s, fight_time=5.0, loss=0.0, previous=None, stat=health):
+        x = sc.SpawnerData(s, fight_time=fight_time, health_delta=-loss)
+        return sc.rpm_value_time_chunk(c, state, {s.spawner_id: x}, stat, previous)
+
+    s3 = _fake(base_spawner, -1, rewards=[(health, 1000.0)], location=3, count=3, is_elite=False)
+    full = (10.0 / (10.0 + 5.0)) * 1000.0 * 3.0 * 1.0 * 1.0 / 60.0  # A: fightTimeSeconds 10, charges = Count 3
+    assert one(ctx, s3) == full
+    # Running max against the stored value.
+    assert one(ctx, s3, previous=full * 2) == full * 2 and one(ctx, s3, previous=full / 2) == full
+    # x2 for non-elite spawners on islands 1-2 only.
+    assert one(ctx, _fake(base_spawner, -2, rewards=[(health, 1000.0)], location=1, count=3, is_elite=False)) == full * 2
+    assert one(ctx, _fake(base_spawner, -3, rewards=[(health, 1000.0)], location=2, count=3, is_elite=False)) == full * 2
+    assert one(ctx, _fake(base_spawner, -4, rewards=[(health, 1000.0)], location=1, count=3, is_elite=True)) == full
+    # No candidate rewards the stat: the stored value is returned unchanged (early return).
+    assert one(ctx, s3, stat=StatType.MovementSpeed, previous=1.25) == 1.25
+    # Floor 0.5 for a positive total, applied before the AB stat-class multiplier.
+    tiny = _fake(base_spawner, -5, rewards=[(health, 0.001)], location=3, count=1, is_elite=False)
+    assert one(ctx, tiny) == 0.5
+    scaled = replace(ctx, ab_config=_Multipliers(ctx.ab_config, ab.CommonRewardMultipliersData(2.0, 3.0, 2.5)),
+                     _charges={}, _ab_mult={})
+    assert one(scaled, tiny) == 0.5 * 2.5 and one(scaled, s3) == full * 2.5
+    # Variant B (fightTimeSeconds 15, maxHealthLossMultiplier 5): H < loss <= 5H counts with sqrt(H / loss).
+    b = ctx.with_variant("B")
+    full_b = (15.0 / (15.0 + 5.0)) * 1000.0 * 3.0 * 1.0 * 1.0 / 60.0
+    assert one(b, s3) == full_b
+    assert one(b, s3, loss=4 * h) == full_b * 0.5
+    loss = 5.0 * h
+    assert one(b, s3, loss=loss) == (15.0 / (15.0 + 5.0)) * 1000.0 * 3.0 * 1.0 * math.sqrt(h / loss) / 60.0
+    assert one(b, s3, loss=math.nextafter(loss, math.inf)) == 0.0  # skipped: no contribution, no floor
+    assert one(ctx, s3, loss=4 * h) == 0.0  # A: L = 1
+
+
+def test_spawner_reward_value_terms(base_spawner):
+    state = sc.PlayerState(stats={}, dps_data={}, defense_data={}, unlocked_location=1, day=0,
+                           item_keys=frozenset({"knife"}))
+    s = _fake(base_spawner, -20, rewards=[(1, 3.0), (6, 5.0)], count=3, item_reward=None)
+    assert sc.spawner_reward_value(s, state) == (1.0 * 3.0 + 1.0 * 5.0) * 3.0  # initial statsBenefit 1f
+    benefit = {1: 0.1, 6: 2.0}
+    want = (0.0 + float(np.float32(0.1)) * 3.0 + 2.0 * 5.0) * 3.0  # benefit is a float widened to double
+    assert sc.spawner_reward_value(s, state, stats_benefit=benefit) == want != (0.1 * 3.0 + 10.0) * 3.0
+    assert sc.spawner_reward_value(s, state, stats_benefit={6: 2.0}) == 2.0 * 5.0 * 3.0  # no entry: skipped
+    assert sc.spawner_reward_value(s, state, stat_type=6) == 5.0 and sc.spawner_reward_value(s, state, stat_type=2) == 0.0
+    assert sc.spawner_reward_value(s, state, current_boss=s.spawner_id) == 1000000.0  # not times Count
+    assert sc.resource_value(s) == 3.0 and sc.resource_value(_fake(base_spawner, -21)) == 0.0
+    item = _fake(base_spawner, -22, rewards=[(1, 3.0)], count=2, item_reward="cut common", item_key="knife")
+    assert sc.spawner_reward_value(item, state) == 10000.0 * 2.0
+    assert sc.spawner_reward_value(item, state, item_benefit={"knife": 0.7}) == (3.0 + float(np.float32(0.7))) * 2.0
+    assert sc.spawner_reward_value(item, state, item_benefit={"pike": 0.7}) == 10000.0 * 2.0
+    not_owned = replace(state, item_keys=frozenset())
+    assert sc.spawner_reward_value(item, not_owned, item_benefit={"knife": 0.7}) == 10000.0 * 2.0
+
+
+def test_soul_rpm_terms(ctx, sim_data, base_spawner):
+    state = sc.snapshot_state(sim_data.get_by_time_chunk_index(10), ctx)
+    h = state.stat(StatType.Health)
+    c = replace(ctx, soul_drop_bonus=0.5, souls_rarity_amount={"k1": 0.25}, _charges={}, _ab_mult={})
+    rows = [  # (soul key, Count = charges, fight time, loss)
+        ("k1", 2, 5.0, 0.0), ("k1", 1, 20.0, h), ("k1", 4, 1.0, math.nextafter(h, math.inf)),
+        ("k2", 1, 1e6, 0.0), ("  ", 1, 1.0, 0.0), (None, 1, 1.0, 0.0), ("k3", 1, 1.0, 2 * h)]
+    data = {}
+    for n, (key, count, fight_time, loss) in enumerate(rows):
+        s = _fake(base_spawner, -40 - n, soul=key, count=count)
+        data[s.spawner_id] = sc.SpawnerData(s, fight_time=fight_time, health_delta=-loss)
+    out = sc.calculate_soul_rpm_values(c, state, data, {"k1": 0.0, "other": 7.0})
+    k1 = ((1.0 + 0.5) + 0.25) * ((0.0 + (10.0 / (5.0 + 10.0)) * 2.0 + (10.0 / (20.0 + 10.0)) * 1.0) / 60.0)
+    assert out == {"k1": k1, "other": 7.0, "k2": 0.03, "k3": 0.0}
+    assert list(out) == ["k1", "other", "k2", "k3"]
+    assert sc.calculate_soul_rpm_values(c, state, data, {"k1": 100.0})["k1"] == 100.0  # running max
+    assert sc.initial_soul_rpm(ctx) == {k: 0.0 for k in ("common", "large", "elite", "huge", "great", "divine",
+                                                         "chaotic")}
+
+
+def test_fight_time_and_spawner_dps_inputs(ctx, sim_data):
+    state = sc.snapshot_state(sim_data.get_by_time_chunk_index(104), ctx, unlocked_location=99)
+    b = ctx.with_variant("B")
+    caches = sc.combat_caches(ctx, state)
+    for s in ctx.spawners:  # B's per-island enemy HP multiplier scales the fight time, not the player's DPS
+        d = s.d
+        if d.is_static or d.is_event or d.location not in (1, 3) or not s.armors:
+            continue
+        xa, xb = sc.spawner_data(ctx, state, s, caches), sc.spawner_data(b, state, s, caches)
+        m = float(b.location_multiplier(d.location))
+        assert m != 1.0 and xb.player_dps == xa.player_dps
+        assert math.isclose(xb.fight_time / xa.fight_time, m, rel_tol=1e-15)
+    # Enemy damage meets the defense of the location's PreferredWeaponType, not the spawner's own type
+    # (TC13 is where that choice changes the most spawner DPS values).
+    state = sc.snapshot_state(sim_data.get_by_time_chunk_index(13), ctx, unlocked_location=99)
+    caches = sc.combat_caches(ctx, state)
+    picked = 0
+    for s in ctx.spawners:
+        if s.d.is_static or s.d.is_event or not s.armors:
+            continue
+        preferred = ctx.preferred_weapon_type[s.d.location]
+        same = replace(caches, defense_cache={wt: caches.defense_cache[preferred] for wt in caches.defense_cache})
+        own = replace(caches, defense_cache={wt: caches.defense_cache[s.weapon_type] for wt in caches.defense_cache})
+        if sc.spawner_dps(ctx, s, same) != sc.spawner_dps(ctx, s, own):
+            assert sc.spawner_dps(ctx, s, caches) == sc.spawner_dps(ctx, s, same)
+            picked += 1
+    assert picked == 6
+
+
+def test_dummy_not_alive_on_new_save(ctx, sim_data):
+    dummy = next(s for s in ctx.spawners if s.d.go_name == "Spawner_Dummy")
+    state = sc.snapshot_state(sim_data.time_chunk_snapshots[-1], ctx, order=sc.MODIFIER_FIRST, unlocked_location=99)
+    assert dummy.spawner_id not in sc.calculate_spawner_data(ctx, state, for_gpm_bot=False)
+    assert dummy.spawner_id not in sc.eligible_spawners(ctx, state)
+    assert dummy.spawner_id in sc.calculate_spawner_data(ctx, state)  # forGPMBot = true skips no dead spawner
+    alive = sc.BotFilter(alive=frozenset({dummy.spawner_id}))
+    assert set(sc.calculate_spawner_data(ctx, state, for_gpm_bot=False, bot=alive)) == {dummy.spawner_id}
+
+
+# ---------------------------------------------------------------- frozen per-spawner tables
+
+SPAWNER_DATA_FIELDS = [f.name for f in fields(sc.SpawnerData) if f.name != "spawner"]
+
+
+def _digest(rows: list) -> str:
+    return hashlib.sha256(json.dumps(rows, separators=(",", ":")).encode()).hexdigest()
+
+
+def _spawner_table(data: dict) -> dict:
+    rows = [[sid[0], sid[1], *(getattr(x, f) for f in SPAWNER_DATA_FIELDS)] for sid, x in sorted(data.items())]
+    sums = {f: math.fsum(getattr(x, f) for x in data.values()) for f in SPAWNER_DATA_FIELDS}
+    return {"n": len(rows), "sums": sums, "sha256": _digest(rows)}
+
+
+def test_spawner_data_tables(ctx, sim_data):
+    b = ctx.with_variant("B")
+    tables = {}
+    for tc in (13, 104, 405):
+        state = sc.snapshot_state(sim_data.get_by_time_chunk_index(tc), ctx)
+        tables[f"A.tc{tc}"] = _spawner_table(sc.calculate_spawner_data(ctx, state))
+        tables[f"B.tc{tc}"] = _spawner_table(sc.calculate_spawner_data(b, state))
+    state = sc.snapshot_state(sim_data.get_by_time_chunk_index(104), ctx, order=sc.MODIFIER_FIRST, day=104)
+    full = sc.calculate_spawner_data(ctx, state)
+    missing = state.stat(StatType.Health) * 0.6
+    low = sc.calculate_spawner_data(ctx, replace(state, current_health=state.stat(StatType.Health) - missing))
+    # A fight that would gain health is capped at the missing health instead of 0.
+    assert all(low[sid].health_delta >= x.health_delta for sid, x in full.items())
+    assert any(low[sid].health_delta == missing and x.health_delta == 0.0 for sid, x in full.items())
+    tables["A.tc104.low_health"] = _spawner_table(low)
+    tables["A.tc104.bot"] = _spawner_table(sc.calculate_spawner_data(ctx, state, for_gpm_bot=False))
+    check("simcalc", {f"spawner_data.{k}": exact(v, source="DP8", note="per-spawner SpawnerData (all fields): "
+                                                 "count, per-field fsum, sha256 of the sorted rows")
+                      for k, v in tables.items()})
+
+
+def test_reward_value_table(ctx, sim_data):
+    snap = sim_data.time_chunk_snapshots[-1]
+    state = sc.snapshot_state(snap, ctx, unlocked_location=99)
+    item_benefit = {k: 0.25 * (n + 1) for n, k in enumerate(sorted(state.item_keys))}
+    stats_benefit = {int(t): 1.0 / (int(t) + 2) for t in StatType}
+    boss = ctx.spawners[-1].spawner_id
+    rows = [[s.d.scene, s.d.file_id, sc.spawner_reward_value(s, state),
+             sc.spawner_reward_value(s, state, stats_benefit=stats_benefit, item_benefit=item_benefit,
+                                     current_boss=boss), sc.resource_value(s)] for s in ctx.spawners]
+    assert any(r[3] != r[2] for r in rows) and any(r[3] == 1000000.0 for r in rows)
+    check("simcalc", {"reward_value.table": exact(
+        {"n": len(rows), "sum_default": math.fsum(r[2] for r in rows), "sum_benefit": math.fsum(r[3] for r in rows),
+         "sum_resource": math.fsum(r[4] for r in rows), "sha256": _digest(rows)}, source="3.1",
+        note="CalculateSpawnerRewardValue (default and custom benefits, a current boss) and GetResourceValue "
+             "of every registered spawner at TC405")})
+
+
+def test_soul_rpm_values_frozen(ctx, sim_data):
+    out = {}
+    for variant in ("A", "B"):
+        c = ctx.with_variant(variant)
+        for tc in (10, 104, 405):
+            state = sc.snapshot_state(sim_data.get_by_time_chunk_index(tc), c)
+            _, souls, _ = sc.calculate_rpm_value_time_chunk(c, state)
+            out[f"{variant}.tc{tc}"] = souls
+    assert out["A.tc405"]["divine"] == 0.0 and out["A.tc405"]["common"] > sc.SOUL_RPM_FLOOR
+    check("simcalc", {"soul_rpm.values": exact(out, source="3.1", note="SoulRPMCalculatedValue from OnAwake values")})
+
+
+def test_g20_variant_b_frozen(ctx, days):
+    replay = sc.replay_day_gpm(ctx.with_variant("B"), days)
+    a = sc.replay_day_gpm(ctx, days)
+    rows = [[tc, k, v] for tc, values in replay.replayed for k, v in sorted(values.items())]
+    assert rows != [[tc, k, v] for tc, values in a.replayed for k, v in sorted(values.items())]
+    check("simcalc", {"G20.variant_b": exact(
+        {"cells": len(rows), "per_tc_fsum": [[tc, math.fsum(values.values())] for tc, values in replay.replayed],
+         "sha256": _digest(rows)}, source="G20", note="RpmFirst replay under AB variant B (no shipped reference)")})

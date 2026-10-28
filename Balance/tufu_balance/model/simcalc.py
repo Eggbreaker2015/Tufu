@@ -158,6 +158,7 @@ class SimCalcContext:
     meta: sp.MetaLevels = field(default_factory=sp.MetaLevels)
     soul_drop_bonus: float = 0.0  # MetaStat soul_drop_bonus.GetValue(0)
     souls_rarity_amount: Mapping[str, float] | float = 0.0  # MetaStat souls_rarity_amount.GetValue(soulKey)
+    soul_keys: tuple[str, ...] = ()  # amuletModel.SoulDefs keys (AmuletConfig.SoulDefs order)
     enemy_hp_damage_multiplier: np.float32 = f32(1.0)  # SimulationConfig.EnemyHpDamageMultiplier
     is_running: bool = True  # the batch always runs with IsRunning = true (design 4.3)
     time_axis: TimeAxisConfig = field(default_factory=TimeAxisConfig)
@@ -249,11 +250,13 @@ def load_simcalc_context(con: sqlite3.Connection, variant: ab.Variant = ab.DEFAU
     meta_rows = {r[0]: float(r[1]) for r in con.execute(
         "SELECT Key, BaseValue FROM c_MetaStatsConfig__Stats WHERE Key IN ('soul_drop_bonus', 'souls_rarity_amount')")}
     sc = con.execute("SELECT EnemyHpDamageMultiplier FROM c_SimulationConfig").fetchone()
+    soul_keys = tuple(str(r[0]) for r in con.execute('SELECT Key FROM c_AmuletConfig__SoulDefs ORDER BY "SoulDefs#idx"'))
     return SimCalcContext(
         spawners=load_sim_spawners(con), interpolations=load_interpolations(con),
         preferred_weapon_type=load_preferred_weapon_types(con), ab_config=ab.load_ab_config(con), variant=variant,
         meta=sp.load_meta_levels(con), soul_drop_bonus=meta_rows.get("soul_drop_bonus", 0.0),
-        souls_rarity_amount=meta_rows.get("souls_rarity_amount", 0.0), enemy_hp_damage_multiplier=f32(sc[0]),
+        souls_rarity_amount=meta_rows.get("souls_rarity_amount", 0.0), soul_keys=soul_keys,
+        enemy_hp_damage_multiplier=f32(sc[0]),
         time_axis=load_time_axis_config(con), items=load_item_defs(con), item_tables=load_item_tables(con))
 
 
@@ -699,9 +702,16 @@ def rpm_value_time_chunk(ctx: SimCalcContext, state: PlayerState, data: Mapping[
     return value
 
 
+@implements("simulation.rpm_time_chunk", provenance=Provenance.PORT, code_ref=f"{SS}:276,286", va="0x13e14f8")
 def initial_rpm() -> dict[int, float]:
-    """``RPMCalculatedValue`` after ``OnAwake``/``PrepareSimulationRun``: 0 for every StatType."""
+    """``RPMCalculatedValue`` after ``OnAwake``: 0 for every StatType."""
     return {int(t): 0.0 for t in STAT_TYPES}
+
+
+@implements("simulation.soul_rpm", provenance=Provenance.PORT, code_ref=f"{SS}:277,287", va="0x13e14f8")
+def initial_soul_rpm(ctx: SimCalcContext) -> dict[str, float]:
+    """``SoulRPMCalculatedValue`` after ``OnAwake``: 0 for every ``amuletModel.SoulDefs`` key."""
+    return {k: 0.0 for k in ctx.soul_keys}
 
 
 @implements("simulation.rpm_time_chunk", provenance=Provenance.PORT, code_ref=f"{SS}:376-382", va="0x13e7a00")
@@ -710,10 +720,11 @@ def calculate_rpm_value_time_chunk(ctx: SimCalcContext, state: PlayerState, rpm:
                                    ) -> tuple[dict[int, float], dict[str, float], dict[sp.SpawnerId, SpawnerData]]:
     """``CalculateRPMValueTimeChunk()``: ``CalculateSimulationData`` (forGPMBot), soul RPM, then every stat.
 
-    Returns the updated ``RPMCalculatedValue``, ``SoulRPMCalculatedValue`` and the ``spawnerData`` used.
+    Returns the updated ``RPMCalculatedValue``, ``SoulRPMCalculatedValue`` and the ``spawnerData`` used;
+    ``None`` starts from the ``OnAwake`` values.
     """
     data = calculate_spawner_data(ctx, state, for_gpm_bot=True)
-    souls = calculate_soul_rpm_values(ctx, state, data, soul_rpm)
+    souls = calculate_soul_rpm_values(ctx, state, data, initial_soul_rpm(ctx) if soul_rpm is None else soul_rpm)
     out = dict(initial_rpm() if rpm is None else rpm)
     for t in STAT_TYPES:
         v = rpm_value_time_chunk(ctx, state, data, t, out.get(int(t)))
@@ -722,7 +733,9 @@ def calculate_rpm_value_time_chunk(ctx: SimCalcContext, state: PlayerState, rpm:
     return out, souls, data
 
 
-@implements("simulation.soul_rpm", provenance=Provenance.PORT, code_ref=f"{SS}:463-495", va="0x13e6dd0")
+@implements("simulation.soul_rpm", provenance=Provenance.PORT, code_ref=f"{SS}:463-470", va="0x13e6dd0")
+@implements("simulation.soul_rpm", provenance=Provenance.PORT, code_ref=f"{SS}:472-486", va="0x13e8424")
+@implements("simulation.soul_rpm", provenance=Provenance.PORT, code_ref=f"{SS}:488-495", va="0x13e86b8")
 @implements("meta.soul_drop_for_kill_count", provenance=Provenance.PORT,
             code_ref="CodeBase/Meta/SoulDropAmountCalculator.cs:9-13", va="0x14889a4")
 def calculate_soul_rpm_values(ctx: SimCalcContext, state: PlayerState, data: Mapping[sp.SpawnerId, SpawnerData],
@@ -867,13 +880,15 @@ def _max_rel_err(calc: Sequence[tuple[int, float]], stored: Sequence[tuple[int, 
 
 
 def recompute_dps_defense(ctx: SimCalcContext, snapshot: SimulationSnapshot, evolved: Mapping[str, bool | None],
-                          weapon_slots: int, armor_slots: int) -> DpsRecompute:
-    """Design R2: DpsData/DefenseData of a day snapshot from its items and stored TotalValues at K3(d)."""
+                          weapon_slots: int, armor_slots: int, *, k3_offset: int = 0) -> DpsRecompute:
+    """Design R2: DpsData/DefenseData of a day snapshot from its items and stored TotalValues at K3(d)
+    (``k3_offset`` = 1 reads K3(d-1), clamped at day 0: an ablation)."""
     stats = {st.key: st.total_value for st in snapshot.stats}
     items = snapshot_items(snapshot, ctx, evolved)
     d = snapshot.time_chunk_index
-    dps = calculate_dps_data(ctx, stats, items, weapon_slots, d)
-    defense = calculate_defense_data(ctx, stats, items, armor_slots, d)
+    timing = max(d - k3_offset, 0)
+    dps = calculate_dps_data(ctx, stats, items, weapon_slots, timing)
+    defense = calculate_defense_data(ctx, stats, items, armor_slots, timing)
     return DpsRecompute(int(d), weapon_slots, armor_slots, dps, defense, _max_rel_err(dps, snapshot.dps_data),
                         _max_rel_err(defense, snapshot.defense_data))
 

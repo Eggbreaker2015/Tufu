@@ -334,7 +334,9 @@ _ARMOR_STATS = frozenset({14, 16, 20})  # Stab/Cut/BuckshotDefenceFlat
 @implements("simulation.rpm_stat_class_ab_multiplier", provenance=Provenance.PORT,
             code_ref="CodeBase/ABTests/ABTestService.cs:40-41,49-58")
 def rpm_stat_value_multiplier(data: CommonRewardMultipliersData, stat_type: int):
-    """``GetRpmStatValueMultiplier(StatType)`` (float32): sustain, attack or armor class multiplier, else 1."""
+    """``GetRpmStatValueMultiplier(StatType)`` (float32): sustain, attack or armor class multiplier, else 1.
+
+    No VA: ``ABTestService.cs`` carries no recovered-VA comments (like the other ABTestService ports here)."""
     t = int(stat_type)
     if t in _SUSTAIN_STATS:
         return f32(data.sustain_stat_value_multiplier)
