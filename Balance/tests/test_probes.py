@@ -121,3 +121,12 @@ def test_comparisons_report_each_planted_fault(db):
     r7 = P.compare_dp7(bad["dp7"], inputs["dp7"], db)
     assert [(m["sample"], m["field"], m["explained_by_mono"]) for m in r7["mismatches"]] == [
         (inputs["dp7"]["samples"][40], "dps", False)]
+
+
+def test_oracle_default_rounding_is_the_editors():
+    """interpolation_default.json carries the rounding DP3 measured in the editor (design 3.6 item 1, Q32)."""
+    from tufu_balance.golden import DEFAULT_STORE
+    from tufu_balance.model import interpolation as I
+
+    measured = DEFAULT_STORE.load("current", "differential")["DP3.editor_rounding"].value
+    assert I.default_rounding() is Rounding(measured) is Rounding.DOUBLE_ALL

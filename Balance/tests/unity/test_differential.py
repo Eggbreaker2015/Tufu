@@ -256,3 +256,11 @@ def test_dp7_anchor_g18(outputs, db):
         "DP7.anchor.g18_ladder_sha256": exact(g["ladder_sha256"], source="DP7/G18",
                                               note="[key, E, shards, before, after] with the C# values"),
     })
+
+
+@pytest.mark.unity
+def test_oracle_default_is_the_measured_rounding(editor_rounding):
+    """C2 owns model/interpolation_default.json: it names the variant DP3 measured (Q32)."""
+    from tufu_balance.model.interpolation import default_rounding
+
+    assert default_rounding() is editor_rounding

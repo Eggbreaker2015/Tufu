@@ -1,7 +1,7 @@
 {
-  "rounding": "fma",
+  "rounding": "double_all",
   "allowed": ["stepwise", "fma", "double_tail", "double_all"],
-  "set_by": "P2-oracle-core",
-  "reason": "Q32: provisional default until DP3 measures the editor's Mono variant; fma, double_tail and double_all all give 109/109 on the shipped snapshots (G11), stepwise is the ablation.",
-  "owner": "C2 (design 7.4: P2 creates this file, C2 changes it after DP3 and reruns G11/G13)"
+  "set_by": "C2-formula-probes",
+  "reason": "Q32/DP3: the editor's Mono (Unity 6000.6.3f1, arm64) is bit-equal to double_all on every interpolation curve and coefficient (34219 + 129672 values, edit and Play mode) and gives K2/K3 109/109 on the shipped snapshots; fma, double_tail and stepwise differ (golden suite differential, DP3.*).",
+  "owner": "C2 (design 7.4: P2 created this file, C2 changed it after DP3 and reran G11/G13)"
 }

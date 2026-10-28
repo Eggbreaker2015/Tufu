@@ -412,6 +412,7 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 - 同一 `run_key` 已有退出码 0 的结果时直接复用，`--force` 重跑。`run_key` 的组成见设计稿 1.4.2；只影响速度的 `simulation_speed`、`frame_budget_ms`、`heartbeat_interval_s`、`ready_timeout_s` 不计入。
 - 预设 `smoke-11`、`golden-405`、`slow-5` 要等 C3b 填好引擎才有意义：现在 `free` 作业的 `ExecuteTick` 是空的，只会在 `max_wall_seconds` 停下。
 - Python API：`tufu_balance.unity.launcher.run(request, rev=…)`、`selftest()`、`serve_*()`；请求由 `tufu_balance.unity.request` 生成和校验（`make_request`、`make_job`、`empty_job`、`preset`、`validate`）。其它单元追加请求字段时用 `request.register_fields`，C# 一侧写自己的 `SimulationRunRequest.<单元>.cs`。
+- 差分探针（C2）：`tufu_balance.unity.probes.probe_job()` 生成一个带 `probes` 字段的 `empty` 作业，编辑模式探针在进入 Play 之前、Play 模式探针在作业结束时运行；`pytest --unity tests/unity/test_differential.py`。见 [DifferentialProbes.md](DifferentialProbes.md)。
 
 退出码（C# 与启动器共用）：
 
