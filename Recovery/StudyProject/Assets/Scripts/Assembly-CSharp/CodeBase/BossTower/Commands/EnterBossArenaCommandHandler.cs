@@ -58,7 +58,7 @@ namespace Codebase.BossTower.Commands
 			unit.Agent.Warp(playerPosition);
 			// Pet mode: pets enter with the player, revived and at full health.
 			if (PetConfig.Enabled)
-				petsModel.ReviveAll(playerPosition, arena.PlayerSpawnPoint.eulerAngles.y);
+				petsModel.ReviveAll(playerPosition, arena.PlayerSpawnPoint.eulerAngles.y, true);
 			var bossUnit = bossSpawnService.SpawnBoss(boss, bossPosition);
 			if (bossUnit == null)
 			{

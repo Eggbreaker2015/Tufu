@@ -537,7 +537,7 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 
 新建 `PetReviveSystem`：当 `Time.time >= ReviveAt` 时，在玩家身边找跟随位，用 `SamplePosition` 加 `Warp` 放置宠物，然后：
 
-- 满血。
+- 生命设为 1，和玩家在泉水普通复活一致（§14 更新）。
 - 移除 `UnitDeadMarker`，启用 Agent，并重新 `Set` `NavMeshAgentActiveMarker`。`NavMeshSyncSystem` 靠它更新位置（`NavMeshSyncSystem.cs:19`），漏掉的话宠物复活后位置不再同步。
 - `isDead = false`，`SetTrigger("Spawn")`。
 - 显示外观，重建血条。
@@ -553,7 +553,7 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 ### 8.4 推荐规则（待用户确认）
 
 - 冷却和泉水两者都生效，先到先复活。泉水只有一个，在岛 1，所以远处的岛主要靠冷却复活。
-- **玩家死亡复活时，全部宠物一起复活并满血。** `RevivePlayerCommand` 会让所有敌人回满血，宠物不跟着复活会让下一场战斗明显变难。
+- **玩家死亡复活时，全部宠物一起复活。** 血量规则跟玩家一样：普通复活时死亡宠物为 1 血、存活宠物保持原血量；`restoreHealth` 时全部满血（§14 更新）。 `RevivePlayerCommand` 会让所有敌人回满血，宠物不跟着复活会让下一场战斗明显变难。
 
 ### 8.5 竞技场内
 
@@ -567,7 +567,7 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 |---|---|---|---|
 | `CanMove=false` 的 11 处流程：开门、传送门、任务对话和过场、宝箱、水晶、宝箱队列 | 敌人回巡逻，玩家停止攻击 | 宠物暂停攻击并回跟随位（`PetMovementSystem` 和 `PetAttackSystem` 统一检查 `CanMove`）。第一步过场中**不隐藏**宠物 | 不改流程文件 |
 | 玩家死亡动画和沉入泉水（约 3.2s 补间，外加动画等待） | `CanMove=false`，玩家被隐藏 | 宠物因 `IsDying` 暂停 | — |
-| `RevivePlayerCommand`（`RevivePlayerCommandHandler.cs:26-43`） | 传送到泉水，生命设为 1，敌人回满血 | `PetsModel.ReviveAll(revivePosition)`：全部瞬移、复活、满血、清目标 | 改此 handler |
+| `RevivePlayerCommand`（`RevivePlayerCommandHandler.cs:26-43`） | 传送到泉水，生命设为 1，敌人回满血 | `PetsModel.ReviveAll(revivePosition, yaw, restoreHealth)`：全部瞬移、复活、清目标；血量跟随玩家（1 血或满血） | 改此 handler |
 | 离开 NavMesh 的兜底（`PlayerNavMeshFallbackSystem.cs:25-36`） | 玩家瞬移到泉水 | `PetsModel.WarpAll`（瞬移规则本身也会兜住） | 改 |
 | 活动门关闭（`EventBossGateSystem.cs:99-121, 168-177`【重建，触发方向存疑】） | 50m 内的玩家瞬移到泉水 | `PetsModel.WarpAll`，防止宠物被困在门后 | 改 |
 | 进入竞技场（`EnterBossArenaCommandHandler.cs:27-77`） | 重置物品冷却，玩家满血，瞬移到 `PlayerSpawnPoint` | 全部宠物复活、满血、按偏移瞬移、清目标。物品冷却已由 `ResetItemCooldowns` 处理（`:67-77`），合成爪子需要单独重置 | 改 |
@@ -663,9 +663,9 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 | 4 | 打断点或 Inspector 查看宠物属性 | `CutDamageFlat` 等于玩家身上 Enemy 来源和 Reward 来源修饰之和；吞噬后宠物属性同步上涨；不包含头盔、盾牌、水晶的修饰 |
 | 5 | 宠物击杀敌人 | 吞噬触手从玩家伸出，玩家属性上涨，掉落和 OnKill 正常 |
 | 6 | 站着不动让敌人围攻 | 敌人会分别攻击玩家和宠物；宠物受击时出现世界坐标伤害数字，玩家的格挡、荆棘、受击计数**不**变化 |
-| 7 | 让宠物被打死 | 播放 `isDead` 后消失；物品仍装备在槽位上；15s 后在玩家身边复活且满血 |
+| 7 | 让宠物被打死 | 播放 `isDead` 后消失；物品仍装备在槽位上；15s 后在玩家身边复活，生命为 1 |
 | 8 | 宠物死亡后走到 HealField | 立即复活；存活宠物在泉水里回血 |
-| 9 | 让玩家死亡 | 玩家死亡动画期间宠物停止攻击；复活后全部宠物瞬移到泉水旁并满血 |
+| 9 | 让玩家死亡 | 玩家死亡动画期间宠物停止攻击；复活后全部宠物瞬移到泉水旁，死亡的宠物生命为 1，存活的保持原血量 |
 | 10 | 击败岛 1 Boss（拿到 weapon_2 和 pike） | 第 2 只宠物（穿刺外观）出现；两只宠物都能攻击 |
 | 11 | 在背包里卸下全部宠物 | 宠物消失，玩家仍能攻击 |
 | 12 | 开门、任务对话、宝箱 | 镜头离开期间宠物不攻击，结束后恢复 |
@@ -724,7 +724,8 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
    - 参考血量都是**所属宠物自己的**缺失生命比例。宠物死亡期间不提供加成。
    - 所属物品不是宠物（例如头盔、盾牌）时，保持原作行为：按玩家缺失生命加成对应类型的宠物。
 3. 其余按推荐：
-   - 冷却复活与泉水复活同时生效，冷却 15s；玩家死亡复活时全部宠物一起复活、满血。
+   - 冷却复活与泉水复活同时生效，冷却 15s；玩家死亡复活时全部宠物一起复活。
+   - **复活血量（更新）**：宠物复活和玩家一样只有 1 点生命，不是满血。玩家满血复活的场合（进入竞技场、Boss 塔下一层 `restoreHealth`）宠物也满血。
    - 水晶（Source 8）不继承；灵魂之树和护符（GraphUpgrade 10）继承，但怒气额外生命除外。
    - 头盔和盾牌能力给的属性不继承；宠物自身武器能力的属性继承。
    - 宠物吸血回宠物自己。

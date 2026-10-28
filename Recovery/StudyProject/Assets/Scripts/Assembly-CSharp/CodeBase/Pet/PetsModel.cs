@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Player.Inventory;
@@ -22,6 +23,9 @@ namespace Codebase.Pet
 		private const float DeathHideDelay = 2f;
 
 		private const float DefaultReviveCooldown = 15f;
+
+		// Same as RevivePlayerCommand's ordinary (fountain) revive.
+		private const double RevivedHealth = 1.0;
 
 		public List<PetModel> Pets { get; } = new List<PetModel>();
 
@@ -180,8 +184,9 @@ namespace Codebase.Pet
 			unit.HideVisualAfter(hideDelay);
 		}
 
-		// Undoes OnPetDied: full health, back on the follow ring, agent and markers restored, attack state reset.
-		public void Revive(PetModel pet, Vector3 center, float yaw)
+		// Undoes OnPetDied: back on the follow ring, agent and markers restored, attack state reset.
+		// Like the player's ordinary revive, a pet comes back with 1 HP unless full health is restored.
+		public void Revive(PetModel pet, Vector3 center, float yaw, bool restoreHealth = false)
 		{
 			PetUnit unit = pet.Unit;
 			if (unit == null || pet.State == PetState.Alive)
@@ -190,7 +195,8 @@ namespace Codebase.Pet
 			pet.ReviveAt = 0f;
 			pet.TargetOutOfRangeTimer = 0f;
 			unit.CurrentTarget = null;
-			unit.CurrentHealth = unit.GetStatValue(StatType.Health);
+			double maximum = unit.GetStatValue(StatType.Health);
+			unit.CurrentHealth = restoreHealth ? maximum : Math.Min(RevivedHealth, maximum);
 			ResetAttackState(pet.Item);
 
 			// Placed while the agent is still off, so it is enabled on the NavMesh.
@@ -222,8 +228,9 @@ namespace Codebase.Pet
 					Revive(pet, center, yaw);
 		}
 
-		// Player revive and arena entry: dead pets come back, living ones are healed; all are moved and lose their target.
-		public void ReviveAll(Vector3 center, float yaw = 0f)
+		// Player revive and arena entry: dead pets come back and all are moved and lose their target.
+		// restoreHealth follows the player's: full health for everyone, otherwise dead pets get 1 HP and living ones keep theirs.
+		public void ReviveAll(Vector3 center, float yaw, bool restoreHealth)
 		{
 			pendingRevives.Clear();
 			foreach (PetModel pet in Pets)
@@ -233,11 +240,12 @@ namespace Codebase.Pet
 					continue;
 				if (pet.State == PetState.Dead)
 				{
-					Revive(pet, center, yaw);
+					Revive(pet, center, yaw, restoreHealth);
 					continue;
 				}
 
-				unit.CurrentHealth = unit.GetStatValue(StatType.Health);
+				if (restoreHealth)
+					unit.CurrentHealth = unit.GetStatValue(StatType.Health);
 				unit.CurrentTarget = null;
 				pet.TargetOutOfRangeTimer = 0f;
 				Warp(pet, center, yaw);
