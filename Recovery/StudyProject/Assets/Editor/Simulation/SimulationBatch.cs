@@ -133,9 +133,9 @@ namespace Codebase.Simulation.EditorTools
             SessionState.SetFloat(Prefix + "hardTimeout", (float)hardTimeoutSeconds);
             SessionState.SetInt(Prefix + "pid", Process.GetCurrentProcess().Id);
 
-            // Reload Domain and Scene must stay on (project README); options None with the toggle on means both reload.
-            bool reloads = !EditorSettings.enterPlayModeOptionsEnabled ||
-                           (EditorSettings.enterPlayModeOptions & (EnterPlayModeOptions.DisableDomainReload | EnterPlayModeOptions.DisableSceneReload)) == 0;
+            // Reload Domain and Scene must stay on (project README). On 6000.6 enterPlayModeOptionsEnabled reads
+            // False even with the asset toggle at 1, so only the Disable* flags decide.
+            bool reloads = (EditorSettings.enterPlayModeOptions & (EnterPlayModeOptions.DisableDomainReload | EnterPlayModeOptions.DisableSceneReload)) == 0;
             Put("domain_and_scene_reload_on", reloads);
             if (!reloads)
             {

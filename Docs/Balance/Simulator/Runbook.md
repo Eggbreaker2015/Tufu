@@ -69,19 +69,25 @@
 
 ## 2. 实测耗时
 
-来源：最终提交 `4559118` 上的 3 次运行，加之前提交上同一入口的 9 次运行，共 12 次（有图形）；另有 2 次 `-nographics`。Library 已就绪；每次换提交后的第一次启动要编译 Editor 程序集，约 0.4–0.7 秒，计入 `E`。
+来源：有图形的全部 13 次成功 Play 运行，一次不漏：
+
+- `play2`（提交 `4301a19`，`B` 最慢的一次）；
+- `final1–3`、`v2_final1–3`、`v3_final1–3`（中间各提交）；
+- `v4_diag`、`v4_final2`、`v4_final3`（最终代码 `4559118`，`B` = 5.33、5.69、5.11 秒）。
+
+另有 2 次 `-nographics`（`nographics1`、`v4_nographics`）单列。`play1` 在进 Play 之前因 plist 探针超时以退出码 2 结束（第 3 节第 1 条），没有 Play 阶段的数据。Library 已就绪；每次换提交后的第一次启动要编译 Editor 程序集，约 0.4–0.7 秒，计入 `E`。
 
 | 阶段 | 中位数 | 范围 | 设计稿 2.7 的估计 | 说明 |
 |---|---|---|---|---|
 | 编辑器冷启动 `E`（进程启动 → 入口被调用）| 2.7 秒 | 2.5–4.0 | 30–90 秒 | |
 | 进入 Play 的域重载 | 0.57 秒 | 0.56–0.59 | 1.1–1.7 秒 | `t_play_requested` → `[InitializeOnLoad]` 重新执行；日志 `Domain Reload Profiling` 为 560–620 ms |
-| 请求 Play → `EnteredPlayMode` | 1.12 秒 | 1.09–1.16 | — | |
-| 进入 Play → 游戏就绪 `B` | 5.2 秒 | 5.05–5.69 | 20–60 秒 | 期间 7300–9900 帧 |
-| 退出 Play `X` | 0.11 秒 | 0.11–0.13 | — | `isPlaying = false` → `EnteredEditMode` |
-| `EditorApplication.Exit` 之后编辑器关闭 | 4.9 秒 | 2.0–5.4 | 5–10 秒（含退出 Play 与资产守卫）| |
+| 请求 Play → `EnteredPlayMode` | 1.12 秒 | 1.09–1.19 | — | |
+| 请求 Play → 游戏就绪 `B` | 5.2 秒 | 5.05–6.05 | 20–60 秒 | 期间 7300–9900 帧；起点是 Play 请求，不是 `EnteredPlayMode`，含上一行的约 1.1 秒；终点是"就绪状态保持 1 秒"的起点 |
+| 退出 Play `X` | 0.12 秒 | 0.11–0.13 | — | `isPlaying = false` → `EnteredEditMode` |
+| `EditorApplication.Exit` 之后编辑器关闭 | 4.8 秒 | 2.0–5.4 | 5–10 秒（含退出 Play 与资产守卫）| 进程墙钟减去 `t_exit − t_process_start` |
 | 整个进程（含约 4 秒测量）| 17.2 秒 | 13.8–17.6 | 2–4 分钟（含模拟）| |
 
-`-nographics`：`E` 2.4–2.9 秒，`B` 4.9–5.6 秒，`X` 0.12–0.14 秒。
+`-nographics`（2 次）：`E` 2.4–2.9 秒，`B` 4.9–5.6 秒，`X` 0.12–0.14 秒。复核时评审在 `b0eb43f` 上又跑了 1 次：`E` 2.48、`B` 4.97、`X` 0.12 秒，进程 14.3 秒。
 
 一个 `reenter_play` 作业的固定开销约为 `B + X ≈ 5.3 秒`；冷启动一次另加 `E + 关闭 ≈ 5–8 秒`。5.4 节原先按 B = 40、X = 8、E = 60 秒估计，K1 之前应按这里的数字重算。
 
@@ -126,7 +132,7 @@
 4. **编辑器自身也写 `persistentDataPath`。** Unity 编辑器的分析数据写在 `Unity/<云项目 id>/Editor/Analytics/`。改名期间它们写进沙箱目录，真实目录下的这两个文件一直没变。
 5. 改名会把 PlayerSettings 标脏（`IsDirty` 为真）。改回后若原先不脏就 `EditorUtility.ClearDirty`，免得以后的 `SaveAssets` 重写 `ProjectSettings.asset`。实测不清也没有落盘，清掉更保险。
 6. Unity 自己的键也会写进沙箱域：`unity.cloud_userid`、`unity.player_session_count`、`unity_connect.*`、`UnityGraphicsQuality`。游戏写的是 `locale`、`ud_migration_complete_v1` 和 `game_loaded_once`。
-7. 进入 Play 的设置：`EditorSettings.enterPlayModeOptionsEnabled` 在 6000.6.3f1 读出来是 `False`，但 `EditorSettings.asset` 里写的是 `m_EnterPlayModeOptionsEnabled: 1`；`enterPlayModeOptions` 为 `None`。这两个属性没有标 `Obsolete`。判断式取"开关为假，或选项里没有 `DisableDomainReload`/`DisableSceneReload`"。实测每次进入 Play 都有域重载（`[InitializeOnLoad]` 重新执行），Boot 也是重新加载的。
+7. 进入 Play 的设置：`EditorSettings.enterPlayModeOptionsEnabled` 在 6000.6.3f1 读出来是 `False`，但 `EditorSettings.asset` 里写的是 `m_EnterPlayModeOptionsEnabled: 1`；`enterPlayModeOptions` 为 `None`。这两个属性没有标 `Obsolete`。所以 6000.6 上开关的读数不可信，**守卫只看 `enterPlayModeOptions` 里有没有 `DisableDomainReload`/`DisableSceneReload`**，不看开关。`b0eb43f` 之前的判断式是"开关为假，或选项里没有禁用标志"，开关恒读出假，这个守卫永远不会失败；`SimulationBatch.cs` 已改成只看禁用标志，C0b 照此实现。实测每次进入 Play 都有域重载（`[InitializeOnLoad]` 重新执行），Boot 也是重新加载的。
 
 ## 4. 网络与分析（2.9 第 1 项）
 
@@ -200,7 +206,7 @@
    - 激活 `Main`，等近处刷怪点自举。
 2. `Main` 场景：`Boot.Start`（`Boot.cs:24-123`，挂在 Main 里，执行顺序 -1000）注册模型和系统；716 个刷怪点在 `Start` 里注册并进入 `PendingBootstrap`；`EnemySpawnerBootstrapSystem` 按每帧 5 毫秒的编辑器预算把它们全部初始化完。
 3. 编辑器日志里唯一的异常是 Unity 自己的 QuickSearch 索引（`UnityEditor.Search.SearchDatabase.EnumerateAll` 的 `ArgumentOutOfRangeException`），在编辑器启动时，与游戏无关，每次都有。另有约 80 条 "There are no audio listeners in the scene" 警告：`LoadingScreen.DisableAudioListener` 之后 Main 里没有监听器，无害。
-4. **Q09：不需要 `1186f67`。** 本分支没有它也能启动并就绪；它修的是 macOS Metal 下 Windows 包的显示问题（洋红 UI、白方块粒子），不影响启动，也不影响模拟用到的数据。另外，`1186f67` 依赖的 `Recovery/Evidence/addressables-recovered-asset-map.json` 被 `.gitignore`（`/Recovery/Evidence/*`）排除，新工作树里默认没有；运行工作树里有一份未入库的副本。
+4. **Q09：不需要 `1186f67`。** 本分支没有它也能启动并就绪；它修的是 macOS Metal 下 Windows 包的显示问题（洋红 UI、白方块粒子），不影响启动，也不影响模拟用到的数据。`1186f67` 读的 `Recovery/Evidence/addressables-recovered-asset-map.json` 是入库文件（`.gitignore:31-33` 先排除 `/Recovery/Evidence/*`，再用 `!/Recovery/Evidence/addressables-recovered-asset-map.json` 放行），每个工作树里都有。
 5. **无图形模式**：`-nographics` 下 `SystemInfo.graphicsDeviceType = Null`，链路、就绪个数、错误集合都与有图形时相同，`B` 相当。
 
 ## 6. 刷怪点就绪（2.9 第 4 项，Q36）
@@ -286,7 +292,28 @@
 | `Quests/QuestModel.cs:230` | 任务时间戳 |
 | 其余，影响经济、不影响自举 | `Shop/Systems/ShopRepositorySystem.cs:27`、`Player/DailyProcs/DailyProcsModel.cs:46`、`Rewards/StatReward.cs:32`、`BossTower/BossTowerModel.cs:97`、`Analytics/UserModel.cs:490`、`:506` 等 |
 
-全仓只有 `TimeService.cs` 直接读 `DateTime.UtcNow`/`DateTime.Now`。所以 C0b 只在 `TimeService` 一处加沙箱时钟钩子，就能覆盖全部墙钟读取。
+### 7.1a 绕过 `TimeService` 的时钟读取
+
+在 `TimeService` 一处加沙箱时钟钩子**不能**覆盖全部墙钟读取。游戏代码里（`Assets/Scripts`，不含插件与编辑器代码）直接读时钟的地方：
+
+| 文件:行 | 读什么 | 会不会影响模拟输出 |
+|---|---|---|
+| `Services/Time/TimeService.cs:23` | `DateTime.UtcNow` | 会；这就是要加钩子的地方 |
+| `Analytics/UserModel.cs:431` | `DateTimeOffset.UtcNow`，`ResetDailyAdsIfNeeded` 取真实 UTC 零点（注释说明原版故意不用游戏时间）| 会。经 `CanWatchAd`（`:439-445`）进入 `AdsInitialize.cs:279` 的每日广告上限判断，经 `IncrementDailyAds`（`:447-452`）在 `AdsInitialize.cs:189` 记数。只要模拟走激励广告或 `no_ads` 的 `maxAdsPerDay > 0`，每日次数就按真实日期重置，与沙箱时钟脱节 |
+| `Analytics/UserModel.cs:464` | `DateTimeOffset.UtcNow`，新档写入 `installTime` | 会。`installTime` 存进存档；`Rewards/StatReward.cs:31-34` 的 `GetResolvedType` 用"沙箱时钟的 UTC 日期 − 安装日期"的天数对 `DailyRotationStats.Count` 取模。`Crystal Event Roster Config.asset` 里有 `DailyRotation: 1` 的奖励（如 `:656`、`:679`），调用方是 `EventForecastService.cs:226` 和 `RewardIconResolver.cs:107`。沙箱时钟早于真实安装日时天数为负，C# 的 `%` 得负下标，会抛 `ArgumentOutOfRangeException`；晚于时，轮换下标随真实日期变化，输出不再与真实日期无关 |
+| `Analytics/UserModel.cs:465` | `DateTimeOffset.UtcNow`，算 `daysSinceInstall` | 基本不会。只写进 `UserDataUd.DaysSinceInstall` 和分析事件（`UserContextEventBase`），没有游戏逻辑读它；但它进存档，会让存档摘要随真实日期变化 |
+| `Analytics/Systems/AppPauseTimeSkipSystem.cs:24` | `Time.realtimeSinceStartup`，帧间隔超过 3 秒写 `UserModel.SkipSeconds` | 不会。`SkipSeconds` 没有读者，同一次更新里又被清零（`:31-35`）。模拟的长帧可能超过 3 秒，也无害 |
+| `Enemy/Systems/EnemySpawnerBootstrapSystem.cs:42`、`:83` | `Stopwatch` 的每帧 5 毫秒自举预算 | 不影响就绪后的状态，只影响哪些刷怪点在哪一帧自举。时钟冻结时各帧的 `now` 相同，所以与分帧无关；不冻结时（原版）各刷怪点拿到的 `now` 不同 |
+| `Analytics/BootTimeReporter.cs:11`、`FIMSpace/FDebug.cs:8` | `Stopwatch` | 不会，只用于分析与调试日志 |
+| `Crystals/CrystalModel.cs:204`、`:818` 及若干 UI | `Time.unscaledTime` | 不会，只决定横幅与 UI 动画何时显示 |
+
+给 C0b 的建议（设计稿 7.3 的钩子清单里没有 `UserModel`，需要 Z1 或协调者放行所有权）：
+
+- 首选：在 `UserModel` 的两处 `DateTimeOffset.UtcNow`（`:431`、`:464-465`）改读 `ITimeService.Now`，只在沙箱标志打开时生效；钩子在 Runbook 登记文件与行号。
+- 不改 `UserModel` 的话，至少：
+  - 让启动器在作业开始前把 `installTime` 设为沙箱时钟的时刻，并断言 `DailyAdsResetTime` 不晚于它；
+  - 断言机器人从不调用 `CanWatchAd`/`IncrementDailyAds`；
+  - C3d 的"不同真实日期跑两次"测试要覆盖跨 UTC 零点的情况。
 
 ### 7.2 AB 抽组
 
@@ -315,6 +342,13 @@
 
   测量部分（`ProbeState`）是探路用的，可以删掉，或移到 `selftest`。
 - 沙箱用首选方案（改名），不需要 `GameDataService` 的存档目录钩子。
+- **沙箱残留要清理。** 探路入口只在开始时清空沙箱，结束时不清，好让验收脚本检查 `game_data.bin` 落在哪里。所以每次运行后会留下 `~/Library/Preferences/unity.TufuSimSandbox.<沙箱名>.plist` 和 `~/Library/Application Support/TufuSimSandbox/<沙箱名>/`。C0b 的启动器在每次运行（成功或失败）之后：
+  - 先取走需要的产物；
+  - `/usr/bin/defaults delete unity.TufuSimSandbox.<沙箱名>`，经 cfprefsd 删除；若 plist 文件仍在再删文件（直接删文件而不经 cfprefsd，缓存可能把它写回来）；
+  - 删除沙箱数据目录；
+  - 删除之前核对路径确实在 `TufuSimSandbox` 之下，绝不碰真实域 `unity.Multicast Games.*` 与真实存档目录。
+- 时钟钩子不止 `TimeService` 一处，见 7.1a。
+- Play 设置守卫只看 `enterPlayModeOptions` 的禁用标志（第 3 节第 7 条）。
 - 就绪补救按 6.2 实现。冻结值的初值是 699（例外 17 个）。另外处理就绪时 `Cooldown` 非零的问题（6.1）。
 - 不外发的断言口径见 4.3。
 - **资产守卫要预先知道**：原版 `SimulationSystem.OnAwake` 每次进入 Play 都会在内存里改写 Simulation Config（`SimulationSystem.cs:256-268`）：
@@ -338,5 +372,5 @@
 | 2.3 | 没有提到 | 就绪时 697 个刷怪点的 `Cooldown` 是距 UTC 零点的秒数，会让已恢复的机器人过滤排除它们（6.1）|
 | 2.3、Q08 | 改名后存档和偏好一起换到沙箱 | 成立；但 PlayerPrefs 的未保存写入要在改回前 `Save()`，真实 plist 的 mtime 每次退出都变（第 3 节）|
 | 2.3 | AB 只与抽组的随机有关 | 还取决于 PlayerPrefs 的 `game_loaded_once`（7.2）|
-| 2.3 | `EditorSettings` 断言域重载与场景重载（属性名待核对）| `enterPlayModeOptionsEnabled` 读出 `False`，与资产里的 1 不符；以 `enterPlayModeOptions` 无禁用标志为准（第 3 节第 7 条）|
-| 2.10 | `Recovery/Evidence` 的资产映射表随 `1186f67` 可用 | 该目录被 `.gitignore` 排除，新工作树默认没有 |
+| 2.3 | `EditorSettings` 断言域重载与场景重载（属性名待核对）| `enterPlayModeOptionsEnabled` 读出 `False`，与资产里的 1 不符，不能用；只看 `enterPlayModeOptions` 有没有 `DisableDomainReload`/`DisableSceneReload`（第 3 节第 7 条）|
+| 2.3、2.6、7.3 C0b | 沙箱时钟只在 `TimeService` 加钩子；"读墙钟的系统由沙箱时钟冻结"，输出与真实日期无关 | `UserModel.cs:431`、`:464-465` 直接读 `DateTimeOffset.UtcNow`，绕过 `TimeService`：每日广告上限按真实 UTC 零点重置，`installTime` 取真实时刻并影响 `StatReward` 的每日轮换（沙箱时钟早于真实安装日时会抛异常）。C0b 的钩子清单需要加上 `UserModel`，或用 7.1a 的替代办法 |
