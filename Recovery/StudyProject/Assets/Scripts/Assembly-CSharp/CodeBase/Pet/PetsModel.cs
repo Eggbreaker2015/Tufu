@@ -24,8 +24,7 @@ namespace Codebase.Pet
 
 		private const float DefaultReviveCooldown = 15f;
 
-		// Same as RevivePlayerCommand's ordinary (fountain) revive.
-		private const double RevivedHealth = 1.0;
+		private const float DefaultReviveHealthFraction = 0.2f;
 
 		public List<PetModel> Pets { get; } = new List<PetModel>();
 
@@ -185,7 +184,7 @@ namespace Codebase.Pet
 		}
 
 		// Undoes OnPetDied: back on the follow ring, agent and markers restored, attack state reset.
-		// Like the player's ordinary revive, a pet comes back with 1 HP unless full health is restored.
+		// A pet comes back with PetConfig.ReviveHealthFraction of its max health unless full health is restored.
 		public void Revive(PetModel pet, Vector3 center, float yaw, bool restoreHealth = false)
 		{
 			PetUnit unit = pet.Unit;
@@ -196,7 +195,9 @@ namespace Codebase.Pet
 			pet.TargetOutOfRangeTimer = 0f;
 			unit.CurrentTarget = null;
 			double maximum = unit.GetStatValue(StatType.Health);
-			unit.CurrentHealth = restoreHealth ? maximum : Math.Min(RevivedHealth, maximum);
+			PetConfig config = PetConfig.Instance;
+			double fraction = config != null ? config.ReviveHealthFraction : DefaultReviveHealthFraction;
+			unit.CurrentHealth = restoreHealth ? maximum : Math.Max(maximum * fraction, Math.Min(1.0, maximum));
 			ResetAttackState(pet.Item);
 
 			// Placed while the agent is still off, so it is enabled on the NavMesh.
@@ -229,7 +230,7 @@ namespace Codebase.Pet
 		}
 
 		// Player revive and arena entry: dead pets come back and all are moved and lose their target.
-		// restoreHealth follows the player's: full health for everyone, otherwise dead pets get 1 HP and living ones keep theirs.
+		// restoreHealth follows the player's: full health for everyone, otherwise dead pets get the revive fraction and living ones keep theirs.
 		public void ReviveAll(Vector3 center, float yaw, bool restoreHealth)
 		{
 			pendingRevives.Clear();

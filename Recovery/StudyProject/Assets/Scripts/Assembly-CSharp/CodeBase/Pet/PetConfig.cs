@@ -18,6 +18,10 @@ namespace Codebase.Pet
 
 		public float ReviveCooldown = 15f;
 
+		// Fraction of max health a pet comes back with (cooldown, fountain, ordinary player revive).
+		[Range(0f, 1f)]
+		public float ReviveHealthFraction = 0.2f;
+
 		public float LeashRadius = 12f;
 
 		public float TeleportDistance = 18f;
