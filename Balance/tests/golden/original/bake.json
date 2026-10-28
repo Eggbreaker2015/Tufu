@@ -147,6 +147,17 @@
    "source": "G13",
    "value": 78
   },
+  "G13.raw_differ_stepwise_fma": {
+   "kind": "exact",
+   "note": "of the K4/K5 spawners; integral damage raw absorbs most K5 changes",
+   "source": "G13",
+   "value": {
+    "damage": 2,
+    "damage_raw": 12,
+    "health": 20,
+    "health_raw": 20
+   }
+  },
   "G13.rounding.double_all": {
    "kind": "exact",
    "note": "first measured by P7",
@@ -324,6 +335,18 @@
    "note": "",
    "source": "R1",
    "value": 609
+  },
+  "oracle.raw_bits.default": {
+   "kind": "exact",
+   "note": "same under interpolation_default.json",
+   "source": "G13",
+   "value": "0b9f4e376329b2b59ab1723dee872252194b947cb3a6c7414425d4953de9d97b"
+  },
+  "oracle.raw_bits.stepwise": {
+   "kind": "exact",
+   "note": "sha256 of sorted lines: SpawnerId armor_type recalc_optimum_time day ability_dps ability_ehp new_health_raw new_damage_raw new_health new_damage",
+   "source": "G13",
+   "value": "c7cb4db69b985692692e0c19c9eab47cb68415ec32e5eb31f564354f89c1dd6b"
   }
  },
  "schema": "tufu.golden/1",
