@@ -164,6 +164,9 @@ namespace Codebase.Simulation.Harness
 
 		partial void RebuildJobExportBake(SimulationRunRequest.Job current, string jobDir, JObject jobManifest);
 
+		// After C1's outputs: C3c's daily records, events, digests and manifest "params"/"trace" (SimulationTrace.cs).
+		partial void RebuildJobExportTrace(SimulationRunRequest.Job current, string jobDir, JObject jobManifest);
+
 		// After the stop, before the export hooks: C2's Play-mode differential probes (job.probes).
 		partial void RebuildJobRunProbes(SimulationRunRequest.Job current, string jobDir, JObject jobManifest);
 
@@ -691,6 +694,7 @@ namespace Codebase.Simulation.Harness
 			Directory.CreateDirectory(dir);
 			RebuildJobRunProbes(job, dir, manifest);
 			RebuildJobExportOutputs(job, dir, manifest);
+			RebuildJobExportTrace(job, dir, manifest);
 			RebuildJobExportBake(job, dir, manifest);
 			Complete(ExitOk, null);
 		}

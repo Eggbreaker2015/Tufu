@@ -38,7 +38,7 @@ def test_params_enums_match_csharp():
 
 def _csharp_defaults() -> dict:
     text = engine.PARAMS_SOURCE.read_text(encoding="utf-8")
-    body = re.search(r"public partial class SimulationRebuildParams\s*\{(.*?)internal static SimulationRebuildParams FromJson", text, re.S).group(1)
+    body = re.search(r"public partial class SimulationRebuildParams\s*\{(.*?)(?:internal|public) static SimulationRebuildParams FromJson", text, re.S).group(1)
     enums = _enums(REBUILD_DIR)
     out = {}
     for type_, name, value in re.findall(r"^\t\tpublic ([\w\[\]]+) (\w+) = (.+?);", body, re.M):

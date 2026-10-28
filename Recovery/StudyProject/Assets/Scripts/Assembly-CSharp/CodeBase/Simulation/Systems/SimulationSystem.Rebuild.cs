@@ -42,6 +42,9 @@ namespace Codebase.Simulation.Systems
 
 		private SimulationRebuildParams RebuildParams = new SimulationRebuildParams();
 
+		// Fractional counts (design 4.7): RebuildRandom.Roll(item Key, expected copies); set from the params per run.
+		private SimulationRandom RebuildRandom = new SimulationRandom(RollMode.Carry, 1);
+
 		private SimulationRunRequest.EngineProbe RebuildProbe;
 
 		// Set by the stop conditions, max_ticks and failures; ExecuteTick then returns at once (design 2.4).
@@ -127,23 +130,17 @@ namespace Codebase.Simulation.Systems
 			RebuildCounters[key] = value + n;
 		}
 
-		// Batch runs: params and engine switches of the job; interactive runs: code defaults (C3c adds the asset).
+		// Params and engine switches of the job (SimulationRebuildParamsLoader, C3c: batch runs take the request's
+		// params or the parameter asset, interactive runs the asset); the random source and the trace start here.
 		private void RebuildLoadRunOptions()
 		{
 			SimulationRunRequest.Job job = SimulationHarness.CurrentJob;
 			RebuildProbe = job?.Engine;
-			try
-			{
-				RebuildParams = SimulationRebuildParams.FromJson(job?.Params);
-			}
-			catch (Exception e)
-			{
-				RebuildParams = new SimulationRebuildParams();
-				RebuildFail(SimulationHarness.ExitBadRequest, "params: " + e.Message);
-				return;
-			}
-			string error = RebuildParams.Validate();
-			if (error != null) RebuildFail(SimulationHarness.ExitBadRequest, error);
+			string error = SimulationRebuildParamsLoader.Load(job, out RebuildParams, out JObject report);
+			RebuildRandom = new SimulationRandom(RebuildParams.RollMode, RebuildParams.Seed);
+			bool digestText = job?.Outputs != null && job.Outputs.TryGetValue("digest_text", out bool on) && on;
+			SimulationTrace.Begin(report, RebuildRandom, digestText);
+			if (error != null) RebuildFail(SimulationHarness.ExitBadRequest, error.StartsWith("params", StringComparison.Ordinal) ? error : "params: " + error);
 		}
 
 		private bool RebuildNullPolicy => RebuildProbe != null && RebuildProbe.NullPolicy;
@@ -180,6 +177,7 @@ namespace Codebase.Simulation.Systems
 			spawner.Cooldown = def.DisableAfterFirstClear ? float.PositiveInfinity : spawner.BaseCooldown;
 			RebuildCount("clears", clears);
 			RebuildCount("kills", (long)clears * def.Count);
+			RebuildTraceClear(spawner);
 			if (accumulate)
 			{
 				RebuildCount("accumulate_calls");
@@ -258,6 +256,7 @@ namespace Codebase.Simulation.Systems
 				{
 					slot.IsUnlocked = true;
 					RebuildCount("slot_unlocks");
+					RebuildTraceSlotUnlock(slot);
 				}
 			}
 		}
@@ -277,6 +276,7 @@ namespace Codebase.Simulation.Systems
 			currentBoss = RebuildFindBoss(number);
 			RebuildCount("unlocks");
 			RebuildUnlockLog.Add(new JArray(number, timeChunkIndex, (double)config.CurrentPlaytime, (double)config.CurrentTotalPlaytime));
+			RebuildTraceUnlock(number);
 			UnlockSimulationWeaponSlot(number);
 		}
 

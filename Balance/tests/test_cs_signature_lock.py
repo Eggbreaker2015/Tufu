@@ -65,7 +65,7 @@ MODULES = {
     "Fight": ["SimulateFightWithSpawner", "ProcessDeath", "CalcDifficultSpawner", "LogSpawnerClear",
               "GetUnlockTimingLogData"],
 }
-PARTIAL_FILES = sorted([*MODULES, "Rebuild", "Replay"])
+PARTIAL_FILES = sorted([*MODULES, "Rebuild", "Replay", "Trace"])  # Trace: C3c's daily records, events, digests
 CONFIG_STUBS = {"ResetCombatConfigValues", "Tick", "ResetAmuletLevelBalance", "SetAmuletLevelBalance",
                 "GetTrimmedTimeChunkSnapshots"}
 # Design 4.1 "debug" rows; every other empty method starts as Provenance.Null.
@@ -94,6 +94,8 @@ NEW_MEMBERS = {
     "property:RebuildFailure": "internal",
     "property:RebuildFailureExitCode": "internal",
     "property:RebuildLastTickWasFast": "internal",
+    # C3c: the harness flushes the open day of the trace at the job's end
+    "method:RebuildTraceFlush()": "internal",
 }
 # Design 4.1: provenance of the empty methods C3b filled (SimulationSystem and SimulationConfig).
 FILLED = {
@@ -453,7 +455,12 @@ def test_hooks_do_not_collide_with_harness_hooks(current):
 
 def test_new_files_have_unique_meta():
     new = [SIM_DIR / "Rebuild", ATTRIBUTE, *(SYSTEMS / f"SimulationSystem.{m}.cs" for m in PARTIAL_FILES),
-           SIM_DIR / "Rebuild" / "SimulationRebuildParams.cs", SIM_DIR / "Harness" / "SimulationRunRequest.Engine.cs"]
+           SIM_DIR / "Rebuild" / "SimulationRebuildParams.cs", SIM_DIR / "Harness" / "SimulationRunRequest.Engine.cs",
+           # C3c
+           *(SIM_DIR / "Rebuild" / f for f in ("SimulationRandom.cs", "SimulationTrace.cs", "SimulationRebuildParamsAsset.cs")),
+           SIM_DIR / "Harness" / "SimulationRunRequest.Params.cs",
+           PROJECT / "Assets" / "Editor" / "Simulation" / "SimulationParamsImporter.cs",
+           PROJECT / "Assets" / "Simulation"]
     tracked = subprocess.run(["git", "-C", str(WORKTREE), "ls-files", "-z", "--", "*.meta"],
                              capture_output=True, text=True, check=True).stdout.split("\0")
     ours = {str((p.parent / (p.name + ".meta")).relative_to(WORKTREE)) for p in new}
