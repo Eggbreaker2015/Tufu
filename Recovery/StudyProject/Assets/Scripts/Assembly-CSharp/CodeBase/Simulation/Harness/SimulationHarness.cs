@@ -155,6 +155,9 @@ namespace Codebase.Simulation.Harness
 
 		partial void RebuildJobExportBake(SimulationRunRequest.Job current, string jobDir, JObject jobManifest);
 
+		// After the stop, before the export hooks: C2's Play-mode differential probes (job.probes).
+		partial void RebuildJobRunProbes(SimulationRunRequest.Job current, string jobDir, JObject jobManifest);
+
 		// ---- lifecycle ----
 
 		private void Awake()
@@ -661,6 +664,7 @@ namespace Codebase.Simulation.Harness
 			manifest["state_sha256_job_end"] = Sha256(StateDigestText());
 			string dir = request.JobDir(job);
 			Directory.CreateDirectory(dir);
+			RebuildJobRunProbes(job, dir, manifest);
 			RebuildJobExportOutputs(job, dir, manifest);
 			RebuildJobExportBake(job, dir, manifest);
 			Complete(ExitOk, null);

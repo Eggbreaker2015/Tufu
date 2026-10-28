@@ -279,6 +279,7 @@ namespace Codebase.Simulation.EditorTools
 			SimulationRunRequest request = CurrentRequest();
 			int index = SessionState.GetInt(P + "job_index", 0);
 			SimulationRunRequest.Job job = request.Jobs[index];
+			if (job.Probes != null) SimulationProbes.RunEdit(request, job); // C2: edit-mode probes before Play
 			ClearSandboxData();
 			SeedPrefs(request);
 			var marker = new SimulationSandbox.ActiveRequest
