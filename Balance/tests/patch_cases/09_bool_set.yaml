@@ -1,0 +1,6 @@
+name: bool_set
+description: bool field set, row selected by GameObject name
+overrides:
+  - node: EnemySpawnerConfig.HandBalance
+    where: {go_name: Spawner_elite_HP}
+    set: true

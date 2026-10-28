@@ -1,0 +1,8 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.Interpolations.Interpolations[].IslandPoints", "row": {"idx": 0}, "index": null, "old": "9; 14; 17", "new": "9; 14; 18"}
+  ],
+  "ops": [{"source": "override", "node": "CombatBalanceConfig.Interpolations.Interpolations[].IslandPoints", "rows": 1, "leaves": 1}],
+  "warnings": [],
+  "passthrough": []
+}

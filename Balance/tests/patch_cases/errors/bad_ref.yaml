@@ -1,0 +1,3 @@
+name: bad_ref
+overrides:
+  - {node: EnemySpawnerConfig.ArmorConfig, where: {go_name: Spawner_elite_HP}, set: no_such_armor}

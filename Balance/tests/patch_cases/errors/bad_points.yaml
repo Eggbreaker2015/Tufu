@@ -1,0 +1,6 @@
+name: bad_points
+description: interpolation point lists are ';'-separated finite numbers
+overrides:
+  - node: CombatBalanceConfig.Interpolations.Interpolations[].CoefPoints
+    where: {Name: GraphFlat}
+    set: "1; x; 3"

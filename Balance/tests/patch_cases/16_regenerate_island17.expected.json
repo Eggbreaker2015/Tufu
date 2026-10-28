@@ -1,0 +1,535 @@
+{
+ "leaves": [
+  {
+   "node": "CombatBalanceConfig.IslandTargetDays",
+   "row": {},
+   "index": 16,
+   "old": 180.0,
+   "new": 190.0
+  },
+  {
+   "node": "SpawnerRelativeOptimumTimeTool.Islands[].MaxOptimumTime",
+   "row": {
+    "idx": 16
+   },
+   "index": null,
+   "old": 180.0,
+   "new": 190.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 55475
+   },
+   "index": null,
+   "old": 176.39999389648438,
+   "new": 185.1999969482422
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 55500
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 55957
+   },
+   "index": null,
+   "old": 154.5,
+   "new": 156.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56306
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56319
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56344
+   },
+   "index": null,
+   "old": 156.3000030517578,
+   "new": 158.39999389648438
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56436
+   },
+   "index": null,
+   "old": 154.5,
+   "new": 156.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56460
+   },
+   "index": null,
+   "old": 156.3000030517578,
+   "new": 158.39999389648438
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56689
+   },
+   "index": null,
+   "old": 160.8000030517578,
+   "new": 164.39999389648438
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56834
+   },
+   "index": null,
+   "old": 167.10000610351562,
+   "new": 172.8000030517578
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57102
+   },
+   "index": null,
+   "old": 180.0,
+   "new": 190.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57182
+   },
+   "index": null,
+   "old": 169.1999969482422,
+   "new": 175.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57297
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57355
+   },
+   "index": null,
+   "old": 156.3000030517578,
+   "new": 158.39999389648438
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57521
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57651
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57866
+   },
+   "index": null,
+   "old": 166.1999969482422,
+   "new": 171.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57966
+   },
+   "index": null,
+   "old": 153.60000610351562,
+   "new": 154.8000030517578
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58061
+   },
+   "index": null,
+   "old": 154.5,
+   "new": 156.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58221
+   },
+   "index": null,
+   "old": 155.10000610351562,
+   "new": 156.8000030517578
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58630
+   },
+   "index": null,
+   "old": 152.10000610351562,
+   "new": 152.8000030517578
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58676
+   },
+   "index": null,
+   "old": 156.0,
+   "new": 158.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58786
+   },
+   "index": null,
+   "old": 160.8000030517578,
+   "new": 164.39999389648438
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58822
+   },
+   "index": null,
+   "old": 154.5,
+   "new": 156.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58846
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58925
+   },
+   "index": null,
+   "old": 173.10000610351562,
+   "new": 180.8000030517578
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59006
+   },
+   "index": null,
+   "old": 162.89999389648438,
+   "new": 167.1999969482422
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59109
+   },
+   "index": null,
+   "old": 169.1999969482422,
+   "new": 175.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59238
+   },
+   "index": null,
+   "old": 154.5,
+   "new": 156.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59344
+   },
+   "index": null,
+   "old": 150.89999389648438,
+   "new": 151.1999969482422
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59449
+   },
+   "index": null,
+   "old": 173.10000610351562,
+   "new": 180.8000030517578
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59492
+   },
+   "index": null,
+   "old": 175.5,
+   "new": 184.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59522
+   },
+   "index": null,
+   "old": 180.0,
+   "new": 190.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59801
+   },
+   "index": null,
+   "old": 152.10000610351562,
+   "new": 152.8000030517578
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59901
+   },
+   "index": null,
+   "old": 160.8000030517578,
+   "new": 164.39999389648438
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 60131
+   },
+   "index": null,
+   "old": 158.6999969482422,
+   "new": 161.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 60473
+   },
+   "index": null,
+   "old": 164.6999969482422,
+   "new": 169.60000610351562
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 60761
+   },
+   "index": null,
+   "old": 169.8000030517578,
+   "new": 176.39999389648438
+  },
+  {
+   "node": "CombatBalanceConfig.CommonEvolutionTargetTimings",
+   "row": {},
+   "index": 6,
+   "old": 180.0,
+   "new": 190.0
+  },
+  {
+   "node": "CombatBalanceConfig.CommonArmorEvolutionTargetTimings",
+   "row": {},
+   "index": 6,
+   "old": 195.83334350585938,
+   "new": 200.83334350585938
+  },
+  {
+   "node": "CombatBalanceConfig.UncommonArmorEvolutionTargetTimings",
+   "row": {},
+   "index": 4,
+   "old": 165.0,
+   "new": 170.0
+  },
+  {
+   "node": "CombatBalanceConfig.RareArmorEvolutionTargetTimings",
+   "row": {},
+   "index": 3,
+   "old": 195.83334350585938,
+   "new": 200.83334350585938
+  },
+  {
+   "node": "CombatBalanceConfig.EpicArmorEvolutionTargetTimings",
+   "row": {},
+   "index": 1,
+   "old": 165.0,
+   "new": 170.0
+  },
+  {
+   "node": "CombatBalanceConfig.LegendaryArmorEvolutionTargetTimings",
+   "row": {},
+   "index": 0,
+   "old": 195.83334350585938,
+   "new": 200.83334350585938
+  },
+  {
+   "node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints",
+   "row": {
+    "idx": 2
+   },
+   "index": null,
+   "old": "110; 180",
+   "new": "110; 190"
+  },
+  {
+   "node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints",
+   "row": {
+    "idx": 4
+   },
+   "index": null,
+   "old": "110; 180",
+   "new": "110; 190"
+  },
+  {
+   "node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints",
+   "row": {
+    "idx": 11
+   },
+   "index": null,
+   "old": "1.833333; 90; 180",
+   "new": "1.833333; 90; 190"
+  }
+ ],
+ "ops": [
+  {
+   "source": "override",
+   "node": "CombatBalanceConfig.IslandTargetDays",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.optimum_time_from_relative",
+   "node": "SpawnerRelativeOptimumTimeTool.Islands[].MaxOptimumTime",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.optimum_time_from_relative",
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "rows": 38,
+   "leaves": 38
+  },
+  {
+   "source": "regenerate.evolution_target_timings",
+   "node": "CombatBalanceConfig.CommonEvolutionTargetTimings",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.evolution_target_timings",
+   "node": "CombatBalanceConfig.CommonArmorEvolutionTargetTimings",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.evolution_target_timings",
+   "node": "CombatBalanceConfig.UncommonArmorEvolutionTargetTimings",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.evolution_target_timings",
+   "node": "CombatBalanceConfig.RareArmorEvolutionTargetTimings",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.evolution_target_timings",
+   "node": "CombatBalanceConfig.EpicArmorEvolutionTargetTimings",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.evolution_target_timings",
+   "node": "CombatBalanceConfig.LegendaryArmorEvolutionTargetTimings",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.interpolation_timing_points",
+   "node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints",
+   "rows": 3,
+   "leaves": 3
+  }
+ ],
+ "warnings": [
+  "override_kept"
+ ],
+ "passthrough": []
+}

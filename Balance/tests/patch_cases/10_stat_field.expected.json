@@ -1,0 +1,8 @@
+{
+  "leaves": [
+    {"node": "EnemySpawnerConfig.Stats[Health]", "row": {"scene": "Scenes/Main.unity", "file_id": 58941}, "index": null, "old": 4306.0, "new": 8612.0}
+  ],
+  "ops": [{"source": "override", "node": "EnemySpawnerConfig.Stats[Health]", "rows": 1, "leaves": 1}],
+  "warnings": [],
+  "passthrough": []
+}

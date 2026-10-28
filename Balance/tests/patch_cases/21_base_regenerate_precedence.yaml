@@ -1,0 +1,6 @@
+name: base_regenerate_precedence
+description: the child's regenerate keys override the base's (here the OT and tail steps are switched off)
+base: 16_regenerate_island17.yaml
+regenerate:
+  island_target_days_tail: false
+  optimum_time_from_relative: false

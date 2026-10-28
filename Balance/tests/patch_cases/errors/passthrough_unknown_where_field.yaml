@@ -1,0 +1,6 @@
+name: passthrough_unknown_where_field
+description: a where field that no source table of the passthrough node has
+overrides:
+  - node: EnemySpawnerConfig.AggroRange
+    where: {NoSuchField: 1}
+    set: 5

@@ -1,0 +1,6 @@
+name: string_set
+description: string field set (interpolation island knots), row selected by Name
+overrides:
+  - node: CombatBalanceConfig.Interpolations.Interpolations[].IslandPoints
+    where: {Name: Tower}
+    set: "9; 14; 18"

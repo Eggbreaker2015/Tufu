@@ -1,0 +1,6 @@
+name: float_overflow
+description: a value that is not finite as the field's type (1e39 overflows binary32)
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 98
+    set: 1.0e+39

@@ -1,0 +1,8 @@
+{
+  "leaves": [
+    {"node": "EnemySpawnerConfig.PriorityMultiplier", "row": {"scene": "Scenes/Main.unity", "file_id": 58941}, "index": null, "old": 10.0, "new": 20.0}
+  ],
+  "ops": [{"source": "override", "node": "EnemySpawnerConfig.PriorityMultiplier", "rows": 1, "leaves": 1}],
+  "warnings": ["not_modeled_static"],
+  "passthrough": []
+}

@@ -1,0 +1,6 @@
+name: where_enum_names
+description: list rows selected by enum member names and an int field
+overrides:
+  - node: CombatBalanceConfig.EvolutionDamageValues[].Value
+    where: {DamageType: Stabbing, Rarity: Legendary, EvolutionLevel: 15}
+    mul: 2

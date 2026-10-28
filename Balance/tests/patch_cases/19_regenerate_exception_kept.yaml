@@ -1,0 +1,10 @@
+name: regenerate_exception_kept
+description: >-
+  Island 1 (a minute island) lasts 0.25 day longer: its window max is 60 * ITD[0]; the OTs on island 1 follow
+  the rule except the G03 exceptions, which keep their stored OT and warn.
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 0
+    add: 0.25
+regenerate:
+  optimum_time_from_relative: true

@@ -1,0 +1,5 @@
+name: set_double
+description: set on a double scalar of a single-asset config; outside the dictionary range
+overrides:
+  - node: CombatBalanceConfig.CopyValueTargetShare
+    set: 0.6
