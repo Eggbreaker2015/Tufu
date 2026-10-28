@@ -340,7 +340,7 @@
    "kind": "exact",
    "note": "same under interpolation_default.json",
    "source": "G13",
-   "value": "0b9f4e376329b2b59ab1723dee872252194b947cb3a6c7414425d4953de9d97b"
+   "value": "6350dced72ff917bd13d9e0f3f033ce2d05c20cb2b9d19febae600fd5afe7f1f"
   },
   "oracle.raw_bits.stepwise": {
    "kind": "exact",

@@ -1,0 +1,590 @@
+{
+ "expectations": {
+  "DP1.mismatches": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP1",
+   "value": 0
+  },
+  "DP1.values": {
+   "kind": "exact",
+   "note": "36 StatTypes x (200 log points + 17 specials)",
+   "source": "DP1",
+   "value": 7812
+  },
+  "DP2.apply": {
+   "kind": "exact",
+   "note": "[values, mismatches]",
+   "source": "DP2",
+   "value": [
+    1023,
+    0
+   ]
+  },
+  "DP2.defence": {
+   "kind": "exact",
+   "note": "[values, mismatches]",
+   "source": "DP2",
+   "value": [
+    8,
+    0
+   ]
+  },
+  "DP2.regen": {
+   "kind": "exact",
+   "note": "[values, mismatches]",
+   "source": "DP2",
+   "value": [
+    302,
+    0
+   ]
+  },
+  "DP2.solve": {
+   "kind": "exact",
+   "note": "[values, mismatches]",
+   "source": "DP2",
+   "value": [
+    404,
+    0
+   ]
+  },
+  "DP3.anchor.failing_snapshots": {
+   "better": "subset",
+   "kind": "set",
+   "note": "",
+   "source": "DP3/G11",
+   "value": []
+  },
+  "DP3.anchor.k2_snapshots": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "",
+   "source": "DP3/G11",
+   "value": 109
+  },
+  "DP3.anchor.k3_snapshots": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "",
+   "source": "DP3/G11",
+   "value": 109
+  },
+  "DP3.editor_rounding": {
+   "kind": "exact",
+   "note": "the only rounding bit-equal to the editor on every curve and coefficient",
+   "source": "DP3",
+   "value": "double_all"
+  },
+  "DP3.play_equals_edit": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP3",
+   "value": true
+  },
+  "DP3.points": {
+   "kind": "exact",
+   "note": "t values (801 integers + 1000 fractional + 7 specials), main points, curves",
+   "source": "DP3",
+   "value": [
+    1808,
+    1801,
+    19
+   ]
+  },
+  "DP3.ulp_hist.double_all": {
+   "kind": "exact",
+   "note": "editor minus oracle in binary32 ulps over the 1801 main points",
+   "source": "DP3",
+   "value": {
+    "coef": {
+     "0": 129672
+    },
+    "curves": {
+     "0": 34219
+    },
+    "specials_equal": true
+   }
+  },
+  "DP3.ulp_hist.double_tail": {
+   "kind": "exact",
+   "note": "editor minus oracle in binary32 ulps over the 1801 main points",
+   "source": "DP3",
+   "value": {
+    "coef": {
+     "-1": 48,
+     "0": 129624
+    },
+    "curves": {
+     "-1": 51,
+     "-2": 13,
+     "0": 34152,
+     "1": 3
+    },
+    "specials_equal": true
+   }
+  },
+  "DP3.ulp_hist.fma": {
+   "kind": "exact",
+   "note": "editor minus oracle in binary32 ulps over the 1801 main points",
+   "source": "DP3",
+   "value": {
+    "coef": {
+     "-1": 488,
+     "0": 129184
+    },
+    "curves": {
+     "-1": 106,
+     "-2": 13,
+     "0": 34097,
+     "1": 3
+    },
+    "specials_equal": true
+   }
+  },
+  "DP3.ulp_hist.stepwise": {
+   "kind": "exact",
+   "note": "editor minus oracle in binary32 ulps over the 1801 main points",
+   "source": "DP3",
+   "value": {
+    "coef": {
+     "-1": 1600,
+     "-2": 40,
+     "0": 126858,
+     "1": 1119,
+     "2": 55
+    },
+    "curves": {
+     "-1": 293,
+     "-2": 13,
+     "0": 33684,
+     "1": 229
+    },
+    "specials_equal": true
+   }
+  },
+  "DP4.anchor.g19_count": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP4/G19",
+   "value": 46
+  },
+  "DP4.anchor.g19_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP4/G19",
+   "value": true
+  },
+  "DP4.lookups": {
+   "kind": "exact",
+   "note": "n and bit-equal results per lookup",
+   "source": "DP4",
+   "value": {
+    "playtime": {
+     "equal": 424,
+     "n": 424
+    },
+    "tc": {
+     "equal": 796,
+     "n": 816
+    },
+    "tc_early": {
+     "equal": 76,
+     "n": 76
+    }
+   }
+  },
+  "DP4.mismatches": {
+   "better": "lower",
+   "kind": "exact",
+   "note": "all TotalPlaytime of interpolated snapshots (Mono rounds a + (b - a) * t once)",
+   "source": "DP4",
+   "value": 20
+  },
+  "DP4.tp_explained_by_mono": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP4",
+   "value": 20
+  },
+  "DP4.tp_ulp_hist": {
+   "kind": "exact",
+   "note": "editor minus oracle, binary32 ulps (Q03)",
+   "source": "DP4",
+   "value": {
+    "-1": 5,
+    "1": 15
+   }
+  },
+  "DP5.anchor.g13_hp_exact": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "",
+   "source": "DP5/G13",
+   "value": 79
+  },
+  "DP5.anchor.g13_hp_exact_set": {
+   "better": "superset",
+   "kind": "set",
+   "note": "SpawnerId scene:file_id; equals the oracle's G13 set",
+   "source": "DP5/G13",
+   "value": [
+    "Scenes/Main.unity:55401",
+    "Scenes/Main.unity:55446",
+    "Scenes/Main.unity:55497",
+    "Scenes/Main.unity:55508",
+    "Scenes/Main.unity:55511",
+    "Scenes/Main.unity:55533",
+    "Scenes/Main.unity:55555",
+    "Scenes/Main.unity:55579",
+    "Scenes/Main.unity:55692",
+    "Scenes/Main.unity:55751",
+    "Scenes/Main.unity:55816",
+    "Scenes/Main.unity:55840",
+    "Scenes/Main.unity:55852",
+    "Scenes/Main.unity:55881",
+    "Scenes/Main.unity:56000",
+    "Scenes/Main.unity:56036",
+    "Scenes/Main.unity:56062",
+    "Scenes/Main.unity:56070",
+    "Scenes/Main.unity:56210",
+    "Scenes/Main.unity:56252",
+    "Scenes/Main.unity:56276",
+    "Scenes/Main.unity:56447",
+    "Scenes/Main.unity:56457",
+    "Scenes/Main.unity:56574",
+    "Scenes/Main.unity:56586",
+    "Scenes/Main.unity:56642",
+    "Scenes/Main.unity:56652",
+    "Scenes/Main.unity:56670",
+    "Scenes/Main.unity:56686",
+    "Scenes/Main.unity:56778",
+    "Scenes/Main.unity:56803",
+    "Scenes/Main.unity:56899",
+    "Scenes/Main.unity:56935",
+    "Scenes/Main.unity:57043",
+    "Scenes/Main.unity:57046",
+    "Scenes/Main.unity:57055",
+    "Scenes/Main.unity:57060",
+    "Scenes/Main.unity:57110",
+    "Scenes/Main.unity:57126",
+    "Scenes/Main.unity:57183",
+    "Scenes/Main.unity:57288",
+    "Scenes/Main.unity:57352",
+    "Scenes/Main.unity:57417",
+    "Scenes/Main.unity:57532",
+    "Scenes/Main.unity:57553",
+    "Scenes/Main.unity:57614",
+    "Scenes/Main.unity:57664",
+    "Scenes/Main.unity:57683",
+    "Scenes/Main.unity:57723",
+    "Scenes/Main.unity:57852",
+    "Scenes/Main.unity:57932",
+    "Scenes/Main.unity:58064",
+    "Scenes/Main.unity:58145",
+    "Scenes/Main.unity:58263",
+    "Scenes/Main.unity:58322",
+    "Scenes/Main.unity:58341",
+    "Scenes/Main.unity:58343",
+    "Scenes/Main.unity:58546",
+    "Scenes/Main.unity:58941",
+    "Scenes/Main.unity:58961",
+    "Scenes/Main.unity:58987",
+    "Scenes/Main.unity:59037",
+    "Scenes/Main.unity:59372",
+    "Scenes/Main.unity:59415",
+    "Scenes/Main.unity:59596",
+    "Scenes/Main.unity:59647",
+    "Scenes/Main.unity:59687",
+    "Scenes/Main.unity:59922",
+    "Scenes/Main.unity:60010",
+    "Scenes/Main.unity:60102",
+    "Scenes/Main.unity:60332",
+    "Scenes/Main.unity:60441",
+    "Scenes/Main.unity:60507",
+    "Scenes/Main.unity:60602",
+    "Scenes/Main.unity:60635",
+    "Scenes/Main.unity:60674",
+    "Scenes/Main.unity:60686",
+    "Scenes/Main.unity:60747",
+    "Scenes/Main.unity:60749"
+   ]
+  },
+  "DP5.anchor.g13_minute_n": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP5/G13",
+   "value": 108
+  },
+  "DP5.boss_tower": {
+   "kind": "exact",
+   "note": "Count 0: NewHealthRaw and NewHealth are +Inf on both sides",
+   "source": "DP5",
+   "value": [
+    {
+     "count": 0,
+     "csharp_new_health": "inf",
+     "csharp_new_health_raw": "inf",
+     "id": "Scenes/Main.unity:56955",
+     "name": "BossTower",
+     "oracle_new_health": "inf"
+    }
+   ]
+  },
+  "DP5.intermediates": {
+   "kind": "exact",
+   "note": "[values, bit-equal, within 1e-12 relative]",
+   "source": "DP5",
+   "value": [
+    20076,
+    20072,
+    20072
+   ]
+  },
+  "DP5.new_health_damage_bit_equal": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "",
+   "source": "DP5",
+   "value": 717
+  },
+  "DP5.new_health_raw_mono": {
+   "kind": "exact",
+   "note": "NewHealthRaw off by the float rounding of 1 - resist (Q03)",
+   "source": "DP5",
+   "value": [
+    4,
+    3.725290293737145e-08
+   ]
+  },
+  "DP5.snapshot_source_equal": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP5",
+   "value": 717
+  },
+  "DP5.spawners": {
+   "kind": "exact",
+   "note": "[components in Main, registered at runtime]",
+   "source": "DP5",
+   "value": [
+    717,
+    716
+   ]
+  },
+  "DP5.unregistered": {
+   "kind": "set",
+   "note": "compared too, listed apart",
+   "source": "DP5",
+   "value": [
+    "Scenes/Main.unity:57694"
+   ]
+  },
+  "DP6.anchor.charges_per_unit": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6/G17b",
+   "value": [
+    3,
+    2
+   ]
+  },
+  "DP6.anchor.cooldown_defaults": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6/G17b",
+   "value": [
+    30.0,
+    180.0
+   ]
+  },
+  "DP6.anchor.elite_cooldown_minutes": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6/G17b",
+   "value": [
+    60.0,
+    90.0,
+    120.0,
+    150.0
+   ]
+  },
+  "DP6.anchor.fast_rpm_A": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6/G17b",
+   "value": [
+    10.0,
+    1.0
+   ]
+  },
+  "DP6.anchor.item_charges_by_rarity": {
+   "kind": "set",
+   "note": "",
+   "source": "DP6/G17b",
+   "value": [
+    [
+     "Common",
+     0,
+     1
+    ],
+    [
+     "Common",
+     8,
+     39
+    ],
+    [
+     "Epic",
+     2,
+     21
+    ],
+    [
+     "Legendary",
+     1,
+     12
+    ],
+    [
+     "Rare",
+     4,
+     24
+    ],
+    [
+     "Uncommon",
+     6,
+     30
+    ]
+   ]
+  },
+  "DP6.anchor.item_spawners": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6/G17b",
+   "value": 127
+  },
+  "DP6.anchor.non_elite_cooldown_minutes": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6/G17b",
+   "value": [
+    4.0,
+    6.0,
+    8.0,
+    10.0,
+    12.0,
+    14.0,
+    16.0,
+    18.0,
+    20.0,
+    22.0,
+    24.0,
+    26.0,
+    28.0
+   ]
+  },
+  "DP6.registered_equal": {
+   "kind": "exact",
+   "note": "ChargesTotal, BaseCooldown (bits), GetSpawnerChargesLimit, AB predicate",
+   "source": "DP6",
+   "value": [
+    716,
+    716
+   ]
+  },
+  "DP7.anchor.g18_argmax": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP7/G18",
+   "value": {
+    "after": 21000.0,
+    "before": 2500.0,
+    "evolution_level": 1,
+    "key": "paddle"
+   }
+  },
+  "DP7.anchor.g18_ladder_sha256": {
+   "kind": "exact",
+   "note": "[key, E, shards, before, after] with the C# values",
+   "source": "DP7/G18",
+   "value": "07fdef241cccfd16f2a13eeaeb2642062029f1152565b9324943ab397c72b63b"
+  },
+  "DP7.anchor.g18_max": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP7/G18",
+   "value": 8.4
+  },
+  "DP7.anchor.g18_median_3dp": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP7/G18",
+   "value": 1.235
+  },
+  "DP7.anchor.g18_min_3dp": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP7/G18",
+   "value": 1.022
+  },
+  "DP7.anchor.g18_n": {
+   "kind": "exact",
+   "note": "design 3.4 says 690 (pet data); 675 on the pet-free data, as G18",
+   "source": "DP7/G18",
+   "value": 675
+  },
+  "DP7.mismatch_columns": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP7",
+   "value": {
+    "armor": 14,
+    "damage": 61,
+    "dps": 61
+   }
+  },
+  "DP7.mismatches": {
+   "better": "lower",
+   "kind": "exact",
+   "note": "all explained by the editor's unrounded float sum (Q03)",
+   "source": "DP7",
+   "value": 136
+  },
+  "DP7.ulp_hist": {
+   "kind": "exact",
+   "note": "editor minus oracle in binary32 ulps of the oracle",
+   "source": "DP7",
+   "value": {
+    "-0.147059": 3,
+    "-0.208333": 1,
+    "-0.25": 25,
+    "-0.277778": 1,
+    "-0.294118": 13,
+    "-0.375": 1,
+    "-0.5": 26,
+    "-0.588235": 6,
+    "-0.666667": 1,
+    "0.25": 6,
+    "0.333333": 5,
+    "0.375": 1,
+    "0.434783": 3,
+    "0.441176": 1,
+    "0.5": 31,
+    "0.526316": 1,
+    "0.555556": 1,
+    "0.666667": 7,
+    "0.869565": 3
+   }
+  },
+  "DP7.values": {
+   "kind": "exact",
+   "note": "[samples, values, equal, equal as both-throw]",
+   "source": "DP7",
+   "value": [
+    1952,
+    7808,
+    7672,
+    618
+   ]
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "differential"
+}
