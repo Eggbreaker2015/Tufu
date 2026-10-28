@@ -706,3 +706,29 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 - 敌人反伤只作用于玩家，宠物免疫，见 `UnitDamageSystem.cs:255`。保持原样。
 - 第 1、2 岛的武器在进化前几乎没有能力，能力迁移需要用作弊验证。
 - `InBossTowerArena` 会被存档，而且启动时不会重置，见 `PlayerUd.cs:70`。这是原作就有的问题：中途杀进程后 `PlayerReviveSystem` 会一直跳过。在竞技场测试宠物死亡时要注意。
+
+---
+
+## 14. 已确认的决定（2026-10-27，覆盖前文的"待确认"与"推荐"）
+
+1. **宠物基础属性用倍率表示。** 每种宠物在 `PetConfig` 里配置相对主角的倍率，例如"胖子"宠物：生命 1.2、攻击 0.8。
+   - 字段：`HealthMultiplier`、`DamageMultiplier`、`DefenceMultiplier`、`AttackSpeedMultiplier`，默认都是 1。
+   - 生命：宠物继承后的 Health 再乘 `HealthMultiplier`（PostFormulaMultiplicative 修饰）。
+   - 攻击：宠物打出的最终伤害乘 `DamageMultiplier`（在 `DamageCalculator` 里，Source 是宠物时生效）。
+   - 防御：宠物受击时，防御值 `d` 乘 `DefenceMultiplier`。
+   - 攻速：宠物出手的 `attackSpeed` 再乘 `AttackSpeedMultiplier`。
+   - 取代第 13.1 节第 3 条的统一 `HealthMultiplier`。
+2. **"按缺失生命加伤害"（`DamageForMissingHealthEffect`）分成两种接收方**，新增字段，默认值（枚举 0）为"给自己"：
+   - 给自己：加成到所属宠物自己的攻击；
+   - 给玩家：加成到玩家的爪子攻击。
+   - 参考血量都是**所属宠物自己的**缺失生命比例。宠物死亡期间不提供加成。
+   - 所属物品不是宠物（例如头盔、盾牌）时，保持原作行为：按玩家缺失生命加成对应类型的宠物。
+3. 其余按推荐：
+   - 冷却复活与泉水复活同时生效，冷却 15s；玩家死亡复活时全部宠物一起复活、满血。
+   - 水晶（Source 8）不继承；灵魂之树和护符（GraphUpgrade 10）继承，但怒气额外生命除外。
+   - 头盔和盾牌能力给的属性不继承；宠物自身武器能力的属性继承。
+   - 宠物吸血回宠物自己。
+   - 玩家爪子：斩击，数值取普通品质斩击武器（knife）的基础值，不带能力。
+   - 外观先按伤害类型选 3 只现有敌人，每只配一组倍率；15 把基础武器按伤害类型套用。
+   - 怒气"多打一下"同时作用于伤害最高的存活宠物和玩家。
+4. 全部改动由 `PetConfig.Enabled` 控制，关闭时行为与原作一致，便于对照。
