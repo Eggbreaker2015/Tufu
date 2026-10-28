@@ -126,9 +126,37 @@ namespace Codebase.Abilities.Vfx
 			if (obj == null) return null;
 			prefab = obj.GetComponent<ParticleSystem>();
 			if (prefab == null) return null;
+#if UNITY_EDITOR
+			RebindUnsupportedShaders(obj);
+#endif
 			handles[key] = handle;
 			loadedPrefabs[key] = prefab;
 			return prefab;
 		}
+
+#if UNITY_EDITOR
+		// Editor only: the recovered bundles are built for StandaloneWindows64, so their baked copy of
+		// Particles/Standard Unlit has no Metal programs and falls back to opaque VertexLit (white squares).
+		// Point those materials at the editor's own supported shader of the same name.
+		private static void RebindUnsupportedShaders(GameObject root)
+		{
+			foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
+				foreach (Material material in renderer.sharedMaterials)
+				{
+					if (material == null || material.shader == null || material.shader.isSupported) continue;
+					Shader local = FindSupportedShader(material.shader.name);
+					if (local != null) material.shader = local;
+				}
+		}
+
+		private static Shader FindSupportedShader(string name)
+		{
+			Shader shader = Shader.Find(name);
+			if (shader != null && shader.isSupported) return shader;
+			foreach (Shader candidate in Resources.FindObjectsOfTypeAll<Shader>())
+				if (candidate.name == name && candidate.isSupported) return candidate;
+			return null;
+		}
+#endif
 	}
 }
