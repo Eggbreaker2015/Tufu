@@ -33,6 +33,9 @@ SUBSYSTEM_TITLES = {
     "spawners": "刷怪点、岛屿与门", "simulation": "原版模拟与烘焙管线", "powerups": "护符、怒气与能力",
     "cross": "跨系统",
 }
+ORIGINS = {"catalog": "子系统梳理", "verifier": "核验时补充", "critic": "完整性审查补充"}
+RULE_KINDS = {"exact_reproduction": "精确复现", "fitted_rule": "拟合规则", "hypothesis": "假设"}
+DECISIONS = {"applied": "采纳", "rejected": "驳回", "already_reflected": "已包含"}
 CODE_FILE = re.compile(r"((?:[A-Z][\w]*/)+[\w]+\.cs)(?::(\d+)(?:[-–](\d+))?)?")
 
 
@@ -53,7 +56,8 @@ def formula_section(f):
     lines += [f"- 状态：**{STATUS_LABELS.get(f['status'], f['status'])}**（`{f['status']}`）"
               + (f"，核验前为 `{f['status_original']}`" if f.get("status_original") else ""),
               f"- 类型：`{f['kind']}`" + (f"（核验前为 `{f['kind_original']}`）" if f.get("kind_original") else ""),
-              f"- 来源：{ {'catalog': '子系统梳理', 'verifier': '核验时补充', 'critic': '完整性审查补充'}[f['origin']] }"]
+              f"- 合并自：" + "、".join(f"`{m}`" for m in f["merged_from"])
+              if len(f.get("merged_from", [])) > 1 else f"- 来源：{ORIGINS.get(f.get('origin'), '合并核验')}"]
     if f.get("native_va"):
         lines.append(f"- 原生地址：`{f['native_va']}`")
     lines += ["", "```text", f["expression"], "```", ""]
@@ -68,6 +72,10 @@ def formula_section(f):
         lines.append("")
     lines.append(f"**状态依据**：{f['status_evidence']}")
     lines.append("")
+    rule = f.get("generation_rule")
+    if rule:
+        lines += [f"**由数据反推的生成规则**（{RULE_KINDS[rule['kind']]}，详见 [{rule['doc']}](../{rule['doc']})）：", "",
+                  "```text", rule["rule"], "```", "", f"吻合情况：{rule['evidence']}", ""]
     if f.get("config_params"):
         lines.append("**配置参数**：" + "；".join(f"`{p}`" for p in f["config_params"]))
         lines.append("")
@@ -76,11 +84,17 @@ def formula_section(f):
         lines.append("")
     if f.get("notes"):
         lines += [f"**备注**：{f['notes']}", ""]
-    if f["corrections"]:
-        lines += ["**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：", ""]
-        for c in f["corrections"]:
-            mark = "已应用" if c.get("applied") else "待人工合入"
-            lines.append(f"- [{mark}] `{c['field']}`：{c['should_be']}  \n  依据：{link_code(c['evidence'], CODE_FROM_DETAIL)}")
+    if f.get("inputs") or f.get("outputs"):
+        lines.append("**依赖图节点**：输入 " + "、".join(f"`{i['node']}`" for i in f.get("inputs", []))
+                     + "；输出 " + "、".join(f"`{o['node']}`" for o in f.get("outputs", [])))
+        lines.append("")
+    if f.get("correction_resolutions") or f.get("review_notes"):
+        lines += ["**核验记录**（已写入上方字段）：", ""]
+        for r in f.get("correction_resolutions", []):
+            lines.append(f"- {DECISIONS.get(r['decision'], r['decision'])} `{r['field']}`（来自 `{r['source_id']}`）："
+                         f"{link_code(r['reason'], CODE_FROM_DETAIL)}")
+        for note in f.get("review_notes", []):
+            lines.append(f"- 合并复核修正：{link_code(note, CODE_FROM_DETAIL)}")
         lines.append("")
     return lines
 
@@ -116,11 +130,14 @@ def render_overview(catalog, keys):
     lines = [
         "# 数值公式清单",
         "",
-        "核心战斗成长相关的全部公式、配置参数及其恢复状态。数据导出见 [Balance/README.md](../../Balance/README.md)。",
+        "核心战斗成长相关的全部公式、配置参数及其恢复状态。数据导出见 [Balance/README.md](../../Balance/README.md)，"
+        "公式之间的依赖关系和改动影响查询见[数值依赖图](DependencyGraph.md)。",
         "",
-        f"共 {len(formulas)} 条公式，由 7 个子系统梳理 agent 逐一读代码整理，每个子系统再由一个对抗性核验 agent "
-        "对照代码检查表达式、状态和行号，最后由完整性审查 agent 补漏。"
-        f"{sum(1 for f in formulas if f['corrections'])} 条带有核验意见，见各子系统页。",
+        f"共 {len(formulas)} 条公式。7 个子系统梳理 agent 逐一读代码整理，对抗性核验 agent 对照代码检查表达式、状态和行号，"
+        "完整性审查 agent 补漏；随后把跨子系统重复的条目合并为一条，把全部核验意见写入正文，再逐批复核。"
+        f"{sum(1 for f in formulas if len(f.get('merged_from', [])) > 1)} 条由多条合并而来，"
+        f"{sum(1 for f in formulas if f.get('correction_resolutions') or f.get('review_notes'))} 条带核验记录。"
+        "旧 id 到新 id 的对应见 JSON 的 `aliases`。",
         "",
         "结构化原始数据是 [formulas.json](../../Balance/catalog/formulas.json)，本页及子页由 "
         "`Balance/tufu_balance/render_catalog.py` 从它生成；修改请改 JSON 后重新生成。公式细节保留英文原文，"
@@ -148,9 +165,17 @@ def render_overview(catalog, keys):
                 refs = "；".join(link_code(r, "../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/")
                                 for r in f["code_refs"][:2])
                 lines.append(f"| [`{f['id']}`](formulas/{f['subsystem']}.md) | {cell(f['name'])} | {cell(refs)} |")
-    lines += ["", "## 重叠条目", "",
-              "各子系统并行梳理，同一段代码可能在多个子系统下各有一条。建依赖图前需要合并成一个节点。"
-              "下表按首个代码引用的文件分组，只列跨子系统的文件。", "",
+    ruled = [f for f in formulas if f.get("generation_rule")]
+    lines += ["", "## 由数据反推出的生成规则", "",
+              "原团队的编辑器生成工具不在 APK 里，状态为“编辑器工具缺失”或“纯数据”的条目，有一部分已从产出数据反推出规则，"
+              "见[生成规则总览](Generation/README.md)。状态列仍表示代码恢复程度。", "",
+              "| ID | 名称 | 状态 | 生成规则 |", "|---|---|---|---|"]
+    for f in ruled:
+        lines.append(f"| [`{f['id']}`](formulas/{f['subsystem']}.md) | {cell(f['name'])} | {STATUS_LABELS[f['status']]} | "
+                     f"{RULE_KINDS[f['generation_rule']['kind']]} |")
+    lines += ["", "## 同一文件下跨子系统的条目", "",
+              f"真正重复的条目已合并（{len(catalog.get('merge_history', {}).get('clusters', []))} 组）。"
+              "下表是首个代码引用落在同一文件、但归属不同子系统的条目，合并时已逐一核对为不同公式，保留供查阅。", "",
               "| 文件 | 条目 |", "|---|---|"]
     by_file = {}
     for f in formulas:
