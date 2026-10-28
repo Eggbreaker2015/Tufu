@@ -1,0 +1,153 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_skeleton_king
+  m_EditorClassIdentifier:
+  Key: skeleton_king
+  Rarity: 4
+  SlotType: 0
+  DamageType: 0
+  DamageStatTypeFlat: 6
+  DamageStatTypePercent: 7
+  FlatDamage: 5000
+  AttackCooldown: 0.85
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.8575
+  AnimationBackPoint: 0.44
+  Icon: {fileID: 21300000, guid: 590489ba756242928fb5da09d70caf51, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114884547391421755, guid: c72a1bcc3ba06d545b99cc858573471a, type: 2}
+  DivinePrefab: {fileID: 114884547391421755, guid: c72a1bcc3ba06d545b99cc858573471a, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_skeleton_king_ability_1
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 7035854356453102438
+    - rid: 8241070136322203876
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.01
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.015
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.02
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.025
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.03
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.04
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_skeleton_king_ability_2
+    Trigger: 2
+    Conditions: []
+    Effects:
+    - rid: 7012619357989871100
+    - rid: 7504713126765680938
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.03
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.04
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.05
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.06
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_skeleton_king
+    Trigger: 2
+    Conditions:
+    - rid: 8830276947081429914
+    - rid: 8404273270534448680
+    Effects:
+    - rid: 8102811102103378805
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.04
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7012619357989871100
+      type: {class: TemporaryWeaponBuffEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 1
+        Duration: 1
+        ValueScaling: 3
+        HideInUI: 1
+    - rid: 7035854356453102438
+      type: {class: IncreaseMaxMarksEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 0
+        Count: 2
+        Scaling: 0
+        ScalingStat: 0
+    - rid: 7504713126765680938
+      type: {class: IncreaseMaxMarksEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 0
+        Count: 3
+        Scaling: 0
+        ScalingStat: 0
+    - rid: 8102811102103378805
+      type: {class: PetHealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Target: 1
+    - rid: 8241070136322203876
+      type: {class: IncreaseMarkChanceEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 1
+        Amount: 1
+        ValueScaling: 0
+        ScalingStat: 0
+    - rid: 8404273270534448680
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8830276947081429914
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}

@@ -123,8 +123,15 @@ namespace Codebase.UI.Inventory
 			else text = LocalizationStrings.Get("ABILITY_UNLOCKS_AT") + "<br>" + ItemStarsView.BuildStarsSpriteText(def.UnlockLevel);
 			withStarsRoot.gameObject.SetActive(hasStars); noStarsRoot.gameObject.SetActive(!hasStars);
 			withStarsAbilityLocker.SetActive(!unlocked); noStarsAbilityLocker.SetActive(!unlocked);
-			noStarsName.text = title; noStarsDescription.text = text;
-			if (hasStars) { withStarsName.text = title; withStarsDescription.text = text; Injector.InjectInto(starsView); if(starsView != null) starsView.Setup(model,abilityIndex); }
+			SetLabel(noStarsName, title); SetLabel(noStarsDescription, text);
+			if (hasStars) { SetLabel(withStarsName, title); SetLabel(withStarsDescription, text); Injector.InjectInto(starsView); if(starsView != null) starsView.Setup(model,abilityIndex); }
+		}
+
+		// Pet mode: the pet abilities' zh texts need the CJK fallback font, reapplied on every render (locale reapply resets it).
+		private static void SetLabel(TMP_Text label, string value)
+		{
+			if (global::Codebase.Pet.PetConfig.Enabled) PetStatsText.SetText(label, value);
+			else label.text = value;
 		}
 	}
 }

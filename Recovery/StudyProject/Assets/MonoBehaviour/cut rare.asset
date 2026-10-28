@@ -135,6 +135,22 @@ MonoBehaviour:
       ValueOverride: 0.4
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_katana
+    Trigger: 2
+    Conditions:
+    - rid: 8011572066329714636
+    - rid: 7555627062117186328
+    Effects:
+    - rid: 8781971500093364362
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.05
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -164,3 +180,14 @@ MonoBehaviour:
       type: {class: EmpowerHitEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
       data:
         ValueScaling: 4
+    - rid: 7555627062117186328
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8011572066329714636
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8781971500093364362
+      type: {class: PetHealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Target: 0

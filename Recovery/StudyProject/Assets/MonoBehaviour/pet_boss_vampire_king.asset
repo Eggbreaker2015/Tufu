@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_boss_vampire_king
+  m_EditorClassIdentifier:
+  Key: boss_vampire_king
+  Rarity: 6
+  SlotType: 0
+  DamageType: 0
+  DamageStatTypeFlat: 6
+  DamageStatTypePercent: 7
+  FlatDamage: 5000
+  AttackCooldown: 0.8
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.8575
+  AnimationBackPoint: 0.44
+  Icon: {fileID: 21300000, guid: 6f2751186b2a439981b6cd10de90b530, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114884547391421755, guid: c72a1bcc3ba06d545b99cc858573471a, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_boss_vampire_king_ability_1
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 7362450604643743028
+    - rid: 8429413445028094005
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.01
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.015
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.02
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.025
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.03
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.04
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_boss_vampire_king_ability_2
+    Trigger: 2
+    Conditions: []
+    Effects:
+    - rid: 8691492240501524133
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.05
+    Chance: 0
+    StackLimit: 10
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.056
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.062
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.068
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.074
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.08
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.09
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.1
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_boss_vampire_king
+    Trigger: 2
+    Conditions:
+    - rid: 8717667177699647700
+    - rid: 7797196283846004004
+    Effects:
+    - rid: 7481221927945667298
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.05
+    Chance: 0.3
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7362450604643743028
+      type: {class: IncreaseMaxMarksEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 0
+        Count: 2
+        Scaling: 0
+        ScalingStat: 0
+    - rid: 7481221927945667298
+      type: {class: PetHealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Target: 1
+    - rid: 7797196283846004004
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8429413445028094005
+      type: {class: IncreaseMarkChanceEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 1
+        Amount: 1
+        ValueScaling: 0
+        ScalingStat: 0
+    - rid: 8691492240501524133
+      type: {class: WeaponStatStackEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 1
+        Duration: 30
+        ResetOnTargetChange: 0
+    - rid: 8717667177699647700
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}

@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_boss_viking_king
+  m_EditorClassIdentifier:
+  Key: boss_viking_king
+  Rarity: 6
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 15000
+  AttackCooldown: 1.6
+  SimulationDpsWeaponMultiplier: 1.3
+  Number: 0
+  AnimationCastPoint: 0.763
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: 6b824b26001741bc9e9880e4b598cb17, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114099118695303065, guid: 7858b2a4bfe79dd4f93109a0deaddc3e, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_boss_viking_king_ability_1
+    Trigger: 2
+    Conditions:
+    - rid: 8744980336843569435
+    Effects:
+    - rid: 7751806586827476709
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 1.8
+    Chance: 0.1
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 1.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 2.1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 2.2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 2.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 2.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 2.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_boss_viking_king_ability_2
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 8638929388375164946
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.5
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 1
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_boss_viking_king
+    Trigger: 2
+    Conditions:
+    - rid: 8332792801735220240
+    - rid: 8956034172087563593
+    Effects:
+    - rid: 8372072319974952439
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.8
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7751806586827476709
+      type: {class: StunEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8332792801735220240
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8372072319974952439
+      type: {class: PetSplashDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Radius: 2.5
+    - rid: 8638929388375164946
+      type: {class: BonusDamageToStunnedEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8744980336843569435
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8956034172087563593
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0

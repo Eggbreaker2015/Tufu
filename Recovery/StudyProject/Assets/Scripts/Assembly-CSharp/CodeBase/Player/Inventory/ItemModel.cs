@@ -5,6 +5,7 @@ using Codebase.Abilities;
 using Codebase.Abilities.Core;
 using Codebase.Balance;
 using Codebase.Core;
+using Codebase.Pet;
 using Codebase.Player.Models;
 using UniMob;
 using UniMob.Core;
@@ -108,7 +109,15 @@ namespace Codebase.Player.Inventory
 
 		public bool HasAbility => activeAbilityDefs.Count > 0; // Native 0x1463388.
 
-		public bool HasUnlockableAbility => Config.AbilityDefs.Count > 0; // Native 0x1463410 counts all definitions.
+		public bool HasUnlockableAbility // Native 0x1463410 counts all definitions; pet-only ones are skipped while pet mode is off.
+		{
+			get
+			{
+				foreach (AbilityDef definition in Config.AbilityDefs)
+					if (!global::Codebase.Abilities.Conditions.PetModeCondition.IsHidden(definition)) return true;
+				return false;
+			}
+		}
 
 		public bool HasStars
         {
@@ -170,7 +179,19 @@ namespace Codebase.Player.Inventory
 			{
 				LifetimeScopeExtension.ThrowIfDisposed(this);
 				if (__CanEvolve == null) __CanEvolve = CodeGenAtom.CreatePooled(this, null, () => CanEvolve, false);
-				return __CanEvolve.DirectEvaluate() ? Copies >= LevelsToEvolve : __CanEvolve.Value;
+				return __CanEvolve.DirectEvaluate() ? !IsEvolutionCapped && Copies >= LevelsToEvolve : __CanEvolve.Value;
+			}
+		}
+
+		// Pet mode: a pet stops evolving at CombatBalanceConfig.MaxEvolutionLevel (higher levels reuse the last balance row).
+		public bool IsEvolutionCapped
+		{
+			get
+			{
+				if (!PetConfig.Enabled || IsArmor)
+					return false;
+				int max = CombatBalanceConfig.MaxEvolutionLevel;
+				return max > 0 && NextEvolutionLevel > max;
 			}
 		}
 
@@ -519,6 +540,7 @@ namespace Codebase.Player.Inventory
 
 		public bool IsAbilityUnlocked(AbilityDef def)
 		{
+			if (global::Codebase.Abilities.Conditions.PetModeCondition.IsHidden(def)) return false;
 			return Evolved ? def.UnlockLevel <= Level : def.UnlockLevel == 0;
 		}
 

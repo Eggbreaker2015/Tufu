@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_boss_hydra
+  m_EditorClassIdentifier:
+  Key: boss_hydra
+  Rarity: 6
+  SlotType: 0
+  DamageType: 1
+  DamageStatTypeFlat: 8
+  DamageStatTypePercent: 9
+  FlatDamage: 30000
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.75
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 39144e71ff904d289d1ee0847de8737c, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114884547391421755, guid: de9a75b9bab937148934bbee588b9fb0, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_boss_hydra_ability_1
+    Trigger: 14
+    Conditions: []
+    Effects:
+    - rid: 7040418126203083821
+    - rid: 7324421920386817341
+    - rid: 7288050553334627018
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.25
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.28
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.31
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.34
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.38
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.42
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.46
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_boss_hydra_ability_2
+    Trigger: 2
+    Conditions: []
+    Effects:
+    - rid: 7884511116035417114
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.1
+    Chance: 0
+    StackLimit: 10
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.11
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.14
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.18
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_boss_hydra
+    Trigger: 2
+    Conditions:
+    - rid: 7417967478466113217
+    Effects:
+    - rid: 8415980425772440872
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0
+    Chance: 0.3
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7040418126203083821
+      type: {class: TemporaryWeaponBuffEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 0
+        Duration: 7
+        ValueScaling: 4
+        HideInUI: 0
+    - rid: 7288050553334627018
+      type: {class: AddRageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Amount: 5
+    - rid: 7324421920386817341
+      type: {class: GrantRageAccessEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Level: 1
+    - rid: 7417967478466113217
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7884511116035417114
+      type: {class: WeaponStatStackEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 2
+        Duration: 30
+        ResetOnTargetChange: 0
+    - rid: 8415980425772440872
+      type: {class: SpawnLightningEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        DamageMultiplier: 1

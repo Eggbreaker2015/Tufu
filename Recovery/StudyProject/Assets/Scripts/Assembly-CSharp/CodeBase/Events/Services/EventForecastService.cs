@@ -254,7 +254,7 @@ namespace Codebase.Events.Services
             ItemSlotType slot;
             if (itemReward.IsRandom)
             {
-                var choices = itemsProvider.Items.Where(item => item != null && item.SlotType == itemReward.SlotType && item.Rarity == itemReward.Rarity).ToList();
+                var choices = itemsProvider.Items.Where(item => ItemsProvider.IsAvailable(item) && item.SlotType == itemReward.SlotType && item.Rarity == itemReward.Rarity).ToList();
                 if (choices.Count == 0) return;
                 definition = choices[UnityEngine.Random.Range(0, choices.Count)];
                 rarity = itemReward.Rarity; slot = itemReward.SlotType;

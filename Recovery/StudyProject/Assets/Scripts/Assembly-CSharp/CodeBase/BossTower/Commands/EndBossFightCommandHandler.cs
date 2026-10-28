@@ -7,6 +7,7 @@ using Codebase.BossTower.Systems;
 using Codebase.Core;
 using Codebase.Core.Flows;
 using Codebase.Core.UI;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.CompilerServices;
@@ -69,6 +70,8 @@ namespace Codebase.BossTower.Commands
 			if (flow.Victory)
 			{
 				var rewards = BossRewardResolver.PreResolveAndBakeDisplay(new List<RewardBase>(boss.RewardsBaked), itemsProvider);
+				// Pet mode: boss pet copies and universal shards ride along with the victory rewards (granted on hub/continue).
+				PetEconomy.AppendBossWinRewards(rewards, boss.Key, itemsProvider);
 				uiNavigator.Open<BossRaidVictoryView>("Assets/Prefabs/UI/BossTower/BossRaidVictoryView.prefab").Setup(boss, rewards, boss.Floor);
 			}
 			else

@@ -135,6 +135,22 @@ MonoBehaviour:
       ValueOverride: 0.06
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_pick
+    Trigger: 2
+    Conditions:
+    - rid: 8919963673506783045
+    - rid: 8443231078279603831
+    Effects:
+    - rid: 7190524480981924915
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.6
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -176,3 +192,14 @@ MonoBehaviour:
       data:
         ValueScaling: 3
         ScalingStat: 0
+    - rid: 7190524480981924915
+      type: {class: EmpowerHitEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 0
+    - rid: 8443231078279603831
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8919963673506783045
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}

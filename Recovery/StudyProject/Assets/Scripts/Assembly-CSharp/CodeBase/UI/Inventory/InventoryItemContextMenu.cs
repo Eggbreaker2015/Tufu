@@ -5,6 +5,8 @@ using System.Linq;
 using Codebase.Core;
 using Codebase.Core.UI;
 using Codebase.Pet;
+using Codebase.Pet.Commands;
+using CodeBase.Audio;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
 using TMPro;
@@ -104,7 +106,10 @@ namespace Codebase.UI.Inventory
 		private float colorOffset;
 
 		// Pet mode: the item's pet stats sit in a block cloned from the stat label, between the stats and the abilities.
-		private const float PetStatsHeight = 300f;
+		private const float PetStatsHeight = 340f;
+
+		// Row under the pet block: the 万能碎片 button and the shard balance.
+		private const float ShardRowHeight = 112f;
 
 		// Part of the block that goes into the existing gap above the abilities.
 		private const float PetStatsOverlap = 24f;
@@ -114,6 +119,16 @@ namespace Codebase.UI.Inventory
 		private Vector2 abilitiesPosition;
 
 		private float petStatsRefreshTime;
+
+		private RectTransform shardRow;
+
+		private Button shardButton;
+
+		private Image shardButtonImage;
+
+		private TMP_Text shardButtonText;
+
+		private TMP_Text shardCountText;
 
 		protected override void Awake()
 		{
@@ -236,6 +251,7 @@ namespace Codebase.UI.Inventory
 			        petStatsText.gameObject.SetActive(false);
 			        abilities.anchoredPosition = abilitiesPosition;
 			    }
+			    if (shardRow != null) shardRow.gameObject.SetActive(false);
 			    return 0f;
 			}
 			if (petStatsText == null)
@@ -247,10 +263,13 @@ namespace Codebase.UI.Inventory
 			    block.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y + PetStatsOverlap);
 			    block.sizeDelta = new Vector2(abilities.sizeDelta.x - 2f * mainStatText.rectTransform.anchoredPosition.x, PetStatsHeight);
 			}
-			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), false));
+			if (shardRow == null) CreateShardRow();
+			PetStatsText.SetText(petStatsText, BuildPetStats(pet, item));
 			petStatsText.gameObject.SetActive(true);
+			shardRow.gameObject.SetActive(true);
+			RenderShardRow(item);
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
-			float shift = PetStatsHeight - PetStatsOverlap;
+			float shift = PetStatsHeight - PetStatsOverlap + ShardRowHeight;
 			abilities.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y - shift);
 			return shift;
 		}
@@ -260,12 +279,95 @@ namespace Codebase.UI.Inventory
 		{
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
 			if (!PetStats.TryGet(item, out PetStatsInfo pet)) return;
-			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), false));
+			PetStatsText.SetText(petStatsText, BuildPetStats(pet, item));
+			RenderShardRow(item);
 			IconStyleConfig styles = GameContext.Get<IconStyleConfig>();
 			string iconName = styles.WeaponTypeStyles.First(style => style.WeaponType == item.Config.DamageType).Sprite.name;
 			itemPreviewDamage.text = "<sprite name=" + iconName + ">" + pet.Attack.Format();
 			itemPreviewDamageNext.text = pet.NextAttack.Format();
 			itemPreviewStatPerCopyValue.text = "<sprite name=" + iconName + "> " + PetStatsText.AttackPerCopy(pet).Format();
+		}
+
+		private static string BuildPetStats(PetStatsInfo pet, ItemModel item)
+		{
+			string stats = PetStatsText.Build(pet, PetStatsText.Next(pet), false);
+			string synergy = PetStatsText.SynergyLine(item);
+			return string.IsNullOrEmpty(synergy) ? stats : stats + "\n" + synergy;
+		}
+
+		// Button and balance built from the menu's own button / label so they keep the menu's look.
+		private void CreateShardRow()
+		{
+			RectTransform block = petStatsText.rectTransform;
+			GameObject row = new GameObject("PetShardRow", typeof(RectTransform));
+			shardRow = (RectTransform)row.transform;
+			shardRow.SetParent(RectTransform, false);
+			shardRow.anchorMin = block.anchorMin;
+			shardRow.anchorMax = block.anchorMax;
+			shardRow.pivot = new Vector2(0.5f, 1f);
+			shardRow.anchoredPosition = new Vector2(block.anchoredPosition.x, block.anchoredPosition.y - PetStatsHeight);
+			shardRow.sizeDelta = new Vector2(block.sizeDelta.x, ShardRowHeight);
+
+			GameObject button = new GameObject("ShardButton", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+			RectTransform buttonRect = (RectTransform)button.transform;
+			buttonRect.SetParent(shardRow, false);
+			buttonRect.anchorMin = new Vector2(0f, 0.5f);
+			buttonRect.anchorMax = new Vector2(0f, 0.5f);
+			buttonRect.pivot = new Vector2(0f, 0.5f);
+			buttonRect.anchoredPosition = Vector2.zero;
+			buttonRect.sizeDelta = new Vector2(430f, 100f);
+			shardButtonImage = button.GetComponent<Image>();
+			Image evolveImage = evolveButton.GetComponent<Image>();
+			Sprite sprite = PetConfig.Instance != null && PetConfig.Instance.ButtonSprite != null ? PetConfig.Instance.ButtonSprite : evolveImage != null ? evolveImage.sprite : null;
+			shardButtonImage.sprite = sprite;
+			shardButtonImage.type = sprite != null && sprite.border != Vector4.zero ? Image.Type.Sliced : Image.Type.Simple;
+			shardButtonImage.color = sprite != null ? Color.white : new Color(0.25f, 0.55f, 0.95f, 1f);
+			shardButton = button.GetComponent<Button>();
+			shardButton.targetGraphic = shardButtonImage;
+			shardButton.onClick.AddListener(UseShards);
+
+			shardButtonText = PetStatsText.CreateBlock(evolveButtonText, buttonRect, "Label");
+			RectTransform label = shardButtonText.rectTransform;
+			label.anchorMin = Vector2.zero;
+			label.anchorMax = Vector2.one;
+			label.pivot = new Vector2(0.5f, 0.5f);
+			label.offsetMin = new Vector2(12f, 8f);
+			label.offsetMax = new Vector2(-12f, -8f);
+			shardButtonText.alignment = TextAlignmentOptions.Center;
+			shardButtonText.fontSizeMax = 44f;
+			shardButtonText.gameObject.SetActive(true);
+
+			shardCountText = PetStatsText.CreateBlock(mainStatText, shardRow, "ShardCount");
+			RectTransform count = shardCountText.rectTransform;
+			count.anchorMin = new Vector2(0f, 0.5f);
+			count.anchorMax = new Vector2(1f, 0.5f);
+			count.pivot = new Vector2(0f, 0.5f);
+			count.offsetMin = new Vector2(450f, -40f);
+			count.offsetMax = new Vector2(0f, 40f);
+			shardCountText.alignment = TextAlignmentOptions.Left;
+			shardCountText.fontSizeMax = 40f;
+			shardCountText.gameObject.SetActive(true);
+		}
+
+		private void RenderShardRow(ItemModel item)
+		{
+			if (shardRow == null || item == null) return;
+			int amount = PetEconomy.GetShardSpendAmount(item);
+			bool capped = PetEconomy.IsEvolutionCapped(item);
+			shardButton.interactable = amount > 0;
+			if (shardButtonImage.sprite != null) shardButtonImage.color = amount > 0 ? Color.white : new Color(0.55f, 0.55f, 0.55f, 1f);
+			PetStatsText.SetText(shardButtonText, capped ? "已达进化上限" : "万能碎片 +" + amount);
+			PetStatsText.SetText(shardCountText, "持有万能碎片 <color=#7CE3FF>" + PetEconomy.Shards + "</color>");
+		}
+
+		private void UseShards()
+		{
+			ItemModel item = playerModel.SelectedItem;
+			int amount = PetEconomy.GetShardSpendAmount(item);
+			if (amount <= 0) return;
+			GameContext.Get<IAudioPlayer>().PlaySoundOnce("tap");
+			App.ExecuteCommand(new UseUniversalShardCommand { Item = item, Amount = amount });
+			RenderShardRow(item);
 		}
 
 		public void SelectStat(string title, string value)

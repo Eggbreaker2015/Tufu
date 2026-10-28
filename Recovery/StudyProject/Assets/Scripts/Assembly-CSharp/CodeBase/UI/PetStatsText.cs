@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using Codebase.Core;
+using Codebase.Enemy;
 using Codebase.Pet;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
+using Codebase.Unit;
 using Codebase.Utilities;
 using TMPro;
 using UnityEngine;
@@ -197,13 +199,106 @@ namespace Codebase.UI
 
 		public static void SetText(TMP_Text text, string value)
 		{
-			EnsureFont(text);
+			if (text == null) return;
+			ApplyCjkFont(text);
 			if (text.text != value) text.text = value;
 		}
 
-		// Swaps the text's font for a runtime copy that also falls back to an OS CJK font; the shared font assets are not modified.
-		private static void EnsureFont(TMP_Text text)
+		// Damage type names as the pet UI shows them.
+		public static string DamageTypeName(WeaponType type)
 		{
+			switch (type)
+			{
+				case WeaponType.Stabbing: return "穿刺";
+				case WeaponType.Cutting: return "劈砍";
+				case WeaponType.Buckshot: return "砸击";
+				case WeaponType.Magic: return "魔法";
+				default: return "通用";
+			}
+		}
+
+		// One bonus modifier, e.g. "攻击 +15%" (GlobalAttack / GlobalDefence values are percents) or "生命 1.10倍".
+		public static string FormatModifier(StatModifier modifier)
+		{
+			if (modifier == null) return string.Empty;
+			string name;
+			switch (modifier.StatType)
+			{
+				case StatType.Health: name = "生命"; break;
+				case StatType.GlobalAttack: name = "攻击"; break;
+				case StatType.GlobalDefence: name = "防御"; break;
+				case StatType.Damage: name = "伤害"; break;
+				default: name = modifier.StatType.ToString(); break;
+			}
+			float value = modifier.Value;
+			switch (modifier.ModifierType)
+			{
+				case ModifierType.Flat:
+				case ModifierType.PostFormulaFlat:
+					bool percent = modifier.StatType == StatType.GlobalAttack || modifier.StatType == StatType.GlobalDefence;
+					return name + " " + Signed(value) + (percent ? "%" : string.Empty);
+				case ModifierType.PercentMultiplicative:
+				case ModifierType.PostFormulaMultiplicative:
+					return name + " " + value.ToString("0.00", CultureInfo.InvariantCulture) + "倍";
+				default:
+					return name + " " + Signed(value * 100f) + "%";
+			}
+		}
+
+		// Modifiers joined on one line; same stat and modifier type are summed (collection tiers stack).
+		public static string FormatModifiers(IEnumerable<StatModifier> modifiers, string separator = "  ")
+		{
+			if (modifiers == null) return string.Empty;
+			var merged = new List<StatModifier>();
+			foreach (StatModifier modifier in modifiers)
+			{
+				if (modifier == null) continue;
+				StatModifier same = merged.Find(m => m.StatType == modifier.StatType && m.ModifierType == modifier.ModifierType);
+				if (same == null)
+					merged.Add(new StatModifier { StatType = modifier.StatType, ModifierType = modifier.ModifierType, Value = modifier.Value });
+				else if (modifier.ModifierType == ModifierType.PercentMultiplicative || modifier.ModifierType == ModifierType.PostFormulaMultiplicative)
+					same.Value *= modifier.Value;
+				else
+					same.Value += modifier.Value;
+			}
+			var parts = new List<string>(merged.Count);
+			foreach (StatModifier modifier in merged) parts.Add(FormatModifier(modifier));
+			return string.Join(separator, parts);
+		}
+
+		// Synergy line of a pet's stat block: its damage type, the equipped count and the tier that applies.
+		public static string SynergyLine(ItemModel item)
+		{
+			PetConfig config = PetConfig.Instance;
+			if (!PetConfig.Enabled || item == null || item.IsArmor || config == null) return string.Empty;
+			WeaponType type = PetCollection.GetDamageType(item, config);
+			int count = PetCollection.CountEquippedOfType(type);
+			PetSynergyTier tier = PetCollection.GetSynergyTier(count);
+			string head = "羁绊 " + DamageTypeName(type) + " " + count + "只";
+			if (tier == null)
+			{
+				int first = int.MaxValue;
+				if (config.SynergyTiers != null)
+					foreach (PetSynergyTier entry in config.SynergyTiers)
+						if (entry != null && entry.SameTypeCount < first) first = entry.SameTypeCount;
+				return "<color=#A0A0A0>" + head + (first == int.MaxValue ? string.Empty : " (" + first + "只同类出战生效)") + "</color>";
+			}
+			bool equipped = GameContext.Get<PlayerModel>()?.EquippedItems.Contains(item) ?? false;
+			string bonus = FormatModifiers(tier.Modifiers, " ");
+			return equipped ? head + " " + NextColor + bonus + "</color>" : "<color=#A0A0A0>" + head + " " + bonus + " (出战后生效)</color>";
+		}
+
+		private static string Signed(float value)
+		{
+			string text = value.ToString("0.##", CultureInfo.InvariantCulture);
+			return value >= 0f ? "+" + text : text;
+		}
+
+		// Swaps the text's font for a runtime copy that also falls back to an OS CJK font; the shared font assets are not modified.
+		// The locale font reapply (LocalizationFontApplier) resets the font, so callers apply this on every render.
+		public static void ApplyCjkFont(TMP_Text text)
+		{
+			if (text == null) return;
 			TMP_FontAsset font = text.font;
 			if (font == null || runtimeFonts.Contains(font)) return;
 			TMP_FontAsset fallback = GetSystemFont();

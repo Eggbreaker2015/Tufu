@@ -281,7 +281,7 @@ namespace Codebase.Rewards.Commands
 				}
 				else
 				{
-					var candidates = itemsProvider.Items.Where(item => item.SlotType == reward.SlotType && item.Rarity == reward.Rarity).ToList();
+					var candidates = itemsProvider.Items.Where(item => ItemsProvider.IsAvailable(item) && item.SlotType == reward.SlotType && item.Rarity == reward.Rarity).ToList();
 					if (candidates.Count == 0)
 						return;
 					def = candidates[UnityEngine.Random.Range(0, candidates.Count)];

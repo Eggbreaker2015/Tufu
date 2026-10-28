@@ -135,6 +135,22 @@ MonoBehaviour:
       ValueOverride: 0.01
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_coolpike
+    Trigger: 2
+    Conditions:
+    - rid: 7278109820970595821
+    - rid: 7228520432586735898
+    Effects:
+    - rid: 7002369176332775947
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.4
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -173,3 +189,14 @@ MonoBehaviour:
         Count: 1
         Scaling: 0
         ScalingStat: 0
+    - rid: 7002369176332775947
+      type: {class: PetSplashDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Radius: 2.5
+    - rid: 7228520432586735898
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 7278109820970595821
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}

@@ -1,0 +1,162 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_boss_lich
+  m_EditorClassIdentifier:
+  Key: boss_lich
+  Rarity: 6
+  SlotType: 0
+  DamageType: 1
+  DamageStatTypeFlat: 8
+  DamageStatTypePercent: 9
+  FlatDamage: 30000
+  AttackCooldown: 1
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.75
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: ca9bb432c67e40f48a971f33445ea7f7, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114884547391421755, guid: de9a75b9bab937148934bbee588b9fb0, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_boss_lich_ability_1
+    Trigger: 4
+    Conditions:
+    - rid: 7188164527616470205
+    Effects:
+    - rid: 7520029888105255408
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.09
+    Chance: 0.1
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.11
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.14
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.18
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_boss_lich_ability_2
+    Trigger: 2
+    Conditions: []
+    Effects:
+    - rid: 8125588737665479833
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.1
+    Chance: 0
+    StackLimit: 10
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.11
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.14
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.18
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_boss_lich
+    Trigger: 2
+    Conditions:
+    - rid: 8589657952475494080
+    - rid: 8548352990974400621
+    Effects:
+    - rid: 8816990879609863301
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.9
+    Chance: 0.25
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7188164527616470205
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 7520029888105255408
+      type: {class: HealPercentEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        VfxSize: 0
+    - rid: 8125588737665479833
+      type: {class: WeaponStatStackEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 2
+        Duration: 30
+        ResetOnTargetChange: 0
+    - rid: 8548352990974400621
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8589657952475494080
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8816990879609863301
+      type: {class: PetSplashDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Radius: 2.5

@@ -13,6 +13,7 @@ namespace Codebase.Economy
 		public const string QuestPickaxe = "quest.pickaxe";
 		public const string QuestMineCart = "quest.mine_cart";
 		public const string QuestGasMask = "quest.gas_mask";
+		public const string PetUniversalShard = "pet.universal_shard";
 		public static bool IsQuestCurrency(string key)
 		{ // Original ELF0x1516454; five original string equalities, not a prefix test.
 			return key == QuestDynamite || key == QuestHelmet || key == QuestPickaxe || key == QuestMineCart || key == QuestGasMask;

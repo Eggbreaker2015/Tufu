@@ -54,6 +54,8 @@ namespace Codebase.Pet
 			switch (modifier.Source)
 			{
 				case ModifierSource.Crystal:
+				// Pet-only; applied through PetStatsSyncSystem, never inherited from the player.
+				case ModifierSource.PetSynergy:
 					return false;
 				case ModifierSource.Item:
 				case ModifierSource.AbilityPermanent:

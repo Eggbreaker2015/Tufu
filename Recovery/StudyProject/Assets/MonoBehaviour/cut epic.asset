@@ -136,6 +136,22 @@ MonoBehaviour:
       ValueOverride: 0.03
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_doubleaxe
+    Trigger: 2
+    Conditions:
+    - rid: 7496883996002394037
+    - rid: 8120372299383736380
+    Effects:
+    - rid: 7957726498631914670
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.4
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -180,3 +196,14 @@ MonoBehaviour:
         ValueScaling: 4
         NormalizeAboveThreshold: 0
         ScalingStat: 0
+    - rid: 7496883996002394037
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7957726498631914670
+      type: {class: PetSplashDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Radius: 2.5
+    - rid: 8120372299383736380
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0

@@ -101,6 +101,22 @@ MonoBehaviour:
       ValueOverride: 120
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_knife
+    Trigger: 2
+    Conditions:
+    - rid: 7029523818859995284
+    - rid: 8749121098753701894
+    Effects:
+    - rid: 8851181089503039279
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.5
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -119,3 +135,14 @@ MonoBehaviour:
       type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
       data:
         Scaling: 0
+    - rid: 7029523818859995284
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8749121098753701894
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8851181089503039279
+      type: {class: EmpowerHitEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 0

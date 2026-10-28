@@ -33,7 +33,7 @@ namespace Codebase.Rewards
 
 		private static ItemConfig PickRandom(ItemReward reward, ItemsProvider itemsProvider)
 		{
-			var candidates = itemsProvider.Items.Where(item => item.SlotType == reward.SlotType && item.Rarity == reward.Rarity).ToList();
+			var candidates = itemsProvider.Items.Where(item => ItemsProvider.IsAvailable(item) && item.SlotType == reward.SlotType && item.Rarity == reward.Rarity).ToList();
 			return candidates.Count > 0 ? candidates[Random.Range(0, candidates.Count)] : null;
 		}
 	}

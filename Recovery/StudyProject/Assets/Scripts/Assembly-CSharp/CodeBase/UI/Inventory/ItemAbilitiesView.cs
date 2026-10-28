@@ -80,12 +80,19 @@ namespace Codebase.UI.Inventory
 		private List<int> GetVisibleAbilityIndices(ItemModel itemModel)
 		{
 			// Native ELF VA 0x1654048; every unlocked ability plus the first locked ability, then cap count.
-			var indices = new List<int>(); bool sawLocked = false;
-			for (int i = 0; i < itemModel.Config.AbilityDefs.Count; i++) {
-			    if (itemModel.IsAbilityUnlocked(itemModel.Config.AbilityDefs[i])) indices.Add(i);
+			// The unlocked pet-only signature (appended last in AbilityDefs) keeps a reserved slot so the cap never cuts it.
+			var indices = new List<int>(); bool sawLocked = false; int sigIndex = -1;
+			var defs = itemModel.Config.AbilityDefs;
+			for (int i = 0; i < defs.Count; i++) {
+			    var def = defs[i];
+			    if (global::Codebase.Abilities.Conditions.PetModeCondition.IsHidden(def)) continue;
+			    if (sigIndex < 0 && global::Codebase.Abilities.Conditions.PetModeCondition.IsPetOnly(def) && itemModel.IsAbilityUnlocked(def)) { sigIndex = i; continue; }
+			    if (itemModel.IsAbilityUnlocked(def)) indices.Add(i);
 			    else { if (!sawLocked) indices.Add(i); sawLocked = true; }
 			}
-			if (indices.Count > maxCount) indices.RemoveRange(maxCount, indices.Count - maxCount);
+			int room = sigIndex >= 0 ? System.Math.Max(0, maxCount - 1) : maxCount;
+			if (indices.Count > room) indices.RemoveRange(room, indices.Count - room);
+			if (sigIndex >= 0 && maxCount > 0) indices.Add(sigIndex);
 			return indices;
 		}
 

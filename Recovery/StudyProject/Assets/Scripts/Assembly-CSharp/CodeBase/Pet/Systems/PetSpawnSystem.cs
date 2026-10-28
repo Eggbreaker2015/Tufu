@@ -93,7 +93,7 @@ namespace Codebase.Pet.Systems
 			Transform visualSlot = new GameObject("VisualSlot").transform;
 			visualSlot.SetParent(root.transform, false);
 			unit.Setup(item, definition, agent, healthBarPoint, visualSlot);
-			unit.AttachVisual(definition != null ? definition.Prefab : null, definition != null ? definition.VisualScale : 0f);
+			unit.AttachVisual(definition);
 			unit.Stats = new List<Stat>();
 			unit.BuildStatLookup();
 			petTagStash.Set(unit.EntityProvider.Entity);

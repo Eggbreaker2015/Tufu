@@ -59,6 +59,11 @@ namespace Codebase.Pet
 
 		public float AttacksPerSecond;
 
+		// Equipped weapon slots of this species' damage type (this one included when equipped) and the synergy tier it reaches.
+		public int SynergyCount;
+
+		public PetSynergyTier Synergy;
+
 		public double Health => PlayerHealth * Ratios.Health;
 
 		public double NextHealth => PlayerHealth * NextRatios.Health;
@@ -221,6 +226,8 @@ namespace Codebase.Pet
 			// Ability tick factors are only kept up to date for equipped items (AbilityExecuteEventSystem); others read 0 or stale.
 			float attackSpeed = playerModel.EquippedItems.Contains(item) ? GetAttackSpeedMultiplier(item) : 1f;
 			info.AttacksPerSecond = config.AttackCooldown > 0f ? attackSpeed / config.AttackCooldown : 0f;
+			info.SynergyCount = PetCollection.CountEquippedOfType(PetCollection.GetDamageType(item, PetConfig.Instance));
+			info.Synergy = PetCollection.GetSynergyTier(info.SynergyCount);
 			return true;
 		}
 
@@ -243,16 +250,17 @@ namespace Codebase.Pet
 			return entry.Value;
 		}
 
-		// Copy of a player stat with only the inherited modifiers plus an optional ratio modifier.
-		public static Stat BuildInherited(Stat source, PetStatInheritance inheritance, StatModifier extra, Lifetime lifetime)
+		// Copy of a player stat with only the inherited modifiers plus the pet's own extras (ratio, synergy), in order.
+		public static Stat BuildInherited(Stat source, PetStatInheritance inheritance, IReadOnlyList<StatModifier> extras, Lifetime lifetime)
 		{
 			// Fresh modifier list: PlayerConfig/LastStats/Unit stats share one list instance.
 			List<StatModifier> modifiers = new List<StatModifier>();
 			foreach (StatModifier modifier in source.Modifiers)
 				if (inheritance.Inherits(modifier))
 					modifiers.Add(PetStatInheritance.Copy(modifier));
-			if (extra != null)
-				modifiers.Add(extra);
+			if (extras != null)
+				for (int i = 0; i < extras.Count; i++)
+					modifiers.Add(extras[i]);
 			return new Stat(lifetime, source.BaseValue, source.Type, modifiers);
 		}
 

@@ -65,6 +65,13 @@ namespace Codebase.Core.UI
 			return OpenInternal(prefab, withBackground);
 		}
 
+		// Opens a popup from a template built in code (not an addressable prefab); pooled like the keyed popups.
+		public T OpenTemplate<T>(T template, bool withBackground = false) where T : PopupView
+		{
+			if (template == null) return null;
+			return (T)OpenInternal(template, withBackground);
+		}
+
 		private PopupView OpenInternal(PopupView prefab, bool withBackground)
 		{
 			// Native ELF VA 0x154936c; original order is background, pooled popup, injection, tracking, Initialize.

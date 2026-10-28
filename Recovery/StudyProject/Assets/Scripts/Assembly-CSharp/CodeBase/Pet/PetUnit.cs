@@ -16,6 +16,9 @@ namespace Codebase.Pet
 
 		private const float DefaultHealthBarHeight = 2.4f;
 
+		// Boss Tower chains and quest markers on the enemy visuals.
+		private static readonly string[] AlwaysHiddenChildren = { "Chains", "Signs_root" };
+
 		private static readonly int IsWalkingId = Animator.StringToHash("isWalking");
 
 		private static readonly int IsAttackingId = Animator.StringToHash("isAttacking");
@@ -59,12 +62,14 @@ namespace Codebase.Pet
 			VisualRoot = visualSlot;
 		}
 
-		public void AttachVisual(GameObject enemyPrefab, float scale = 0f)
+		public void AttachVisual(PetDefinition definition)
 		{
 			// Only the enemy's Visual child is used; its root would come up as an uninitialized EnemyUnit.
 			HealthBarPoint.localPosition = Vector3.up * DefaultHealthBarHeight;
+			GameObject enemyPrefab = definition != null ? definition.Prefab : null;
 			if (enemyPrefab == null)
 				return;
+			float scale = definition.VisualScale;
 			Transform source = enemyPrefab.transform.Find(VisualChildName);
 			if (source == null)
 			{
@@ -81,7 +86,8 @@ namespace Codebase.Pet
 			Transform sourcePoint = source.Find(HealthBarPointName);
 			if (sourcePoint != null)
 				HealthBarPoint.localPosition = Vector3.Scale(sourcePoint.localPosition, rootScale);
-			Animator = visual.GetComponentInChildren<Animator>(true);
+			HideChildren(visual, definition);
+			Animator = FindAnimator(enemyPrefab, source, visual);
 			if (Animator != null)
 				Animator.applyRootMotion = false;
 			hasSpawnTrigger = false;
@@ -92,6 +98,73 @@ namespace Codebase.Pet
 			renderers.Clear();
 			renderers.AddRange(visual.GetComponentsInChildren<MeshRenderer>(true));
 			renderers.AddRange(visual.GetComponentsInChildren<SkinnedMeshRenderer>(true));
+		}
+
+		private static void HideChildren(Transform visual, PetDefinition definition)
+		{
+			foreach (string path in AlwaysHiddenChildren)
+				SetChildInactive(visual, path, false);
+			if (definition.HiddenChildren == null)
+				return;
+			foreach (string path in definition.HiddenChildren)
+				if (!string.IsNullOrEmpty(path))
+					SetChildInactive(visual, path, true);
+		}
+
+		private static void SetChildInactive(Transform visual, string path, bool warnIfMissing)
+		{
+			Transform child = visual.Find(path);
+			if (child != null)
+				child.gameObject.SetActive(false);
+			else if (warnIfMissing)
+				Debug.LogWarning($"Pet visual: {visual.name} has no child {path} to hide");
+		}
+
+		// The enemy's own animator (same path on the copy), else the first active one with a controller.
+		private static Animator FindAnimator(GameObject enemyPrefab, Transform source, Transform visual)
+		{
+			EnemyUnit enemy = enemyPrefab.GetComponent<EnemyUnit>();
+			Animator enemyAnimator = enemy != null ? enemy.Animator : null;
+			if (enemyAnimator != null)
+			{
+				string path = GetRelativePath(enemyAnimator.transform, source);
+				if (path != null)
+				{
+					Transform target = path.Length == 0 ? visual : visual.Find(path);
+					Animator animator = target != null ? target.GetComponent<Animator>() : null;
+					if (animator != null)
+						return animator;
+				}
+			}
+			Animator[] animators = visual.GetComponentsInChildren<Animator>(true);
+			foreach (Animator animator in animators)
+				if (animator.runtimeAnimatorController != null && IsActiveUnder(animator.transform, visual))
+					return animator;
+			foreach (Animator animator in animators)
+				if (animator.runtimeAnimatorController != null)
+					return animator;
+			return animators.Length > 0 ? animators[0] : null;
+		}
+
+		// Null when child is not under root.
+		private static string GetRelativePath(Transform child, Transform root)
+		{
+			string path = string.Empty;
+			for (Transform current = child; current != null; current = current.parent)
+			{
+				if (current == root)
+					return path;
+				path = path.Length == 0 ? current.name : current.name + "/" + path;
+			}
+			return null;
+		}
+
+		private static bool IsActiveUnder(Transform child, Transform root)
+		{
+			for (Transform current = child; current != null && current != root; current = current.parent)
+				if (!current.gameObject.activeSelf)
+					return false;
+			return true;
 		}
 
 		public override void ApplyHitAnimation()

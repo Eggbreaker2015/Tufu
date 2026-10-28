@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Codebase.Enemy;
 using UnityEngine;
 
@@ -31,6 +32,15 @@ namespace Codebase.Pet
 
 		// Own attack = weapon damage * PetConfig.OwnAttackScale * OwnAttackMultiplier.
 		public float OwnAttackMultiplier = 1f;
+
+		// Child paths under the copied Visual to deactivate, besides the always hidden Chains and Signs_root.
+		public List<string> HiddenChildren = new List<string>();
+
+		// Boss Tower boss key for mythical boss pets; empty otherwise.
+		public string BossKey;
+
+		// Reserved for future synergies.
+		public string Faction;
 
 		public bool IsFallback => string.IsNullOrEmpty(ItemKey);
 	}

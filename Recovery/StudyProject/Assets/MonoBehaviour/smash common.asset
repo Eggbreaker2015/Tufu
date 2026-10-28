@@ -101,6 +101,22 @@ MonoBehaviour:
       ValueOverride: 180
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_paddle
+    Trigger: 2
+    Conditions:
+    - rid: 8080417078955125782
+    - rid: 8915664741413513370
+    Effects:
+    - rid: 7609165550672023435
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.05
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -116,6 +132,17 @@ MonoBehaviour:
         UseDailyProcLimit: 0
         DailyProcLimit: 1
     - rid: 6613836593968972090
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 7609165550672023435
+      type: {class: PetHealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Target: 0
+    - rid: 8080417078955125782
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8915664741413513370
       type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
       data:
         Scaling: 0

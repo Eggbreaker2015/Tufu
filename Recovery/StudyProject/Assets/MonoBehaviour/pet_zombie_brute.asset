@@ -1,0 +1,146 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_zombie_brute
+  m_EditorClassIdentifier:
+  Key: zombie_brute
+  Rarity: 1
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 0
+  AttackCooldown: 1.9
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.708
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: df47717da6224312841c9a3a17cda8a3, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114618682377417806, guid: 02feda377f15a4a4f854666a5bd67f5a, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_zombie_brute_ability_1
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 7870525819683973919
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.7
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 1.1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 1.2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 1.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 1.4
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_zombie_brute_ability_2
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 8058178414986599528
+    - rid: 7090162704942510415
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.2
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_zombie_brute
+    Trigger: 2
+    Conditions:
+    - rid: 7843355556382650704
+    - rid: 7325746056621254704
+    Effects:
+    - rid: 8446042626098553147
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.8
+    Chance: 0.12
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7090162704942510415
+      type: {class: IncreaseLightningChanceEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        UseAbilityValue: 0
+        Amount: 0.05
+        ValueScaling: 5
+        ScalingStat: 0
+    - rid: 7325746056621254704
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 7843355556382650704
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7870525819683973919
+      type: {class: DamageForEmptySlotsEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8058178414986599528
+      type: {class: LightningDamageBonusEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 5
+        ScalingStat: 0
+    - rid: 8446042626098553147
+      type: {class: StunEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}

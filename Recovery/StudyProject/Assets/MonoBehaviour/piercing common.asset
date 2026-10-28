@@ -101,6 +101,21 @@ MonoBehaviour:
       ValueOverride: 75
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_pike
+    Trigger: 2
+    Conditions:
+    - rid: 7816643958840979989
+    Effects:
+    - rid: 8732156171440216576
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.03
+    Chance: 0
+    StackLimit: 10
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -119,3 +134,12 @@ MonoBehaviour:
       type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
       data:
         Scaling: 0
+    - rid: 7816643958840979989
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8732156171440216576
+      type: {class: WeaponStatStackEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 1
+        Duration: 30
+        ResetOnTargetChange: 0

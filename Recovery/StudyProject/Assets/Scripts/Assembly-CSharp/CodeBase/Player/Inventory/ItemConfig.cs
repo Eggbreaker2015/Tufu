@@ -46,6 +46,9 @@ namespace Codebase.Player.Inventory
 
 		public List<AbilityDef> AbilityDefs = new List<AbilityDef>();
 
+		// Pet species added for pet mode; excluded from random drops while pet mode is off.
+		public bool PetOnly;
+
 		public float HitFrameAt60Fps => (1f - AnimationCastPoint) * AttackCooldown * 60f; // Native 0x14630e8.
 
 		private void OnValidate()

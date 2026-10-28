@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_vampire_blade
+  m_EditorClassIdentifier:
+  Key: vampire_blade
+  Rarity: 1
+  SlotType: 0
+  DamageType: 1
+  DamageStatTypeFlat: 8
+  DamageStatTypePercent: 9
+  FlatDamage: 0
+  AttackCooldown: 1.15
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.712
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 069d5fa830114992b9962b33d4d86b3b, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114618682377417806, guid: 4a095a37ff4eb234dbb3ca4dfab029f4, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_vampire_blade_ability_1
+    Trigger: 1
+    Conditions:
+    - rid: 7801069077272353740
+    Effects:
+    - rid: 7833272905495395558
+    - rid: 8125243352499694852
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 0.25
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.35
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.45
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.5
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.55
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_vampire_blade_ability_2
+    Trigger: 2
+    Conditions: []
+    Effects:
+    - rid: 7756125130177392726
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.1
+    Chance: 0
+    StackLimit: 10
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 0.11
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 0.12
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 0.13
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 0.14
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 0.16
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 0.18
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 0.2
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_vampire_blade
+    Trigger: 2
+    Conditions:
+    - rid: 7845544830902705967
+    - rid: 8011569894975087820
+    Effects:
+    - rid: 7968333964569878685
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.06
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7756125130177392726
+      type: {class: WeaponStatStackEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 2
+        Duration: 30
+        ResetOnTargetChange: 0
+    - rid: 7801069077272353740
+      type: {class: TargetCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Mode: 0
+    - rid: 7833272905495395558
+      type: {class: DoubleLootEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7845544830902705967
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7968333964569878685
+      type: {class: PetHealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Target: 0
+    - rid: 8011569894975087820
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8125243352499694852
+      type: {class: EmpowerHitAgainstStaticEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Amount: 1

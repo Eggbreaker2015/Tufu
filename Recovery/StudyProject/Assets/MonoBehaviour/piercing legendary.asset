@@ -137,6 +137,22 @@ MonoBehaviour:
       ValueOverride: 0.06
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_chainsawpike
+    Trigger: 2
+    Conditions:
+    - rid: 7144503220807117980
+    - rid: 7448055888906235475
+    Effects:
+    - rid: 7196449361184928937
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.5
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -183,6 +199,20 @@ MonoBehaviour:
       type: {class: TriggerLifestealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
       data: {}
     - rid: 6613836670183669924
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 7144503220807117980
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7196449361184928937
+      type: {class: TemporaryWeaponBuffEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 0
+        Duration: 3
+        ValueScaling: 0
+        HideInUI: 0
+    - rid: 7448055888906235475
       type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
       data:
         Scaling: 0

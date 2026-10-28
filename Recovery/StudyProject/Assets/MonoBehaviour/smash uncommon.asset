@@ -135,6 +135,22 @@ MonoBehaviour:
       ValueOverride: 0.5
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_mailbox
+    Trigger: 2
+    Conditions:
+    - rid: 7886335018962516918
+    - rid: 8163925198828047545
+    Effects:
+    - rid: 7642285259411068371
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 1
+    Chance: 0.1
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -166,3 +182,13 @@ MonoBehaviour:
       data:
         ValueScaling: 5
         ScalingStat: 0
+    - rid: 7642285259411068371
+      type: {class: StunEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7886335018962516918
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8163925198828047545
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0

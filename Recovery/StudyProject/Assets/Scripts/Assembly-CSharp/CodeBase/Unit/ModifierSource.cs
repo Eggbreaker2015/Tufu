@@ -21,6 +21,8 @@ namespace Codebase.Unit
 		SecretChest = 16,
 		CrystalGuardian = 17,
 		Quest = 18,
-		Cashback = 19
+		Cashback = 19,
+		PetCollection = 20,
+		PetSynergy = 21
 	}
 }

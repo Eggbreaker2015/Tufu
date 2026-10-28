@@ -137,6 +137,22 @@ MonoBehaviour:
       ValueOverride: 0.3
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_mace
+    Trigger: 2
+    Conditions:
+    - rid: 8084768137610364141
+    - rid: 8368174823764250358
+    Effects:
+    - rid: 8645311851099845406
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.3
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -176,3 +192,17 @@ MonoBehaviour:
       data:
         ValueScaling: 0
         ScalingStat: 0
+    - rid: 8084768137610364141
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8368174823764250358
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8645311851099845406
+      type: {class: TemporaryWeaponBuffEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 0
+        Duration: 3
+        ValueScaling: 0
+        HideInUI: 0

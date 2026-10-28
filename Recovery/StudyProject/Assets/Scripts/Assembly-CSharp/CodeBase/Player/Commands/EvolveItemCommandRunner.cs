@@ -26,6 +26,8 @@ namespace Codebase.Player.Commands
 		{
 			// Native 0x146851c: preserve the pre-evolution model before consuming copies.
 			ItemModel item = command.ItemModel;
+			if (item.IsEvolutionCapped)
+				return;
 			analytics.Send(new ItemEvolveEvent(item.Config.Key));
 			playerModel.SelectedItem = null;
 			var previous = new ItemModel(Lifetime.Eternal, item.Config) { Copies = item.Copies };

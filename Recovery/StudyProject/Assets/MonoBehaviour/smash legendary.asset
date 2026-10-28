@@ -133,6 +133,22 @@ MonoBehaviour:
       ValueOverride: 0.2
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_coolHammer
+    Trigger: 2
+    Conditions:
+    - rid: 8152623323015115653
+    - rid: 7483884091787611543
+    Effects:
+    - rid: 8105786650571669432
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.04
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -151,4 +167,15 @@ MonoBehaviour:
         ScalingStat: 0
     - rid: 6613836593968972174
       type: {class: BonusDamagePerConsumedShockOnTargetEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7483884091787611543
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8105786650571669432
+      type: {class: PetHealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Target: 1
+    - rid: 8152623323015115653
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
       data: {}

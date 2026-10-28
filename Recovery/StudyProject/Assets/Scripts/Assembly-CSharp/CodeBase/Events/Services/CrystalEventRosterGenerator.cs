@@ -37,7 +37,7 @@ namespace Codebase.Events.Services
             foreach (var part in parts)
             {
                 var chosen = ChooseCandidate(BuildCandidates(part.RewardNumber, budget * part.Weight / totalWeight, variants, assigned));
-                var items = player.Items.Where(item => item.Config.SlotType == chosen.SlotType && item.Config.Rarity == chosen.Rarity).ToList();
+                var items = player.Items.Where(item => ItemsProvider.IsAvailable(item.Config) && item.Config.SlotType == chosen.SlotType && item.Config.Rarity == chosen.Rarity).ToList();
                 assigned[chosen.VariantIndex] += chosen.TotalPoints;
                 var item = items[UnityEngine.Random.Range(0, items.Count)];
                 result[part.RewardNumber - 1].Add(new ForecastCrystalRewardEntry
@@ -59,7 +59,7 @@ namespace Codebase.Events.Services
         }
         private List<CrystalRewardVariant> BuildRewardVariants(List<ItemModel> items)
         {
-            return items.Where(item => item.Config.SlotType == ItemSlotType.Weapon || item.Config.SlotType == ItemSlotType.Shield)
+            return items.Where(item => ItemsProvider.IsAvailable(item.Config) && (item.Config.SlotType == ItemSlotType.Weapon || item.Config.SlotType == ItemSlotType.Shield))
                 .GroupBy(item => new { item.Config.SlotType, item.Config.Rarity })
                 .Select(group => new CrystalRewardVariant { SlotType = group.Key.SlotType, Rarity = group.Key.Rarity })
                 .OrderBy(variant => variant.SlotType).ThenBy(variant => variant.Rarity).ToList();

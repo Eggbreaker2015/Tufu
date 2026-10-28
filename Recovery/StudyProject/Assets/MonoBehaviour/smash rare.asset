@@ -136,6 +136,22 @@ MonoBehaviour:
       ValueOverride: 1
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_hammer
+    Trigger: 2
+    Conditions:
+    - rid: 7255600624651467271
+    - rid: 8291555603491775517
+    Effects:
+    - rid: 8471151651322761058
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.5
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -164,3 +180,14 @@ MonoBehaviour:
       type: {class: ResetCooldownEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
       data:
         Mode: 0
+    - rid: 7255600624651467271
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8291555603491775517
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8471151651322761058
+      type: {class: PetSplashDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Radius: 2.5

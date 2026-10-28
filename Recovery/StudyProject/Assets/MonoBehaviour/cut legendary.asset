@@ -138,6 +138,22 @@ MonoBehaviour:
       ValueOverride: 0.04
       ChanceOverride: 0
       StacksOverride: 0
+  - Key: pet_sig_chainsaw
+    Trigger: 2
+    Conditions:
+    - rid: 7531001820108525893
+    - rid: 8901281874581036128
+    Effects:
+    - rid: 7912280042065076666
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.4
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   references:
     version: 2
     RefIds:
@@ -190,3 +206,17 @@ MonoBehaviour:
         ScalingStat: 0
         UseDailyProcLimit: 0
         DailyProcLimit: 1
+    - rid: 7531001820108525893
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7912280042065076666
+      type: {class: TemporaryWeaponBuffEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        BuffType: 1
+        Duration: 3
+        ValueScaling: 0
+        HideInUI: 0
+    - rid: 8901281874581036128
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0

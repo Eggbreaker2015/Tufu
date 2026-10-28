@@ -1,0 +1,152 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_dark_treant
+  m_EditorClassIdentifier:
+  Key: dark_treant
+  Rarity: 4
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 15000
+  AttackCooldown: 1.8
+  SimulationDpsWeaponMultiplier: 1.3
+  Number: 0
+  AnimationCastPoint: 0.763
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: a048318572d4404ea992e953ab23b2ee, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114099118695303065, guid: 7858b2a4bfe79dd4f93109a0deaddc3e, type: 2}
+  DivinePrefab: {fileID: 114099118695303065, guid: 7858b2a4bfe79dd4f93109a0deaddc3e, type: 2}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_dark_treant_ability_1
+    Trigger: 2
+    Conditions:
+    - rid: 8447588626330255976
+    Effects:
+    - rid: 7789777750090779386
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 1.8
+    Chance: 0.1
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 1.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 2.1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 2.2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 2.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 2.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 2.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_dark_treant_ability_2
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 7850118272402080102
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.5
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 4
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 7
+      ValueOverride: 0.7
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 10
+      ValueOverride: 0.8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 13
+      ValueOverride: 0.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 1
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_dark_treant
+    Trigger: 2
+    Conditions:
+    - rid: 8292209499139179817
+    - rid: 7491260273206784376
+    Effects:
+    - rid: 7140703297180856401
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.6
+    Chance: 0.2
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7140703297180856401
+      type: {class: PetSplashDamageEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Radius: 2.5
+    - rid: 7491260273206784376
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 7789777750090779386
+      type: {class: StunEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7850118272402080102
+      type: {class: LightningDamageBonusEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        ValueScaling: 0
+        ScalingStat: 0
+    - rid: 8292209499139179817
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8447588626330255976
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0

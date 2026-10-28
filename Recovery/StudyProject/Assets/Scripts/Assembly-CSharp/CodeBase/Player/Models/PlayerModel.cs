@@ -657,7 +657,11 @@ namespace Codebase.Player.Models
 				if (stat == null)
 					continue;
 				foreach (StatModifierUd modifier in saved.Modifiers)
+				{
+					if (IsRuntimeOnlySource(modifier.Source.Value))
+						continue;
 					stat.Modifiers.Add(new StatModifier { Name = modifier.Name.Value, Value = modifier.Value.Value, ModifierType = modifier.ModifierType.Value, Source = modifier.Source.Value });
+				}
 			}
 		}
 
@@ -690,6 +694,8 @@ namespace Codebase.Player.Models
 					uint source = (uint)modifier.Source;
 					if (source <= 10u && ((1u << (int)source) & 0x50au) != 0u)
 						continue;
+					if (IsRuntimeOnlySource(modifier.Source))
+						continue;
 					StatModifierUd target = saved.Modifiers.Create();
 					target.Name.Value = modifier.Name;
 					target.Value.Value = modifier.Value;
@@ -697,6 +703,12 @@ namespace Codebase.Player.Models
 					target.Source.Value = modifier.Source;
 				}
 			}
+		}
+
+		// Pet collection/synergy bonuses are re-applied by their systems every session.
+		private static bool IsRuntimeOnlySource(ModifierSource source)
+		{
+			return source == ModifierSource.PetCollection || source == ModifierSource.PetSynergy;
 		}
 
 		private void SavePosition()

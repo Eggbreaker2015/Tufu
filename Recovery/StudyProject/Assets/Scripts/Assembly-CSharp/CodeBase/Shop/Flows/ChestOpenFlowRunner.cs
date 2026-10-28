@@ -6,6 +6,7 @@ using CodeBase.Audio;
 using Codebase.Core;
 using Codebase.Core.Flows;
 using Codebase.Core.UI;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
 using Codebase.Rewards;
@@ -105,6 +106,7 @@ namespace Codebase.Shop.Flows
 			audioPlayer.PlaySoundOnce("chest_buy");
 			int copiesGained = chestsModel.GetEquipmentDropCopies(flow.ChestDef.Key, flow.ChestDef.Drops[0].ItemType, chestsModel.Level);
 			await GenerateDropsAndAddToPlayer(flow.ChestDef, chestsRemaining, copiesGained, droppedItems);
+			PetEconomy.OnChestsOpened(flow.ChestCount);
 			droppedItems = droppedItems.OrderByDescending(item => item.Rarity).ThenByDescending(item => item.EffectiveLevel).ThenByDescending(item => item.Copies).ToList();
 			view.SetDroppedItems(droppedItems);
 			view.SetChestSprites(flow.ChestDef.ClosedSprite, flow.ChestDef.OpenedSprite);
@@ -131,7 +133,7 @@ namespace Codebase.Shop.Flows
 			{
 				var drop = SelectDrop(chestDef);
 				var slotTypes = GetSlotTypesForItemType(drop.ItemType);
-				var candidates = itemsProvider.Items.Where(item => item.Rarity == drop.Rarity && slotTypes.Contains(item.SlotType)).ToList();
+				var candidates = itemsProvider.Items.Where(item => ItemsProvider.IsAvailable(item) && item.Rarity == drop.Rarity && slotTypes.Contains(item.SlotType)).ToList();
 				ItemConfig selected = candidates[UnityEngine.Random.Range(0, candidates.Count)];
 				ItemModel existing = playerModel.Items.FirstOrDefault(item => item.Config == selected);
 				var display = new ItemModel(playerModel.Lifetime, selected);

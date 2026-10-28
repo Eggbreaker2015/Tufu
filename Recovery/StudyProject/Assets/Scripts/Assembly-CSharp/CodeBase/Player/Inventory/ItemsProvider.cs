@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Codebase.Pet;
 using UnityEngine;
 
 namespace Codebase.Player.Inventory
@@ -9,6 +10,9 @@ namespace Codebase.Player.Inventory
 		public List<ItemConfig> Items;
 
 		public List<Color> RarityColors;
+
+		// Random pick filter: pet-only species drop only in pet mode.
+		public static bool IsAvailable(ItemConfig item) => item != null && (!item.PetOnly || PetConfig.Enabled);
 
 		public ItemConfig Get(string key)
 		{

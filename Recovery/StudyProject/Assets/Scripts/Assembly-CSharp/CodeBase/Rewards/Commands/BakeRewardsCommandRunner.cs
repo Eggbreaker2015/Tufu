@@ -107,7 +107,7 @@ namespace Codebase.Rewards.Commands
                 itemReward.BakedData = BakedRewardStorage.LoadItem(itemReward.SaveKey);
                 return;
             }
-            var choices = itemsProvider.Items.Where(item => item.SlotType == itemReward.SlotType && item.Rarity == itemReward.Rarity).ToList();
+            var choices = itemsProvider.Items.Where(item => ItemsProvider.IsAvailable(item) && item.SlotType == itemReward.SlotType && item.Rarity == itemReward.Rarity).ToList();
             if (choices.Count == 0) return;
             var baked = new BakedItemReward { ItemKey = choices[UnityEngine.Random.Range(0, choices.Count)].Key };
             BakedRewardStorage.SaveItem(itemReward.SaveKey, baked);

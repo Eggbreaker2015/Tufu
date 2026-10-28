@@ -777,6 +777,1131 @@ MonoBehaviour:
     - $Mantar Büyücüsü Kalkanı$ kuşanıldıysa $İlk Yeteneğin$ ve $İkinci Yeteneğin$ değerlerini {value_percent} artırır
     - Якщо споряджено $Щит грибоманта$, збільшує значення $першої здібності$ та $другої здібності$ на {value_percent}
     - 装备$蘑菇师之盾$时，提升$首个技能$和$第二个技能$的数值 {value_percent}
+  - key: ABILITY_DESCRIPTION_pet_abyss_reaver_ability_1
+    values:
+    - Unlock $Rage$ Level 1. Gain 5 $Rage$ on $hit$<br><br>On $Rage level up$, increase this weapon $Damage$ by {value_percent} per $Rage$ level for $7s$
+    - Schalte $Wut$-Stufe 1 frei. Erhalte 5 $Wut$ bei $Treffer$<br><br>Beim $Wutstufen-Aufstieg$ erhöht sich der $Schaden$ dieser Waffe für $7s$ um {value_percent} pro $Wut$-Stufe
+    - Desbloquea el nivel 1 de $Furia$. Gana 5 de $Furia$ al $golpear$<br><br>Al $subir de nivel de furia$, aumenta el $Daño$ de esta arma en {value_percent} por nivel de $Furia$ durante $7s$
+    - Débloque le niveau 1 de $Rage$. Gagnez 5 $Rage$ à chaque $coup$<br><br>À chaque $niveau de Rage$, augmente les $Dégâts$ de cette arme de {value_percent} par niveau de $Rage$ pendant $7s$
+    - Sblocca il livello 1 di $Rabbia$. Ottieni 5 $Rabbia$ a ogni $colpo$<br><br>Al $salire di livello della Rabbia$, aumenta i $Danni$ di quest'arma di {value_percent} per livello di $Rabbia$ per $7s$
+    - $激怒$レベル1を解放。$攻撃$時に$激怒$を5獲得<br><br>$激怒レベルアップ$時、$7s$間$激怒$レベルごとにこの武器の$ダメージ$を{value_percent}上昇
+    - $분노$ 레벨 1 해금. $공격$ 시 $분노$ 5 획득<br><br>$분노 레벨 업$ 시 $7s$ 동안 $분노$ 레벨당 이 무기의 $피해$를 {value_percent} 증가
+    - Odblokowuje poziom 1 $Szału$. Zyskujesz 5 $Szału$ przy $trafieniu$<br><br>Przy $awansie poziomu Szału$ zwiększa $Obrażenia$ tej broni o {value_percent} za poziom $Szału$ na $7s$
+    - Desbloqueia o nível 1 de $Fúria$. Recebe 5 de $Fúria$ ao $acertar$<br><br>Ao $subir de nível de Fúria$, aumenta o $Dano$ desta arma em {value_percent} por nível de $Fúria$ por $7s$
+    - Открывает $Ярость$ уровня 1. Дает 5 $Ярости$ при $ударе$<br><br>При $повышении уровня ярости$ увеличивает $Урон$ этого оружия на {value_percent} за уровень $Ярости$ на $7s$
+    - $Öfke$ Seviye 1'i aç. $Vuruşta$ 5 $Öfke$ kazan<br><br>$Öfke seviye atladığında$ bu silahın $Hasarını$ $Öfke$ seviyesi başına $7s$ boyunca {value_percent} artırır
+    - Відкриває $Лють$ 1 рівня. Отримує 5 $Люті$ при $ударі$<br><br>При $підвищенні рівня Люті$ збільшує $Шкоду$ цієї зброї на {value_percent} за рівень $Люті$ на $7s$
+    - 解锁$怒气$等级 1。$命中$时获得 5 点$怒气$<br><br>$怒气等级提升$时，$7s$ 内每级$怒气$提升此武器的$伤害${value_percent}
+  - key: ABILITY_DESCRIPTION_pet_abyss_reaver_ability_2
+    values:
+    - On $hit$, gain {value_percent} $Critical Damage$ for this weapon, up to 10 stacks for $30s$
+    - Bei $Treffer$ erhält diese Waffe {value_percent} $Kritischer Trefferschaden$, bis zu 10 Stapel für $30s$
+    - Al $golpear$, esta arma gana {value_percent} de $Daño crítico$, hasta 10 acumulaciones durante $30s$
+    - À chaque $coup$, cette arme gagne {value_percent} de $Dégâts critiques$, jusqu'à 10 cumuls pendant $30s$
+    - A ogni $colpo$, quest'arma ottiene {value_percent} di $Danni critici$, fino a 10 accumuli per $30s$
+    - $攻撃$時、この武器に{value_percent}の$クリダメ$を付与（$30s$間、最大10スタック）
+    - $공격$ 시 이 무기에 {value_percent}의 $치명타 피해$ 부여, $30s$ 동안 최대 10중첩
+    - Przy $trafieniu$ ta broń zyskuje {value_percent} $Obrażeń krytycznych$, do 10 ładunków na $30s$
+    - Ao $acertar$, esta arma recebe {value_percent} de $Dano crítico$, até 10 acúmulos por $30s$
+    - При $ударе$ это оружие получает {value_percent} $Урона крита$, до 10 стаков на $30s$
+    - $Vuruşta$ bu silah {value_percent} $Kritik hasarı$ kazanır, $30s$ boyunca en fazla 10 yük
+    - При $ударі$ ця зброя отримує {value_percent} $Критичної шкоди$, до 10 зарядів на $30s$
+    - $命中$时，此武器获得 {value_percent} $暴击伤害$，$30s$ 内最多 10 层
+  - key: ABILITY_DESCRIPTION_pet_bear_ability_1
+    values:
+    - On $hit$, gain {value_percent} $Critical Damage$ for this weapon, up to 10 stacks for $30s$
+    - Bei $Treffer$ erhält diese Waffe {value_percent} $Kritischer Trefferschaden$, bis zu 10 Stapel für $30s$
+    - Al $golpear$, esta arma gana {value_percent} de $Daño crítico$, hasta 10 acumulaciones durante $30s$
+    - À chaque $coup$, cette arme gagne {value_percent} de $Dégâts critiques$, jusqu'à 10 cumuls pendant $30s$
+    - A ogni $colpo$, quest'arma ottiene {value_percent} di $Danni critici$, fino a 10 accumuli per $30s$
+    - $攻撃$時、この武器に{value_percent}の$クリダメ$を付与（$30s$間、最大10スタック）
+    - $공격$ 시 이 무기에 {value_percent}의 $치명타 피해$ 부여, $30s$ 동안 최대 10중첩
+    - Przy $trafieniu$ ta broń zyskuje {value_percent} $Obrażeń krytycznych$, do 10 ładunków na $30s$
+    - Ao $acertar$, esta arma recebe {value_percent} de $Dano crítico$, até 10 acúmulos por $30s$
+    - При $ударе$ это оружие получает {value_percent} $Урона крита$, до 10 стаков на $30s$
+    - $Vuruşta$ bu silah {value_percent} $Kritik hasarı$ kazanır, $30s$ boyunca en fazla 10 yük
+    - При $ударі$ ця зброя отримує {value_percent} $Критичної шкоди$, до 10 зарядів на $30s$
+    - $命中$时，此武器获得 {value_percent} $暴击伤害$，$30s$ 内最多 10 层
+  - key: ABILITY_DESCRIPTION_pet_bear_ability_2
+    values:
+    - On $critical hit$, {chance} chance to restore {value_percent} $Max HP$
+    - Bei $kritischem Treffer$ {chance} Chance, {value_percent} der $Max. HP$ wiederherzustellen
+    - Con un $golpe crítico$, {chance} de probabilidad de restaurar {value_percent} de los $PV máx.$
+    - Au $coup critique$, {chance} de chances de restaurer {value_percent} des $PV max$
+    - Al $colpo critico$, {chance} di probabilità di ripristinare il {value_percent} della $Salute max$
+    - $クリティカルヒット$時、{chance}の確率で$最大HP$の{value_percent}を回復
+    - $치명타$ 시 {chance} 확률로 $최대 HP$의 {value_percent}를 회복
+    - Przy $trafieniu krytycznym$, {chance} szans na przywrócenie {value_percent} $Maks. zdrowia$
+    - Ao $acerto crítico$, {chance} de chance de restaurar {value_percent} da $Vida máx.$
+    - При $критическом ударе$ с шансом {chance} восстанавливает {value_percent} от $Макс. HP$
+    - $Kritik vuruşta$, $Maks. Canın$ {value_percent} kadarını yenileme olasılığı {chance}
+    - При $критичному ударі$ з шансом {chance} відновлює {value_percent} від $Макс. HP$
+    - $暴击$时有 {chance} 几率恢复 {value_percent} 的$最大生命值$
+  - key: ABILITY_DESCRIPTION_pet_boss_berserker_ability_1
+    values:
+    - $First hit$ to target deals extra +{value_percent} $Damage$
+    - Der $erste Treffer$ auf ein Ziel verursacht zusätzlich +{value_percent} $Schaden$
+    - El $primer golpe$ al objetivo inflige +{value_percent} de $Daño$ adicional
+    - Le $premier coup$ sur une cible inflige +{value_percent} de $Dégâts$ supplémentaires
+    - Il $primo colpo$ su un bersaglio infligge +{value_percent} di $Danni$ aggiuntivi
+    - 対象への$最初の攻撃$は追加で+{value_percent}の$ダメージ$を与える
+    - 대상에 대한 $첫 공격$이 +{value_percent}의 추가 $피해$를 입힘
+    - $Pierwsze trafienie$ celu zadaje dodatkowe +{value_percent} $Obrażeń$
+    - O $primeiro golpe$ no alvo causa +{value_percent} de $Dano$ adicional
+    - $Первый удар$ по цели наносит дополнительно +{value_percent} $Урона$
+    - Hedefe yapılan $ilk vuruş$, ek +{value_percent} $Hasar$ verir
+    - $Перший удар$ по цілі завдає додатково +{value_percent} $Шкоди$
+    - 对目标的$首次命中$造成额外 +{value_percent} $伤害$
+  - key: ABILITY_DESCRIPTION_pet_boss_berserker_ability_2
+    values:
+    - '{chance} chance to apply $Stun$ to target for ${value}s$'
+    - '{chance} Chance, $Betäubung$ für ${value}s$ auf das Ziel anzuwenden'
+    - '{chance} de probabilidad de aplicar $Aturdimiento$ al objetivo durante ${value}s$'
+    - '{chance} de probabilité d''appliquer $Étourdissement$ à la cible pendant ${value}s$'
+    - '{chance} di probabilità di applicare $Stordimento$ al bersaglio per ${value}s$'
+    - '{chance}の確率で対象に$スタン$を${value}s$付与'
+    - '{chance} 확률로 대상에게 ${value}s$ 동안 $기절$ 적용'
+    - '{chance} szansy na nałożenie $Ogłuszenia$ na cel na ${value}s$'
+    - '{chance} de chance de aplicar $Atordoamento$ ao alvo por ${value}s$'
+    - '{chance} шанс наложить $Оглушение$ на цель на ${value}s$'
+    - Hedefe ${value}s$ boyunca $Sersemletme$ uygulama şansı {chance}
+    - '{chance} шанс накласти $Оглушення$ на ціль на ${value}s$'
+    - 有 {chance} 几率对目标施加 ${value}s$ $眩晕$
+  - key: ABILITY_DESCRIPTION_pet_boss_crab_ability_1
+    values:
+    - This weapon always deals $Critical Hits$<br><br>Increase $Critical Damage$ by {value_percent}
+    - Diese Waffe verursacht immer $Kritische Treffer$<br><br>Erhöht $Kritischer Trefferschaden$ um {value_percent}
+    - Esta arma siempre inflige $Golpes críticos$<br><br>Aumenta el $Daño crítico$ en {value_percent}
+    - Cette arme inflige toujours des $coups critiques$<br><br>Augmente les $Dégâts critiques$ de {value_percent}
+    - Quest'arma infligge sempre $Colpi critici$<br><br>Aumenta i $Danni critici$ di {value_percent}
+    - この武器は常に$クリティカルヒット$を与える<br><br>$クリダメ$を{value_percent}上昇
+    - 이 무기는 항상 $치명타$를 입힘<br><br>$치명타 피해$를 {value_percent} 증가
+    - Ta broń zawsze zadaje $Trafienia krytyczne$<br><br>Zwiększa $Obrażenia krytyczne$ o {value_percent}
+    - Esta arma sempre causa $Acertos críticos$<br><br>Aumenta o $Dano crítico$ em {value_percent}
+    - Это оружие всегда наносит $Критические удары$<br><br>Увеличивает $Урон крита$ на {value_percent}
+    - Bu silah her zaman $Kritik Vuruş$ yapar<br><br>$Kritik hasarını$ {value_percent} artırır
+    - Ця зброя завжди завдає $Критичні удари$<br><br>Збільшує $Критичну шкоду$ на {value_percent}
+    - 此武器始终造成$暴击$<br><br>提升$暴击伤害${value_percent}
+  - key: ABILITY_DESCRIPTION_pet_boss_crab_ability_2
+    values:
+    - Increase this weapon $Attack Speed$ by {value_percent} per $Mark$ on enemy<br><br>Gain +{max_marks} max $Mark$ charge
+    - Erhöht das $Angriffstempo$ dieser Waffe um {value_percent} pro $Marke$ am Feind<br><br>Erhalte +{max_marks} max. $Marke$-Ladung
+    - Aumenta la $Velocidad de ataque$ de esta arma en {value_percent} por cada $Marca$ en el enemigo<br><br>Gana +{max_marks} de carga máx. de $Marca$
+    - Augmente la $Vitesse d'attaque$ de cette arme de {value_percent} par $Marque$ sur l'ennemi<br><br>Gagnez +{max_marks} charges max de $Marque$
+    - Aumenta la $Velocità d'attacco$ di quest'arma di {value_percent} per ogni $Marchio$ sul nemico<br><br>Ottieni +{max_marks} cariche max di $Marchio$
+    - 敵の$マーク$1つにつきこの武器の$攻撃速度$を{value_percent}上昇<br><br>$マーク$の最大チャージ +{max_marks}
+    - 적의 $마크$당 이 무기의 $공격 속도$를 {value_percent} 증가<br><br>최대 $마크$ 충전량 +{max_marks}
+    - Zwiększa $Szybkość ataku$ tej broni o {value_percent} za każdą $Oznakę$ na wrogu<br><br>Zyskujesz +{max_marks} maks. ładunków $Oznaki$
+    - Aumenta a $Velocidade de ataque$ desta arma em {value_percent} por $Marca$ no inimigo<br><br>Recebe +{max_marks} cargas máx. de $Marca$
+    - Увеличивает $Скорость атаки$ этого оружия на {value_percent} за каждую $Метку$ на враге<br><br>Получает +{max_marks} к макс. заряду $Метки$
+    - Bu silahın $Saldırı Hızını$ düşmandaki her $İşaret$ için {value_percent} artırır<br><br>+{max_marks} maks. $İşaret$ yükü kazanır
+    - Збільшує $Швидкість атаки$ цієї зброї на {value_percent} за кожну $Мітку$ на ворогові<br><br>Отримує +{max_marks} до макс. зарядів $Мітки$
+    - 敌人身上每层$印记$提升此武器的$攻击速度${value_percent}<br><br>获得 +{max_marks} 最大$印记$层数
+  - key: ABILITY_DESCRIPTION_pet_boss_hydra_ability_1
+    values:
+    - Unlock $Rage$ Level 1. Gain 5 $Rage$ on $hit$<br><br>On $Rage level up$, increase this weapon $Damage$ by {value_percent} per $Rage$ level for $7s$
+    - Schalte $Wut$-Stufe 1 frei. Erhalte 5 $Wut$ bei $Treffer$<br><br>Beim $Wutstufen-Aufstieg$ erhöht sich der $Schaden$ dieser Waffe für $7s$ um {value_percent} pro $Wut$-Stufe
+    - Desbloquea el nivel 1 de $Furia$. Gana 5 de $Furia$ al $golpear$<br><br>Al $subir de nivel de furia$, aumenta el $Daño$ de esta arma en {value_percent} por nivel de $Furia$ durante $7s$
+    - Débloque le niveau 1 de $Rage$. Gagnez 5 $Rage$ à chaque $coup$<br><br>À chaque $niveau de Rage$, augmente les $Dégâts$ de cette arme de {value_percent} par niveau de $Rage$ pendant $7s$
+    - Sblocca il livello 1 di $Rabbia$. Ottieni 5 $Rabbia$ a ogni $colpo$<br><br>Al $salire di livello della Rabbia$, aumenta i $Danni$ di quest'arma di {value_percent} per livello di $Rabbia$ per $7s$
+    - $激怒$レベル1を解放。$攻撃$時に$激怒$を5獲得<br><br>$激怒レベルアップ$時、$7s$間$激怒$レベルごとにこの武器の$ダメージ$を{value_percent}上昇
+    - $분노$ 레벨 1 해금. $공격$ 시 $분노$ 5 획득<br><br>$분노 레벨 업$ 시 $7s$ 동안 $분노$ 레벨당 이 무기의 $피해$를 {value_percent} 증가
+    - Odblokowuje poziom 1 $Szału$. Zyskujesz 5 $Szału$ przy $trafieniu$<br><br>Przy $awansie poziomu Szału$ zwiększa $Obrażenia$ tej broni o {value_percent} za poziom $Szału$ na $7s$
+    - Desbloqueia o nível 1 de $Fúria$. Recebe 5 de $Fúria$ ao $acertar$<br><br>Ao $subir de nível de Fúria$, aumenta o $Dano$ desta arma em {value_percent} por nível de $Fúria$ por $7s$
+    - Открывает $Ярость$ уровня 1. Дает 5 $Ярости$ при $ударе$<br><br>При $повышении уровня ярости$ увеличивает $Урон$ этого оружия на {value_percent} за уровень $Ярости$ на $7s$
+    - $Öfke$ Seviye 1'i aç. $Vuruşta$ 5 $Öfke$ kazan<br><br>$Öfke seviye atladığında$ bu silahın $Hasarını$ $Öfke$ seviyesi başına $7s$ boyunca {value_percent} artırır
+    - Відкриває $Лють$ 1 рівня. Отримує 5 $Люті$ при $ударі$<br><br>При $підвищенні рівня Люті$ збільшує $Шкоду$ цієї зброї на {value_percent} за рівень $Люті$ на $7s$
+    - 解锁$怒气$等级 1。$命中$时获得 5 点$怒气$<br><br>$怒气等级提升$时，$7s$ 内每级$怒气$提升此武器的$伤害${value_percent}
+  - key: ABILITY_DESCRIPTION_pet_boss_hydra_ability_2
+    values:
+    - On $hit$, gain {value_percent} $Critical Damage$ for this weapon, up to 10 stacks for $30s$
+    - Bei $Treffer$ erhält diese Waffe {value_percent} $Kritischer Trefferschaden$, bis zu 10 Stapel für $30s$
+    - Al $golpear$, esta arma gana {value_percent} de $Daño crítico$, hasta 10 acumulaciones durante $30s$
+    - À chaque $coup$, cette arme gagne {value_percent} de $Dégâts critiques$, jusqu'à 10 cumuls pendant $30s$
+    - A ogni $colpo$, quest'arma ottiene {value_percent} di $Danni critici$, fino a 10 accumuli per $30s$
+    - $攻撃$時、この武器に{value_percent}の$クリダメ$を付与（$30s$間、最大10スタック）
+    - $공격$ 시 이 무기에 {value_percent}의 $치명타 피해$ 부여, $30s$ 동안 최대 10중첩
+    - Przy $trafieniu$ ta broń zyskuje {value_percent} $Obrażeń krytycznych$, do 10 ładunków na $30s$
+    - Ao $acertar$, esta arma recebe {value_percent} de $Dano crítico$, até 10 acúmulos por $30s$
+    - При $ударе$ это оружие получает {value_percent} $Урона крита$, до 10 стаков на $30s$
+    - $Vuruşta$ bu silah {value_percent} $Kritik hasarı$ kazanır, $30s$ boyunca en fazla 10 yük
+    - При $ударі$ ця зброя отримує {value_percent} $Критичної шкоди$, до 10 зарядів на $30s$
+    - $命中$时，此武器获得 {value_percent} $暴击伤害$，$30s$ 内最多 10 层
+  - key: ABILITY_DESCRIPTION_pet_boss_lich_ability_1
+    values:
+    - On $critical hit$, {chance} chance to restore {value_percent} $Max HP$
+    - Bei $kritischem Treffer$ {chance} Chance, {value_percent} der $Max. HP$ wiederherzustellen
+    - Con un $golpe crítico$, {chance} de probabilidad de restaurar {value_percent} de los $PV máx.$
+    - Au $coup critique$, {chance} de chances de restaurer {value_percent} des $PV max$
+    - Al $colpo critico$, {chance} di probabilità di ripristinare il {value_percent} della $Salute max$
+    - $クリティカルヒット$時、{chance}の確率で$最大HP$の{value_percent}を回復
+    - $치명타$ 시 {chance} 확률로 $최대 HP$의 {value_percent}를 회복
+    - Przy $trafieniu krytycznym$, {chance} szans na przywrócenie {value_percent} $Maks. zdrowia$
+    - Ao $acerto crítico$, {chance} de chance de restaurar {value_percent} da $Vida máx.$
+    - При $критическом ударе$ с шансом {chance} восстанавливает {value_percent} от $Макс. HP$
+    - $Kritik vuruşta$, $Maks. Canın$ {value_percent} kadarını yenileme olasılığı {chance}
+    - При $критичному ударі$ з шансом {chance} відновлює {value_percent} від $Макс. HP$
+    - $暴击$时有 {chance} 几率恢复 {value_percent} 的$最大生命值$
+  - key: ABILITY_DESCRIPTION_pet_boss_lich_ability_2
+    values:
+    - On $hit$, gain {value_percent} $Critical Damage$ for this weapon, up to 10 stacks for $30s$
+    - Bei $Treffer$ erhält diese Waffe {value_percent} $Kritischer Trefferschaden$, bis zu 10 Stapel für $30s$
+    - Al $golpear$, esta arma gana {value_percent} de $Daño crítico$, hasta 10 acumulaciones durante $30s$
+    - À chaque $coup$, cette arme gagne {value_percent} de $Dégâts critiques$, jusqu'à 10 cumuls pendant $30s$
+    - A ogni $colpo$, quest'arma ottiene {value_percent} di $Danni critici$, fino a 10 accumuli per $30s$
+    - $攻撃$時、この武器に{value_percent}の$クリダメ$を付与（$30s$間、最大10スタック）
+    - $공격$ 시 이 무기에 {value_percent}의 $치명타 피해$ 부여, $30s$ 동안 최대 10중첩
+    - Przy $trafieniu$ ta broń zyskuje {value_percent} $Obrażeń krytycznych$, do 10 ładunków na $30s$
+    - Ao $acertar$, esta arma recebe {value_percent} de $Dano crítico$, até 10 acúmulos por $30s$
+    - При $ударе$ это оружие получает {value_percent} $Урона крита$, до 10 стаков на $30s$
+    - $Vuruşta$ bu silah {value_percent} $Kritik hasarı$ kazanır, $30s$ boyunca en fazla 10 yük
+    - При $ударі$ ця зброя отримує {value_percent} $Критичної шкоди$, до 10 зарядів на $30s$
+    - $命中$时，此武器获得 {value_percent} $暴击伤害$，$30s$ 内最多 10 层
+  - key: ABILITY_DESCRIPTION_pet_boss_vampire_king_ability_1
+    values:
+    - Increase $Mark$ apply chance by {value_percent}<br><br>Gain +{max_marks} max $Mark$ charge
+    - Erhöht die Chance, $Marke$ anzuwenden, um {value_percent}<br><br>Erhalte +{max_marks} max. $Marke$-Ladung
+    - Aumenta la probabilidad de aplicar $Marca$ en {value_percent}<br><br>Gana +{max_marks} de carga máx. de $Marca$
+    - Augmente les chances d'appliquer $Marque$ de {value_percent}<br><br>Gagnez +{max_marks} charges max de $Marque$
+    - Aumenta la probabilità di applicare $Marchio$ di {value_percent}<br><br>Ottieni +{max_marks} cariche max di $Marchio$
+    - $マーク$の付与確率を{value_percent}上昇<br><br>$マーク$の最大チャージ +{max_marks}
+    - $마크$ 적용 확률을 {value_percent} 증가<br><br>최대 $마크$ 충전량 +{max_marks}
+    - Zwiększa szansę na nałożenie $Oznaki$ o {value_percent}<br><br>Zyskujesz +{max_marks} maks. ładunków $Oznaki$
+    - Aumenta a chance de aplicar $Marca$ em {value_percent}<br><br>Recebe +{max_marks} cargas máx. de $Marca$
+    - Увеличивает шанс наложения $Метки$ на {value_percent}<br><br>Получает +{max_marks} к макс. заряду $Метки$
+    - $İşaret$ uygulama şansını {value_percent} artırır<br><br>+{max_marks} maks. $İşaret$ yükü kazanır
+    - Збільшує шанс накладання $Мітки$ на {value_percent}<br><br>Отримує +{max_marks} до макс. зарядів $Мітки$
+    - 提升$印记$的施加几率 {value_percent}<br><br>获得 +{max_marks} 最大$印记$层数
+  - key: ABILITY_DESCRIPTION_pet_boss_vampire_king_ability_2
+    values:
+    - On $hit$, gain {value_percent} $Attack Speed$ for this weapon, up to 10 stacks for $30s$
+    - Bei $Treffer$ erhält diese Waffe {value_percent} $Angriffstempo$, bis zu 10 Stapel für $30s$
+    - Al $golpear$, esta arma gana {value_percent} de $Velocidad de ataque$, hasta 10 acumulaciones durante $30s$
+    - À chaque $coup$, cette arme gagne {value_percent} de $Vitesse d'attaque$, jusqu'à 10 cumuls pendant $30s$
+    - A ogni $colpo$, quest'arma ottiene {value_percent} di $Velocità d'attacco$, fino a 10 accumuli per $30s$
+    - $攻撃$時、この武器に{value_percent}の$攻撃速度$を付与（$30s$間、最大10スタック）
+    - $공격$ 시 이 무기에 {value_percent}의 $공격 속도$ 부여, $30s$ 동안 최대 10중첩
+    - Przy $trafieniu$ ta broń zyskuje {value_percent} $Szybkości ataku$, do 10 ładunków na $30s$
+    - Ao $acertar$, esta arma recebe {value_percent} de $Velocidade de ataque$, até 10 acúmulos por $30s$
+    - При $ударе$ это оружие получает {value_percent} $Скорости атаки$, до 10 стаков на $30s$
+    - $Vuruşta$ bu silah {value_percent} $Saldırı Hızı$ kazanır, $30s$ boyunca en fazla 10 yük
+    - При $ударі$ ця зброя отримує {value_percent} $Швидкості атаки$, до 10 зарядів на $30s$
+    - $命中$时，此武器获得 {value_percent} $攻击速度$，$30s$ 内最多 10 层
+  - key: ABILITY_DESCRIPTION_pet_boss_viking_king_ability_1
+    values:
+    - '{chance} chance to apply $Stun$ to target for ${value}s$'
+    - '{chance} Chance, $Betäubung$ für ${value}s$ auf das Ziel anzuwenden'
+    - '{chance} de probabilidad de aplicar $Aturdimiento$ al objetivo durante ${value}s$'
+    - '{chance} de probabilité d''appliquer $Étourdissement$ à la cible pendant ${value}s$'
+    - '{chance} di probabilità di applicare $Stordimento$ al bersaglio per ${value}s$'
+    - '{chance}の確率で対象に$スタン$を${value}s$付与'
+    - '{chance} 확률로 대상에게 ${value}s$ 동안 $기절$ 적용'
+    - '{chance} szansy na nałożenie $Ogłuszenia$ na cel na ${value}s$'
+    - '{chance} de chance de aplicar $Atordoamento$ ao alvo por ${value}s$'
+    - '{chance} шанс наложить $Оглушение$ на цель на ${value}s$'
+    - Hedefe ${value}s$ boyunca $Sersemletme$ uygulama şansı {chance}
+    - '{chance} шанс накласти $Оглушення$ на ціль на ${value}s$'
+    - 有 {chance} 几率对目标施加 ${value}s$ $眩晕$
+  - key: ABILITY_DESCRIPTION_pet_boss_viking_king_ability_2
+    values:
+    - Deal {value_percent} more $Damage$ to $Stunned$ enemies
+    - Verursacht {value_percent} mehr $Schaden$ an $betäubten$ Feinden
+    - Inflige {value_percent} más de $Daño$ a los enemigos $aturdidos$
+    - Inflige {value_percent} de $Dégâts$ supplémentaires aux ennemis $étourdis$
+    - Infligge {value_percent} di $Danni$ in più ai nemici $storditi$
+    - $スタン状態$の敵に{value_percent}多く$ダメージ$を与える
+    - $기절$한 적에게 {value_percent} 더 많은 $피해$를 입힘
+    - Zadaje o {value_percent} więcej $Obrażeń$ $ogłuszonym$ wrogom
+    - Causa {value_percent} a mais de $Dano$ a inimigos $Atordoados$
+    - Наносит на {value_percent} больше $Урона$ по $оглушенным$ врагам
+    - $Sersemlemiş$ düşmanlara {value_percent} daha fazla $Hasar$ verir
+    - Завдає на {value_percent} більше $Шкоди$ $оглушеним$ ворогам
+    - 对$眩晕$的敌人多造成 {value_percent} $伤害$
+  - key: ABILITY_DESCRIPTION_pet_cultist_ability_1
+    values:
+    - '{chance} chance to deal extra {value_percent} $Damage$ per $Mark$ on enemy<br><br>Gain +{max_marks} max $Mark$ charge'
+    - '{chance} Chance, pro $Marke$ am Feind zusätzlich {value_percent} $Schaden$ zu verursachen<br><br>Erhalte +{max_marks} max. $Marke$-Ladung'
+    - '{chance} de probabilidad de infligir {value_percent} de $Daño$ adicional por cada $Marca$ en el enemigo<br><br>Gana +{max_marks} de carga máx. de $Marca$'
+    - '{chance} de chance d''infliger {value_percent} de $Dégâts$ supplémentaires par $Marque$ sur l''ennemi<br><br>Gagne +{max_marks} charges max de $Marque$'
+    - '{chance} di probabilità di infliggere {value_percent} di $Danni$ extra per ogni $Marchio$ sul nemico<br><br>Ottieni +{max_marks} cariche max di $Marchio$'
+    - 敵の$マーク$1つにつき{chance}の確率で{value_percent}の追加$ダメージ$を与える<br><br>$マーク$の最大チャージ +{max_marks}
+    - 적의 $마크$당 {chance} 확률로 {value_percent}의 추가 $피해$를 입힘<br><br>최대 $마크$ 충전량 +{max_marks}
+    - '{chance} szansy na zadanie dodatkowych {value_percent} $Obrażeń$ za każdą $Oznakę$ na wrogu<br><br>Zyskuje +{max_marks} maks. ładunków $Oznaki$'
+    - '{chance} de chance de causar {value_percent} de $Dano$ adicional por $Marca$ no inimigo<br><br>Ganha +{max_marks} cargas máx. de $Marca$'
+    - '{chance} шанс нанести дополнительно {value_percent} $Урона$ за каждую $Метку$ на враге<br><br>Получает +{max_marks} к макс. заряду $Метки$'
+    - Düşmandaki her $İşaret$ başına {chance} ihtimalle ek {value_percent} $Hasar$ verir<br><br>+{max_marks} maks. $İşaret$ yükü kazanır
+    - '{chance} шанс завдати додатково {value_percent} $Шкоди$ за кожну $Мітку$ на ворогові<br><br>Надає +{max_marks} до макс. заряду $Мітки$'
+    - 敌人身上每层$印记$有 {chance} 几率造成额外 {value_percent} $伤害$<br><br>获得 +{max_marks} 最大$印记$层数
+  - key: ABILITY_DESCRIPTION_pet_cultist_ability_2
+    values:
+    - On $hit$, gain {value_percent} $Attack Speed$ for this weapon, up to 10 stacks for $30s$
+    - Bei $Treffer$ erhält diese Waffe {value_percent} $Angriffstempo$, bis zu 10 Stapel für $30s$
+    - Al $golpear$, esta arma gana {value_percent} de $Velocidad de ataque$, hasta 10 acumulaciones durante $30s$
+    - À chaque $coup$, cette arme gagne {value_percent} de $Vitesse d'attaque$, jusqu'à 10 cumuls pendant $30s$
+    - A ogni $colpo$, quest'arma ottiene {value_percent} di $Velocità d'attacco$, fino a 10 accumuli per $30s$
+    - $攻撃$時、この武器に{value_percent}の$攻撃速度$を付与（$30s$間、最大10スタック）
+    - $공격$ 시 이 무기에 {value_percent}의 $공격 속도$ 부여, $30s$ 동안 최대 10중첩
+    - Przy $trafieniu$ ta broń zyskuje {value_percent} $Szybkości ataku$, do 10 ładunków na $30s$
+    - Ao $acertar$, esta arma recebe {value_percent} de $Velocidade de ataque$, até 10 acúmulos por $30s$
+    - При $ударе$ это оружие получает {value_percent} $Скорости атаки$, до 10 стаков на $30s$
+    - $Vuruşta$ bu silah {value_percent} $Saldırı Hızı$ kazanır, $30s$ boyunca en fazla 10 yük
+    - При $ударі$ ця зброя отримує {value_percent} $Швидкості атаки$, до 10 зарядів на $30s$
+    - $命中$时，此武器获得 {value_percent} $攻击速度$，$30s$ 内最多 10 层
+  - key: ABILITY_DESCRIPTION_pet_dark_treant_ability_1
+    values:
+    - '{chance} chance to apply $Stun$ to target for ${value}s$'
+    - '{chance} Chance, $Betäubung$ für ${value}s$ auf das Ziel anzuwenden'
+    - '{chance} de probabilidad de aplicar $Aturdimiento$ al objetivo durante ${value}s$'
+    - '{chance} de probabilité d''appliquer $Étourdissement$ à la cible pendant ${value}s$'
+    - '{chance} di probabilità di applicare $Stordimento$ al bersaglio per ${value}s$'
+    - '{chance}の確率で対象に$スタン$を${value}s$付与'
+    - '{chance} 확률로 대상에게 ${value}s$ 동안 $기절$ 적용'
+    - '{chance} szansy na nałożenie $Ogłuszenia$ na cel na ${value}s$'
+    - '{chance} de chance de aplicar $Atordoamento$ ao alvo por ${value}s$'
+    - '{chance} шанс наложить $Оглушение$ на цель на ${value}s$'
+    - Hedefe ${value}s$ boyunca $Sersemletme$ uygulama şansı {chance}
+    - '{chance} шанс накласти $Оглушення$ на ціль на ${value}s$'
+    - 有 {chance} 几率对目标施加 ${value}s$ $眩晕$
+  - key: ABILITY_DESCRIPTION_pet_dark_treant_ability_2
+    values:
+    - Increase all $Lightning$ damage by {value_percent}
+    - Erhöht allen $Blitz$-Schaden um {value_percent}
+    - Aumenta todo el daño de $Rayo$ en {value_percent}
+    - Augmente tous les $Dégâts$ de $Foudre$ de {value_percent}
+    - Aumenta tutti i $Danni$ da $Fulmine$ di {value_percent}
+    - すべての$雷$ダメージを{value_percent}上昇
+    - 모든 $번개$ 피해를 {value_percent} 증가
+    - Zwiększa wszystkie $Obrażenia$ od $Błyskawic$ o {value_percent}
+    - Aumenta todo o $Dano$ de $Relâmpago$ em {value_percent}
+    - Увеличивает весь урон $Молнии$ на {value_percent}
+    - Tüm $Yıldırım$ $Hasarını$ {value_percent} artırır
+    - Збільшує всю $Шкоду$ від $Блискавки$ на {value_percent}
+    - 提升所有$闪电$伤害 {value_percent}
+  - key: ABILITY_DESCRIPTION_pet_ghost_ability_1
+    values:
+    - On $critical hit$, {chance} chance to restore {value_percent} $Max HP$
+    - Bei $kritischem Treffer$ {chance} Chance, {value_percent} der $Max. HP$ wiederherzustellen
+    - Con un $golpe crítico$, {chance} de probabilidad de restaurar {value_percent} de los $PV máx.$
+    - Au $coup critique$, {chance} de chances de restaurer {value_percent} des $PV max$
+    - Al $colpo critico$, {chance} di probabilità di ripristinare il {value_percent} della $Salute max$
+    - $クリティカルヒット$時、{chance}の確率で$最大HP$の{value_percent}を回復
+    - $치명타$ 시 {chance} 확률로 $최대 HP$의 {value_percent}를 회복
+    - Przy $trafieniu krytycznym$, {chance} szans na przywrócenie {value_percent} $Maks. zdrowia$
+    - Ao $acerto crítico$, {chance} de chance de restaurar {value_percent} da $Vida máx.$
+    - При $критическом ударе$ с шансом {chance} восстанавливает {value_percent} от $Макс. HP$
+    - $Kritik vuruşta$, $Maks. Canın$ {value_percent} kadarını yenileme olasılığı {chance}
+    - При $критичному ударі$ з шансом {chance} відновлює {value_percent} від $Макс. HP$
+    - $暴击$时有 {chance} 几率恢复 {value_percent} 的$最大生命值$
+  - key: ABILITY_DESCRIPTION_pet_ghost_ability_2
+    values:
+    - Unlock $Rage$ Level 1. Gain 5 $Rage$ on $hit$<br><br>On $Rage level up$, increase this weapon $Damage$ by {value_percent} per $Rage$ level for $7s$
+    - Schalte $Wut$-Stufe 1 frei. Erhalte 5 $Wut$ bei $Treffer$<br><br>Beim $Wutstufen-Aufstieg$ erhöht sich der $Schaden$ dieser Waffe für $7s$ um {value_percent} pro $Wut$-Stufe
+    - Desbloquea el nivel 1 de $Furia$. Gana 5 de $Furia$ al $golpear$<br><br>Al $subir de nivel de furia$, aumenta el $Daño$ de esta arma en {value_percent} por nivel de $Furia$ durante $7s$
+    - Débloque le niveau 1 de $Rage$. Gagnez 5 $Rage$ à chaque $coup$<br><br>À chaque $niveau de Rage$, augmente les $Dégâts$ de cette arme de {value_percent} par niveau de $Rage$ pendant $7s$
+    - Sblocca il livello 1 di $Rabbia$. Ottieni 5 $Rabbia$ a ogni $colpo$<br><br>Al $salire di livello della Rabbia$, aumenta i $Danni$ di quest'arma di {value_percent} per livello di $Rabbia$ per $7s$
+    - $激怒$レベル1を解放。$攻撃$時に$激怒$を5獲得<br><br>$激怒レベルアップ$時、$7s$間$激怒$レベルごとにこの武器の$ダメージ$を{value_percent}上昇
+    - $분노$ 레벨 1 해금. $공격$ 시 $분노$ 5 획득<br><br>$분노 레벨 업$ 시 $7s$ 동안 $분노$ 레벨당 이 무기의 $피해$를 {value_percent} 증가
+    - Odblokowuje poziom 1 $Szału$. Zyskujesz 5 $Szału$ przy $trafieniu$<br><br>Przy $awansie poziomu Szału$ zwiększa $Obrażenia$ tej broni o {value_percent} za poziom $Szału$ na $7s$
+    - Desbloqueia o nível 1 de $Fúria$. Recebe 5 de $Fúria$ ao $acertar$<br><br>Ao $subir de nível de Fúria$, aumenta o $Dano$ desta arma em {value_percent} por nível de $Fúria$ por $7s$
+    - Открывает $Ярость$ уровня 1. Дает 5 $Ярости$ при $ударе$<br><br>При $повышении уровня ярости$ увеличивает $Урон$ этого оружия на {value_percent} за уровень $Ярости$ на $7s$
+    - $Öfke$ Seviye 1'i aç. $Vuruşta$ 5 $Öfke$ kazan<br><br>$Öfke seviye atladığında$ bu silahın $Hasarını$ $Öfke$ seviyesi başına $7s$ boyunca {value_percent} artırır
+    - Відкриває $Лють$ 1 рівня. Отримує 5 $Люті$ при $ударі$<br><br>При $підвищенні рівня Люті$ збільшує $Шкоду$ цієї зброї на {value_percent} за рівень $Люті$ на $7s$
+    - 解锁$怒气$等级 1。$命中$时获得 5 点$怒气$<br><br>$怒气等级提升$时，$7s$ 内每级$怒气$提升此武器的$伤害${value_percent}
+  - key: ABILITY_DESCRIPTION_pet_golem_ability_1
+    values:
+    - This weapon always deals $Critical Hits$<br><br>Increase $Critical Damage$ by {value_percent}
+    - Diese Waffe verursacht immer $Kritische Treffer$<br><br>Erhöht $Kritischer Trefferschaden$ um {value_percent}
+    - Esta arma siempre inflige $Golpes críticos$<br><br>Aumenta el $Daño crítico$ en {value_percent}
+    - Cette arme inflige toujours des $coups critiques$<br><br>Augmente les $Dégâts critiques$ de {value_percent}
+    - Quest'arma infligge sempre $Colpi critici$<br><br>Aumenta i $Danni critici$ di {value_percent}
+    - この武器は常に$クリティカルヒット$を与える<br><br>$クリダメ$を{value_percent}上昇
+    - 이 무기는 항상 $치명타$를 입힘<br><br>$치명타 피해$를 {value_percent} 증가
+    - Ta broń zawsze zadaje $Trafienia krytyczne$<br><br>Zwiększa $Obrażenia krytyczne$ o {value_percent}
+    - Esta arma sempre causa $Acertos críticos$<br><br>Aumenta o $Dano crítico$ em {value_percent}
+    - Это оружие всегда наносит $Критические удары$<br><br>Увеличивает $Урон крита$ на {value_percent}
+    - Bu silah her zaman $Kritik Vuruş$ yapar<br><br>$Kritik hasarını$ {value_percent} artırır
+    - Ця зброя завжди завдає $Критичні удари$<br><br>Збільшує $Критичну шкоду$ на {value_percent}
+    - 此武器始终造成$暴击$<br><br>提升$暴击伤害${value_percent}
+  - key: ABILITY_DESCRIPTION_pet_golem_ability_2
+    values:
+    - Increase $Supercrit Damage$ by {value_percent} per $Mark$ on enemy<br><br>Gain +{max_marks} max $Mark$ charge
+    - Erhöht $Superkrit-Schaden$ um {value_percent} pro $Marke$ am Feind<br><br>Erhalte +{max_marks} max. $Marke$-Ladung
+    - Aumenta el $Daño de supercrítico$ en {value_percent} por cada $Marca$ en el enemigo<br><br>Gana +{max_marks} de carga máx. de $Marca$
+    - Augmente les $Dégâts supercritiques$ de {value_percent} par $Marque$ sur l'ennemi<br><br>Gagne +{max_marks} charges max de $Marque$
+    - Aumenta i $Danni da supercritico$ di {value_percent} per $Marchio$ sul nemico<br><br>Ottieni +{max_marks} cariche max di $Marchio$
+    - 敵の$マーク$1つにつき$超クリダメ$を{value_percent}上昇<br><br>$マーク$の最大チャージ +{max_marks}
+    - 적의 $마크$당 $초치명타 피해$를 {value_percent} 증가<br><br>최대 $마크$ 충전량 +{max_marks}
+    - Zwiększa $Obrażenia superkrytyka$ o {value_percent} za każdą $Oznakę$ na wrogu<br><br>Zyskuje +{max_marks} maks. ładunków $Oznaki$
+    - Aumenta o $Dano de supercrítico$ em {value_percent} por $Marca$ no inimigo<br><br>Ganha +{max_marks} cargas máx. de $Marca$
+    - Увеличивает $Урон супер-крита$ на {value_percent} за каждую $Метку$ на враге<br><br>Получает +{max_marks} к макс. заряду $Метки$
+    - Düşmandaki her $İşaret$ için $Süper Kritik Hasarını$ {value_percent} artırır<br><br>+{max_marks} maks. $İşaret$ yükü kazanır
+    - Збільшує $Шкоду суперкриту$ на {value_percent} за кожну $Мітку$ на ворогові<br><br>Надає +{max_marks} до макс. заряду $Мітки$
+    - 敌人身上每层$印记$提升$超暴击伤害${value_percent}<br><br>获得 +{max_marks} 最大$印记$层数
+  - key: ABILITY_DESCRIPTION_pet_mage_ability_1
+    values:
+    - Increase all $Lightning$ damage by {value_percent}
+    - Erhöht allen $Blitz$-Schaden um {value_percent}
+    - Aumenta todo el daño de $Rayo$ en {value_percent}
+    - Augmente tous les $Dégâts$ de $Foudre$ de {value_percent}
+    - Aumenta tutti i $Danni$ da $Fulmine$ di {value_percent}
+    - すべての$雷$ダメージを{value_percent}上昇
+    - 모든 $번개$ 피해를 {value_percent} 증가
+    - Zwiększa wszystkie $Obrażenia$ od $Błyskawic$ o {value_percent}
+    - Aumenta todo o $Dano$ de $Relâmpago$ em {value_percent}
+    - Увеличивает весь урон $Молнии$ на {value_percent}
+    - Tüm $Yıldırım$ $Hasarını$ {value_percent} artırır
+    - Збільшує всю $Шкоду$ від $Блискавки$ на {value_percent}
+    - 提升所有$闪电$伤害 {value_percent}
+  - key: ABILITY_DESCRIPTION_pet_mage_ability_2
+    values:
+    - For each absorbed $Shock$, increase $Damage$ to target by {value_percent}
+    - Für jeden absorbierten $Schock$ erhöht sich der $Schaden$ am Ziel um {value_percent}
+    - Por cada $Descarga$ absorbida, aumenta el $Daño$ al objetivo en {value_percent}
+    - Pour chaque $Électrocution$ absorbée, augmente les $Dégâts$ à la cible de {value_percent}
+    - Per ogni $Folgorazione$ assorbita, aumenta i $Danni$ al bersaglio di {value_percent}
+    - 吸収した$感電$1つにつき、対象への$ダメージ$を{value_percent}上昇
+    - 흡수한 $감전$당 대상에 대한 $피해$를 {value_percent} 증가
+    - Za każdy pochłonięty $Szok$ zwiększa $Obrażenia$ zadawane celowi o {value_percent}
+    - Para cada $Choque$ absorvido, aumenta o $Dano$ ao alvo em {value_percent}
+    - За каждый поглощенный $Шок$ увеличивает $Урон$ по цели на {value_percent}
+    - Emilen her $Şok$ için hedefe verilen $Hasarı$ {value_percent} artırır
+    - За кожен поглинутий $Шок$ збільшує $Шкоду$ по цілі на {value_percent}
+    - 每吸收一次$感电$，提升对目标的$伤害${value_percent}
+  - key: ABILITY_DESCRIPTION_pet_sig_abyss_reaver
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_bear
+    values:
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '命中时有 {chance} 几率对目标施加 ${value}s$ $眩晕$'
+  - key: ABILITY_DESCRIPTION_pet_sig_boss_berserker
+    values:
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $4s$'
+    - '命中时有 {chance} 几率在 $4秒$ 内获得 {value_percent} $伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_boss_crab
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_boss_hydra
+    values:
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - '命中时有 {chance} 几率召唤$闪电$打击目标，造成本次伤害 100% 的伤害'
+  - key: ABILITY_DESCRIPTION_pet_sig_boss_lich
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_boss_vampire_king
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - '命中时有 {chance} 几率为所有宠物恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_boss_viking_king
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_chainsaw
+    values:
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Attack Speed$ for $3s$'
+    - '命中时有 {chance} 几率在 $3秒$ 内获得 {value_percent} $攻击速度$'
+  - key: ABILITY_DESCRIPTION_pet_sig_chainsawpike
+    values:
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - '命中时有 {chance} 几率在 $3秒$ 内获得 {value_percent} $伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_coolHammer
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - '命中时有 {chance} 几率为所有宠物恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_coolpike
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_cultist
+    values:
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - '命中时有 {chance} 几率召唤$闪电$打击目标，造成本次伤害 100% 的伤害'
+  - key: ABILITY_DESCRIPTION_pet_sig_dark_treant
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_doubleaxe
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_fork
+    values:
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Crit Chance$ for $3s$'
+    - '命中时有 {chance} 几率在 $3秒$ 内获得 {value_percent} $暴击率$'
+  - key: ABILITY_DESCRIPTION_pet_sig_ghost
+    values:
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - '命中时有 {chance} 几率使下一次攻击额外造成 {value_percent} 伤害'
+  - key: ABILITY_DESCRIPTION_pet_sig_golem
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - '命中时有 {chance} 几率为自身恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_hammer
+    values:
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - 'On hit, {chance} chance to deal {value_percent} of the hit''s damage to nearby enemies'
+    - '命中时有 {chance} 几率对目标周围的敌人造成本次伤害 {value_percent} 的$溅射伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_katana
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - '命中时有 {chance} 几率为自身恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_knife
+    values:
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - '命中时有 {chance} 几率使下一次攻击额外造成 {value_percent} 伤害'
+  - key: ABILITY_DESCRIPTION_pet_sig_mace
+    values:
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - 'On hit, {chance} chance to gain {value_percent} $Damage$ for $3s$'
+    - '命中时有 {chance} 几率在 $3秒$ 内获得 {value_percent} $伤害$'
+  - key: ABILITY_DESCRIPTION_pet_sig_mage
+    values:
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - 'On hit, {chance} chance to strike the target with $Lightning$ for 100% of the hit''s damage'
+    - '命中时有 {chance} 几率召唤$闪电$打击目标，造成本次伤害 100% 的伤害'
+  - key: ABILITY_DESCRIPTION_pet_sig_mailbox
+    values:
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '命中时有 {chance} 几率对目标施加 ${value}s$ $眩晕$'
+  - key: ABILITY_DESCRIPTION_pet_sig_minisaw
+    values:
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Chance$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - '每次命中获得 {value_percent} $暴击率$，最多叠加 {stack_limit} 层，{duration} 秒未命中则清空'
+  - key: ABILITY_DESCRIPTION_pet_sig_paddle
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - '命中时有 {chance} 几率为自身恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_pick
+    values:
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - 'On hit, {chance} chance for the next hit to deal {value_percent} more damage'
+    - '命中时有 {chance} 几率使下一次攻击额外造成 {value_percent} 伤害'
+  - key: ABILITY_DESCRIPTION_pet_sig_pike
+    values:
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Attack Speed$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - '每次命中获得 {value_percent} $攻击速度$，最多叠加 {stack_limit} 层，{duration} 秒未命中则清空'
+  - key: ABILITY_DESCRIPTION_pet_sig_skeleton
+    values:
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - 'Each hit grants {value_percent} $Crit Damage$, stacking up to {stack_limit} times. Stacks reset {duration}s after the last hit'
+    - '每次命中获得 {value_percent} $暴击伤害$，最多叠加 {stack_limit} 层，{duration} 秒未命中则清空'
+  - key: ABILITY_DESCRIPTION_pet_sig_skeleton_guard
+    values:
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '命中时有 {chance} 几率对目标施加 ${value}s$ $眩晕$'
+  - key: ABILITY_DESCRIPTION_pet_sig_skeleton_king
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - '命中时有 {chance} 几率为所有宠物恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_treant
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - 'On hit, {chance} chance to restore {value_percent} $Max HP$ to all pets'
+    - '命中时有 {chance} 几率为所有宠物恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_vampire_blade
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - '命中时有 {chance} 几率为自身恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_vampire_thrall
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - '命中时有 {chance} 几率为自身恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_zombie
+    values:
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - 'On hit, {chance} chance to restore {value_percent} of this pet''s $Max HP$'
+    - '命中时有 {chance} 几率为自身恢复 {value_percent} 的$最大生命值$'
+  - key: ABILITY_DESCRIPTION_pet_sig_zombie_brute
+    values:
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '{chance} chance on hit to apply $Stun$ to the target for ${value}s$'
+    - '命中时有 {chance} 几率对目标施加 ${value}s$ $眩晕$'
+  - key: ABILITY_DESCRIPTION_pet_skeleton_ability_1
+    values:
+    - $Extra Bounty$ - on kill {chance} chance to gain {value} $Stab Damage$
+    - $Extra-Beute$ - beim Töten {chance} Chance, {value} $Stichschaden$ zu erhalten
+    - $Botín extra$ - al matar, {chance} de probabilidad de ganar {value} de $Daño perforante$
+    - $Prime supplémentaire$ — à chaque élimination, {chance} de chances de gagner {value} $Dégâts perforants$
+    - $Taglia extra$ - all'uccisione, {chance} di probabilità di ottenere {value} $Danni perforanti$
+    - $追加報酬$ - 敵撃破時、{chance}の確率で{value}の$刺突ダメージ$を獲得
+    - $추가 현상금$ - 처치 시 {chance} 확률로 {value} $관통 피해$ 획득
+    - $Dodatkowa nagroda$ — przy zabójstwie, {chance} szans na zdobycie {value} $Obrażeń kłutych$
+    - $Recompensa extra$ - ao eliminar, {chance} de chance de receber {value} de $Dano perfurante$
+    - $Доп. добыча$ — при убийстве с шансом {chance} дает {value} $Колющего урона$
+    - $Ek Ödül$ - öldürmede, {chance} olasılıkla {value} $Delici hasar$ kazanır
+    - $Додаткова здобич$ — під час вбивства з шансом {chance} отримує {value} $Колотої шкоди$
+    - $额外赏金$ - 击杀时有 {chance} 几率获得 {value} $穿刺伤害$
+  - key: ABILITY_DESCRIPTION_pet_skeleton_guard_ability_1
+    values:
+    - Gain {value_percent} $Attack Speed$ per empty slot
+    - Erhalte {value_percent} $Angriffstempo$ pro leerem Slot
+    - Gana {value_percent} de $Velocidad de ataque$ por cada espacio vacío
+    - Gagne {value_percent} de $Vitesse d'attaque$ par emplacement vide
+    - Ottieni {value_percent} di $Velocità d'attacco$ per ogni slot vuoto
+    - 空きスロット1つにつき{value_percent}の$攻撃速度$を獲得
+    - 빈 슬롯당 {value_percent}의 $공격 속도$ 획득
+    - Zyskuje {value_percent} $Szybkości ataku$ za każdy pusty slot
+    - Ganha {value_percent} de $Velocidade de ataque$ por espaço vazio
+    - Дает {value_percent} $Скорости атаки$ за каждый пустой слот
+    - Her boş yuva başına {value_percent} $Saldırı Hızı$ kazanır
+    - Надає {value_percent} $Швидкості атаки$ за кожен порожній слот
+    - 每个空槽位获得 {value_percent} $攻击速度$
+  - key: ABILITY_DESCRIPTION_pet_skeleton_guard_ability_2
+    values:
+    - Gain +{value} max $Mark$ charges per empty slot<br><br>Gain {chance} chance to apply $Mark$ per empty slot
+    - Erhalte +{value} max. $Marke$-Ladungen pro leerem Slot<br><br>Erhalte {chance} Chance, $Marke$ pro leerem Slot anzuwenden
+    - Gana +{value} de carga máx. de $Marca$ por cada espacio vacío<br><br>Gana {chance} de probabilidad de aplicar $Marca$ por cada espacio vacío
+    - Gagne +{value} charges max de $Marque$ par emplacement vide<br><br>Gagne {chance} de chance d'appliquer $Marque$ par emplacement vide
+    - Ottieni +{value} cariche max di $Marchio$ per ogni slot vuoto<br><br>Ottieni {chance} di probabilità di applicare $Marchio$ per ogni slot vuoto
+    - 空きスロット1つにつき$マーク$の最大チャージ +{value}<br><br>空きスロット1つにつき{chance}の確率で$マーク$を付与
+    - 빈 슬롯당 최대 $마크$ 충전량 +{value}<br><br>빈 슬롯당 {chance} 확률로 $마크$ 적용
+    - Zyskuje +{value} maks. ładunków $Oznaki$ za każdy pusty slot<br><br>Zyskuje {chance} szansy na nałożenie $Oznaki$ za każdy pusty slot
+    - Ganha +{value} cargas máx. de $Marca$ por espaço vazio<br><br>Ganha {chance} de chance de aplicar $Marca$ por espaço vazio
+    - Дает +{value} к макс. зарядам $Метки$ за каждый пустой слот<br><br>Дает {chance} шанс наложить $Метку$ за каждый пустой слот
+    - Her boş yuva başına +{value} maks. $İşaret$ yükü kazanır<br><br>Her boş yuva başına $İşaret$ uygulama şansı {chance}
+    - Надає +{value} до макс. зарядів $Мітки$ за кожен порожній слот<br><br>Надає {chance} шанс накласти $Мітку$ за кожен порожній слот
+    - 每个空槽位获得 +{value} 最大$印记$层数<br><br>每个空槽位获得 {chance} 几率施加$印记$
+  - key: ABILITY_DESCRIPTION_pet_skeleton_king_ability_1
+    values:
+    - Increase $Mark$ apply chance by {value_percent}<br><br>Gain +{max_marks} max $Mark$ charge
+    - Erhöht die Chance, $Marke$ anzuwenden, um {value_percent}<br><br>Erhalte +{max_marks} max. $Marke$-Ladung
+    - Aumenta la probabilidad de aplicar $Marca$ en {value_percent}<br><br>Gana +{max_marks} de carga máx. de $Marca$
+    - Augmente les chances d'appliquer $Marque$ de {value_percent}<br><br>Gagnez +{max_marks} charges max de $Marque$
+    - Aumenta la probabilità di applicare $Marchio$ di {value_percent}<br><br>Ottieni +{max_marks} cariche max di $Marchio$
+    - $マーク$の付与確率を{value_percent}上昇<br><br>$マーク$の最大チャージ +{max_marks}
+    - $마크$ 적용 확률을 {value_percent} 증가<br><br>최대 $마크$ 충전량 +{max_marks}
+    - Zwiększa szansę na nałożenie $Oznaki$ o {value_percent}<br><br>Zyskujesz +{max_marks} maks. ładunków $Oznaki$
+    - Aumenta a chance de aplicar $Marca$ em {value_percent}<br><br>Recebe +{max_marks} cargas máx. de $Marca$
+    - Увеличивает шанс наложения $Метки$ на {value_percent}<br><br>Получает +{max_marks} к макс. заряду $Метки$
+    - $İşaret$ uygulama şansını {value_percent} artırır<br><br>+{max_marks} maks. $İşaret$ yükü kazanır
+    - Збільшує шанс накладання $Мітки$ на {value_percent}<br><br>Отримує +{max_marks} до макс. зарядів $Мітки$
+    - 提升$印记$的施加几率 {value_percent}<br><br>获得 +{max_marks} 最大$印记$层数
+  - key: ABILITY_DESCRIPTION_pet_skeleton_king_ability_2
+    values:
+    - Increase this weapon $Attack Speed$ by {value_percent} per $Mark$ on enemy<br><br>Gain +{max_marks} max $Mark$ charge
+    - Erhöht das $Angriffstempo$ dieser Waffe um {value_percent} pro $Marke$ am Feind<br><br>Erhalte +{max_marks} max. $Marke$-Ladung
+    - Aumenta la $Velocidad de ataque$ de esta arma en {value_percent} por cada $Marca$ en el enemigo<br><br>Gana +{max_marks} de carga máx. de $Marca$
+    - Augmente la $Vitesse d'attaque$ de cette arme de {value_percent} par $Marque$ sur l'ennemi<br><br>Gagnez +{max_marks} charges max de $Marque$
+    - Aumenta la $Velocità d'attacco$ di quest'arma di {value_percent} per ogni $Marchio$ sul nemico<br><br>Ottieni +{max_marks} cariche max di $Marchio$
+    - 敵の$マーク$1つにつきこの武器の$攻撃速度$を{value_percent}上昇<br><br>$マーク$の最大チャージ +{max_marks}
+    - 적의 $마크$당 이 무기의 $공격 속도$를 {value_percent} 증가<br><br>최대 $마크$ 충전량 +{max_marks}
+    - Zwiększa $Szybkość ataku$ tej broni o {value_percent} za każdą $Oznakę$ na wrogu<br><br>Zyskujesz +{max_marks} maks. ładunków $Oznaki$
+    - Aumenta a $Velocidade de ataque$ desta arma em {value_percent} por $Marca$ no inimigo<br><br>Recebe +{max_marks} cargas máx. de $Marca$
+    - Увеличивает $Скорость атаки$ этого оружия на {value_percent} за каждую $Метку$ на враге<br><br>Получает +{max_marks} к макс. заряду $Метки$
+    - Bu silahın $Saldırı Hızını$ düşmandaki her $İşaret$ için {value_percent} artırır<br><br>+{max_marks} maks. $İşaret$ yükü kazanır
+    - Збільшує $Швидкість атаки$ цієї зброї на {value_percent} за кожну $Мітку$ на ворогові<br><br>Отримує +{max_marks} до макс. зарядів $Мітки$
+    - 敌人身上每层$印记$提升此武器的$攻击速度${value_percent}<br><br>获得 +{max_marks} 最大$印记$层数
+  - key: ABILITY_DESCRIPTION_pet_treant_ability_1
+    values:
+    - '{chance} chance to apply $Stun$ to target for ${value}s$'
+    - '{chance} Chance, $Betäubung$ für ${value}s$ auf das Ziel anzuwenden'
+    - '{chance} de probabilidad de aplicar $Aturdimiento$ al objetivo durante ${value}s$'
+    - '{chance} de probabilité d''appliquer $Étourdissement$ à la cible pendant ${value}s$'
+    - '{chance} di probabilità di applicare $Stordimento$ al bersaglio per ${value}s$'
+    - '{chance}の確率で対象に$スタン$を${value}s$付与'
+    - '{chance} 확률로 대상에게 ${value}s$ 동안 $기절$ 적용'
+    - '{chance} szansy na nałożenie $Ogłuszenia$ na cel na ${value}s$'
+    - '{chance} de chance de aplicar $Atordoamento$ ao alvo por ${value}s$'
+    - '{chance} шанс наложить $Оглушение$ на цель на ${value}s$'
+    - Hedefe ${value}s$ boyunca $Sersemletme$ uygulama şansı {chance}
+    - '{chance} шанс накласти $Оглушення$ на ціль на ${value}s$'
+    - 有 {chance} 几率对目标施加 ${value}s$ $眩晕$
+  - key: ABILITY_DESCRIPTION_pet_treant_ability_2
+    values:
+    - Deal {value_percent} more $Damage$ to $Stunned$ enemies
+    - Verursacht {value_percent} mehr $Schaden$ an $betäubten$ Feinden
+    - Inflige {value_percent} más de $Daño$ a los enemigos $aturdidos$
+    - Inflige {value_percent} de $Dégâts$ supplémentaires aux ennemis $étourdis$
+    - Infligge {value_percent} di $Danni$ in più ai nemici $storditi$
+    - $スタン状態$の敵に{value_percent}多く$ダメージ$を与える
+    - $기절$한 적에게 {value_percent} 더 많은 $피해$를 입힘
+    - Zadaje o {value_percent} więcej $Obrażeń$ $ogłuszonym$ wrogom
+    - Causa {value_percent} a mais de $Dano$ a inimigos $Atordoados$
+    - Наносит на {value_percent} больше $Урона$ по $оглушенным$ врагам
+    - $Sersemlemiş$ düşmanlara {value_percent} daha fazla $Hasar$ verir
+    - Завдає на {value_percent} більше $Шкоди$ $оглушеним$ ворогам
+    - 对$眩晕$的敌人多造成 {value_percent} $伤害$
+  - key: ABILITY_DESCRIPTION_pet_vampire_blade_ability_1
+    values:
+    - Increase $Stats$ gained from trees by {value_percent}<br><br>Deal $+100% Damage$ to trees
+    - Erhöht die von Bäumen erhaltenen $Werte$ um {value_percent}<br><br>Verursacht $+100 % Schaden$ an Bäumen
+    - Aumenta las $Estadísticas$ obtenidas de los árboles en {value_percent}<br><br>Inflige $+100 % de daño$ a los árboles
+    - Augmente les $Stats$ obtenues des arbres de {value_percent}<br><br>Inflige $+100 % de dégâts$ aux arbres
+    - Aumenta le $Statistiche$ ottenute dagli alberi di {value_percent}<br><br>Infligge $+100% danni$ agli alberi
+    - 木から得られる$ステータス$を{value_percent}上昇<br><br>木への$ダメージ+100%$
+    - 나무에서 얻는 $스탯$을 {value_percent} 증가<br><br>나무에 주는 $피해 +100%$
+    - Zwiększa $Statystyki$ otrzymywane z drzew o {value_percent}<br><br>Zadaje drzewom $+100% obrażeń$
+    - Aumenta os $Atributos$ obtidos de árvores em {value_percent}<br><br>Causa $+100% de dano$ a árvores
+    - Увеличивает получаемые за деревья $характеристики$ на {value_percent}<br><br>Наносит деревьям $+100% урона$
+    - Ağaçlardan kazanılan $Nitelikleri$ {value_percent} artırır<br><br>Ağaçlara $+100% Hasar$ verir
+    - Збільшує отримані за дерева $характеристики$ на {value_percent}<br><br>Завдає деревам $+100% шкоди$
+    - 提升从树木获得的$属性${value_percent}<br><br>对树木造成$+100% 伤害$
+  - key: ABILITY_DESCRIPTION_pet_vampire_blade_ability_2
+    values:
+    - On $hit$, gain {value_percent} $Critical Damage$ for this weapon, up to 10 stacks for $30s$
+    - Bei $Treffer$ erhält diese Waffe {value_percent} $Kritischer Trefferschaden$, bis zu 10 Stapel für $30s$
+    - Al $golpear$, esta arma gana {value_percent} de $Daño crítico$, hasta 10 acumulaciones durante $30s$
+    - À chaque $coup$, cette arme gagne {value_percent} de $Dégâts critiques$, jusqu'à 10 cumuls pendant $30s$
+    - A ogni $colpo$, quest'arma ottiene {value_percent} di $Danni critici$, fino a 10 accumuli per $30s$
+    - $攻撃$時、この武器に{value_percent}の$クリダメ$を付与（$30s$間、最大10スタック）
+    - $공격$ 시 이 무기에 {value_percent}의 $치명타 피해$ 부여, $30s$ 동안 최대 10중첩
+    - Przy $trafieniu$ ta broń zyskuje {value_percent} $Obrażeń krytycznych$, do 10 ładunków na $30s$
+    - Ao $acertar$, esta arma recebe {value_percent} de $Dano crítico$, até 10 acúmulos por $30s$
+    - При $ударе$ это оружие получает {value_percent} $Урона крита$, до 10 стаков на $30s$
+    - $Vuruşta$ bu silah {value_percent} $Kritik hasarı$ kazanır, $30s$ boyunca en fazla 10 yük
+    - При $ударі$ ця зброя отримує {value_percent} $Критичної шкоди$, до 10 зарядів на $30s$
+    - $命中$时，此武器获得 {value_percent} $暴击伤害$，$30s$ 内最多 10 层
+  - key: ABILITY_DESCRIPTION_pet_vampire_thrall_ability_1
+    values:
+    - $Extra Bounty$ - on kill {chance} chance to gain {value} $Cut Damage$
+    - $Extra-Beute$ - beim Töten {chance} Chance, {value} $Hiebschaden$ zu erhalten
+    - $Botín extra$ - al matar, {chance} de probabilidad de ganar {value} de $Daño cortante$
+    - $Prime supplémentaire$ — à chaque élimination, {chance} de chances de gagner {value} $Dégâts tranchants$
+    - $Taglia extra$ - all'uccisione, {chance} di probabilità di ottenere {value} $Danni taglienti$
+    - $追加報酬$ - 敵撃破時、{chance}の確率で{value}の$斬撃ダメージ$を獲得
+    - $추가 현상금$ - 처치 시 {chance} 확률로 {value} $베기 피해$ 획득
+    - $Dodatkowa nagroda$ — przy zabójstwie, {chance} szans na zdobycie {value} $Obrażeń tnących$
+    - $Recompensa extra$ - ao eliminar, {chance} de chance de receber {value} de $Dano cortante$
+    - $Доп. добыча$ — при убийстве с шансом {chance} дает {value} $Рубящего урона$
+    - $Ek Ödül$ - öldürmede, {chance} olasılıkla {value} $Kesme Hasarı$ kazanır
+    - $Додаткова здобич$ — під час вбивства з шансом {chance} отримує {value} $Рубаної шкоди$
+    - $额外赏金$ - 击杀时有 {chance} 几率获得 {value} $斩击伤害$
+  - key: ABILITY_DESCRIPTION_pet_zombie_ability_1
+    values:
+    - $Extra Bounty$ - on kill {chance} chance to gain {value} $Smash Damage$
+    - $Extra-Beute$ - beim Töten {chance} Chance, {value} $Wuchtschaden$ zu erhalten
+    - $Botín extra$ - al matar, {chance} de probabilidad de ganar {value} de $Daño contundente$
+    - $Prime supplémentaire$ — à chaque élimination, {chance} de chances de gagner {value} $Dégâts contondants$
+    - $Taglia extra$ - all'uccisione, {chance} di probabilità di ottenere {value} $Danni contundenti$
+    - $追加報酬$ - 敵撃破時、{chance}の確率で{value}の$打撃ダメージ$を獲得
+    - $추가 현상금$ - 처치 시 {chance} 확률로 {value} $강타 피해$ 획득
+    - $Dodatkowa nagroda$ — przy zabójstwie, {chance} szans na zdobycie {value} $Obrażeń obuchowych$
+    - $Recompensa extra$ - ao eliminar, {chance} de chance de receber {value} de $Dano contundente$
+    - $Доп. добыча$ — при убийстве с шансом {chance} дает {value} $Дробящего урона$
+    - $Ek Ödül$ - öldürmede, {chance} olasılıkla {value} $Ezici hasar$ kazanır
+    - $Додаткова здобич$ — під час вбивства з шансом {chance} отримує {value} $Дробильної шкоди$
+    - $额外赏金$ - 击杀时有 {chance} 几率获得 {value} $钝击伤害$
+  - key: ABILITY_DESCRIPTION_pet_zombie_brute_ability_1
+    values:
+    - Gain {value_percent} $Damage$ per empty slot
+    - Erhalte {value_percent} $Schaden$ pro leerem Slot
+    - Gana {value_percent} de $Daño$ por cada espacio vacío
+    - Gagne {value_percent} de $Dégâts$ par emplacement vide
+    - Ottieni {value_percent} di $Danni$ per ogni slot vuoto
+    - 空きスロット1つにつき{value_percent}の$ダメージ$を獲得
+    - 빈 슬롯당 {value_percent}의 $피해$ 획득
+    - Zyskuje {value_percent} $Obrażeń$ za każdy pusty slot
+    - Ganha {value_percent} de $Dano$ por espaço vazio
+    - Дает {value_percent} $Урона$ за каждый пустой слот
+    - Her boş yuva başına {value_percent} $Hasar$ kazanır
+    - Надає {value_percent} $Шкоди$ за кожен порожній слот
+    - 每个空槽位获得 {value_percent} $伤害$
+  - key: ABILITY_DESCRIPTION_pet_zombie_brute_ability_2
+    values:
+    - Increase $Lightning Strike$ damage by {value_percent} per empty slot<br><br>Increase $Lightning Strike$ chance for all $Hammers$ by 5% per empty slot
+    - Erhöht den Schaden von $Blitzschlag$ um {value_percent} pro leerem Slot<br><br>Erhöht die $Blitzschlag$-Chance aller $Hämmer$ um 5 % pro leerem Slot
+    - Aumenta el daño de $Descarga eléctrica$ en {value_percent} por cada espacio vacío<br><br>Aumenta la probabilidad de $Descarga eléctrica$ de todos los $martillos$ en un 5 % por cada espacio vacío
+    - Augmente les $Dégâts$ de $Frappe foudroyante$ de {value_percent} par emplacement vide<br><br>Augmente de 5% par emplacement vide la chance de $Frappe foudroyante$ de tous les $Marteaux$
+    - Aumenta i $Danni$ di $Colpo fulmineo$ di {value_percent} per ogni slot vuoto<br><br>Aumenta del 5% per ogni slot vuoto la probabilità di $Colpo fulmineo$ di tutti i $Martelli$
+    - 空きスロット1つにつき$ライトニングストライク$のダメージを{value_percent}上昇<br><br>空きスロット1つにつき全$ハンマー$の$ライトニングストライク$発動率を5%上昇
+    - 빈 슬롯당 $번개 강타$ 피해를 {value_percent} 증가<br><br>빈 슬롯당 모든 $망치$의 $번개 강타$ 확률을 5% 증가
+    - Zwiększa $Obrażenia$ $Uderzenia pioruna$ o {value_percent} za każdy pusty slot<br><br>Zwiększa szansę $Uderzenia pioruna$ wszystkich $Młotów$ o 5% za każdy pusty slot
+    - Aumenta o $Dano$ de $Golpe de relâmpago$ em {value_percent} por espaço vazio<br><br>Aumenta em 5% por espaço vazio a chance de $Golpe de relâmpago$ de todos os $Martelos$
+    - Увеличивает урон $Удар молнии$ на {value_percent} за каждый пустой слот<br><br>Увеличивает шанс $Удар молнии$ для всех $молотов$ на 5% за каждый пустой слот
+    - Her boş yuva başına $Yıldırım Darbesi$ $Hasarını$ {value_percent} artırır<br><br>Tüm $Çekiçlerin$ $Yıldırım Darbesi$ şansını her boş yuva başına 5% artırır
+    - Збільшує $Шкоду$ $Удару блискавки$ на {value_percent} за кожен порожній слот<br><br>Збільшує шанс $Удару блискавки$ всіх $Молотів$ на 5% за кожен порожній слот
+    - 每个空槽位提升$闪电打击$伤害 {value_percent}<br><br>每个空槽位使所有$战锤$的$闪电打击$几率提升 5%
   - key: ABILITY_DESCRIPTION_shield_cut_common_ability_1
     values:
     - Increase $Cut Armor$ by {value_percent}
@@ -2907,6 +4032,1131 @@ MonoBehaviour:
     - Şapka Sinerjisi
     - Синергія капелюха
     - 帽子协同
+  - key: ABILITY_NAME_pet_abyss_reaver_ability_1
+    values:
+    - Rage Engine
+    - Wutmaschine
+    - Motor de furia
+    - Moteur de rage
+    - Motore della furia
+    - 激怒エンジン
+    - 분노 엔진
+    - Silnik furii
+    - Motor de fúria
+    - Двигатель ярости
+    - Öfke Motoru
+    - Двигун люті
+    - 怒气引擎
+  - key: ABILITY_NAME_pet_abyss_reaver_ability_2
+    values:
+    - Rising Crit
+    - Steigender Krit
+    - Crítico ascendente
+    - Critique ascendant
+    - Critico crescente
+    - 高まるクリティカル
+    - 상승하는 치명타
+    - Rosnący krytyk
+    - Crítico crescente
+    - Растущий крит
+    - Yükselen Kritik
+    - Зростаючий крит
+    - 渐增暴击
+  - key: ABILITY_NAME_pet_bear_ability_1
+    values:
+    - Rising Crit
+    - Steigender Krit
+    - Crítico ascendente
+    - Critique ascendant
+    - Critico crescente
+    - 高まるクリティカル
+    - 상승하는 치명타
+    - Rosnący krytyk
+    - Crítico crescente
+    - Растущий крит
+    - Yükselen Kritik
+    - Зростаючий крит
+    - 渐增暴击
+  - key: ABILITY_NAME_pet_bear_ability_2
+    values:
+    - Blood Crit
+    - Blutkrit
+    - Crítico sangriento
+    - Critique sanglant
+    - Critico sanguinario
+    - 血のクリティカル
+    - 피의 치명타
+    - Krwawy krytyk
+    - Crítico sangrento
+    - Кровавый крит
+    - Kanlı Kritik
+    - Кривавий крит
+    - 血之暴击
+  - key: ABILITY_NAME_pet_boss_berserker_ability_1
+    values:
+    - Empowered First Hit
+    - Verstärkter erster Treffer
+    - Primer golpe potenciado
+    - Premier coup renforcé
+    - Primo colpo potenziato
+    - 強化された最初の攻撃
+    - 강화된 첫 공격
+    - Wzmocnione pierwsze uderzenie
+    - Primeiro golpe fortalecido
+    - Усиленный первый удар
+    - Güçlendirilmiş İlk Vuruş
+    - Посилений перший удар
+    - 强化首击
+  - key: ABILITY_NAME_pet_boss_berserker_ability_2
+    values:
+    - Heavy Stun
+    - Schwere Betäubung
+    - Aturdimiento pesado
+    - Étourdissement puissant
+    - Stordimento potente
+    - 重いスタン
+    - 강력한 기절
+    - Silne ogłuszenie
+    - Atordoamento pesado
+    - Тяжелое оглушение
+    - Ağır sersemletme
+    - Важке оглушення
+    - 重度眩晕
+  - key: ABILITY_NAME_pet_boss_crab_ability_1
+    values:
+    - Sure Crit
+    - Sicherer Krit
+    - Crítico seguro
+    - Critique garanti
+    - Critico garantito
+    - 確定クリティカル
+    - 확정 치명타
+    - Pewny krytyk
+    - Crítico garantido
+    - Верный крит
+    - Kesin Kritik
+    - Гарантований крит
+    - 必定暴击
+  - key: ABILITY_NAME_pet_boss_crab_ability_2
+    values:
+    - Mark Tempo
+    - Markentempo
+    - Ritmo de marca
+    - Rythme de marque
+    - Ritmo del marchio
+    - マークテンポ
+    - 마크 템포
+    - Tempo znaku
+    - Ritmo da marca
+    - Темп меток
+    - İşaret Temposu
+    - Темп міток
+    - 印记节奏
+  - key: ABILITY_NAME_pet_boss_hydra_ability_1
+    values:
+    - Rage Engine
+    - Wutmaschine
+    - Motor de furia
+    - Moteur de rage
+    - Motore della furia
+    - 激怒エンジン
+    - 분노 엔진
+    - Silnik furii
+    - Motor de fúria
+    - Двигатель ярости
+    - Öfke Motoru
+    - Двигун люті
+    - 怒气引擎
+  - key: ABILITY_NAME_pet_boss_hydra_ability_2
+    values:
+    - Rising Crit
+    - Steigender Krit
+    - Crítico ascendente
+    - Critique ascendant
+    - Critico crescente
+    - 高まるクリティカル
+    - 상승하는 치명타
+    - Rosnący krytyk
+    - Crítico crescente
+    - Растущий крит
+    - Yükselen Kritik
+    - Зростаючий крит
+    - 渐增暴击
+  - key: ABILITY_NAME_pet_boss_lich_ability_1
+    values:
+    - Blood Crit
+    - Blutkrit
+    - Crítico sangriento
+    - Critique sanglant
+    - Critico sanguinario
+    - 血のクリティカル
+    - 피의 치명타
+    - Krwawy krytyk
+    - Crítico sangrento
+    - Кровавый крит
+    - Kanlı Kritik
+    - Кривавий крит
+    - 血之暴击
+  - key: ABILITY_NAME_pet_boss_lich_ability_2
+    values:
+    - Rising Crit
+    - Steigender Krit
+    - Crítico ascendente
+    - Critique ascendant
+    - Critico crescente
+    - 高まるクリティカル
+    - 상승하는 치명타
+    - Rosnący krytyk
+    - Crítico crescente
+    - Растущий крит
+    - Yükselen Kritik
+    - Зростаючий крит
+    - 渐增暴击
+  - key: ABILITY_NAME_pet_boss_vampire_king_ability_1
+    values:
+    - Mark Precision
+    - Markenpräzision
+    - Precisión de marca
+    - Précision de marque
+    - Precisione del marchio
+    - マークの精度
+    - 마크 정밀
+    - Precyzja znaku
+    - Precisão da marca
+    - Точность меток
+    - İşaret Hassasiyeti
+    - Точність міток
+    - 印记精准
+  - key: ABILITY_NAME_pet_boss_vampire_king_ability_2
+    values:
+    - Stacking Tempo
+    - Stapelndes Tempo
+    - Ritmo acumulativo
+    - Rythme cumulatif
+    - Ritmo cumulativo
+    - スタックテンポ
+    - 중첩 템포
+    - Narastające tempo
+    - Ritmo cumulativo
+    - Нарастающий темп
+    - Biriken Tempo
+    - Наростаючий темп
+    - 叠加节奏
+  - key: ABILITY_NAME_pet_boss_viking_king_ability_1
+    values:
+    - Heavy Stun
+    - Schwere Betäubung
+    - Aturdimiento pesado
+    - Étourdissement puissant
+    - Stordimento potente
+    - 重いスタン
+    - 강력한 기절
+    - Silne ogłuszenie
+    - Atordoamento pesado
+    - Тяжелое оглушение
+    - Ağır sersemletme
+    - Важке оглушення
+    - 重度眩晕
+  - key: ABILITY_NAME_pet_boss_viking_king_ability_2
+    values:
+    - Stun Breaker
+    - Betäubungsbrecher
+    - Rompedor de aturdimiento
+    - Brise-étourdissement
+    - Spezzastordimento
+    - スタンブレイカー
+    - 기절 파괴자
+    - Przełamywacz ogłuszenia
+    - Quebra-atordoamento
+    - Разрушитель оглушения
+    - Sersemletme Kırıcı
+    - Знімач оглушення
+    - 眩晕破除
+  - key: ABILITY_NAME_pet_cultist_ability_1
+    values:
+    - Marked Surge
+    - Markierter Schub
+    - Oleada marcada
+    - Déferlante marquée
+    - Impulso marcato
+    - 刻印のサージ
+    - 표식의 쇄도
+    - Oznaczony zryw
+    - Surto marcado
+    - Меченый всплеск
+    - İşaretli Dalga
+    - Позначений сплеск
+    - 标记涌动
+  - key: ABILITY_NAME_pet_cultist_ability_2
+    values:
+    - Stacking Tempo
+    - Stapelndes Tempo
+    - Ritmo acumulativo
+    - Rythme cumulatif
+    - Ritmo cumulativo
+    - スタックテンポ
+    - 중첩 템포
+    - Narastające tempo
+    - Ritmo cumulativo
+    - Нарастающий темп
+    - Biriken Tempo
+    - Наростаючий темп
+    - 叠加节奏
+  - key: ABILITY_NAME_pet_dark_treant_ability_1
+    values:
+    - Heavy Stun
+    - Schwere Betäubung
+    - Aturdimiento pesado
+    - Étourdissement puissant
+    - Stordimento potente
+    - 重いスタン
+    - 강력한 기절
+    - Silne ogłuszenie
+    - Atordoamento pesado
+    - Тяжелое оглушение
+    - Ağır sersemletme
+    - Важке оглушення
+    - 重度眩晕
+  - key: ABILITY_NAME_pet_dark_treant_ability_2
+    values:
+    - Storm Amplifier
+    - Sturmverstärker
+    - Amplificador de tormenta
+    - Amplificateur de tempête
+    - Amplificatore della tempesta
+    - 嵐の増幅器
+    - 폭풍 증폭기
+    - Wzmacniacz burzy
+    - Amplificador da tempestade
+    - Усилитель бури
+    - Fırtına Güçlendirici
+    - Підсилювач бурі
+    - 风暴增幅器
+  - key: ABILITY_NAME_pet_ghost_ability_1
+    values:
+    - Blood Crit
+    - Blutkrit
+    - Crítico sangriento
+    - Critique sanglant
+    - Critico sanguinario
+    - 血のクリティカル
+    - 피의 치명타
+    - Krwawy krytyk
+    - Crítico sangrento
+    - Кровавый крит
+    - Kanlı Kritik
+    - Кривавий крит
+    - 血之暴击
+  - key: ABILITY_NAME_pet_ghost_ability_2
+    values:
+    - Rage Engine
+    - Wutmaschine
+    - Motor de furia
+    - Moteur de rage
+    - Motore della furia
+    - 激怒エンジン
+    - 분노 엔진
+    - Silnik furii
+    - Motor de fúria
+    - Двигатель ярости
+    - Öfke Motoru
+    - Двигун люті
+    - 怒气引擎
+  - key: ABILITY_NAME_pet_golem_ability_1
+    values:
+    - Sure Crit
+    - Sicherer Krit
+    - Crítico seguro
+    - Critique garanti
+    - Critico garantito
+    - 確定クリティカル
+    - 확정 치명타
+    - Pewny krytyk
+    - Crítico garantido
+    - Верный крит
+    - Kesin Kritik
+    - Гарантований крит
+    - 必定暴击
+  - key: ABILITY_NAME_pet_golem_ability_2
+    values:
+    - Super Wound
+    - Superwunde
+    - Superherida
+    - Super blessure
+    - Super ferita
+    - スーパーウーンド
+    - 슈퍼 상처
+    - Superrana
+    - Superferida
+    - Супер-рана
+    - Süper Yara
+    - Суперрана
+    - 超级创伤
+  - key: ABILITY_NAME_pet_mage_ability_1
+    values:
+    - Storm Amplifier
+    - Sturmverstärker
+    - Amplificador de tormenta
+    - Amplificateur de tempête
+    - Amplificatore della tempesta
+    - 嵐の増幅器
+    - 폭풍 증폭기
+    - Wzmacniacz burzy
+    - Amplificador da tempestade
+    - Усилитель бури
+    - Fırtına Güçlendirici
+    - Підсилювач бурі
+    - 风暴增幅器
+  - key: ABILITY_NAME_pet_mage_ability_2
+    values:
+    - Shock Ramp
+    - Schockanstieg
+    - Aumento de descarga
+    - Montée de choc
+    - Crescita di shock
+    - 感電の増大
+    - 감전 증가
+    - Narastanie szoku
+    - Aumento de choque
+    - Нарастание шока
+    - Şok Artışı
+    - Наростання шоку
+    - 感电积累
+  - key: ABILITY_NAME_pet_sig_abyss_reaver
+    values:
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - 'Abyssal Harvest'
+    - '深渊收割'
+  - key: ABILITY_NAME_pet_sig_bear
+    values:
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - 'Mauling Swipe'
+    - '熊掌重拍'
+  - key: ABILITY_NAME_pet_sig_boss_berserker
+    values:
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - 'Demonic Rage'
+    - '恶魔狂暴'
+  - key: ABILITY_NAME_pet_sig_boss_crab
+    values:
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - 'Magma Burst'
+    - '熔岩爆裂'
+  - key: ABILITY_NAME_pet_sig_boss_hydra
+    values:
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - 'Storm Breath'
+    - '风暴吐息'
+  - key: ABILITY_NAME_pet_sig_boss_lich
+    values:
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - 'Death Nova'
+    - '死亡新星'
+  - key: ABILITY_NAME_pet_sig_boss_vampire_king
+    values:
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - 'Crimson Banquet'
+    - '猩红盛宴'
+  - key: ABILITY_NAME_pet_sig_boss_viking_king
+    values:
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - 'Ghostly Cleave'
+    - '亡魂横扫'
+  - key: ABILITY_NAME_pet_sig_chainsaw
+    values:
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - 'Knight''s Charge'
+    - '骑士冲锋'
+  - key: ABILITY_NAME_pet_sig_chainsawpike
+    values:
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - 'Lancer''s Momentum'
+    - '骑枪冲势'
+  - key: ABILITY_NAME_pet_sig_coolHammer
+    values:
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - 'Warlord''s Rally'
+    - '领主号令'
+  - key: ABILITY_NAME_pet_sig_coolpike
+    values:
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - 'Halberd Sweep'
+    - '长戟横扫'
+  - key: ABILITY_NAME_pet_sig_cultist
+    values:
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - 'Forbidden Spark'
+    - '禁忌电光'
+  - key: ABILITY_NAME_pet_sig_dark_treant
+    values:
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - 'Root Eruption'
+    - '根须爆发'
+  - key: ABILITY_NAME_pet_sig_doubleaxe
+    values:
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - 'Sweeping Blade'
+    - '巨剑横扫'
+  - key: ABILITY_NAME_pet_sig_fork
+    values:
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - 'Keen Eye'
+    - '锐利目光'
+  - key: ABILITY_NAME_pet_sig_ghost
+    values:
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - 'Phantom Strike'
+    - '幽影突袭'
+  - key: ABILITY_NAME_pet_sig_golem
+    values:
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - 'Stone Mending'
+    - '岩石修复'
+  - key: ABILITY_NAME_pet_sig_hammer
+    values:
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - 'Shockwave'
+    - '震地冲击'
+  - key: ABILITY_NAME_pet_sig_katana
+    values:
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - 'Guardian''s Resolve'
+    - '卫士意志'
+  - key: ABILITY_NAME_pet_sig_knife
+    values:
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - 'Sharpened Edge'
+    - '磨利斧刃'
+  - key: ABILITY_NAME_pet_sig_mace
+    values:
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - 'Knight''s Fury'
+    - '骑士之怒'
+  - key: ABILITY_NAME_pet_sig_mage
+    values:
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - 'Arcane Bolt'
+    - '奥术雷击'
+  - key: ABILITY_NAME_pet_sig_mailbox
+    values:
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - 'Mail Slam'
+    - '邮筒重击'
+  - key: ABILITY_NAME_pet_sig_minisaw
+    values:
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - 'Swordsman''s Focus'
+    - '剑士专注'
+  - key: ABILITY_NAME_pet_sig_paddle
+    values:
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - 'Hearty Meal'
+    - '饱餐一顿'
+  - key: ABILITY_NAME_pet_sig_pick
+    values:
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - 'Armor Piercer'
+    - '破甲刺击'
+  - key: ABILITY_NAME_pet_sig_pike
+    values:
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - 'Spear Rhythm'
+    - '长矛节奏'
+  - key: ABILITY_NAME_pet_sig_skeleton
+    values:
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - 'Bone Precision'
+    - '骸骨精准'
+  - key: ABILITY_NAME_pet_sig_skeleton_guard
+    values:
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - 'Shield Bash'
+    - '盾牌猛击'
+  - key: ABILITY_NAME_pet_sig_skeleton_king
+    values:
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - 'Royal Command'
+    - '王者号令'
+  - key: ABILITY_NAME_pet_sig_treant
+    values:
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - 'Nature''s Gift'
+    - '自然馈赠'
+  - key: ABILITY_NAME_pet_sig_vampire_blade
+    values:
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - 'Blood Drain'
+    - '鲜血汲取'
+  - key: ABILITY_NAME_pet_sig_vampire_thrall
+    values:
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - 'Blood Sip'
+    - '浅尝鲜血'
+  - key: ABILITY_NAME_pet_sig_zombie
+    values:
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - 'Undying Flesh'
+    - '不死之躯'
+  - key: ABILITY_NAME_pet_sig_zombie_brute
+    values:
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - 'Brutal Bash'
+    - '蛮力猛击'
+  - key: ABILITY_NAME_pet_skeleton_ability_1
+    values:
+    - Stab Devour
+    - Stich-Verschlingen
+    - Devorar perforante
+    - Dévoration perforante
+    - Divoramento perforante
+    - 刺突の貪り
+    - 관통 포식
+    - Przebijające pożarcie
+    - Devorar perfurante
+    - Колющее поглощение
+    - Delici Yutma
+    - Колюче поглинання
+    - 穿刺吞噬
+  - key: ABILITY_NAME_pet_skeleton_guard_ability_1
+    values:
+    - Hollow Tempo
+    - Hohles Tempo
+    - Ritmo hueco
+    - Rythme creux
+    - Ritmo vuoto
+    - 空虚なテンポ
+    - 공허한 템포
+    - Puste tempo
+    - Ritmo vazio
+    - Пустой темп
+    - Boş Tempo
+    - Порожній темп
+    - 空槽节奏
+  - key: ABILITY_NAME_pet_skeleton_guard_ability_2
+    values:
+    - Empty Marking
+    - Leere Markierung
+    - Marcado vacío
+    - Marquage vide
+    - Marchiatura vuota
+    - 空きスロットの刻印
+    - 빈 슬롯 표식
+    - Puste oznaczenie
+    - Marcação vazia
+    - Пустая метка
+    - Boş İşaretleme
+    - Порожня мітка
+    - 空槽标记
+  - key: ABILITY_NAME_pet_skeleton_king_ability_1
+    values:
+    - Mark Precision
+    - Markenpräzision
+    - Precisión de marca
+    - Précision de marque
+    - Precisione del marchio
+    - マークの精度
+    - 마크 정밀
+    - Precyzja znaku
+    - Precisão da marca
+    - Точность меток
+    - İşaret Hassasiyeti
+    - Точність міток
+    - 印记精准
+  - key: ABILITY_NAME_pet_skeleton_king_ability_2
+    values:
+    - Mark Tempo
+    - Markentempo
+    - Ritmo de marca
+    - Rythme de marque
+    - Ritmo del marchio
+    - マークテンポ
+    - 마크 템포
+    - Tempo znaku
+    - Ritmo da marca
+    - Темп меток
+    - İşaret Temposu
+    - Темп міток
+    - 印记节奏
+  - key: ABILITY_NAME_pet_treant_ability_1
+    values:
+    - Heavy Stun
+    - Schwere Betäubung
+    - Aturdimiento pesado
+    - Étourdissement puissant
+    - Stordimento potente
+    - 重いスタン
+    - 강력한 기절
+    - Silne ogłuszenie
+    - Atordoamento pesado
+    - Тяжелое оглушение
+    - Ağır sersemletme
+    - Важке оглушення
+    - 重度眩晕
+  - key: ABILITY_NAME_pet_treant_ability_2
+    values:
+    - Stun Breaker
+    - Betäubungsbrecher
+    - Rompedor de aturdimiento
+    - Brise-étourdissement
+    - Spezzastordimento
+    - スタンブレイカー
+    - 기절 파괴자
+    - Przełamywacz ogłuszenia
+    - Quebra-atordoamento
+    - Разрушитель оглушения
+    - Sersemletme Kırıcı
+    - Знімач оглушення
+    - 眩晕破除
+  - key: ABILITY_NAME_pet_vampire_blade_ability_1
+    values:
+    - Wood Tribute
+    - Holztribut
+    - Tributo de madera
+    - Tribut de bois
+    - Tributo del legno
+    - 木の貢物
+    - 나무 공물
+    - Danina z drewna
+    - Tributo de madeira
+    - Древесная дань
+    - Ahşap Haraç
+    - Деревна данина
+    - 木之贡礼
+  - key: ABILITY_NAME_pet_vampire_blade_ability_2
+    values:
+    - Rising Crit
+    - Steigender Krit
+    - Crítico ascendente
+    - Critique ascendant
+    - Critico crescente
+    - 高まるクリティカル
+    - 상승하는 치명타
+    - Rosnący krytyk
+    - Crítico crescente
+    - Растущий крит
+    - Yükselen Kritik
+    - Зростаючий крит
+    - 渐增暴击
+  - key: ABILITY_NAME_pet_vampire_thrall_ability_1
+    values:
+    - Cut Devour
+    - Hieb-Verschlingen
+    - Devorar cortante
+    - Dévoration tranchante
+    - Divoramento tagliente
+    - 斬撃の貪り
+    - 베기 포식
+    - Tnące pożarcie
+    - Devorar cortante
+    - Рубящее поглощение
+    - Kesici Yutma
+    - Рубаюче поглинання
+    - 斩击吞噬
+  - key: ABILITY_NAME_pet_zombie_ability_1
+    values:
+    - Smash Devour
+    - Wucht-Verschlingen
+    - Devorar contundente
+    - Dévoration contondante
+    - Divoramento contundente
+    - 打撃の貪り
+    - 강타 포식
+    - Miażdżące pożarcie
+    - Devorar contundente
+    - Дробящее поглощение
+    - Ezici Yutma
+    - Дробляче поглинання
+    - 钝击吞噬
+  - key: ABILITY_NAME_pet_zombie_brute_ability_1
+    values:
+    - Empty Impact
+    - Leerer Aufprall
+    - Impacto vacío
+    - Impact vide
+    - Impatto vuoto
+    - 空きスロットの衝撃
+    - 빈 슬롯 충격
+    - Puste uderzenie
+    - Impacto vazio
+    - Пустой удар
+    - Boş Darbe
+    - Порожній удар
+    - 空槽冲击
+  - key: ABILITY_NAME_pet_zombie_brute_ability_2
+    values:
+    - Storm Slots
+    - Sturmslots
+    - Espacios de tormenta
+    - Emplacements de tempête
+    - Slot della tempesta
+    - 嵐のスロット
+    - 폭풍 슬롯
+    - Gniazda burzy
+    - Espaços da tempestade
+    - Слоты бури
+    - Fırtına Yuvaları
+    - Слоти бурі
+    - 风暴槽位
   - key: ABILITY_NAME_shield_cut_common_ability_1
     values:
     - Stone Veil

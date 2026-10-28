@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: pet_treant
+  m_EditorClassIdentifier:
+  Key: treant
+  Rarity: 2
+  SlotType: 0
+  DamageType: 3
+  DamageStatTypeFlat: 12
+  DamageStatTypePercent: 13
+  FlatDamage: 0
+  AttackCooldown: 1.9
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.736
+  AnimationBackPoint: 0.5
+  Icon: {fileID: 21300000, guid: 79527abf4543497cba92d9e7f937f2dc, type: 3}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 114618682377417806, guid: 6d6e83800ac793b43bf2799203a6d7ab, type: 2}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs:
+  - Key: pet_treant_ability_1
+    Trigger: 2
+    Conditions:
+    - rid: 8062150688699971006
+    Effects:
+    - rid: 8599762299281744606
+    ConditionMode: 0
+    UnlockLevel: 1
+    Value: 1.8
+    Chance: 0.1
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 2
+      ValueOverride: 1.9
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 3
+      ValueOverride: 2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 5
+      ValueOverride: 2.1
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 8
+      ValueOverride: 2.2
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 11
+      ValueOverride: 2.3
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 14
+      ValueOverride: 2.4
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 2.5
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_treant_ability_2
+    Trigger: 6
+    Conditions: []
+    Effects:
+    - rid: 7350600599588804525
+    ConditionMode: 0
+    UnlockLevel: 6
+    Value: 0.5
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 1
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling:
+    - Level: 9
+      ValueOverride: 0.6
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 12
+      ValueOverride: 0.8
+      ChanceOverride: 0
+      StacksOverride: 0
+    - Level: 15
+      ValueOverride: 1
+      ChanceOverride: 0
+      StacksOverride: 0
+  - Key: pet_sig_treant
+    Trigger: 2
+    Conditions:
+    - rid: 7893877819617476110
+    - rid: 8652923593862540990
+    Effects:
+    - rid: 8195660317611643901
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.03
+    Chance: 0.15
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
+  PetOnly: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 7350600599588804525
+      type: {class: BonusDamageToStunnedEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 7893877819617476110
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8062150688699971006
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0
+    - rid: 8195660317611643901
+      type: {class: PetHealEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        Target: 1
+    - rid: 8599762299281744606
+      type: {class: StunEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8652923593862540990
+      type: {class: ChanceCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Scaling: 0

@@ -178,6 +178,21 @@ namespace Codebase.UI.Shop
 			}
 		}
 
+		private static int ChestAbilityIndex(ItemModel model)
+		{
+			// Pet mode: show the unlocked signature (else the first unlocked ability), never a locked 'unlocks at level 1' row.
+			var defs = model.Config.AbilityDefs;
+			if (!global::Codebase.Pet.PetConfig.Enabled) return 0; // original behaviour
+			int firstUnlocked = -1;
+			for (int i = 0; i < defs.Count; i++)
+			{
+				if (!model.IsAbilityUnlocked(defs[i])) continue;
+				if (global::Codebase.Abilities.Conditions.PetModeCondition.IsPetOnly(defs[i])) return i; // the signature
+				if (firstUnlocked < 0) firstUnlocked = i;
+			}
+			return firstUnlocked >= 0 ? firstUnlocked : 0;
+		}
+
 		public void SetDrop(ItemModel model, int copiesGained = 10)
 		{
 			isStatReward = false;
@@ -196,9 +211,10 @@ namespace Codebase.UI.Shop
 			}
 			else if (abilityView != null)
 			{
-				abilityView.gameObject.SetActive(preDivine && model.HasAbility);
-				if (preDivine && model.HasAbility)
-					abilityView.Setup(model, 0, true, false);
+				bool show = preDivine && model.HasAbility;
+				abilityView.gameObject.SetActive(show);
+				if (show)
+					abilityView.Setup(model, ChestAbilityIndex(model), true, false);
 			}
 
 			PetStatsText.SetItemName(itemName, model.Config);
