@@ -1,0 +1,218 @@
+{
+ "meta": {
+  "source": {
+   "path": "Balance/tests/golden/fixtures/generate.py",
+   "sha256": "e0a5e6886f141c5fdbcacb6e5b059b43c024c157dc251f2e1dc8188575c4bde2",
+   "ported_from": [
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/architect/fma_check.py",
+     "sha256": "8e4e2c6854bca16bac4c65e6707150b0f40c1fb850c1d55e6d1efda99df594dc"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/critique-fidelity/fma3.py",
+     "sha256": "a3fca8faa0b3c07a59d97d36a3d9765dbdf4817c6f077dba6c96a246d121fa2a"
+    }
+   ],
+   "imports": [
+    {
+     "path": "Balance/tufu_balance/model/bake.py",
+     "sha256": "e57930fee5d3fabd3919eb9c1e735be7c827d59a12b05c37a6a2e925ed1fafa9"
+    },
+    {
+     "path": "Balance/tufu_balance/model/data.py",
+     "sha256": "0f1b0a7fcfa92ce85fd3328e9949407fa7ade084a36d618a1ea476709a279c1d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/defense.py",
+     "sha256": "d4ac09c8ea24fa3bb5ed10c62fe7831eacabb496d3ba8467170d16fdb397d55d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/enums.py",
+     "sha256": "168864954f9c169a116b71e4fdd18e54f5cc108ccccb76a099d9aadcde3d49c7"
+    },
+    {
+     "path": "Balance/tufu_balance/model/f32.py",
+     "sha256": "34adb1c00157d11378f31e03a7771647a007b5b75745873878b59cc906e330e6"
+    },
+    {
+     "path": "Balance/tufu_balance/model/interpolation.py",
+     "sha256": "519e45c55e20f99977e3f6901d7a09b3a93274308f92b4a781489ed9a0083764"
+    },
+    {
+     "path": "Balance/tufu_balance/model/snapshots.py",
+     "sha256": "608bb69ba2b9dd7cc757c90fe99fbab8ab9167dd4c421451c5e0544e9cc234bf"
+    },
+    {
+     "path": "Balance/tufu_balance/model/stats.py",
+     "sha256": "164f9b6433151505cff8878f847c9441943002634b4bd914cb16c47e63104f38"
+    }
+   ]
+  },
+  "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
+  "git_rev": "ffa2f973bd65b46a1f430fe6319e976a0ccf92bd",
+  "date": "2026-10-28"
+ },
+ "note": "G11. Snapshot attribute composition, exact float equality: SFF = K2(d), PM = K3(d), TF = Value*(1+K2), TV = TF*K3 for Health/HealthRegen/LifestealFlat else TF; main stats are StatType {1,2,6,8,12,14,16,20,22}, other stats must be 0/1/identity. d = f32(TimeChunkIndex), K2/K3 = GetTotalCoefficient type 2/3. Rounding of the final lerp of Evaluate: stepwise = binary32 per operation (model as of 5806ec7), fma = one fused multiply-add then binary32, double_tail = progress in binary32 then lerp in double, double_all = progress and lerp in double. grid = every curve (enabled or not) at t = 0, 0.25, ..., 799.75.",
+ "roundings": {
+  "stepwise": {
+   "snapshots": {
+    "n": 109,
+    "k2_ok": 108,
+    "k3_ok": 105
+   },
+   "main_cells": {
+    "n": 981,
+    "sff": 972,
+    "pm": 945,
+    "tf": 972,
+    "tv": 960
+   },
+   "other_cells": {
+    "n": 2289,
+    "ok": 2289
+   },
+   "failing_snapshots": [
+    {
+     "list": "time_chunk_snapshots",
+     "index": 20,
+     "TimeChunkIndex": 33,
+     "k2_ok": true,
+     "k3_ok": false,
+     "k2": 1.1412873268127441,
+     "k3": 1.2083998918533325
+    },
+    {
+     "list": "time_chunk_snapshots",
+     "index": 30,
+     "TimeChunkIndex": 94,
+     "k2_ok": true,
+     "k3_ok": false,
+     "k2": 2.076228141784668,
+     "k3": 1.9640792608261108
+    },
+    {
+     "list": "time_chunk_snapshots",
+     "index": 31,
+     "TimeChunkIndex": 104,
+     "k2_ok": true,
+     "k3_ok": false,
+     "k2": 2.24349308013916,
+     "k3": 2.12968373298645
+    },
+    {
+     "list": "time_chunk_snapshots",
+     "index": 32,
+     "TimeChunkIndex": 115,
+     "k2_ok": true,
+     "k3_ok": false,
+     "k2": 2.3820297718048096,
+     "k3": 2.3221435546875
+    },
+    {
+     "list": "time_chunk_snapshots",
+     "index": 35,
+     "TimeChunkIndex": 154,
+     "k2_ok": false,
+     "k3_ok": true,
+     "k2": 2.6722705364227295,
+     "k3": 3.3102304935455322
+    }
+   ]
+  },
+  "fma": {
+   "snapshots": {
+    "n": 109,
+    "k2_ok": 109,
+    "k3_ok": 109
+   },
+   "main_cells": {
+    "n": 981,
+    "sff": 981,
+    "pm": 981,
+    "tf": 981,
+    "tv": 981
+   },
+   "other_cells": {
+    "n": 2289,
+    "ok": 2289
+   },
+   "failing_snapshots": []
+  },
+  "double_tail": {
+   "snapshots": {
+    "n": 109,
+    "k2_ok": 109,
+    "k3_ok": 109
+   },
+   "main_cells": {
+    "n": 981,
+    "sff": 981,
+    "pm": 981,
+    "tf": 981,
+    "tv": 981
+   },
+   "other_cells": {
+    "n": 2289,
+    "ok": 2289
+   },
+   "failing_snapshots": []
+  },
+  "double_all": {
+   "snapshots": {
+    "n": 109,
+    "k2_ok": 109,
+    "k3_ok": 109
+   },
+   "main_cells": {
+    "n": 981,
+    "sff": 981,
+    "pm": 981,
+    "tf": 981,
+    "tv": 981
+   },
+   "other_cells": {
+    "n": 2289,
+    "ok": 2289
+   },
+   "failing_snapshots": []
+  }
+ },
+ "grid_differences": [
+  {
+   "a": "stepwise",
+   "b": "fma",
+   "differ": 842,
+   "of": 60800
+  },
+  {
+   "a": "stepwise",
+   "b": "double_tail",
+   "differ": 875,
+   "of": 60800
+  },
+  {
+   "a": "stepwise",
+   "b": "double_all",
+   "differ": 1015,
+   "of": 60800
+  },
+  {
+   "a": "fma",
+   "b": "double_tail",
+   "differ": 123,
+   "of": 60800
+  },
+  {
+   "a": "fma",
+   "b": "double_all",
+   "differ": 263,
+   "of": 60800
+  },
+  {
+   "a": "double_tail",
+   "b": "double_all",
+   "differ": 140,
+   "of": 60800
+  }
+ ]
+}

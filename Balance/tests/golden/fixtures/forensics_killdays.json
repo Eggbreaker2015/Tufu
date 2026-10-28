@@ -2,7 +2,7 @@
  "meta": {
   "source": {
    "path": "Balance/tests/golden/fixtures/generate.py",
-   "sha256": "911a08bfe32053978161c5f38d757f6715babe1b14826e284926158d5855796d",
+   "sha256": "e0a5e6886f141c5fdbcacb6e5b059b43c024c157dc251f2e1dc8188575c4bde2",
    "ported_from": [
     {
      "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/load.py",
@@ -35,6 +35,10 @@
     {
      "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/critique-fidelity/killlag.py",
      "sha256": "ca9416eec99c2c1a920557e47e9738f8a1dfd4d0e6d6f2603f2c244d819cb110"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/critique-fidelity/l3gate.py",
+     "sha256": "82f8c2338295bed718f1658aa756d42cccc99ff10ff92eb2e5c4c71b9b6d37ed"
     }
    ],
    "imports": [
@@ -73,7 +77,7 @@
    ]
   },
   "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
-  "git_rev": "3dd8b21009b3236fe8f9b592847642515c965d32",
+  "git_rev": "ffa2f973bd65b46a1f430fe6319e976a0ccf92bd",
   "date": "2026-10-28"
  },
  "rule": "fast-phase kill predicate: fightTime < 300 and loss/H < theta (CalculateSpawnerData fast branch, bundled TimeChunkSnapshots as DpsData/DefenseData cache, AB group A); first kill day = first d >= max(4, ceil(OptimumTime)) passing, capped at 405; island L+1 unlocks at max(unlock[L], kill day of the latest-OT day gate of L), unlock[4] = 5; predicted gain per day = sum of StatRewards x limit over unlocked, killable spawners (DAFC once); an interval [a, b) of day snapshots with a >= 4 is bad when some stat residual exceeds max(0.5, 2e-5*|obs|)",
@@ -7208,5 +7212,83 @@
     }
    ]
   }
- ]
+ ],
+ "l3_gate_lethality": {
+  "note": "design 4.5 SlowLethalityGate evidence: fight state = day snapshot of that day, fast branch; survey printed ft 41.9 / loss/H 4.16 at day 3, 1.066 at day 4, 0.21 at day 5 for the L3 gate",
+  "probes": [
+   {
+    "key_prefix": "Spawner_boss_cut_rare",
+    "Key": "Spawner_boss_cut_rare_388cbec464ee05f4f8d74d172daa4da3",
+    "file_id": 56453,
+    "go_name": "Spawner_boss_cut_rare",
+    "LocationNumber": 3,
+    "OptimumTime": 240.0,
+    "IsDays": false,
+    "is_gate": true,
+    "days": [
+     {
+      "day": 3,
+      "fight_time": 41.86025632076369,
+      "loss": 37663.54792351216,
+      "H": 9047.832759395242,
+      "lossfrac": 4.162714864993768
+     },
+     {
+      "day": 4,
+      "fight_time": 21.47160746505295,
+      "loss": 14061.012829320374,
+      "H": 13196.580464094877,
+      "lossfrac": 1.0655042696535997
+     },
+     {
+      "day": 5,
+      "fight_time": 13.251720303720429,
+      "loss": 4109.440188972568,
+      "H": 19401.74321583064,
+      "lossfrac": 0.2118077815615823
+     },
+     {
+      "day": 6,
+      "fight_time": 7.182406527097802,
+      "loss": -0.0,
+      "H": 28427.770872321576,
+      "lossfrac": -0.0
+     }
+    ]
+   },
+   {
+    "key_prefix": "dragon_",
+    "Key": "dragon_8f9ac85ca43354a47a74878ee811d12f",
+    "file_id": 56293,
+    "go_name": "dragon",
+    "LocationNumber": 4,
+    "OptimumTime": 7.0,
+    "IsDays": true,
+    "is_gate": true,
+    "days": [
+     {
+      "day": 6,
+      "fight_time": 62.97948642140043,
+      "loss": 105127.42076221805,
+      "H": 28427.770872321576,
+      "lossfrac": 3.6980536122364187
+     },
+     {
+      "day": 7,
+      "fight_time": 48.43827481489218,
+      "loss": 50966.66293861702,
+      "H": 38849.47609814425,
+      "lossfrac": 1.3119009072313224
+     },
+     {
+      "day": 8,
+      "fight_time": 34.868276571507444,
+      "loss": 19518.52162567913,
+      "H": 55145.435287018394,
+      "lossfrac": 0.3539462790363343
+     }
+    ]
+   }
+  ]
+ }
 }

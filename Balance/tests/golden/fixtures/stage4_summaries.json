@@ -2,7 +2,7 @@
  "meta": {
   "source": {
    "path": "Balance/tests/golden/fixtures/generate.py",
-   "sha256": "911a08bfe32053978161c5f38d757f6715babe1b14826e284926158d5855796d",
+   "sha256": "e0a5e6886f141c5fdbcacb6e5b059b43c024c157dc251f2e1dc8188575c4bde2",
    "imports": [
     {
      "path": "Balance/analysis/bake_check.py",
@@ -51,7 +51,7 @@
    ]
   },
   "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
-  "git_rev": "3dd8b21009b3236fe8f9b592847642515c965d32",
+  "git_rev": "ffa2f973bd65b46a1f430fe6319e976a0ccf92bd",
   "date": "2026-10-28",
   "note": "out/analysis/{bake,growth,timeline}/summary.json, parsed and re-serialised"
  },

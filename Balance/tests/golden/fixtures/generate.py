@@ -9,7 +9,8 @@ Run from Balance/:
                                                                             # compare byte for byte
 
 Database: $TUFU_BALANCE_DB or Balance/out/balance.sqlite (read only).  The main checkout's database
-(--main-db) is only read for extract_parity.json.
+(--main-db, default $TUFU_MAIN_BALANCE_DB or the main checkout path) is only read for extract_parity.json;
+--check exits 2 when it cannot be checked, unless --skip-parity is given.
 
 The survey scripts (session scratchpad, appendix B of Docs/Balance/Simulator/Design.md) are not
 imported: their logic is ported below and their sha256 at port time is recorded in each fixture.
@@ -49,7 +50,9 @@ from tufu_balance.model.f32 import f32  # noqa: E402
 from tufu_balance.model.interpolation import parse_points  # noqa: E402
 from tufu_balance.model.stats import calculate_specific_value as spec  # noqa: E402
 
-SCRATCH = "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5"
+# Survey location as named in appendix B of the design; only read by --compare-survey.
+SURVEY_ROOT = "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5"
+SCRATCH = os.environ.get("TUFU_S5_SURVEY_DIR", SURVEY_ROOT)
 # sha256 of the survey scripts at port time (2026-10-28); they may be deleted later.
 SURVEY = {
     "forensics/load.py": "fb38bb3a3d93cae2f374faf2a312b91df56e6eb9c9b2b475bed0e60d16555b29",
@@ -63,14 +66,18 @@ SURVEY = {
     "critique-fidelity/nextday.py": "01774ef4bf34407dd5fb7ca88dd923a2eba110108db1b077b1b344c6b4cc1a83",
     "critique-fidelity/killlag.py": "ca9416eec99c2c1a920557e47e9738f8a1dfd4d0e6d6f2603f2c244d819cb110",
     "model/golden_probe.py": "fdbc7e1c03a4ab1a09dd60f777fc5c1b0d053bd1df5161d55040c5f2d5bdb700",
-    "dbparity.py": "77ee06099636de7baae9c94167ab8e0da61d6c90d1057aa7bc3e8cee1f8873e5",
-    "rowdiff.py": "127bf2e2a727cb8021359b1737170d0d91ba1a1059d3a0c844a9e0c64b3e62c4",
+    "forensics/rpm.py": "91e68357aeb011c618ed06369134394c63ec9d0a523cd4f2b93cd6d6466b42de",
+    "critique-fidelity/lag.py": "25eac559cdb7ce376b9f94611a0540d294789bae304fec1cb570b8cf5ab7ca93",
+    "critique-fidelity/fma3.py": "a3fca8faa0b3c07a59d97d36a3d9765dbdf4817c6f077dba6c96a246d121fa2a",
+    "critique-fidelity/l3gate.py": "82f8c2338295bed718f1658aa756d42cccc99ff10ff92eb2e5c4c71b9b6d37ed",
+    "architect/fma_check.py": "8e4e2c6854bca16bac4c65e6707150b0f40c1fb850c1d55e6d1efda99df594dc",
 }
 ANALYSIS = {"bake": "bake_check.py", "growth": "item_growth.py", "timeline": "island_timeline.py"}
 MODEL_FILES = ["bake.py", "data.py", "defense.py", "enums.py", "f32.py", "interpolation.py", "snapshots.py", "stats.py"]
-DEFAULT_MAIN_DB = Path("/Users/joyfort/MyProjects/Tufu/Balance/out/balance.sqlite")
+DEFAULT_MAIN_DB = Path(os.environ.get("TUFU_MAIN_BALANCE_DB", "/Users/joyfort/MyProjects/Tufu/Balance/out/balance.sqlite"))
 FIXTURES = ["stage4_summaries.json", "stage4_slot_schedule.json", "item_growth_values.json",
-            "forensics_targets.json", "forensics_killdays.json", "bake_probe_counts.json", "extract_parity.json"]
+            "forensics_targets.json", "forensics_killdays.json", "bake_probe_counts.json",
+            "interpolation_rounding.json", "rpm_replay.json", "extract_parity.json"]
 
 
 # ----------------------------------------------------------------------------- helpers
@@ -109,7 +116,7 @@ class Ctx:
     def meta(self, ported=(), imports=(), **extra):
         m = {"source": dict(self.script)}
         if ported:
-            m["source"]["ported_from"] = [{"path": f"{SCRATCH}/{p}", "sha256": SURVEY[p]} for p in ported]
+            m["source"]["ported_from"] = [{"path": f"{SURVEY_ROOT}/{p}", "sha256": SURVEY[p]} for p in ported]
         if imports:
             m["source"]["imports"] = [{"path": rel(p), "sha256": sha256_file(p)} for p in imports]
         m.update({"db_sha256": self.db_sha256, "git_rev": self.git_rev, "date": self.date})
@@ -522,7 +529,8 @@ def fx_forensics_killdays(ctx: Ctx, con, mcon) -> dict:
     R.set_snap_fn(R.snap_at)
     return {"meta": ctx.meta(ported=["forensics/load.py", "forensics/spawn.py", "forensics/fight.py",
                                      "forensics/rulefit.py", "architect/l17check.py", "critic_fid/sens.py",
-                                     "critique-fidelity/nextday.py", "critique-fidelity/killlag.py"],
+                                     "critique-fidelity/nextday.py", "critique-fidelity/killlag.py",
+                                     "critique-fidelity/l3gate.py"],
                              imports=model_paths()),
             "rule": ("fast-phase kill predicate: fightTime < 300 and loss/H < theta (CalculateSpawnerData fast branch, "
                      "bundled TimeChunkSnapshots as DpsData/DefenseData cache, AB group A); first kill day = first "
@@ -536,7 +544,28 @@ def fx_forensics_killdays(ctx: Ctx, con, mcon) -> dict:
             "theta_grid": grid,
             "player_dps_scaling": sens,
             "new_island_planning": nextday,
-            "kill_predicate_k2k3_lag": killlag}
+            "kill_predicate_k2k3_lag": killlag,
+            "l3_gate_lethality": l3_gate_probe(R, con)}
+
+
+def l3_gate_probe(R: Forensics, con) -> dict:
+    """critique-fidelity/l3gate.py: fast-branch fight of the island-3 gate and the first dragon at given days."""
+    by_key = {}
+    for s in load_spawners(con):  # survey: dict over all enabled spawners, first key match in rowid order
+        by_key[s["Key"]] = s
+    probes = []
+    for prefix, days in (("Spawner_boss_cut_rare", [3, 4, 5, 6]), ("dragon_", [6, 7, 8])):
+        s = [v for v in by_key.values() if v["Key"].startswith(prefix)][0]
+        rows = []
+        for d in days:
+            f = R.fight(s, R.snap_at(d), d)
+            rows.append({"day": d, "fight_time": f["ft"], "loss": f["loss"], "H": f["H"], "lossfrac": f["lossfrac"]})
+        probes.append({"key_prefix": prefix, "Key": s["Key"], "file_id": s["file_id"], "go_name": s["go_name"],
+                       "LocationNumber": s["LocationNumber"], "OptimumTime": s["OptimumTime"],
+                       "IsDays": bool(s["IsDays"]), "is_gate": bool(s["Gates#count"]), "days": rows})
+    return {"note": ("design 4.5 SlowLethalityGate evidence: fight state = day snapshot of that day, fast branch; "
+                     "survey printed ft 41.9 / loss/H 4.16 at day 3, 1.066 at day 4, 0.21 at day 5 for the L3 gate"),
+            "probes": probes}
 
 
 # ----------------------------------------------------------------------------- bake probe (ported)
@@ -640,7 +669,177 @@ def fx_bake_probe(ctx: Ctx, mcon) -> dict:
             b = ot - dlt
         diff += abs(a - b) > 1e-3
     out["recalc_optimum_time_model_vs_f64_differ_gt_1e-3"] = diff
-    return {"meta": ctx.meta(ported=["model/golden_probe.py"], imports=model_paths()), **out}
+    return {"meta": ctx.meta(ported=["model/golden_probe.py"], imports=model_paths(),
+                             note=("snapshot_composition uses the model's current Evaluate (stepwise rounding) with "
+                                   "tolerances; its tf/tv counts equal the stepwise ablation of G11, see "
+                                   "interpolation_rounding.json for the exact per-rounding counts")),
+            **out}
+
+
+# ----------------------------------------------------------------------------- interpolation rounding (ported)
+ROUNDINGS = ["stepwise", "fma", "double_tail", "double_all"]
+
+
+def make_evaluate(kind):
+    """architect/fma_check.py and critique-fidelity/fma3.py: Evaluate with the final lerp rounded as fma/double."""
+    def ev(self, timing):
+        timing = f32(timing)
+        timings = parse_points(self.timing_points)
+        coefs = parse_points(self.coef_points)
+        if len(timings) < 2 or len(coefs) < 2 or len(timings) != len(coefs):
+            return f32(0.0)
+        if timings[0] >= timing:
+            return coefs[0]
+        for i in range(len(timings) - 1):
+            left, right = timings[i], timings[i + 1]
+            if right < timing:
+                continue
+            progress = f32(0.0)
+            if left != right:
+                if kind == "double_all":
+                    raw = f32((float(timing) - float(left)) / (float(right) - float(left)))
+                else:
+                    raw = f32(f32(timing - left) / f32(right - left))
+                progress = f32(0.0) if raw < 0.0 else (f32(1.0) if raw > 1.0 else raw)
+            first, second = coefs[i], coefs[i + 1]
+            if kind == "fma":
+                return f32(math.fma(float(progress), float(f32(second - first)), float(first)))
+            return f32(float(first) + float(progress) * (float(second) - float(first)))
+        return coefs[-1]
+    return ev
+
+
+def fx_interpolation_rounding(ctx: Ctx, mcon) -> dict:
+    sd = MD.load_simulation_data(mcon)
+    interp = MD.load_interpolations(mcon)
+    cls = type(interp.interpolations[0])
+    orig = cls.evaluate
+    MAIN = {6, 8, 12, 14, 16, 20, 1, 2, 22}
+    DIRECT = {1, 2, 22}
+    modes = {}
+    grid = {}
+    try:
+        for kind in ROUNDINGS:
+            cls.evaluate = orig if kind == "stepwise" else make_evaluate(kind)
+            snap = {"n": 0, "k2_ok": 0, "k3_ok": 0}
+            cells = {"n": 0, "sff": 0, "pm": 0, "tf": 0, "tv": 0}
+            other = {"n": 0, "ok": 0}
+            fails = []
+            for lname, lst in (("time_chunk_snapshots", sd.time_chunk_snapshots), ("snapshots", sd.snapshots)):
+                for i, s in enumerate(lst):
+                    snap["n"] += 1
+                    day = f32(s.time_chunk_index)
+                    k2 = float(interp.get_total_coefficient(day, 2))
+                    k3 = float(interp.get_total_coefficient(day, 3))
+                    m = [st for st in s.stats if st.key in MAIN]
+                    a = all(st.stats_from_features_flat == k2 for st in m)
+                    b = all(st.percent_multiplier == k3 for st in m)
+                    snap["k2_ok"] += a
+                    snap["k3_ok"] += b
+                    if not (a and b):
+                        fails.append({"list": lname, "index": i, "TimeChunkIndex": s.time_chunk_index,
+                                      "k2_ok": a, "k3_ok": b, "k2": k2, "k3": k3})
+                    for st in s.stats:
+                        if st.key in MAIN:
+                            cells["n"] += 1
+                            cells["sff"] += st.stats_from_features_flat == k2
+                            cells["pm"] += st.percent_multiplier == k3
+                            tf = st.value * (1.0 + k2)
+                            cells["tf"] += st.total_flat_value == tf
+                            tv = tf * k3 if st.key in DIRECT else tf
+                            cells["tv"] += st.total_value == tv
+                        else:
+                            other["n"] += 1
+                            other["ok"] += (st.stats_from_features_flat == 0 and st.percent_multiplier == 1
+                                            and st.total_flat_value == st.value and st.total_value == st.value)
+            modes[kind] = {"snapshots": snap, "main_cells": cells, "other_cells": other, "failing_snapshots": fails}
+            grid[kind] = [float(it.evaluate(f32(t / 4))) for it in interp.interpolations for t in range(3200)]
+    finally:
+        cls.evaluate = orig
+    n_grid = len(grid["stepwise"])
+    pairs = [{"a": a, "b": b, "differ": sum(x != y for x, y in zip(grid[a], grid[b])), "of": n_grid}
+             for i, a in enumerate(ROUNDINGS) for b in ROUNDINGS[i + 1:]]
+    return {"meta": ctx.meta(ported=["architect/fma_check.py", "critique-fidelity/fma3.py"], imports=model_paths()),
+            "note": ("G11. Snapshot attribute composition, exact float equality: SFF = K2(d), PM = K3(d), "
+                     "TF = Value*(1+K2), TV = TF*K3 for Health/HealthRegen/LifestealFlat else TF; main stats are "
+                     "StatType {1,2,6,8,12,14,16,20,22}, other stats must be 0/1/identity. d = f32(TimeChunkIndex), "
+                     "K2/K3 = GetTotalCoefficient type 2/3. Rounding of the final lerp of Evaluate: stepwise = "
+                     "binary32 per operation (model as of 5806ec7), fma = one fused multiply-add then binary32, "
+                     "double_tail = progress in binary32 then lerp in double, double_all = progress and lerp in double. "
+                     "grid = every curve (enabled or not) at t = 0, 0.25, ..., 799.75."),
+            "roundings": modes,
+            "grid_differences": pairs}
+
+
+# ----------------------------------------------------------------------------- RPM replay (ported)
+def fx_rpm_replay(ctx: Ctx, con, mcon) -> dict:
+    """critique-fidelity/lag.py on forensics/rpm.py: day-snapshot CurrentGpm replay with K lag variants."""
+    R = Forensics(con, mcon)
+    spa = [s for s in load_spawners(con) if not (s["IsEvent"] or s["IsVip"])]  # rpm.py keeps dummies
+    TC = R.TCS
+    SD_TC = R.SD.time_chunk_snapshots
+    assert len(TC) == len(SD_TC) and all(a["TC"] == b.time_chunk_index for a, b in zip(TC, SD_TC))
+
+    def rpm(idx, lag_k, lag_t):
+        sn = SD_TC[idx]
+        d = TC[idx]["TC"]
+        s2 = LagSnap(sn, max(d - 1, 0), R.INT) if lag_k else sn
+        H = s2.total(ST.Health)
+        tot = collections.Counter()
+        for s in spa:
+            if s["DisableAfterFirstClear"] or s["LocationNumber"] > TC[idx]["Loc"] or not s["rewards"]:
+                continue
+            f = R.fight(s, s2, max(d - 1, 0) if lag_t else d)
+            if not f["ft"] < 300:
+                continue
+            loss = f["loss"]
+            if H < loss:
+                continue
+            hm = 1.0 if H >= loss else (H / loss) ** 0.5
+            lm = 2.0 if (not s["IsEliteBoss"] and s["LocationNumber"] <= 2) else 1.0
+            for st, v in s["rewards"]:
+                tot[st] += 10 / (10 + f["ft"]) * v * s["limit"] * lm * hm
+        return {k: max(0.5, v / 60) for k, v in tot.items() if v > 0}
+
+    variants = []
+    default_values = None
+    for lag_k, lag_t in [(True, False), (False, False), (True, True), (False, True)]:
+        prev = {}
+        ok = n = 0
+        misses = []
+        values = []
+        for idx in range(len(TC)):
+            r = rpm(idx, lag_k, lag_t)
+            for k in r:
+                prev[k] = max(prev.get(k, 0), r[k])
+            row = {}
+            for k, st in TC[idx]["stats"].items():
+                g = st["CurrentGpm"]
+                p = prev.get(k, 0.0)
+                row[k] = p
+                n += 1
+                if abs(g - p) <= 1e-4 * max(1, abs(g)):
+                    ok += 1
+                else:
+                    misses.append({"TC": TC[idx]["TC"], "stat": k, "stored": g, "replayed": p})
+            values.append({"TC": TC[idx]["TC"], "replayed": dict(sorted(row.items()))})
+        variants.append({"k2k3_day": "d-1" if lag_k else "d", "k4k5_day": "d-1" if lag_t else "d",
+                         "order": "RpmFirst" if (lag_k and not lag_t) else None,
+                         "match": ok, "cells": n, "misses": misses})
+        if lag_k and not lag_t:
+            default_values = values
+    return {"meta": ctx.meta(ported=["forensics/load.py", "forensics/spawn.py", "forensics/fight.py",
+                                     "forensics/rpm.py", "critique-fidelity/lag.py"], imports=model_paths()),
+            "note": ("G20. Per day snapshot (TimeChunkSnapshots, 46 x 30 stats): replay CalculateSpawnerData fast "
+                     "branch + CalculateRPMValueTimeChunk on the snapshot's own state (DpsData/DefenseData as cache, "
+                     "full health), spawners = enabled, not event/VIP (dummies kept), not DAFC, LocationNumber <= "
+                     "snapshot Location, with rewards; keep if fightTime < 300 and H >= loss; rpm += "
+                     "10/(10+ft) * reward * limit * (2 if non-elite and L <= 2 else 1); value = max(0.5, rpm/60); "
+                     "running max over days. match when |stored - replayed| <= 1e-4*max(1,|stored|). Lag d-1 for "
+                     "K2/K3 recomposes Health/HealthRegen/LifestealFlat as Value*(1+K2(d-1))*K3(d-1); lag for "
+                     "K4/K5 passes day d-1 to the fight (ability DPS/EHP multipliers)."),
+            "variants": variants,
+            "rpm_first_replayed": default_values}
 
 
 # ----------------------------------------------------------------------------- extraction parity
@@ -749,7 +948,7 @@ def fx_extract_parity(ctx: Ctx, main_db: Path) -> dict:
             unexplained += 1
     a.close()
     b.close()
-    return {"meta": ctx.meta(ported=["dbparity.py", "rowdiff.py"],
+    return {"meta": ctx.meta(note="comparison logic written for W0, not a survey port",
                              main_db={"path": str(main_db), "sha256": sha256_file(main_db),
                                       "branch": "feature/pet-system (working tree incl. uncommitted changes)"}),
             "tables_main": len(A), "tables_stage5": len(Bt),
@@ -804,6 +1003,8 @@ def generate(outdir: Path, db: Path, date: str, git_rev: str, main_db: Path | No
     write_json(outdir / "forensics_targets.json", fx_forensics_targets(ctx, con))
     write_json(outdir / "forensics_killdays.json", fx_forensics_killdays(ctx, con, mcon))
     write_json(outdir / "bake_probe_counts.json", fx_bake_probe(ctx, mcon))
+    write_json(outdir / "interpolation_rounding.json", fx_interpolation_rounding(ctx, mcon))
+    write_json(outdir / "rpm_replay.json", fx_rpm_replay(ctx, con, mcon))
     if main_db is not None:
         write_json(outdir / "extract_parity.json", fx_extract_parity(ctx, main_db))
     con.close()
@@ -818,6 +1019,8 @@ def main() -> int:
     ap.add_argument("--main-db", type=Path, default=DEFAULT_MAIN_DB)
     ap.add_argument("--check", action="store_true",
                     help="regenerate with the committed date/git_rev into a temp dir and compare byte for byte")
+    ap.add_argument("--skip-parity", action="store_true",
+                    help="with --check: accept that extract_parity.json cannot be checked (main DB changed/missing)")
     ap.add_argument("--compare-survey", action="store_true", help="also compare with the survey outputs")
     args = ap.parse_args()
     db = Path(os.environ.get("TUFU_BALANCE_DB") or BALANCE / "out" / "balance.sqlite").resolve()
@@ -830,10 +1033,14 @@ def main() -> int:
             generate(Path(tmp), db, meta["date"], meta["git_rev"], main_db)
             names = FIXTURES if main_db else [f for f in FIXTURES if f != "extract_parity.json"]
             bad = [f for f in names if not filecmp.cmp(HERE / f, Path(tmp) / f, shallow=False)]
-        if main_db is None:
-            print("extract_parity.json skipped: main checkout database changed or missing")
         print("identical" if not bad else f"DIFFERENT: {bad}")
-        return 1 if bad else 0
+        if bad:
+            return 1
+        if main_db is None:
+            print("extract_parity.json NOT CHECKED: main checkout database changed or missing"
+                  + (" (accepted by --skip-parity)" if args.skip_parity else "; pass --skip-parity to accept"))
+            return 0 if args.skip_parity else 2
+        return 0
 
     date = args.date or datetime.date.today().isoformat()
     git_rev = args.git_rev or git_head()

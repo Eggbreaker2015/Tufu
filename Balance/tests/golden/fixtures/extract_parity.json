@@ -2,21 +2,12 @@
  "meta": {
   "source": {
    "path": "Balance/tests/golden/fixtures/generate.py",
-   "sha256": "911a08bfe32053978161c5f38d757f6715babe1b14826e284926158d5855796d",
-   "ported_from": [
-    {
-     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/dbparity.py",
-     "sha256": "77ee06099636de7baae9c94167ab8e0da61d6c90d1057aa7bc3e8cee1f8873e5"
-    },
-    {
-     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/rowdiff.py",
-     "sha256": "127bf2e2a727cb8021359b1737170d0d91ba1a1059d3a0c844a9e0c64b3e62c4"
-    }
-   ]
+   "sha256": "e0a5e6886f141c5fdbcacb6e5b059b43c024c157dc251f2e1dc8188575c4bde2"
   },
   "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
-  "git_rev": "3dd8b21009b3236fe8f9b592847642515c965d32",
+  "git_rev": "ffa2f973bd65b46a1f430fe6319e976a0ccf92bd",
   "date": "2026-10-28",
+  "note": "comparison logic written for W0, not a survey port",
   "main_db": {
    "path": "/Users/joyfort/MyProjects/Tufu/Balance/out/balance.sqlite",
    "sha256": "c10627ca65e52ec4fd37abe003b226046ef086a5d0b76def5a0a45403248f9ec",

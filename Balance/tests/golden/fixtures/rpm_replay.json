@@ -1,0 +1,5743 @@
+{
+ "meta": {
+  "source": {
+   "path": "Balance/tests/golden/fixtures/generate.py",
+   "sha256": "e0a5e6886f141c5fdbcacb6e5b059b43c024c157dc251f2e1dc8188575c4bde2",
+   "ported_from": [
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/load.py",
+     "sha256": "fb38bb3a3d93cae2f374faf2a312b91df56e6eb9c9b2b475bed0e60d16555b29"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/spawn.py",
+     "sha256": "a791a540ec2654cd56a802afb26d119d639a64190a9166edb39adca03f7e583b"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/fight.py",
+     "sha256": "7777a25aaa1d375406ba4105c6450d7710931fd99dc4a863123941e6ff057eda"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/rpm.py",
+     "sha256": "91e68357aeb011c618ed06369134394c63ec9d0a523cd4f2b93cd6d6466b42de"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/critique-fidelity/lag.py",
+     "sha256": "25eac559cdb7ce376b9f94611a0540d294789bae304fec1cb570b8cf5ab7ca93"
+    }
+   ],
+   "imports": [
+    {
+     "path": "Balance/tufu_balance/model/bake.py",
+     "sha256": "e57930fee5d3fabd3919eb9c1e735be7c827d59a12b05c37a6a2e925ed1fafa9"
+    },
+    {
+     "path": "Balance/tufu_balance/model/data.py",
+     "sha256": "0f1b0a7fcfa92ce85fd3328e9949407fa7ade084a36d618a1ea476709a279c1d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/defense.py",
+     "sha256": "d4ac09c8ea24fa3bb5ed10c62fe7831eacabb496d3ba8467170d16fdb397d55d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/enums.py",
+     "sha256": "168864954f9c169a116b71e4fdd18e54f5cc108ccccb76a099d9aadcde3d49c7"
+    },
+    {
+     "path": "Balance/tufu_balance/model/f32.py",
+     "sha256": "34adb1c00157d11378f31e03a7771647a007b5b75745873878b59cc906e330e6"
+    },
+    {
+     "path": "Balance/tufu_balance/model/interpolation.py",
+     "sha256": "519e45c55e20f99977e3f6901d7a09b3a93274308f92b4a781489ed9a0083764"
+    },
+    {
+     "path": "Balance/tufu_balance/model/snapshots.py",
+     "sha256": "608bb69ba2b9dd7cc757c90fe99fbab8ab9167dd4c421451c5e0544e9cc234bf"
+    },
+    {
+     "path": "Balance/tufu_balance/model/stats.py",
+     "sha256": "164f9b6433151505cff8878f847c9441943002634b4bd914cb16c47e63104f38"
+    }
+   ]
+  },
+  "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
+  "git_rev": "ffa2f973bd65b46a1f430fe6319e976a0ccf92bd",
+  "date": "2026-10-28"
+ },
+ "note": "G20. Per day snapshot (TimeChunkSnapshots, 46 x 30 stats): replay CalculateSpawnerData fast branch + CalculateRPMValueTimeChunk on the snapshot's own state (DpsData/DefenseData as cache, full health), spawners = enabled, not event/VIP (dummies kept), not DAFC, LocationNumber <= snapshot Location, with rewards; keep if fightTime < 300 and H >= loss; rpm += 10/(10+ft) * reward * limit * (2 if non-elite and L <= 2 else 1); value = max(0.5, rpm/60); running max over days. match when |stored - replayed| <= 1e-4*max(1,|stored|). Lag d-1 for K2/K3 recomposes Health/HealthRegen/LifestealFlat as Value*(1+K2(d-1))*K3(d-1); lag for K4/K5 passes day d-1 to the fight (ability DPS/EHP multipliers).",
+ "variants": [
+  {
+   "k2k3_day": "d-1",
+   "k4k5_day": "d",
+   "order": "RpmFirst",
+   "match": 1380,
+   "cells": 1380,
+   "misses": []
+  },
+  {
+   "k2k3_day": "d",
+   "k4k5_day": "d",
+   "order": null,
+   "match": 1376,
+   "cells": 1380,
+   "misses": [
+    {
+     "TC": 1,
+     "stat": "Health",
+     "stored": 20.397246115396868,
+     "replayed": 27.974538790467836
+    },
+    {
+     "TC": 30,
+     "stat": "CritDamagePercent",
+     "stored": 0.8289515433561158,
+     "replayed": 0.9867828444358573
+    },
+    {
+     "TC": 94,
+     "stat": "Health",
+     "stored": 2721.7781781027015,
+     "replayed": 2791.9387889402165
+    },
+    {
+     "TC": 94,
+     "stat": "StabDamageFlat",
+     "stored": 64.56325412619223,
+     "replayed": 65.96646634294255
+    }
+   ]
+  },
+  {
+   "k2k3_day": "d-1",
+   "k4k5_day": "d-1",
+   "order": null,
+   "match": 1047,
+   "cells": 1380,
+   "misses": [
+    {
+     "TC": 21,
+     "stat": "Health",
+     "stored": 286.9583153288575,
+     "replayed": 286.8424243248331
+    },
+    {
+     "TC": 21,
+     "stat": "MovementSpeed",
+     "stored": 1.7317085824359535,
+     "replayed": 1.7311153336613558
+    },
+    {
+     "TC": 21,
+     "stat": "HealthRegen",
+     "stored": 5.460980562745009,
+     "replayed": 5.458696311301912
+    },
+    {
+     "TC": 21,
+     "stat": "StabDefenceFlat",
+     "stored": 10.748573005046106,
+     "replayed": 10.74115524275353
+    },
+    {
+     "TC": 21,
+     "stat": "CutDefenceFlat",
+     "stored": 9.27949492729255,
+     "replayed": 9.274312331638324
+    },
+    {
+     "TC": 21,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 11.056980689538381,
+     "replayed": 11.041030187373218
+    },
+    {
+     "TC": 21,
+     "stat": "StabDamageFlat",
+     "stored": 3.10269622964265,
+     "replayed": 3.101680089570081
+    },
+    {
+     "TC": 21,
+     "stat": "CutDamageFlat",
+     "stored": 14.301386388073748,
+     "replayed": 14.284507862931004
+    },
+    {
+     "TC": 21,
+     "stat": "BuckshotDamageFlat",
+     "stored": 15.005905571072665,
+     "replayed": 14.998402849841401
+    },
+    {
+     "TC": 21,
+     "stat": "LifestealFlat",
+     "stored": 1.1937765480690383,
+     "replayed": 1.19238555351502
+    },
+    {
+     "TC": 21,
+     "stat": "CritChance",
+     "stored": 0.5185045415718396,
+     "replayed": 0.5178087646981366
+    },
+    {
+     "TC": 21,
+     "stat": "CritDamagePercent",
+     "stored": 0.5064050129278483,
+     "replayed": 0.5057138819515914
+    },
+    {
+     "TC": 24,
+     "stat": "Health",
+     "stored": 335.9185582789275,
+     "replayed": 335.74267396008673
+    },
+    {
+     "TC": 24,
+     "stat": "MovementSpeed",
+     "stored": 1.9611402344754931,
+     "replayed": 1.960500568128269
+    },
+    {
+     "TC": 24,
+     "stat": "HealthRegen",
+     "stored": 6.6969854666750495,
+     "replayed": 6.694106628997831
+    },
+    {
+     "TC": 24,
+     "stat": "StabDefenceFlat",
+     "stored": 11.363164485083937,
+     "replayed": 11.35858439385881
+    },
+    {
+     "TC": 24,
+     "stat": "CutDefenceFlat",
+     "stored": 18.13760594824756,
+     "replayed": 18.118863753756717
+    },
+    {
+     "TC": 24,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 12.54956374265476,
+     "replayed": 12.538358792712874
+    },
+    {
+     "TC": 24,
+     "stat": "StabDamageFlat",
+     "stored": 9.063239881177507,
+     "replayed": 9.048988006712994
+    },
+    {
+     "TC": 24,
+     "stat": "CutDamageFlat",
+     "stored": 15.90242443138245,
+     "replayed": 15.890238820235647
+    },
+    {
+     "TC": 24,
+     "stat": "BuckshotDamageFlat",
+     "stored": 15.623457226819848,
+     "replayed": 15.618885189479546
+    },
+    {
+     "TC": 24,
+     "stat": "LifestealFlat",
+     "stored": 3.1775210376645524,
+     "replayed": 3.172652395445724
+    },
+    {
+     "TC": 24,
+     "stat": "CritChance",
+     "stored": 0.7158403220084354,
+     "replayed": 0.7149157625383695
+    },
+    {
+     "TC": 24,
+     "stat": "CritDamagePercent",
+     "stored": 0.7046968765009317,
+     "replayed": 0.7037538945973215
+    },
+    {
+     "TC": 27,
+     "stat": "Health",
+     "stored": 514.7742072039886,
+     "replayed": 514.0956656983485
+    },
+    {
+     "TC": 27,
+     "stat": "MovementSpeed",
+     "stored": 2.0095670347185397,
+     "replayed": 2.0091284723265073
+    },
+    {
+     "TC": 27,
+     "stat": "HealthRegen",
+     "stored": 6.915201812471577,
+     "replayed": 6.913199007032129
+    },
+    {
+     "TC": 27,
+     "stat": "StabDefenceFlat",
+     "stored": 11.674237235645794,
+     "replayed": 11.67122368230992
+    },
+    {
+     "TC": 27,
+     "stat": "CutDefenceFlat",
+     "stored": 19.67238415211523,
+     "replayed": 19.658169633406494
+    },
+    {
+     "TC": 27,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 13.372966032646831,
+     "replayed": 13.365103290848792
+    },
+    {
+     "TC": 27,
+     "stat": "StabDamageFlat",
+     "stored": 10.31317186927525,
+     "replayed": 10.300779420172718
+    },
+    {
+     "TC": 27,
+     "stat": "CutDamageFlat",
+     "stored": 16.80518582986511,
+     "replayed": 16.79649604215926
+    },
+    {
+     "TC": 27,
+     "stat": "BuckshotDamageFlat",
+     "stored": 15.932908424608991,
+     "replayed": 15.929920791889879
+    },
+    {
+     "TC": 27,
+     "stat": "LifestealFlat",
+     "stored": 3.5836110717805725,
+     "replayed": 3.579782908358927
+    },
+    {
+     "TC": 27,
+     "stat": "CritChance",
+     "stored": 0.7924971592474616,
+     "replayed": 0.7917245649581945
+    },
+    {
+     "TC": 27,
+     "stat": "CritDamagePercent",
+     "stored": 0.7833918099257964,
+     "replayed": 0.7825934398365544
+    },
+    {
+     "TC": 30,
+     "stat": "Health",
+     "stored": 619.827886304032,
+     "replayed": 619.0430893408721
+    },
+    {
+     "TC": 30,
+     "stat": "MovementSpeed",
+     "stored": 2.219477876743869,
+     "replayed": 2.2188904328077563
+    },
+    {
+     "TC": 30,
+     "stat": "HealthRegen",
+     "stored": 8.186752069094162,
+     "replayed": 8.183516400630062
+    },
+    {
+     "TC": 30,
+     "stat": "StabDefenceFlat",
+     "stored": 22.091309358510113,
+     "replayed": 22.07179198652474
+    },
+    {
+     "TC": 30,
+     "stat": "CutDefenceFlat",
+     "stored": 20.483090612032427,
+     "replayed": 20.471884678245456
+    },
+    {
+     "TC": 30,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 13.785940385887573,
+     "replayed": 13.779963605082905
+    },
+    {
+     "TC": 30,
+     "stat": "StabDamageFlat",
+     "stored": 11.04873849221579,
+     "replayed": 11.038166702021877
+    },
+    {
+     "TC": 30,
+     "stat": "CutDamageFlat",
+     "stored": 17.263519877727916,
+     "replayed": 17.256859549968375
+    },
+    {
+     "TC": 30,
+     "stat": "BuckshotDamageFlat",
+     "stored": 22.720578583054092,
+     "replayed": 22.705987461651365
+    },
+    {
+     "TC": 30,
+     "stat": "LifestealFlat",
+     "stored": 3.8040269083569767,
+     "replayed": 3.8009523074081577
+    },
+    {
+     "TC": 30,
+     "stat": "CritChance",
+     "stored": 0.8364356101293222,
+     "replayed": 0.8357816529801428
+    },
+    {
+     "TC": 30,
+     "stat": "CritDamagePercent",
+     "stored": 0.8289515433561158,
+     "replayed": 0.8282720570207681
+    },
+    {
+     "TC": 33,
+     "stat": "Health",
+     "stored": 666.0086809446592,
+     "replayed": 665.2806258906132
+    },
+    {
+     "TC": 33,
+     "stat": "MovementSpeed",
+     "stored": 2.25245131124764,
+     "replayed": 2.251995983241841
+    },
+    {
+     "TC": 33,
+     "stat": "HealthRegen",
+     "stored": 8.37532556134862,
+     "replayed": 8.372792859507761
+    },
+    {
+     "TC": 33,
+     "stat": "StabDefenceFlat",
+     "stored": 23.368226747553972,
+     "replayed": 23.35245887588248
+    },
+    {
+     "TC": 33,
+     "stat": "CutDefenceFlat",
+     "stored": 21.07220332645567,
+     "replayed": 21.063429323217218
+    },
+    {
+     "TC": 33,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 14.027502016801131,
+     "replayed": 14.022695446718744
+    },
+    {
+     "TC": 33,
+     "stat": "StabDamageFlat",
+     "stored": 11.621881393944205,
+     "replayed": 11.613085904233905
+    },
+    {
+     "TC": 33,
+     "stat": "CutDamageFlat",
+     "stored": 17.53338101309799,
+     "replayed": 17.527998489190583
+    },
+    {
+     "TC": 33,
+     "stat": "BuckshotDamageFlat",
+     "stored": 23.687986088036833,
+     "replayed": 23.675864702094415
+    },
+    {
+     "TC": 33,
+     "stat": "LifestealFlat",
+     "stored": 3.9667675710022055,
+     "replayed": 3.964327866308822
+    },
+    {
+     "TC": 33,
+     "stat": "Evasion",
+     "stored": 0.5210500180417513,
+     "replayed": 0.5203499651885685
+    },
+    {
+     "TC": 33,
+     "stat": "CritChance",
+     "stored": 1.0606156673692435,
+     "replayed": 1.0595387175247482
+    },
+    {
+     "TC": 33,
+     "stat": "CritDamagePercent",
+     "stored": 1.0599434996288999,
+     "replayed": 1.0588410676852613
+    },
+    {
+     "TC": 37,
+     "stat": "Health",
+     "stored": 809.1644369085809,
+     "replayed": 808.3843173967743
+    },
+    {
+     "TC": 37,
+     "stat": "MovementSpeed",
+     "stored": 2.58964142826902,
+     "replayed": 2.5887176015117084
+    },
+    {
+     "TC": 37,
+     "stat": "HealthRegen",
+     "stored": 9.769759199491835,
+     "replayed": 9.7659182851415
+    },
+    {
+     "TC": 37,
+     "stat": "StabDefenceFlat",
+     "stored": 24.773477547490895,
+     "replayed": 24.76278464466775
+    },
+    {
+     "TC": 37,
+     "stat": "CutDefenceFlat",
+     "stored": 21.693894289331293,
+     "replayed": 21.687878991203455
+    },
+    {
+     "TC": 37,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 26.00806825946695,
+     "replayed": 25.981240358304504
+    },
+    {
+     "TC": 37,
+     "stat": "StabDamageFlat",
+     "stored": 14.982611370237727,
+     "replayed": 14.971674245202754
+    },
+    {
+     "TC": 37,
+     "stat": "CutDamageFlat",
+     "stored": 21.142724614064416,
+     "replayed": 21.1332687612262
+    },
+    {
+     "TC": 37,
+     "stat": "BuckshotDamageFlat",
+     "stored": 38.68770740933443,
+     "replayed": 38.65478723256592
+    },
+    {
+     "TC": 37,
+     "stat": "LifestealFlat",
+     "stored": 4.1408618347628865,
+     "replayed": 4.139165755256824
+    },
+    {
+     "TC": 37,
+     "stat": "Evasion",
+     "stored": 0.8475382052782953,
+     "replayed": 0.8464914307135658
+    },
+    {
+     "TC": 37,
+     "stat": "CritChance",
+     "stored": 1.4692575378509085,
+     "replayed": 1.4677560043368925
+    },
+    {
+     "TC": 37,
+     "stat": "CritDamagePercent",
+     "stored": 1.4715131253614573,
+     "replayed": 1.4699998319903278
+    },
+    {
+     "TC": 41,
+     "stat": "Health",
+     "stored": 854.6180884786194,
+     "replayed": 853.9564995519023
+    },
+    {
+     "TC": 41,
+     "stat": "MovementSpeed",
+     "stored": 2.6407648745062104,
+     "replayed": 2.6399790267758934
+    },
+    {
+     "TC": 41,
+     "stat": "HealthRegen",
+     "stored": 9.979443610061582,
+     "replayed": 9.97626460233624
+    },
+    {
+     "TC": 41,
+     "stat": "StabDefenceFlat",
+     "stored": 25.337549653829495,
+     "replayed": 25.329257537657554
+    },
+    {
+     "TC": 41,
+     "stat": "CutDefenceFlat",
+     "stored": 22.030350258318997,
+     "replayed": 22.025930375139907
+    },
+    {
+     "TC": 41,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 27.499328570683115,
+     "replayed": 27.4752656175721
+    },
+    {
+     "TC": 41,
+     "stat": "StabDamageFlat",
+     "stored": 21.402823333718075,
+     "replayed": 21.381562926187446
+    },
+    {
+     "TC": 41,
+     "stat": "CutDamageFlat",
+     "stored": 28.04960582408716,
+     "replayed": 28.02461474947471
+    },
+    {
+     "TC": 41,
+     "stat": "BuckshotDamageFlat",
+     "stored": 52.54761001595254,
+     "replayed": 52.495156697301006
+    },
+    {
+     "TC": 41,
+     "stat": "LifestealFlat",
+     "stored": 4.236090235962599,
+     "replayed": 4.2348346624022755
+    },
+    {
+     "TC": 41,
+     "stat": "Evasion",
+     "stored": 0.9060663080987015,
+     "replayed": 0.9051635527322767
+    },
+    {
+     "TC": 41,
+     "stat": "CritChance",
+     "stored": 1.553045585276492,
+     "replayed": 1.5517528603310065
+    },
+    {
+     "TC": 41,
+     "stat": "CritDamagePercent",
+     "stored": 1.5555549967457396,
+     "replayed": 1.5542573767771075
+    },
+    {
+     "TC": 46,
+     "stat": "Health",
+     "stored": 999.8019823883355,
+     "replayed": 999.0861844291337
+    },
+    {
+     "TC": 46,
+     "stat": "MovementSpeed",
+     "stored": 3.526120664606171,
+     "replayed": 3.5234071777529326
+    },
+    {
+     "TC": 46,
+     "stat": "HealthRegen",
+     "stored": 11.730259309270615,
+     "replayed": 11.725829383340265
+    },
+    {
+     "TC": 46,
+     "stat": "StabDefenceFlat",
+     "stored": 25.94090714224316,
+     "replayed": 25.93529922389442
+    },
+    {
+     "TC": 46,
+     "stat": "CutDefenceFlat",
+     "stored": 32.86651754261886,
+     "replayed": 32.84417162911519
+    },
+    {
+     "TC": 46,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 31.897760939372965,
+     "replayed": 31.86754174698715
+    },
+    {
+     "TC": 46,
+     "stat": "StabDamageFlat",
+     "stored": 42.025078231288234,
+     "replayed": 41.96328351139711
+    },
+    {
+     "TC": 46,
+     "stat": "CutDamageFlat",
+     "stored": 30.126449582134082,
+     "replayed": 30.104557923662906
+    },
+    {
+     "TC": 46,
+     "stat": "BuckshotDamageFlat",
+     "stored": 56.693894950671606,
+     "replayed": 56.652056852446336
+    },
+    {
+     "TC": 46,
+     "stat": "LifestealFlat",
+     "stored": 4.328492780261532,
+     "replayed": 4.327675662516797
+    },
+    {
+     "TC": 46,
+     "stat": "Evasion",
+     "stored": 1.3172096467984409,
+     "replayed": 1.3157832184147311
+    },
+    {
+     "TC": 46,
+     "stat": "CritChance",
+     "stored": 1.6537283400304983,
+     "replayed": 1.6527412207013545
+    },
+    {
+     "TC": 46,
+     "stat": "CritDamagePercent",
+     "stored": 1.656364003824778,
+     "replayed": 1.6553793178819556
+    },
+    {
+     "TC": 46,
+     "stat": "BlockChance",
+     "stored": 0.5244794767529022,
+     "replayed": 0.5233138034064413
+    },
+    {
+     "TC": 46,
+     "stat": "BlockAmount",
+     "stored": 0.6035321186484514,
+     "replayed": 0.6023475280347335
+    },
+    {
+     "TC": 51,
+     "stat": "Health",
+     "stored": 1067.3600809668399,
+     "replayed": 1066.8248604471526
+    },
+    {
+     "TC": 51,
+     "stat": "MovementSpeed",
+     "stored": 3.8122063003082243,
+     "replayed": 3.809825803459488
+    },
+    {
+     "TC": 51,
+     "stat": "HealthRegen",
+     "stored": 12.099173577333799,
+     "replayed": 12.095950230085727
+    },
+    {
+     "TC": 51,
+     "stat": "StabDefenceFlat",
+     "stored": 26.281336678126493,
+     "replayed": 26.277320327367313
+    },
+    {
+     "TC": 51,
+     "stat": "CutDefenceFlat",
+     "stored": 56.31249994579319,
+     "replayed": 56.25726704282736
+    },
+    {
+     "TC": 51,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 34.03240761518426,
+     "replayed": 34.00328242933303
+    },
+    {
+     "TC": 51,
+     "stat": "StabDamageFlat",
+     "stored": 48.33846118433016,
+     "replayed": 48.2860060259476
+    },
+    {
+     "TC": 51,
+     "stat": "CutDamageFlat",
+     "stored": 31.592974399072887,
+     "replayed": 31.57436082178273
+    },
+    {
+     "TC": 51,
+     "stat": "BuckshotDamageFlat",
+     "stored": 59.369509749802816,
+     "replayed": 59.33628765576496
+    },
+    {
+     "TC": 51,
+     "stat": "LifestealFlat",
+     "stored": 4.403176296109185,
+     "replayed": 4.402716587881885
+    },
+    {
+     "TC": 51,
+     "stat": "Evasion",
+     "stored": 1.445456586912645,
+     "replayed": 1.4443240602486174
+    },
+    {
+     "TC": 51,
+     "stat": "CritChance",
+     "stored": 1.9744264406513818,
+     "replayed": 1.9729733759608117
+    },
+    {
+     "TC": 51,
+     "stat": "CritDamagePercent",
+     "stored": 1.9768965135018728,
+     "replayed": 1.9754488919178883
+    },
+    {
+     "TC": 51,
+     "stat": "BlockChance",
+     "stored": 0.6414483201613194,
+     "replayed": 0.6403664301156282
+    },
+    {
+     "TC": 51,
+     "stat": "BlockAmount",
+     "stored": 0.7149742802062555,
+     "replayed": 0.7139824528389422
+    },
+    {
+     "TC": 57,
+     "stat": "Health",
+     "stored": 1110.47685562195,
+     "replayed": 1110.0834912540745
+    },
+    {
+     "TC": 57,
+     "stat": "MovementSpeed",
+     "stored": 4.015167608213548,
+     "replayed": 4.0132598956612275
+    },
+    {
+     "TC": 57,
+     "stat": "HealthRegen",
+     "stored": 12.345334345609327,
+     "replayed": 12.343061159413818
+    },
+    {
+     "TC": 57,
+     "stat": "StabDefenceFlat",
+     "stored": 26.55231510458798,
+     "replayed": 26.54958439209916
+    },
+    {
+     "TC": 57,
+     "stat": "CutDefenceFlat",
+     "stored": 61.1149831112734,
+     "replayed": 61.07081000983563
+    },
+    {
+     "TC": 57,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 36.49931775742603,
+     "replayed": 36.47073291802129
+    },
+    {
+     "TC": 57,
+     "stat": "StabDamageFlat",
+     "stored": 52.759031590013784,
+     "replayed": 52.717800701192026
+    },
+    {
+     "TC": 57,
+     "stat": "CutDamageFlat",
+     "stored": 33.00383931770722,
+     "replayed": 32.98909691132302
+    },
+    {
+     "TC": 57,
+     "stat": "BuckshotDamageFlat",
+     "stored": 61.79688857593471,
+     "replayed": 61.772488094208576
+    },
+    {
+     "TC": 57,
+     "stat": "LifestealFlat",
+     "stored": 6.770511614467887,
+     "replayed": 6.7656252640678165
+    },
+    {
+     "TC": 57,
+     "stat": "Evasion",
+     "stored": 1.5351536679008746,
+     "replayed": 1.5343070256636322
+    },
+    {
+     "TC": 57,
+     "stat": "CritChance",
+     "stored": 2.0966080202900668,
+     "replayed": 2.095370465127617
+    },
+    {
+     "TC": 57,
+     "stat": "CritDamagePercent",
+     "stored": 2.098429022110663,
+     "replayed": 2.0971966696746263
+    },
+    {
+     "TC": 57,
+     "stat": "BlockChance",
+     "stored": 0.7341782764277004,
+     "replayed": 0.7332774381592964
+    },
+    {
+     "TC": 57,
+     "stat": "BlockAmount",
+     "stored": 0.796375653064138,
+     "replayed": 0.7956080814542986
+    },
+    {
+     "TC": 63,
+     "stat": "Health",
+     "stored": 1781.6150601802397,
+     "replayed": 1779.7723991100713
+    },
+    {
+     "TC": 63,
+     "stat": "MovementSpeed",
+     "stored": 4.181965819426703,
+     "replayed": 4.1805600163701335
+    },
+    {
+     "TC": 63,
+     "stat": "HealthRegen",
+     "stored": 13.918333269108334,
+     "replayed": 13.914288956904981
+    },
+    {
+     "TC": 63,
+     "stat": "StabDefenceFlat",
+     "stored": 40.71591050499325,
+     "replayed": 40.69656228992821
+    },
+    {
+     "TC": 63,
+     "stat": "CutDefenceFlat",
+     "stored": 65.01230337950027,
+     "replayed": 64.97980576046021
+    },
+    {
+     "TC": 63,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 39.376142085780465,
+     "replayed": 39.34778732533844
+    },
+    {
+     "TC": 63,
+     "stat": "StabDamageFlat",
+     "stored": 56.36479163824664,
+     "replayed": 56.334978576133864
+    },
+    {
+     "TC": 63,
+     "stat": "CutDamageFlat",
+     "stored": 34.257616805561945,
+     "replayed": 34.24696041012295
+    },
+    {
+     "TC": 63,
+     "stat": "BuckshotDamageFlat",
+     "stored": 80.16470046725564,
+     "replayed": 80.12237016290166
+    },
+    {
+     "TC": 63,
+     "stat": "LifestealFlat",
+     "stored": 7.230806161751606,
+     "replayed": 7.22670974755279
+    },
+    {
+     "TC": 63,
+     "stat": "Evasion",
+     "stored": 1.969885428326243,
+     "replayed": 1.9683700736743568
+    },
+    {
+     "TC": 63,
+     "stat": "CritChance",
+     "stored": 2.5698945636457764,
+     "replayed": 2.5679780118348132
+    },
+    {
+     "TC": 63,
+     "stat": "CritDamagePercent",
+     "stored": 2.616238658986338,
+     "replayed": 2.6143212476672155
+    },
+    {
+     "TC": 63,
+     "stat": "BlockChance",
+     "stored": 1.1378799317626487,
+     "replayed": 1.1363128594797265
+    },
+    {
+     "TC": 63,
+     "stat": "BlockAmount",
+     "stored": 1.275364754033853,
+     "replayed": 1.2739012969558656
+    },
+    {
+     "TC": 70,
+     "stat": "Health",
+     "stored": 1986.9142632983464,
+     "replayed": 1985.2440059076882
+    },
+    {
+     "TC": 70,
+     "stat": "MovementSpeed",
+     "stored": 5.195771449919858,
+     "replayed": 5.19268523610468
+    },
+    {
+     "TC": 70,
+     "stat": "HealthRegen",
+     "stored": 14.329342520544973,
+     "replayed": 14.326385561319228
+    },
+    {
+     "TC": 70,
+     "stat": "StabDefenceFlat",
+     "stored": 67.28358622455204,
+     "replayed": 67.20767207535235
+    },
+    {
+     "TC": 70,
+     "stat": "CutDefenceFlat",
+     "stored": 68.3422794428339,
+     "replayed": 68.32155274850811
+    },
+    {
+     "TC": 70,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 42.884317530894464,
+     "replayed": 42.857234923388546
+    },
+    {
+     "TC": 70,
+     "stat": "StabDamageFlat",
+     "stored": 59.39843953753838,
+     "replayed": 59.379683572372265
+    },
+    {
+     "TC": 70,
+     "stat": "CutDamageFlat",
+     "stored": 35.31366727249847,
+     "replayed": 35.306938892350864
+    },
+    {
+     "TC": 70,
+     "stat": "BuckshotDamageFlat",
+     "stored": 101.91418645146972,
+     "replayed": 101.8405994417993
+    },
+    {
+     "TC": 70,
+     "stat": "LifestealFlat",
+     "stored": 7.677240285313226,
+     "replayed": 7.674286406805282
+    },
+    {
+     "TC": 70,
+     "stat": "Evasion",
+     "stored": 2.1318082385947323,
+     "replayed": 2.1305758495412226
+    },
+    {
+     "TC": 70,
+     "stat": "CritChance",
+     "stored": 2.7781753248903076,
+     "replayed": 2.77660814837251
+    },
+    {
+     "TC": 70,
+     "stat": "CritDamagePercent",
+     "stored": 2.8215471043307363,
+     "replayed": 2.8200261271840503
+    },
+    {
+     "TC": 70,
+     "stat": "BlockChance",
+     "stored": 1.311567841533961,
+     "replayed": 1.310233996849939
+    },
+    {
+     "TC": 70,
+     "stat": "BlockAmount",
+     "stored": 1.4310185091045453,
+     "replayed": 1.4298619298740551
+    },
+    {
+     "TC": 77,
+     "stat": "Health",
+     "stored": 2371.2455679539808,
+     "replayed": 2369.5802164795637
+    },
+    {
+     "TC": 77,
+     "stat": "MovementSpeed",
+     "stored": 5.570476707083434,
+     "replayed": 5.567729363333857
+    },
+    {
+     "TC": 77,
+     "stat": "HealthRegen",
+     "stored": 16.142862580359232,
+     "replayed": 16.13810129703858
+    },
+    {
+     "TC": 77,
+     "stat": "StabDefenceFlat",
+     "stored": 77.84148734263992,
+     "replayed": 77.7739403510996
+    },
+    {
+     "TC": 77,
+     "stat": "CutDefenceFlat",
+     "stored": 69.66018483738861,
+     "replayed": 69.64474204577405
+    },
+    {
+     "TC": 77,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 58.78068305479605,
+     "replayed": 58.72968183850874
+    },
+    {
+     "TC": 77,
+     "stat": "StabDamageFlat",
+     "stored": 60.61521377367936,
+     "replayed": 60.60141782719144
+    },
+    {
+     "TC": 77,
+     "stat": "CutDamageFlat",
+     "stored": 65.61686362407275,
+     "replayed": 65.5535566517883
+    },
+    {
+     "TC": 77,
+     "stat": "BuckshotDamageFlat",
+     "stored": 111.40371352663257,
+     "replayed": 111.342995370898
+    },
+    {
+     "TC": 77,
+     "stat": "LifestealFlat",
+     "stored": 7.870023479745344,
+     "replayed": 7.867706334624242
+    },
+    {
+     "TC": 77,
+     "stat": "Evasion",
+     "stored": 2.692521610953321,
+     "replayed": 2.690725170052505
+    },
+    {
+     "TC": 77,
+     "stat": "CritChance",
+     "stored": 3.467017353074552,
+     "replayed": 3.464537455723305
+    },
+    {
+     "TC": 77,
+     "stat": "CritDamagePercent",
+     "stored": 3.5010158895710797,
+     "replayed": 3.498610325015515
+    },
+    {
+     "TC": 77,
+     "stat": "BlockChance",
+     "stored": 2.0915256485133877,
+     "replayed": 2.0891513451975623
+    },
+    {
+     "TC": 77,
+     "stat": "BlockAmount",
+     "stored": 2.2493516994566156,
+     "replayed": 2.247233063233338
+    },
+    {
+     "TC": 85,
+     "stat": "Health",
+     "stored": 2499.1123085102217,
+     "replayed": 2497.7276268815203
+    },
+    {
+     "TC": 85,
+     "stat": "MovementSpeed",
+     "stored": 6.75013137674219,
+     "replayed": 6.745683075673705
+    },
+    {
+     "TC": 85,
+     "stat": "HealthRegen",
+     "stored": 16.60438854356026,
+     "replayed": 16.600585253889424
+    },
+    {
+     "TC": 85,
+     "stat": "StabDefenceFlat",
+     "stored": 82.36848451655077,
+     "replayed": 82.3092783302896
+    },
+    {
+     "TC": 85,
+     "stat": "CutDefenceFlat",
+     "stored": 70.58371889460913,
+     "replayed": 70.5721205833272
+    },
+    {
+     "TC": 85,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 90.72672746576076,
+     "replayed": 90.61834831056626
+    },
+    {
+     "TC": 85,
+     "stat": "StabDamageFlat",
+     "stored": 61.44333810969864,
+     "replayed": 61.4330315716297
+    },
+    {
+     "TC": 85,
+     "stat": "CutDamageFlat",
+     "stored": 73.27926642361264,
+     "replayed": 73.22480510212958
+    },
+    {
+     "TC": 85,
+     "stat": "BuckshotDamageFlat",
+     "stored": 115.40602716240848,
+     "replayed": 115.35448181438183
+    },
+    {
+     "TC": 85,
+     "stat": "LifestealFlat",
+     "stored": 8.011228182732031,
+     "replayed": 8.009422106084997
+    },
+    {
+     "TC": 85,
+     "stat": "Evasion",
+     "stored": 2.8605148745376994,
+     "replayed": 2.8590159391585037
+    },
+    {
+     "TC": 85,
+     "stat": "CritChance",
+     "stored": 3.712059475207633,
+     "replayed": 3.7098691844970975
+    },
+    {
+     "TC": 85,
+     "stat": "CritDamagePercent",
+     "stored": 3.7408495616595863,
+     "replayed": 3.738732717454611
+    },
+    {
+     "TC": 85,
+     "stat": "BlockChance",
+     "stored": 2.3234867989881782,
+     "replayed": 2.321475364515295
+    },
+    {
+     "TC": 85,
+     "stat": "BlockAmount",
+     "stored": 2.457908581554261,
+     "replayed": 2.456194055080467
+    },
+    {
+     "TC": 94,
+     "stat": "Health",
+     "stored": 2721.7781781027015,
+     "replayed": 2718.4058631127004
+    },
+    {
+     "TC": 94,
+     "stat": "MovementSpeed",
+     "stored": 7.133982991464652,
+     "replayed": 7.1241465121306975
+    },
+    {
+     "TC": 94,
+     "stat": "HealthRegen",
+     "stored": 17.25164255856579,
+     "replayed": 17.242195119351518
+    },
+    {
+     "TC": 94,
+     "stat": "StabDefenceFlat",
+     "stored": 86.82621572508707,
+     "replayed": 86.70006791769283
+    },
+    {
+     "TC": 94,
+     "stat": "CutDefenceFlat",
+     "stored": 85.19748184078612,
+     "replayed": 85.10383567384939
+    },
+    {
+     "TC": 94,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 100.91124210359892,
+     "replayed": 100.6561954153148
+    },
+    {
+     "TC": 94,
+     "stat": "StabDamageFlat",
+     "stored": 64.56325412619223,
+     "replayed": 64.5343373594196
+    },
+    {
+     "TC": 94,
+     "stat": "CutDamageFlat",
+     "stored": 78.13880091160308,
+     "replayed": 78.0252516242494
+    },
+    {
+     "TC": 94,
+     "stat": "BuckshotDamageFlat",
+     "stored": 119.25717471889786,
+     "replayed": 119.15047575648182
+    },
+    {
+     "TC": 94,
+     "stat": "LifestealFlat",
+     "stored": 10.814271382959172,
+     "replayed": 10.798254204998774
+    },
+    {
+     "TC": 94,
+     "stat": "Evasion",
+     "stored": 2.984223166775156,
+     "replayed": 2.981202841482663
+    },
+    {
+     "TC": 94,
+     "stat": "CritChance",
+     "stored": 3.9012840679683114,
+     "replayed": 3.8967031895638438
+    },
+    {
+     "TC": 94,
+     "stat": "CritDamagePercent",
+     "stored": 3.9243324630173904,
+     "replayed": 3.9199198260601547
+    },
+    {
+     "TC": 94,
+     "stat": "BlockChance",
+     "stored": 3.1849887711001683,
+     "replayed": 3.177545122170931
+    },
+    {
+     "TC": 94,
+     "stat": "BlockAmount",
+     "stored": 3.292591965443047,
+     "replayed": 3.2858593948683876
+    },
+    {
+     "TC": 104,
+     "stat": "Health",
+     "stored": 2951.805112759476,
+     "replayed": 2949.022355848963
+    },
+    {
+     "TC": 104,
+     "stat": "MovementSpeed",
+     "stored": 7.5589414911661015,
+     "replayed": 7.551809373354754
+    },
+    {
+     "TC": 104,
+     "stat": "HealthRegen",
+     "stored": 18.43575558844828,
+     "replayed": 18.424765331246935
+    },
+    {
+     "TC": 104,
+     "stat": "StabDefenceFlat",
+     "stored": 91.70917847179075,
+     "replayed": 91.62134156329581
+    },
+    {
+     "TC": 104,
+     "stat": "CutDefenceFlat",
+     "stored": 127.09597914705256,
+     "replayed": 126.84692383404119
+    },
+    {
+     "TC": 104,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 112.92043763253452,
+     "replayed": 112.72322155286462
+    },
+    {
+     "TC": 104,
+     "stat": "StabDamageFlat",
+     "stored": 94.83108184289271,
+     "replayed": 94.68312718901115
+    },
+    {
+     "TC": 104,
+     "stat": "CutDamageFlat",
+     "stored": 83.13626943821727,
+     "replayed": 83.06072676971864
+    },
+    {
+     "TC": 104,
+     "stat": "BuckshotDamageFlat",
+     "stored": 123.34866057407686,
+     "replayed": 123.27633252374802
+    },
+    {
+     "TC": 104,
+     "stat": "LifestealFlat",
+     "stored": 11.533401399470256,
+     "replayed": 11.520862993149061
+    },
+    {
+     "TC": 104,
+     "stat": "Evasion",
+     "stored": 3.10802388425262,
+     "replayed": 3.1060578952028846
+    },
+    {
+     "TC": 104,
+     "stat": "CritChance",
+     "stored": 4.09644519527315,
+     "replayed": 4.093333104871025
+    },
+    {
+     "TC": 104,
+     "stat": "CritDamagePercent",
+     "stored": 4.112806067649679,
+     "replayed": 4.109817133556397
+    },
+    {
+     "TC": 104,
+     "stat": "BlockChance",
+     "stored": 3.5103337825231904,
+     "replayed": 3.5048689435448477
+    },
+    {
+     "TC": 104,
+     "stat": "BlockAmount",
+     "stored": 3.586782316650137,
+     "replayed": 3.5818610121372227
+    },
+    {
+     "TC": 115,
+     "stat": "Health",
+     "stored": 3461.7398846835417,
+     "replayed": 3458.891498778929
+    },
+    {
+     "TC": 115,
+     "stat": "MovementSpeed",
+     "stored": 11.822848243635837,
+     "replayed": 11.802927074645797
+    },
+    {
+     "TC": 115,
+     "stat": "HealthRegen",
+     "stored": 21.14223496501902,
+     "replayed": 21.12830206273681
+    },
+    {
+     "TC": 115,
+     "stat": "StabDefenceFlat",
+     "stored": 172.13092920206248,
+     "replayed": 171.80007482297097
+    },
+    {
+     "TC": 115,
+     "stat": "CutDefenceFlat",
+     "stored": 139.0563980047994,
+     "replayed": 138.85022949854144
+    },
+    {
+     "TC": 115,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 122.02923609944888,
+     "replayed": 121.88801631775553
+    },
+    {
+     "TC": 115,
+     "stat": "StabDamageFlat",
+     "stored": 101.91587255083459,
+     "replayed": 101.79394110546822
+    },
+    {
+     "TC": 115,
+     "stat": "CutDamageFlat",
+     "stored": 86.441637213964,
+     "replayed": 86.39349372139165
+    },
+    {
+     "TC": 115,
+     "stat": "BuckshotDamageFlat",
+     "stored": 147.83362626642574,
+     "replayed": 147.725413232901
+    },
+    {
+     "TC": 115,
+     "stat": "LifestealFlat",
+     "stored": 12.097994395011211,
+     "replayed": 12.08884730971579
+    },
+    {
+     "TC": 115,
+     "stat": "Evasion",
+     "stored": 3.6639124909788765,
+     "replayed": 3.6605767380163035
+    },
+    {
+     "TC": 115,
+     "stat": "CritChance",
+     "stored": 5.442185587767768,
+     "replayed": 5.434530675277286
+    },
+    {
+     "TC": 115,
+     "stat": "CritDamagePercent",
+     "stored": 5.66369564699684,
+     "replayed": 5.656123651575782
+    },
+    {
+     "TC": 115,
+     "stat": "BlockChance",
+     "stored": 4.445087724636031,
+     "replayed": 4.438345968165823
+    },
+    {
+     "TC": 115,
+     "stat": "BlockAmount",
+     "stored": 4.612973251373473,
+     "replayed": 4.606670860549361
+    },
+    {
+     "TC": 127,
+     "stat": "Health",
+     "stored": 4599.821217622907,
+     "replayed": 4593.971618568431
+    },
+    {
+     "TC": 127,
+     "stat": "MovementSpeed",
+     "stored": 12.756893588638063,
+     "replayed": 12.741018889702493
+    },
+    {
+     "TC": 127,
+     "stat": "HealthRegen",
+     "stored": 21.76166416800588,
+     "replayed": 21.751033486546817
+    },
+    {
+     "TC": 127,
+     "stat": "StabDefenceFlat",
+     "stored": 188.78001200684915,
+     "replayed": 188.5139467516171
+    },
+    {
+     "TC": 127,
+     "stat": "CutDefenceFlat",
+     "stored": 147.75153308669502,
+     "replayed": 147.58937865959072
+    },
+    {
+     "TC": 127,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 127.53147645069694,
+     "replayed": 127.42974609737897
+    },
+    {
+     "TC": 127,
+     "stat": "StabDamageFlat",
+     "stored": 107.06017443912368,
+     "replayed": 106.96414630469768
+    },
+    {
+     "TC": 127,
+     "stat": "CutDamageFlat",
+     "stored": 88.24535195986356,
+     "replayed": 88.21296120214895
+    },
+    {
+     "TC": 127,
+     "stat": "BuckshotDamageFlat",
+     "stored": 206.7396953810031,
+     "replayed": 206.4102924320918
+    },
+    {
+     "TC": 127,
+     "stat": "LifestealFlat",
+     "stored": 12.466924772907594,
+     "replayed": 12.460333424349644
+    },
+    {
+     "TC": 127,
+     "stat": "Evasion",
+     "stored": 4.93293197786456,
+     "replayed": 4.926017583173103
+    },
+    {
+     "TC": 127,
+     "stat": "CritChance",
+     "stored": 5.801750162634521,
+     "replayed": 5.795278615383571
+    },
+    {
+     "TC": 127,
+     "stat": "CritDamagePercent",
+     "stored": 6.009207188237626,
+     "replayed": 6.003124021642187
+    },
+    {
+     "TC": 127,
+     "stat": "BlockChance",
+     "stored": 4.752280040369645,
+     "replayed": 4.74707885205663
+    },
+    {
+     "TC": 127,
+     "stat": "BlockAmount",
+     "stored": 4.895648962016864,
+     "replayed": 4.890933210248963
+    },
+    {
+     "TC": 140,
+     "stat": "Health",
+     "stored": 5466.016227023031,
+     "replayed": 5460.492441372164
+    },
+    {
+     "TC": 140,
+     "stat": "MovementSpeed",
+     "stored": 16.993610895363407,
+     "replayed": 16.97398569072692
+    },
+    {
+     "TC": 140,
+     "stat": "HealthRegen",
+     "stored": 24.63166675676238,
+     "replayed": 24.619518174217056
+    },
+    {
+     "TC": 140,
+     "stat": "StabDefenceFlat",
+     "stored": 207.89542979087548,
+     "replayed": 207.71378583509505
+    },
+    {
+     "TC": 140,
+     "stat": "CutDefenceFlat",
+     "stored": 158.42176658690147,
+     "replayed": 158.3153534934117
+    },
+    {
+     "TC": 140,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 249.5540751575443,
+     "replayed": 249.2292150374941
+    },
+    {
+     "TC": 140,
+     "stat": "StabDamageFlat",
+     "stored": 113.40089581013667,
+     "replayed": 113.337426814249
+    },
+    {
+     "TC": 140,
+     "stat": "CutDamageFlat",
+     "stored": 169.89091347904093,
+     "replayed": 169.65366860702588
+    },
+    {
+     "TC": 140,
+     "stat": "BuckshotDamageFlat",
+     "stored": 233.36784752860382,
+     "replayed": 233.08244887447114
+    },
+    {
+     "TC": 140,
+     "stat": "LifestealFlat",
+     "stored": 12.878605726203425,
+     "replayed": 12.874704367786228
+    },
+    {
+     "TC": 140,
+     "stat": "Evasion",
+     "stored": 5.444812585513785,
+     "replayed": 5.4394582336069925
+    },
+    {
+     "TC": 140,
+     "stat": "CritChance",
+     "stored": 7.158265613604673,
+     "replayed": 7.150952968580626
+    },
+    {
+     "TC": 140,
+     "stat": "CritDamagePercent",
+     "stored": 7.1417002057228895,
+     "replayed": 7.134858506135212
+    },
+    {
+     "TC": 140,
+     "stat": "BlockChance",
+     "stored": 6.031395550138859,
+     "replayed": 6.025506786562274
+    },
+    {
+     "TC": 140,
+     "stat": "BlockAmount",
+     "stored": 6.104968897702707,
+     "replayed": 6.099488910727668
+    },
+    {
+     "TC": 154,
+     "stat": "Health",
+     "stored": 6422.990850215219,
+     "replayed": 6421.505576934147
+    },
+    {
+     "TC": 154,
+     "stat": "MovementSpeed",
+     "stored": 20.813464384701366,
+     "replayed": 20.807225733756177
+    },
+    {
+     "TC": 154,
+     "stat": "HealthRegen",
+     "stored": 27.616212317590218,
+     "replayed": 27.613027582212922
+    },
+    {
+     "TC": 154,
+     "stat": "StabDefenceFlat",
+     "stored": 219.70644254269936,
+     "replayed": 219.67200804668548
+    },
+    {
+     "TC": 154,
+     "stat": "CutDefenceFlat",
+     "stored": 194.7503062206938,
+     "replayed": 194.7133657177932
+    },
+    {
+     "TC": 154,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 278.8142739510988,
+     "replayed": 278.7573130734845
+    },
+    {
+     "TC": 154,
+     "stat": "StabDamageFlat",
+     "stored": 175.35033973825847,
+     "replayed": 175.2916552414696
+    },
+    {
+     "TC": 154,
+     "stat": "CutDamageFlat",
+     "stored": 192.67783573358508,
+     "replayed": 192.63110463576476
+    },
+    {
+     "TC": 154,
+     "stat": "BuckshotDamageFlat",
+     "stored": 253.6721859653166,
+     "replayed": 253.6074004007508
+    },
+    {
+     "TC": 154,
+     "stat": "LifestealFlat",
+     "stored": 19.751677652454326,
+     "replayed": 19.746838017189642
+    },
+    {
+     "TC": 154,
+     "stat": "Evasion",
+     "stored": 8.331734924688336,
+     "replayed": 8.328282986227581
+    },
+    {
+     "TC": 154,
+     "stat": "CritChance",
+     "stored": 8.475037071525186,
+     "replayed": 8.47285434163714
+    },
+    {
+     "TC": 154,
+     "stat": "CritDamagePercent",
+     "stored": 8.354331884861734,
+     "replayed": 8.35220168240791
+    },
+    {
+     "TC": 154,
+     "stat": "BlockChance",
+     "stored": 6.492478980079489,
+     "replayed": 6.491383231658528
+    },
+    {
+     "TC": 154,
+     "stat": "BlockAmount",
+     "stored": 7.19430030737338,
+     "replayed": 7.192558942378505
+    },
+    {
+     "TC": 170,
+     "stat": "Health",
+     "stored": 6669.334858097774,
+     "replayed": 6668.12717308577
+    },
+    {
+     "TC": 170,
+     "stat": "MovementSpeed",
+     "stored": 21.964362950607633,
+     "replayed": 21.95895394716827
+    },
+    {
+     "TC": 170,
+     "stat": "StabDefenceFlat",
+     "stored": 224.68454354284975,
+     "replayed": 224.65776273629697
+    },
+    {
+     "TC": 170,
+     "stat": "CutDefenceFlat",
+     "stored": 207.61815197307996,
+     "replayed": 207.5847555650429
+    },
+    {
+     "TC": 170,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 287.7973545506884,
+     "replayed": 287.7534243699338
+    },
+    {
+     "TC": 170,
+     "stat": "StabDamageFlat",
+     "stored": 187.39585221154348,
+     "replayed": 187.3447306318779
+    },
+    {
+     "TC": 170,
+     "stat": "CutDamageFlat",
+     "stored": 200.1859632965747,
+     "replayed": 200.14849648463735
+    },
+    {
+     "TC": 170,
+     "stat": "BuckshotDamageFlat",
+     "stored": 263.4426707616966,
+     "replayed": 263.3878686943628
+    },
+    {
+     "TC": 170,
+     "stat": "LifestealFlat",
+     "stored": 20.706239176683674,
+     "replayed": 20.70235627152599
+    },
+    {
+     "TC": 170,
+     "stat": "Evasion",
+     "stored": 8.97005782185872,
+     "replayed": 8.966939591147364
+    },
+    {
+     "TC": 170,
+     "stat": "CritChance",
+     "stored": 8.871283080303066,
+     "replayed": 8.869447690733173
+    },
+    {
+     "TC": 170,
+     "stat": "CritDamagePercent",
+     "stored": 8.74883339738404,
+     "replayed": 8.746989771615882
+    },
+    {
+     "TC": 170,
+     "stat": "BlockChance",
+     "stored": 7.3063456266690725,
+     "replayed": 7.304807376816121
+    },
+    {
+     "TC": 170,
+     "stat": "BlockAmount",
+     "stored": 7.515204043992884,
+     "replayed": 7.513696722070269
+    },
+    {
+     "TC": 187,
+     "stat": "Health",
+     "stored": 6858.26167344888,
+     "replayed": 6857.297215753935
+    },
+    {
+     "TC": 187,
+     "stat": "MovementSpeed",
+     "stored": 22.883842726732396,
+     "replayed": 22.87926664687119
+    },
+    {
+     "TC": 187,
+     "stat": "CutDefenceFlat",
+     "stored": 284.7380566271622,
+     "replayed": 284.6629032261997
+    },
+    {
+     "TC": 187,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 294.48881800203316,
+     "replayed": 294.4552173221039
+    },
+    {
+     "TC": 187,
+     "stat": "StabDamageFlat",
+     "stored": 196.62045197885158,
+     "replayed": 196.57721497231415
+    },
+    {
+     "TC": 187,
+     "stat": "CutDamageFlat",
+     "stored": 205.96646263889997,
+     "replayed": 205.93694099507152
+    },
+    {
+     "TC": 187,
+     "stat": "BuckshotDamageFlat",
+     "stored": 271.52886346509104,
+     "replayed": 271.4836485718102
+    },
+    {
+     "TC": 187,
+     "stat": "LifestealFlat",
+     "stored": 21.382815033556017,
+     "replayed": 21.379756111631195
+    },
+    {
+     "TC": 187,
+     "stat": "Evasion",
+     "stored": 9.50040732153251,
+     "replayed": 9.49769302903267
+    },
+    {
+     "TC": 187,
+     "stat": "CritChance",
+     "stored": 9.177644278999658,
+     "replayed": 9.176135603829017
+    },
+    {
+     "TC": 187,
+     "stat": "CritDamagePercent",
+     "stored": 9.062286004910316,
+     "replayed": 9.060729168586878
+    },
+    {
+     "TC": 187,
+     "stat": "BlockChance",
+     "stored": 7.570789811086575,
+     "replayed": 7.569442792544235
+    },
+    {
+     "TC": 187,
+     "stat": "BlockAmount",
+     "stored": 7.7715825653376305,
+     "replayed": 7.770305937331354
+    },
+    {
+     "TC": 206,
+     "stat": "Health",
+     "stored": 7012.219076943338,
+     "replayed": 7011.470068868178
+    },
+    {
+     "TC": 206,
+     "stat": "MovementSpeed",
+     "stored": 23.66042780419882,
+     "replayed": 23.65667531637707
+    },
+    {
+     "TC": 206,
+     "stat": "CutDefenceFlat",
+     "stored": 298.0547245631628,
+     "replayed": 297.991447136833
+    },
+    {
+     "TC": 206,
+     "stat": "StabDamageFlat",
+     "stored": 204.17427201972242,
+     "replayed": 204.1388873496724
+    },
+    {
+     "TC": 206,
+     "stat": "CutDamageFlat",
+     "stored": 210.65996389506506,
+     "replayed": 210.6373436870952
+    },
+    {
+     "TC": 206,
+     "stat": "BuckshotDamageFlat",
+     "stored": 278.5280349350482,
+     "replayed": 278.4919916817411
+    },
+    {
+     "TC": 206,
+     "stat": "LifestealFlat",
+     "stored": 21.900979479329553,
+     "replayed": 21.898627334224766
+    },
+    {
+     "TC": 206,
+     "stat": "Evasion",
+     "stored": 9.961917098828922,
+     "replayed": 9.959645668820885
+    },
+    {
+     "TC": 206,
+     "stat": "CritChance",
+     "stored": 9.42926273152046,
+     "replayed": 9.428059117066704
+    },
+    {
+     "TC": 206,
+     "stat": "CritDamagePercent",
+     "stored": 9.3262272159583,
+     "replayed": 9.324953317362821
+    },
+    {
+     "TC": 206,
+     "stat": "BlockChance",
+     "stored": 7.803515359647608,
+     "replayed": 7.802365053462327
+    },
+    {
+     "TC": 206,
+     "stat": "BlockAmount",
+     "stored": 7.988458233994459,
+     "replayed": 7.987409397441613
+    },
+    {
+     "TC": 227,
+     "stat": "MovementSpeed",
+     "stored": 24.34578728876886,
+     "replayed": 24.342804706638486
+    },
+    {
+     "TC": 227,
+     "stat": "CutDefenceFlat",
+     "stored": 311.6789944720179,
+     "replayed": 311.6299010692974
+    },
+    {
+     "TC": 227,
+     "stat": "StabDamageFlat",
+     "stored": 211.67873828294765,
+     "replayed": 211.65210571936055
+    },
+    {
+     "TC": 227,
+     "stat": "BuckshotDamageFlat",
+     "stored": 282.86645299086007,
+     "replayed": 282.8367516544608
+    },
+    {
+     "TC": 227,
+     "stat": "Evasion",
+     "stored": 10.35365389669259,
+     "replayed": 10.351807401966141
+    },
+    {
+     "TC": 227,
+     "stat": "CritDamagePercent",
+     "stored": 9.555414841919287,
+     "replayed": 9.554405092597973
+    },
+    {
+     "TC": 227,
+     "stat": "BlockChance",
+     "stored": 8.019993964038767,
+     "replayed": 8.019032739316932
+    },
+    {
+     "TC": 227,
+     "stat": "BlockAmount",
+     "stored": 8.180305574311827,
+     "replayed": 8.179470065449022
+    },
+    {
+     "TC": 250,
+     "stat": "CutDefenceFlat",
+     "stored": 319.98202794409343,
+     "replayed": 319.9431489795501
+    },
+    {
+     "TC": 250,
+     "stat": "Evasion",
+     "stored": 10.64423486210336,
+     "replayed": 10.64275303893883
+    },
+    {
+     "TC": 275,
+     "stat": "CutDefenceFlat",
+     "stored": 324.4109451702046,
+     "replayed": 324.37830338919787
+    },
+    {
+     "TC": 275,
+     "stat": "Evasion",
+     "stored": 10.910376122246578,
+     "replayed": 10.909255972128639
+    }
+   ]
+  },
+  {
+   "k2k3_day": "d",
+   "k4k5_day": "d-1",
+   "order": null,
+   "match": 1046,
+   "cells": 1380,
+   "misses": [
+    {
+     "TC": 1,
+     "stat": "Health",
+     "stored": 20.397246115396868,
+     "replayed": 27.974538790467836
+    },
+    {
+     "TC": 21,
+     "stat": "Health",
+     "stored": 286.9583153288575,
+     "replayed": 286.8424243248331
+    },
+    {
+     "TC": 21,
+     "stat": "MovementSpeed",
+     "stored": 1.7317085824359535,
+     "replayed": 1.7311153336613558
+    },
+    {
+     "TC": 21,
+     "stat": "HealthRegen",
+     "stored": 5.460980562745009,
+     "replayed": 5.458696311301912
+    },
+    {
+     "TC": 21,
+     "stat": "StabDefenceFlat",
+     "stored": 10.748573005046106,
+     "replayed": 10.74115524275353
+    },
+    {
+     "TC": 21,
+     "stat": "CutDefenceFlat",
+     "stored": 9.27949492729255,
+     "replayed": 9.274312331638324
+    },
+    {
+     "TC": 21,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 11.056980689538381,
+     "replayed": 11.041030187373218
+    },
+    {
+     "TC": 21,
+     "stat": "StabDamageFlat",
+     "stored": 3.10269622964265,
+     "replayed": 3.101680089570081
+    },
+    {
+     "TC": 21,
+     "stat": "CutDamageFlat",
+     "stored": 14.301386388073748,
+     "replayed": 14.284507862931004
+    },
+    {
+     "TC": 21,
+     "stat": "BuckshotDamageFlat",
+     "stored": 15.005905571072665,
+     "replayed": 14.998402849841401
+    },
+    {
+     "TC": 21,
+     "stat": "LifestealFlat",
+     "stored": 1.1937765480690383,
+     "replayed": 1.19238555351502
+    },
+    {
+     "TC": 21,
+     "stat": "CritChance",
+     "stored": 0.5185045415718396,
+     "replayed": 0.5178087646981366
+    },
+    {
+     "TC": 21,
+     "stat": "CritDamagePercent",
+     "stored": 0.5064050129278483,
+     "replayed": 0.5057138819515914
+    },
+    {
+     "TC": 24,
+     "stat": "Health",
+     "stored": 335.9185582789275,
+     "replayed": 335.74267396008673
+    },
+    {
+     "TC": 24,
+     "stat": "MovementSpeed",
+     "stored": 1.9611402344754931,
+     "replayed": 1.960500568128269
+    },
+    {
+     "TC": 24,
+     "stat": "HealthRegen",
+     "stored": 6.6969854666750495,
+     "replayed": 6.694106628997831
+    },
+    {
+     "TC": 24,
+     "stat": "StabDefenceFlat",
+     "stored": 11.363164485083937,
+     "replayed": 11.35858439385881
+    },
+    {
+     "TC": 24,
+     "stat": "CutDefenceFlat",
+     "stored": 18.13760594824756,
+     "replayed": 18.118863753756717
+    },
+    {
+     "TC": 24,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 12.54956374265476,
+     "replayed": 12.538358792712874
+    },
+    {
+     "TC": 24,
+     "stat": "StabDamageFlat",
+     "stored": 9.063239881177507,
+     "replayed": 9.048988006712994
+    },
+    {
+     "TC": 24,
+     "stat": "CutDamageFlat",
+     "stored": 15.90242443138245,
+     "replayed": 15.890238820235647
+    },
+    {
+     "TC": 24,
+     "stat": "BuckshotDamageFlat",
+     "stored": 15.623457226819848,
+     "replayed": 15.618885189479546
+    },
+    {
+     "TC": 24,
+     "stat": "LifestealFlat",
+     "stored": 3.1775210376645524,
+     "replayed": 3.172652395445724
+    },
+    {
+     "TC": 24,
+     "stat": "CritChance",
+     "stored": 0.7158403220084354,
+     "replayed": 0.7149157625383695
+    },
+    {
+     "TC": 24,
+     "stat": "CritDamagePercent",
+     "stored": 0.7046968765009317,
+     "replayed": 0.7037538945973215
+    },
+    {
+     "TC": 27,
+     "stat": "Health",
+     "stored": 514.7742072039886,
+     "replayed": 514.0956656983485
+    },
+    {
+     "TC": 27,
+     "stat": "MovementSpeed",
+     "stored": 2.0095670347185397,
+     "replayed": 2.0091284723265073
+    },
+    {
+     "TC": 27,
+     "stat": "HealthRegen",
+     "stored": 6.915201812471577,
+     "replayed": 6.913199007032129
+    },
+    {
+     "TC": 27,
+     "stat": "StabDefenceFlat",
+     "stored": 11.674237235645794,
+     "replayed": 11.67122368230992
+    },
+    {
+     "TC": 27,
+     "stat": "CutDefenceFlat",
+     "stored": 19.67238415211523,
+     "replayed": 19.658169633406494
+    },
+    {
+     "TC": 27,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 13.372966032646831,
+     "replayed": 13.365103290848792
+    },
+    {
+     "TC": 27,
+     "stat": "StabDamageFlat",
+     "stored": 10.31317186927525,
+     "replayed": 10.300779420172718
+    },
+    {
+     "TC": 27,
+     "stat": "CutDamageFlat",
+     "stored": 16.80518582986511,
+     "replayed": 16.79649604215926
+    },
+    {
+     "TC": 27,
+     "stat": "BuckshotDamageFlat",
+     "stored": 15.932908424608991,
+     "replayed": 15.929920791889879
+    },
+    {
+     "TC": 27,
+     "stat": "LifestealFlat",
+     "stored": 3.5836110717805725,
+     "replayed": 3.579782908358927
+    },
+    {
+     "TC": 27,
+     "stat": "CritChance",
+     "stored": 0.7924971592474616,
+     "replayed": 0.7917245649581945
+    },
+    {
+     "TC": 27,
+     "stat": "CritDamagePercent",
+     "stored": 0.7833918099257964,
+     "replayed": 0.7825934398365544
+    },
+    {
+     "TC": 30,
+     "stat": "Health",
+     "stored": 619.827886304032,
+     "replayed": 619.0430893408721
+    },
+    {
+     "TC": 30,
+     "stat": "MovementSpeed",
+     "stored": 2.219477876743869,
+     "replayed": 2.2188904328077563
+    },
+    {
+     "TC": 30,
+     "stat": "HealthRegen",
+     "stored": 8.186752069094162,
+     "replayed": 8.183516400630062
+    },
+    {
+     "TC": 30,
+     "stat": "StabDefenceFlat",
+     "stored": 22.091309358510113,
+     "replayed": 22.07179198652474
+    },
+    {
+     "TC": 30,
+     "stat": "CutDefenceFlat",
+     "stored": 20.483090612032427,
+     "replayed": 20.471884678245456
+    },
+    {
+     "TC": 30,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 13.785940385887573,
+     "replayed": 13.779963605082905
+    },
+    {
+     "TC": 30,
+     "stat": "StabDamageFlat",
+     "stored": 11.04873849221579,
+     "replayed": 11.038166702021877
+    },
+    {
+     "TC": 30,
+     "stat": "CutDamageFlat",
+     "stored": 17.263519877727916,
+     "replayed": 17.256859549968375
+    },
+    {
+     "TC": 30,
+     "stat": "BuckshotDamageFlat",
+     "stored": 22.720578583054092,
+     "replayed": 22.705987461651365
+    },
+    {
+     "TC": 30,
+     "stat": "LifestealFlat",
+     "stored": 3.8040269083569767,
+     "replayed": 3.8009523074081577
+    },
+    {
+     "TC": 30,
+     "stat": "CritChance",
+     "stored": 0.8364356101293222,
+     "replayed": 0.8357816529801428
+    },
+    {
+     "TC": 30,
+     "stat": "CritDamagePercent",
+     "stored": 0.8289515433561158,
+     "replayed": 0.8282720570207681
+    },
+    {
+     "TC": 33,
+     "stat": "Health",
+     "stored": 666.0086809446592,
+     "replayed": 665.2806258906132
+    },
+    {
+     "TC": 33,
+     "stat": "MovementSpeed",
+     "stored": 2.25245131124764,
+     "replayed": 2.251995983241841
+    },
+    {
+     "TC": 33,
+     "stat": "HealthRegen",
+     "stored": 8.37532556134862,
+     "replayed": 8.372792859507761
+    },
+    {
+     "TC": 33,
+     "stat": "StabDefenceFlat",
+     "stored": 23.368226747553972,
+     "replayed": 23.35245887588248
+    },
+    {
+     "TC": 33,
+     "stat": "CutDefenceFlat",
+     "stored": 21.07220332645567,
+     "replayed": 21.063429323217218
+    },
+    {
+     "TC": 33,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 14.027502016801131,
+     "replayed": 14.022695446718744
+    },
+    {
+     "TC": 33,
+     "stat": "StabDamageFlat",
+     "stored": 11.621881393944205,
+     "replayed": 11.613085904233905
+    },
+    {
+     "TC": 33,
+     "stat": "CutDamageFlat",
+     "stored": 17.53338101309799,
+     "replayed": 17.527998489190583
+    },
+    {
+     "TC": 33,
+     "stat": "BuckshotDamageFlat",
+     "stored": 23.687986088036833,
+     "replayed": 23.675864702094415
+    },
+    {
+     "TC": 33,
+     "stat": "LifestealFlat",
+     "stored": 3.9667675710022055,
+     "replayed": 3.964327866308822
+    },
+    {
+     "TC": 33,
+     "stat": "Evasion",
+     "stored": 0.5210500180417513,
+     "replayed": 0.5203499651885685
+    },
+    {
+     "TC": 33,
+     "stat": "CritChance",
+     "stored": 1.0606156673692435,
+     "replayed": 1.0595387175247482
+    },
+    {
+     "TC": 33,
+     "stat": "CritDamagePercent",
+     "stored": 1.0599434996288999,
+     "replayed": 1.0588410676852613
+    },
+    {
+     "TC": 37,
+     "stat": "Health",
+     "stored": 809.1644369085809,
+     "replayed": 808.3843173967743
+    },
+    {
+     "TC": 37,
+     "stat": "MovementSpeed",
+     "stored": 2.58964142826902,
+     "replayed": 2.5887176015117084
+    },
+    {
+     "TC": 37,
+     "stat": "HealthRegen",
+     "stored": 9.769759199491835,
+     "replayed": 9.7659182851415
+    },
+    {
+     "TC": 37,
+     "stat": "StabDefenceFlat",
+     "stored": 24.773477547490895,
+     "replayed": 24.76278464466775
+    },
+    {
+     "TC": 37,
+     "stat": "CutDefenceFlat",
+     "stored": 21.693894289331293,
+     "replayed": 21.687878991203455
+    },
+    {
+     "TC": 37,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 26.00806825946695,
+     "replayed": 25.981240358304504
+    },
+    {
+     "TC": 37,
+     "stat": "StabDamageFlat",
+     "stored": 14.982611370237727,
+     "replayed": 14.971674245202754
+    },
+    {
+     "TC": 37,
+     "stat": "CutDamageFlat",
+     "stored": 21.142724614064416,
+     "replayed": 21.1332687612262
+    },
+    {
+     "TC": 37,
+     "stat": "BuckshotDamageFlat",
+     "stored": 38.68770740933443,
+     "replayed": 38.65478723256592
+    },
+    {
+     "TC": 37,
+     "stat": "LifestealFlat",
+     "stored": 4.1408618347628865,
+     "replayed": 4.139165755256824
+    },
+    {
+     "TC": 37,
+     "stat": "Evasion",
+     "stored": 0.8475382052782953,
+     "replayed": 0.8464914307135658
+    },
+    {
+     "TC": 37,
+     "stat": "CritChance",
+     "stored": 1.4692575378509085,
+     "replayed": 1.4677560043368925
+    },
+    {
+     "TC": 37,
+     "stat": "CritDamagePercent",
+     "stored": 1.4715131253614573,
+     "replayed": 1.4699998319903278
+    },
+    {
+     "TC": 41,
+     "stat": "Health",
+     "stored": 854.6180884786194,
+     "replayed": 853.9564995519023
+    },
+    {
+     "TC": 41,
+     "stat": "MovementSpeed",
+     "stored": 2.6407648745062104,
+     "replayed": 2.6399790267758934
+    },
+    {
+     "TC": 41,
+     "stat": "HealthRegen",
+     "stored": 9.979443610061582,
+     "replayed": 9.97626460233624
+    },
+    {
+     "TC": 41,
+     "stat": "StabDefenceFlat",
+     "stored": 25.337549653829495,
+     "replayed": 25.329257537657554
+    },
+    {
+     "TC": 41,
+     "stat": "CutDefenceFlat",
+     "stored": 22.030350258318997,
+     "replayed": 22.025930375139907
+    },
+    {
+     "TC": 41,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 27.499328570683115,
+     "replayed": 27.4752656175721
+    },
+    {
+     "TC": 41,
+     "stat": "StabDamageFlat",
+     "stored": 21.402823333718075,
+     "replayed": 21.381562926187446
+    },
+    {
+     "TC": 41,
+     "stat": "CutDamageFlat",
+     "stored": 28.04960582408716,
+     "replayed": 28.02461474947471
+    },
+    {
+     "TC": 41,
+     "stat": "BuckshotDamageFlat",
+     "stored": 52.54761001595254,
+     "replayed": 52.495156697301006
+    },
+    {
+     "TC": 41,
+     "stat": "LifestealFlat",
+     "stored": 4.236090235962599,
+     "replayed": 4.2348346624022755
+    },
+    {
+     "TC": 41,
+     "stat": "Evasion",
+     "stored": 0.9060663080987015,
+     "replayed": 0.9051635527322767
+    },
+    {
+     "TC": 41,
+     "stat": "CritChance",
+     "stored": 1.553045585276492,
+     "replayed": 1.5517528603310065
+    },
+    {
+     "TC": 41,
+     "stat": "CritDamagePercent",
+     "stored": 1.5555549967457396,
+     "replayed": 1.5542573767771075
+    },
+    {
+     "TC": 46,
+     "stat": "Health",
+     "stored": 999.8019823883355,
+     "replayed": 999.0861844291337
+    },
+    {
+     "TC": 46,
+     "stat": "MovementSpeed",
+     "stored": 3.526120664606171,
+     "replayed": 3.5234071777529326
+    },
+    {
+     "TC": 46,
+     "stat": "HealthRegen",
+     "stored": 11.730259309270615,
+     "replayed": 11.725829383340265
+    },
+    {
+     "TC": 46,
+     "stat": "StabDefenceFlat",
+     "stored": 25.94090714224316,
+     "replayed": 25.93529922389442
+    },
+    {
+     "TC": 46,
+     "stat": "CutDefenceFlat",
+     "stored": 32.86651754261886,
+     "replayed": 32.84417162911519
+    },
+    {
+     "TC": 46,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 31.897760939372965,
+     "replayed": 31.86754174698715
+    },
+    {
+     "TC": 46,
+     "stat": "StabDamageFlat",
+     "stored": 42.025078231288234,
+     "replayed": 41.96328351139711
+    },
+    {
+     "TC": 46,
+     "stat": "CutDamageFlat",
+     "stored": 30.126449582134082,
+     "replayed": 30.104557923662906
+    },
+    {
+     "TC": 46,
+     "stat": "BuckshotDamageFlat",
+     "stored": 56.693894950671606,
+     "replayed": 56.652056852446336
+    },
+    {
+     "TC": 46,
+     "stat": "LifestealFlat",
+     "stored": 4.328492780261532,
+     "replayed": 4.327675662516797
+    },
+    {
+     "TC": 46,
+     "stat": "Evasion",
+     "stored": 1.3172096467984409,
+     "replayed": 1.3157832184147311
+    },
+    {
+     "TC": 46,
+     "stat": "CritChance",
+     "stored": 1.6537283400304983,
+     "replayed": 1.6527412207013545
+    },
+    {
+     "TC": 46,
+     "stat": "CritDamagePercent",
+     "stored": 1.656364003824778,
+     "replayed": 1.6553793178819556
+    },
+    {
+     "TC": 46,
+     "stat": "BlockChance",
+     "stored": 0.5244794767529022,
+     "replayed": 0.5233138034064413
+    },
+    {
+     "TC": 46,
+     "stat": "BlockAmount",
+     "stored": 0.6035321186484514,
+     "replayed": 0.6023475280347335
+    },
+    {
+     "TC": 51,
+     "stat": "Health",
+     "stored": 1067.3600809668399,
+     "replayed": 1066.8248604471526
+    },
+    {
+     "TC": 51,
+     "stat": "MovementSpeed",
+     "stored": 3.8122063003082243,
+     "replayed": 3.809825803459488
+    },
+    {
+     "TC": 51,
+     "stat": "HealthRegen",
+     "stored": 12.099173577333799,
+     "replayed": 12.095950230085727
+    },
+    {
+     "TC": 51,
+     "stat": "StabDefenceFlat",
+     "stored": 26.281336678126493,
+     "replayed": 26.277320327367313
+    },
+    {
+     "TC": 51,
+     "stat": "CutDefenceFlat",
+     "stored": 56.31249994579319,
+     "replayed": 56.25726704282736
+    },
+    {
+     "TC": 51,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 34.03240761518426,
+     "replayed": 34.00328242933303
+    },
+    {
+     "TC": 51,
+     "stat": "StabDamageFlat",
+     "stored": 48.33846118433016,
+     "replayed": 48.2860060259476
+    },
+    {
+     "TC": 51,
+     "stat": "CutDamageFlat",
+     "stored": 31.592974399072887,
+     "replayed": 31.57436082178273
+    },
+    {
+     "TC": 51,
+     "stat": "BuckshotDamageFlat",
+     "stored": 59.369509749802816,
+     "replayed": 59.33628765576496
+    },
+    {
+     "TC": 51,
+     "stat": "LifestealFlat",
+     "stored": 4.403176296109185,
+     "replayed": 4.402716587881885
+    },
+    {
+     "TC": 51,
+     "stat": "Evasion",
+     "stored": 1.445456586912645,
+     "replayed": 1.4443240602486174
+    },
+    {
+     "TC": 51,
+     "stat": "CritChance",
+     "stored": 1.9744264406513818,
+     "replayed": 1.9729733759608117
+    },
+    {
+     "TC": 51,
+     "stat": "CritDamagePercent",
+     "stored": 1.9768965135018728,
+     "replayed": 1.9754488919178883
+    },
+    {
+     "TC": 51,
+     "stat": "BlockChance",
+     "stored": 0.6414483201613194,
+     "replayed": 0.6403664301156282
+    },
+    {
+     "TC": 51,
+     "stat": "BlockAmount",
+     "stored": 0.7149742802062555,
+     "replayed": 0.7139824528389422
+    },
+    {
+     "TC": 57,
+     "stat": "Health",
+     "stored": 1110.47685562195,
+     "replayed": 1110.0834912540745
+    },
+    {
+     "TC": 57,
+     "stat": "MovementSpeed",
+     "stored": 4.015167608213548,
+     "replayed": 4.0132598956612275
+    },
+    {
+     "TC": 57,
+     "stat": "HealthRegen",
+     "stored": 12.345334345609327,
+     "replayed": 12.343061159413818
+    },
+    {
+     "TC": 57,
+     "stat": "StabDefenceFlat",
+     "stored": 26.55231510458798,
+     "replayed": 26.54958439209916
+    },
+    {
+     "TC": 57,
+     "stat": "CutDefenceFlat",
+     "stored": 61.1149831112734,
+     "replayed": 61.07081000983563
+    },
+    {
+     "TC": 57,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 36.49931775742603,
+     "replayed": 36.47073291802129
+    },
+    {
+     "TC": 57,
+     "stat": "StabDamageFlat",
+     "stored": 52.759031590013784,
+     "replayed": 52.717800701192026
+    },
+    {
+     "TC": 57,
+     "stat": "CutDamageFlat",
+     "stored": 33.00383931770722,
+     "replayed": 32.98909691132302
+    },
+    {
+     "TC": 57,
+     "stat": "BuckshotDamageFlat",
+     "stored": 61.79688857593471,
+     "replayed": 61.772488094208576
+    },
+    {
+     "TC": 57,
+     "stat": "LifestealFlat",
+     "stored": 6.770511614467887,
+     "replayed": 6.7656252640678165
+    },
+    {
+     "TC": 57,
+     "stat": "Evasion",
+     "stored": 1.5351536679008746,
+     "replayed": 1.5343070256636322
+    },
+    {
+     "TC": 57,
+     "stat": "CritChance",
+     "stored": 2.0966080202900668,
+     "replayed": 2.095370465127617
+    },
+    {
+     "TC": 57,
+     "stat": "CritDamagePercent",
+     "stored": 2.098429022110663,
+     "replayed": 2.0971966696746263
+    },
+    {
+     "TC": 57,
+     "stat": "BlockChance",
+     "stored": 0.7341782764277004,
+     "replayed": 0.7332774381592964
+    },
+    {
+     "TC": 57,
+     "stat": "BlockAmount",
+     "stored": 0.796375653064138,
+     "replayed": 0.7956080814542986
+    },
+    {
+     "TC": 63,
+     "stat": "Health",
+     "stored": 1781.6150601802397,
+     "replayed": 1779.7723991100713
+    },
+    {
+     "TC": 63,
+     "stat": "MovementSpeed",
+     "stored": 4.181965819426703,
+     "replayed": 4.1805600163701335
+    },
+    {
+     "TC": 63,
+     "stat": "HealthRegen",
+     "stored": 13.918333269108334,
+     "replayed": 13.914288956904981
+    },
+    {
+     "TC": 63,
+     "stat": "StabDefenceFlat",
+     "stored": 40.71591050499325,
+     "replayed": 40.69656228992821
+    },
+    {
+     "TC": 63,
+     "stat": "CutDefenceFlat",
+     "stored": 65.01230337950027,
+     "replayed": 64.97980576046021
+    },
+    {
+     "TC": 63,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 39.376142085780465,
+     "replayed": 39.34778732533844
+    },
+    {
+     "TC": 63,
+     "stat": "StabDamageFlat",
+     "stored": 56.36479163824664,
+     "replayed": 56.334978576133864
+    },
+    {
+     "TC": 63,
+     "stat": "CutDamageFlat",
+     "stored": 34.257616805561945,
+     "replayed": 34.24696041012295
+    },
+    {
+     "TC": 63,
+     "stat": "BuckshotDamageFlat",
+     "stored": 80.16470046725564,
+     "replayed": 80.12237016290166
+    },
+    {
+     "TC": 63,
+     "stat": "LifestealFlat",
+     "stored": 7.230806161751606,
+     "replayed": 7.22670974755279
+    },
+    {
+     "TC": 63,
+     "stat": "Evasion",
+     "stored": 1.969885428326243,
+     "replayed": 1.9683700736743568
+    },
+    {
+     "TC": 63,
+     "stat": "CritChance",
+     "stored": 2.5698945636457764,
+     "replayed": 2.5679780118348132
+    },
+    {
+     "TC": 63,
+     "stat": "CritDamagePercent",
+     "stored": 2.616238658986338,
+     "replayed": 2.6143212476672155
+    },
+    {
+     "TC": 63,
+     "stat": "BlockChance",
+     "stored": 1.1378799317626487,
+     "replayed": 1.1363128594797265
+    },
+    {
+     "TC": 63,
+     "stat": "BlockAmount",
+     "stored": 1.275364754033853,
+     "replayed": 1.2739012969558656
+    },
+    {
+     "TC": 70,
+     "stat": "Health",
+     "stored": 1986.9142632983464,
+     "replayed": 1985.2440059076882
+    },
+    {
+     "TC": 70,
+     "stat": "MovementSpeed",
+     "stored": 5.195771449919858,
+     "replayed": 5.19268523610468
+    },
+    {
+     "TC": 70,
+     "stat": "HealthRegen",
+     "stored": 14.329342520544973,
+     "replayed": 14.326385561319228
+    },
+    {
+     "TC": 70,
+     "stat": "StabDefenceFlat",
+     "stored": 67.28358622455204,
+     "replayed": 67.20767207535235
+    },
+    {
+     "TC": 70,
+     "stat": "CutDefenceFlat",
+     "stored": 68.3422794428339,
+     "replayed": 68.32155274850811
+    },
+    {
+     "TC": 70,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 42.884317530894464,
+     "replayed": 42.857234923388546
+    },
+    {
+     "TC": 70,
+     "stat": "StabDamageFlat",
+     "stored": 59.39843953753838,
+     "replayed": 59.379683572372265
+    },
+    {
+     "TC": 70,
+     "stat": "CutDamageFlat",
+     "stored": 35.31366727249847,
+     "replayed": 35.306938892350864
+    },
+    {
+     "TC": 70,
+     "stat": "BuckshotDamageFlat",
+     "stored": 101.91418645146972,
+     "replayed": 101.8405994417993
+    },
+    {
+     "TC": 70,
+     "stat": "LifestealFlat",
+     "stored": 7.677240285313226,
+     "replayed": 7.674286406805282
+    },
+    {
+     "TC": 70,
+     "stat": "Evasion",
+     "stored": 2.1318082385947323,
+     "replayed": 2.1305758495412226
+    },
+    {
+     "TC": 70,
+     "stat": "CritChance",
+     "stored": 2.7781753248903076,
+     "replayed": 2.77660814837251
+    },
+    {
+     "TC": 70,
+     "stat": "CritDamagePercent",
+     "stored": 2.8215471043307363,
+     "replayed": 2.8200261271840503
+    },
+    {
+     "TC": 70,
+     "stat": "BlockChance",
+     "stored": 1.311567841533961,
+     "replayed": 1.310233996849939
+    },
+    {
+     "TC": 70,
+     "stat": "BlockAmount",
+     "stored": 1.4310185091045453,
+     "replayed": 1.4298619298740551
+    },
+    {
+     "TC": 77,
+     "stat": "Health",
+     "stored": 2371.2455679539808,
+     "replayed": 2369.5802164795637
+    },
+    {
+     "TC": 77,
+     "stat": "MovementSpeed",
+     "stored": 5.570476707083434,
+     "replayed": 5.567729363333857
+    },
+    {
+     "TC": 77,
+     "stat": "HealthRegen",
+     "stored": 16.142862580359232,
+     "replayed": 16.13810129703858
+    },
+    {
+     "TC": 77,
+     "stat": "StabDefenceFlat",
+     "stored": 77.84148734263992,
+     "replayed": 77.7739403510996
+    },
+    {
+     "TC": 77,
+     "stat": "CutDefenceFlat",
+     "stored": 69.66018483738861,
+     "replayed": 69.64474204577405
+    },
+    {
+     "TC": 77,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 58.78068305479605,
+     "replayed": 58.72968183850874
+    },
+    {
+     "TC": 77,
+     "stat": "StabDamageFlat",
+     "stored": 60.61521377367936,
+     "replayed": 60.60141782719144
+    },
+    {
+     "TC": 77,
+     "stat": "CutDamageFlat",
+     "stored": 65.61686362407275,
+     "replayed": 65.5535566517883
+    },
+    {
+     "TC": 77,
+     "stat": "BuckshotDamageFlat",
+     "stored": 111.40371352663257,
+     "replayed": 111.342995370898
+    },
+    {
+     "TC": 77,
+     "stat": "LifestealFlat",
+     "stored": 7.870023479745344,
+     "replayed": 7.867706334624242
+    },
+    {
+     "TC": 77,
+     "stat": "Evasion",
+     "stored": 2.692521610953321,
+     "replayed": 2.690725170052505
+    },
+    {
+     "TC": 77,
+     "stat": "CritChance",
+     "stored": 3.467017353074552,
+     "replayed": 3.464537455723305
+    },
+    {
+     "TC": 77,
+     "stat": "CritDamagePercent",
+     "stored": 3.5010158895710797,
+     "replayed": 3.498610325015515
+    },
+    {
+     "TC": 77,
+     "stat": "BlockChance",
+     "stored": 2.0915256485133877,
+     "replayed": 2.0891513451975623
+    },
+    {
+     "TC": 77,
+     "stat": "BlockAmount",
+     "stored": 2.2493516994566156,
+     "replayed": 2.247233063233338
+    },
+    {
+     "TC": 85,
+     "stat": "Health",
+     "stored": 2499.1123085102217,
+     "replayed": 2497.7276268815203
+    },
+    {
+     "TC": 85,
+     "stat": "MovementSpeed",
+     "stored": 6.75013137674219,
+     "replayed": 6.745683075673705
+    },
+    {
+     "TC": 85,
+     "stat": "HealthRegen",
+     "stored": 16.60438854356026,
+     "replayed": 16.600585253889424
+    },
+    {
+     "TC": 85,
+     "stat": "StabDefenceFlat",
+     "stored": 82.36848451655077,
+     "replayed": 82.3092783302896
+    },
+    {
+     "TC": 85,
+     "stat": "CutDefenceFlat",
+     "stored": 70.58371889460913,
+     "replayed": 70.5721205833272
+    },
+    {
+     "TC": 85,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 90.72672746576076,
+     "replayed": 90.61834831056626
+    },
+    {
+     "TC": 85,
+     "stat": "StabDamageFlat",
+     "stored": 61.44333810969864,
+     "replayed": 61.4330315716297
+    },
+    {
+     "TC": 85,
+     "stat": "CutDamageFlat",
+     "stored": 73.27926642361264,
+     "replayed": 73.22480510212958
+    },
+    {
+     "TC": 85,
+     "stat": "BuckshotDamageFlat",
+     "stored": 115.40602716240848,
+     "replayed": 115.35448181438183
+    },
+    {
+     "TC": 85,
+     "stat": "LifestealFlat",
+     "stored": 8.011228182732031,
+     "replayed": 8.009422106084997
+    },
+    {
+     "TC": 85,
+     "stat": "Evasion",
+     "stored": 2.8605148745376994,
+     "replayed": 2.8590159391585037
+    },
+    {
+     "TC": 85,
+     "stat": "CritChance",
+     "stored": 3.712059475207633,
+     "replayed": 3.7098691844970975
+    },
+    {
+     "TC": 85,
+     "stat": "CritDamagePercent",
+     "stored": 3.7408495616595863,
+     "replayed": 3.738732717454611
+    },
+    {
+     "TC": 85,
+     "stat": "BlockChance",
+     "stored": 2.3234867989881782,
+     "replayed": 2.321475364515295
+    },
+    {
+     "TC": 85,
+     "stat": "BlockAmount",
+     "stored": 2.457908581554261,
+     "replayed": 2.456194055080467
+    },
+    {
+     "TC": 94,
+     "stat": "Health",
+     "stored": 2721.7781781027015,
+     "replayed": 2718.4058631127004
+    },
+    {
+     "TC": 94,
+     "stat": "MovementSpeed",
+     "stored": 7.133982991464652,
+     "replayed": 7.1241465121306975
+    },
+    {
+     "TC": 94,
+     "stat": "HealthRegen",
+     "stored": 17.25164255856579,
+     "replayed": 17.242195119351518
+    },
+    {
+     "TC": 94,
+     "stat": "StabDefenceFlat",
+     "stored": 86.82621572508707,
+     "replayed": 86.70006791769283
+    },
+    {
+     "TC": 94,
+     "stat": "CutDefenceFlat",
+     "stored": 85.19748184078612,
+     "replayed": 85.10383567384939
+    },
+    {
+     "TC": 94,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 100.91124210359892,
+     "replayed": 100.6561954153148
+    },
+    {
+     "TC": 94,
+     "stat": "StabDamageFlat",
+     "stored": 64.56325412619223,
+     "replayed": 64.5343373594196
+    },
+    {
+     "TC": 94,
+     "stat": "CutDamageFlat",
+     "stored": 78.13880091160308,
+     "replayed": 78.0252516242494
+    },
+    {
+     "TC": 94,
+     "stat": "BuckshotDamageFlat",
+     "stored": 119.25717471889786,
+     "replayed": 119.15047575648182
+    },
+    {
+     "TC": 94,
+     "stat": "LifestealFlat",
+     "stored": 10.814271382959172,
+     "replayed": 10.798254204998774
+    },
+    {
+     "TC": 94,
+     "stat": "Evasion",
+     "stored": 2.984223166775156,
+     "replayed": 2.981202841482663
+    },
+    {
+     "TC": 94,
+     "stat": "CritChance",
+     "stored": 3.9012840679683114,
+     "replayed": 3.8967031895638438
+    },
+    {
+     "TC": 94,
+     "stat": "CritDamagePercent",
+     "stored": 3.9243324630173904,
+     "replayed": 3.9199198260601547
+    },
+    {
+     "TC": 94,
+     "stat": "BlockChance",
+     "stored": 3.1849887711001683,
+     "replayed": 3.177545122170931
+    },
+    {
+     "TC": 94,
+     "stat": "BlockAmount",
+     "stored": 3.292591965443047,
+     "replayed": 3.2858593948683876
+    },
+    {
+     "TC": 104,
+     "stat": "Health",
+     "stored": 2951.805112759476,
+     "replayed": 2949.022355848963
+    },
+    {
+     "TC": 104,
+     "stat": "MovementSpeed",
+     "stored": 7.5589414911661015,
+     "replayed": 7.551809373354754
+    },
+    {
+     "TC": 104,
+     "stat": "HealthRegen",
+     "stored": 18.43575558844828,
+     "replayed": 18.424765331246935
+    },
+    {
+     "TC": 104,
+     "stat": "StabDefenceFlat",
+     "stored": 91.70917847179075,
+     "replayed": 91.62134156329581
+    },
+    {
+     "TC": 104,
+     "stat": "CutDefenceFlat",
+     "stored": 127.09597914705256,
+     "replayed": 126.84692383404119
+    },
+    {
+     "TC": 104,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 112.92043763253452,
+     "replayed": 112.72322155286462
+    },
+    {
+     "TC": 104,
+     "stat": "StabDamageFlat",
+     "stored": 94.83108184289271,
+     "replayed": 94.68312718901115
+    },
+    {
+     "TC": 104,
+     "stat": "CutDamageFlat",
+     "stored": 83.13626943821727,
+     "replayed": 83.06072676971864
+    },
+    {
+     "TC": 104,
+     "stat": "BuckshotDamageFlat",
+     "stored": 123.34866057407686,
+     "replayed": 123.27633252374802
+    },
+    {
+     "TC": 104,
+     "stat": "LifestealFlat",
+     "stored": 11.533401399470256,
+     "replayed": 11.520862993149061
+    },
+    {
+     "TC": 104,
+     "stat": "Evasion",
+     "stored": 3.10802388425262,
+     "replayed": 3.1060578952028846
+    },
+    {
+     "TC": 104,
+     "stat": "CritChance",
+     "stored": 4.09644519527315,
+     "replayed": 4.093333104871025
+    },
+    {
+     "TC": 104,
+     "stat": "CritDamagePercent",
+     "stored": 4.112806067649679,
+     "replayed": 4.109817133556397
+    },
+    {
+     "TC": 104,
+     "stat": "BlockChance",
+     "stored": 3.5103337825231904,
+     "replayed": 3.5048689435448477
+    },
+    {
+     "TC": 104,
+     "stat": "BlockAmount",
+     "stored": 3.586782316650137,
+     "replayed": 3.5818610121372227
+    },
+    {
+     "TC": 115,
+     "stat": "Health",
+     "stored": 3461.7398846835417,
+     "replayed": 3458.891498778929
+    },
+    {
+     "TC": 115,
+     "stat": "MovementSpeed",
+     "stored": 11.822848243635837,
+     "replayed": 11.802927074645797
+    },
+    {
+     "TC": 115,
+     "stat": "HealthRegen",
+     "stored": 21.14223496501902,
+     "replayed": 21.12830206273681
+    },
+    {
+     "TC": 115,
+     "stat": "StabDefenceFlat",
+     "stored": 172.13092920206248,
+     "replayed": 171.80007482297097
+    },
+    {
+     "TC": 115,
+     "stat": "CutDefenceFlat",
+     "stored": 139.0563980047994,
+     "replayed": 138.85022949854144
+    },
+    {
+     "TC": 115,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 122.02923609944888,
+     "replayed": 121.88801631775553
+    },
+    {
+     "TC": 115,
+     "stat": "StabDamageFlat",
+     "stored": 101.91587255083459,
+     "replayed": 101.79394110546822
+    },
+    {
+     "TC": 115,
+     "stat": "CutDamageFlat",
+     "stored": 86.441637213964,
+     "replayed": 86.39349372139165
+    },
+    {
+     "TC": 115,
+     "stat": "BuckshotDamageFlat",
+     "stored": 147.83362626642574,
+     "replayed": 147.725413232901
+    },
+    {
+     "TC": 115,
+     "stat": "LifestealFlat",
+     "stored": 12.097994395011211,
+     "replayed": 12.08884730971579
+    },
+    {
+     "TC": 115,
+     "stat": "Evasion",
+     "stored": 3.6639124909788765,
+     "replayed": 3.6605767380163035
+    },
+    {
+     "TC": 115,
+     "stat": "CritChance",
+     "stored": 5.442185587767768,
+     "replayed": 5.434530675277286
+    },
+    {
+     "TC": 115,
+     "stat": "CritDamagePercent",
+     "stored": 5.66369564699684,
+     "replayed": 5.656123651575782
+    },
+    {
+     "TC": 115,
+     "stat": "BlockChance",
+     "stored": 4.445087724636031,
+     "replayed": 4.438345968165823
+    },
+    {
+     "TC": 115,
+     "stat": "BlockAmount",
+     "stored": 4.612973251373473,
+     "replayed": 4.606670860549361
+    },
+    {
+     "TC": 127,
+     "stat": "Health",
+     "stored": 4599.821217622907,
+     "replayed": 4593.971618568431
+    },
+    {
+     "TC": 127,
+     "stat": "MovementSpeed",
+     "stored": 12.756893588638063,
+     "replayed": 12.741018889702493
+    },
+    {
+     "TC": 127,
+     "stat": "HealthRegen",
+     "stored": 21.76166416800588,
+     "replayed": 21.751033486546817
+    },
+    {
+     "TC": 127,
+     "stat": "StabDefenceFlat",
+     "stored": 188.78001200684915,
+     "replayed": 188.5139467516171
+    },
+    {
+     "TC": 127,
+     "stat": "CutDefenceFlat",
+     "stored": 147.75153308669502,
+     "replayed": 147.58937865959072
+    },
+    {
+     "TC": 127,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 127.53147645069694,
+     "replayed": 127.42974609737897
+    },
+    {
+     "TC": 127,
+     "stat": "StabDamageFlat",
+     "stored": 107.06017443912368,
+     "replayed": 106.96414630469768
+    },
+    {
+     "TC": 127,
+     "stat": "CutDamageFlat",
+     "stored": 88.24535195986356,
+     "replayed": 88.21296120214895
+    },
+    {
+     "TC": 127,
+     "stat": "BuckshotDamageFlat",
+     "stored": 206.7396953810031,
+     "replayed": 206.4102924320918
+    },
+    {
+     "TC": 127,
+     "stat": "LifestealFlat",
+     "stored": 12.466924772907594,
+     "replayed": 12.460333424349644
+    },
+    {
+     "TC": 127,
+     "stat": "Evasion",
+     "stored": 4.93293197786456,
+     "replayed": 4.926017583173103
+    },
+    {
+     "TC": 127,
+     "stat": "CritChance",
+     "stored": 5.801750162634521,
+     "replayed": 5.795278615383571
+    },
+    {
+     "TC": 127,
+     "stat": "CritDamagePercent",
+     "stored": 6.009207188237626,
+     "replayed": 6.003124021642187
+    },
+    {
+     "TC": 127,
+     "stat": "BlockChance",
+     "stored": 4.752280040369645,
+     "replayed": 4.74707885205663
+    },
+    {
+     "TC": 127,
+     "stat": "BlockAmount",
+     "stored": 4.895648962016864,
+     "replayed": 4.890933210248963
+    },
+    {
+     "TC": 140,
+     "stat": "Health",
+     "stored": 5466.016227023031,
+     "replayed": 5460.492441372164
+    },
+    {
+     "TC": 140,
+     "stat": "MovementSpeed",
+     "stored": 16.993610895363407,
+     "replayed": 16.97398569072692
+    },
+    {
+     "TC": 140,
+     "stat": "HealthRegen",
+     "stored": 24.63166675676238,
+     "replayed": 24.619518174217056
+    },
+    {
+     "TC": 140,
+     "stat": "StabDefenceFlat",
+     "stored": 207.89542979087548,
+     "replayed": 207.71378583509505
+    },
+    {
+     "TC": 140,
+     "stat": "CutDefenceFlat",
+     "stored": 158.42176658690147,
+     "replayed": 158.3153534934117
+    },
+    {
+     "TC": 140,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 249.5540751575443,
+     "replayed": 249.2292150374941
+    },
+    {
+     "TC": 140,
+     "stat": "StabDamageFlat",
+     "stored": 113.40089581013667,
+     "replayed": 113.337426814249
+    },
+    {
+     "TC": 140,
+     "stat": "CutDamageFlat",
+     "stored": 169.89091347904093,
+     "replayed": 169.65366860702588
+    },
+    {
+     "TC": 140,
+     "stat": "BuckshotDamageFlat",
+     "stored": 233.36784752860382,
+     "replayed": 233.08244887447114
+    },
+    {
+     "TC": 140,
+     "stat": "LifestealFlat",
+     "stored": 12.878605726203425,
+     "replayed": 12.874704367786228
+    },
+    {
+     "TC": 140,
+     "stat": "Evasion",
+     "stored": 5.444812585513785,
+     "replayed": 5.4394582336069925
+    },
+    {
+     "TC": 140,
+     "stat": "CritChance",
+     "stored": 7.158265613604673,
+     "replayed": 7.150952968580626
+    },
+    {
+     "TC": 140,
+     "stat": "CritDamagePercent",
+     "stored": 7.1417002057228895,
+     "replayed": 7.134858506135212
+    },
+    {
+     "TC": 140,
+     "stat": "BlockChance",
+     "stored": 6.031395550138859,
+     "replayed": 6.025506786562274
+    },
+    {
+     "TC": 140,
+     "stat": "BlockAmount",
+     "stored": 6.104968897702707,
+     "replayed": 6.099488910727668
+    },
+    {
+     "TC": 154,
+     "stat": "Health",
+     "stored": 6422.990850215219,
+     "replayed": 6421.505576934147
+    },
+    {
+     "TC": 154,
+     "stat": "MovementSpeed",
+     "stored": 20.813464384701366,
+     "replayed": 20.807225733756177
+    },
+    {
+     "TC": 154,
+     "stat": "HealthRegen",
+     "stored": 27.616212317590218,
+     "replayed": 27.613027582212922
+    },
+    {
+     "TC": 154,
+     "stat": "StabDefenceFlat",
+     "stored": 219.70644254269936,
+     "replayed": 219.67200804668548
+    },
+    {
+     "TC": 154,
+     "stat": "CutDefenceFlat",
+     "stored": 194.7503062206938,
+     "replayed": 194.7133657177932
+    },
+    {
+     "TC": 154,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 278.8142739510988,
+     "replayed": 278.7573130734845
+    },
+    {
+     "TC": 154,
+     "stat": "StabDamageFlat",
+     "stored": 175.35033973825847,
+     "replayed": 175.2916552414696
+    },
+    {
+     "TC": 154,
+     "stat": "CutDamageFlat",
+     "stored": 192.67783573358508,
+     "replayed": 192.63110463576476
+    },
+    {
+     "TC": 154,
+     "stat": "BuckshotDamageFlat",
+     "stored": 253.6721859653166,
+     "replayed": 253.6074004007508
+    },
+    {
+     "TC": 154,
+     "stat": "LifestealFlat",
+     "stored": 19.751677652454326,
+     "replayed": 19.746838017189642
+    },
+    {
+     "TC": 154,
+     "stat": "Evasion",
+     "stored": 8.331734924688336,
+     "replayed": 8.328282986227581
+    },
+    {
+     "TC": 154,
+     "stat": "CritChance",
+     "stored": 8.475037071525186,
+     "replayed": 8.47285434163714
+    },
+    {
+     "TC": 154,
+     "stat": "CritDamagePercent",
+     "stored": 8.354331884861734,
+     "replayed": 8.35220168240791
+    },
+    {
+     "TC": 154,
+     "stat": "BlockChance",
+     "stored": 6.492478980079489,
+     "replayed": 6.491383231658528
+    },
+    {
+     "TC": 154,
+     "stat": "BlockAmount",
+     "stored": 7.19430030737338,
+     "replayed": 7.192558942378505
+    },
+    {
+     "TC": 170,
+     "stat": "Health",
+     "stored": 6669.334858097774,
+     "replayed": 6668.12717308577
+    },
+    {
+     "TC": 170,
+     "stat": "MovementSpeed",
+     "stored": 21.964362950607633,
+     "replayed": 21.95895394716827
+    },
+    {
+     "TC": 170,
+     "stat": "StabDefenceFlat",
+     "stored": 224.68454354284975,
+     "replayed": 224.65776273629697
+    },
+    {
+     "TC": 170,
+     "stat": "CutDefenceFlat",
+     "stored": 207.61815197307996,
+     "replayed": 207.5847555650429
+    },
+    {
+     "TC": 170,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 287.7973545506884,
+     "replayed": 287.7534243699338
+    },
+    {
+     "TC": 170,
+     "stat": "StabDamageFlat",
+     "stored": 187.39585221154348,
+     "replayed": 187.3447306318779
+    },
+    {
+     "TC": 170,
+     "stat": "CutDamageFlat",
+     "stored": 200.1859632965747,
+     "replayed": 200.14849648463735
+    },
+    {
+     "TC": 170,
+     "stat": "BuckshotDamageFlat",
+     "stored": 263.4426707616966,
+     "replayed": 263.3878686943628
+    },
+    {
+     "TC": 170,
+     "stat": "LifestealFlat",
+     "stored": 20.706239176683674,
+     "replayed": 20.70235627152599
+    },
+    {
+     "TC": 170,
+     "stat": "Evasion",
+     "stored": 8.97005782185872,
+     "replayed": 8.966939591147364
+    },
+    {
+     "TC": 170,
+     "stat": "CritChance",
+     "stored": 8.871283080303066,
+     "replayed": 8.869447690733173
+    },
+    {
+     "TC": 170,
+     "stat": "CritDamagePercent",
+     "stored": 8.74883339738404,
+     "replayed": 8.746989771615882
+    },
+    {
+     "TC": 170,
+     "stat": "BlockChance",
+     "stored": 7.3063456266690725,
+     "replayed": 7.304807376816121
+    },
+    {
+     "TC": 170,
+     "stat": "BlockAmount",
+     "stored": 7.515204043992884,
+     "replayed": 7.513696722070269
+    },
+    {
+     "TC": 187,
+     "stat": "Health",
+     "stored": 6858.26167344888,
+     "replayed": 6857.297215753935
+    },
+    {
+     "TC": 187,
+     "stat": "MovementSpeed",
+     "stored": 22.883842726732396,
+     "replayed": 22.87926664687119
+    },
+    {
+     "TC": 187,
+     "stat": "CutDefenceFlat",
+     "stored": 284.7380566271622,
+     "replayed": 284.6629032261997
+    },
+    {
+     "TC": 187,
+     "stat": "BuckshotDefenceFlat",
+     "stored": 294.48881800203316,
+     "replayed": 294.4552173221039
+    },
+    {
+     "TC": 187,
+     "stat": "StabDamageFlat",
+     "stored": 196.62045197885158,
+     "replayed": 196.57721497231415
+    },
+    {
+     "TC": 187,
+     "stat": "CutDamageFlat",
+     "stored": 205.96646263889997,
+     "replayed": 205.93694099507152
+    },
+    {
+     "TC": 187,
+     "stat": "BuckshotDamageFlat",
+     "stored": 271.52886346509104,
+     "replayed": 271.4836485718102
+    },
+    {
+     "TC": 187,
+     "stat": "LifestealFlat",
+     "stored": 21.382815033556017,
+     "replayed": 21.379756111631195
+    },
+    {
+     "TC": 187,
+     "stat": "Evasion",
+     "stored": 9.50040732153251,
+     "replayed": 9.49769302903267
+    },
+    {
+     "TC": 187,
+     "stat": "CritChance",
+     "stored": 9.177644278999658,
+     "replayed": 9.176135603829017
+    },
+    {
+     "TC": 187,
+     "stat": "CritDamagePercent",
+     "stored": 9.062286004910316,
+     "replayed": 9.060729168586878
+    },
+    {
+     "TC": 187,
+     "stat": "BlockChance",
+     "stored": 7.570789811086575,
+     "replayed": 7.569442792544235
+    },
+    {
+     "TC": 187,
+     "stat": "BlockAmount",
+     "stored": 7.7715825653376305,
+     "replayed": 7.770305937331354
+    },
+    {
+     "TC": 206,
+     "stat": "Health",
+     "stored": 7012.219076943338,
+     "replayed": 7011.470068868178
+    },
+    {
+     "TC": 206,
+     "stat": "MovementSpeed",
+     "stored": 23.66042780419882,
+     "replayed": 23.65667531637707
+    },
+    {
+     "TC": 206,
+     "stat": "CutDefenceFlat",
+     "stored": 298.0547245631628,
+     "replayed": 297.991447136833
+    },
+    {
+     "TC": 206,
+     "stat": "StabDamageFlat",
+     "stored": 204.17427201972242,
+     "replayed": 204.1388873496724
+    },
+    {
+     "TC": 206,
+     "stat": "CutDamageFlat",
+     "stored": 210.65996389506506,
+     "replayed": 210.6373436870952
+    },
+    {
+     "TC": 206,
+     "stat": "BuckshotDamageFlat",
+     "stored": 278.5280349350482,
+     "replayed": 278.4919916817411
+    },
+    {
+     "TC": 206,
+     "stat": "LifestealFlat",
+     "stored": 21.900979479329553,
+     "replayed": 21.898627334224766
+    },
+    {
+     "TC": 206,
+     "stat": "Evasion",
+     "stored": 9.961917098828922,
+     "replayed": 9.959645668820885
+    },
+    {
+     "TC": 206,
+     "stat": "CritChance",
+     "stored": 9.42926273152046,
+     "replayed": 9.428059117066704
+    },
+    {
+     "TC": 206,
+     "stat": "CritDamagePercent",
+     "stored": 9.3262272159583,
+     "replayed": 9.324953317362821
+    },
+    {
+     "TC": 206,
+     "stat": "BlockChance",
+     "stored": 7.803515359647608,
+     "replayed": 7.802365053462327
+    },
+    {
+     "TC": 206,
+     "stat": "BlockAmount",
+     "stored": 7.988458233994459,
+     "replayed": 7.987409397441613
+    },
+    {
+     "TC": 227,
+     "stat": "MovementSpeed",
+     "stored": 24.34578728876886,
+     "replayed": 24.342804706638486
+    },
+    {
+     "TC": 227,
+     "stat": "CutDefenceFlat",
+     "stored": 311.6789944720179,
+     "replayed": 311.6299010692974
+    },
+    {
+     "TC": 227,
+     "stat": "StabDamageFlat",
+     "stored": 211.67873828294765,
+     "replayed": 211.65210571936055
+    },
+    {
+     "TC": 227,
+     "stat": "BuckshotDamageFlat",
+     "stored": 282.86645299086007,
+     "replayed": 282.8367516544608
+    },
+    {
+     "TC": 227,
+     "stat": "Evasion",
+     "stored": 10.35365389669259,
+     "replayed": 10.351807401966141
+    },
+    {
+     "TC": 227,
+     "stat": "CritDamagePercent",
+     "stored": 9.555414841919287,
+     "replayed": 9.554405092597973
+    },
+    {
+     "TC": 227,
+     "stat": "BlockChance",
+     "stored": 8.019993964038767,
+     "replayed": 8.019032739316932
+    },
+    {
+     "TC": 227,
+     "stat": "BlockAmount",
+     "stored": 8.180305574311827,
+     "replayed": 8.179470065449022
+    },
+    {
+     "TC": 250,
+     "stat": "CutDefenceFlat",
+     "stored": 319.98202794409343,
+     "replayed": 319.9431489795501
+    },
+    {
+     "TC": 250,
+     "stat": "Evasion",
+     "stored": 10.64423486210336,
+     "replayed": 10.64275303893883
+    },
+    {
+     "TC": 275,
+     "stat": "CutDefenceFlat",
+     "stored": 324.4109451702046,
+     "replayed": 324.37830338919787
+    },
+    {
+     "TC": 275,
+     "stat": "Evasion",
+     "stored": 10.910376122246578,
+     "replayed": 10.909255972128639
+    }
+   ]
+  }
+ ],
+ "rpm_first_replayed": [
+  {
+   "TC": 0,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 0.0,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.0,
+    "CritDamagePercent": 0.0,
+    "CutDamageFlat": 0.5,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 2.850713254593171,
+    "HealthRegen": 0.0,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.5,
+    "StabDamageFlat": 0.0,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 1,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 0.0,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.0,
+    "CritDamagePercent": 0.0,
+    "CutDamageFlat": 1.3609935657540864,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 20.397246115359835,
+    "HealthRegen": 0.5908846543968844,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.5,
+    "StabDamageFlat": 0.9205433329498334,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 2,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 0.5,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.0,
+    "CritDamagePercent": 0.0,
+    "CutDamageFlat": 1.4427374669760111,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 56.3201852098516,
+    "HealthRegen": 0.976372281959282,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.5,
+    "StabDamageFlat": 1.1426026468171195,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 3,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 2.081994608508774,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.0,
+    "CritDamagePercent": 0.0,
+    "CutDamageFlat": 1.4685703297623733,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 66.62961898578463,
+    "HealthRegen": 1.5717699949603356,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.5276863266318937,
+    "StabDamageFlat": 1.1686021151206656,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 4,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 2.947180523412555,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.0,
+    "CritDamagePercent": 0.0,
+    "CutDamageFlat": 1.4782471376199264,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 71.92922275301154,
+    "HealthRegen": 1.7142980058253656,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.5805805129496495,
+    "StabDamageFlat": 1.1782980648727739,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 5,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 3.3048139858401173,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.0,
+    "CritDamagePercent": 0.0,
+    "CutDamageFlat": 1.482798692462475,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 74.09291812345664,
+    "HealthRegen": 1.7731799280633262,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.6013030360365417,
+    "StabDamageFlat": 1.1828499425275527,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 6,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 3.642937361279607,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 3.070049517032624,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 90.33858980389854,
+    "HealthRegen": 2.30119077018638,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.8265439598533035,
+    "StabDamageFlat": 1.1876782804672092,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 7,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 3.7743692962541826,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 3.4069557858040205,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 153.9527743397135,
+    "HealthRegen": 2.416597840037421,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.8899158548978489,
+    "StabDamageFlat": 1.190319410098606,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 8,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 3.8501485862478106,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 3.6103127673274047,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 0.0,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 162.00159437818678,
+    "HealthRegen": 2.4825161267167655,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 0.928070883980709,
+    "StabDamageFlat": 1.191910447548101,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 9,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 3.898349099895443,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 3.732838939647748,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 6.285277036131135,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 187.14739566765516,
+    "HealthRegen": 3.168428510590764,
+    "LifestealFlat": 0.0,
+    "MovementSpeed": 1.1092252032570145,
+    "StabDamageFlat": 2.4954674212571075,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 10,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 3.9395389656872597,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 3.8249287586358123,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 6.801726960786002,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 192.10437216397574,
+    "HealthRegen": 3.2454943083567405,
+    "LifestealFlat": 0.6682306175401339,
+    "MovementSpeed": 1.1436100617397496,
+    "StabDamageFlat": 2.6027225196800403,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 11,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 3.9707632354226994,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 3.888189182861787,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 7.25594554694681,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.0,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 195.71938613074735,
+    "HealthRegen": 3.3061600367190405,
+    "LifestealFlat": 0.7469232341424354,
+    "MovementSpeed": 1.1709790575594736,
+    "StabDamageFlat": 2.6962818606362906,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 0.0,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 13,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 12.134657363427573,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 3.9756827959351115,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 7.917030507389798,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 226.53139173468855,
+    "HealthRegen": 4.07865861391304,
+    "LifestealFlat": 0.8740371526078922,
+    "MovementSpeed": 1.3612993036339347,
+    "StabDamageFlat": 2.8310290354248737,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 7.986510073488097,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 15,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 13.168757386992839,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 0.0,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 4.032912619459723,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 8.363701647694752,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 232.94597529875438,
+    "HealthRegen": 4.223136337355294,
+    "LifestealFlat": 0.969484651039473,
+    "MovementSpeed": 1.401480538282771,
+    "StabDamageFlat": 2.9210422382034893,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 8.964487991998919,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 17,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 13.920971458428914,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 8.7824735766591,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 8.07578979713724,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 8.680999448859504,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 270.24370732669416,
+    "HealthRegen": 5.131766888495187,
+    "LifestealFlat": 1.0425527406610615,
+    "MovementSpeed": 1.6459708957886827,
+    "StabDamageFlat": 2.984442556896658,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 9.687415249498057,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 19,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 14.432909232269319,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 10.13490993666516,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5,
+    "CritDamagePercent": 0.5,
+    "CutDamageFlat": 13.3330263037343,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 8.995975823978146,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 279.76754638536477,
+    "HealthRegen": 5.314772601243334,
+    "LifestealFlat": 1.1198314063472685,
+    "MovementSpeed": 1.6953676179819364,
+    "StabDamageFlat": 3.0468922544649826,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 10.185306445087166,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 21,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 15.005905571072645,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 11.056980689538348,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.5185045415718381,
+    "CritDamagePercent": 0.5064050129278469,
+    "CutDamageFlat": 14.301386388073722,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 9.27949492729254,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 286.9583153288573,
+    "HealthRegen": 5.4609805627450045,
+    "LifestealFlat": 1.193776548069035,
+    "MovementSpeed": 1.7317085824359526,
+    "StabDamageFlat": 3.102696229642647,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 10.748573005046094,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 24,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 15.623457226819847,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 12.549563742654753,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.7158403220084343,
+    "CritDamagePercent": 0.7046968765009305,
+    "CutDamageFlat": 15.902424431382439,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 18.137605948247533,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 335.9185582789274,
+    "HealthRegen": 6.696985466675047,
+    "LifestealFlat": 3.1775210376645457,
+    "MovementSpeed": 1.9611402344754927,
+    "StabDamageFlat": 9.063239881177486,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 11.363164485083932,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 27,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 15.932908424608987,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 13.372966032646824,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.7924971592474608,
+    "CritDamagePercent": 0.7833918099257957,
+    "CutDamageFlat": 16.805185829865103,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 19.67238415211522,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 514.774207203988,
+    "HealthRegen": 6.915201812471573,
+    "LifestealFlat": 3.5836110717805694,
+    "MovementSpeed": 2.0095670347185393,
+    "StabDamageFlat": 10.313171869275243,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 11.674237235645792,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 30,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 22.720578583054085,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 13.785940385887567,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 0.8364356101293219,
+    "CritDamagePercent": 0.8289515433561154,
+    "CutDamageFlat": 17.263519877727912,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 20.483090612032413,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 619.8278863040315,
+    "HealthRegen": 8.18675206909416,
+    "LifestealFlat": 3.804026908356975,
+    "MovementSpeed": 2.2194778767438685,
+    "StabDamageFlat": 11.048738492215783,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 22.091309358510102,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 33,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.0,
+    "BlockChance": 0.0,
+    "BuckshotDamageFlat": 23.68798608803683,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 14.02750201680113,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 1.060615667369243,
+    "CritDamagePercent": 1.0599434996288994,
+    "CutDamageFlat": 17.53338101309799,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 21.072203326455668,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.5210500180417509,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 666.0086809446592,
+    "HealthRegen": 8.37532556134862,
+    "LifestealFlat": 3.966767571002204,
+    "MovementSpeed": 2.25245131124764,
+    "StabDamageFlat": 11.621881393944202,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 23.368226747553976,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 37,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.5,
+    "BlockChance": 0.5,
+    "BuckshotDamageFlat": 38.687707409334415,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 26.008068259466942,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 1.469257537850908,
+    "CritDamagePercent": 1.4715131253614568,
+    "CutDamageFlat": 21.142724614064413,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 21.69389428933129,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.8475382052782952,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 809.1644369085808,
+    "HealthRegen": 9.769759199491833,
+    "LifestealFlat": 4.1408618347628865,
+    "MovementSpeed": 2.589641428269019,
+    "StabDamageFlat": 14.98261137023772,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 24.77347754749089,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 41,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.5,
+    "BlockChance": 0.5,
+    "BuckshotDamageFlat": 52.54761001595254,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 27.4993285706831,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 1.5530455852764917,
+    "CritDamagePercent": 1.555554996745739,
+    "CutDamageFlat": 28.04960582408714,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 22.030350258318997,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 0.9060663080987011,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 854.618088478619,
+    "HealthRegen": 9.979443610061578,
+    "LifestealFlat": 4.236090235962599,
+    "MovementSpeed": 2.64076487450621,
+    "StabDamageFlat": 21.402823333718075,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 25.337549653829495,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 46,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.6035321186484511,
+    "BlockChance": 0.5244794767529021,
+    "BuckshotDamageFlat": 56.693894950671606,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 31.897760939372965,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 1.6537283400304985,
+    "CritDamagePercent": 1.6563640038247778,
+    "CutDamageFlat": 30.126449582134082,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 32.86651754261885,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 1.317209646798441,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 999.8019823883354,
+    "HealthRegen": 11.730259309270613,
+    "LifestealFlat": 4.328492780261532,
+    "MovementSpeed": 3.526120664606172,
+    "StabDamageFlat": 42.02507823128824,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 25.940907142243155,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 51,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.7149742802062555,
+    "BlockChance": 0.6414483201613191,
+    "BuckshotDamageFlat": 59.36950974980282,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 34.03240761518426,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 1.974426440651382,
+    "CritDamagePercent": 1.9768965135018726,
+    "CutDamageFlat": 31.592974399072883,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 56.31249994579319,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 1.4454565869126452,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 1067.36008096684,
+    "HealthRegen": 12.099173577333797,
+    "LifestealFlat": 4.403176296109185,
+    "MovementSpeed": 3.8122063003082247,
+    "StabDamageFlat": 48.338461184330114,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 26.281336678126493,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 57,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 0.796375653064138,
+    "BlockChance": 0.7341782764277004,
+    "BuckshotDamageFlat": 61.796888575934716,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 36.49931775742602,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 2.0966080202900668,
+    "CritDamagePercent": 2.098429022110663,
+    "CutDamageFlat": 33.00383931770721,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 61.114983111273396,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 1.5351536679008748,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 1110.47685562195,
+    "HealthRegen": 12.345334345609327,
+    "LifestealFlat": 6.770511614467887,
+    "MovementSpeed": 4.015167608213549,
+    "StabDamageFlat": 52.75903159001378,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 26.552315104587976,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 63,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 1.2753647540338529,
+    "BlockChance": 1.1378799317626485,
+    "BuckshotDamageFlat": 80.16470046725564,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 39.376142085780465,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 2.5698945636457764,
+    "CritDamagePercent": 2.616238658986338,
+    "CutDamageFlat": 34.25761680556194,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 65.01230337950027,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 1.969885428326243,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 1781.6150601802394,
+    "HealthRegen": 13.918333269108333,
+    "LifestealFlat": 7.230806161751606,
+    "MovementSpeed": 4.181965819426702,
+    "StabDamageFlat": 56.36479163824664,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 40.71591050499326,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 70,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 1.4310185091045449,
+    "BlockChance": 1.311567841533961,
+    "BuckshotDamageFlat": 101.91418645146972,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 42.884317530894464,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 2.778175324890307,
+    "CritDamagePercent": 2.8215471043307363,
+    "CutDamageFlat": 35.31366727249847,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 68.3422794428339,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 2.1318082385947323,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 1986.9142632983464,
+    "HealthRegen": 14.329342520544971,
+    "LifestealFlat": 7.677240285313226,
+    "MovementSpeed": 5.195771449919858,
+    "StabDamageFlat": 59.3984395375384,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 67.28358622455204,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 77,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 2.2493516994566156,
+    "BlockChance": 2.0915256485133877,
+    "BuckshotDamageFlat": 111.4037135266326,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 58.780683054796036,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 3.4670173530745525,
+    "CritDamagePercent": 3.5010158895710806,
+    "CutDamageFlat": 65.61686362407276,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 69.66018483738861,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 2.692521610953321,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 2371.2455679539808,
+    "HealthRegen": 16.142862580359232,
+    "LifestealFlat": 7.870023479745344,
+    "MovementSpeed": 5.570476707083435,
+    "StabDamageFlat": 60.61521377367936,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 77.84148734263992,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 85,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 2.457908581554261,
+    "BlockChance": 2.3234867989881782,
+    "BuckshotDamageFlat": 115.40602716240848,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 90.72672746576076,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 3.712059475207633,
+    "CritDamagePercent": 3.7408495616595854,
+    "CutDamageFlat": 73.27926642361263,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 70.58371889460915,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 2.8605148745376994,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 2499.112308510222,
+    "HealthRegen": 16.60438854356026,
+    "LifestealFlat": 8.011228182732033,
+    "MovementSpeed": 6.750131376742188,
+    "StabDamageFlat": 61.443338109698644,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 82.36848451655077,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 94,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 3.292591965443047,
+    "BlockChance": 3.1849887711001688,
+    "BuckshotDamageFlat": 119.25717471889784,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 100.91124210359892,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 3.9012840679683105,
+    "CritDamagePercent": 3.92433246301739,
+    "CutDamageFlat": 78.13880091160308,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 85.19748184078612,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 2.984223166775155,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 2721.7781781027006,
+    "HealthRegen": 17.2516425585658,
+    "LifestealFlat": 10.814271382959173,
+    "MovementSpeed": 7.133982991464651,
+    "StabDamageFlat": 64.56325412619223,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 86.82621572508707,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 104,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 3.586782316650137,
+    "BlockChance": 3.5103337825231895,
+    "BuckshotDamageFlat": 123.34866057407683,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 112.92043763253452,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 4.09644519527315,
+    "CritDamagePercent": 4.112806067649679,
+    "CutDamageFlat": 83.13626943821728,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 127.09597914705255,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 3.108023884252621,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 2951.8051127594745,
+    "HealthRegen": 18.43575558844828,
+    "LifestealFlat": 11.533401399470256,
+    "MovementSpeed": 7.558941491166104,
+    "StabDamageFlat": 94.83108184289274,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 91.70917847179075,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 115,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 4.612973251373473,
+    "BlockChance": 4.445087724636033,
+    "BuckshotDamageFlat": 147.83362626642574,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 122.02923609944888,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 5.442185587767766,
+    "CritDamagePercent": 5.66369564699684,
+    "CutDamageFlat": 86.441637213964,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 139.05639800479938,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 3.663912490978876,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 3461.739884683542,
+    "HealthRegen": 21.14223496501902,
+    "LifestealFlat": 12.097994395011211,
+    "MovementSpeed": 11.822848243635837,
+    "StabDamageFlat": 101.91587255083462,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 172.13092920206248,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 127,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 4.895648980644682,
+    "BlockChance": 4.752280060920769,
+    "BuckshotDamageFlat": 206.73969668506797,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 127.53147685234289,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 5.801750188226677,
+    "CritDamagePercent": 6.009207212283242,
+    "CutDamageFlat": 88.24535208766434,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 147.75153372745535,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 4.932932005218797,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 4599.821240757475,
+    "HealthRegen": 21.761664210009215,
+    "LifestealFlat": 12.466924798932796,
+    "MovementSpeed": 12.756893651383653,
+    "StabDamageFlat": 107.06017481859489,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 188.78001305863734,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 140,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 6.104968897702707,
+    "BlockChance": 6.031395550138859,
+    "BuckshotDamageFlat": 233.36784752860385,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 249.55407515754422,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 7.158265613604673,
+    "CritDamagePercent": 7.14170020572289,
+    "CutDamageFlat": 169.890913479041,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 158.4217665869014,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 5.444812585513786,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 5466.016227023034,
+    "HealthRegen": 24.631666756762396,
+    "LifestealFlat": 12.878605726203425,
+    "MovementSpeed": 16.993610895363407,
+    "StabDamageFlat": 113.4008958101367,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 207.8954297908755,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 154,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 7.194300307373381,
+    "BlockChance": 6.492478980079489,
+    "BuckshotDamageFlat": 253.67218596531654,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 278.8142739510989,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 8.475037071525186,
+    "CritDamagePercent": 8.354331884861734,
+    "CutDamageFlat": 192.677835733585,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 194.75030622069383,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 8.331734924688336,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 6422.990850215218,
+    "HealthRegen": 27.61621231759022,
+    "LifestealFlat": 19.75167765245433,
+    "MovementSpeed": 20.813464384701366,
+    "StabDamageFlat": 175.3503397382585,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 219.70644254269945,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 170,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 7.515204043992883,
+    "BlockChance": 7.306345626669073,
+    "BuckshotDamageFlat": 263.4426707616966,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 287.7973545506883,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 8.871283080303064,
+    "CritDamagePercent": 8.74883339738404,
+    "CutDamageFlat": 200.18596329657473,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 207.61815197307996,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 8.97005782185872,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 6669.334858097774,
+    "HealthRegen": 28.55525894556034,
+    "LifestealFlat": 20.706239176683674,
+    "MovementSpeed": 21.964362950607633,
+    "StabDamageFlat": 187.39585221154354,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 224.68454354284975,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 187,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 7.7715825653376305,
+    "BlockChance": 7.570789811086578,
+    "BuckshotDamageFlat": 271.528863465091,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 294.4888180020332,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 9.177644278999658,
+    "CritDamagePercent": 9.062286004910316,
+    "CutDamageFlat": 205.96646263889994,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 284.73805662716217,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 9.50040732153251,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 6858.261673448881,
+    "HealthRegen": 29.008661876804965,
+    "LifestealFlat": 21.382815033556017,
+    "MovementSpeed": 22.8838427267324,
+    "StabDamageFlat": 196.62045197885152,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 228.50236124418433,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 206,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 7.988458233994458,
+    "BlockChance": 7.8035153596476095,
+    "BuckshotDamageFlat": 278.5280349350482,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 299.7731837291391,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 9.429262731520458,
+    "CritDamagePercent": 9.3262272159583,
+    "CutDamageFlat": 210.65996389506512,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 298.0547245631628,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 9.961917098828922,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7012.219076943337,
+    "HealthRegen": 29.362761052901885,
+    "LifestealFlat": 21.900979479329553,
+    "MovementSpeed": 23.660427804198818,
+    "StabDamageFlat": 204.17427201972234,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 231.60517027194913,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 227,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 8.180305551287718,
+    "BlockChance": 8.01999393754775,
+    "BuckshotDamageFlat": 282.866452172435,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 302.97051275279597,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 9.641250746979882,
+    "CritDamagePercent": 9.555414814093778,
+    "CutDamageFlat": 213.53158333194057,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 311.67899311908496,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 10.353653845807033,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7124.59188416918,
+    "HealthRegen": 29.64987737293276,
+    "LifestealFlat": 22.38403677281313,
+    "MovementSpeed": 24.345787206578258,
+    "StabDamageFlat": 211.6787375490391,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 233.4397583005776,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 250,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 8.313451278531305,
+    "BlockChance": 8.175008565570186,
+    "BuckshotDamageFlat": 286.13367821165076,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 306.06521110824434,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 9.784958936412211,
+    "CritDamagePercent": 9.716925835452411,
+    "CutDamageFlat": 216.37897911565807,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 319.98202794409355,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 10.64423486210336,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7203.256820521953,
+    "HealthRegen": 29.842257790282453,
+    "LifestealFlat": 22.65655103785297,
+    "MovementSpeed": 24.820138949430895,
+    "StabDamageFlat": 216.14049525709768,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 234.77971692110165,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 275,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 8.41820216516559,
+    "BlockChance": 8.297285669077151,
+    "BuckshotDamageFlat": 291.6314274732131,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 309.6346779442239,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 9.90412301288404,
+    "CritDamagePercent": 9.848209610722755,
+    "CutDamageFlat": 219.73548587203456,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 324.4109451702045,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 10.910376122246573,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7291.734212728174,
+    "HealthRegen": 29.99677357461989,
+    "LifestealFlat": 22.795505845764048,
+    "MovementSpeed": 25.193683767239516,
+    "StabDamageFlat": 218.48591941237507,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 236.95771354740018,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 303,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 8.499661260715852,
+    "BlockChance": 8.400512854785063,
+    "BuckshotDamageFlat": 294.73071938752616,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 310.6553233730397,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 9.991784758162236,
+    "CritDamagePercent": 9.943095030531698,
+    "CutDamageFlat": 220.68847600897897,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 329.93189443981925,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 11.08311258650166,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7346.242645084423,
+    "HealthRegen": 30.10362892490421,
+    "LifestealFlat": 22.962735638166443,
+    "MovementSpeed": 25.483918231716803,
+    "StabDamageFlat": 221.37616918741017,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 238.14372434662386,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 334,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 8.54607580313615,
+    "BlockChance": 8.459366165060656,
+    "BuckshotDamageFlat": 296.0843069837873,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 311.50747242560476,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 10.040381989632577,
+    "CritDamagePercent": 9.998554077228773,
+    "CutDamageFlat": 221.49434012664517,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 332.9151455657087,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 11.185719116656704,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7373.729793893724,
+    "HealthRegen": 30.16476106073383,
+    "LifestealFlat": 23.05041693376949,
+    "MovementSpeed": 25.648909149954896,
+    "StabDamageFlat": 222.9225205988943,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 238.65260427574825,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 368,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 8.599820043597374,
+    "BlockChance": 8.529444492685803,
+    "BuckshotDamageFlat": 297.2440767015616,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 312.3265174188939,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 10.094965501781036,
+    "CritDamagePercent": 10.0620266323111,
+    "CutDamageFlat": 222.2690601256289,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 336.6295660108269,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 11.2999849946577,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7401.398213012115,
+    "HealthRegen": 30.233127612747364,
+    "LifestealFlat": 23.157035702641632,
+    "MovementSpeed": 25.839701025785313,
+    "StabDamageFlat": 224.83284144774547,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 239.084217539581,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  },
+  {
+   "TC": 405,
+   "replayed": {
+    "AttackCooldown": 0.0,
+    "AttackRange": 0.0,
+    "BlockAmount": 8.638526189703525,
+    "BlockChance": 8.580382763526844,
+    "BuckshotDamageFlat": 298.73639968227684,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 312.988848559148,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 10.135753118800672,
+    "CritDamagePercent": 10.10787154821434,
+    "CutDamageFlat": 222.90001724016298,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 339.0384996162283,
+    "CutDefencePercent": 0.0,
+    "Damage": 0.0,
+    "Evasion": 11.38689608959702,
+    "GlobalAttack": 0.0,
+    "GlobalDefence": 0.0,
+    "Health": 7426.957402439263,
+    "HealthRegen": 30.282629099916065,
+    "LifestealFlat": 23.22470214101817,
+    "MovementSpeed": 25.977281678032234,
+    "StabDamageFlat": 226.0628773118821,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 239.63410639624982,
+    "StabDefencePercent": 0.0,
+    "SuperCritChance": 0.0,
+    "SuperCritDamagePercent": 0.0,
+    "UniversalDefenceFlat": 0.0,
+    "UniversalDefencePercent": 0.0
+   }
+  }
+ ]
+}
