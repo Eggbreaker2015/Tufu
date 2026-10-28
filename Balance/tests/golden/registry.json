@@ -1,0 +1,5 @@
+{
+ "schema": "tufu.registry/1",
+ "pending_allowed": true,
+ "note": "pending_allowed: whether @implements and [SimulationRebuild] may use 'pending:<domain>.<name>' ids. Created true by stage-5 unit P1; Z1 promotes the pending ids into catalog/formulas.json and sets it to false."
+}
