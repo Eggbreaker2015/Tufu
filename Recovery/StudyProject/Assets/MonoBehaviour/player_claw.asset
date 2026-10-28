@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 005880fd0f080d7d4797cd3b8a5eb23b, type: 3}
+  m_Name: player_claw
+  m_EditorClassIdentifier:
+  Key: player_claw
+  Rarity: 0
+  SlotType: 0
+  DamageType: 1
+  DamageStatTypeFlat: 8
+  DamageStatTypePercent: 9
+  FlatDamage: 0
+  AttackCooldown: 1.3
+  SimulationDpsWeaponMultiplier: 1
+  Number: 0
+  AnimationCastPoint: 0.691
+  AnimationBackPoint: 0.4
+  Icon: {fileID: 21300000, guid: 8be17759e2089ca49a464cd306fb42a8, type: 2}
+  DivineIcon: {fileID: 0}
+  Prefab: {fileID: 0}
+  DivinePrefab: {fileID: 0}
+  StatModifiers: []
+  AbilityDefs: []

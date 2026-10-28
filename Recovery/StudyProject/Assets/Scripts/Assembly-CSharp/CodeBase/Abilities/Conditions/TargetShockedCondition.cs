@@ -9,7 +9,7 @@ namespace Codebase.Abilities.Conditions
 		public override bool Evaluate(AbilityContext context)
         {
             // Native ELF VA 0x15f4edc.
-            var target = context.PlayerModel.Unit.CurrentTarget;
+            var target = AbilityTargetResolver.ResolveAttackerTarget(context); // Pet mode: attacker's target.
             if (target == null || target.EntityProvider == null) return false;
             ref var shock = ref Scellecs.Morpeh.WorldStashExtensions.GetStash<Codebase.Unit.Components.ShockComponent>(context.World).Get(target.EntityProvider.Entity, out bool exists);
             return exists && shock.IsShocked;

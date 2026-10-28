@@ -17,7 +17,8 @@ namespace Codebase.Abilities.Effects
 		public override void Execute(AbilityContext context)
 		{
 			// Native ELF VA 0x15f3880. Target-change comparison is against the actual player's current target.
-			if (ResetOnTargetChange && context.State.CurrentTarget != null && context.State.CurrentTarget != context.PlayerModel.Unit.CurrentTarget) context.State.Stacks = 0;
+			// Pet mode: compares against the attacker's target.
+			if (ResetOnTargetChange && context.State.CurrentTarget != null && context.State.CurrentTarget != AbilityTargetResolver.ResolveAttackerTarget(context)) context.State.Stacks = 0;
 			context.State.Stacks = Math.Min(context.State.GetStackLimit(), context.State.Stacks + 1);
 			context.State.Duration = Duration;
 		}

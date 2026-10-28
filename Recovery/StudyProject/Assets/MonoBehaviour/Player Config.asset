@@ -104,3 +104,4 @@ MonoBehaviour:
     IsVip: 0
   HealthBarPrefab: {fileID: 114099118695303065, guid: aa8acdb958bd2d94bb04706df2161752, type: 2}
   StartingWeapon: {fileID: 11400000, guid: 734ff42ab0c867f43a94879316328847, type: 2}
+  PlayerAttackItem: {fileID: 11400000, guid: 725189905e9b4ece807d1a9475ddc41b, type: 2}

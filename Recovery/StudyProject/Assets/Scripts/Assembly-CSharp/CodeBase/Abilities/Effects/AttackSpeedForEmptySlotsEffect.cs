@@ -1,5 +1,6 @@
 using System;
 using Codebase.Abilities.Core;
+using Codebase.Pet;
 
 namespace Codebase.Abilities.Effects
 {
@@ -9,7 +10,8 @@ namespace Codebase.Abilities.Effects
 		public override void UpdatePassive(AbilityContext context, float deltaTime)
 		{
             // Original ELF VA 0x15ee360; use actual unlocked empty slots, not the treat-as-empty flag.
-            int count = context.PlayerModel.EmptyItemSlots.Count;
+            // Pet mode: counts empty pet slots only.
+            int count = PetConfig.Enabled ? context.PlayerModel.EmptyPetSlots.Count : context.PlayerModel.EmptyItemSlots.Count;
             float value = context.State.GetValue();
             if (context.Owner is Codebase.Player.Inventory.ItemModel weapon)
                 weapon.AbilityAttackSpeedMultiplier = (value * count + 1f) * weapon.AbilityAttackSpeedMultiplier;

@@ -32,7 +32,7 @@ namespace Codebase.Abilities.Effects
             // Native 0x15f16f8: nonpositive chance means unconditional, not disabled.
             float chance = context.State.GetChance() + context.PlayerModel.BonusLightningChance;
             if (chance > 0f && UnityEngine.Random.value >= chance) return;
-            var target = context.Target != null ? context.Target : context.PlayerModel.Unit.CurrentTarget;
+            var target = AbilityTargetResolver.Resolve(context); // Pet mode: falls back to the attacker's target.
             if (target == null || target.IsDead) return;
             double damage = context.Damage * DamageMultiplier * (1f + context.PlayerModel.LightningDamageBonus);
             var meta = GameContext.Get<MetaStatsModel>();
@@ -45,7 +45,7 @@ namespace Codebase.Abilities.Effects
             var shock = world.GetStash<ShockComponent>();
             if (world.GetStash<VampireSpiritTag>().Has(target.EntityProvider.Entity)) GameContext.Get<VampireSpiritSystem>().ApplyChainLightning(damage, empowered);
             else ApplyLightningToUnit(target, damage, died, vulnerability, shock, empowered);
-            GameContext.Get<AbilityExecuteEventSystem>().ProcessEventImmediate(new AbilityTriggerEvent {Trigger = AbilityTrigger.OnLightningHit, Target = target, Damage = damage, Item = context.Owner as ItemModel});
+            GameContext.Get<AbilityExecuteEventSystem>().ProcessEventImmediate(new AbilityTriggerEvent {Trigger = AbilityTrigger.OnLightningHit, Target = target, Damage = damage, Item = context.Owner as ItemModel, Attacker = context.Attacker});
         }
 
 		public static void ApplyLightningToUnit(UnitCore target, double damage, Event<UnitDiedEvent> unitDiedEvent, Stash<LightningVulnerabilityComponent> vulnStash, Stash<ShockComponent> shockStash, bool isEmpowered = false)

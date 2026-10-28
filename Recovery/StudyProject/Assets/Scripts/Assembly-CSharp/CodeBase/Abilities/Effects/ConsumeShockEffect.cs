@@ -21,7 +21,7 @@ namespace Codebase.Abilities.Effects
 		public override void Execute(AbilityContext context)
 		{
             // Native 0x15ef044: current target only; no VFX request exists in this native method.
-            var target = context.PlayerModel.Unit.CurrentTarget;
+            var target = AbilityTargetResolver.ResolveAttackerTarget(context); // Pet mode: attacker's target.
             if (target == null || target.EntityProvider == null) return;
             var stash = context.World.GetStash<ShockComponent>();
             var entity = target.EntityProvider.Entity;
@@ -31,7 +31,7 @@ namespace Codebase.Abilities.Effects
             shock.ConsumedShockCount = unchecked(shock.ConsumedShockCount + 1);
             shock.ConsumedDecayTimer = 10f;
             stash.Set(entity, shock);
-            GameContext.Get<AbilityExecuteEventSystem>().ProcessEventImmediate(new AbilityTriggerEvent {Trigger = AbilityTrigger.OnShockConsume, Item = context.Owner as ItemModel});
+            GameContext.Get<AbilityExecuteEventSystem>().ProcessEventImmediate(new AbilityTriggerEvent {Trigger = AbilityTrigger.OnShockConsume, Item = context.Owner as ItemModel, Attacker = context.Attacker});
         }
 	}
 }

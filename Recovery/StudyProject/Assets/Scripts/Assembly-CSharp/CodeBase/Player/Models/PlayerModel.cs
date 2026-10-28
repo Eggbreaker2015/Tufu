@@ -60,6 +60,7 @@ namespace Codebase.Player.Models
 		private ComputedAtom<List<ItemSlotModel>> __ItemSlots;
 		private ComputedAtom<List<ItemModel>> __Items;
 		private ComputedAtom<List<ItemSlotModel>> __EmptyItemSlots;
+		private ComputedAtom<List<ItemSlotModel>> __EmptyPetSlots;
 		private ComputedAtom<List<ItemModel>> __EquippedItems;
 		private ComputedAtom<List<ItemModel>> __EquippedWeapons;
 		private ComputedAtom<List<ItemModel>> __EquippedArmors;
@@ -124,6 +125,9 @@ namespace Codebase.Player.Models
 		}
 
 		public Vector3 LastPosition { get; set; }
+
+		// Pet mode: the player's own attack item, built like the starting weapon but never stored or saved.
+		public ItemModel PlayerAttackItem { get; private set; }
 		public Vector3? SavePositionOverride { get; set; }
 		public List<Stat> LastStats { get; set; }
 
@@ -135,6 +139,18 @@ namespace Codebase.Player.Models
 				if (__EmptyItemSlots == null)
 					__EmptyItemSlots = CodeGenAtom.CreatePooled(this, null, () => EmptyItemSlots, false);
 				return __EmptyItemSlots.DirectEvaluate() ? ItemSlots.Where(slot => !slot.IsEquipped && slot.IsUnlocked).ToList() : __EmptyItemSlots.Value;
+			}
+		}
+
+		// Pet mode: unlocked weapon slots without an item. A slot whose pet is dead is not empty.
+		public List<ItemSlotModel> EmptyPetSlots
+		{
+			get
+			{
+				LifetimeScopeExtension.ThrowIfDisposed(this);
+				if (__EmptyPetSlots == null)
+					__EmptyPetSlots = CodeGenAtom.CreatePooled(this, null, () => EmptyPetSlots, false);
+				return __EmptyPetSlots.DirectEvaluate() ? ItemSlots.Where(slot => !slot.IsEquipped && slot.IsUnlocked && slot.SlotType == ItemSlotType.Weapon).ToList() : __EmptyPetSlots.Value;
 			}
 		}
 
@@ -690,6 +706,14 @@ namespace Codebase.Player.Models
 			Unit.Stats = LastStats.Select(stat => new Stat(Lifetime, stat.BaseValue, stat.Type, stat.Modifiers)).ToList();
 			Unit.BuildStatLookup();
 			ItemModel startingWeapon = new ItemModel(Lifetime, config.StartingWeapon);
+			// Pet mode: build the player's own attack item; it is not added to Items.
+			if (config.PlayerAttackItem != null)
+			{
+				PlayerAttackItem = new ItemModel(Lifetime, config.PlayerAttackItem);
+				PlayerAttackItem.AbilityDamageMultiplier = 1f;
+				PlayerAttackItem.AbilityAttackSpeedMultiplier = 1f;
+				PlayerAttackItem.AbilityCritMultiplier = 1f;
+			}
 			Unit.CurrentHealth = Unit.Stats.First(stat => stat.Type == StatType.Health).Value;
 			if (Items.Count == 0)
 			{

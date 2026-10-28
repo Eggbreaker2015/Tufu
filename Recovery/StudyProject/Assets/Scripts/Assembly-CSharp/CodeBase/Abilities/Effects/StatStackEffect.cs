@@ -30,10 +30,11 @@ namespace Codebase.Abilities.Effects
 		public override void UpdatePassive(AbilityContext context, float deltaTime)
 		{
             // Original ELF VA 0x15f28d0; target changes reset stacks and capture the new current target before publishing.
+            // Pet mode: the captured target is the attacker's target.
             if (ShouldResetByTarget(context))
             {
                 context.State.Stacks = 0;
-                context.State.CurrentTarget = context.PlayerModel.Unit.CurrentTarget;
+                context.State.CurrentTarget = AbilityTargetResolver.ResolveAttackerTarget(context);
             }
             float value = context.State.GetValue() * context.State.Stacks;
             if (cachedKey == null) cachedKey = AddStatPassiveEffect.BuildKey(context.Def.Key, StatType, ModifierType, Source);
@@ -43,7 +44,10 @@ namespace Codebase.Abilities.Effects
 		private bool ShouldResetByTarget(AbilityContext context)
 		{
             // Original ELF VA 0x15f27c8; both Unity targets must exist before inequality resets the stack.
-            return ResetOnTargetChange && context.State.CurrentTarget != null && context.PlayerModel.Unit.CurrentTarget != null && context.State.CurrentTarget != context.PlayerModel.Unit.CurrentTarget;
+            // Pet mode: compares against the attacker's target (the player's with pet mode off).
+            if (!ResetOnTargetChange || context.State.CurrentTarget == null) return false;
+            var current = AbilityTargetResolver.ResolveAttackerTarget(context);
+            return current != null && context.State.CurrentTarget != current;
         }
 	}
 }

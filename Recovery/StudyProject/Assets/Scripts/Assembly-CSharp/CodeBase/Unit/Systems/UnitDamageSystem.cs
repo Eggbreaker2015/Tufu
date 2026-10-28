@@ -15,6 +15,7 @@ using Codebase.BossTower.Components;
 using Codebase.Core;
 using Codebase.DebugTools.Dummy;
 using Codebase.Meta;
+using Codebase.Pet;
 using Codebase.Player;
 using Codebase.Player.Models;
 using Codebase.Services.Cheats;
@@ -40,6 +41,9 @@ namespace Codebase.Unit.Systems
 
 		[Inject]
 		private PlayerModel playerModel;
+
+		[Inject]
+		private PetsModel petsModel;
 
 		[Inject]
 		private CheatsModel cheatsModel;
@@ -102,9 +106,33 @@ namespace Codebase.Unit.Systems
 
 		private void ApplyDamage(WeaponHitEvent data)
 		{
-			// Native ELF VA 0x15cd754.
+			// Native ELF VA 0x15cd754. Pet mode: pets (only spawned in pet mode) get their own branch before the player fallback.
 			if (data.Target is EnemyUnit) ApplyDamageToEnemy(data);
+			else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 			else ApplyDamageToPlayer(data);
+		}
+
+		private void ApplyDamageToPet(WeaponHitEvent data, PetUnit pet)
+		{
+			// No player-only side effects: block/evasion triggers, thorns, hits taken, lethal ignore, death events.
+			PetModel model = petsModel.Get(pet);
+			if (model == null || !model.IsAlive || pet.IsDead) return;
+			DamageResult result = DamageCalculator.Calculate(data);
+			if (data.HasFixedDamage) result.Damage = data.FixedDamage;
+			double damage = cheatsModel.GodMode ? 0.0 : result.Damage;
+			result.Damage = damage;
+			if (result.HasDodged) pet.LastDamageGet = Time.time;
+			else pet.ApplyHitAnimation();
+			if (unitDamageViewSystem != null) unitDamageViewSystem.Create(data, damage, result.Resist);
+			if (damage <= 0.0) return;
+			pet.CurrentHealth -= damage;
+			pet.LastDamageGet = Time.time;
+			ApplyLifesteal(data.Source);
+			if (pet.CurrentHealth <= 0.01)
+			{
+			    pet.CurrentHealth = 0.0;
+			    petsModel.OnPetDied(model);
+			}
 		}
 
 		private void ApplyDamageToPlayer(WeaponHitEvent data)
@@ -286,14 +314,16 @@ namespace Codebase.Unit.Systems
 		private void ApplyDamageToEnemy(WeaponHitEvent data)
 		{
 			// Native ELF VA 0x15cd840; original outgoing path does not apply HasFixedDamage.
+			// Pet mode: OnPreHit and OnOneshot carry the attacker (data.Source).
 			EnemyUnit enemy = (EnemyUnit)data.Target;
-			abilityExecuteEventSystem.ProcessEventImmediate(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPreHit, Target = enemy, Item = data.Weapon });
+			abilityExecuteEventSystem.ProcessEventImmediate(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPreHit, Target = enemy, Item = data.Weapon, Attacker = data.Source });
 			DamageResult result = DamageCalculator.Calculate(data);
 			if (cheatsModel.OneHitMode) result.Damage = data.Target.GetStatValue(StatType.Health) * 0.9;
 			double damage = cheatsModel.OneDamageMode ? 1.0 : result.Damage;
 			if (!result.HasDodged)
 			{
-			    PlayPlayerWeaponImpactSound(data);
+			    // Pet mode: only the player's own hits play the impact sound, so pet hits do not stack.
+			    if (!PetConfig.Enabled || data.Source is PlayerUnit) PlayPlayerWeaponImpactSound(data);
 			    data.Target.ApplyHitAnimation();
 			}
 			Entity entity = data.Target.EntityProvider.Entity;
@@ -328,7 +358,7 @@ namespace Codebase.Unit.Systems
 			ProcessEnemyDeath(data.Target, wasDead, unitDiedEvent);
 			if (!result.HasDodged) ApplyEnemyReflection(data);
 			if (data.Target.IsDead && !wasDead && oldHealth >= maxHealth - 0.0001)
-			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnOneshot, Target = enemy, Damage = damage, Item = data.Weapon });
+			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnOneshot, Target = enemy, Damage = damage, Item = data.Weapon, Attacker = data.Source });
 			ApplyPlayerLifesteal(data, entity);
 			playerDamageEventsViewSystem.Create(data, result);
 		}
@@ -367,16 +397,16 @@ namespace Codebase.Unit.Systems
 
 		private void FireHitTriggerEvents(WeaponHitEvent data, DamageResult result)
 		{
-			// Native ELF VA 0x15cfc64.
+			// Native ELF VA 0x15cfc64. Pet mode: events carry the attacker (data.Source).
 			EnemyUnit enemy = data.Target as EnemyUnit;
-			abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnHit, Target = enemy, Damage = result.Damage, Item = data.Weapon });
-			if (data.IsSuperCrit) abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnSuperCrit, Target = enemy, Damage = result.Damage, Item = data.Weapon });
+			abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnHit, Target = enemy, Damage = result.Damage, Item = data.Weapon, Attacker = data.Source });
+			if (data.IsSuperCrit) abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnSuperCrit, Target = enemy, Damage = result.Damage, Item = data.Weapon, Attacker = data.Source });
 			if (data.IsCrit)
 			{
-			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnCrit, Target = enemy, Damage = result.Damage, Item = data.Weapon });
-			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPostCrit, Target = enemy, Damage = result.Damage, Item = data.Weapon });
+			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnCrit, Target = enemy, Damage = result.Damage, Item = data.Weapon, Attacker = data.Source });
+			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPostCrit, Target = enemy, Damage = result.Damage, Item = data.Weapon, Attacker = data.Source });
 			}
-			abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPostHit, Target = enemy, Damage = result.Damage, Item = data.Weapon });
+			abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPostHit, Target = enemy, Damage = result.Damage, Item = data.Weapon, Attacker = data.Source });
 		}
 
 		private bool HasEquippedPierceWeapon()

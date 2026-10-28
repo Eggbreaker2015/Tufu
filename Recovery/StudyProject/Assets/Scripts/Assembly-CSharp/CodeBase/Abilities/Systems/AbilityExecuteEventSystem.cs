@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Scellecs.Morpeh;
 using Codebase.Abilities.Effects;
 using Codebase.Meta;
+using Codebase.Pet;
 
 namespace Codebase.Abilities.Systems
 {
@@ -71,6 +72,10 @@ namespace Codebase.Abilities.Systems
 				}
 			}
 
+			// Pet mode: the player's own attack item is never equipped, so its tick factors are reset here.
+			if (PetConfig.Enabled && playerModel.PlayerAttackItem != null)
+				ResetPlayerAttackItem(playerModel.PlayerAttackItem, deltaTime);
+
 			playerModel.AbilityHealthRegenMultiplier = 1f;
 			playerModel.AbilityDamageMultiplier = 1f;
 			playerModel.AbilityDamageFlat = 0f;
@@ -84,6 +89,25 @@ namespace Codebase.Abilities.Systems
 			playerModel.BonusMarkChance = 0f;
 			playerModel.BonusMaxMarks = 0;
 			playerModel.DamagePerConsumedShockOnTarget = 0f;
+		}
+
+		private static void ResetPlayerAttackItem(ItemModel item, float deltaTime)
+		{
+			item.AbilityDamageMultiplier = 1f;
+			item.AbilityDamageFlat = 0f;
+			item.AbilityAttackSpeedMultiplier = 1f;
+			item.AbilityCritMultiplier = 1f;
+			item.AbilityCritChanceBonus = 0f;
+			item.AbilitySuperCritChanceBonus = 0f;
+			item.AbilitySuperCritDamageBonus = 0f;
+			foreach (AbilityState state in item.AbilityStates)
+			{
+				state.DamageMultiplier = 1f;
+				state.BonusValue = 0f;
+				state.BonusStackLimit = 0;
+				state.BonusChance = 0f;
+				state.Cooldown -= deltaTime;
+			}
 		}
 
 		private void ApplyCrystalLegendaryEffects()
@@ -167,7 +191,8 @@ namespace Codebase.Abilities.Systems
 					if (EvaluateConditions(state.Def, context))
 					{
 						ExecuteEffects(state.Def, context);
-						state.CurrentTarget = playerModel.Unit.CurrentTarget;
+						// Pet mode: remember the attacker's target; with pet mode off this is the player's target.
+						state.CurrentTarget = AbilityTargetResolver.ResolveAttackerTarget(context);
 					}
 					ReleaseContext(context);
 				}
@@ -277,6 +302,7 @@ namespace Codebase.Abilities.Systems
 			context.Trigger = data.Trigger;
 			context.SourceItem = data.Item;
 			context.ItemUnequipped = data.ItemUnequipped;
+			context.Attacker = data.Attacker; // Pet mode: new field.
 			return context;
 		}
 

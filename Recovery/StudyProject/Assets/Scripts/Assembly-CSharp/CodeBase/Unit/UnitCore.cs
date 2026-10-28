@@ -25,16 +25,16 @@ namespace Codebase.Unit
 		public HealthBar HealthBar { get; set; }
 
 		[field: SerializeField]
-		public Transform HealthBarPoint { get; private set; }
+		public Transform HealthBarPoint { get; protected set; }
 
 		[field: SerializeField]
-		public NavMeshAgent Agent { get; private set; }
+		public NavMeshAgent Agent { get; protected set; }
 
 		[field: SerializeField]
 		public bool DisableAgent { get; private set; }
 
 		[field: SerializeField]
-		public Transform VisualRoot { get; private set; }
+		public Transform VisualRoot { get; protected set; }
 
 		public EntityProvider EntityProvider { get; private set; }
 

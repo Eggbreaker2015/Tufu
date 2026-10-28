@@ -34,8 +34,9 @@ namespace Codebase.Abilities.Conditions
 		private UnitCore ResolveUnit(AbilityContext context)
         {
             // Native ELF VA 0x15f4924: explicit event target, then actual player target.
+            // Pet mode: the fallback is the attacker's target.
             if (Subject == HealthThresholdSubject.Target)
-                return context.Target != null ? context.Target : context.PlayerModel?.Unit != null ? context.PlayerModel.Unit.CurrentTarget : null;
+                return AbilityTargetResolver.Resolve(context);
             return context.PlayerModel?.Unit;
         }
 	}

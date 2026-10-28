@@ -4,6 +4,7 @@ using Codebase.Analytics;
 using Codebase.Core;
 using Codebase.Core.Commands;
 using Codebase.Enemy;
+using Codebase.Pet;
 using Codebase.Player.Models;
 using Codebase.Rage;
 
@@ -21,6 +22,9 @@ namespace Codebase.Player.Commands
 		private RageModel rageModel;
 
 		[Inject]
+		private PetsModel petsModel;
+
+		[Inject]
 		private IAnalyticsWrapper analytics;
 
 		public void Execute(RevivePlayerCommand command)
@@ -28,6 +32,8 @@ namespace Codebase.Player.Commands
 // Native ELF VA 0x1469b28. Ordinary firecamp revival restores one HP, not full health.
             PlayerUnit unit = playerModel.Unit;
             unit.Agent.Warp(command.revivePosition);
+            // Pet mode: every pet comes back with the player, at full health.
+            if (PetConfig.Enabled) petsModel.ReviveAll(command.revivePosition, unit.transform.eulerAngles.y);
             unit.CurrentHealth = command.restoreHealth ? unit.GetStatValue(StatType.Health) : 1.0;
             rageModel.ResetRage();
             foreach (EnemyUnit enemy in enemiesModel.Enemies)

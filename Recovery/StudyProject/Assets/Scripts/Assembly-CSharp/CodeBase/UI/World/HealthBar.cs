@@ -237,7 +237,8 @@ namespace Codebase.UI.World
         private void RenderDrops()
         {
             // Original ARM64 ELF VA 0x1600e5c. A preview never grants or multiplies rewards.
-            if (unit is PlayerUnit) return;
+            // Pet mode: pets have no drops either; the original only returned for the player.
+            if (!(unit is EnemyUnit)) return;
             var enemy = (EnemyUnit)unit;
             glow.SetActive(!string.IsNullOrWhiteSpace(enemy.Config.CurrencyReward));
             drops.text = enemy.ItemReward != null ? "<sprite name=" + enemy.ItemReward.Icon.name + ">" : string.Empty;

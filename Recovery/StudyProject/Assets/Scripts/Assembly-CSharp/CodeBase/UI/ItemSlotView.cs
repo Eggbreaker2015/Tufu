@@ -14,6 +14,7 @@ using Codebase.Abilities;
 using Codebase.Abilities.Core;
 using Codebase.Abilities.Effects;
 using Codebase.Core.UI;
+using Codebase.Pet;
 using Codebase.Player;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
@@ -167,6 +168,8 @@ namespace Codebase.UI
 
 		private PlayerModel playerModel;
 
+		private PetsModel petsModel;
+
 		private IconStyleConfig iconStyleConfig;
 
 		private Coroutine fillCoroutine;
@@ -231,6 +234,8 @@ namespace Codebase.UI
 		{
 			// Native ELF VA 0x15f5eb8; first active duration/cooldown/stack state in original order.
 			ItemModel item = model.ItemModel;
+			// Pet mode: a dead pet's slot shows its revive countdown instead.
+			if (PetConfig.Enabled && TryRenderPetRevive(item)) return;
 			if (item == null || !item.HasAbility) { ApplyOverlayVisibility(false, false); ApplyLevelAndRarityVisibility(item, null, false); return; }
 			AbilityState active = null, cooling = null, stacks = null;
 			float current = 0f, max = 0f;
@@ -254,6 +259,23 @@ namespace Codebase.UI
 			}
 			else ApplyOverlayVisibility(false, false);
 			ApplyLevelAndRarityVisibility(item, stacks, active != null || cooling != null);
+		}
+
+		private bool TryRenderPetRevive(ItemModel item)
+		{
+			if (item == null) return false;
+			if (petsModel == null) petsModel = GameContext.Get<PetsModel>();
+			PetModel pet = petsModel != null ? petsModel.Get(item) : null;
+			if (pet == null || pet.State != PetState.Dead) return false;
+			float remaining = Mathf.Max(0f, pet.ReviveAt - Time.time);
+			float total = PetConfig.Instance.ReviveCooldown;
+			ApplyOverlayVisibility(true, false);
+			if (cooldownIcon.sprite != item.CurrentIcon) cooldownIcon.sprite = item.CurrentIcon;
+			cooldownFill.fillAmount = total > 0f ? Mathf.Clamp01(remaining / total) : 0f;
+			int value = (int)Math.Ceiling(remaining);
+			if (displayedCooldown != value || abilityVisualsDirty) { displayedCooldown = value; cooldownText.text = value.ToString(); }
+			ApplyLevelAndRarityVisibility(item, null, true);
+			return true;
 		}
 
 		private void ApplyOverlayVisibility(bool showCooldown, bool showAbilityDuration)

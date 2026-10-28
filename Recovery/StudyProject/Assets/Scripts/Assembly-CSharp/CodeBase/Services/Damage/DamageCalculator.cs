@@ -14,6 +14,7 @@ using Scellecs.Morpeh.Providers;
 using System;
 using Codebase.Enemy;
 using Codebase.Meta;
+using Codebase.Pet;
 using Codebase.Unit;
 using Codebase.Unit.Events;
 
@@ -79,12 +80,16 @@ namespace Codebase.Services.Damage
 			        attack *= (double)Math.Max(0f, attacker.EventDamageRampTimer - 5f) * 0.04 + 1.0;
 			    if (attacker != null && attacker.Config != null && attacker.Config.IsBossFightPart)
 			        attack /= meta.Get("tower_damage_reduction").Value + 1.0;
+			    // Pet mode: a pet target gets no helmet/shield armor and no rage reduction; its defence is scaled by its definition.
+			    PetUnit petTarget = PetConfig.Enabled ? data.Target as PetUnit : null;
 			    PlayerModel player = GameContext.Get<PlayerModel>();
-			    double armor = player.EquippedArmors.Where(item => item.Config.DamageType == WeaponType.Universal || item.Config.DamageType == data.DamageType).Sum(item => item.Armor);
+			    double armor = petTarget != null ? 0.0 : player.EquippedArmors.Where(item => item.Config.DamageType == WeaponType.Universal || item.Config.DamageType == data.DamageType).Sum(item => item.Armor);
 			    double typedFlat = data.Target.GetStatValue(flatType);
 			    double typedPercent = data.Target.GetStatValue(percentType);
 			    double flatScale = fromSimulation ? simulationFlatDefenceMultiplier : 1.0;
-			    double incoming = ApplyDamageDefense(attack, flatScale * (universalFlat + armor + typedFlat) * typedPercent);
+			    double defence = flatScale * (universalFlat + armor + typedFlat) * typedPercent;
+			    if (petTarget != null && petTarget.Definition != null) defence *= petTarget.Definition.DefenceMultiplier;
+			    double incoming = ApplyDamageDefense(attack, defence);
 			    incoming = Math.Max((1.0 - universalPercent) * incoming, 0.0);
 			    bool dodge = data.Target.GetStatSpecificValue(StatType.Evasion).Roll();
 			    if (dodge && !data.Undodgeable)
@@ -102,7 +107,7 @@ namespace Codebase.Services.Damage
 			        }
 			        if (incoming > 0.0)
 			        {
-			            int rage = GameContext.Get<RageModel>().ActiveRageLevel;
+			            int rage = petTarget != null ? 0 : GameContext.Get<RageModel>().ActiveRageLevel;
 			            if (rage > 0)
 			            {
 			                double reduction = meta.Get("rage_damage_reduce").Value;
@@ -189,6 +194,9 @@ namespace Codebase.Services.Damage
 			        if (consumed > 0) damage *= (double)(owner.DamagePerConsumedShockOnTarget * (float)consumed + 1f);
 			    }
 			}
+			// Pet mode: a pet's outgoing damage is scaled by its definition's DamageMultiplier.
+			if (PetConfig.Enabled && data.Source is PetUnit pet && pet.Definition != null)
+			    damage *= pet.Definition.DamageMultiplier;
 			double evasion = data.Target.GetStatSpecificValue(StatType.Evasion);
 			if (!fromSimulation)
 			{

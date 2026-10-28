@@ -112,6 +112,8 @@ namespace Codebase.Enemy
 		}
 
 		public float AggroTimer { get; set; }
+		// Pet mode: the unit (player or pet) this enemy is fighting; set by EnemyAttackSystem.
+		public UnitCore AggroTarget { get; set; }
 		public float RetreatTimer { get; set; }
 		public float AttackCooldown { get; set; }
 		public double ReflectionDamage { get; set; }

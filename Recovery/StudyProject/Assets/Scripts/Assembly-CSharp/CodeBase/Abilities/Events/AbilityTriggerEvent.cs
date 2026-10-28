@@ -1,5 +1,6 @@
 using Codebase.Enemy;
 using Codebase.Player.Inventory;
+using Codebase.Unit;
 using Scellecs.Morpeh;
 
 namespace Codebase.Abilities.Events
@@ -17,5 +18,8 @@ namespace Codebase.Abilities.Events
 		public ItemModel Item;
 
 		public bool ItemUnequipped;
+
+		// Pet mode: the unit whose hit raised the event (pet or player).
+		public UnitCore Attacker;
 	}
 }

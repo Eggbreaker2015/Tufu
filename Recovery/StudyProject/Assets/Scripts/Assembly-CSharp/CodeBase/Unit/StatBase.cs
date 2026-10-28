@@ -46,6 +46,9 @@ namespace Codebase.Unit
 
 		public Lifetime Lifetime { get; set; }
 
+		// Pet mode: bumped on every modifier change so pets can resync this stat.
+		public int Version { get; private set; }
+
 		protected virtual void UpdateValue()
 		{
 			FastValue = CalculateValue();
@@ -81,6 +84,7 @@ namespace Codebase.Unit
 					existing.Duration = modifier.Duration;
 				OnModifierUpdated(existing);
 			}
+			Version++;
 			UpdateValue();
 		}
 
@@ -89,6 +93,7 @@ namespace Codebase.Unit
 			Modifiers.Remove(modifier);
 			TemporaryModifiers = Modifiers.Where(item => item.Source == ModifierSource.AbilityTemporary && item.Duration > 0f).ToList();
 			OnModifierRemoved(modifier);
+			Version++;
 			UpdateValue();
 		}
 

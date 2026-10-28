@@ -69,6 +69,13 @@ namespace Codebase.Core
 			RegisterSystem(new global::Codebase.Unit.Systems.UnitSpawnAnimSystem());
 			RegisterSystem(new global::Codebase.Unit.Systems.UnitDeathAnimSystem());
 			RegisterSystem(new global::Codebase.Abilities.Systems.AbilityExecuteEventSystem());
+			RegisterSystem(new global::Codebase.Pet.Systems.PetSpawnSystem());
+			RegisterSystem(new global::Codebase.Pet.Systems.PetStatsSyncSystem());
+			RegisterSystem(new global::Codebase.Pet.Systems.PetMovementSystem());
+			RegisterSystem(new global::Codebase.Pet.Systems.PetAttackSystem());
+			RegisterSystem(new global::Codebase.Pet.Systems.PetReviveSystem());
+			RegisterSystem(new global::Codebase.Pet.Systems.PetRegenSystem());
+			RegisterSystem(new global::Codebase.Pet.Systems.PetHealthBarSystem());
 			RegisterSystem(new global::Codebase.Abilities.Vfx.Systems.AbilityVfxSystem());
 			RegisterSystem(new global::Codebase.Vfx.WorldVfxSystem());
 			RegisterSystem(new global::Codebase.Abilities.Vfx.Systems.ShockVfxSystem());

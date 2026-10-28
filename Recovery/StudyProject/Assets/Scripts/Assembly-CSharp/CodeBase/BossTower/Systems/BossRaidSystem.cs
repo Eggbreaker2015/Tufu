@@ -24,6 +24,7 @@ using Codebase.UI.BossTower;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Codebase.Enemy.Systems;
+using Codebase.Pet;
 
 namespace Codebase.BossTower.Systems
 {
@@ -70,6 +71,8 @@ namespace Codebase.BossTower.Systems
 		private Stash<HydraPendingSpawnComponent> hydraPendingStash;
 		[Inject]
 		private PlayerModel playerModel;
+		[Inject]
+		private PetsModel petsModel;
 		[Inject]
 		private BossTowerModel bossTowerModel;
 		[Inject]
@@ -306,6 +309,10 @@ namespace Codebase.BossTower.Systems
 				unit.Agent.Warp(portal.playerSpawnPosition.position);
 				unit.Agent.ResetPath();
 			}
+
+			// Pet mode: pets leave the arena with the player.
+			if (PetConfig.Enabled)
+				petsModel.WarpAll(portal.playerSpawnPosition.position, portal.playerSpawnPosition.eulerAngles.y);
 		}
 
 		public void EndRaid(bool victory)

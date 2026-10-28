@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Enemy;
 using Codebase.Meta;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
 using Lofelt.NiceVibrations;
@@ -60,10 +61,17 @@ namespace Codebase.Player
 
 		private static float animationCastPointSpeedCoefficient;
 
+		private readonly List<ItemModel> playerAttackItems = new List<ItemModel>(1);
+
 		[Inject]
 		private World world;
 
 		private PlayerUnit PlayerUnit => playerModel.Unit;
+
+		public GameObject HitVfx => hitVfx;
+
+		// IsWeakEnemy/IsEventGolem need Start to have resolved the meta stats.
+		public bool CanClassifyEnemies => weakSpawnerExtraRangeStat != null && eventGolemExtraRangeStat != null;
 
 		[StaticReset]
 		private static void ResetStaticState()
@@ -116,7 +124,8 @@ namespace Codebase.Player
 			        hasTarget = PlayerUnit.CurrentTarget != null;
 			    }
 			}
-			foreach (ItemModel weapon in playerModel.EquippedWeapons)
+			// Pet mode: only the player's own attack item cycles here; pets run in PetAttackSystem.
+			foreach (ItemModel weapon in GetAttackItems())
 			{
 			    weapon.JustStartedAttack = false;
 			    float attackSpeed = 1f;
@@ -156,7 +165,8 @@ namespace Codebase.Player
 			if (PlayerUnit.IsDying || PlayerUnit.CurrentTarget == null || PlayerUnit.IsDead || PlayerUnit.IsSleeping || !playerModel.CanMove) return;
 			EnemyUnit target = PlayerUnit.CurrentTarget;
 			float baseRange = (float)playerModel.GetStatValue(Codebase.Unit.StatType.AttackRange);
-			foreach (ItemModel weapon in playerModel.EquippedWeapons)
+			// Pet mode: only the player's own attack item; its SlotIndex 0 keeps the weapon_1 base-range rule.
+			foreach (ItemModel weapon in GetAttackItems())
 			{
 			    ItemSlotModel slot = playerModel.ItemSlots[weapon.SlotIndex];
 			    if (slot.Key == "weapon_1" && SqrDistance(PlayerUnit.transform.position, target.transform.position) >= baseRange * baseRange) continue;
@@ -188,6 +198,16 @@ namespace Codebase.Player
 			    vfx.transform.position = target.transform.position + Vector3.up;
 			    Destroy(vfx, 3f);
 			}
+		}
+
+		private List<ItemModel> GetAttackItems()
+		{
+			if (!PetConfig.Enabled)
+				return playerModel.EquippedWeapons;
+			playerAttackItems.Clear();
+			if (playerModel.PlayerAttackItem != null)
+				playerAttackItems.Add(playerModel.PlayerAttackItem);
+			return playerAttackItems;
 		}
 
 		private static HapticPatterns.PresetType GetWeaponImpact(WeaponType weaponType)
@@ -239,7 +259,8 @@ namespace Codebase.Player
 		{
 			// Native ELF VA 0x1440a9c.
 			float range = baseRange;
-			if (ItemSlotKeys.HasChainWeaponEquipped(playerModel) && (IsWeakEnemy(enemy) || IsEventGolem(enemy))) range *= 3f;
+			// Pet mode: chain slots hold pets, so the player never gets the chain x3 range.
+			if (!PetConfig.Enabled && ItemSlotKeys.HasChainWeaponEquipped(playerModel) && (IsWeakEnemy(enemy) || IsEventGolem(enemy))) range *= 3f;
 			return range * range;
 		}
 
@@ -255,7 +276,7 @@ namespace Codebase.Player
 			return PlayerUnit.CurrentTarget != null && IsEventGolem(PlayerUnit.CurrentTarget);
 		}
 
-		private bool IsWeakEnemy(EnemyUnit enemy)
+		public bool IsWeakEnemy(EnemyUnit enemy)
 		{
 			// Native ELF VA 0x14419bc.
 			var config = enemy.Config;
@@ -268,7 +289,7 @@ namespace Codebase.Player
 			return weak;
 		}
 
-		private bool IsEventGolem(EnemyUnit enemy)
+		public bool IsEventGolem(EnemyUnit enemy)
 		{
 			// Native ELF VA 0x1441acc.
 			return enemy.Config.IsEvent && enemy.Config.EventDef != null && (int)enemy.Config.EventDef.UnitType == 0 && eventGolemExtraRangeStat.GetValue(0) > 0.0;

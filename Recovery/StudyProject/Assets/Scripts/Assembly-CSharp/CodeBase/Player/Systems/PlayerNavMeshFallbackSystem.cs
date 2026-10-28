@@ -1,5 +1,6 @@
 using Codebase.Buildings;
 using Codebase.Core;
+using Codebase.Pet;
 using Codebase.Player.Models;
 using Scellecs.Morpeh;
 using UnityEngine.AI;
@@ -16,6 +17,9 @@ namespace Codebase.Player.Systems
 		[Inject]
 		private FirecampSystem firecampSystem;
 
+		[Inject]
+		private PetsModel petsModel;
+
 		private float offNavMeshTime;
 
 		public override void OnAwake()
@@ -31,6 +35,8 @@ namespace Codebase.Player.Systems
 				offNavMeshTime += deltaTime;
 				if (offNavMeshTime < OffNavMeshTimeout) return;
 				agent.Warp(firecampSystem.transform.position);
+				// Pet mode: pets follow the player to the fountain.
+				if (PetConfig.Enabled) petsModel.WarpAll(firecampSystem.transform.position);
 			}
 			offNavMeshTime = 0f;
 		}

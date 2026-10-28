@@ -1,6 +1,8 @@
 using Codebase.Unit;
 using Codebase.Abilities.Conditions;
 using Codebase.Core;
+using Codebase.Pet;
+using Codebase.Player.Inventory;
 using Codebase.Rage;
 using Codebase.Unit.Components;
 using Scellecs.Morpeh;
@@ -23,6 +25,9 @@ namespace Codebase.Abilities.Core
 				case AbilityValueScaling.PerMarksOnTarget: return ResolveMarksOnTarget(context);
 				case AbilityValueScaling.PerRageLevel: return ResolveRageLevel(context);
 				case AbilityValueScaling.PerEmptySlot:
+					// Pet mode: pet (weapon) slots only.
+					if (PetConfig.Enabled)
+						return context.PlayerModel.TreatAsAllSlotsEmpty ? CountWeaponSlots(context) : context.PlayerModel.EmptyPetSlots.Count;
 					return context.PlayerModel.TreatAsAllSlotsEmpty ? context.PlayerModel.ItemSlots.Count : context.PlayerModel.EmptyItemSlots.Count;
 				case AbilityValueScaling.PerConsumedShockOnTarget: return ResolveConsumedShock(context);
 				case AbilityValueScaling.PerHitsTaken:
@@ -43,9 +48,17 @@ namespace Codebase.Abilities.Core
 
 		private static UnitCore ResolveTarget(AbilityContext context)
 		{
-			// Native ELF VA 0x15f42e8.
-			if (context.Target != null) return context.Target;
-			return context.PlayerModel?.Unit != null ? context.PlayerModel.Unit.CurrentTarget : null;
+			// Native ELF VA 0x15f42e8. Pet mode: falls back to the attacker's or owner pet's target.
+			return AbilityTargetResolver.Resolve(context);
+		}
+
+		private static int CountWeaponSlots(AbilityContext context)
+		{
+			int count = 0;
+			foreach (ItemSlotModel slot in context.PlayerModel.ItemSlots)
+				if (slot.SlotType == ItemSlotType.Weapon)
+					count++;
+			return count;
 		}
 
 		private static float ResolveRageLevel(AbilityContext context)

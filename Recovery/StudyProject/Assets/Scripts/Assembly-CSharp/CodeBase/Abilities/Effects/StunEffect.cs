@@ -13,7 +13,7 @@ namespace Codebase.Abilities.Effects
 		public override void Execute(AbilityContext context)
 		{
             // Native 0x15f2a50: current player target, deliberately independent of context.Target.
-            var target = context.PlayerModel.Unit.CurrentTarget;
+            var target = AbilityTargetResolver.ResolveAttackerTarget(context); // Pet mode: attacker's target.
             if (target == null) return;
             context.World.GetStash<BuffStunComponent>().Set(target.EntityProvider.Entity, new BuffStunComponent {Duration = context.State.GetValue()});
             target.ApplyStunAnimation(true);

@@ -2,6 +2,7 @@ using Codebase.BossTower.Components;
 using Codebase.BossTower.Systems;
 using Codebase.Core;
 using Codebase.Core.Commands;
+using Codebase.Pet;
 using Codebase.Player.Models;
 using Codebase.Unit.Components;
 using Scellecs.Morpeh;
@@ -21,6 +22,8 @@ namespace Codebase.BossTower.Commands
 		private BossSpawnService bossSpawnService;
 		[Inject]
 		private BossTowerModel bossTowerModel;
+		[Inject]
+		private PetsModel petsModel;
 		private World world;
 		private Stash<BossRaidComponent> raidStash;
 		private Stash<PlayerTag> playerTagStash;
@@ -53,6 +56,9 @@ namespace Codebase.BossTower.Commands
 				playerModel.SavePositionOverride = returnPosition;
 			unit.CurrentHealth = unit.GetStatValue(StatType.Health, true);
 			unit.Agent.Warp(playerPosition);
+			// Pet mode: pets enter with the player, revived and at full health.
+			if (PetConfig.Enabled)
+				petsModel.ReviveAll(playerPosition, arena.PlayerSpawnPoint.eulerAngles.y);
 			var bossUnit = bossSpawnService.SpawnBoss(boss, bossPosition);
 			if (bossUnit == null)
 			{
@@ -74,6 +80,15 @@ namespace Codebase.BossTower.Commands
 				item.ResetCooldown = false;
 				foreach (var state in item.AbilityStates)
 					state.Cooldown = 0f;
+			}
+
+			// Pet mode: the player's own attack is not in Items.
+			var claw = playerModel.PlayerAttackItem;
+			if (PetConfig.Enabled && claw != null)
+			{
+				claw.Cooldown = 0f;
+				claw.AttackInProgress = false;
+				claw.ResetCooldown = false;
 			}
 		}
 

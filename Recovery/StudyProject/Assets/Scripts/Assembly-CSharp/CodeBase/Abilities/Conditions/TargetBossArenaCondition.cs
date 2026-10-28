@@ -13,7 +13,7 @@ namespace Codebase.Abilities.Conditions
 		public override bool Evaluate(AbilityContext context)
         {
             // Native ELF VA 0x15f4bf8.
-            var target = context.PlayerModel.Unit.CurrentTarget;
+            var target = AbilityTargetResolver.ResolveAttackerTarget(context); // Pet mode: attacker's target.
             if (target == null || target.EntityProvider == null) return false;
             bool isBoss = Scellecs.Morpeh.WorldStashExtensions.GetStash<Codebase.BossTower.Components.BossArenaUnitTag>(context.World).Has(target.EntityProvider.Entity);
             return ExcludeBossArenaUnits ? !isBoss && !context.PlayerModel.InBossTowerArena : isBoss;

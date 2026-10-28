@@ -1,0 +1,129 @@
+using Codebase.Core;
+using Codebase.Enemy;
+using Codebase.Player;
+using Codebase.Player.Models;
+using Codebase.Unit;
+using Scellecs.Morpeh;
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace Codebase.Pet.Systems
+{
+	// Follow ring, chase, leash and teleport for living pets.
+	public class PetMovementSystem : SystemBase
+	{
+		private const float PathFailTeleportTime = 2f;
+
+		private const float DestinationTolerance = 0.5f;
+
+		private const float ArriveDistance = 0.3f;
+
+		private const float TurnSpeed = 720f;
+
+		private const float WalkingVelocitySqr = 0.01f;
+
+		// Being stuck this close to the player (e.g. ring slot inside a wall) is not a path failure.
+		private const float StuckFollowDistanceSqr = (PetsModel.FollowRadius + 1.5f) * (PetsModel.FollowRadius + 1.5f);
+
+		[Inject]
+		private PlayerModel playerModel;
+
+		[Inject]
+		private PetsModel petsModel;
+
+		public override void OnAwake()
+		{
+		}
+
+		public override void OnUpdate(float deltaTime)
+		{
+			if (!PetConfig.Enabled)
+				return;
+			PlayerUnit player = playerModel.Unit;
+			if (player == null)
+				return;
+			PetConfig config = PetConfig.Instance;
+			bool paused = !playerModel.CanMove || player.IsDying || player.IsSleeping;
+			float speed = (float)player.GetStatSpecificValue(StatType.MovementSpeed) * config.FollowSpeedMultiplier;
+			Transform owner = player.transform;
+			Vector3 ownerPosition = owner.position;
+			float leashSqr = config.LeashRadius * config.LeashRadius;
+			float teleportSqr = config.TeleportDistance * config.TeleportDistance;
+			foreach (PetModel pet in petsModel.Pets)
+			{
+				if (!pet.IsAlive)
+					continue;
+				PetUnit unit = pet.Unit;
+				NavMeshAgent agent = unit.Agent;
+				if (agent == null || !agent.enabled)
+					continue;
+				Vector3 position = unit.transform.position;
+				float ownerDistanceSqr = FlatSqrDistance(position, ownerPosition);
+				if (!agent.isOnNavMesh || ownerDistanceSqr > teleportSqr || pet.PathFailTimer >= PathFailTeleportTime && unit.CurrentTarget == null)
+				{
+					unit.CurrentTarget = null;
+					petsModel.Warp(pet, ownerPosition, owner.eulerAngles.y);
+					unit.SetWalking(false);
+					continue;
+				}
+
+				agent.speed = speed;
+				EnemyUnit target = unit.CurrentTarget;
+				// A target that cannot be reached for a while is dropped instead of teleporting.
+				if (paused || ownerDistanceSqr > leashSqr || target == null || target.IsDead || pet.PathFailTimer >= PathFailTeleportTime)
+				{
+					if (target != null)
+						pet.PathFailTimer = 0f;
+					unit.CurrentTarget = null;
+					target = null;
+				}
+
+				bool moving;
+				if (target != null)
+					moving = Chase(unit, agent, target, deltaTime);
+				else
+					moving = MoveTo(agent, PetsModel.GetFollowPosition(ownerPosition, owner.eulerAngles.y, pet.SlotOrder)) && ownerDistanceSqr > StuckFollowDistanceSqr;
+				bool failing = moving && !agent.pathPending && (agent.pathStatus == NavMeshPathStatus.PathInvalid || agent.velocity.sqrMagnitude <= WalkingVelocitySqr);
+				pet.PathFailTimer = failing ? pet.PathFailTimer + deltaTime : 0f;
+				unit.SetWalking(agent.velocity.sqrMagnitude > WalkingVelocitySqr);
+			}
+		}
+
+		private static bool Chase(PetUnit unit, NavMeshAgent agent, EnemyUnit target, float deltaTime)
+		{
+			Vector3 position = unit.transform.position;
+			Vector3 targetPosition = target.transform.position;
+			float range = (float)unit.GetStatValue(StatType.AttackRange);
+			if (FlatSqrDistance(position, targetPosition) > range * range)
+				return MoveTo(agent, targetPosition);
+			if (agent.hasPath)
+				agent.ResetPath();
+			Vector3 direction = targetPosition - position;
+			direction.y = 0f;
+			if (direction.sqrMagnitude > 0.0001f)
+				unit.transform.rotation = Quaternion.RotateTowards(unit.transform.rotation, Quaternion.LookRotation(direction), TurnSpeed * deltaTime);
+			return false;
+		}
+
+		private static bool MoveTo(NavMeshAgent agent, Vector3 destination)
+		{
+			if (FlatSqrDistance(agent.transform.position, destination) <= ArriveDistance * ArriveDistance)
+			{
+				if (agent.hasPath)
+					agent.ResetPath();
+				return false;
+			}
+
+			if (!agent.hasPath && !agent.pathPending || FlatSqrDistance(agent.destination, destination) > DestinationTolerance * DestinationTolerance)
+				agent.SetDestination(destination);
+			return true;
+		}
+
+		private static float FlatSqrDistance(Vector3 a, Vector3 b)
+		{
+			float x = a.x - b.x;
+			float z = a.z - b.z;
+			return x * x + z * z;
+		}
+	}
+}

@@ -4,6 +4,7 @@ using System.Reflection;
 using Codebase.Core;
 using DG.Tweening;
 using Codebase.Enemy;
+using Codebase.Pet;
 using Codebase.Player.Chain;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
@@ -78,6 +79,11 @@ namespace Codebase.Player
 		private Transform target => bone.transform;
 		private bool HasAnimator => animator != null;
 		private bool IsChainSlot => !HasAnimator;
+		public string SlotKey => slotKey;
+		public Animator CharacterAnimator => animator;
+		public string AttackAnimationKey => attackAnimationKey;
+		public string HandSpeedKey => handSpeedKey;
+		public float AttackEndSpeed => attackEndSpeed;
 
 		private float ChainReveal
 		{
@@ -161,6 +167,8 @@ namespace Codebase.Player
 
 		private void HandleDeathPhase(DeathPhase phase, float duration)
 		{
+			if (PetConfig.Enabled)
+				return;
 			switch (phase)
 			{
 				case DeathPhase.Hiding:
@@ -332,6 +340,12 @@ namespace Codebase.Player
 			// Native 0x1449adc, bounded ASM: synchronize equipment and the character hand speed.
 			if (currentSlot == null)
 				return;
+			// Pet mode: weapons are pets, so the weapon view stays hidden.
+			if (PetConfig.Enabled)
+			{
+				HideForPets();
+				return;
+			}
 			if (!currentSlot.IsEquipped)
 			{
 				if (view != null)
@@ -367,7 +381,19 @@ namespace Codebase.Player
 				BuildView();
 		}
 
-		private static float GetAttackHitPoint(WeaponType damageType)
+		private void HideForPets()
+		{
+			if (view != null)
+			{
+				Destroy(view.gameObject);
+				view = null;
+			}
+			currentWeaponKey = null;
+			if (!HasAnimator && tentacle.enabled)
+				tentacle.enabled = false;
+		}
+
+		internal static float GetAttackHitPoint(WeaponType damageType)
 		{
 			switch (damageType)
 			{

@@ -7,6 +7,7 @@ using Codebase.Player.Inventory;
 using Codebase.Abilities;
 using Codebase.Abilities.Events;
 using Codebase.Abilities.Systems;
+using Codebase.Pet;
 
 namespace Codebase.Player.Systems
 {
@@ -41,10 +42,17 @@ namespace Codebase.Player.Systems
 
 		private void ResetHighestDamageWeaponCooldown()
 		{
+			// Pet mode: only living pets compete, and the player's own attack also gets the extra hit.
+			bool petMode = PetConfig.Enabled;
+			PetsModel petsModel = petMode ? GameContext.Get<PetsModel>() : null;
+			if (petMode && playerModel.PlayerAttackItem != null)
+				playerModel.PlayerAttackItem.ResetCooldown = true;
 			ItemModel best = null;
 			double bestDamage = double.MinValue;
 			foreach (ItemModel item in playerModel.EquippedWeapons)
 			{
+				if (petMode && !petsModel.IsPetAlive(item))
+					continue;
 				if (item.Damage > bestDamage)
 				{
 					bestDamage = item.Damage;

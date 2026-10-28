@@ -21,6 +21,7 @@ namespace Codebase.Abilities.Effects
                 next.World = context.World; next.Owner = context.Owner; next.State = target; next.PlayerModel = context.PlayerModel;
                 next.Target = context.Target; next.EnemySpawner = context.EnemySpawner; next.Damage = context.Damage; next.Trigger = context.Trigger;
                 next.SourceItem = context.SourceItem; next.ItemUnequipped = context.ItemUnequipped; next.DeltaTime = context.DeltaTime;
+                next.Attacker = context.Attacker; // Pet mode: new field.
                 effects[i].Execute(next);
                 AbilityContext.Release(next);
             }

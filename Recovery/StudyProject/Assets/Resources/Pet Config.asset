@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8b0f0291bf1496cb797544a58506400, type: 3}
+  m_Name: Pet Config
+  m_EditorClassIdentifier:
+  enabled: 1
+  ReviveCooldown: 15
+  LeashRadius: 12
+  TeleportDistance: 18
+  EngageRadius: 8
+  FollowSpeedMultiplier: 1.2
+  Pets:
+  - ItemKey:
+    DamageType: 3
+    Prefab: {fileID: 1709254077376921, guid: 2c9f7ff7c066762499cdee2da133e62b, type: 3}
+    HealthMultiplier: 1.2
+    DamageMultiplier: 0.8
+    DefenceMultiplier: 1
+    AttackSpeedMultiplier: 1
+  - ItemKey:
+    DamageType: 1
+    Prefab: {fileID: 1709254077376921, guid: 46a11c0c40b90db4ca9ef550691f2e38, type: 3}
+    HealthMultiplier: 1
+    DamageMultiplier: 1
+    DefenceMultiplier: 1
+    AttackSpeedMultiplier: 1
+  - ItemKey:
+    DamageType: 0
+    Prefab: {fileID: 1709254077376921, guid: ce5a67b56d13ae2418bb1f2bfdf15ecd, type: 3}
+    HealthMultiplier: 0.85
+    DamageMultiplier: 1.15
+    DefenceMultiplier: 1
+    AttackSpeedMultiplier: 1

@@ -15,7 +15,7 @@ namespace Codebase.Abilities.Conditions
             {
                 case TargetConditionMode.IsStationary: return context.Target != null && context.Target.IsStatic;
                 case TargetConditionMode.IsNotStationary: return context.Target == null || !context.Target.IsStatic;
-                case TargetConditionMode.TargetChanged: return context.State.CurrentTarget != context.PlayerModel.Unit.CurrentTarget;
+                case TargetConditionMode.TargetChanged: return context.State.CurrentTarget != AbilityTargetResolver.ResolveAttackerTarget(context); // Pet mode: attacker's target.
                 default: return true;
             }
         }

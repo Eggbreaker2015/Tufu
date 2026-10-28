@@ -27,6 +27,8 @@ namespace Codebase.Abilities.Core
 		}
 
 		public EnemyUnit Target { get; set; }
+		// Pet mode: the unit whose hit raised the trigger; null for passive ticks.
+		public UnitCore Attacker { get; set; }
 		public EnemySpawner EnemySpawner { get; set; }
 		public double Damage { get; set; }
 		public AbilityTrigger Trigger { get; set; }
@@ -50,6 +52,7 @@ namespace Codebase.Abilities.Core
 			context.State = null;
 			context.PlayerModel = null;
 			context.Target = null;
+			context.Attacker = null; // Pet mode: new field.
 			context.EnemySpawner = null;
 			context.SourceItem = null;
 			context.Damage = 0;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Codebase.Abilities.Core;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 
 namespace Codebase.Abilities.Effects
@@ -16,7 +17,11 @@ namespace Codebase.Abilities.Effects
             ItemModel weapon;
             if (Mode == ResetCooldownMode.HighestDamageWeapon)
             {
-                weapon = FindHighestDamageWeapon(context.PlayerModel.EquippedWeapons);
+                // Pet mode: only weapons whose pet is alive can be picked.
+                List<ItemModel> weapons = context.PlayerModel.EquippedWeapons;
+                if (PetConfig.Enabled)
+                    weapons = Codebase.Core.GameContext.Get<PetsModel>().GetAliveWeapons(weapons);
+                weapon = FindHighestDamageWeapon(weapons);
                 if (weapon == null) return;
                 weapon.ResetCooldown = true;
                 weapon.NextHitEmpower = context.State.GetValue();
@@ -25,6 +30,8 @@ namespace Codebase.Abilities.Effects
             {
                 weapon = context.Owner as ItemModel;
                 if (weapon == null) return;
+                // Pet mode: a weapon whose pet is dead does not reset.
+                if (PetConfig.Enabled && weapon.Config.SlotType == ItemSlotType.Weapon && !Codebase.Core.GameContext.Get<PetsModel>().IsPetAlive(weapon)) return;
                 weapon.ResetCooldown = true;
             }
             else return;

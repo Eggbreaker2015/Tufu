@@ -2,6 +2,7 @@ using Codebase.BossTower.Components;
 using Codebase.BossTower.Systems;
 using Codebase.Core;
 using Codebase.Enemy.Components;
+using Codebase.Pet;
 using Codebase.Player;
 using Codebase.Player.Models;
 using Codebase.Unit;
@@ -17,6 +18,7 @@ namespace Codebase.Enemy
 	{
 		private PlayerModel playerModel;
 		private EnemiesModel enemiesModel;
+		private PetsModel petsModel;
 		[Inject]
 		private World world;
 		private Stash<BuffStunComponent> stunStash;
@@ -40,6 +42,7 @@ namespace Codebase.Enemy
 		{
 			playerModel = GameContext.Get<PlayerModel>();
 			enemiesModel = GameContext.Get<EnemiesModel>();
+			petsModel = GameContext.Get<PetsModel>();
 			stunStash = world.GetStash<BuffStunComponent>();
 			waitingMarkerStash = world.GetStash<UnitWaitingAttackMarker>();
 			escapeMarkerStash = world.GetStash<EnemyCanEscapeMarker>();
@@ -104,13 +107,16 @@ namespace Codebase.Enemy
 			if (enemy.AttackCooldown > 0f)
 				enemy.AttackCooldown -= deltaTime;
 			float attackRange = (float)enemy.GetStatValue(StatType.AttackRange);
-			float distanceSquared = SqrDistance(enemy, PlayerUnit);
-			if (distanceSquared > 900f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
+			float playerDistanceSquared = SqrDistance(enemy, PlayerUnit);
+			// Pet mode: the nearest of the player and the living pets is fought; the 30 m reset stays player-based.
+			UnitCore aggroTarget = SelectAggroTarget(enemy, playerDistanceSquared, true, out float distanceSquared);
+			if (playerDistanceSquared > 900f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
 				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
 			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
-			bool retreat = (distanceSquared > enemy.AggroRange * enemy.AggroRange && enemy.AggroTimer <= 0f && player.Unit.CurrentTarget != enemy) || enemy.RetreatTimer > 0f;
+			bool retreat = (distanceSquared > enemy.AggroRange * enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
 			if (retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
+				ClearAggroTarget(enemy);
 				Vector3 target = enemy.CurrentSpawnerPatrolPoint;
 				if (enemy.Agent.isOnNavMesh)
 				{
@@ -146,7 +152,7 @@ namespace Codebase.Enemy
 					enemy.Agent.isStopped = true;
 				}
 
-				Vector3 direction = (PlayerUnit.transform.position - enemy.transform.position).normalized;
+				Vector3 direction = (aggroTarget.transform.position - enemy.transform.position).normalized;
 				direction.y = 0f;
 				if (direction != Vector3.zero)
 					enemy.transform.rotation = Quaternion.RotateTowards(enemy.transform.rotation, Quaternion.LookRotation(direction), 720f * deltaTime);
@@ -159,7 +165,7 @@ namespace Codebase.Enemy
 					enemy.Agent.isStopped = false;
 				}
 
-				Vector3 target = PlayerUnit.transform.position;
+				Vector3 target = aggroTarget.transform.position;
 				if ((!enemy.LastDestination.HasValue || Vector3.Distance(enemy.LastDestination.Value, target) > 0.5f) && enemy.Agent.enabled && enemy.Agent.isOnNavMesh)
 				{
 					enemy.Agent.SetDestination(target);
@@ -270,20 +276,25 @@ namespace Codebase.Enemy
 				enemy.AttackCooldown -= deltaTime;
 			double movementSpeed = enemy.GetStatValue(StatType.MovementSpeed);
 			double attackRange = enemy.GetStatValue(StatType.AttackRange);
-			float distance = Distance(enemy, PlayerUnit);
-			if (distance > 30f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
+			float playerDistance = Distance(enemy, PlayerUnit);
+			// Pet mode: as for ground enemies, the nearest candidate is fought and the 30 m reset stays player-based.
+			UnitCore aggroTarget = SelectAggroTarget(enemy, playerDistance, false, out float distance);
+			if (playerDistance > 30f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
 				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
 			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
-			bool retreat = (distance > enemy.AggroRange && enemy.AggroTimer <= 0f && player.Unit.CurrentTarget != enemy) || enemy.RetreatTimer > 0f;
+			bool retreat = (distance > enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
 			Vector3 target;
 			if (retreat || playerUnavailable || waitingMarkerStash.Has(entity))
+			{
+				ClearAggroTarget(enemy);
 				target = enemy.CurrentSpawnerPatrolPoint;
+			}
 			else
 			{
 				enemy.AggroTimer -= deltaTime;
 				if (distance < enemy.AggroRange)
 					enemy.AggroTimer = enemy.AggroDuration;
-				target = attackRange > distance + 0.5f ? enemy.transform.position : PlayerUnit.transform.position;
+				target = attackRange > distance + 0.5f ? enemy.transform.position : aggroTarget.transform.position;
 			}
 
 			Vector3 position = enemy.transform.position;
@@ -343,8 +354,52 @@ namespace Codebase.Enemy
 		{
 			if (enemy.AttackCooldown > 0f)
 				return;
-			world.GetEvent<WeaponHitEvent>().NextFrame(new WeaponHitEvent { Source = enemy, Target = playerModel.Unit, DamageType = enemy.DamageType });
+			// Pet mode: the hit goes to the unit this enemy is fighting (player or pet).
+			UnitCore target = PetConfig.Enabled && enemy.AggroTarget != null ? enemy.AggroTarget : playerModel.Unit;
+			world.GetEvent<WeaponHitEvent>().NextFrame(new WeaponHitEvent { Source = enemy, Target = target, DamageType = enemy.DamageType });
 			enemy.AttackCooldown = (float)enemy.GetStatValue(StatType.AttackCooldown);
+		}
+
+		// Original: always the player. Pet mode: the nearest of the player and the living pets, with its distance
+		// (squared for ground enemies); the result is stored in enemy.AggroTarget.
+		private UnitCore SelectAggroTarget(EnemyUnit enemy, float playerDistance, bool squared, out float distance)
+		{
+			distance = playerDistance;
+			if (!PetConfig.Enabled || petsModel == null)
+				return PlayerUnit;
+			UnitCore best = PlayerUnit;
+			foreach (PetModel pet in petsModel.Pets)
+			{
+				if (!pet.IsAlive || pet.Unit.IsDead)
+					continue;
+				float petDistance = squared ? SqrDistance(enemy, pet.Unit) : Distance(enemy, pet.Unit);
+				if (petDistance < distance)
+				{
+					distance = petDistance;
+					best = pet.Unit;
+				}
+			}
+			enemy.AggroTarget = best;
+			return best;
+		}
+
+		// Original: only the player's current target keeps aggro. Pet mode: any pet's target does too.
+		private bool IsTargetedByAllies(EnemyUnit enemy)
+		{
+			if (playerModel.Unit.CurrentTarget == enemy)
+				return true;
+			if (!PetConfig.Enabled || petsModel == null)
+				return false;
+			foreach (PetModel pet in petsModel.Pets)
+				if (pet.IsAlive && pet.Unit.CurrentTarget == enemy)
+					return true;
+			return false;
+		}
+
+		private static void ClearAggroTarget(EnemyUnit enemy)
+		{
+			if (PetConfig.Enabled)
+				enemy.AggroTarget = null;
 		}
 
 		private static float Distance(UnitCore u1, UnitCore u2)

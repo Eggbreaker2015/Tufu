@@ -15,5 +15,8 @@ namespace Codebase.Player
 		public HealthBar HealthBarPrefab;
 
 		public ItemConfig StartingWeapon;
+
+		// Pet mode: the player's own attack; never added to Items or slots.
+		public ItemConfig PlayerAttackItem;
 	}
 }

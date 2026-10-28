@@ -7,6 +7,7 @@ using Codebase.Core;
 using Codebase.Enemy;
 using Codebase.Events.Components;
 using Codebase.Events.Models;
+using Codebase.Pet;
 using Codebase.Player.Models;
 using JetBrains.Annotations;
 using Scellecs.Morpeh;
@@ -26,6 +27,9 @@ namespace Codebase.Events.Systems
 
 		[Inject]
 		private FirecampSystem firecampSystem;
+
+		[Inject]
+		private PetsModel petsModel;
 
 		[Inject]
 		private Stash<EventBossGateComponent> gateStash;
@@ -172,7 +176,11 @@ namespace Codebase.Events.Systems
 				var gate = gateStash.Get(entity).Gate;
 				if (gate == null) continue;
 				if (Vector3.Distance(playerModel.Unit.transform.position, gate.transform.position) < 50f)
+				{
 					playerModel.Unit.Agent.Warp(firecampSystem.transform.position);
+					// Pet mode: keep pets from being shut behind the gate.
+					if (PetConfig.Enabled) petsModel.WarpAll(firecampSystem.transform.position);
+				}
 			}
 		}
 

@@ -1,6 +1,7 @@
 using Codebase.BossTower.Components;
 using Codebase.Core;
 using Codebase.Enemy.Systems;
+using Codebase.Pet;
 using Codebase.Player.Models;
 using Codebase.Services.Cheats;
 using Codebase.Unit.Components;
@@ -31,6 +32,8 @@ namespace Codebase.BossTower.Systems
 		private Stash<ShockComponent> shockStash;
 		[Inject]
 		private PlayerModel playerModel;
+		[Inject]
+		private PetsModel petsModel;
 		[Inject]
 		private WorldVfxService worldVfxService;
 		[Inject]
@@ -114,6 +117,17 @@ namespace Codebase.BossTower.Systems
 			float dx = playerPosition.x - bossPosition.x, dz = playerPosition.z - bossPosition.z;
 			if (Mathf.Sqrt(dx * dx + dz * dz) <= radius)
 				World.GetEvent<WeaponHitEvent>().NextFrame(new WeaponHitEvent { Source = enemy, Target = playerModel.Unit, DamageType = enemy.DamageType, Undodgeable = true, HasSpecialMultiplier = true, SpecialMultiplier = 10.0 });
+			// Pet mode: living pets inside the radius are hit the same way.
+			if (PetConfig.Enabled)
+				foreach (PetModel pet in petsModel.Pets)
+				{
+					if (!pet.IsAlive)
+						continue;
+					Vector3 petPosition = pet.Unit.transform.position;
+					float px = petPosition.x - bossPosition.x, pz = petPosition.z - bossPosition.z;
+					if (Mathf.Sqrt(px * px + pz * pz) <= radius)
+						World.GetEvent<WeaponHitEvent>().NextFrame(new WeaponHitEvent { Source = enemy, Target = pet.Unit, DamageType = enemy.DamageType, Undodgeable = true, HasSpecialMultiplier = true, SpecialMultiplier = 10.0 });
+				}
 			if (crab.HealOnExplosion)
 			{
 				double maximum = enemy.GetStatValue(StatType.Health, true);

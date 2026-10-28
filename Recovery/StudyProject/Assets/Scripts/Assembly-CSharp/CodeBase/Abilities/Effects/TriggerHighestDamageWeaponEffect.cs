@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Codebase.Abilities.Core;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 
 namespace Codebase.Abilities.Effects
@@ -13,7 +14,11 @@ namespace Codebase.Abilities.Effects
 		public override void Execute(AbilityContext context)
 		{
             // Original ELF VA 0x15f3550; unlike ResetCooldownEffect this original trigger emits no cooldown-reset event.
-            ItemModel weapon = FindHighestDamageWeapon(context.PlayerModel.EquippedWeapons);
+            // Pet mode: only weapons whose pet is alive can be picked.
+            List<ItemModel> weapons = context.PlayerModel.EquippedWeapons;
+            if (PetConfig.Enabled)
+                weapons = Codebase.Core.GameContext.Get<PetsModel>().GetAliveWeapons(weapons);
+            ItemModel weapon = FindHighestDamageWeapon(weapons);
             if (weapon == null) return;
             weapon.ResetCooldown = true;
             weapon.NextHitEmpower = ValueScaler.GetScaledValue(context, ValueScaling);

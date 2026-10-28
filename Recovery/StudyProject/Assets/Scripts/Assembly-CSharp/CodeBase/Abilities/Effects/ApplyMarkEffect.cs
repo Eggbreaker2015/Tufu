@@ -80,6 +80,7 @@ namespace Codebase.Abilities.Effects
                         if (effect is IncreaseMaxMarksEffect increase) {
                             AbilityContext context = AbilityContext.Rent();
                             context.World = world; context.Owner = item; context.State = state; context.PlayerModel = playerModel; context.Target = target;
+                            context.Attacker = AbilityTargetResolver.GetOwnerPetUnit(item); // Pet mode: the owner's pet; null with pet mode off.
                             float scaled = ValueScaler.Resolve(increase.Scaling, context, increase.ScalingStat) * increase.GetCount(state);
                             // Native FCVTZS saturates except the compiler's explicit +infinity-to-MinValue case.
                             int count = float.IsNaN(scaled) ? 0 : float.IsPositiveInfinity(scaled) ? int.MinValue : scaled >= 2147483648f ? int.MaxValue : scaled <= -2147483648f ? int.MinValue : (int)scaled;
