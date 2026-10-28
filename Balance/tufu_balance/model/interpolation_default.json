@@ -1,0 +1,7 @@
+{
+  "rounding": "fma",
+  "allowed": ["stepwise", "fma", "double_tail", "double_all"],
+  "set_by": "P2-oracle-core",
+  "reason": "Q32: provisional default until DP3 measures the editor's Mono variant; fma, double_tail and double_all all give 109/109 on the shipped snapshots (G11), stepwise is the ablation.",
+  "owner": "C2 (design 7.4: P2 creates this file, C2 changes it after DP3 and reruns G11/G13)"
+}
