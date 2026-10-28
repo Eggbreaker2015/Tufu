@@ -408,7 +408,7 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 - **前提：抽取好的数据库**。请求的 `sandbox.expected_ready_spawners` 默认是 `"auto"`（C1，见第 14 节），启动器要从 `$TUFU_BALANCE_DB`（没有时 `Balance/out/balance.sqlite`）生成就绪核对表，`selftest` 也一样；数据库不存在时以退出码 5 拒绝。没有数据库又要跑时，在请求里把 `expected_ready_spawners` 显式设为 `null`（不做这项核对）。
 - `--rev` 默认是 `tufu_balance` 所在工作树的 HEAD：先提交，再运行。运行工作树检出到该提交（游离 HEAD），检出前后都要求 `git status --porcelain -uall` 为空。
 - `--dev` 在当前工作树里跑，要求它有 `Library`（单元工作树没有），结果不进缓存；Unity 退出后工作树的改动状态变了就退出码 7。
-- 输出在 `Balance/out/sim/runs/<run_key>/`：`request.json`、`unity.log`、`editor_report.json`（编辑器侧：改名探针、守卫基线、各作业结果）、`launcher.json`（启动器侧：命令、耗时、真实存档核对、网络采样、日志扫描），以及每个作业的 `<job_id>/{manifest.json, ready_spawners.csv, asset_guard.json, timings.json, unity.log}`。除 `timings.json` 外都可以逐字节比较。
+- 输出在 `Balance/out/sim/runs/<run_key>/`：`request.json`、`unity.log`、`sandbox.json`（编辑器改名进沙箱、探针通过后立即写：沙箱段与编辑器进程号）、`editor_report.json`（编辑器侧：改名探针、守卫基线、各作业结果，退出时写）、`launcher.json`（启动器侧：命令、耗时、真实存档核对、网络采样、日志扫描），以及每个作业的 `<job_id>/{manifest.json, ready_spawners.csv, asset_guard.json, timings.json, unity.log}`。作业目录里除 `timings.json` 外的文件和 `request.json` 可以逐字节比较；`sandbox.json`、`editor_report.json` 带编辑器进程号，`launcher.json` 带进程号、时间和耗时，`unity.log` 带时间，这几个不能逐字节比较。
 - 同一 `run_key` 已有退出码 0 的结果时直接复用，`--force` 重跑。`run_key` 的组成见设计稿 1.4.2；只影响速度的 `simulation_speed`、`frame_budget_ms`、`heartbeat_interval_s`、`ready_timeout_s` 不计入。
 - 预设 `smoke-11`、`golden-405`、`slow-5` 要等 C3b 填好引擎才有意义：现在 `free` 作业的 `ExecuteTick` 是空的，只会在 `max_wall_seconds` 停下。
 - Python API：`tufu_balance.unity.launcher.run(request, rev=…)`、`selftest()`、`serve_*()`；请求由 `tufu_balance.unity.request` 生成和校验（`make_request`、`make_job`、`empty_job`、`preset`、`validate`）。其它单元追加请求字段时用 `request.register_fields`，C# 一侧写自己的 `SimulationRunRequest.<单元>.cs`。
@@ -434,7 +434,7 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 1. `SimulationBatch.Run/SelfTest/Serve` 读参数，Newtonsoft 解析请求（未知成员报错），校验；失败以 5 退出，`editor_report.json` 写在请求文件旁边。
 2. 进入 Play 的设置：只看 `enterPlayModeOptions` 里有没有 `DisableDomainReload`/`DisableSceneReload`（第 3 节第 7 条），有就以 2 退出。
 3. 资产守卫取基线（首次进入 Play 之前）。
-4. 改名进沙箱：公司名固定为 `TufuSimSandbox`，产品名取 `sandbox.identity`（默认也是 `TufuSimSandbox`）；断言 `persistentDataPath` 已变，写一个探针键经 `defaults read` 确认它在沙箱域、不在真实域，否则以 2 退出。
+4. 改名进沙箱：公司名固定为 `TufuSimSandbox`，产品名取 `sandbox.identity`（默认也是 `TufuSimSandbox`）；断言 `persistentDataPath` 已变，写一个探针键经 `defaults read` 确认它在沙箱域、不在真实域，否则以 2 退出。通过后立即把报告里的沙箱段连同本编辑器的进程号写进 `<out_dir>/sandbox.json`（`tufu.sim.sandbox/1`；运行模式的 `out_dir` 是运行目录，常驻模式是 `Balance/out/sim/serve/<时间>/`），启动器在编辑器还开着时就能据此判断沙箱已生效（第 13 节）。
 5. 每个作业：清空沙箱存档目录和 PlayerPrefs，写入 `prefs_seed`（整数 → `SetInt`，小数 → `SetFloat`，字符串 → `SetString`）并 `Save()`；写 `Temp/TufuSimulation/active_request.json`（进程号、请求路径、作业序号）；从 Boot 进入 Play；等运行时一侧完成；退出 Play；资产守卫核对与恢复，写 `asset_guard.json`；把编辑器侧的耗时并进 `timings.json`。作业失败就结束整个请求。
 6. 结束：`PlayerPrefs.Save()`（仍在沙箱域）、改回名字并清掉 PlayerSettings 的脏标记、删除 `active_request.json`、写 `editor_report.json`、`EditorApplication.Exit(code)`。
 
@@ -472,8 +472,8 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 
 ### 11.5 常驻模式
 
-- `serve start`：取锁、检出、记下真实存档基线、在 `Temp/TufuSimulation/queue/{inbox,running,done}` 建队列，启动 `SimulationBatch.Serve`，把锁的持有者改成 Unity 的进程号（CLI 返回后锁仍在），等心跳进入 `edit:idle`。
-- `serve submit`：按常驻编辑器的提交计算 `run_key`，把请求写进 `inbox/`，等 `done/<名>.result.json`；中途核对一次真实存档（忽略编辑器自己的分析文件）。
+- `serve start`：取锁、检出、记下真实存档基线和此刻主检出上开着的编辑器进程号（`state.json` 的 `main_editors`）、在 `Temp/TufuSimulation/queue/{inbox,running,done}` 建队列，启动 `SimulationBatch.Serve`，把锁的持有者改成 Unity 的进程号（CLI 返回后锁仍在），等心跳进入 `edit:idle`。
+- `serve submit`：按常驻编辑器的提交计算 `run_key`，把请求写进 `inbox/`，等 `done/<名>.result.json`；然后核对一次真实存档（忽略编辑器自己的分析文件），变化的归属规则见第 13 节。
 - 编辑器按文件名顺序取请求，每个作业仍是 `reenter_play`，作业后的守卫照常；`code_rev` 或 `identity` 与常驻编辑器不同的请求以 5 拒绝。收到 `stop` 文件、空闲超时（默认 30 分钟）或守卫失败时退出。
 - `serve stop`：写 `stop`、等进程退出、做进程退出后的全部核对、清理沙箱、释放锁。编辑器的报告写在 `Balance/out/sim/serve/<时间>/serve_report.json`（`Temp/` 会被删掉）。
 - 验收：常驻编辑器里两个相同的 `empty` 作业，状态摘要和 `ready_spawners.csv` 彼此相同，也与冷启动的 selftest 相同。
@@ -511,7 +511,15 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
     - 本次运行的 `editor_report.json`（进程号必须等于本次启动的 Unity）证明沙箱生效：`persistentDataPath` 在 `TufuSimSandbox/<名>` 下，不在真实路径之下；它报告的真实路径就是受保护的存档目录；PlayerPrefs 探针只落在沙箱域。
     - 除了真实存档和 PlayerPrefs，没有别的守卫问题：工程文件或运行工作树有变化时，照旧连同真实存档的变化一起判 2。
 
-    任何一条不满足就和以前一样判 2；只要有别的编辑器在，就不会去恢复。这个探针只证明从改名到 `LeaveSandbox` 这段时间的写入进了沙箱；改名之前，编辑器启动时只写分析会话（上一条）。所以把变化归给主编辑器的依据是：本次运行在这段时间外不写存档，而那个编辑器确实开着。常驻模式（`serve`）还没有这条规则：用户的编辑器一写存档，之后每次提交都判 2，要重启常驻编辑器。
+    任何一条不满足就和以前一样判 2；只要有别的编辑器在，就不会去恢复。这个探针只证明从改名到 `LeaveSandbox` 这段时间的写入进了沙箱；改名之前，编辑器启动时只写分析会话（上一条）。所以把变化归给主编辑器的依据是：本次运行在这段时间外不写存档，而那个编辑器确实开着。
+  - 常驻模式（`serve`，P10）用同一组条件，在 `serve submit` 和 `serve stop` 时各判一次：
+    - `serve start` 时记下的主检出编辑器（`main_editors`）此刻仍开着（同一进程号）；
+    - 干净：`submit` 要求这个请求的退出码与它每个作业的退出码都是 0；`stop` 要求常驻编辑器以 0 退出，并且它服务过的每个请求及其每个作业都是 0；
+    - 除常驻编辑器自己（和导入进程）外没有别的 Unity 打开运行工作树；
+    - 常驻编辑器的 `serve/<时间>/sandbox.json`（进程号必须等于常驻编辑器，即 `state.json` 的 `pid`）证明沙箱生效，判据同上；`editor_report.json` 要到退出时才写，所以常驻模式读的是进入沙箱后立即写下的 `sandbox.json`；
+    - 除了真实存档和 PlayerPrefs 没有别的守卫问题。
+
+    满足时记为 `real_changed_by_main_editor`（`launcher.json` 与 `serve stop` 的输出），不判 2、不恢复，`serve/<时间>/_real_backup/` 保留到人工处理。不满足时照旧判 2；只要主检出上有编辑器，`serve stop` 就不恢复。比较的基线一直是 `serve start` 时的快照，所以用户的编辑器写过一次存档以后，之后每次提交都会重新判一次，结论各自记在该次的 `launcher.json` 里。运行模式的规则不变。
 - 网络：运行中每 2 秒 `lsof -nP -a -p <pid> -i` 采样，按心跳的阶段分成编辑模式与 Play；断言 Play 期间没有编辑模式期间之外的非回环远端。另扫描日志里第一次进入 Play 之后的 SDK 输出（AppMetrica、Adjust、Firebase、AppLovin、MaxSdk、Facebook、Tapjoy、BackendApi、UnityServices、RemoteConfigService），并有静态测试断言 `Assets/Scripts` 与 `Assets/Editor` 里没有网络 API。系统代理（`127.0.0.1:7897`）下 `lsof` 只看得到代理端口，看不到主机名；按主机名的核对仍需代理日志（第 4.3 节）。
 - 每次运行前后删除沙箱的 PlayerPrefs 域（`defaults delete unity.TufuSimSandbox.<名>`，再删残留的 plist 文件）和沙箱存档目录；删除前核对路径确实在 `TufuSimSandbox` 之下。
 

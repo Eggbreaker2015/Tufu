@@ -329,11 +329,13 @@ def diff_snapshots(before: Mapping, after: Mapping, *, editor_alive: bool = Fals
     return problems
 
 
-def sandbox_proven(run_dir: Path, identity: str, pid: int, real_save_dir: Path) -> bool:
+def sandbox_proven(run_dir: Path, identity: str, pid: int, real_save_dir: Path, report_name: str = "editor_report.json"
+                   ) -> bool:
     """This editor process (``pid``) reported that persistentDataPath and the PlayerPrefs probe followed the
-    sandbox rename away from ``real_save_dir``."""
+    sandbox rename away from ``real_save_dir``. Run mode reads ``editor_report.json`` (written at exit);
+    serve mode reads ``sandbox.json``, which the editor writes right after entering the sandbox."""
     try:
-        report = json.loads((Path(run_dir) / "editor_report.json").read_text())
+        report = json.loads((Path(run_dir) / report_name).read_text())
         sb = report["sandbox"]
     except (OSError, ValueError, KeyError, TypeError):
         return False
@@ -820,9 +822,49 @@ def _serve_state_path(run_tree: Path) -> Path:
     return Path(run_tree) / "Balance" / "out" / "serve" / "state.json"
 
 
+def _paths_state(paths: ProtectedPaths) -> dict:
+    return {"save_dir": str(paths.save_dir), "plist": str(paths.plist), "domain": paths.domain}
+
+
+def _serve_paths(state: Mapping) -> ProtectedPaths:
+    p = state.get("paths")
+    if not p:
+        return ProtectedPaths.for_project(Path(state["project"]))
+    return ProtectedPaths(save_dir=Path(p["save_dir"]), plist=Path(p["plist"]), domain=p["domain"])
+
+
+SERVE_SANDBOX_PROOF = "sandbox.json"
+
+
+def _serve_attribution(state: Mapping, problems: list[str], *, clean: bool, others: list,
+                       paths: ProtectedPaths) -> tuple[list[str], list[str], list[int]]:
+    """Run mode's rule for real save/PlayerPrefs changes (``_launch_and_check``), for the resident editor:
+    the changes go to the user's main-checkout editor only when the same editor process was open at
+    ``serve start`` and is open now, the resident editor's work finished cleanly, no other Unity has the
+    run worktree open, the resident editor proved its sandbox (``sandbox.json`` with its own pid), and the
+    real changes are the only problems. Returns (problems left, attributed changes, main editors)."""
+    main = sorted(set(state.get("main_editors") or ()) & main_checkout_editors())
+    real = [p for p in problems if p.startswith("real ")]
+    if (real and main and clean and not others and len(real) == len(problems)
+            and sandbox_proven(Path(state["serve_dir"]), state["identity"], state["pid"], paths.save_dir,
+                               SERVE_SANDBOX_PROOF)):
+        return [], real, main
+    return problems, [], main
+
+
+def _served_clean(result: Mapping) -> bool:
+    """A served request finished cleanly: its exit code and every job's are 0."""
+    return result.get("exit_code") == 0 and all(j.get("exit_code") == 0 for j in result.get("jobs") or [])
+
+
+def _other_unity(project: Path, pid: int) -> list[tuple[int, str]]:
+    return [(p, c) for p, c in unity_processes(project) if p != pid and "AssetImportWorker" not in c]
+
+
 def serve_start(*, rev: str | None = None, idle_timeout_s: float = 1800.0, identity: str = req.SANDBOX_COMPANY,
                 opts: Options | None = None, worktree: Path | None = None, run_tree: Path | None = None,
-                ready_wait_s: float = 600.0, log=print) -> dict:
+                ready_wait_s: float = 600.0, out_root: Path | None = None, paths: ProtectedPaths | None = None,
+                log=print) -> dict:
     opts = opts or Options()
     worktree = Path(worktree or runner.WORKTREE)
     run_tree = Path(run_tree or runner.run_worktree())
@@ -836,11 +878,12 @@ def serve_start(*, rev: str | None = None, idle_timeout_s: float = 1800.0, ident
         runner.require_clean(run_tree)
         code_rev = runner.checkout(run_tree, rev or runner.head(worktree))
         check_dlls(project)
-        paths = ProtectedPaths.for_project(project)
+        paths = paths or ProtectedPaths.for_project(project)
         cleanup_sandbox(identity)
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        serve_dir = OUT_ROOT / "serve" / stamp
+        serve_dir = Path(out_root or OUT_ROOT) / "serve" / stamp
         serve_dir.mkdir(parents=True)
+        main_editors = sorted(main_checkout_editors())
         before = snapshot(paths, project)
         backup_real(paths, serve_dir / "_real_backup")
         queue = project / QUEUE
@@ -859,7 +902,8 @@ def serve_start(*, rev: str | None = None, idle_timeout_s: float = 1800.0, ident
         lock.set_holder(proc.pid, owner="serve")
         state = {"pid": proc.pid, "code_rev": code_rev, "queue_dir": str(queue), "serve_dir": str(serve_dir),
                  "project": str(project), "identity": identity, "before": before, "started": now_iso(),
-                 "dll_status": "expected", "command": cmd}
+                 "dll_status": "expected", "command": cmd, "main_editors": main_editors,
+                 "paths": _paths_state(paths)}
         _serve_state_path(run_tree).parent.mkdir(parents=True, exist_ok=True)
         _serve_state_path(run_tree).write_text(json.dumps(state, indent=1) + "\n")
         deadline = time.monotonic() + ready_wait_s
@@ -930,10 +974,17 @@ def serve_submit(request: Mapping, *, run_tree: Path | None = None, worktree: Pa
             raise LauncherError("timed out waiting for the resident editor", EXIT_TIMEOUT)
         time.sleep(0.25)
     result = json.loads(result_path.read_text())
-    problems = diff_snapshots(state["before"], snapshot(ProtectedPaths.for_project(project), project), editor_alive=True)
+    paths = _serve_paths(state)
+    problems = diff_snapshots(state["before"], snapshot(paths, project), editor_alive=True)
+    clean = _served_clean(result)
+    others = _other_unity(project, state["pid"])
+    problems, attributed, main = _serve_attribution(state, problems, clean=clean, others=others, paths=paths)
     report = {"schema": "tufu.sim.launcher/1", "method": "Serve", "result": result, "wall_s": time.monotonic() - t0,
               **material, "guard_problems": problems, "unity_exit": result["exit_code"],
+              "main_checkout_editors": main, "others_seen": others,
               "exit_code": EXIT_GUARD if problems else result["exit_code"]}
+    if attributed:
+        report["real_changed_by_main_editor"] = attributed
     log_src = Path(state["serve_dir"]) / "unity.log"
     if log_src.exists():
         shutil.copy2(log_src, run_dir / "unity.log")
@@ -962,7 +1013,7 @@ def serve_stop(*, run_tree: Path | None = None, opts: Options | None = None, wai
             if pid_alive(state["pid"]):
                 os.kill(state["pid"], signal.SIGKILL)
     left = wait_for_project_free(project, opts.worker_exit_wait_s)
-    paths = ProtectedPaths.for_project(project)
+    paths = _serve_paths(state)
     problems = diff_snapshots(state["before"], snapshot(paths, project))
     analytics = [p for p in problems if _is_editor_analytics(p)]
     problems = [p for p in problems if not _is_editor_analytics(p)]
@@ -975,16 +1026,22 @@ def serve_stop(*, run_tree: Path | None = None, opts: Options | None = None, wai
                                 prefs=any("PlayerPrefs" in p for p in problems))
     report_path = Path(state["serve_dir"]) / "serve_report.json"
     serve_report = json.loads(report_path.read_text()) if report_path.exists() else {}
+    others = [(p, c) for p, c in left if "AssetImportWorker" not in c]
+    # clean = the editor exited 0 and every request it served, and each of its jobs, finished 0 (run mode: Unity exit 0)
+    clean = serve_report.get("exit_code") == 0 and all(_served_clean(r) for r in serve_report.get("served") or [])
+    problems, attributed, main = _serve_attribution(state, problems, clean=clean, others=others, paths=paths)
     removed = cleanup_sandbox(state["identity"])
     shutil.rmtree(queue, ignore_errors=True)
-    if not problems:
+    if not problems and not attributed:
         shutil.rmtree(Path(state["serve_dir"]) / "_real_backup", ignore_errors=True)
     path.unlink()
     lock = UnityLock(run_tree)
     lock.release()
     out = {"stopped": True, "editor_exit_code": serve_report.get("exit_code"), "guard_problems": problems,
-           "editor_analytics_leftovers": analytics,
+           "editor_analytics_leftovers": analytics, "main_checkout_editors": main,
            "restored": restored, "workers_left": left, "sandbox_removed": removed, "serve_dir": state["serve_dir"],
            "served": len(serve_report.get("served", []))}
+    if attributed:
+        out["real_changed_by_main_editor"] = attributed
     log(f"serve: stopped (editor exit {out['editor_exit_code']}){'; ' + '; '.join(problems) if problems else ''}")
     return out

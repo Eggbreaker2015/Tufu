@@ -1,0 +1,42 @@
+{
+ "expectations": {
+  "T01.days": {
+   "kind": "exact",
+   "note": "",
+   "source": "T01",
+   "value": 46
+  },
+  "T05.cells": {
+   "kind": "exact",
+   "note": "41 intervals from TC4 x 15 stats",
+   "source": "T05",
+   "value": 615
+  },
+  "T09.cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "T09/G20",
+   "value": 1380
+  },
+  "T10.cells": {
+   "kind": "exact",
+   "note": "1800 values + 60 NaN",
+   "source": "T10/G19",
+   "value": 1860
+  },
+  "T18.cells": {
+   "kind": "exact",
+   "note": "981 main + 2289 other",
+   "source": "T18/G11",
+   "value": 3270
+  },
+  "cells.total": {
+   "kind": "exact",
+   "note": "cells of T01-T07, T09-T14, T16-T18",
+   "source": "design 7.3 P10",
+   "value": 11190
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "calibrate"
+}
