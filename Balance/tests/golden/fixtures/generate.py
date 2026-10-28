@@ -1022,6 +1022,7 @@ def main() -> int:
     ap.add_argument("--skip-parity", action="store_true",
                     help="with --check: accept that extract_parity.json cannot be checked (main DB changed/missing)")
     ap.add_argument("--compare-survey", action="store_true", help="also compare with the survey outputs")
+    ap.add_argument("--force", action="store_true", help="allow writing into the committed fixtures directory")
     args = ap.parse_args()
     db = Path(os.environ.get("TUFU_BALANCE_DB") or BALANCE / "out" / "balance.sqlite").resolve()
 
@@ -1032,8 +1033,24 @@ def main() -> int:
         with tempfile.TemporaryDirectory() as tmp:
             generate(Path(tmp), db, meta["date"], meta["git_rev"], main_db)
             names = FIXTURES if main_db else [f for f in FIXTURES if f != "extract_parity.json"]
-            bad = [f for f in names if not filecmp.cmp(HERE / f, Path(tmp) / f, shallow=False)]
-        print("identical" if not bad else f"DIFFERENT: {bad}")
+            bad, drift = [], set()
+            for f in names:
+                if filecmp.cmp(HERE / f, Path(tmp) / f, shallow=False):
+                    continue
+                # Imported model modules keep evolving after the freeze; their recorded hashes are
+                # provenance only, so a hash change alone is reported but does not fail the check.
+                old, new = (json.loads(p.read_text()) for p in (HERE / f, Path(tmp) / f))
+                old_imp, new_imp = (d["meta"]["source"].pop("imports", []) for d in (old, new))
+                if old["meta"]["source"].pop("sha256") != new["meta"]["source"].pop("sha256"):
+                    drift.add(old["meta"]["source"]["path"])
+                if old != new:
+                    bad.append(f)
+                drift |= {a["path"] for a, b in zip(old_imp, new_imp) if a != b}
+                if [a["path"] for a in old_imp] != [b["path"] for b in new_imp]:
+                    bad.append(f)
+        print("identical" if not bad else f"DIFFERENT: {sorted(set(bad))}")
+        if drift:
+            print("imported modules changed since the freeze (provenance only):", ", ".join(sorted(drift)))
         if bad:
             return 1
         if main_db is None:
@@ -1042,6 +1059,9 @@ def main() -> int:
             return 0 if args.skip_parity else 2
         return 0
 
+    if args.out.resolve() == HERE.resolve() and not args.force:
+        print("refusing to overwrite the frozen fixtures; pass --out DIR, or --force to re-freeze")
+        return 2
     date = args.date or datetime.date.today().isoformat()
     git_rev = args.git_rev or git_head()
     generate(args.out, db, date, git_rev, args.main_db if args.main_db.exists() else None)

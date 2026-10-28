@@ -33,7 +33,8 @@ cd Balance
 ```
 
 - 数据库取 `$TUFU_BALANCE_DB`，否则取 `Balance/out/balance.sqlite`，只读。主检出的数据库取 `--main-db`，否则 `$TUFU_MAIN_BALANCE_DB`，否则默认路径；`--compare-survey` 的调研目录可用 `$TUFU_S5_SURVEY_DIR` 改。这些只影响读哪里，不进夹具内容。
-- `--check` 用已提交夹具里的 `date` 与 `git_rev` 在临时目录重新生成，逐字节比较。`date`、`git_rev` 是传入的参数，不随运行时刻变化；生成脚本自身的 sha256 也写在夹具里，改了脚本，核对就会失败。
+- `--check` 用已提交夹具里的 `date` 与 `git_rev` 在临时目录重新生成后比较。`date`、`git_rev` 是传入的参数，不随运行时刻变化。生成脚本和被引用的 `model` 模块的 sha256 只是出处记录：之后的单元会继续改这些模块，所以只有这些哈希不同时，`--check` 列出变化的文件但不判失败；其余内容（全部数值和元数据）必须一致。
+- 不带 `--out` 直接运行会拒绝覆盖这里的已冻结夹具（退出码 2）；确需重新冻结时加 `--force`。
 - `extract_parity.json` 还要读主检出的数据库（默认 `/Users/joyfort/MyProjects/Tufu/Balance/out/balance.sqlite`）。它的 sha256 记在 `meta.main_db` 里；主检出重新抽取后哈希变了或文件不在，`--check` 不比较这个文件，打印 `NOT CHECKED` 并以退出码 2 结束；加 `--skip-parity` 表示接受，退出码 0。其余文件有差异时退出码 1。
 - 夹具里没有耗时。`golden_probe.py` 原来打印的 `hash(tuple(keys))` 随进程变化，改成键列表的 sha256。
 - 一次生成约 14 秒（Apple Silicon，Python 3.14）；连续两次生成、以及换 `PYTHONHASHSEED` 生成，9 个文件都逐字节相同。
