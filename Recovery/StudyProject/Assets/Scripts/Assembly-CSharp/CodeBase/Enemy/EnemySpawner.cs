@@ -960,7 +960,11 @@ namespace Codebase.Enemy
 
 			if (config.IsEvent && config.EventDef != null)
 				ApplyEventPlanToConfig();
+#if UNITY_EDITOR
+			EnemyUnit unit = unitPool.Spawn(prefab, position, Quaternion.identity, null, RecoveryCompatibility.EditorEnemySpawnTemplates.Resolve);
+#else
 			EnemyUnit unit = unitPool.Spawn(prefab, position, Quaternion.identity, null);
+#endif
 			unit.Initialize(Lifetime, config, transform.position);
 			float multiplier = abTestService.GetEnemyHpDamageMultiplier(config.LocationNumber);
 			if (!config.IsEvent && multiplier != 1f)
