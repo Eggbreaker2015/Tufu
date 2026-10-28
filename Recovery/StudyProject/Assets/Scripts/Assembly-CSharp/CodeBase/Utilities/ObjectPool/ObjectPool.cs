@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Codebase.Core;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Codebase.Utilities.ObjectPool
 {
@@ -27,6 +29,10 @@ namespace Codebase.Utilities.ObjectPool
         }
         public T Spawn(T prefab, Vector3 position, Quaternion rotation, Transform parent)
         {
+            return Spawn(prefab, position, rotation, parent, null);
+        }
+        public T Spawn(T prefab, Vector3 position, Quaternion rotation, Transform parent, Func<T, T> resolveTemplate)
+        {
             // Native ELF VA 0x1a4490c: shared per T and source prefab.
             SharedPool pool = GetOrCreateSharedPool(GetKeyFromPrefab(prefab), prefab.name);
             T instance = GetInactiveObjectFromPool(pool);
@@ -34,7 +40,8 @@ namespace Codebase.Utilities.ObjectPool
             if (instance == null)
             {
                 if (parent == null) { EnsureContainerExists(pool); parent = pool.Container; }
-                instance = isRectTransform ? Object.Instantiate(prefab, parent, false) : Object.Instantiate(prefab, position, rotation, parent);
+                T template = resolveTemplate == null ? prefab : resolveTemplate(prefab);
+                instance = isRectTransform ? Object.Instantiate(template, parent, false) : Object.Instantiate(template, position, rotation, parent);
                 AddPoolInstance(prefab.gameObject, instance.gameObject);
                 pool.Active.Add(instance);
                 if (isRectTransform)

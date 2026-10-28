@@ -160,6 +160,10 @@ namespace Codebase.Core
 		private AsyncOperation mainSceneLoad;
 
 		private BootTimeReporter bootReporter;
+#if UNITY_EDITOR
+        private readonly System.Collections.Generic.List<UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject>> editorStartupAssets =
+            new System.Collections.Generic.List<UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject>>();
+#endif
 
         // Restored from APK ARM64 methods 0x1539928..0x153ac10.
         public static bool ShowSnapshotSelectorOnce
@@ -180,6 +184,13 @@ namespace Codebase.Core
         }
 
         private async void Start()
+        {
+            var cancellationToken = destroyCancellationToken;
+            try { await InitializeAsync(); }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+        }
+
+        private async UniTask InitializeAsync()
         {
             BootTimeReporter reporter = GameContext.Get<BootTimeReporter>();
             Disposer disposer = Disposer.WhileAppRunning;
@@ -216,6 +227,9 @@ namespace Codebase.Core
         {
             loadingScreen.SetProgress(0f);
             await UniTask.Delay(TimeSpan.FromSeconds(0.5), false, PlayerLoopTiming.Update);
+#if UNITY_EDITOR
+            await PreloadEditorStartupAssetsAsync();
+#endif
             mainSceneLoad = SceneManager.LoadSceneAsync("Main");
             mainSceneLoad.allowSceneActivation = false;
             while (mainSceneLoad.progress < 0.9f)
@@ -225,6 +239,10 @@ namespace Codebase.Core
                 bootReporter.Tick();
             }
             loadingScreen.SetProgress(0.75f);
+#if UNITY_EDITOR
+            await RecoveryCompatibility.EditorEnemySpawnTemplates.PrepareAsync(
+                progress => loadingScreen.SetProgress(0.75f + progress * 0.06f), destroyCancellationToken);
+#endif
         }
 
         private async UniTask InitializePostConsentAsync()
@@ -245,8 +263,46 @@ namespace Codebase.Core
                 await UniTask.Yield(PlayerLoopTiming.Update);
                 bootReporter.Tick();
             }
+#if UNITY_EDITOR
+            var bootstrap = GameContext.Get<global::Codebase.Enemy.Systems.EnemySpawnerBootstrapSystem>();
+            while (!bootstrap.IsNearbyBootstrapComplete)
+            {
+                await UniTask.NextFrame(cancellationToken: destroyCancellationToken);
+                bootReporter.Tick();
+            }
+#endif
             loadingScreen.SetProgress(1f);
             await loadingScreen.DismissAsync();
         }
+
+#if UNITY_EDITOR
+        private async UniTask PreloadEditorStartupAssetsAsync()
+        {
+            // First nearby chest/quest prompts otherwise initialize Addressables
+            // and synchronously open the recovered local UI bundle in an ECS frame.
+            // Start before the non-activated scene: Unity's async operation queue
+            // would be blocked by allowSceneActivation=false if we awaited later.
+            var addresses = new[] {
+                "Assets/Prefabs/UI/SecretChestButtonView.prefab",
+                "Assets/Prefabs/UI/Mines/Quests/QuestPopup.prefab"
+            };
+            foreach (string address in addresses)
+            {
+                var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>(address);
+                editorStartupAssets.Add(handle);
+                while (!handle.IsDone)
+                    await UniTask.NextFrame(cancellationToken: destroyCancellationToken);
+                if (handle.Status != UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                    throw new InvalidOperationException("Startup UI prefab failed to preload: " + address, handle.OperationException);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var handle in editorStartupAssets)
+                if (handle.IsValid()) UnityEngine.AddressableAssets.Addressables.Release(handle);
+            editorStartupAssets.Clear();
+        }
+#endif
     }
 }

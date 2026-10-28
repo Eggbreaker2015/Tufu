@@ -20,6 +20,7 @@ namespace Codebase.Enemy.Systems
 		private const float NearbyBootstrapRangeSq = 4225f;
 		private const int MaxBootstrapsPerFrame = 6;
 		private bool completedNearbyBootstrap;
+		public bool IsNearbyBootstrapComplete => completedNearbyBootstrap || enemiesModel.PendingBootstrap.Count == 0;
 		public override void OnAwake()
 		{
 		}
@@ -34,6 +35,12 @@ namespace Codebase.Enemy.Systems
 
 		private void ProcessPendingSpawners(List<EnemySpawner> pending, bool skipNearbyPass = false)
 		{
+#if UNITY_EDITOR
+            // Preserve the APK's nearby-first queue and six-spawner ceiling, but
+            // bound Editor work too: one exported rig can cost more than a full
+            // Player frame. Resume the nearby pass before starting distant work.
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
+#endif
 			var now = (int)new DateTimeOffset(timeService.Now.ToDateTime()).ToUnixTimeSeconds();
 			if (!skipNearbyPass && !completedNearbyBootstrap)
 			{
@@ -48,6 +55,9 @@ namespace Codebase.Enemy.Systems
 					{
 						spawner.CompleteBootstrap(now);
 						pending.RemoveAt(i);
+#if UNITY_EDITOR
+                        if (EditorBudgetUsed(started)) return;
+#endif
 					}
 				}
 
@@ -61,8 +71,18 @@ namespace Codebase.Enemy.Systems
 				if (spawner != null)
 					spawner.CompleteBootstrap(now);
 				pending.RemoveAt(i);
+#if UNITY_EDITOR
+                if (EditorBudgetUsed(started)) break;
+#endif
 			}
 		}
+
+#if UNITY_EDITOR
+        private static bool EditorBudgetUsed(long started)
+        {
+            return System.Diagnostics.Stopwatch.GetTimestamp() - started >= System.Diagnostics.Stopwatch.Frequency * 0.005;
+        }
+#endif
 
 		private bool TryGetPlayerReferencePosition(out Vector3 position)
 		{
