@@ -77,6 +77,12 @@ def fake_tree(tmp_path, monkeypatch):
     _git(tree, "init", "-q")
     _git(tree, "-c", "user.name=t", "-c", "user.email=t@t", "add", "-A")
     _git(tree, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init")
+    # An editor the user has open on the main checkout would make the launcher skip restoring a changed real
+    # save (another editor may legitimately write it); the fake runs must not depend on that.
+    real_processes = launcher.unity_processes
+    main = (runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR).resolve()
+    monkeypatch.setattr(launcher, "unity_processes",
+                        lambda project: [] if Path(project).resolve() == main else real_processes(project))
     monkeypatch.setattr(launcher, "DLL_RULES", {
         name: {"expected": runner.sha256_file(project / "Assets" / "Plugins" / name), "damaged": "0" * 64}
         for name in runner.PROTECTED_DLLS})
@@ -305,6 +311,16 @@ def test_fake_dev_run_changed_worktree_exits_7(fake_tree, monkeypatch):
                           run_tree=fake_tree["tree"], paths=fake_tree["paths"], log=lambda *_: None)
     assert result.exit_code == launcher.EXIT_DEV_CHANGED
     assert result.request["code_rev"].endswith("+dev")
+
+
+def test_fake_run_writes_the_auto_readiness_table(fake_tree, monkeypatch):
+    """sandbox.expected_ready_spawners = "auto" (default): P6's table, content-addressed, next to request.json (C1)."""
+    if not launcher.balance_db().exists():
+        pytest.skip("no extracted database")
+    result = _run(fake_tree, "ok", monkeypatch)
+    name = result.request["sandbox"]["expected_ready_spawners"]
+    assert json.loads((result.run_dir / "request.json").read_text())["sandbox"]["expected_ready_spawners"] == name
+    assert (name, (result.run_dir / name).read_text()) == launcher.expected_ready_table("A")
 
 
 def test_invalid_request_is_refused_before_launch(fake_tree, monkeypatch):

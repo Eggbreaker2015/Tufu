@@ -32,6 +32,7 @@ import re
 import shutil
 import signal
 import socket
+import sqlite3
 import subprocess
 import threading
 import time
@@ -541,10 +542,49 @@ def _overall(request: Mapping, opts: Options) -> float:
     return total
 
 
+def balance_db() -> Path:
+    return Path(os.environ.get("TUFU_BALANCE_DB") or runner.BALANCE / "out" / "balance.sqlite")
+
+
+_expected_tables: dict[tuple, tuple[str, str]] = {}
+
+
+def expected_ready_table(variant: str, db: Path | None = None) -> tuple[str, str]:
+    """(file name, CSV text) of P6's readiness table for an AB variant, keyed by the C# spawner identity."""
+    from .spawner_map import expected_ready_csv, expected_ready_file_name
+
+    db = Path(db or balance_db())
+    if not db.exists():
+        raise LauncherError(f"sandbox.expected_ready_spawners = {req.EXPECTED_READY_AUTO!r} needs the extracted database "
+                            f"({db}); set TUFU_BALANCE_DB or pass an explicit table or null", EXIT_BAD_REQUEST)
+    cache_key = (str(db), db.stat().st_mtime_ns, variant)
+    if cache_key not in _expected_tables:
+        con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+        try:
+            text = expected_ready_csv(con, variant)
+        finally:
+            con.close()
+        _expected_tables[cache_key] = (expected_ready_file_name(text), text)
+    return _expected_tables[cache_key]
+
+
+def write_side_inputs(r: Mapping, run_dir: Path) -> None:
+    """Files the request names relative to out_dir (the auto readiness table)."""
+    name = r["sandbox"].get("expected_ready_spawners")
+    if name and name.startswith("ready_spawners.expected.") and not Path(name).is_absolute():
+        resolved = expected_ready_table(r["sandbox"].get("ab_variant", "A"))
+        if resolved[0] != name:
+            raise LauncherError(f"readiness table changed since the request was prepared ({name} -> {resolved[0]})")
+        (Path(run_dir) / name).write_text(resolved[1], encoding="utf-8")
+
+
 def prepare_request(request: Mapping, *, project: Path, worktree: Path, run_tree: Path, rev: str | None, dev: bool,
                     opts: Options, out_root: Path, checkout: bool = True) -> tuple[dict, dict]:
-    """Fills code_rev, run_key and out_dir. Returns (request, key material)."""
+    """Fills code_rev, run_key and out_dir, and resolves sandbox.expected_ready_spawners = "auto" to the
+    content-addressed name of P6's table (so the run_key covers it). Returns (request, key material)."""
     r = json.loads(json.dumps(request))
+    if r.get("sandbox", {}).get("expected_ready_spawners") == req.EXPECTED_READY_AUTO:
+        r["sandbox"]["expected_ready_spawners"] = expected_ready_table(r["sandbox"].get("ab_variant", "A"))[0]
     if dev:
         state = runner.dev_state(worktree)
         code_rev = state["head"] + "+dev"
@@ -609,6 +649,7 @@ def run(request: Mapping | None = None, *, preset: str | None = None, rev: str |
                 shutil.rmtree(run_dir)
         run_dir.mkdir(parents=True)
         (run_dir / "request.json").write_text(req.dumps(r))
+        write_side_inputs(r, run_dir)
         return _launch_and_check(r, run_dir, project=project, worktree=worktree, dev=dev, method=method, opts=opts,
                                  material={**material, "dll_status": dll_status}, paths=paths, log=log)
     finally:
@@ -840,6 +881,7 @@ def serve_submit(request: Mapping, *, run_tree: Path | None = None, worktree: Pa
         shutil.rmtree(run_dir)
     run_dir.mkdir(parents=True)
     (run_dir / "request.json").write_text(req.dumps(r))
+    write_side_inputs(r, run_dir)
     queue = Path(state["queue_dir"])
     stem = f"{int(time.time() * 1000)}-{r['run_key'][:12]}"
     tmp = queue / f".{stem}.tmp"
