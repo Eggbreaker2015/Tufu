@@ -1,0 +1,179 @@
+{
+ "expectations": {
+  "G18.argmax": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18",
+   "value": {
+    "after": 21000.0,
+    "before": 2500.0,
+    "evolution_level": 1,
+    "key": "paddle"
+   }
+  },
+  "G18.ladder_sha256": {
+   "kind": "exact",
+   "note": "sha256 of [key, E, shards, before, after] for all 675 jumps",
+   "source": "G18",
+   "value": "4b301fb22501af003b2a614265f68cf86b64381f7c60112d031fb57bb0cd00ac"
+  },
+  "G18.max": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18",
+   "value": 8.4
+  },
+  "G18.mean": {
+   "kind": "exact",
+   "note": "stage-4 summary 1.41853 (6 dp)",
+   "source": "G18",
+   "value": 1.4185305242512913
+  },
+  "G18.median": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18",
+   "value": 1.2352941176470589
+  },
+  "G18.median_3dp": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18",
+   "value": 1.235
+  },
+  "G18.min": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18",
+   "value": 1.0218978102189782
+  },
+  "G18.min_3dp": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18",
+   "value": 1.022
+  },
+  "G18.n": {
+   "kind": "exact",
+   "note": "design 3.3 says 690: counted on pet data (player_claw); 675 on the pet-free data (W0)",
+   "source": "G18",
+   "value": 675
+  },
+  "G18b.all_without_rows_are_div": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18b",
+   "value": true
+  },
+  "G18b.configs_without_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18b",
+   "value": 39
+  },
+  "G18b.configs_without_rows_set": {
+   "kind": "set",
+   "note": "",
+   "source": "G18b",
+   "value": [
+    "abyss_maw_div",
+    "bronze_crest_div",
+    "chainsaw_div",
+    "chainsawpike_div",
+    "coolHammer_div",
+    "coolpike_div",
+    "crimson_fang_div",
+    "demon_horns_div",
+    "doubleaxe_div",
+    "dragon_spikes_div",
+    "eagle_crest_div",
+    "ember_core_div",
+    "fork_div",
+    "golden_spikes_div",
+    "graveeye_aegis_div",
+    "graveeye_visor_div",
+    "hammer_div",
+    "iron_block_div",
+    "iron_studs_div",
+    "katana_div",
+    "knife_div",
+    "mace_div",
+    "mailbox_div",
+    "minisaw_div",
+    "oak_round_div",
+    "paddle_div",
+    "pick_div",
+    "pike_div",
+    "prismcore_drillmask_div",
+    "prismcore_ward_div",
+    "scarlet_edge_div",
+    "slime_spawn_div",
+    "spiked_dome_div",
+    "steel_guard_div",
+    "stone_bind_div",
+    "stone_disk_div",
+    "sunwheel_crown_div",
+    "sunwheel_deflector_div",
+    "wooden_horns_div"
+   ]
+  },
+  "G18b.magic_items": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18b",
+   "value": 0
+  },
+  "G18b.shard_rows_missing_same_set": {
+   "kind": "exact",
+   "note": "",
+   "source": "G18b",
+   "value": true
+  },
+  "fixture.item_values_compared": {
+   "kind": "exact",
+   "note": "46 day snapshots, item_growth_values.json",
+   "source": "P4",
+   "value": 1293
+  },
+  "fixture.item_values_mismatch": {
+   "kind": "exact",
+   "note": "",
+   "source": "P4",
+   "value": 0
+  },
+  "infer_evolved.disagree_level_ne_copies": {
+   "kind": "set",
+   "note": "against the stage-4 heuristic (evolved from the first Level != Copies on)",
+   "source": "P4",
+   "value": []
+  },
+  "infer_evolved.evolved": {
+   "kind": "exact",
+   "note": "",
+   "source": "P4",
+   "value": 933
+  },
+  "infer_evolved.undetermined": {
+   "better": "lower",
+   "kind": "exact",
+   "note": "",
+   "source": "P4",
+   "value": 0
+  },
+  "infer_evolved.undetermined_set": {
+   "better": "subset",
+   "kind": "set",
+   "note": "",
+   "source": "P4",
+   "value": []
+  },
+  "infer_evolved.unevolved": {
+   "kind": "exact",
+   "note": "",
+   "source": "P4",
+   "value": 360
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "items"
+}
