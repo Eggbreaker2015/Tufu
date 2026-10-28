@@ -15,10 +15,15 @@ import math
 import re
 from typing import Any, Mapping
 
+from . import schema
+
 SCHEMA = "tufu.sim.request/1"
 SANDBOX_COMPANY = "TufuSimSandbox"
 MODES = ("free", "checkpoint", "replay", "empty")
 EXPECTED_ALIVE_ENABLED = 699  # Runbook 6.1: frozen AnyoneAlive && IsEnabled count on a new save
+# sandbox.expected_ready_spawners: the launcher replaces "auto" with P6's table for the AB variant, keyed by
+# the C# spawner identity (unity.spawner_map), written next to request.json (C1).
+EXPECTED_READY_AUTO = "auto"
 
 CONFIG_OVERRIDE_WHITELIST = (
     "UseSpawnerCharges", "SpawnerChargesChunkMinutes", "TimeChunkDurationMinutes", "CrystalSimulation", "GraphSimulation",
@@ -72,7 +77,7 @@ def default_unity() -> dict:
 
 def default_sandbox() -> dict:
     return {"ab_variant": "A", "pets": "absent_or_disabled", "clock_epoch_utc": "2024-01-01T00:00:00Z",
-            "identity": SANDBOX_COMPANY, "prefs_seed": {}, "expected_ready_spawners": None,
+            "identity": SANDBOX_COMPANY, "prefs_seed": {}, "expected_ready_spawners": EXPECTED_READY_AUTO,
             "expected_alive_enabled": EXPECTED_ALIVE_ENABLED, "skip_integrations": True, "zero_ready_cooldowns": True}
 
 
@@ -196,6 +201,10 @@ def validate(request: Mapping[str, Any]) -> None:
                 raise RequestError(f"{where}.config_overrides.{key} is not a run switch")
         if job.get("test") is not None:
             _check_object(job["test"], "test", where + ".test")
+        try:
+            schema.validate_outputs(job.get("outputs", {}), where + ".outputs")
+        except schema.SchemaError as e:
+            raise RequestError(str(e)) from None
 
 
 def canonical_json(value: Any) -> str:

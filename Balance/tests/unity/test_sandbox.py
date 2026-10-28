@@ -55,18 +55,30 @@ def test_sandbox_clock(selftest_run):
     assert m["ready"]["clock_unix"] == 1704067200
 
 
+def _typed(value):
+    """JSON value with every scalar tagged by its type: 259200 (int) and 259200.0 (float) differ, as do 1 and True."""
+    if isinstance(value, dict):
+        return {k: _typed(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_typed(v) for v in value]
+    return (type(value).__name__, value)
+
+
 def test_request_round_trip_through_csharp(unity_run):
     """Python writes every core field (dictionaries, nulls, int/float/string prefs); C# parses it with
-    Newtonsoft and echoes the parsed object into the manifest; it equals what Python wrote."""
+    Newtonsoft and echoes the parsed object into the manifest; it equals what Python wrote, type for type
+    (a float stays a float: SimulationJson writes integral doubles with ".0")."""
     result = _ok(unity_run(req.roundtrip_example()))
     manifest = result.manifest("roundtrip")
     sent = json.loads((result.run_dir / "request.json").read_text())
-    assert manifest["request"] == sent
-    assert manifest["job"] == sent["jobs"][0]
-    assert manifest["config_overrides_applied"] == {"FastTickStartChunkOffset": 4, "SpawnerChargesChunkMinutes": 7.5,
-                                                    "UseFastTick": True}
-    assert manifest["sandbox"]["prefs_seed_seen"] == {"ShowSnapshotSelectorOnce": 1, "TimeSkipSeconds": 259200.0,
-                                                      "tufu_probe_text": "sandbox-text"}
+    assert _typed(manifest["request"]) == _typed(sent)
+    assert _typed(manifest["job"]) == _typed(sent["jobs"][0])
+    assert sent["sandbox"]["prefs_seed"]["TimeSkipSeconds"] == 259200.0
+    assert isinstance(manifest["request"]["sandbox"]["prefs_seed"]["TimeSkipSeconds"], float)
+    assert _typed(manifest["config_overrides_applied"]) == _typed({"FastTickStartChunkOffset": 4,
+                                                                   "SpawnerChargesChunkMinutes": 7.5, "UseFastTick": True})
+    assert _typed(manifest["sandbox"]["prefs_seed_seen"]) == _typed({"ShowSnapshotSelectorOnce": 1, "TimeSkipSeconds": 259200.0,
+                                                                     "tufu_probe_text": "sandbox-text"})
 
 
 def test_time_skip_and_shared_prefs_do_not_change_the_state(unity_run, selftest_run):
@@ -96,7 +108,8 @@ def test_ab_groups_fixed_to_the_request(selftest_run):
     assert cooldowns["nonElite"]["cooldownMinutes"]["overridesByLocation"]["1"] == 4
     assert cooldowns["elite"]["cooldownMinutes"]["defaultValue"] == 180
     m = selftest_run.manifest("selftest")
-    assert m["ready"]["expected_table"] == {"checked": False}  # P6's table is not there yet: export only
+    table = m["ready"]["expected_table"]  # P6's table, resolved by the launcher (C1)
+    assert table["checked"] and table["compared"] == 716 and table["mismatched"] == 0
 
 
 def test_expected_ready_spawner_table_gate(unity_run, selftest_run, tmp_path):

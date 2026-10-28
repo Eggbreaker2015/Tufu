@@ -512,7 +512,7 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 - 补救按 6.2 节的建议实现：对每个非活动、非 VIP、`!IsBootstrapComplete` 的刷怪点调 `CompleteBootstrap(now)`（`internal`，不用反射），对 `!IsEnabled` 的调 `SetEnabled(true)`。新档上两者都是 0 个，耗时约 0.02 毫秒。
 - 补救后 `AnyoneAlive && IsEnabled` = **699**（冻结值，请求默认 `expected_alive_enabled = 699`）；例外 17 个：活动 5、VIP 10、`Spawner_Dummy_b310…`、`BossTower_c296…`。注册 716 个、场景里 717 个组件、敌人 1015 个。三次 selftest、`TimeSkipSeconds = 259200` 的运行和常驻模式里都相同。
 - 就绪时的 `Cooldown`：沙箱时钟 2024-01-01T00:00:00Z 恰好是 UTC 零点，所以满员刷怪点的 `Cooldown` 是一个整周期（到下一个对齐时刻）而不是 0。作业开始、设 `IsRunning` 之前，把非活动、非 VIP 刷怪点的非零 `Cooldown` 清零：698 个（`ready_cooldowns_zeroed`）。`ready_spawners.csv` 记的是清零之前的值。C3b 若要自己管理 `Cooldown`（Q07），可以在请求里关掉 `zero_ready_cooldowns`。
-- `expected_ready_spawners`（P6 的表）：列 `key`、`charges_total`、`base_cooldown`，可选 `path`（有 `path` 时按"层级路径|Key"对应，能区分重复的 Key）。P6 的表还没有，现在只导出；核对的代码用 selftest 自己的表验证过：全部 716 个相等时通过，改一个 `BaseCooldown` 就以 8 结束。P6 完成后补跑并冻结。
+- `expected_ready_spawners`（P6 的表）：列 `key`、`charges_total`、`base_cooldown`，可选 `path`（有 `path` 时按"层级路径|Key"对应，能区分重复的 Key）。核对的代码用 selftest 自己的表验证过：全部 716 个相等时通过，改一个 `BaseCooldown` 就以 8 结束。**C1 接上了 P6**：请求里 `sandbox.expected_ready_spawners` 默认是 `"auto"`，启动器在算 `run_key` 之前把它换成 P6 的 `expected_ready_spawners(ab_variant)` 经刷怪点身份映射写成的表 `ready_spawners.expected.<内容哈希>.csv`，放在 `request.json` 旁边；716 个全部相等（黄金套件 `export` 的 `ready_gate.*`），见 [ExportIngest.md](ExportIngest.md)。
 - AB：请求 A 时 13 个测试里 11 个被分配，全是 A（`level_pass`、`rewarded_delay_from_start` 没有规则）；`fastRPMParams` 生效值 (10, 1)；`spawner_cooldowns_v3` 的 A 组表（非精英默认 30 分钟、岛 1–13 为 4–28 分钟、3 次充能；精英默认 180 分钟、岛 1–4 为 60–150 分钟、2 次充能）记在 manifest 里。
 
 ## 15. 实测耗时与验收记录

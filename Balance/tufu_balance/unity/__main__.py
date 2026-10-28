@@ -5,6 +5,8 @@
     python -m tufu_balance.unity serve start [--rev REV] [--idle-timeout S] | status | stop | submit (--preset|--request)
     python -m tufu_balance.unity open [--rev REV | --dev]
     python -m tufu_balance.unity status
+    python -m tufu_balance.unity ingest JOB_DIR [--db PATH]        # outputs -> JOB_DIR/sim.sqlite (C1)
+    python -m tufu_balance.unity spawner-map [--out CSV]          # SpawnerId <-> path|Key (C1)
 
 Exit status is the run's exit code (0 ok, 2 guard, 3 timeout, 4 not ready, 5 bad request, 6 self-check,
 7 dev worktree changed, 8 ready check).
@@ -14,10 +16,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
 import sys
 from pathlib import Path
 
-from . import launcher, request as req, runner
+from . import launcher, request as req, runner, schema
 
 
 def _options(args) -> launcher.Options:
@@ -66,7 +69,30 @@ def main(argv=None) -> int:
     p = sub.add_parser("open", help="open the project interactively with the right arguments")
     common(p)
     sub.add_parser("status", help="lock, run worktree and Unity processes")
+    p = sub.add_parser("ingest", help="a job's outputs -> sim.sqlite (no Unity)")
+    p.add_argument("job_dir")
+    p.add_argument("--db", help="output database (default JOB_DIR/sim.sqlite)")
+    p = sub.add_parser("spawner-map", help="SpawnerId <-> runtime path|Key from the extracted database (no Unity)")
+    p.add_argument("--out", help="CSV file (default stdout)")
     args = ap.parse_args(argv)
+
+    if args.cmd == "ingest":
+        from . import simio
+        try:
+            print(simio.ingest(args.job_dir, args.db))
+        except (simio.SimioError, schema.SchemaError) as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 1
+        return 0
+    if args.cmd == "spawner-map":
+        from .spawner_map import load_identity_map
+        con = sqlite3.connect(f"file:{launcher.balance_db()}?mode=ro", uri=True)
+        text = load_identity_map(con).to_csv()
+        if args.out:
+            Path(args.out).write_text(text, encoding="utf-8")
+        else:
+            sys.stdout.write(text)
+        return 0
 
     try:
         if args.cmd == "selftest":

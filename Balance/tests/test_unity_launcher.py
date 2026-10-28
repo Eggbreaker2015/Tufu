@@ -307,6 +307,16 @@ def test_fake_dev_run_changed_worktree_exits_7(fake_tree, monkeypatch):
     assert result.request["code_rev"].endswith("+dev")
 
 
+def test_fake_run_writes_the_auto_readiness_table(fake_tree, monkeypatch):
+    """sandbox.expected_ready_spawners = "auto" (default): P6's table, content-addressed, next to request.json (C1)."""
+    if not launcher.balance_db().exists():
+        pytest.skip("no extracted database")
+    result = _run(fake_tree, "ok", monkeypatch)
+    name = result.request["sandbox"]["expected_ready_spawners"]
+    assert json.loads((result.run_dir / "request.json").read_text())["sandbox"]["expected_ready_spawners"] == name
+    assert (name, (result.run_dir / name).read_text()) == launcher.expected_ready_table("A")
+
+
 def test_invalid_request_is_refused_before_launch(fake_tree, monkeypatch):
     request = req.make_request([req.empty_job("fake")])
     request["bogus"] = 1
