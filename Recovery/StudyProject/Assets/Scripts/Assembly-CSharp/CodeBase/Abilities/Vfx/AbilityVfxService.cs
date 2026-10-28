@@ -127,7 +127,7 @@ namespace Codebase.Abilities.Vfx
 			prefab = obj.GetComponent<ParticleSystem>();
 			if (prefab == null) return null;
 #if UNITY_EDITOR
-			RebindUnsupportedShaders(obj);
+			RebindBundleShaders(obj);
 #endif
 			handles[key] = handle;
 			loadedPrefabs[key] = prefab;
@@ -135,26 +135,48 @@ namespace Codebase.Abilities.Vfx
 		}
 
 #if UNITY_EDITOR
-		// Editor only: the recovered bundles are built for StandaloneWindows64, so their baked copy of
-		// Particles/Standard Unlit has no Metal programs and falls back to opaque VertexLit (white squares).
-		// Point those materials at the editor's own supported shader of the same name.
-		private static void RebindUnsupportedShaders(GameObject root)
+		private static readonly Dictionary<string, Shader> editorShaders = new Dictionary<string, Shader>();
+
+		private static bool builtinExtraLoaded;
+
+		// Editor only: the recovered bundles are built for StandaloneWindows64, so the shaders baked into them
+		// have no Metal programs and fall back to opaque VertexLit (white squares on macOS).
+		// Point every bundle material at the editor's own shader of the same name (an asset the AssetDatabase knows).
+		private static void RebindBundleShaders(GameObject root)
 		{
 			foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
 				foreach (Material material in renderer.sharedMaterials)
 				{
-					if (material == null || material.shader == null || material.shader.isSupported) continue;
-					Shader local = FindSupportedShader(material.shader.name);
-					if (local != null) material.shader = local;
+					if (material == null || material.shader == null || UnityEditor.AssetDatabase.Contains(material)) continue;
+					if (UnityEditor.AssetDatabase.Contains(material.shader)) continue;
+					Shader local = FindEditorShader(material.shader.name);
+					if (local == null) continue;
+					int renderQueue = material.renderQueue;
+					material.shader = local;
+					material.renderQueue = renderQueue;
 				}
 		}
 
-		private static Shader FindSupportedShader(string name)
+		private static Shader FindEditorShader(string name)
 		{
-			Shader shader = Shader.Find(name);
-			if (shader != null && shader.isSupported) return shader;
+			if (editorShaders.TryGetValue(name, out Shader shader)) return shader;
+			shader = SearchEditorShader(name);
+			if (shader == null && !builtinExtraLoaded)
+			{
+				// Built-in extra shaders (e.g. Particles/Standard Unlit) are only in memory once something references them.
+				builtinExtraLoaded = true;
+				UnityEditor.AssetDatabase.LoadAllAssetsAtPath("Resources/unity_builtin_extra");
+				shader = SearchEditorShader(name);
+			}
+			if (shader == null) Debug.LogWarning("AbilityVfxService: no editor shader named " + name + " to replace the bundle copy");
+			editorShaders[name] = shader;
+			return shader;
+		}
+
+		private static Shader SearchEditorShader(string name)
+		{
 			foreach (Shader candidate in Resources.FindObjectsOfTypeAll<Shader>())
-				if (candidate.name == name && candidate.isSupported) return candidate;
+				if (candidate.name == name && UnityEditor.AssetDatabase.Contains(candidate)) return candidate;
 			return null;
 		}
 #endif
