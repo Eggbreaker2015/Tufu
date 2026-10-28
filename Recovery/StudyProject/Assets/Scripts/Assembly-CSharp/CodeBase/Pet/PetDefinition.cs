@@ -7,12 +7,15 @@ namespace Codebase.Pet
 	[Serializable]
 	public class PetDefinition
 	{
-		// Empty key: fallback entry matched by DamageType.
+		// One species per weapon item, so its rarity is the item's; empty key: fallback entry matched by DamageType.
 		public string ItemKey;
 
 		public WeaponType DamageType;
 
 		public GameObject Prefab;
+
+		// Visual scale; 0 keeps the enemy prefab's root scale (boss prefabs are too large for a pet).
+		public float VisualScale;
 
 		public string DisplayName;
 

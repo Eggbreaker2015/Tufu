@@ -92,7 +92,13 @@ namespace Codebase.Pet
 				if (firstFallback == null)
 					firstFallback = definition;
 			}
-			return firstFallback;
+			if (firstFallback != null)
+				return firstFallback;
+			// No fallback entries: an unlisted weapon borrows the first species of its damage type.
+			foreach (PetDefinition definition in Pets)
+				if (definition.DamageType == item.DamageType)
+					return definition;
+			return null;
 		}
 	}
 }

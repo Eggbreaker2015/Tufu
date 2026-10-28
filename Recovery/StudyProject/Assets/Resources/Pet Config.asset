@@ -31,30 +31,153 @@ MonoBehaviour:
   - 1.7
   - 1.7
   Pets:
-  - ItemKey:
+  - ItemKey: paddle
     DamageType: 3
     Prefab: {fileID: 1709254077376921, guid: 2c9f7ff7c066762499cdee2da133e62b, type: 3}
+    VisualScale: 0
     DisplayName: "\u80D6\u5B50"
     HealthRatio: 1.2
     AttackRatio: 0.6
     DefenceRatio: 1.2
     MoveSpeedRatio: 0.85
     OwnAttackMultiplier: 1
-  - ItemKey:
+  - ItemKey: mailbox
+    DamageType: 3
+    Prefab: {fileID: 1709254077376921, guid: 0c775f680084f3244a128037ab077b01, type: 3}
+    VisualScale: 0
+    DisplayName: "\u68CD\u68D2\u5175"
+    HealthRatio: 1
+    AttackRatio: 0.8
+    DefenceRatio: 1
+    MoveSpeedRatio: 0.95
+    OwnAttackMultiplier: 1
+  - ItemKey: hammer
+    DamageType: 3
+    Prefab: {fileID: 1709254077376921, guid: b1b1ce17bd0256147b0dba89342ad2a7, type: 3}
+    VisualScale: 1.4
+    DisplayName: "\u91CD\u9524\u961F\u957F"
+    HealthRatio: 1.4
+    AttackRatio: 0.7
+    DefenceRatio: 1.3
+    MoveSpeedRatio: 0.8
+    OwnAttackMultiplier: 1
+  - ItemKey: mace
+    DamageType: 3
+    Prefab: {fileID: 1709254077376921, guid: 92374a88d0f31314480624885be0cde8, type: 3}
+    VisualScale: 0
+    DisplayName: "\u9524\u9A91\u58EB"
+    HealthRatio: 1.1
+    AttackRatio: 0.9
+    DefenceRatio: 1.1
+    MoveSpeedRatio: 1.3
+    OwnAttackMultiplier: 1
+  - ItemKey: coolHammer
+    DamageType: 3
+    Prefab: {fileID: 1709254077376921, guid: ed288a8784e87294ebae335f6a6e97eb, type: 3}
+    VisualScale: 0
+    DisplayName: "\u6218\u9524\u9886\u4E3B"
+    HealthRatio: 1.5
+    AttackRatio: 0.8
+    DefenceRatio: 1.4
+    MoveSpeedRatio: 1.2
+    OwnAttackMultiplier: 1
+  - ItemKey: knife
     DamageType: 1
     Prefab: {fileID: 1709254077376921, guid: 46a11c0c40b90db4ca9ef550691f2e38, type: 3}
+    VisualScale: 0
     DisplayName: "\u65A7\u5934\u5175"
     HealthRatio: 0.8
     AttackRatio: 0.8
     DefenceRatio: 1
     MoveSpeedRatio: 1
     OwnAttackMultiplier: 1
-  - ItemKey:
+  - ItemKey: minisaw
+    DamageType: 1
+    Prefab: {fileID: 1709254077376921, guid: ad14c7e8b2510bd4a9d571177f9121ae, type: 3}
+    VisualScale: 0
+    DisplayName: "\u5251\u58EB"
+    HealthRatio: 0.9
+    AttackRatio: 0.8
+    DefenceRatio: 1.1
+    MoveSpeedRatio: 1
+    OwnAttackMultiplier: 1
+  - ItemKey: katana
+    DamageType: 1
+    Prefab: {fileID: 1709254077376921, guid: 6ef9d3aa77291c04fbc4e40388b6d618, type: 3}
+    VisualScale: 1.3
+    DisplayName: "\u9614\u5251\u536B\u58EB"
+    HealthRatio: 1
+    AttackRatio: 0.9
+    DefenceRatio: 1
+    MoveSpeedRatio: 0.95
+    OwnAttackMultiplier: 1
+  - ItemKey: doubleaxe
+    DamageType: 1
+    Prefab: {fileID: 1709254077376921, guid: 367dde965454d5b4e82175c680ddd673, type: 3}
+    VisualScale: 1.4
+    DisplayName: "\u5DE8\u5251\u961F\u957F"
+    HealthRatio: 0.9
+    AttackRatio: 1.1
+    DefenceRatio: 0.9
+    MoveSpeedRatio: 1
+    OwnAttackMultiplier: 1
+  - ItemKey: chainsaw
+    DamageType: 1
+    Prefab: {fileID: 1709254077376921, guid: 7921cb820b798424cbf6e396c5efedd0, type: 3}
+    VisualScale: 0
+    DisplayName: "\u5DE8\u5251\u9A91\u58EB"
+    HealthRatio: 1
+    AttackRatio: 1.1
+    DefenceRatio: 1
+    MoveSpeedRatio: 1.3
+    OwnAttackMultiplier: 1
+  - ItemKey: pike
     DamageType: 0
     Prefab: {fileID: 1709254077376921, guid: ce5a67b56d13ae2418bb1f2bfdf15ecd, type: 3}
+    VisualScale: 0
     DisplayName: "\u957F\u77DB\u5175"
     HealthRatio: 0.7
     AttackRatio: 1
     DefenceRatio: 0.8
     MoveSpeedRatio: 1.1
+    OwnAttackMultiplier: 1
+  - ItemKey: fork
+    DamageType: 0
+    Prefab: {fileID: 1709254077376921, guid: a4bc3d65108c5ea4cb94c499ba2543ab, type: 3}
+    VisualScale: 0
+    DisplayName: "\u77DB\u536B"
+    HealthRatio: 0.8
+    AttackRatio: 1
+    DefenceRatio: 0.9
+    MoveSpeedRatio: 1.05
+    OwnAttackMultiplier: 1
+  - ItemKey: pick
+    DamageType: 0
+    Prefab: {fileID: 1709254077376921, guid: 8ede515cc20a1b74a89160bde114fcc1, type: 3}
+    VisualScale: 1.4
+    DisplayName: "\u91CD\u7532\u77DB\u5175"
+    HealthRatio: 0.9
+    AttackRatio: 1
+    DefenceRatio: 1
+    MoveSpeedRatio: 0.95
+    OwnAttackMultiplier: 1
+  - ItemKey: coolpike
+    DamageType: 0
+    Prefab: {fileID: 1709254077376921, guid: 61ef867c655d7284f8c12291ba497a3e, type: 3}
+    VisualScale: 1.4
+    DisplayName: "\u621F\u5175\u961F\u957F"
+    HealthRatio: 0.8
+    AttackRatio: 1.2
+    DefenceRatio: 0.8
+    MoveSpeedRatio: 1.1
+    OwnAttackMultiplier: 1
+  - ItemKey: chainsawpike
+    DamageType: 0
+    Prefab: {fileID: 1709254077376921, guid: 30ea0d8df51256f4797a437a6d32827d, type: 3}
+    VisualScale: 0
+    DisplayName: "\u67AA\u9A91\u58EB"
+    HealthRatio: 0.8
+    AttackRatio: 1.3
+    DefenceRatio: 0.8
+    MoveSpeedRatio: 1.4
     OwnAttackMultiplier: 1

@@ -187,7 +187,7 @@ namespace Codebase.UI.Inventory
 		{
 			// Native ELF VA 0x164e6ec and its three original typed lookup predicates.
 			itemPreview.Initialize(item);
-			itemPreviewTitle.text = LocalizationStrings.Get("ITEM_NAME_" + item.Config.Key);
+			PetStatsText.SetItemName(itemPreviewTitle, item.Config);
 			bool cancel = inventoryView.UnequipState;
 			itemPreviewEquipText.text = LocalizationStrings.Get(cancel ? "INVENTORY_CANCEL" : playerModel.EquippedItems.Contains(item) ? "INVENTORY_UNEQUIP" : "INVENTORY_EQUIP");
 			bool isPet = PetStats.TryGet(item, out PetStatsInfo pet);
@@ -247,7 +247,7 @@ namespace Codebase.UI.Inventory
 			    block.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y + PetStatsOverlap);
 			    block.sizeDelta = new Vector2(abilities.sizeDelta.x - 2f * mainStatText.rectTransform.anchoredPosition.x, PetStatsHeight);
 			}
-			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), true));
+			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), false));
 			petStatsText.gameObject.SetActive(true);
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
 			float shift = PetStatsHeight - PetStatsOverlap;
@@ -260,7 +260,7 @@ namespace Codebase.UI.Inventory
 		{
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
 			if (!PetStats.TryGet(item, out PetStatsInfo pet)) return;
-			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), true));
+			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), false));
 			IconStyleConfig styles = GameContext.Get<IconStyleConfig>();
 			string iconName = styles.WeaponTypeStyles.First(style => style.WeaponType == item.Config.DamageType).Sprite.name;
 			itemPreviewDamage.text = "<sprite name=" + iconName + ">" + pet.Attack.Format();

@@ -185,6 +185,16 @@ namespace Codebase.UI
 			return text;
 		}
 
+		// Item title: in pet mode the item is its pet species, so the species name replaces the weapon name.
+		public static void SetItemName(TMP_Text text, ItemConfig config)
+		{
+			PetDefinition definition = PetConfig.Enabled && config != null && config.SlotType != ItemSlotType.Helmet && config.SlotType != ItemSlotType.Shield ? PetConfig.Instance.Find(config) : null;
+			if (definition != null && !string.IsNullOrEmpty(definition.DisplayName))
+				SetText(text, definition.DisplayName);
+			else
+				text.text = LocalizationStrings.Get("ITEM_NAME_" + config.Key);
+		}
+
 		public static void SetText(TMP_Text text, string value)
 		{
 			EnsureFont(text);

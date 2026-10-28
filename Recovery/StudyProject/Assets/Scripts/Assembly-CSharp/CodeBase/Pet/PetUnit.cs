@@ -39,6 +39,9 @@ namespace Codebase.Pet
 
 		private float hitTimer;
 
+		// The cavalry controller has no Spawn trigger.
+		private bool hasSpawnTrigger;
+
 		public ItemModel Item { get; private set; }
 
 		public PetDefinition Definition { get; private set; }
@@ -56,7 +59,7 @@ namespace Codebase.Pet
 			VisualRoot = visualSlot;
 		}
 
-		public void AttachVisual(GameObject enemyPrefab)
+		public void AttachVisual(GameObject enemyPrefab, float scale = 0f)
 		{
 			// Only the enemy's Visual child is used; its root would come up as an uninitialized EnemyUnit.
 			HealthBarPoint.localPosition = Vector3.up * DefaultHealthBarHeight;
@@ -69,7 +72,7 @@ namespace Codebase.Pet
 				return;
 			}
 
-			Vector3 rootScale = enemyPrefab.transform.localScale;
+			Vector3 rootScale = scale > 0f ? Vector3.one * scale : enemyPrefab.transform.localScale;
 			VisualRoot.localScale = rootScale;
 			Transform visual = Instantiate(source.gameObject, VisualRoot, false).transform;
 			visual.name = VisualChildName;
@@ -81,6 +84,11 @@ namespace Codebase.Pet
 			Animator = visual.GetComponentInChildren<Animator>(true);
 			if (Animator != null)
 				Animator.applyRootMotion = false;
+			hasSpawnTrigger = false;
+			if (Animator != null)
+				foreach (AnimatorControllerParameter parameter in Animator.parameters)
+					if (parameter.nameHash == SpawnId)
+						hasSpawnTrigger = true;
 			renderers.Clear();
 			renderers.AddRange(visual.GetComponentsInChildren<MeshRenderer>(true));
 			renderers.AddRange(visual.GetComponentsInChildren<SkinnedMeshRenderer>(true));
@@ -141,7 +149,7 @@ namespace Codebase.Pet
 
 		public void PlaySpawnAnimation()
 		{
-			if (Animator != null)
+			if (Animator != null && hasSpawnTrigger)
 				Animator.SetTrigger(SpawnId);
 		}
 

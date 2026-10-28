@@ -105,7 +105,7 @@ namespace Codebase.UI.Inventory
 		{
 			// Native ELF VA 0x165571c; original preview is read-only, so initialize with isPreview=true.
 			itemPreview.Initialize(item,true);
-			itemPreviewTitle.text = LocalizationStrings.Get("ITEM_NAME_" + item.Config.Key);
+			PetStatsText.SetItemName(itemPreviewTitle, item.Config);
 			var styles=GameContext.Get<IconStyleConfig>();var items=GameContext.Get<ItemsProvider>();
 			string iconName=styles.WeaponTypeStyles.First(style=>style.WeaponType==item.Config.DamageType).Sprite.name;
 			Rarity rarity=item.Rarity;string color=items.GetRarityColorCode(rarity);
@@ -142,7 +142,7 @@ namespace Codebase.UI.Inventory
 			    block.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y + PetStatsOverlap);
 			    block.sizeDelta = new Vector2(abilities.sizeDelta.x - 62f, PetStatsHeight);
 			}
-			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, true));
+			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, false));
 			petStatsText.gameObject.SetActive(true);
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
 			float shift = PetStatsHeight - PetStatsOverlap;
@@ -154,7 +154,7 @@ namespace Codebase.UI.Inventory
 		private void RefreshPetStats()
 		{
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
-			if (PetStats.TryGet(model, out PetStatsInfo pet)) PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, true));
+			if (PetStats.TryGet(model, out PetStatsInfo pet)) PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, false));
 		}
 	}
 }

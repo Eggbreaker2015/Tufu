@@ -220,7 +220,7 @@ namespace Codebase.UI.Inventory
 		{
 			// Native ELF VA 0x164aa84; exact original arrow markup and 122-pixel ability padding.
 			itemView.Initialize(item, false);
-			itemName.text = LocalizationStrings.Get("ITEM_NAME_" + item.Key);
+			PetStatsText.SetItemName(itemName, item.Config);
 			evolveText.text = LocalizationStrings.Get("ITEM_RARITY_" + item.Rarity);
 			if (abilityIndices == null) abilitiesView.Setup(item, 2, false);
 			else abilitiesView.SetupSpecific(item, abilityIndices, true);

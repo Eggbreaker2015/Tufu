@@ -201,7 +201,7 @@ namespace Codebase.UI.Shop
 					abilityView.Setup(model, 0, true, false);
 			}
 
-			itemName.text = LocalizationStrings.Get("ITEM_NAME_" + model.Key);
+			PetStatsText.SetItemName(itemName, model.Config);
 			damageName.text = LocalizationStrings.Get(model.IsArmor ? "STAT_Armor" : "STAT_Damage");
 			int currentLevel = model.EffectiveLevel;
 			var styles = GameContext.Get<IconStyleConfig>();
