@@ -1,0 +1,343 @@
+{
+ "meta": {
+  "source": {
+   "path": "Balance/tests/golden/fixtures/generate.py",
+   "sha256": "911a08bfe32053978161c5f38d757f6715babe1b14826e284926158d5855796d",
+   "imports": [
+    {
+     "path": "Balance/analysis/item_growth.py",
+     "sha256": "01e677fec508992bce34ecc7f0ed13525a96c2e8e39ae0cb38ffef9216e065a2"
+    }
+   ]
+  },
+  "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
+  "git_rev": "3dd8b21009b3236fe8f9b592847642515c965d32",
+  "date": "2026-10-28"
+ },
+ "kind": "fitted",
+ "note": "Per day snapshot, the UnlockedWeaponSlots / UnlockedArmorSlots N in 1..8 that minimise the max relative error of the recomputed DpsData / DefenseData (item_growth.runtime_section; smallest N on ties).  Fitted values, not independent facts: usable for R2 and replay override.slots, never to validate P12.",
+ "chunks": [
+  {
+   "TimeChunkIndex": 0,
+   "weapon_slots": 1,
+   "dps_max_rel_err": 0.0,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 1,
+   "weapon_slots": 2,
+   "dps_max_rel_err": 0.034306,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 2,
+   "weapon_slots": 2,
+   "dps_max_rel_err": 0.01787,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 3,
+   "weapon_slots": 2,
+   "dps_max_rel_err": 0.000644,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 4,
+   "weapon_slots": 2,
+   "dps_max_rel_err": 0.000845,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 5,
+   "weapon_slots": 2,
+   "dps_max_rel_err": 0.040843,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 6,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.045509,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 7,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.062874,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 8,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.043176,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.0
+  },
+  {
+   "TimeChunkIndex": 9,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.036281,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.878577
+  },
+  {
+   "TimeChunkIndex": 10,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.031665,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.118106
+  },
+  {
+   "TimeChunkIndex": 11,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.026364,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.089654
+  },
+  {
+   "TimeChunkIndex": 13,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.062202,
+   "armor_slots": 1,
+   "defense_max_rel_err": 0.452094
+  },
+  {
+   "TimeChunkIndex": 15,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.05429,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.037377
+  },
+  {
+   "TimeChunkIndex": 17,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.041156,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.071562
+  },
+  {
+   "TimeChunkIndex": 19,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.228234,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.053436
+  },
+  {
+   "TimeChunkIndex": 21,
+   "weapon_slots": 3,
+   "dps_max_rel_err": 0.179133,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.032424
+  },
+  {
+   "TimeChunkIndex": 24,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.118725,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.025005
+  },
+  {
+   "TimeChunkIndex": 27,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.0921,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.016678
+  },
+  {
+   "TimeChunkIndex": 30,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.118888,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.015112
+  },
+  {
+   "TimeChunkIndex": 33,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.124845,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.013391
+  },
+  {
+   "TimeChunkIndex": 37,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.047964,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.011517
+  },
+  {
+   "TimeChunkIndex": 41,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.054332,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.012574
+  },
+  {
+   "TimeChunkIndex": 46,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.049596,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.01934
+  },
+  {
+   "TimeChunkIndex": 51,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.031912,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.018094
+  },
+  {
+   "TimeChunkIndex": 57,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.023854,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.013229
+  },
+  {
+   "TimeChunkIndex": 63,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.064112,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.011207
+  },
+  {
+   "TimeChunkIndex": 70,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.011684,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.011324
+  },
+  {
+   "TimeChunkIndex": 77,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.011745,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.009041
+  },
+  {
+   "TimeChunkIndex": 85,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.018891,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.011787
+  },
+  {
+   "TimeChunkIndex": 94,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.01641,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.009683
+  },
+  {
+   "TimeChunkIndex": 104,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.012137,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.009709
+  },
+  {
+   "TimeChunkIndex": 115,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.00953,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.007185
+  },
+  {
+   "TimeChunkIndex": 127,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.00894,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.007279
+  },
+  {
+   "TimeChunkIndex": 140,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.011493,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.008191
+  },
+  {
+   "TimeChunkIndex": 154,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.007575,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.005929
+  },
+  {
+   "TimeChunkIndex": 170,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.006428,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.005106
+  },
+  {
+   "TimeChunkIndex": 187,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.005508,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.004681
+  },
+  {
+   "TimeChunkIndex": 206,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.004601,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.003483
+  },
+  {
+   "TimeChunkIndex": 227,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.003977,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.002942
+  },
+  {
+   "TimeChunkIndex": 250,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.003308,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.002444
+  },
+  {
+   "TimeChunkIndex": 275,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.002157,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.002047
+  },
+  {
+   "TimeChunkIndex": 303,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.00194,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.001768
+  },
+  {
+   "TimeChunkIndex": 334,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.001741,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.001564
+  },
+  {
+   "TimeChunkIndex": 368,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.001515,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.001413
+  },
+  {
+   "TimeChunkIndex": 405,
+   "weapon_slots": 4,
+   "dps_max_rel_err": 0.001323,
+   "armor_slots": 2,
+   "defense_max_rel_err": 0.001145
+  }
+ ]
+}

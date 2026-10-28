@@ -1,0 +1,7212 @@
+{
+ "meta": {
+  "source": {
+   "path": "Balance/tests/golden/fixtures/generate.py",
+   "sha256": "911a08bfe32053978161c5f38d757f6715babe1b14826e284926158d5855796d",
+   "ported_from": [
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/load.py",
+     "sha256": "fb38bb3a3d93cae2f374faf2a312b91df56e6eb9c9b2b475bed0e60d16555b29"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/spawn.py",
+     "sha256": "a791a540ec2654cd56a802afb26d119d639a64190a9166edb39adca03f7e583b"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/fight.py",
+     "sha256": "7777a25aaa1d375406ba4105c6450d7710931fd99dc4a863123941e6ff057eda"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/forensics/rulefit.py",
+     "sha256": "6c9b521a27b84ac45d86b6333ac5abc24e16dc010d52607ce8ec6fa68df8752b"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/architect/l17check.py",
+     "sha256": "c105e48eb57b9681fcf278c2131b0938b0f46541934f48f8d6fb0441cafc0aac"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/critic_fid/sens.py",
+     "sha256": "0bee2ce788c586cc52987303bd1eba48a2db7e0c4bfc98b9b89f4795ba2da413"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/critique-fidelity/nextday.py",
+     "sha256": "01774ef4bf34407dd5fb7ca88dd923a2eba110108db1b077b1b344c6b4cc1a83"
+    },
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/critique-fidelity/killlag.py",
+     "sha256": "ca9416eec99c2c1a920557e47e9738f8a1dfd4d0e6d6f2603f2c244d819cb110"
+    }
+   ],
+   "imports": [
+    {
+     "path": "Balance/tufu_balance/model/bake.py",
+     "sha256": "e57930fee5d3fabd3919eb9c1e735be7c827d59a12b05c37a6a2e925ed1fafa9"
+    },
+    {
+     "path": "Balance/tufu_balance/model/data.py",
+     "sha256": "0f1b0a7fcfa92ce85fd3328e9949407fa7ade084a36d618a1ea476709a279c1d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/defense.py",
+     "sha256": "d4ac09c8ea24fa3bb5ed10c62fe7831eacabb496d3ba8467170d16fdb397d55d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/enums.py",
+     "sha256": "168864954f9c169a116b71e4fdd18e54f5cc108ccccb76a099d9aadcde3d49c7"
+    },
+    {
+     "path": "Balance/tufu_balance/model/f32.py",
+     "sha256": "34adb1c00157d11378f31e03a7771647a007b5b75745873878b59cc906e330e6"
+    },
+    {
+     "path": "Balance/tufu_balance/model/interpolation.py",
+     "sha256": "519e45c55e20f99977e3f6901d7a09b3a93274308f92b4a781489ed9a0083764"
+    },
+    {
+     "path": "Balance/tufu_balance/model/snapshots.py",
+     "sha256": "608bb69ba2b9dd7cc757c90fe99fbab8ab9167dd4c421451c5e0544e9cc234bf"
+    },
+    {
+     "path": "Balance/tufu_balance/model/stats.py",
+     "sha256": "164f9b6433151505cff8878f847c9441943002634b4bd914cb16c47e63104f38"
+    }
+   ]
+  },
+  "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
+  "git_rev": "3dd8b21009b3236fe8f9b592847642515c965d32",
+  "date": "2026-10-28"
+ },
+ "rule": "fast-phase kill predicate: fightTime < 300 and loss/H < theta (CalculateSpawnerData fast branch, bundled TimeChunkSnapshots as DpsData/DefenseData cache, AB group A); first kill day = first d >= max(4, ceil(OptimumTime)) passing, capped at 405; island L+1 unlocks at max(unlock[L], kill day of the latest-OT day gate of L), unlock[4] = 5; predicted gain per day = sum of StatRewards x limit over unlocked, killable spawners (DAFC once); an interval [a, b) of day snapshots with a >= 4 is bad when some stat residual exceeds max(0.5, 2e-5*|obs|)",
+ "theta1_start": {
+  "bad": 4,
+  "intervals": 41,
+  "unlock_days": {
+   "4": 5,
+   "5": 8,
+   "6": 11,
+   "7": 15,
+   "8": 21,
+   "9": 26,
+   "10": 35,
+   "11": 44,
+   "12": 57,
+   "13": 71,
+   "14": 90,
+   "15": 110,
+   "16": 131,
+   "17": 151
+  },
+  "bad_intervals": [
+   {
+    "from": 17,
+    "to": 19,
+    "residual": {
+     "CutDamageFlat": 500
+    }
+   },
+   {
+    "from": 24,
+    "to": 27,
+    "residual": {
+     "Health": -24000,
+     "HealthRegen": -21
+    }
+   },
+   {
+    "from": 37,
+    "to": 41,
+    "residual": {
+     "StabDamageFlat": 600
+    }
+   },
+   {
+    "from": 140,
+    "to": 154,
+    "residual": {
+     "Health": 1350,
+     "HealthRegen": 69,
+     "CutDefenceFlat": 330,
+     "LifestealFlat": 600
+    }
+   }
+  ]
+ },
+ "gates": {
+  "4": {
+   "Key": "dragon_8f9ac85ca43354a47a74878ee811d12f",
+   "OptimumTime": 7.0,
+   "kill_day": 8
+  },
+  "5": {
+   "Key": "Spawner_boss (3)_13c728bd54fede04798009588be5b802",
+   "OptimumTime": 10.0,
+   "kill_day": 11
+  },
+  "6": {
+   "Key": "Spawner_boss (3)_9e9d40ea95c1b384aa595f2c58a6d242",
+   "OptimumTime": 14.0,
+   "kill_day": 15
+  },
+  "7": {
+   "Key": "Spawner_boss (3)_95e04d08974d86c498b344bb902a3637",
+   "OptimumTime": 20.0,
+   "kill_day": 21
+  },
+  "8": {
+   "Key": "Spawner_boss (3)_51927f4c765610249a450d00c14b2703",
+   "OptimumTime": 26.0,
+   "kill_day": 26
+  },
+  "9": {
+   "Key": "Spawner_boss_dragon_rare_buck_shield (3)_12e214c91c4d6744c8c898781e6c6692",
+   "OptimumTime": 34.0,
+   "kill_day": 35
+  },
+  "10": {
+   "Key": "Spawner_boss_piercing_legendary_69d874b5a20b80146b9a78ea663c4e46",
+   "OptimumTime": 44.0,
+   "kill_day": 44
+  },
+  "11": {
+   "Key": "Spawner_boss_smash_legendary_a4f71962e64aac54bb02b0db8d3d79c2",
+   "OptimumTime": 56.0,
+   "kill_day": 57
+  },
+  "12": {
+   "Key": "Spawner_boss_cut_legendary_3c0d1a7f7ba8c104283bd84bf7f07fcd",
+   "OptimumTime": 71.0,
+   "kill_day": 71
+  },
+  "13": {
+   "Key": "Spawner_boss (3)_e91552426bfb713409aa1ef6e8beaf85",
+   "OptimumTime": 90.0,
+   "kill_day": 90
+  },
+  "14": {
+   "Key": "Spawner_boss (3)_95520d2a097991c44af7487dd2fe7190",
+   "OptimumTime": 110.0,
+   "kill_day": 110
+  },
+  "15": {
+   "Key": "Spawner_15_boss_b024427a70eb8844ea732daa4f57092e",
+   "OptimumTime": 130.0,
+   "kill_day": 131
+  },
+  "16": {
+   "Key": "Spawner_16_boss_363f4c1b3ec9c0940b186ed4c9748835",
+   "OptimumTime": 150.0,
+   "kill_day": 151
+  }
+ },
+ "day_spawners": [
+  {
+   "Key": "second_biome_door_0f7edb",
+   "file_id": 60557,
+   "go_name": "second_biome_door",
+   "LocationNumber": 1,
+   "OptimumTime": 120.0,
+   "is_gate": false,
+   "kill_day": 120
+  },
+  {
+   "Key": "tree_1 (13)_82a41d833ff96f345837b4be91e35857",
+   "file_id": 56764,
+   "go_name": "tree_1 (13)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.0,
+   "is_gate": false,
+   "kill_day": 4
+  },
+  {
+   "Key": "tree_1 (22)_b15bf5a689f07214393623f545014bb3",
+   "file_id": 59790,
+   "go_name": "tree_1 (22)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.0,
+   "is_gate": false,
+   "kill_day": 4
+  },
+  {
+   "Key": "tree_1 (23)_19e942496e3b02e429ba37aba24e7fc5",
+   "file_id": 57682,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.0,
+   "is_gate": false,
+   "kill_day": 4
+  },
+  {
+   "Key": "tree_1 (26)_6ee4fe36bc1419742b2e75663023965c",
+   "file_id": 56400,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.0,
+   "is_gate": false,
+   "kill_day": 4
+  },
+  {
+   "Key": "tree_1 (27)_b20f55651f060584cb4ef5cc221ce3f3",
+   "file_id": 58119,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.0,
+   "is_gate": false,
+   "kill_day": 4
+  },
+  {
+   "Key": "tree_1 (15)_4422704187111ce45b289985ce6c9dc6",
+   "file_id": 60148,
+   "go_name": "tree_1 (15)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.2,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (18)_7abfb707fdc1bd64399fbc39679b27a5",
+   "file_id": 60361,
+   "go_name": "tree_1 (18)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.2,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (25)_7603bf967d93c2e4eb50081fa52d3dcc",
+   "file_id": 56809,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.2,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (16)_d5061659bd1f2fb4a8b4208a5df2dbd6",
+   "file_id": 59928,
+   "go_name": "tree_1 (16)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.4,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (19)_3f743b5d668efff4a9449b4a088a94df",
+   "file_id": 57042,
+   "go_name": "tree_1 (19)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.4,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (24)_3abc68c2fd3f4bc4ca83610e6037ab38",
+   "file_id": 60553,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.4,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (29)_3749bb813fd7c0043beedf709b4226d8",
+   "file_id": 56226,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.4,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (30)_e377e5cb0a5fe2f4f891c02b5bdc2ee0",
+   "file_id": 59034,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.4,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (17)_bee2e8fd3278dc24e8cb05da58303d7e",
+   "file_id": 58898,
+   "go_name": "tree_1 (17)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.6,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "Spawner_1 (11)_4fb69e25d90463e4c8e9eb1afb2731ef",
+   "file_id": 59436,
+   "go_name": "Spawner_1 (11)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.8,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "Spawner_1 (13)_a8e807afb1dc519499bfb179186bbbd3",
+   "file_id": 59797,
+   "go_name": "Spawner_1 (13)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.8,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "Spawner_1 (8)_bcd41076977805340890d6fb92f699e1",
+   "file_id": 55560,
+   "go_name": "Spawner_1 (8)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.8,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (14)_6643cc2c3eedd8342831d9ea5a734ce0",
+   "file_id": 56910,
+   "go_name": "tree_1 (14)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.8,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (20)_d833f87a5a4eefa4e976b2da457f82b5",
+   "file_id": 60006,
+   "go_name": "tree_1 (20)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.8,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (21)_160ecd96d4d85b24d93bb3b4e3faadb3",
+   "file_id": 58089,
+   "go_name": "tree_1 (21)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.8,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (31)_7486f40420b7d1045a4a9cc04d98bf29",
+   "file_id": 55918,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 4,
+   "OptimumTime": 4.8,
+   "is_gate": false,
+   "kill_day": 5
+  },
+  {
+   "Key": "tree_1 (28)_2aa5fe86419e32c469b9c158edf93768",
+   "file_id": 55963,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 4,
+   "OptimumTime": 5.1,
+   "is_gate": false,
+   "kill_day": 6
+  },
+  {
+   "Key": "Spawner_mid_cut_rare_8d6db228f86b3ad44b99c32a4141eb44",
+   "file_id": 56735,
+   "go_name": "Spawner_mid_cut_rare",
+   "LocationNumber": 4,
+   "OptimumTime": 5.2,
+   "is_gate": false,
+   "kill_day": 6
+  },
+  {
+   "Key": "Spawner_1 (10)_d53e81685213a764c88cdb4e89ba395f",
+   "file_id": 56807,
+   "go_name": "Spawner_1 (10)",
+   "LocationNumber": 4,
+   "OptimumTime": 5.3,
+   "is_gate": false,
+   "kill_day": 6
+  },
+  {
+   "Key": "Spawner_1 (14)_a32453918cdb465458d410a80e4095f7",
+   "file_id": 58325,
+   "go_name": "Spawner_1 (14)",
+   "LocationNumber": 4,
+   "OptimumTime": 5.3,
+   "is_gate": false,
+   "kill_day": 6
+  },
+  {
+   "Key": "Spawner_1 (9)_e6fad1cdf69e3b3498a00caccefa2be6",
+   "file_id": 55670,
+   "go_name": "Spawner_1 (9)",
+   "LocationNumber": 4,
+   "OptimumTime": 5.6,
+   "is_gate": false,
+   "kill_day": 6
+  },
+  {
+   "Key": "Spawner_mid_cut_epic_c690472f3def8b746b0bb9ed3986d263",
+   "file_id": 58519,
+   "go_name": "Spawner_mid_cut_epic",
+   "LocationNumber": 4,
+   "OptimumTime": 5.7,
+   "is_gate": false,
+   "kill_day": 6
+  },
+  {
+   "Key": "Spawner_elite health_3bdd62ca295a8f248b4b4367dfd0fcf6",
+   "file_id": 55690,
+   "go_name": "Spawner_elite health",
+   "LocationNumber": 4,
+   "OptimumTime": 5.9,
+   "is_gate": false,
+   "kill_day": 7
+  },
+  {
+   "Key": "Spawner_boss (3)_3ca5ca347e6c7424f9ee96dc1993465f",
+   "file_id": 56297,
+   "go_name": "Spawner_boss (3)",
+   "LocationNumber": 4,
+   "OptimumTime": 6.2,
+   "is_gate": true,
+   "kill_day": 7
+  },
+  {
+   "Key": "dragon_8f9ac85ca43354a47a74878ee811d12f",
+   "file_id": 56293,
+   "go_name": "dragon",
+   "LocationNumber": 4,
+   "OptimumTime": 7.0,
+   "is_gate": true,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_1_epic_buck_2ba349a5f8d406649b6bb3e0abb39c2e",
+   "file_id": 57815,
+   "go_name": "Spawner_1_epic_buck",
+   "LocationNumber": 4,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_1 (14)_eeddc696f05ad0e4aa0240d96859562e",
+   "file_id": 58212,
+   "go_name": "Spawner_1 (14)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.0,
+   "is_gate": false,
+   "kill_day": 7
+  },
+  {
+   "Key": "Spawner_1 (16)_b5b44921418f00b4ea1aa63a7a1fd8e5",
+   "file_id": 58709,
+   "go_name": "Spawner_1 (16)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.0,
+   "is_gate": false,
+   "kill_day": 7
+  },
+  {
+   "Key": "tree_1 (19)_529292d6d577d9c4d9aa74ee40c53821",
+   "file_id": 58977,
+   "go_name": "tree_1 (19)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.0,
+   "is_gate": false,
+   "kill_day": 7
+  },
+  {
+   "Key": "tree_1 (22)_8298ede42eb099c4aab8b87a61fbe92a",
+   "file_id": 59863,
+   "go_name": "tree_1 (22)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.0,
+   "is_gate": false,
+   "kill_day": 7
+  },
+  {
+   "Key": "tree_1 (23)_66c246824ce592544aa531b6a2dca4f2",
+   "file_id": 60390,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.0,
+   "is_gate": false,
+   "kill_day": 7
+  },
+  {
+   "Key": "tree_1 (20)_642a33b60985814479bf4056ce0507cd",
+   "file_id": 60093,
+   "go_name": "tree_1 (20)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.2,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_1 (17)_a5b3b3e21462a104697e4a22c6c96611",
+   "file_id": 58346,
+   "go_name": "Spawner_1 (17)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.4,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_mid_common_helm_0a45621834047a94985968f5a3cfcac3",
+   "file_id": 58057,
+   "go_name": "Spawner_mid_common_helm",
+   "LocationNumber": 5,
+   "OptimumTime": 7.4,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (21)_50db23897011672498757e6bb03f82b8",
+   "file_id": 56989,
+   "go_name": "tree_1 (21)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.4,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (33)_334d6e267c3da6d40b01e081a6ee7a80",
+   "file_id": 56140,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.4,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (35)_684109d61e751b6429371a3a2c501a45",
+   "file_id": 59059,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.4,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_1 (8)_ada7c786c3c61b9489f218c0265cfd38",
+   "file_id": 56826,
+   "go_name": "Spawner_1 (8)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.5,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (32)_0f34b9addb637a54f9d37ef8d813ee80",
+   "file_id": 59632,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.5,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_1 (15)_a5ee3bb0c6319cc41ae61a45bce2a1f6",
+   "file_id": 60004,
+   "go_name": "Spawner_1 (15)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_1 (18)_f161e1f21d94c2245b7ca6fe35602029",
+   "file_id": 58509,
+   "go_name": "Spawner_1 (18)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (15)_82c227a3aa0f1b54b9b802ab203f566d",
+   "file_id": 59043,
+   "go_name": "tree_1 (15)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (16)_e4b69c87f9bbfac49b553e627de28768",
+   "file_id": 58732,
+   "go_name": "tree_1 (16)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (17)_fe39a66283ce89c4991b224607ff5c5c",
+   "file_id": 57487,
+   "go_name": "tree_1 (17)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (24)_6fcb7c7377ef3fb4ba2a57ad5918e46c",
+   "file_id": 58699,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (26)_13b2429751d079d4c88773fe5be68f93",
+   "file_id": 60041,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (34)_84c84216ee8d31b4696e46df6fb0c299",
+   "file_id": 59456,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (37)_75c4e5eebb2ed964e8bed3a7f9271f2c",
+   "file_id": 57789,
+   "go_name": "tree_1 (37)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.7,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_1 (9)_8de63db1a02301c4083be023e95189ed",
+   "file_id": 58132,
+   "go_name": "Spawner_1 (9)",
+   "LocationNumber": 5,
+   "OptimumTime": 7.9,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "tree_1 (29)_2f8d2eb20d373c448b7fbb515f6ff6aa",
+   "file_id": 57394,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 5,
+   "OptimumTime": 8.0,
+   "is_gate": false,
+   "kill_day": 8
+  },
+  {
+   "Key": "Spawner_1 (12)_4b360cd87675d3b4ea8a2b55a288def0",
+   "file_id": 60666,
+   "go_name": "Spawner_1 (12)",
+   "LocationNumber": 5,
+   "OptimumTime": 8.4,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "tree_1 (25)_a5994d52f5742174f92dcd4b45b72bf3",
+   "file_id": 59326,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 5,
+   "OptimumTime": 8.4,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "tree_1 (36)_0fcc67cedd86b204cb94c608adb014f7",
+   "file_id": 60270,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 5,
+   "OptimumTime": 8.4,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "Spawner_1 (13)_bd2fd4ce49dc8e948a62d22e1cba0484",
+   "file_id": 56122,
+   "go_name": "Spawner_1 (13)",
+   "LocationNumber": 5,
+   "OptimumTime": 8.7,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "tree_1 (30)_f95716d0e4daa444182a3b0ac43f1a28",
+   "file_id": 59505,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 5,
+   "OptimumTime": 8.7,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "Spawner_1 (10)_93564675f3d0b3f4fbe8124f83886c3c",
+   "file_id": 56235,
+   "go_name": "Spawner_1 (10)",
+   "LocationNumber": 5,
+   "OptimumTime": 9.0,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "Spawner_1 (11)_2ce5de94c4a4dfe49a3bcb9b644618da",
+   "file_id": 60717,
+   "go_name": "Spawner_1 (11)",
+   "LocationNumber": 5,
+   "OptimumTime": 9.0,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "Spawner_1 (19)_ccfd7b0eae41aa641bee2d328dd7d4ab",
+   "file_id": 59461,
+   "go_name": "Spawner_1 (19)",
+   "LocationNumber": 5,
+   "OptimumTime": 9.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_elite_regen_1458da43bc78c2d4c8ee1b7a1056375e",
+   "file_id": 57718,
+   "go_name": "Spawner_elite_regen",
+   "LocationNumber": 5,
+   "OptimumTime": 9.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "tree_1 (31)_23405b19acdd36b448979379ce89a3b5",
+   "file_id": 59354,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 5,
+   "OptimumTime": 9.0,
+   "is_gate": false,
+   "kill_day": 9
+  },
+  {
+   "Key": "tree_1 (27)_34fae2b860cdc9c49a905602911c4ada",
+   "file_id": 58123,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 5,
+   "OptimumTime": 9.4,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "tree_1 (28)_3e1af58a35da29e45b4dc6d94d939624",
+   "file_id": 59537,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 5,
+   "OptimumTime": 9.7,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_boss (3)_13c728bd54fede04798009588be5b802",
+   "file_id": 59827,
+   "go_name": "Spawner_boss (3)",
+   "LocationNumber": 5,
+   "OptimumTime": 10.0,
+   "is_gate": true,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (25)_4903edfe469e78649ab0d02aea8a0177",
+   "file_id": 55636,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 6,
+   "OptimumTime": 9.4,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "tree_1 (40)_c506c19b85c76f34982391368f7357ee",
+   "file_id": 60663,
+   "go_name": "tree_1 (40)",
+   "LocationNumber": 6,
+   "OptimumTime": 9.7,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_1 (12)_762dca2caed23ae4ea7c9837c6d662f6",
+   "file_id": 58383,
+   "go_name": "Spawner_1 (12)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_1 (22)_9192e8fe12b95a44f87c663b2ca509d5",
+   "file_id": 56335,
+   "go_name": "Spawner_1 (22)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_1 (27)_44a403690bd1c594a80bba266b5e4cb4",
+   "file_id": 57180,
+   "go_name": "Spawner_1 (27)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_1_helmet_pierce_common_1501322a8554e5748b5450fbd5cfa5bb",
+   "file_id": 55907,
+   "go_name": "Spawner_1_helmet_pierce_common",
+   "LocationNumber": 6,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "tree_1 (26)_5ffdb1726d8712248a2ac90049c88c7b",
+   "file_id": 56836,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "tree_1 (29)_92cd5af248819504bb01daa2d63b3208",
+   "file_id": 60344,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "tree_1 (30)_2ae22837e79f3e944b9d1c6cf89b2f61",
+   "file_id": 58950,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.0,
+   "is_gate": false,
+   "kill_day": 10
+  },
+  {
+   "Key": "Spawner_1 (25)_fa21a3729665f3d4c8f4deea2463d56e",
+   "file_id": 57592,
+   "go_name": "Spawner_1 (25)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.4,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (27)_be364199f2a491448af32299620887df",
+   "file_id": 58909,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.4,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (49)_3b5c0ab71b74f3443b31e4b31f5eec35",
+   "file_id": 59328,
+   "go_name": "tree_1 (49)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.4,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (35)_bcaaf3a31ab3e9045b079ca718d46a91",
+   "file_id": 57665,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.5,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "Spawner_1 (13)_6a248bc2c25ec8246a1817a34a1e2245",
+   "file_id": 60194,
+   "go_name": "Spawner_1 (13)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "Spawner_1 (16)_c87fa9f3f405d6440a1ac5a6d9b908b9",
+   "file_id": 59127,
+   "go_name": "Spawner_1 (16)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "Spawner_1 (21)_05c5ad75492b23046a0c39feb9edaf08",
+   "file_id": 60196,
+   "go_name": "Spawner_1 (21)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "Spawner_1 (23)_58ed56344eaf20b43bbce20899958d67",
+   "file_id": 60167,
+   "go_name": "Spawner_1 (23)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "Spawner_Creeper_cdee7a",
+   "file_id": 59941,
+   "go_name": "Spawner_Creeper",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (28)_5056fce0257fc014bb8cecc62708a83f",
+   "file_id": 60469,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (31)_7f0006d2302d1fa49a5bc04d14d8a93f",
+   "file_id": 60309,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (34)_0475372fc41863741821bfc41be87a2d",
+   "file_id": 56029,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (41)_b1d310a39e6ea4a42b1accdff4f50b62",
+   "file_id": 55755,
+   "go_name": "tree_1 (41)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (42)_0c6538ea0a570b8499d827c71ecdcbd1",
+   "file_id": 58500,
+   "go_name": "tree_1 (42)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (45)_875800c796ed2944a95774e8e6d3d94c",
+   "file_id": 57138,
+   "go_name": "tree_1 (45)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (46)_2bda4caa5c41b084388817e2e085cf27",
+   "file_id": 59956,
+   "go_name": "tree_1 (46)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (48)_2c2165cf1675bc540921b5766bb6a9b8",
+   "file_id": 58247,
+   "go_name": "tree_1 (48)",
+   "LocationNumber": 6,
+   "OptimumTime": 10.7,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "Spawner_1 (19)_77cbd47bc1c36ac45be836465aa32108",
+   "file_id": 58197,
+   "go_name": "Spawner_1 (19)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.0,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "tree_1 (32)_6db661ebf73863f459b1c415fd541b44",
+   "file_id": 58911,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.0,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "tree_1 (50)_5a2c94acad0bed342ad138260db65cec",
+   "file_id": 58201,
+   "go_name": "tree_1 (50)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.0,
+   "is_gate": false,
+   "kill_day": 11
+  },
+  {
+   "Key": "Spawner_elite smash_7732a81a4d334794fba5b90d8b8cfd93",
+   "file_id": 59544,
+   "go_name": "Spawner_elite smash",
+   "LocationNumber": 6,
+   "OptimumTime": 11.4,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "Spawner_1 (17)_477327c9e861b944a96bca0982f05127",
+   "file_id": 58504,
+   "go_name": "Spawner_1 (17)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.7,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "Spawner_1 (18)_a3697eeda241c414598fa691a27e1d36",
+   "file_id": 60506,
+   "go_name": "Spawner_1 (18)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.7,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "Spawner_1 (20)_3a1c902d256614c48bb7859cb65fc077",
+   "file_id": 55460,
+   "go_name": "Spawner_1 (20)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.7,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "Spawner_1 (24)_6068ec3eabd4bdc4abba4d4bb2be709b",
+   "file_id": 60098,
+   "go_name": "Spawner_1 (24)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.7,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "Spawner_1 (26)_cd2f77e45f533c64aa2b54ceb583e365",
+   "file_id": 57373,
+   "go_name": "Spawner_1 (26)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.7,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "Spawner_1_uncommon_pierce_helmet (1)_26dcde0c280cd614396dd13393b95f67",
+   "file_id": 60291,
+   "go_name": "Spawner_1_uncommon_pierce_helmet (1)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.7,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "tree_1 (33)_9e142482384fba94491a4b74d24b500c",
+   "file_id": 59431,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 6,
+   "OptimumTime": 11.7,
+   "is_gate": false,
+   "kill_day": 12
+  },
+  {
+   "Key": "Spawner_1_uncommon_pierce_helmet_e2e9a8f33618f5143826c24c879224f9",
+   "file_id": 56409,
+   "go_name": "Spawner_1_uncommon_pierce_helmet",
+   "LocationNumber": 6,
+   "OptimumTime": 12.4,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "tree_1 (38)_8fbd5922d47ebe74487235806bb5100d",
+   "file_id": 59389,
+   "go_name": "tree_1 (38)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.4,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "tree_1 (43)_78299201a87ff3646845a84ac184bb79",
+   "file_id": 56871,
+   "go_name": "tree_1 (43)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.4,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "tree_1 (44)_b85d2ab7afc4315419dc2b43eee1259c",
+   "file_id": 58639,
+   "go_name": "tree_1 (44)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.4,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "Spawner_1 (14)_921f7a84ae3faad4a87aee524004990c",
+   "file_id": 58079,
+   "go_name": "Spawner_1 (14)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.7,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "Spawner_1 (15)_6f4012ee518398f48bd06fe7c424395b",
+   "file_id": 59991,
+   "go_name": "Spawner_1 (15)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.7,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "tree_1 (36)_ff1cdb9d0c4c9c94bbfd3ad50fe2ab0b",
+   "file_id": 59117,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.7,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "tree_1 (37)_9954342f9beb52e43b3d0c94161f3dad",
+   "file_id": 59716,
+   "go_name": "tree_1 (37)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.7,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "tree_1 (39)_eeed206e07dde8f47894b92d6975d5f9",
+   "file_id": 59162,
+   "go_name": "tree_1 (39)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.7,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "tree_1 (47)_64c1a5331618d47439975c387438d546",
+   "file_id": 56897,
+   "go_name": "tree_1 (47)",
+   "LocationNumber": 6,
+   "OptimumTime": 12.7,
+   "is_gate": false,
+   "kill_day": 13
+  },
+  {
+   "Key": "Spawner_boss (3)_9e9d40ea95c1b384aa595f2c58a6d242",
+   "file_id": 57324,
+   "go_name": "Spawner_boss (3)",
+   "LocationNumber": 6,
+   "OptimumTime": 14.0,
+   "is_gate": true,
+   "kill_day": 15
+  },
+  {
+   "Key": "Spawner_superboss_legendary_pierce_713e4fb237332364c89159262510dddd",
+   "file_id": 55927,
+   "go_name": "Spawner_superboss_legendary_pierce",
+   "LocationNumber": 6,
+   "OptimumTime": 16.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "tree_1 (26)_025e5916dd41b9147935d4ce54e4b11f",
+   "file_id": 57472,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 7,
+   "OptimumTime": 14.0,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "tree_1 (39)_417686b0a6a11124f857e90de0729adf",
+   "file_id": 59226,
+   "go_name": "tree_1 (39)",
+   "LocationNumber": 7,
+   "OptimumTime": 14.0,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "tree_1 (27)_f94274568b2700f409d7861e10304631",
+   "file_id": 57702,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 7,
+   "OptimumTime": 14.7,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "tree_1 (32)_b342cbccf223c6346a03a8d6991e38d6",
+   "file_id": 60439,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 7,
+   "OptimumTime": 14.7,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "tree_1 (34)_ee2548757106ba34b9060e8e96ed3925",
+   "file_id": 58725,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 7,
+   "OptimumTime": 14.7,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "tree_1 (35)_dadd09e70a7695d40a572d78c8a40f1b",
+   "file_id": 55544,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 7,
+   "OptimumTime": 14.7,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "Spawner_shield_buck_common_80a735f512bd0774bac20eb8bfa87036",
+   "file_id": 57242,
+   "go_name": "Spawner_shield_buck_common",
+   "LocationNumber": 7,
+   "OptimumTime": 15.0,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "tree_1 (25)_f5ff7ae39ccf78641a605082810ea889",
+   "file_id": 56530,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.0,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "tree_1 (28)_a4b14f46f18e37d42ac8c4006fece8c8",
+   "file_id": 57012,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.0,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "tree_1 (29)_308f5d2855fc8ad489a200027ef2203a",
+   "file_id": 56611,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.0,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "tree_1 (37)_3dc88b5d39168c4499ef3d4b7afd3e22",
+   "file_id": 58701,
+   "go_name": "tree_1 (37)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.0,
+   "is_gate": false,
+   "kill_day": 15
+  },
+  {
+   "Key": "Spawner_1_common_cut_7322598e9a7c693478f89d6f8b3e15ce",
+   "file_id": 56896,
+   "go_name": "Spawner_1_common_cut",
+   "LocationNumber": 7,
+   "OptimumTime": 15.2,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "Spawner_1_medium_e500108c4550f2a4f9f7e0d4ebd8beb3",
+   "file_id": 59935,
+   "go_name": "Spawner_1_medium",
+   "LocationNumber": 7,
+   "OptimumTime": 15.2,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "Spawner_1 (8)_1bdb1323c259502438ca350d70b82707",
+   "file_id": 56765,
+   "go_name": "Spawner_1 (8)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.4,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "Spawner_1_common_cut (1)_e2d0de2bb29a09c4b92dfa864a48c1fa",
+   "file_id": 58962,
+   "go_name": "Spawner_1_common_cut (1)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.4,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "tree_1 (21)_9fccd512eeb1a064cb343d24e48ef4fb",
+   "file_id": 57383,
+   "go_name": "tree_1 (21)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.4,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "tree_1 (33)_9a23fc0acec3e1d44a7ceab7a6a371b8",
+   "file_id": 56555,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.4,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "tree_1 (40)_cb6354e02dd55cd42926db908e94ff3a",
+   "file_id": 58488,
+   "go_name": "tree_1 (40)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.4,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "tree_1 (43)_0af3267bdcc875b44920192d08465b20",
+   "file_id": 56749,
+   "go_name": "tree_1 (43)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.4,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "Spawner_1 (9)_5e4a7a330facd784e9dbdedf437c6e21",
+   "file_id": 55769,
+   "go_name": "Spawner_1 (9)",
+   "LocationNumber": 7,
+   "OptimumTime": 15.7,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "Spawner_1 (10)_5fb26eaf12575c045a26c633bba1f3b6",
+   "file_id": 57205,
+   "go_name": "Spawner_1 (10)",
+   "LocationNumber": 7,
+   "OptimumTime": 16.0,
+   "is_gate": false,
+   "kill_day": 16
+  },
+  {
+   "Key": "Spawner_1 (7)_b184be54ee8a6f6498bd1269f629c096",
+   "file_id": 59853,
+   "go_name": "Spawner_1 (7)",
+   "LocationNumber": 7,
+   "OptimumTime": 16.4,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "Spawner_1_medium (3)_9269f8ddc19f8364a92b5137c0a81bef",
+   "file_id": 60078,
+   "go_name": "Spawner_1_medium (3)",
+   "LocationNumber": 7,
+   "OptimumTime": 16.4,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "tree_1 (23)_073b076727b5afe49a5631264846185d",
+   "file_id": 60001,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 7,
+   "OptimumTime": 16.4,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "Spawner_elite cut_3bb4617c1b65bdf4080bbbacce72af23",
+   "file_id": 59958,
+   "go_name": "Spawner_elite cut",
+   "LocationNumber": 7,
+   "OptimumTime": 16.7,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "tree_1 (24)_626900de4297a5c4ca6fa7dbc32e60c6",
+   "file_id": 57805,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 7,
+   "OptimumTime": 16.7,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "Spawner_1_common_cut (2)_5e9d6c05f17ed6244b6710e452f234ee",
+   "file_id": 55520,
+   "go_name": "Spawner_1_common_cut (2)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "Spawner_1_common_cut (3)_59d5566da74572d49956b00448d635be",
+   "file_id": 58601,
+   "go_name": "Spawner_1_common_cut (3)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "Spawner_1_medium (1)_b2237805cd76487479601d53acf026d9",
+   "file_id": 59550,
+   "go_name": "Spawner_1_medium (1)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "tree_1 (22)_e6911ec07392f7d40b3477ad25fe8a2c",
+   "file_id": 58187,
+   "go_name": "tree_1 (22)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "tree_1 (30)_4f4af095fa20b604c84d1fabe80b80f1",
+   "file_id": 59531,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "tree_1 (41)_bce813bc7377eb241a6ec58dd3e1f5a6",
+   "file_id": 57290,
+   "go_name": "tree_1 (41)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "tree_1 (42)_b6383edbe53a635409cf2142d9292237",
+   "file_id": 59927,
+   "go_name": "tree_1 (42)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "tree_1 (44)_412a372d746d9c54f84a355c9143d5a5",
+   "file_id": 60606,
+   "go_name": "tree_1 (44)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.0,
+   "is_gate": false,
+   "kill_day": 17
+  },
+  {
+   "Key": "Spawner_1 (12)_d7ddcf7b7a6beba44a492676c3a82c21",
+   "file_id": 56719,
+   "go_name": "Spawner_1 (12)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.4,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "Spawner_1 (11)_ba069006740febc449725ddd92ba6032",
+   "file_id": 57764,
+   "go_name": "Spawner_1 (11)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.7,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "tree_1 (36)_1b473d165b261a14e8dc2ca0b8ee0881",
+   "file_id": 60257,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.7,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "tree_1 (38)_3e890954c66dee44e9bbcdcfe5d99157",
+   "file_id": 56602,
+   "go_name": "tree_1 (38)",
+   "LocationNumber": 7,
+   "OptimumTime": 17.7,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "Spawner_1_medium (2)_9144637ac9dd5dd48b5adff1a4863374",
+   "file_id": 56816,
+   "go_name": "Spawner_1_medium (2)",
+   "LocationNumber": 7,
+   "OptimumTime": 18.0,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "Spawner_helm_buck_uncommon_db23c9d43abd11d40abedc308e217c2d",
+   "file_id": 55637,
+   "go_name": "Spawner_helm_buck_uncommon",
+   "LocationNumber": 7,
+   "OptimumTime": 18.0,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "tree_1 (31)_a37d76a953c6a9943931b8e6a7ec4a9e",
+   "file_id": 55971,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 7,
+   "OptimumTime": 18.0,
+   "is_gate": false,
+   "kill_day": 18
+  },
+  {
+   "Key": "Spawner_sheild_buck_uncommon_a29f651fd1005d144ae1e505ee8e1bd4",
+   "file_id": 56847,
+   "go_name": "Spawner_sheild_buck_uncommon",
+   "LocationNumber": 7,
+   "OptimumTime": 18.7,
+   "is_gate": false,
+   "kill_day": 19
+  },
+  {
+   "Key": "Spawner_boss (3)_95e04d08974d86c498b344bb902a3637",
+   "file_id": 56351,
+   "go_name": "Spawner_boss (3)",
+   "LocationNumber": 7,
+   "OptimumTime": 20.0,
+   "is_gate": true,
+   "kill_day": 21
+  },
+  {
+   "Key": "Spawner_superboss_legendary_buck_76e3068b56ceae34ca80168464bffda2",
+   "file_id": 56489,
+   "go_name": "Spawner_superboss_legendary_buck",
+   "LocationNumber": 7,
+   "OptimumTime": 26.4,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "Spawner_1 (12)_d714caf03e90f5d49b28d3dd50c2056e",
+   "file_id": 59081,
+   "go_name": "Spawner_1 (12)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.0,
+   "is_gate": false,
+   "kill_day": 20
+  },
+  {
+   "Key": "Spawner_1 (17)_014e151bf3535494e97bbbbd67501b72",
+   "file_id": 57088,
+   "go_name": "Spawner_1 (17)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.0,
+   "is_gate": false,
+   "kill_day": 20
+  },
+  {
+   "Key": "Spawner_1_medium_shield_cut_common(1)_cbf58935e9269ee419f15d1caa4491dc",
+   "file_id": 57584,
+   "go_name": "Spawner_1_medium_shield_cut_common(1)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.0,
+   "is_gate": false,
+   "kill_day": 20
+  },
+  {
+   "Key": "tree_1 (21)_489177b03baa3cc4fa35a52d24cd6492",
+   "file_id": 60753,
+   "go_name": "tree_1 (21)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.0,
+   "is_gate": false,
+   "kill_day": 20
+  },
+  {
+   "Key": "tree_1 (23)_73a4a1ab247244a44a6f07afb6cabc15",
+   "file_id": 57244,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.0,
+   "is_gate": false,
+   "kill_day": 20
+  },
+  {
+   "Key": "tree_1 (32)_2f2f7f2c01e63334e9805075c5a24ad8",
+   "file_id": 55717,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.0,
+   "is_gate": false,
+   "kill_day": 20
+  },
+  {
+   "Key": "Spawner_1_medium_common_pierce (1)_05dd44985bf712a448a5d7e3ee1cdb29",
+   "file_id": 57154,
+   "go_name": "Spawner_1_medium_common_pierce (1)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.4,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "Spawner_1_medium_common_pierce_2a21bdc51910b464596a57595f888f28",
+   "file_id": 60519,
+   "go_name": "Spawner_1_medium_common_pierce",
+   "LocationNumber": 8,
+   "OptimumTime": 20.4,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "tree_1 (22)_dee0b3f1c3e47554eba54ee916a4ece7",
+   "file_id": 58245,
+   "go_name": "tree_1 (22)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.4,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "tree_1 (25)_cc74531b557f9b044972079cac4a08be",
+   "file_id": 60688,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.4,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "tree_1 (37)_fada6b3970be0b242aadc0c73de5b581",
+   "file_id": 55703,
+   "go_name": "tree_1 (37)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.4,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "Spawner_1 (13)_f30cfe0a0871af14ea759e330b1f7319",
+   "file_id": 56213,
+   "go_name": "Spawner_1 (13)",
+   "LocationNumber": 8,
+   "OptimumTime": 20.7,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "Spawner_1 (14)_c4925eee0c742514da7c04b1245b82ec",
+   "file_id": 60497,
+   "go_name": "Spawner_1 (14)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.0,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "Spawner_1 (15)_916b95497cbee1e4ab48916173ee74de",
+   "file_id": 55858,
+   "go_name": "Spawner_1 (15)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.0,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "Spawner_1_medium_common_buck (5)_b9b10b62755d97941a539a11a8972e14",
+   "file_id": 57972,
+   "go_name": "Spawner_1_medium_common_buck (5)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.0,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "Spawner_1_medium_common_pierce (3)_27571365c14a5e24aa7001eef43e0f57",
+   "file_id": 59272,
+   "go_name": "Spawner_1_medium_common_pierce (3)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.0,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "tree_1 (29)_10c7215b7eab64844bda129ddcd98f7b",
+   "file_id": 59672,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.3,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "Spawner_1_medium_shield_cut_uncommon_d5a689c9e39924344a60e4c5071b51ee",
+   "file_id": 58260,
+   "go_name": "Spawner_1_medium_shield_cut_uncommon",
+   "LocationNumber": 8,
+   "OptimumTime": 21.6,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "Spawner_1_elite lifesteal_dc53ea0728a9f4644a205d274dbb501c",
+   "file_id": 59712,
+   "go_name": "Spawner_1_elite lifesteal",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 23
+  },
+  {
+   "Key": "Spawner_1_medium_common_buck (4)_d377feb6ee402894192e9181bf8decf1",
+   "file_id": 60591,
+   "go_name": "Spawner_1_medium_common_buck (4)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "Spawner_1_medium_common_buck (6)_08690b291d1933646bc277dd97d06ce4",
+   "file_id": 56469,
+   "go_name": "Spawner_1_medium_common_buck (6)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "Spawner_1_medium_common_buck (6)_9867b4ef3c04aad49b16a3b94e176c32",
+   "file_id": 57570,
+   "go_name": "Spawner_1_medium_common_buck (6)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "Spawner_1_medium_common_pierce (2)_d6563973b79e7984580ed9ec33fca1a7",
+   "file_id": 59704,
+   "go_name": "Spawner_1_medium_common_pierce (2)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "tree_1 (20)_a4b9b3af5708b2c489fcfe1e873a76fc",
+   "file_id": 58663,
+   "go_name": "tree_1 (20)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "tree_1 (24)_a8b6dd47bc2b4e94887f810b786d1677",
+   "file_id": 60763,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "tree_1 (28)_45de946aac8d43143aaf0d28ca540b77",
+   "file_id": 59938,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "tree_1 (35)_cbc6c747e8efa5142a4542a4793b424f",
+   "file_id": 57508,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 8,
+   "OptimumTime": 21.9,
+   "is_gate": false,
+   "kill_day": 22
+  },
+  {
+   "Key": "tree_1 (27)_32aa783f788cded4c9b81d31e2125d0f",
+   "file_id": 58993,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 8,
+   "OptimumTime": 22.3,
+   "is_gate": false,
+   "kill_day": 23
+  },
+  {
+   "Key": "tree_1 (40)_83a3b454cacb0b74c9f8db1aac29ae01",
+   "file_id": 58193,
+   "go_name": "tree_1 (40)",
+   "LocationNumber": 8,
+   "OptimumTime": 22.3,
+   "is_gate": false,
+   "kill_day": 23
+  },
+  {
+   "Key": "tree_1 (33)_e7160592e240373418cbbf189216ee4f",
+   "file_id": 57226,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 8,
+   "OptimumTime": 22.5,
+   "is_gate": false,
+   "kill_day": 23
+  },
+  {
+   "Key": "tree_1 (34)_2d037d14996004244843646f1c3960ba",
+   "file_id": 56610,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 8,
+   "OptimumTime": 22.5,
+   "is_gate": false,
+   "kill_day": 23
+  },
+  {
+   "Key": "tree_1 (36)_8360f2fa9ca397d4e8fd9a2b8914299b",
+   "file_id": 60094,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 8,
+   "OptimumTime": 22.5,
+   "is_gate": false,
+   "kill_day": 23
+  },
+  {
+   "Key": "Spawner_1_elite pier_0bd3aeedd3776174c9cb77c8bf8d8aac",
+   "file_id": 58723,
+   "go_name": "Spawner_1_elite pier",
+   "LocationNumber": 8,
+   "OptimumTime": 22.8,
+   "is_gate": false,
+   "kill_day": 24
+  },
+  {
+   "Key": "tree_1 (31)_6bb218d8980fb2a4c89e4e9dd785251f",
+   "file_id": 58938,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 8,
+   "OptimumTime": 22.8,
+   "is_gate": false,
+   "kill_day": 23
+  },
+  {
+   "Key": "Spawner_1_knight_bfdfda542c6e78e47ae3693d6647c63b",
+   "file_id": 58712,
+   "go_name": "Spawner_1_knight",
+   "LocationNumber": 8,
+   "OptimumTime": 23.5,
+   "is_gate": false,
+   "kill_day": 24
+  },
+  {
+   "Key": "Spawner_1_knight (1)_803f60438187b7443bb745619c953169",
+   "file_id": 59499,
+   "go_name": "Spawner_1_knight (1)",
+   "LocationNumber": 8,
+   "OptimumTime": 24.1,
+   "is_gate": false,
+   "kill_day": 25
+  },
+  {
+   "Key": "Spawner_1_knight (2)_941ec0258df0536469e7a743dd9fed66",
+   "file_id": 59543,
+   "go_name": "Spawner_1_knight (2)",
+   "LocationNumber": 8,
+   "OptimumTime": 24.1,
+   "is_gate": false,
+   "kill_day": 25
+  },
+  {
+   "Key": "Spawner_1_knight_shield_cut_rare (1)_69e308f34fe68114e856dde0a993c119",
+   "file_id": 58359,
+   "go_name": "Spawner_1_knight_shield_cut_rare (1)",
+   "LocationNumber": 8,
+   "OptimumTime": 24.7,
+   "is_gate": false,
+   "kill_day": 25
+  },
+  {
+   "Key": "tree_1 (26)_2e9427e067a17f340a273b5ba57b3461",
+   "file_id": 57155,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 8,
+   "OptimumTime": 24.7,
+   "is_gate": false,
+   "kill_day": 25
+  },
+  {
+   "Key": "Spawner_1 (16)_9081feb6d6caca54e8efd593154fa3c1",
+   "file_id": 56519,
+   "go_name": "Spawner_1 (16)",
+   "LocationNumber": 8,
+   "OptimumTime": 25.0,
+   "is_gate": false,
+   "kill_day": 25
+  },
+  {
+   "Key": "tree_1 (38)_90bd0c5f0b818864291d9d56532a7ee4",
+   "file_id": 57115,
+   "go_name": "tree_1 (38)",
+   "LocationNumber": 8,
+   "OptimumTime": 25.0,
+   "is_gate": false,
+   "kill_day": 25
+  },
+  {
+   "Key": "Spawner_1_knight_helmet_cut_rare_892678eaaa57e2c47830b888e736acce",
+   "file_id": 58033,
+   "go_name": "Spawner_1_knight_helmet_cut_rare",
+   "LocationNumber": 8,
+   "OptimumTime": 25.3,
+   "is_gate": false,
+   "kill_day": 26
+  },
+  {
+   "Key": "tree_1 (39)_9933a65bf5279424697a1c7eb6286411",
+   "file_id": 55539,
+   "go_name": "tree_1 (39)",
+   "LocationNumber": 8,
+   "OptimumTime": 25.3,
+   "is_gate": false,
+   "kill_day": 26
+  },
+  {
+   "Key": "Spawner_1_elite health_d0f9a0d470d3e9a41a26ddb8cd15be56",
+   "file_id": 59517,
+   "go_name": "Spawner_1_elite health",
+   "LocationNumber": 8,
+   "OptimumTime": 26.0,
+   "is_gate": false,
+   "kill_day": 26
+  },
+  {
+   "Key": "Spawner_boss (3)_51927f4c765610249a450d00c14b2703",
+   "file_id": 59894,
+   "go_name": "Spawner_boss (3)",
+   "LocationNumber": 8,
+   "OptimumTime": 26.0,
+   "is_gate": true,
+   "kill_day": 26
+  },
+  {
+   "Key": "Spawner_superboss_legendary_cut_9aedadb2c5890ba4e92d5b1d57bb938b",
+   "file_id": 56966,
+   "go_name": "Spawner_superboss_legendary_cut",
+   "LocationNumber": 8,
+   "OptimumTime": 33.5,
+   "is_gate": false,
+   "kill_day": 34
+  },
+  {
+   "Key": "tree_1 (13)_7f84d040a9c5aab45ab00f4378f56f2e",
+   "file_id": 55906,
+   "go_name": "tree_1 (13)",
+   "LocationNumber": 9,
+   "OptimumTime": 26.0,
+   "is_gate": false,
+   "kill_day": 26
+  },
+  {
+   "Key": "Spawner_1_2016e2a64658094419b1b0f4baea98ce",
+   "file_id": 55551,
+   "go_name": "Spawner_1",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "Spawner_1_knight_smash_uncommon_d178f353f926ca04883bb8a3de12dc3b",
+   "file_id": 58354,
+   "go_name": "Spawner_1_knight_smash_uncommon",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "Spawner_medium_small_dragon_shield_common_ddf7a2c0cd8de004988a647e526e3346",
+   "file_id": 59520,
+   "go_name": "Spawner_medium_small_dragon_shield_common",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "tree_1 (14)_aed583c94ab6482499c1f5d6c49110f0",
+   "file_id": 56888,
+   "go_name": "tree_1 (14)",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "tree_1 (17)_91389ffcc650d7d4c9b9946e0a965c0f",
+   "file_id": 58084,
+   "go_name": "tree_1 (17)",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "tree_1 (21)_be39b2a9626e80e4aa155ba870f0cbb2",
+   "file_id": 59949,
+   "go_name": "tree_1 (21)",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "tree_1 (28)_a254c52ae14e9b74397c7c975801016b",
+   "file_id": 60782,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "tree_1 (32)_2c05aeac738e6f1439c07877b4156501",
+   "file_id": 58374,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "tree_1 (36)_73692c1e469f6d24e82f6d2cb7ad1137",
+   "file_id": 55423,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 9,
+   "OptimumTime": 26.6,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "Spawner_1_knight_stab_uncommon_da0a07bc38b038b4e978f96240e8f8a7",
+   "file_id": 57698,
+   "go_name": "Spawner_1_knight_stab_uncommon",
+   "LocationNumber": 9,
+   "OptimumTime": 26.9,
+   "is_gate": false,
+   "kill_day": 27
+  },
+  {
+   "Key": "Spawner_1_medium_d3e8a3e3aa9c7c347904417f0a9e680a",
+   "file_id": 58824,
+   "go_name": "Spawner_1_medium",
+   "LocationNumber": 9,
+   "OptimumTime": 27.2,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "Spawner_medium_small_dragon_helmet_common_ pierce_42e681eabb536a54ca70857eddd03291",
+   "file_id": 59857,
+   "go_name": "Spawner_medium_small_dragon_helmet_common_ pierce",
+   "LocationNumber": 9,
+   "OptimumTime": 27.2,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "tree_1 (16)_402e20add60cfae46932f74233f0a253",
+   "file_id": 57013,
+   "go_name": "tree_1 (16)",
+   "LocationNumber": 9,
+   "OptimumTime": 27.2,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "tree_1 (22)_67c9db292e9c4b441bf05e4d9096a90f",
+   "file_id": 56568,
+   "go_name": "tree_1 (22)",
+   "LocationNumber": 9,
+   "OptimumTime": 27.2,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "tree_1 (29)_1257a6257551d8441924b4356ecfd5f0",
+   "file_id": 58454,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 9,
+   "OptimumTime": 27.2,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "tree_1 (35)_56c444a7403e0f147b2d716b7312fb1e",
+   "file_id": 57004,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 9,
+   "OptimumTime": 27.2,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "Spawner_1_knight_cut_uncommon_d0d30d1f339d835419e25a7c0e492860",
+   "file_id": 58843,
+   "go_name": "Spawner_1_knight_cut_uncommon",
+   "LocationNumber": 9,
+   "OptimumTime": 27.6,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "tree_1 (15)_b35f2f8938be4134cb3ea5c31a3fe4ac",
+   "file_id": 56609,
+   "go_name": "tree_1 (15)",
+   "LocationNumber": 9,
+   "OptimumTime": 27.8,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "tree_1 (30)_7dc7835eb90a3bd40afa7357cfe7c131",
+   "file_id": 59973,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 9,
+   "OptimumTime": 27.8,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "Spawner_1 (1)_bf4b6e357e741b9429365473518af472",
+   "file_id": 59176,
+   "go_name": "Spawner_1 (1)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.1,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_1_hard_stab_uncommon (1)_6687805256676b34696766589f744b82",
+   "file_id": 56950,
+   "go_name": "Spawner_1_hard_stab_uncommon (1)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.1,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_1_hard_cut_uncommon_822642d9a97fb1c4e9c2c74d6118db36",
+   "file_id": 58466,
+   "go_name": "Spawner_1_hard_cut_uncommon",
+   "LocationNumber": 9,
+   "OptimumTime": 28.5,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_medium_small_dragon_helmet_common_ pierce (1)_8374c8ff60ba7224385ceb803a482b55",
+   "file_id": 59224,
+   "go_name": "Spawner_medium_small_dragon_helmet_common_ pierce (1)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.5,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "tree_1 (18)_c6874ac8d8a2d9e43873e6c20a78f425",
+   "file_id": 57160,
+   "go_name": "tree_1 (18)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.5,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "tree_1 (23)_a55123d71ed98ad40910fa24be61e8c0",
+   "file_id": 60106,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.5,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_1_hard_stab_uncommon_060506a94d6e1f54d9ddd1fb0568e96d",
+   "file_id": 60227,
+   "go_name": "Spawner_1_hard_stab_uncommon",
+   "LocationNumber": 9,
+   "OptimumTime": 28.7,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_medium_small_dragon_shield_common (1)_8fe486e44d095d24ba9e90a19767b7da",
+   "file_id": 55730,
+   "go_name": "Spawner_medium_small_dragon_shield_common (1)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.7,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "tree_1 (20)_72725ba7ac6e6e4438a998cd051fca45",
+   "file_id": 59412,
+   "go_name": "tree_1 (20)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.7,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "tree_1 (27)_fcd97c57ae7c1e34eb36b57bfec21597",
+   "file_id": 58510,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.7,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "tree_1 (33)_378d476e7831f6d4cb4e6cd9f17adfc7",
+   "file_id": 57928,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.7,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "tree_1 (34)_b1d7089271788d84eb88726b284303ba",
+   "file_id": 59775,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 9,
+   "OptimumTime": 28.7,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_1 (2)_9c7352801cf035840b6d5ec28c28448b",
+   "file_id": 55596,
+   "go_name": "Spawner_1 (2)",
+   "LocationNumber": 9,
+   "OptimumTime": 29.0,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_1_hard_buck_uncommon (1)_6ca0ddc2014a3704fa77d804641f6473",
+   "file_id": 57603,
+   "go_name": "Spawner_1_hard_buck_uncommon (1)",
+   "LocationNumber": 9,
+   "OptimumTime": 29.0,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "tree_1 (24)_9ad1b3926f803ae4e9dd278475dc6087",
+   "file_id": 59360,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 9,
+   "OptimumTime": 29.0,
+   "is_gate": false,
+   "kill_day": 29
+  },
+  {
+   "Key": "Spawner_1_hard_buck_uncommon_cf92590d8265f954d802b59b3a55e361",
+   "file_id": 58722,
+   "go_name": "Spawner_1_hard_buck_uncommon",
+   "LocationNumber": 9,
+   "OptimumTime": 29.7,
+   "is_gate": false,
+   "kill_day": 30
+  },
+  {
+   "Key": "tree_1 (19)_b51e004f9b9f0b74a9a6eea2a78476bd",
+   "file_id": 55466,
+   "go_name": "tree_1 (19)",
+   "LocationNumber": 9,
+   "OptimumTime": 29.7,
+   "is_gate": false,
+   "kill_day": 30
+  },
+  {
+   "Key": "Spawner_1_hard_cut_uncommon (1)_0791d6f1910bbfd489fa26c1b3a8aa71",
+   "file_id": 58066,
+   "go_name": "Spawner_1_hard_cut_uncommon (1)",
+   "LocationNumber": 9,
+   "OptimumTime": 30.3,
+   "is_gate": false,
+   "kill_day": 31
+  },
+  {
+   "Key": "Spawner_medium_small_dragon (7)_6afc8be96be6cda44b7dc10a01a354ac",
+   "file_id": 59158,
+   "go_name": "Spawner_medium_small_dragon (7)",
+   "LocationNumber": 9,
+   "OptimumTime": 30.3,
+   "is_gate": false,
+   "kill_day": 31
+  },
+  {
+   "Key": "tree_1 (25)_9ae478b3034619e49ad4d6391fdab96e",
+   "file_id": 56679,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 9,
+   "OptimumTime": 30.3,
+   "is_gate": false,
+   "kill_day": 31
+  },
+  {
+   "Key": "tree_1 (26)_4345c6f34fb95924587d834bde543b00",
+   "file_id": 56769,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 9,
+   "OptimumTime": 30.3,
+   "is_gate": false,
+   "kill_day": 31
+  },
+  {
+   "Key": "Spawner_medium_small_dragon (8)_70528cdc89fbd564691cdd1983583466",
+   "file_id": 59508,
+   "go_name": "Spawner_medium_small_dragon (8)",
+   "LocationNumber": 9,
+   "OptimumTime": 30.9,
+   "is_gate": false,
+   "kill_day": 31
+  },
+  {
+   "Key": "Spawner_medium_small_dragon (9)_69de5a9edec530e42ac51be3822a0b06",
+   "file_id": 56947,
+   "go_name": "Spawner_medium_small_dragon (9)",
+   "LocationNumber": 9,
+   "OptimumTime": 30.9,
+   "is_gate": false,
+   "kill_day": 31
+  },
+  {
+   "Key": "Spawner_medium_small_dragon_shield_rare_ae0910898a597bb4f8f39e980c15044a",
+   "file_id": 59419,
+   "go_name": "Spawner_medium_small_dragon_shield_rare",
+   "LocationNumber": 9,
+   "OptimumTime": 30.9,
+   "is_gate": false,
+   "kill_day": 31
+  },
+  {
+   "Key": "tree_1 (31)_4ac73bedf5f359341b4d647b2bfb30b9",
+   "file_id": 55812,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 9,
+   "OptimumTime": 31.8,
+   "is_gate": false,
+   "kill_day": 32
+  },
+  {
+   "Key": "Spawner_1_elite smash_0ae0327a1827cf74abfccea79117c3e1",
+   "file_id": 59416,
+   "go_name": "Spawner_1_elite smash",
+   "LocationNumber": 9,
+   "OptimumTime": 33.4,
+   "is_gate": false,
+   "kill_day": 34
+  },
+  {
+   "Key": "Spawner_boss_dragon_rare_buck_shield (3)_12e214c91c4d6744c8c898781e6c6692",
+   "file_id": 58652,
+   "go_name": "Spawner_boss_dragon_rare_buck_shield (3)",
+   "LocationNumber": 9,
+   "OptimumTime": 34.0,
+   "is_gate": true,
+   "kill_day": 35
+  },
+  {
+   "Key": "Spawner_Crystal_4f60e7",
+   "file_id": 58041,
+   "go_name": "Spawner_Crystal",
+   "LocationNumber": 9,
+   "OptimumTime": 40.0,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "ice pike blocker (1)_70dc8cadae969bc4b9404322acd12645",
+   "file_id": 57079,
+   "go_name": "ice pike blocker (1)",
+   "LocationNumber": 10,
+   "OptimumTime": 13.6,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "ice pike blocker (10)_c86090ce964edaa43ba3a8ced5be4cdb",
+   "file_id": 57398,
+   "go_name": "ice pike blocker (10)",
+   "LocationNumber": 10,
+   "OptimumTime": 13.6,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "ice pike blocker (2)_ddaf024299280dd41b897c2e9fd72881",
+   "file_id": 55931,
+   "go_name": "ice pike blocker (2)",
+   "LocationNumber": 10,
+   "OptimumTime": 13.6,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "ice pike blocker (4)_6604937aea5db564fbb41d40d916a12c",
+   "file_id": 60472,
+   "go_name": "ice pike blocker (4)",
+   "LocationNumber": 10,
+   "OptimumTime": 13.6,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "ice pike blocker (6)_b499af4303cfa98418322d5c2376c6e8",
+   "file_id": 57811,
+   "go_name": "ice pike blocker (6)",
+   "LocationNumber": 10,
+   "OptimumTime": 13.6,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "ice pike blocker (8)_e1ae2506389a91e4e8620fcd3bc48052",
+   "file_id": 58861,
+   "go_name": "ice pike blocker (8)",
+   "LocationNumber": 10,
+   "OptimumTime": 13.6,
+   "is_gate": false,
+   "kill_day": 14
+  },
+  {
+   "Key": "ice pike blocker (3)_148fbc5fc553fe8448bbb63e3e3e8246",
+   "file_id": 59193,
+   "go_name": "ice pike blocker (3)",
+   "LocationNumber": 10,
+   "OptimumTime": 20.7,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "ice pike blocker (5)_e7b77381381e9a34ba72f2306f201b27",
+   "file_id": 57161,
+   "go_name": "ice pike blocker (5)",
+   "LocationNumber": 10,
+   "OptimumTime": 20.7,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "ice pike blocker (7)_55152700a2168d24c8e78033cf18065b",
+   "file_id": 57499,
+   "go_name": "ice pike blocker (7)",
+   "LocationNumber": 10,
+   "OptimumTime": 20.7,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "ice pike blocker (9)_0e5d5d376a4035c43aa3c7408f8f264f",
+   "file_id": 60225,
+   "go_name": "ice pike blocker (9)",
+   "LocationNumber": 10,
+   "OptimumTime": 20.7,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "ice pike blocker_8f121b3d6f243f448a0750e900602fe4",
+   "file_id": 56876,
+   "go_name": "ice pike blocker",
+   "LocationNumber": 10,
+   "OptimumTime": 20.7,
+   "is_gate": false,
+   "kill_day": 21
+  },
+  {
+   "Key": "ice pike blocker (13)_01904caca862ca3439cc24761bd6fdb7",
+   "file_id": 59216,
+   "go_name": "ice pike blocker (13)",
+   "LocationNumber": 10,
+   "OptimumTime": 27.9,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "ice pike blocker (14)_8cbfa09aa9ecbb74482ab861945cb6a1",
+   "file_id": 58553,
+   "go_name": "ice pike blocker (14)",
+   "LocationNumber": 10,
+   "OptimumTime": 27.9,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "ice pike blocker (15)_ae4a21ae027361c4eac1fbf126438db0",
+   "file_id": 58031,
+   "go_name": "ice pike blocker (15)",
+   "LocationNumber": 10,
+   "OptimumTime": 27.9,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "ice pike blocker (20)_ad908c7343f5bc84aa1e679458989a17",
+   "file_id": 56152,
+   "go_name": "ice pike blocker (20)",
+   "LocationNumber": 10,
+   "OptimumTime": 27.9,
+   "is_gate": false,
+   "kill_day": 28
+  },
+  {
+   "Key": "tree_1 (20)_d7a65a8df9a0f0940b6107d23e3f56ea",
+   "file_id": 59349,
+   "go_name": "tree_1 (20)",
+   "LocationNumber": 10,
+   "OptimumTime": 33.2,
+   "is_gate": false,
+   "kill_day": 34
+  },
+  {
+   "Key": "tree_1 (28)_7a783f16aae30c64182d18a27cca156f",
+   "file_id": 57078,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 10,
+   "OptimumTime": 33.6,
+   "is_gate": false,
+   "kill_day": 34
+  },
+  {
+   "Key": "Spawner_1_easy_3719222ac762e4f4a94665c3cf94dfa0",
+   "file_id": 60336,
+   "go_name": "Spawner_1_easy",
+   "LocationNumber": 10,
+   "OptimumTime": 34.0,
+   "is_gate": false,
+   "kill_day": 34
+  },
+  {
+   "Key": "Spawner_1_medium (1)_4df34760f5c6f7747b723e9468b45443",
+   "file_id": 58339,
+   "go_name": "Spawner_1_medium (1)",
+   "LocationNumber": 10,
+   "OptimumTime": 34.0,
+   "is_gate": false,
+   "kill_day": 34
+  },
+  {
+   "Key": "tree_1 (39)_49dfab66a3a147340bbcc1a5032dc486",
+   "file_id": 60408,
+   "go_name": "tree_1 (39)",
+   "LocationNumber": 10,
+   "OptimumTime": 34.0,
+   "is_gate": false,
+   "kill_day": 34
+  },
+  {
+   "Key": "Spawner_1_easy_helm_buck_common_77966524e32a9824e9c80a0ad41bb9b4",
+   "file_id": 57986,
+   "go_name": "Spawner_1_easy_helm_buck_common",
+   "LocationNumber": 10,
+   "OptimumTime": 34.3,
+   "is_gate": false,
+   "kill_day": 35
+  },
+  {
+   "Key": "tree_1 (24)_a0b48c767dffd7d4a8b561e5c20385d6",
+   "file_id": 59363,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 10,
+   "OptimumTime": 34.3,
+   "is_gate": false,
+   "kill_day": 35
+  },
+  {
+   "Key": "tree_1 (29)_bdba3cf4846343e4ea19e848d156d37c",
+   "file_id": 59990,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 10,
+   "OptimumTime": 34.3,
+   "is_gate": false,
+   "kill_day": 35
+  },
+  {
+   "Key": "Spawner_1_easy_shield_buck_common_73c49cc19542ab04ca816b1832d6dc6c",
+   "file_id": 58098,
+   "go_name": "Spawner_1_easy_shield_buck_common",
+   "LocationNumber": 10,
+   "OptimumTime": 34.6,
+   "is_gate": false,
+   "kill_day": 35
+  },
+  {
+   "Key": "tree_1 (27)_dd5efc14e7f466d46bd32ffe04423f7f",
+   "file_id": 58090,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 10,
+   "OptimumTime": 34.6,
+   "is_gate": false,
+   "kill_day": 35
+  },
+  {
+   "Key": "Spawner_1_medium (2)_72bc5f45b7c825b429c2cf001faac87f",
+   "file_id": 55601,
+   "go_name": "Spawner_1_medium (2)",
+   "LocationNumber": 10,
+   "OptimumTime": 35.1,
+   "is_gate": false,
+   "kill_day": 36
+  },
+  {
+   "Key": "ice pike blocker (16)_11ec27f84626499448a503d776842032",
+   "file_id": 59460,
+   "go_name": "ice pike blocker (16)",
+   "LocationNumber": 10,
+   "OptimumTime": 35.1,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "ice pike blocker (17)_7602140147e1d664a8f408198960108c",
+   "file_id": 56971,
+   "go_name": "ice pike blocker (17)",
+   "LocationNumber": 10,
+   "OptimumTime": 35.1,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "ice pike blocker (18)_bef73e05a460e6e48b1c94cd28406a2c",
+   "file_id": 56286,
+   "go_name": "ice pike blocker (18)",
+   "LocationNumber": 10,
+   "OptimumTime": 35.1,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "ice pike blocker (19)_a9cae35ee1929df4d9bdbfeb4207af1b",
+   "file_id": 58966,
+   "go_name": "ice pike blocker (19)",
+   "LocationNumber": 10,
+   "OptimumTime": 35.1,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "tree_1 (31)_727135792420a9a488ef361ef9f8a696",
+   "file_id": 59382,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 10,
+   "OptimumTime": 35.1,
+   "is_gate": false,
+   "kill_day": 36
+  },
+  {
+   "Key": "tree_1 (40)_61f96e58ae95ade4da908302f389f9ec",
+   "file_id": 55422,
+   "go_name": "tree_1 (40)",
+   "LocationNumber": 10,
+   "OptimumTime": 35.4,
+   "is_gate": false,
+   "kill_day": 36
+  },
+  {
+   "Key": "Spawner_1_medium_301a335d7e7aa3b43957d33f1f73f702",
+   "file_id": 56927,
+   "go_name": "Spawner_1_medium",
+   "LocationNumber": 10,
+   "OptimumTime": 36.8,
+   "is_gate": false,
+   "kill_day": 37
+  },
+  {
+   "Key": "Spawner_elite pierce_e2799eda5ed1d294ea2908171e611179",
+   "file_id": 56592,
+   "go_name": "Spawner_elite pierce",
+   "LocationNumber": 10,
+   "OptimumTime": 36.8,
+   "is_gate": false,
+   "kill_day": 38
+  },
+  {
+   "Key": "tree_1 (32)_451ba3b20c0718e489427b123ef5f2c6",
+   "file_id": 55710,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 10,
+   "OptimumTime": 36.8,
+   "is_gate": false,
+   "kill_day": 37
+  },
+  {
+   "Key": "tree_1 (41)_4f75d2a2afc063943b157bc48f3e0137",
+   "file_id": 57754,
+   "go_name": "tree_1 (41)",
+   "LocationNumber": 10,
+   "OptimumTime": 37.2,
+   "is_gate": false,
+   "kill_day": 38
+  },
+  {
+   "Key": "tree_1 (46)_62781de855881cc41a6b898acfcf7011",
+   "file_id": 60096,
+   "go_name": "tree_1 (46)",
+   "LocationNumber": 10,
+   "OptimumTime": 38.3,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "Spawner_1_small_dragon_cut_rare_430e450e7cc407a4eb5bac12a2732e96",
+   "file_id": 57655,
+   "go_name": "Spawner_1_small_dragon_cut_rare",
+   "LocationNumber": 10,
+   "OptimumTime": 38.6,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "Spawner_elite smash_a058bb7fed81a294cb789e56f761a7e7",
+   "file_id": 59210,
+   "go_name": "Spawner_elite smash",
+   "LocationNumber": 10,
+   "OptimumTime": 38.6,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "tree_1 (38)_d5892c8a272730a47b6e154ae0360bd2",
+   "file_id": 60716,
+   "go_name": "tree_1 (38)",
+   "LocationNumber": 10,
+   "OptimumTime": 38.6,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "tree_1 (50)_296349024b9452649b95c9d8a9f7fe63",
+   "file_id": 59462,
+   "go_name": "tree_1 (50)",
+   "LocationNumber": 10,
+   "OptimumTime": 38.6,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "tree_1 (42)_cf98e966de0fa524892da59cd10cfb21",
+   "file_id": 58686,
+   "go_name": "tree_1 (42)",
+   "LocationNumber": 10,
+   "OptimumTime": 38.8,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "tree_1 (23)_85d883c7a6bbb26449b86e8eb4ee80a4",
+   "file_id": 57674,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 10,
+   "OptimumTime": 38.9,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "tree_1 (45)_b6e0b3140c25a2a4d9af4871de1c6bdb",
+   "file_id": 55595,
+   "go_name": "tree_1 (45)",
+   "LocationNumber": 10,
+   "OptimumTime": 38.9,
+   "is_gate": false,
+   "kill_day": 39
+  },
+  {
+   "Key": "tree_1 (30)_eb8e12d1659c8174fb0e84ad954ad24c",
+   "file_id": 60018,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 10,
+   "OptimumTime": 39.2,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "tree_1 (35)_9b0bdd14dd6cc704982519ad96c93975",
+   "file_id": 60326,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 10,
+   "OptimumTime": 39.2,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "Spawner_1_small_dragon_cut_rare_253d102672a312646adbe8f02d287852",
+   "file_id": 59649,
+   "go_name": "Spawner_1_small_dragon_cut_rare",
+   "LocationNumber": 10,
+   "OptimumTime": 39.4,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "tree_1 (21)_b1380480fc3481d418672adbc627c0a1",
+   "file_id": 58670,
+   "go_name": "tree_1 (21)",
+   "LocationNumber": 10,
+   "OptimumTime": 39.4,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "Spawner_1_small_dragon_rare_helm_buck_855af7bef04961f4e9655bcb624f85ba",
+   "file_id": 55427,
+   "go_name": "Spawner_1_small_dragon_rare_helm_buck",
+   "LocationNumber": 10,
+   "OptimumTime": 39.7,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "Spawner_elite cut_0eacc6cb8e611254faec60009bdf1170",
+   "file_id": 59663,
+   "go_name": "Spawner_elite cut",
+   "LocationNumber": 10,
+   "OptimumTime": 39.7,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "tree_1 (44)_2880baf37cc5b984695c02eb1414605d",
+   "file_id": 60531,
+   "go_name": "tree_1 (44)",
+   "LocationNumber": 10,
+   "OptimumTime": 39.7,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "tree_1 (36)_b085d96c1cbd7e846915b1b2d5ca1942",
+   "file_id": 59194,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.0,
+   "is_gate": false,
+   "kill_day": 40
+  },
+  {
+   "Key": "Spawner_1_easy_shield_buck_common (1)_c13f11075b3589e4aa80a75e1512af6b",
+   "file_id": 55948,
+   "go_name": "Spawner_1_easy_shield_buck_common (1)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.5,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "Spawner_1_small_dragon_stab_rare_d6a60794dce42a843bbdbf75694f4d14",
+   "file_id": 57713,
+   "go_name": "Spawner_1_small_dragon_stab_rare",
+   "LocationNumber": 10,
+   "OptimumTime": 40.5,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "tree_1 (33)_da0862cbc7d438e46a93d4c6520c3efa",
+   "file_id": 60545,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.5,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "tree_1 (43)_df5948dfd4fbf2c44ade6dfd95bb581b",
+   "file_id": 59217,
+   "go_name": "tree_1 (43)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.5,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "tree_1 (47)_8949854ae45dec649aedc895a663a073",
+   "file_id": 56135,
+   "go_name": "tree_1 (47)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.5,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "tree_1 (34)_4e62f71bb3b315b46a1a305623876ee4",
+   "file_id": 58399,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.6,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "tree_1 (48)_67bccfaa2033c8e498ba3f3e64697373",
+   "file_id": 58770,
+   "go_name": "tree_1 (48)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.6,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "tree_1 (25)_f3415c22b4106024196a3ba534833bb2",
+   "file_id": 57091,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 10,
+   "OptimumTime": 40.8,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "tree_1 (37)_809ed59412e865c4194380902cb76bc5",
+   "file_id": 55992,
+   "go_name": "tree_1 (37)",
+   "LocationNumber": 10,
+   "OptimumTime": 41.0,
+   "is_gate": false,
+   "kill_day": 41
+  },
+  {
+   "Key": "Spawner_1_easy_helm_buck_common (1)_b775c6adcf8a97a45b66b4fa15e8deca",
+   "file_id": 58989,
+   "go_name": "Spawner_1_easy_helm_buck_common (1)",
+   "LocationNumber": 10,
+   "OptimumTime": 41.1,
+   "is_gate": false,
+   "kill_day": 42
+  },
+  {
+   "Key": "tree_1 (22)_f4d5cc31e472bbc4aaa711b37fc1c199",
+   "file_id": 56243,
+   "go_name": "tree_1 (22)",
+   "LocationNumber": 10,
+   "OptimumTime": 41.8,
+   "is_gate": false,
+   "kill_day": 42
+  },
+  {
+   "Key": "tree_1 (49)_f2f0158a027fa514f8d40bf51e881b4d",
+   "file_id": 57316,
+   "go_name": "tree_1 (49)",
+   "LocationNumber": 10,
+   "OptimumTime": 41.8,
+   "is_gate": false,
+   "kill_day": 42
+  },
+  {
+   "Key": "Spawner_elite smash defence_d5fac98b084a0fe48a0d87b90b5b7778",
+   "file_id": 57327,
+   "go_name": "Spawner_elite smash defence",
+   "LocationNumber": 10,
+   "OptimumTime": 42.2,
+   "is_gate": false,
+   "kill_day": 43
+  },
+  {
+   "Key": "tree_1 (26)_15c0e0534eb64cf40859ba567fc60622",
+   "file_id": 59072,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 10,
+   "OptimumTime": 42.2,
+   "is_gate": false,
+   "kill_day": 43
+  },
+  {
+   "Key": "Spawner_boss_piercing_legendary_69d874b5a20b80146b9a78ea663c4e46",
+   "file_id": 60785,
+   "go_name": "Spawner_boss_piercing_legendary",
+   "LocationNumber": 10,
+   "OptimumTime": 44.0,
+   "is_gate": true,
+   "kill_day": 44
+  },
+  {
+   "Key": "Spawner_1_easy (1)_c3c6063c9ce431b42a8786513929e4c7",
+   "file_id": 59175,
+   "go_name": "Spawner_1_easy (1)",
+   "LocationNumber": 11,
+   "OptimumTime": 44.0,
+   "is_gate": false,
+   "kill_day": 44
+  },
+  {
+   "Key": "Spawner_1_easy_c375cdc83b59687448defed5a1405b80",
+   "file_id": 60132,
+   "go_name": "Spawner_1_easy",
+   "LocationNumber": 11,
+   "OptimumTime": 44.0,
+   "is_gate": false,
+   "kill_day": 44
+  },
+  {
+   "Key": "Spawner_1_medium (5)_a09f9aa63d65021448995c266323c27c",
+   "file_id": 55443,
+   "go_name": "Spawner_1_medium (5)",
+   "LocationNumber": 11,
+   "OptimumTime": 44.0,
+   "is_gate": false,
+   "kill_day": 44
+  },
+  {
+   "Key": "Spawner_1_medium (6)_08a15e835d304c6458e28c38b783da78",
+   "file_id": 56146,
+   "go_name": "Spawner_1_medium (6)",
+   "LocationNumber": 11,
+   "OptimumTime": 44.0,
+   "is_gate": false,
+   "kill_day": 44
+  },
+  {
+   "Key": "tree_1 (22)_59cfbff7b3a80ca4ea877f9579d87963",
+   "file_id": 56312,
+   "go_name": "tree_1 (22)",
+   "LocationNumber": 11,
+   "OptimumTime": 44.0,
+   "is_gate": false,
+   "kill_day": 44
+  },
+  {
+   "Key": "tree_1 (38)_101a9a26ca651cc449d6647df3b672a7",
+   "file_id": 58326,
+   "go_name": "tree_1 (38)",
+   "LocationNumber": 11,
+   "OptimumTime": 44.0,
+   "is_gate": false,
+   "kill_day": 44
+  },
+  {
+   "Key": "tree_1 (40)_5eb3087c2ba25014399f4b9c910c05af",
+   "file_id": 55488,
+   "go_name": "tree_1 (40)",
+   "LocationNumber": 11,
+   "OptimumTime": 44.0,
+   "is_gate": false,
+   "kill_day": 44
+  },
+  {
+   "Key": "Spawner_1_knight_pierce_rare_8957642e15a04c14eaf54c99f2187478",
+   "file_id": 56954,
+   "go_name": "Spawner_1_knight_pierce_rare",
+   "LocationNumber": 11,
+   "OptimumTime": 44.7,
+   "is_gate": false,
+   "kill_day": 45
+  },
+  {
+   "Key": "Spawner_1_medium_shield_cut_common (1)_09baee804f14b914faeb91bfe9f2c026",
+   "file_id": 56508,
+   "go_name": "Spawner_1_medium_shield_cut_common (1)",
+   "LocationNumber": 11,
+   "OptimumTime": 44.7,
+   "is_gate": false,
+   "kill_day": 45
+  },
+  {
+   "Key": "Spawner_1_medium_helmet_cut_common_ec75a166592e8b74fba067577617184c",
+   "file_id": 56493,
+   "go_name": "Spawner_1_medium_helmet_cut_common",
+   "LocationNumber": 11,
+   "OptimumTime": 45.3,
+   "is_gate": false,
+   "kill_day": 46
+  },
+  {
+   "Key": "Spawner_1_easy (2)_5d629899182d92f49be49167ad7b8cf8",
+   "file_id": 58468,
+   "go_name": "Spawner_1_easy (2)",
+   "LocationNumber": 11,
+   "OptimumTime": 45.8,
+   "is_gate": false,
+   "kill_day": 46
+  },
+  {
+   "Key": "Spawner_1_easy (3)_bf8b8bdcc1e9ccb488ff9acfb93afbc9",
+   "file_id": 59165,
+   "go_name": "Spawner_1_easy (3)",
+   "LocationNumber": 11,
+   "OptimumTime": 45.8,
+   "is_gate": false,
+   "kill_day": 46
+  },
+  {
+   "Key": "Spawner_1_medium_acc84b78ced054d439efc39eed995192",
+   "file_id": 56392,
+   "go_name": "Spawner_1_medium",
+   "LocationNumber": 11,
+   "OptimumTime": 46.0,
+   "is_gate": false,
+   "kill_day": 46
+  },
+  {
+   "Key": "Spawner_1_elite pier_aee896d9aa24d27449a9663c32c52084",
+   "file_id": 56658,
+   "go_name": "Spawner_1_elite pier",
+   "LocationNumber": 11,
+   "OptimumTime": 46.8,
+   "is_gate": false,
+   "kill_day": 47
+  },
+  {
+   "Key": "Spawner_1_easy (4)_bedc3527bd37c27449269e5b39deafc1",
+   "file_id": 59587,
+   "go_name": "Spawner_1_easy (4)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "Spawner_1_knight_pierce_rare_198cac1f382fddc41b0c38bf8dbcd74a",
+   "file_id": 57931,
+   "go_name": "Spawner_1_knight_pierce_rare",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "Spawner_1_medium (1)_74f382d0a7742b247b70fc86ff3046e6",
+   "file_id": 57041,
+   "go_name": "Spawner_1_medium (1)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "Spawner_1_medium (2)_811879a69ddecbd41a524cd76f6fdee8",
+   "file_id": 59361,
+   "go_name": "Spawner_1_medium (2)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "Spawner_1_medium (7)_62053415e48f3b548ad2499d718b804e",
+   "file_id": 59074,
+   "go_name": "Spawner_1_medium (7)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "tree_1 (28)_a06f2059c235eaf4999e93d8df5b0dfc",
+   "file_id": 56086,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "tree_1 (29)_84b816a31b9cc28479a6f167e228ff23",
+   "file_id": 55822,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "tree_1 (30)_1bca0dae14d30ce479dce274d3295bb5",
+   "file_id": 55469,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "tree_1 (31)_2859fc8a650d9854e866115ef54b426f",
+   "file_id": 56212,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "tree_1 (42)_3953005e71d439a4fb1222aed53269bb",
+   "file_id": 60368,
+   "go_name": "tree_1 (42)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "tree_1 (43)_bc7aa54984686384e9c0d89e89ae32f1",
+   "file_id": 60161,
+   "go_name": "tree_1 (43)",
+   "LocationNumber": 11,
+   "OptimumTime": 47.4,
+   "is_gate": false,
+   "kill_day": 48
+  },
+  {
+   "Key": "Spawner_1_medium_helmet_cut_common (1)_ca2839d6d0e248f41b376001b1518b30",
+   "file_id": 57175,
+   "go_name": "Spawner_1_medium_helmet_cut_common (1)",
+   "LocationNumber": 11,
+   "OptimumTime": 48.1,
+   "is_gate": false,
+   "kill_day": 49
+  },
+  {
+   "Key": "Spawner_1_elite cut def_eebde9318082bd64692380450159bf10",
+   "file_id": 56724,
+   "go_name": "Spawner_1_elite cut def",
+   "LocationNumber": 11,
+   "OptimumTime": 49.2,
+   "is_gate": false,
+   "kill_day": 50
+  },
+  {
+   "Key": "Spawner_1_knight_pierce_epic_ef7a8dbadd94e4044b7471cdb74bafbb",
+   "file_id": 57539,
+   "go_name": "Spawner_1_knight_pierce_epic",
+   "LocationNumber": 11,
+   "OptimumTime": 49.2,
+   "is_gate": false,
+   "kill_day": 50
+  },
+  {
+   "Key": "Spawner_1_medium_shield_cut_common_e4aeda1253aff504c91bcad3f2ffd4df",
+   "file_id": 60245,
+   "go_name": "Spawner_1_medium_shield_cut_common",
+   "LocationNumber": 11,
+   "OptimumTime": 49.2,
+   "is_gate": false,
+   "kill_day": 50
+  },
+  {
+   "Key": "Spawner_1_knight_pierce_epic_4a73d25333f615846ae828a75febb3fa",
+   "file_id": 56153,
+   "go_name": "Spawner_1_knight_pierce_epic",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "Spawner_1_medium (3)_e497cb911f6ffbc4f8f407a73e1236f6",
+   "file_id": 57571,
+   "go_name": "Spawner_1_medium (3)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "Spawner_1_medium (4)_5bbc890499d10b14db1f7717e855339b",
+   "file_id": 58005,
+   "go_name": "Spawner_1_medium (4)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (23)_6d7b594c0f596604ea980ce6dc783c64",
+   "file_id": 56798,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (24)_800051a1c17e55a48b41725d0c2c9dc5",
+   "file_id": 57607,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (25)_276989d96beffd6419c8e653976cd95d",
+   "file_id": 55461,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (26)_e0d0505243f396e4abc3a72619c2ffb1",
+   "file_id": 58433,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (27)_59f96587cd24d594fb37414cf9516097",
+   "file_id": 60060,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (32)_fc27206e45c599c40b6a167a518d98c7",
+   "file_id": 58373,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (33)_debc5534ad047e4408ca043d91a933f7",
+   "file_id": 56199,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (34)_81ebfea4b4d2207439d441b45374c2a2",
+   "file_id": 59067,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (35)_fbb8f4351bcb10e4e9afae7a1309d6bb",
+   "file_id": 59669,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "tree_1 (36)_7b86066cc0f5e3242815310ae2e2b80d",
+   "file_id": 58461,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 11,
+   "OptimumTime": 50.8,
+   "is_gate": false,
+   "kill_day": 51
+  },
+  {
+   "Key": "Spawner_1_elite regen_de3a10ea9a5989a45bd8d5f1bd02c6e3",
+   "file_id": 56077,
+   "go_name": "Spawner_1_elite regen",
+   "LocationNumber": 11,
+   "OptimumTime": 52.2,
+   "is_gate": false,
+   "kill_day": 53
+  },
+  {
+   "Key": "Spawner_boss_smash_legendary_a4f71962e64aac54bb02b0db8d3d79c2",
+   "file_id": 56866,
+   "go_name": "Spawner_boss_smash_legendary",
+   "LocationNumber": 11,
+   "OptimumTime": 56.0,
+   "is_gate": true,
+   "kill_day": 57
+  },
+  {
+   "Key": "Spawner_1_easy (3)_a01cdc26ef625d14ea1316410c510e83",
+   "file_id": 57492,
+   "go_name": "Spawner_1_easy (3)",
+   "LocationNumber": 12,
+   "OptimumTime": 56.0,
+   "is_gate": false,
+   "kill_day": 56
+  },
+  {
+   "Key": "Spawner_1_easy (4)_247361fd45e761945aa00f527b8062d3",
+   "file_id": 57304,
+   "go_name": "Spawner_1_easy (4)",
+   "LocationNumber": 12,
+   "OptimumTime": 57.6,
+   "is_gate": false,
+   "kill_day": 58
+  },
+  {
+   "Key": "Spawner_1_easy_f09bac93a348f13499adb608c1aba01d",
+   "file_id": 58984,
+   "go_name": "Spawner_1_easy",
+   "LocationNumber": 12,
+   "OptimumTime": 57.6,
+   "is_gate": false,
+   "kill_day": 58
+  },
+  {
+   "Key": "Spawner_1_knight_buck_rare_8372b7dfc0163ea4e864f097ed02b1dd",
+   "file_id": 59889,
+   "go_name": "Spawner_1_knight_buck_rare",
+   "LocationNumber": 12,
+   "OptimumTime": 58.7,
+   "is_gate": false,
+   "kill_day": 59
+  },
+  {
+   "Key": "Spawner_1_knight_shield_pier_uncommon (1)_a3fe3b1e6449b3742b009fd31a86364a",
+   "file_id": 57758,
+   "go_name": "Spawner_1_knight_shield_pier_uncommon (1)",
+   "LocationNumber": 12,
+   "OptimumTime": 58.7,
+   "is_gate": false,
+   "kill_day": 59
+  },
+  {
+   "Key": "Spawner_1_easy (2)_90a81eee51ea3a6469e5736b61865d9f",
+   "file_id": 57757,
+   "go_name": "Spawner_1_easy (2)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "Spawner_1_medium (2)_ae1b94f63741e9c48b46b71429359c6b",
+   "file_id": 60409,
+   "go_name": "Spawner_1_medium (2)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "Spawner_1_medium (4)_e8cc5f671d3959548838a1afaf1d9a71",
+   "file_id": 56559,
+   "go_name": "Spawner_1_medium (4)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (27)_e398d56829d4f724d8ed178641d84750",
+   "file_id": 58747,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (38)_3b407473c2be7ea4dbc8cf9519e914c6",
+   "file_id": 57258,
+   "go_name": "tree_1 (38)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (39)_d8d77d94136f14c47b0c5d03bb20840c",
+   "file_id": 58740,
+   "go_name": "tree_1 (39)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (40)_b6ba8e06d57114d4fb4f627055bc96b2",
+   "file_id": 57518,
+   "go_name": "tree_1 (40)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (41)_1a241ef4afc4b044ea05e557db8f32d1",
+   "file_id": 57701,
+   "go_name": "tree_1 (41)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (42)_96b31776aaccdda46b3462eccb938bee",
+   "file_id": 58559,
+   "go_name": "tree_1 (42)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (44)_c7e0a800e9d629e408798063f7811969",
+   "file_id": 56728,
+   "go_name": "tree_1 (44)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (45)_40f17e0af4ff2934d9f3e70599faf24e",
+   "file_id": 59123,
+   "go_name": "tree_1 (45)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (46)_c77c9e75800bb3546907d52a74a3f679",
+   "file_id": 57315,
+   "go_name": "tree_1 (46)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "tree_1 (47)_00d41ecfb6272fe47b98eadf7031b0eb",
+   "file_id": 56394,
+   "go_name": "tree_1 (47)",
+   "LocationNumber": 12,
+   "OptimumTime": 59.3,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "Spawner_1_knight_buck_rare_1d75d35c43790434895c66147dce5dcf",
+   "file_id": 56785,
+   "go_name": "Spawner_1_knight_buck_rare",
+   "LocationNumber": 12,
+   "OptimumTime": 60.0,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "Spawner_1_knight_helm_pier_uncommon_d0499138fbca2cd4bb005f841af06ea0",
+   "file_id": 59053,
+   "go_name": "Spawner_1_knight_helm_pier_uncommon",
+   "LocationNumber": 12,
+   "OptimumTime": 60.0,
+   "is_gate": false,
+   "kill_day": 60
+  },
+  {
+   "Key": "Spawner_1_medium (1)_b177de14b20894b4f828214ffce03545",
+   "file_id": 56591,
+   "go_name": "Spawner_1_medium (1)",
+   "LocationNumber": 12,
+   "OptimumTime": 61.0,
+   "is_gate": false,
+   "kill_day": 61
+  },
+  {
+   "Key": "Spawner_1_medium_21ff8c7926acc604ca75d35457d50e7e",
+   "file_id": 60543,
+   "go_name": "Spawner_1_medium",
+   "LocationNumber": 12,
+   "OptimumTime": 61.0,
+   "is_gate": false,
+   "kill_day": 61
+  },
+  {
+   "Key": "Spawner_1_elite health_36b2aab7fb5d51b42a876dc3c17a84d3",
+   "file_id": 58636,
+   "go_name": "Spawner_1_elite health",
+   "LocationNumber": 12,
+   "OptimumTime": 62.0,
+   "is_gate": false,
+   "kill_day": 62
+  },
+  {
+   "Key": "Spawner_1_knight_helm_pier_epic_28aeaa8c75f1f1044821b497b1a7d976",
+   "file_id": 55671,
+   "go_name": "Spawner_1_knight_helm_pier_epic",
+   "LocationNumber": 12,
+   "OptimumTime": 62.8,
+   "is_gate": false,
+   "kill_day": 63
+  },
+  {
+   "Key": "Spawner_1_medium (5)_6d24d3f98b76c784da3c75eb2d1c639e",
+   "file_id": 58981,
+   "go_name": "Spawner_1_medium (5)",
+   "LocationNumber": 12,
+   "OptimumTime": 62.8,
+   "is_gate": false,
+   "kill_day": 63
+  },
+  {
+   "Key": "tree_1 (28)_ab922ab6a7a482342925fd04216cd069",
+   "file_id": 58025,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 12,
+   "OptimumTime": 62.8,
+   "is_gate": false,
+   "kill_day": 63
+  },
+  {
+   "Key": "tree_1 (32)_f4be85e7604f8344b8297fb307072678",
+   "file_id": 58967,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 12,
+   "OptimumTime": 62.8,
+   "is_gate": false,
+   "kill_day": 63
+  },
+  {
+   "Key": "tree_1 (33)_14f0692ea80de154a9388c862f6e74f4",
+   "file_id": 55484,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 12,
+   "OptimumTime": 62.8,
+   "is_gate": false,
+   "kill_day": 63
+  },
+  {
+   "Key": "tree_1 (34)_e796bc9dcfb59e1429df89e364ed006d",
+   "file_id": 59534,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 12,
+   "OptimumTime": 62.8,
+   "is_gate": false,
+   "kill_day": 63
+  },
+  {
+   "Key": "tree_1 (43)_7e4417e7d4d84b947b7cc66f2c07dd17",
+   "file_id": 58779,
+   "go_name": "tree_1 (43)",
+   "LocationNumber": 12,
+   "OptimumTime": 62.8,
+   "is_gate": false,
+   "kill_day": 63
+  },
+  {
+   "Key": "Spawner_1_knight_buck_epic_297ce77ff805d2645b981399aa2dff1b",
+   "file_id": 60566,
+   "go_name": "Spawner_1_knight_buck_epic",
+   "LocationNumber": 12,
+   "OptimumTime": 64.0,
+   "is_gate": false,
+   "kill_day": 64
+  },
+  {
+   "Key": "Spawner_1_elite pier def_4357f4592f0d28e46bb577b414a571fa",
+   "file_id": 58744,
+   "go_name": "Spawner_1_elite pier def",
+   "LocationNumber": 12,
+   "OptimumTime": 64.2,
+   "is_gate": false,
+   "kill_day": 65
+  },
+  {
+   "Key": "Spawner_1_knight_buck_epic_c7b66d929c13af942b5611216c2ecfcc",
+   "file_id": 58451,
+   "go_name": "Spawner_1_knight_buck_epic",
+   "LocationNumber": 12,
+   "OptimumTime": 65.3,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "Spawner_1_easy (1)_ab11835270e2d1d4095dc69d81fc6bca",
+   "file_id": 58001,
+   "go_name": "Spawner_1_easy (1)",
+   "LocationNumber": 12,
+   "OptimumTime": 66.0,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "Spawner_1_elite buck_f7862cf01fb4af24598b91bdba496538",
+   "file_id": 58008,
+   "go_name": "Spawner_1_elite buck",
+   "LocationNumber": 12,
+   "OptimumTime": 66.0,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "tree_1 (23)_45edcd23be60a4c4bb833029c0b0413f",
+   "file_id": 58756,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 12,
+   "OptimumTime": 66.0,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "tree_1 (24)_ab6f0e3d70ead064c84deab5800c2b61",
+   "file_id": 57108,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 12,
+   "OptimumTime": 66.0,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "tree_1 (29)_ac8f89bb2da922b468a5e18cc85b3667",
+   "file_id": 56860,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 12,
+   "OptimumTime": 66.0,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "tree_1 (35)_52b1c8d683cb86048b1e703f5a7faa47",
+   "file_id": 55926,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 12,
+   "OptimumTime": 66.0,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "tree_1 (36)_726178413e944cf4d803f18c49b67478",
+   "file_id": 57746,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 12,
+   "OptimumTime": 66.0,
+   "is_gate": false,
+   "kill_day": 66
+  },
+  {
+   "Key": "Spawner_1_knight_shield_pier_epic_7deb2f52ec4e87849aefa293face49e0",
+   "file_id": 59758,
+   "go_name": "Spawner_1_knight_shield_pier_epic",
+   "LocationNumber": 12,
+   "OptimumTime": 66.6,
+   "is_gate": false,
+   "kill_day": 67
+  },
+  {
+   "Key": "Spawner_1_medium (3)_c0dcf2b06e225a54799278a8ceee0f14",
+   "file_id": 56880,
+   "go_name": "Spawner_1_medium (3)",
+   "LocationNumber": 12,
+   "OptimumTime": 67.7,
+   "is_gate": false,
+   "kill_day": 68
+  },
+  {
+   "Key": "tree_1 (30)_b38093ef16caa294788233e66ce5b75e",
+   "file_id": 60728,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 12,
+   "OptimumTime": 69.4,
+   "is_gate": false,
+   "kill_day": 70
+  },
+  {
+   "Key": "Spawner_boss_cut_legendary_3c0d1a7f7ba8c104283bd84bf7f07fcd",
+   "file_id": 60381,
+   "go_name": "Spawner_boss_cut_legendary",
+   "LocationNumber": 12,
+   "OptimumTime": 71.0,
+   "is_gate": true,
+   "kill_day": 71
+  },
+  {
+   "Key": "tree_1 (26)_eafdf333e1afaf14285cc064230055d5",
+   "file_id": 58575,
+   "go_name": "tree_1 (26)",
+   "LocationNumber": 13,
+   "OptimumTime": 71.0,
+   "is_gate": false,
+   "kill_day": 71
+  },
+  {
+   "Key": "Spawner_1_easy (1)_b7051a7b27709314881916057bf53dff",
+   "file_id": 59340,
+   "go_name": "Spawner_1_easy (1)",
+   "LocationNumber": 13,
+   "OptimumTime": 75.4,
+   "is_gate": false,
+   "kill_day": 76
+  },
+  {
+   "Key": "Spawner_1_easy (6)_cfa18967e8464694189272d03c02fafc",
+   "file_id": 56529,
+   "go_name": "Spawner_1_easy (6)",
+   "LocationNumber": 13,
+   "OptimumTime": 75.4,
+   "is_gate": false,
+   "kill_day": 76
+  },
+  {
+   "Key": "Spawner_1_easy (3)_0368bc999e560b245a0d3a3526fa1f88",
+   "file_id": 58097,
+   "go_name": "Spawner_1_easy (3)",
+   "LocationNumber": 13,
+   "OptimumTime": 75.6,
+   "is_gate": false,
+   "kill_day": 76
+  },
+  {
+   "Key": "Spawner_1_knight_helmet_buck_uncommon_628f6bdfede2e564683465cca45b482f",
+   "file_id": 58539,
+   "go_name": "Spawner_1_knight_helmet_buck_uncommon",
+   "LocationNumber": 13,
+   "OptimumTime": 76.3,
+   "is_gate": false,
+   "kill_day": 77
+  },
+  {
+   "Key": "Spawner_1_knight_rare_cut (1)_de164f5a626eaa54e90b59de63bd9c4b",
+   "file_id": 59466,
+   "go_name": "Spawner_1_knight_rare_cut (1)",
+   "LocationNumber": 13,
+   "OptimumTime": 76.3,
+   "is_gate": false,
+   "kill_day": 77
+  },
+  {
+   "Key": "Spawner_1_knight_rare_cut_fd47b0b5bf1a7f247bde76edb4c5f321",
+   "file_id": 56479,
+   "go_name": "Spawner_1_knight_rare_cut",
+   "LocationNumber": 13,
+   "OptimumTime": 76.3,
+   "is_gate": false,
+   "kill_day": 77
+  },
+  {
+   "Key": "Spawner_1_easy (2)_d0b016fa70033cb4592552b3ba54b636",
+   "file_id": 60584,
+   "go_name": "Spawner_1_easy (2)",
+   "LocationNumber": 13,
+   "OptimumTime": 76.9,
+   "is_gate": false,
+   "kill_day": 77
+  },
+  {
+   "Key": "Spawner_1_medium (4)_cec6322b789479e4ba6f5fa5ac08d6e7",
+   "file_id": 60058,
+   "go_name": "Spawner_1_medium (4)",
+   "LocationNumber": 13,
+   "OptimumTime": 76.9,
+   "is_gate": false,
+   "kill_day": 77
+  },
+  {
+   "Key": "Spawner_1_medium_60d3336082fa5e24e96f211d8eee2e16",
+   "file_id": 59736,
+   "go_name": "Spawner_1_medium",
+   "LocationNumber": 13,
+   "OptimumTime": 76.9,
+   "is_gate": false,
+   "kill_day": 77
+  },
+  {
+   "Key": "Spawner_1_elite cut_637bf0b2d8b98e04daf327279d09cd3e",
+   "file_id": 57059,
+   "go_name": "Spawner_1_elite cut",
+   "LocationNumber": 13,
+   "OptimumTime": 77.5,
+   "is_gate": false,
+   "kill_day": 78
+  },
+  {
+   "Key": "Spawner_1_easy (4)_8316cdc4581d35941908a7b53eda2f74",
+   "file_id": 60016,
+   "go_name": "Spawner_1_easy (4)",
+   "LocationNumber": 13,
+   "OptimumTime": 78.2,
+   "is_gate": false,
+   "kill_day": 79
+  },
+  {
+   "Key": "Spawner_1_knight_shield_buck_uncommon (1)_da1d5dcdc67523d42abfea0a01ee2859",
+   "file_id": 56759,
+   "go_name": "Spawner_1_knight_shield_buck_uncommon (1)",
+   "LocationNumber": 13,
+   "OptimumTime": 78.2,
+   "is_gate": false,
+   "kill_day": 79
+  },
+  {
+   "Key": "Spawner_1_knight_epic_cut (1)_f4f9465536e012d4eb7d44504ba7ff4a",
+   "file_id": 60625,
+   "go_name": "Spawner_1_knight_epic_cut (1)",
+   "LocationNumber": 13,
+   "OptimumTime": 79.7,
+   "is_gate": false,
+   "kill_day": 80
+  },
+  {
+   "Key": "Spawner_1_medium (1)_89d53005e1d9792438d7ed4cb3e62688",
+   "file_id": 55681,
+   "go_name": "Spawner_1_medium (1)",
+   "LocationNumber": 13,
+   "OptimumTime": 79.7,
+   "is_gate": false,
+   "kill_day": 80
+  },
+  {
+   "Key": "Spawner_1_medium (2)_aa213260a7597784fb02a2204ecb820f",
+   "file_id": 57166,
+   "go_name": "Spawner_1_medium (2)",
+   "LocationNumber": 13,
+   "OptimumTime": 79.7,
+   "is_gate": false,
+   "kill_day": 80
+  },
+  {
+   "Key": "Spawner_1_easy (7)_9ee4664d97fa7d1478f112fae658f6b3",
+   "file_id": 58137,
+   "go_name": "Spawner_1_easy (7)",
+   "LocationNumber": 13,
+   "OptimumTime": 81.3,
+   "is_gate": false,
+   "kill_day": 82
+  },
+  {
+   "Key": "Spawner_1_easy (5)_e08ee761cc1c74940880e98688875d05",
+   "file_id": 60373,
+   "go_name": "Spawner_1_easy (5)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "Spawner_1_elite defense_2e046dbf2323c0a41acdfed11a60fdec",
+   "file_id": 58878,
+   "go_name": "Spawner_1_elite defense",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "Spawner_1_medium (3)_25de37189eaf2f8448a76a7ad1c30289",
+   "file_id": 55687,
+   "go_name": "Spawner_1_medium (3)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (23)_4361cd047c04cfe4cbb1bc2342baa4c7",
+   "file_id": 57448,
+   "go_name": "tree_1 (23)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (24)_66018d6cfcae22b41ab6d7263f87f339",
+   "file_id": 60316,
+   "go_name": "tree_1 (24)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (25)_566cb1b393d65b14d920943ac7cca8ae",
+   "file_id": 60158,
+   "go_name": "tree_1 (25)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (27)_0ed89fdba8993604ba6eb52b9e461396",
+   "file_id": 56047,
+   "go_name": "tree_1 (27)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (31)_209d190c3e88c474bb1fc33947954461",
+   "file_id": 56129,
+   "go_name": "tree_1 (31)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (32)_c67f4ff0264c0d146b90f3415cd381a1",
+   "file_id": 59594,
+   "go_name": "tree_1 (32)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (33)_6061932425cb6c64aab0f97ab0aca844",
+   "file_id": 60680,
+   "go_name": "tree_1 (33)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (34)_e297108656f2bc44ca2bac31953f34a0",
+   "file_id": 58662,
+   "go_name": "tree_1 (34)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "tree_1 (36)_7f8800a9656c3cf47990188c7846bc20",
+   "file_id": 58142,
+   "go_name": "tree_1 (36)",
+   "LocationNumber": 13,
+   "OptimumTime": 82.6,
+   "is_gate": false,
+   "kill_day": 83
+  },
+  {
+   "Key": "Spawner_1_knight_helmet_buck_epic (1)_a614ecaa2757ff3448b0fb76f57186a6",
+   "file_id": 58076,
+   "go_name": "Spawner_1_knight_helmet_buck_epic (1)",
+   "LocationNumber": 13,
+   "OptimumTime": 84.1,
+   "is_gate": false,
+   "kill_day": 85
+  },
+  {
+   "Key": "tree_1 (30)_7ae22e7499873aa4cb7550fe491f0048",
+   "file_id": 59337,
+   "go_name": "tree_1 (30)",
+   "LocationNumber": 13,
+   "OptimumTime": 84.1,
+   "is_gate": false,
+   "kill_day": 85
+  },
+  {
+   "Key": "Spawner_1_knight_shield_buck_epic_692aeba376d21c54eb311f77a3776320",
+   "file_id": 58594,
+   "go_name": "Spawner_1_knight_shield_buck_epic",
+   "LocationNumber": 13,
+   "OptimumTime": 85.1,
+   "is_gate": false,
+   "kill_day": 86
+  },
+  {
+   "Key": "Spawner_1_knight_epic_cut_f0280181997bac24ea61e897facc9d6d",
+   "file_id": 55968,
+   "go_name": "Spawner_1_knight_epic_cut",
+   "LocationNumber": 13,
+   "OptimumTime": 85.6,
+   "is_gate": false,
+   "kill_day": 86
+  },
+  {
+   "Key": "tree_1 (28)_97732f504d7634d44bca5aa1e555626b",
+   "file_id": 57936,
+   "go_name": "tree_1 (28)",
+   "LocationNumber": 13,
+   "OptimumTime": 85.6,
+   "is_gate": false,
+   "kill_day": 86
+  },
+  {
+   "Key": "tree_1 (35)_eac809ee3efa1bd4eba024c85446eeb6",
+   "file_id": 59084,
+   "go_name": "tree_1 (35)",
+   "LocationNumber": 13,
+   "OptimumTime": 85.6,
+   "is_gate": false,
+   "kill_day": 86
+  },
+  {
+   "Key": "tree_1 (29)_003d0ab9a27d3bf4ea1289092f986ac3",
+   "file_id": 56588,
+   "go_name": "tree_1 (29)",
+   "LocationNumber": 13,
+   "OptimumTime": 88.5,
+   "is_gate": false,
+   "kill_day": 89
+  },
+  {
+   "Key": "Spawner_boss (3)_e91552426bfb713409aa1ef6e8beaf85",
+   "file_id": 59107,
+   "go_name": "Spawner_boss (3)",
+   "LocationNumber": 13,
+   "OptimumTime": 90.0,
+   "is_gate": true,
+   "kill_day": 90
+  },
+  {
+   "Key": "Spawner_1_medium_helmet_cut_uncommon (1)_729b780a59ade654694bc1b1d9c49669",
+   "file_id": 55753,
+   "go_name": "Spawner_1_medium_helmet_cut_uncommon (1)",
+   "LocationNumber": 14,
+   "OptimumTime": 90.0,
+   "is_gate": false,
+   "kill_day": 90
+  },
+  {
+   "Key": "Spawner_1_knight (4)_08056f71b444fed4986dd5fcb21e1b85",
+   "file_id": 59470,
+   "go_name": "Spawner_1_knight (4)",
+   "LocationNumber": 14,
+   "OptimumTime": 91.0,
+   "is_gate": false,
+   "kill_day": 91
+  },
+  {
+   "Key": "Spawner_1_knight (5)_623336a2038984b4589f2417b9bfb8f3",
+   "file_id": 55495,
+   "go_name": "Spawner_1_knight (5)",
+   "LocationNumber": 14,
+   "OptimumTime": 91.0,
+   "is_gate": false,
+   "kill_day": 91
+  },
+  {
+   "Key": "Spawner_1_medium (16)_e64f43935b37ab84a8db85484ed4b054",
+   "file_id": 58641,
+   "go_name": "Spawner_1_medium (16)",
+   "LocationNumber": 14,
+   "OptimumTime": 91.0,
+   "is_gate": false,
+   "kill_day": 91
+  },
+  {
+   "Key": "Spawner_1_medium (17)_ae1a1e0023b4a864d9a2d09c2d2de12f",
+   "file_id": 56097,
+   "go_name": "Spawner_1_medium (17)",
+   "LocationNumber": 14,
+   "OptimumTime": 91.0,
+   "is_gate": false,
+   "kill_day": 91
+  },
+  {
+   "Key": "Spawner_1_medium (6)_3dccb3619bfe19f4f87b95d63609a656",
+   "file_id": 58568,
+   "go_name": "Spawner_1_medium (6)",
+   "LocationNumber": 14,
+   "OptimumTime": 91.0,
+   "is_gate": false,
+   "kill_day": 91
+  },
+  {
+   "Key": "Spawner_1_medium_b038a078272963c45b182eb0c2d116b2",
+   "file_id": 60254,
+   "go_name": "Spawner_1_medium",
+   "LocationNumber": 14,
+   "OptimumTime": 91.0,
+   "is_gate": false,
+   "kill_day": 91
+  },
+  {
+   "Key": "Spawner_1_medium_shield_cut_uncommon_425c60128655e424c9b96fcc3fe41a67",
+   "file_id": 55848,
+   "go_name": "Spawner_1_medium_shield_cut_uncommon",
+   "LocationNumber": 14,
+   "OptimumTime": 91.0,
+   "is_gate": false,
+   "kill_day": 91
+  },
+  {
+   "Key": "Spawner_1_medium (1)_d437983d965392943b13bc518e88407e",
+   "file_id": 60541,
+   "go_name": "Spawner_1_medium (1)",
+   "LocationNumber": 14,
+   "OptimumTime": 92.6,
+   "is_gate": false,
+   "kill_day": 93
+  },
+  {
+   "Key": "Spawner_1_elite_6e7cd9ced6a224d45b39d45a0601a9b4",
+   "file_id": 58116,
+   "go_name": "Spawner_1_elite",
+   "LocationNumber": 14,
+   "OptimumTime": 94.4,
+   "is_gate": false,
+   "kill_day": 95
+  },
+  {
+   "Key": "Spawner_1_medium (7)_b2367a62c8b5e4c47a1e2a67790f1212",
+   "file_id": 59914,
+   "go_name": "Spawner_1_medium (7)",
+   "LocationNumber": 14,
+   "OptimumTime": 94.4,
+   "is_gate": false,
+   "kill_day": 95
+  },
+  {
+   "Key": "Spawner_1_medium (13)_392b6e8cb2ad8ac40870e0cd3ae9da66",
+   "file_id": 59406,
+   "go_name": "Spawner_1_medium (13)",
+   "LocationNumber": 14,
+   "OptimumTime": 96.2,
+   "is_gate": false,
+   "kill_day": 97
+  },
+  {
+   "Key": "Spawner_1_elite (1)_6d2d0b59da1f5304fad58f13b07da6aa",
+   "file_id": 56232,
+   "go_name": "Spawner_1_elite (1)",
+   "LocationNumber": 14,
+   "OptimumTime": 97.8,
+   "is_gate": false,
+   "kill_day": 98
+  },
+  {
+   "Key": "Spawner_1_medium_helmet_cut_epic_7481a2160e2f1c140a13f1d7064b6c28",
+   "file_id": 58517,
+   "go_name": "Spawner_1_medium_helmet_cut_epic",
+   "LocationNumber": 14,
+   "OptimumTime": 97.8,
+   "is_gate": false,
+   "kill_day": 98
+  },
+  {
+   "Key": "Spawner_1_medium (18)_cca4ae63361acfc439d1a3955c881ca3",
+   "file_id": 57513,
+   "go_name": "Spawner_1_medium (18)",
+   "LocationNumber": 14,
+   "OptimumTime": 99.6,
+   "is_gate": false,
+   "kill_day": 100
+  },
+  {
+   "Key": "Spawner_1_medium (3)_47e9529148ef91241aab0f5daba7ec55",
+   "file_id": 60296,
+   "go_name": "Spawner_1_medium (3)",
+   "LocationNumber": 14,
+   "OptimumTime": 99.6,
+   "is_gate": false,
+   "kill_day": 100
+  },
+  {
+   "Key": "Spawner_1_medium (9)_b476efe169714b6419e1e76f1d557227",
+   "file_id": 58121,
+   "go_name": "Spawner_1_medium (9)",
+   "LocationNumber": 14,
+   "OptimumTime": 99.6,
+   "is_gate": false,
+   "kill_day": 100
+  },
+  {
+   "Key": "Spawner_1_medium_shield_cut_epic_0603e4b72f56e9740bbe1742f8d65c3c",
+   "file_id": 58417,
+   "go_name": "Spawner_1_medium_shield_cut_epic",
+   "LocationNumber": 14,
+   "OptimumTime": 99.6,
+   "is_gate": false,
+   "kill_day": 100
+  },
+  {
+   "Key": "Spawner_1_elite (2)_df23336813ce1ae48a155508dc62d5fb",
+   "file_id": 56770,
+   "go_name": "Spawner_1_elite (2)",
+   "LocationNumber": 14,
+   "OptimumTime": 103.0,
+   "is_gate": false,
+   "kill_day": 103
+  },
+  {
+   "Key": "Spawner_1_medium (10)_9b2298a59b38c744482c57cec32aaf41",
+   "file_id": 59126,
+   "go_name": "Spawner_1_medium (10)",
+   "LocationNumber": 14,
+   "OptimumTime": 103.0,
+   "is_gate": false,
+   "kill_day": 103
+  },
+  {
+   "Key": "Spawner_1_medium (14)_653fffb13d25fd34ebfa8ac42cbd6a4f",
+   "file_id": 57514,
+   "go_name": "Spawner_1_medium (14)",
+   "LocationNumber": 14,
+   "OptimumTime": 103.0,
+   "is_gate": false,
+   "kill_day": 103
+  },
+  {
+   "Key": "Spawner_1_medium (11)_7b8febb43122ec04db8fa80a7e0a157a",
+   "file_id": 60367,
+   "go_name": "Spawner_1_medium (11)",
+   "LocationNumber": 14,
+   "OptimumTime": 106.6,
+   "is_gate": false,
+   "kill_day": 107
+  },
+  {
+   "Key": "Spawner_1_medium (15)_6f0c2e8e3769a67419c98044c265e88e",
+   "file_id": 60530,
+   "go_name": "Spawner_1_medium (15)",
+   "LocationNumber": 14,
+   "OptimumTime": 106.6,
+   "is_gate": false,
+   "kill_day": 107
+  },
+  {
+   "Key": "Spawner_1_knight (1)_fa773d0bf652ceb4f963569b0290d22d",
+   "file_id": 55716,
+   "go_name": "Spawner_1_knight (1)",
+   "LocationNumber": 14,
+   "OptimumTime": 108.2,
+   "is_gate": false,
+   "kill_day": 109
+  },
+  {
+   "Key": "Spawner_1_knight (2)_e5a94b5125c3cbe4a85c7b60fa9b9ade",
+   "file_id": 56465,
+   "go_name": "Spawner_1_knight (2)",
+   "LocationNumber": 14,
+   "OptimumTime": 108.2,
+   "is_gate": false,
+   "kill_day": 109
+  },
+  {
+   "Key": "Spawner_1_knight (3)_fe4c1c4bcf1786e4a96fed8461648773",
+   "file_id": 57274,
+   "go_name": "Spawner_1_knight (3)",
+   "LocationNumber": 14,
+   "OptimumTime": 108.2,
+   "is_gate": false,
+   "kill_day": 109
+  },
+  {
+   "Key": "Spawner_1_knight_645fc1e44f8a0c241b58b6bdd9e29686",
+   "file_id": 57910,
+   "go_name": "Spawner_1_knight",
+   "LocationNumber": 14,
+   "OptimumTime": 108.2,
+   "is_gate": false,
+   "kill_day": 109
+  },
+  {
+   "Key": "Spawner_boss (3)_95520d2a097991c44af7487dd2fe7190",
+   "file_id": 59221,
+   "go_name": "Spawner_boss (3)",
+   "LocationNumber": 14,
+   "OptimumTime": 110.0,
+   "is_gate": true,
+   "kill_day": 110
+  },
+  {
+   "Key": "Spawner_15_easy_17c1019a386a386438be74b8c3100470",
+   "file_id": 56401,
+   "go_name": "Spawner_15_easy",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "tree_15 (1)_4d3e47553b45f014da771268abbaed7b",
+   "file_id": 57994,
+   "go_name": "tree_15 (1)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "tree_15 (10)_9f860f74aa950b04996fc721a0c78998",
+   "file_id": 56513,
+   "go_name": "tree_15 (10)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "tree_15 (11)_07e492c63fa5cb04b9e0f2ca3789cd15",
+   "file_id": 56485,
+   "go_name": "tree_15 (11)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "tree_15 (17)_4a55b933722dade43ab0183e47704253",
+   "file_id": 58557,
+   "go_name": "tree_15 (17)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "tree_15 (5)_25472010574bee140bc9719096355534",
+   "file_id": 60547,
+   "go_name": "tree_15 (5)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "tree_15 (7)_d41620dfea0d9b349a3a748de9a052e6",
+   "file_id": 60661,
+   "go_name": "tree_15 (7)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "tree_15 (9)_efd61ec8f4ce2194c807a664ac714b64",
+   "file_id": 56433,
+   "go_name": "tree_15 (9)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.0,
+   "is_gate": false,
+   "kill_day": 110
+  },
+  {
+   "Key": "Spawner_15_medium_common_pierce_shield (3)_5296c0896bc01614ca9ffd751282aa0b",
+   "file_id": 58886,
+   "go_name": "Spawner_15_medium_common_pierce_shield (3)",
+   "LocationNumber": 15,
+   "OptimumTime": 110.6,
+   "is_gate": false,
+   "kill_day": 111
+  },
+  {
+   "Key": "Spawner_15_knight (1)_43f3e13e407f5da419a1dbd36650da6e",
+   "file_id": 60233,
+   "go_name": "Spawner_15_knight (1)",
+   "LocationNumber": 15,
+   "OptimumTime": 111.6,
+   "is_gate": false,
+   "kill_day": 112
+  },
+  {
+   "Key": "Spawner_15_knight (3)_2ebe2cecb99670a49b3a0791ee0ee954",
+   "file_id": 59603,
+   "go_name": "Spawner_15_knight (3)",
+   "LocationNumber": 15,
+   "OptimumTime": 111.6,
+   "is_gate": false,
+   "kill_day": 112
+  },
+  {
+   "Key": "Spawner_15_knight (5)_cce445d738840434980b6065fe65b35f",
+   "file_id": 60459,
+   "go_name": "Spawner_15_knight (5)",
+   "LocationNumber": 15,
+   "OptimumTime": 111.6,
+   "is_gate": false,
+   "kill_day": 112
+  },
+  {
+   "Key": "Spawner_15_medium_common_pierce_helm (4)_29ac5a709ae303d49a15c040ccf94dab",
+   "file_id": 59751,
+   "go_name": "Spawner_15_medium_common_pierce_helm (4)",
+   "LocationNumber": 15,
+   "OptimumTime": 111.6,
+   "is_gate": false,
+   "kill_day": 112
+  },
+  {
+   "Key": "tree_15 (13)_e3c2dd9ed091d31418be357b5119da78",
+   "file_id": 56279,
+   "go_name": "tree_15 (13)",
+   "LocationNumber": 15,
+   "OptimumTime": 111.6,
+   "is_gate": false,
+   "kill_day": 112
+  },
+  {
+   "Key": "Spawner_15_medium_uncommon_pierce_helm (9)_10529384b0fa0bf48b26003f2537db4b",
+   "file_id": 58556,
+   "go_name": "Spawner_15_medium_uncommon_pierce_helm (9)",
+   "LocationNumber": 15,
+   "OptimumTime": 112.6,
+   "is_gate": false,
+   "kill_day": 113
+  },
+  {
+   "Key": "Spawner_15_medium_uncommon_pierce_shield (10)_f04ec3490030d87488edbbaa169f7d6d",
+   "file_id": 60708,
+   "go_name": "Spawner_15_medium_uncommon_pierce_shield (10)",
+   "LocationNumber": 15,
+   "OptimumTime": 113.4,
+   "is_gate": false,
+   "kill_day": 114
+  },
+  {
+   "Key": "tree_15 (12)_49dde8ee044e5c44f8ceae5adbe828a3",
+   "file_id": 56004,
+   "go_name": "tree_15 (12)",
+   "LocationNumber": 15,
+   "OptimumTime": 113.4,
+   "is_gate": false,
+   "kill_day": 114
+  },
+  {
+   "Key": "tree_15 (2)_532309f309016594482c12b0e7efe5c5",
+   "file_id": 56352,
+   "go_name": "tree_15 (2)",
+   "LocationNumber": 15,
+   "OptimumTime": 113.4,
+   "is_gate": false,
+   "kill_day": 114
+  },
+  {
+   "Key": "tree_15 (8)_a3f87e97df9267b47bd1d842e2dce575",
+   "file_id": 58522,
+   "go_name": "tree_15 (8)",
+   "LocationNumber": 15,
+   "OptimumTime": 113.4,
+   "is_gate": false,
+   "kill_day": 114
+  },
+  {
+   "Key": "Spawner_15_elite (1)_de67f42898545344997193a3ec763004",
+   "file_id": 56311,
+   "go_name": "Spawner_15_elite (1)",
+   "LocationNumber": 15,
+   "OptimumTime": 115.0,
+   "is_gate": false,
+   "kill_day": 115
+  },
+  {
+   "Key": "Spawner_15_knight (6)_c7bd3b1bfc99d354f94be0dd4bb4bf2c",
+   "file_id": 56638,
+   "go_name": "Spawner_15_knight (6)",
+   "LocationNumber": 15,
+   "OptimumTime": 115.0,
+   "is_gate": false,
+   "kill_day": 115
+  },
+  {
+   "Key": "tree_15 (14)_9bf825cb8b33e24489970965a5f9066a",
+   "file_id": 58177,
+   "go_name": "tree_15 (14)",
+   "LocationNumber": 15,
+   "OptimumTime": 115.0,
+   "is_gate": false,
+   "kill_day": 115
+  },
+  {
+   "Key": "tree_15 (15)_a45e7c78f4a49a24493e76a6fc76783b",
+   "file_id": 58331,
+   "go_name": "tree_15 (15)",
+   "LocationNumber": 15,
+   "OptimumTime": 115.0,
+   "is_gate": false,
+   "kill_day": 115
+  },
+  {
+   "Key": "tree_15 (16)_b84b38c3686b75d40bc24b4c8f8089e6",
+   "file_id": 58640,
+   "go_name": "tree_15 (16)",
+   "LocationNumber": 15,
+   "OptimumTime": 115.0,
+   "is_gate": false,
+   "kill_day": 115
+  },
+  {
+   "Key": "BossTower_c296e152609ae5849bb7d52b03df895a",
+   "file_id": 56955,
+   "go_name": "BossTower",
+   "LocationNumber": 15,
+   "OptimumTime": 116.6,
+   "is_gate": false,
+   "kill_day": 405
+  },
+  {
+   "Key": "Spawner_15_easy (2)_b5462b744aeee7f4bb1e6fbbd6a793f1",
+   "file_id": 58845,
+   "go_name": "Spawner_15_easy (2)",
+   "LocationNumber": 15,
+   "OptimumTime": 116.6,
+   "is_gate": false,
+   "kill_day": 117
+  },
+  {
+   "Key": "tree_15 (4)_12b5b1a2015def241b902a37f2359779",
+   "file_id": 59908,
+   "go_name": "tree_15 (4)",
+   "LocationNumber": 15,
+   "OptimumTime": 116.6,
+   "is_gate": false,
+   "kill_day": 117
+  },
+  {
+   "Key": "Spawner_15_knight (4)_92da8ec979a2ae04aa4c3f6e8991d869",
+   "file_id": 59339,
+   "go_name": "Spawner_15_knight (4)",
+   "LocationNumber": 15,
+   "OptimumTime": 118.4,
+   "is_gate": false,
+   "kill_day": 119
+  },
+  {
+   "Key": "Spawner_15_medium_rare_pierce_shield (12)_3d32d64d4f4094d44baba58a7aa054be",
+   "file_id": 56534,
+   "go_name": "Spawner_15_medium_rare_pierce_shield (12)",
+   "LocationNumber": 15,
+   "OptimumTime": 118.4,
+   "is_gate": false,
+   "kill_day": 119
+  },
+  {
+   "Key": "Spawner_15_knight (2)_2078bb610ccaf1746b3e2b2e2ac9ff9a",
+   "file_id": 58416,
+   "go_name": "Spawner_15_knight (2)",
+   "LocationNumber": 15,
+   "OptimumTime": 120.0,
+   "is_gate": false,
+   "kill_day": 120
+  },
+  {
+   "Key": "tree_15 (6)_5f92bbab41702ba43b90c1d88d608eb9",
+   "file_id": 55723,
+   "go_name": "tree_15 (6)",
+   "LocationNumber": 15,
+   "OptimumTime": 120.0,
+   "is_gate": false,
+   "kill_day": 120
+  },
+  {
+   "Key": "Spawner_15_elite (2)_bad945ead6be53e40b6283f1897a07ab",
+   "file_id": 55762,
+   "go_name": "Spawner_15_elite (2)",
+   "LocationNumber": 15,
+   "OptimumTime": 120.6,
+   "is_gate": false,
+   "kill_day": 121
+  },
+  {
+   "Key": "Spawner_15_medium_epic_pierce_shield_c8fc06d1c3ff202409f66a9dd09baf5c",
+   "file_id": 58525,
+   "go_name": "Spawner_15_medium_epic_pierce_shield",
+   "LocationNumber": 15,
+   "OptimumTime": 121.6,
+   "is_gate": false,
+   "kill_day": 122
+  },
+  {
+   "Key": "Spawner_15_easy (1)_6991b96170047c640ad780593f707104",
+   "file_id": 56669,
+   "go_name": "Spawner_15_easy (1)",
+   "LocationNumber": 15,
+   "OptimumTime": 123.4,
+   "is_gate": false,
+   "kill_day": 124
+  },
+  {
+   "Key": "Spawner_15_elite (3)_43af825f0676506468e9442908fb9c6d",
+   "file_id": 58336,
+   "go_name": "Spawner_15_elite (3)",
+   "LocationNumber": 15,
+   "OptimumTime": 123.4,
+   "is_gate": false,
+   "kill_day": 124
+  },
+  {
+   "Key": "Spawner_15_medium_epic_pierce_helmet_61ec0dde67a70f34eab69e08f614df41",
+   "file_id": 57482,
+   "go_name": "Spawner_15_medium_epic_pierce_helmet",
+   "LocationNumber": 15,
+   "OptimumTime": 123.4,
+   "is_gate": false,
+   "kill_day": 124
+  },
+  {
+   "Key": "tree_15 (18)_c8a9f7988d54b9f499935a99b8439e77",
+   "file_id": 60170,
+   "go_name": "tree_15 (18)",
+   "LocationNumber": 15,
+   "OptimumTime": 123.4,
+   "is_gate": false,
+   "kill_day": 124
+  },
+  {
+   "Key": "tree_15 (19)_b88da2b9409012a4fac46e4331a38a26",
+   "file_id": 60119,
+   "go_name": "tree_15 (19)",
+   "LocationNumber": 15,
+   "OptimumTime": 123.4,
+   "is_gate": false,
+   "kill_day": 124
+  },
+  {
+   "Key": "tree_15 (3)_2489279db4c2a5248ae048b5d2b8a2bf",
+   "file_id": 59983,
+   "go_name": "tree_15 (3)",
+   "LocationNumber": 15,
+   "OptimumTime": 123.4,
+   "is_gate": false,
+   "kill_day": 124
+  },
+  {
+   "Key": "Spawner_15_medium_legendary_pierce_shield_75cd186f3b136bb4084d97b45a05ec0c",
+   "file_id": 56850,
+   "go_name": "Spawner_15_medium_legendary_pierce_shield",
+   "LocationNumber": 15,
+   "OptimumTime": 126.6,
+   "is_gate": false,
+   "kill_day": 127
+  },
+  {
+   "Key": "Spawner_15_medium_legendary_pierce_helm_75da93d9d4bc9b043b2edc8db0d4a13e",
+   "file_id": 57606,
+   "go_name": "Spawner_15_medium_legendary_pierce_helm",
+   "LocationNumber": 15,
+   "OptimumTime": 127.4,
+   "is_gate": false,
+   "kill_day": 128
+  },
+  {
+   "Key": "Spawner_15_boss_b024427a70eb8844ea732daa4f57092e",
+   "file_id": 56073,
+   "go_name": "Spawner_15_boss",
+   "LocationNumber": 15,
+   "OptimumTime": 130.0,
+   "is_gate": true,
+   "kill_day": 131
+  },
+  {
+   "Key": "Spawner_16_easy (1)_2179cbf1057bd764cbe2e5bd5b237854",
+   "file_id": 59546,
+   "go_name": "Spawner_16_easy (1)",
+   "LocationNumber": 16,
+   "OptimumTime": 130.0,
+   "is_gate": false,
+   "kill_day": 130
+  },
+  {
+   "Key": "Spawner_16_knight (5)_180c90f4c97d96a4dbdb87377468d997",
+   "file_id": 57602,
+   "go_name": "Spawner_16_knight (5)",
+   "LocationNumber": 16,
+   "OptimumTime": 130.0,
+   "is_gate": false,
+   "kill_day": 130
+  },
+  {
+   "Key": "Spawner_16_medium_buck_common_helm (3)_844f1b203b0cf6140b9922309963ab4c",
+   "file_id": 58646,
+   "go_name": "Spawner_16_medium_buck_common_helm (3)",
+   "LocationNumber": 16,
+   "OptimumTime": 130.0,
+   "is_gate": false,
+   "kill_day": 130
+  },
+  {
+   "Key": "tree_16 (1)_c2ade786ad55190459490aa192d35d3c",
+   "file_id": 55884,
+   "go_name": "tree_16 (1)",
+   "LocationNumber": 16,
+   "OptimumTime": 130.0,
+   "is_gate": false,
+   "kill_day": 130
+  },
+  {
+   "Key": "tree_16 (11)_708f3ba8a69f1ad43aaf50b8331bd92b",
+   "file_id": 55885,
+   "go_name": "tree_16 (11)",
+   "LocationNumber": 16,
+   "OptimumTime": 130.0,
+   "is_gate": false,
+   "kill_day": 130
+  },
+  {
+   "Key": "Spawner_16_medium_buck_common_shield (5)_06b2a2cf77cc2d54c9b713282a248ef0",
+   "file_id": 55871,
+   "go_name": "Spawner_16_medium_buck_common_shield (5)",
+   "LocationNumber": 16,
+   "OptimumTime": 131.2,
+   "is_gate": false,
+   "kill_day": 132
+  },
+  {
+   "Key": "Spawner_16_knight (1)_2704f736d3104a84298d50ccfea0df71",
+   "file_id": 60159,
+   "go_name": "Spawner_16_knight (1)",
+   "LocationNumber": 16,
+   "OptimumTime": 131.4,
+   "is_gate": false,
+   "kill_day": 132
+  },
+  {
+   "Key": "Spawner_16_knight (2)_39a8b582d260825409bea05b7c4423f2",
+   "file_id": 60578,
+   "go_name": "Spawner_16_knight (2)",
+   "LocationNumber": 16,
+   "OptimumTime": 131.4,
+   "is_gate": false,
+   "kill_day": 132
+  },
+  {
+   "Key": "Spawner_16_knight (6)_9cd6f64aa4f19b042ab3989a8bb10169",
+   "file_id": 58494,
+   "go_name": "Spawner_16_knight (6)",
+   "LocationNumber": 16,
+   "OptimumTime": 131.4,
+   "is_gate": false,
+   "kill_day": 132
+  },
+  {
+   "Key": "tree_16 (17)_9ad71fc3c226e2f48bb7cd67da1f6051",
+   "file_id": 56833,
+   "go_name": "tree_16 (17)",
+   "LocationNumber": 16,
+   "OptimumTime": 131.4,
+   "is_gate": false,
+   "kill_day": 132
+  },
+  {
+   "Key": "Spawner_16_easy (4)_3e94be7e54abe224abad018e7c3e6ff3",
+   "file_id": 57809,
+   "go_name": "Spawner_16_easy (4)",
+   "LocationNumber": 16,
+   "OptimumTime": 132.8,
+   "is_gate": false,
+   "kill_day": 133
+  },
+  {
+   "Key": "Spawner_16_elite (3)_b16f7d34d791bbe42bad36345439e473",
+   "file_id": 56131,
+   "go_name": "Spawner_16_elite (3)",
+   "LocationNumber": 16,
+   "OptimumTime": 132.8,
+   "is_gate": false,
+   "kill_day": 133
+  },
+  {
+   "Key": "Spawner_16_easy (3)_3c52449ba89d37f4cb589a088bbfd270",
+   "file_id": 58561,
+   "go_name": "Spawner_16_easy (3)",
+   "LocationNumber": 16,
+   "OptimumTime": 134.2,
+   "is_gate": false,
+   "kill_day": 135
+  },
+  {
+   "Key": "Spawner_16_elite (1)_7e6a768fab9206e4aad64e1fb4cf7080",
+   "file_id": 57512,
+   "go_name": "Spawner_16_elite (1)",
+   "LocationNumber": 16,
+   "OptimumTime": 134.2,
+   "is_gate": false,
+   "kill_day": 135
+  },
+  {
+   "Key": "Spawner_16_medium_buck_uncommon_helm (8)_2eb6e588f4fd12f4bba030a771833aa6",
+   "file_id": 57530,
+   "go_name": "Spawner_16_medium_buck_uncommon_helm (8)",
+   "LocationNumber": 16,
+   "OptimumTime": 134.2,
+   "is_gate": false,
+   "kill_day": 135
+  },
+  {
+   "Key": "tree_16 (7)_2442821c2d84c304eae6d14085411ca8",
+   "file_id": 58889,
+   "go_name": "tree_16 (7)",
+   "LocationNumber": 16,
+   "OptimumTime": 134.2,
+   "is_gate": false,
+   "kill_day": 135
+  },
+  {
+   "Key": "Spawner_16_medium_buck_uncommon_shield (6)_b4e68f41b5e33d14d91075a93696a705",
+   "file_id": 58927,
+   "go_name": "Spawner_16_medium_buck_uncommon_shield (6)",
+   "LocationNumber": 16,
+   "OptimumTime": 135.8,
+   "is_gate": false,
+   "kill_day": 136
+  },
+  {
+   "Key": "tree_16 (2)_2164d987e0e2ad344907aa25c41f759b",
+   "file_id": 60750,
+   "go_name": "tree_16 (2)",
+   "LocationNumber": 16,
+   "OptimumTime": 135.8,
+   "is_gate": false,
+   "kill_day": 136
+  },
+  {
+   "Key": "tree_16 (6)_0f4f062927f021c40a6788e43d3441da",
+   "file_id": 57062,
+   "go_name": "tree_16 (6)",
+   "LocationNumber": 16,
+   "OptimumTime": 135.8,
+   "is_gate": false,
+   "kill_day": 136
+  },
+  {
+   "Key": "Spawner_16_easy (2)_95281f8de2d4c6d439550a4afc474e21",
+   "file_id": 58621,
+   "go_name": "Spawner_16_easy (2)",
+   "LocationNumber": 16,
+   "OptimumTime": 137.2,
+   "is_gate": false,
+   "kill_day": 138
+  },
+  {
+   "Key": "tree_16 (13)_409e4db46c7d835419c29c87b69fcd60",
+   "file_id": 57092,
+   "go_name": "tree_16 (13)",
+   "LocationNumber": 16,
+   "OptimumTime": 137.2,
+   "is_gate": false,
+   "kill_day": 138
+  },
+  {
+   "Key": "tree_16 (14)_c6ecd285b3e9ab049a522a84f34f7b9f",
+   "file_id": 60211,
+   "go_name": "tree_16 (14)",
+   "LocationNumber": 16,
+   "OptimumTime": 137.2,
+   "is_gate": false,
+   "kill_day": 138
+  },
+  {
+   "Key": "tree_16 (3)_34bd5bcc985855f4bac56006f10d6acc",
+   "file_id": 60253,
+   "go_name": "tree_16 (3)",
+   "LocationNumber": 16,
+   "OptimumTime": 137.2,
+   "is_gate": false,
+   "kill_day": 138
+  },
+  {
+   "Key": "tree_16 (4)_f9b653c797122234eb5e0a03336068f8",
+   "file_id": 58792,
+   "go_name": "tree_16 (4)",
+   "LocationNumber": 16,
+   "OptimumTime": 137.2,
+   "is_gate": false,
+   "kill_day": 138
+  },
+  {
+   "Key": "tree_16 (8)_fc7eecb5de0be5643afc29b3dafa6679",
+   "file_id": 58086,
+   "go_name": "tree_16 (8)",
+   "LocationNumber": 16,
+   "OptimumTime": 137.2,
+   "is_gate": false,
+   "kill_day": 138
+  },
+  {
+   "Key": "Spawner_16_knight (4)_0c6f453c168dac646b2c0ec4e21f89ba",
+   "file_id": 56110,
+   "go_name": "Spawner_16_knight (4)",
+   "LocationNumber": 16,
+   "OptimumTime": 138.6,
+   "is_gate": false,
+   "kill_day": 139
+  },
+  {
+   "Key": "Spawner_16_medium_buck_rare_shield (4)_87730b30f7fe3774b8512d64bc304f6d",
+   "file_id": 60218,
+   "go_name": "Spawner_16_medium_buck_rare_shield (4)",
+   "LocationNumber": 16,
+   "OptimumTime": 138.6,
+   "is_gate": false,
+   "kill_day": 139
+  },
+  {
+   "Key": "tree_16 (10)_b07538bdb52b58e4297d3f285a79aa7a",
+   "file_id": 60343,
+   "go_name": "tree_16 (10)",
+   "LocationNumber": 16,
+   "OptimumTime": 140.0,
+   "is_gate": false,
+   "kill_day": 140
+  },
+  {
+   "Key": "tree_16 (9)_3e04a52bb9e87194494595642725b23b",
+   "file_id": 55478,
+   "go_name": "tree_16 (9)",
+   "LocationNumber": 16,
+   "OptimumTime": 140.0,
+   "is_gate": false,
+   "kill_day": 140
+  },
+  {
+   "Key": "tree_16 (12)_7616454792930e54c986a182f07fa75c",
+   "file_id": 56411,
+   "go_name": "tree_16 (12)",
+   "LocationNumber": 16,
+   "OptimumTime": 141.4,
+   "is_gate": false,
+   "kill_day": 142
+  },
+  {
+   "Key": "tree_16 (21)_50959bad823cfd341b6fd05a7a7aca71",
+   "file_id": 59073,
+   "go_name": "tree_16 (21)",
+   "LocationNumber": 16,
+   "OptimumTime": 141.4,
+   "is_gate": false,
+   "kill_day": 142
+  },
+  {
+   "Key": "Spawner_16_medium_buck_epic_helmet_d051253d4b85996448c55178644ea59c",
+   "file_id": 55468,
+   "go_name": "Spawner_16_medium_buck_epic_helmet",
+   "LocationNumber": 16,
+   "OptimumTime": 142.0,
+   "is_gate": false,
+   "kill_day": 142
+  },
+  {
+   "Key": "Spawner_16_medium_buck_epic_shield (6)_d92bf745dc4f57c4b96b9f0a39859792",
+   "file_id": 57618,
+   "go_name": "Spawner_16_medium_buck_epic_shield (6)",
+   "LocationNumber": 16,
+   "OptimumTime": 142.8,
+   "is_gate": false,
+   "kill_day": 143
+  },
+  {
+   "Key": "Spawner_16_knight (3)_6f2987398673bd84ab6083e156fc042d",
+   "file_id": 58452,
+   "go_name": "Spawner_16_knight (3)",
+   "LocationNumber": 16,
+   "OptimumTime": 144.4,
+   "is_gate": false,
+   "kill_day": 145
+  },
+  {
+   "Key": "tree_16 (15)_b4eb9be20ad92dc41ac388e59719a72b",
+   "file_id": 58884,
+   "go_name": "tree_16 (15)",
+   "LocationNumber": 16,
+   "OptimumTime": 144.4,
+   "is_gate": false,
+   "kill_day": 145
+  },
+  {
+   "Key": "tree_16 (16)_26efa85609cbe90408ceee3ca39d32bd",
+   "file_id": 60212,
+   "go_name": "tree_16 (16)",
+   "LocationNumber": 16,
+   "OptimumTime": 145.8,
+   "is_gate": false,
+   "kill_day": 146
+  },
+  {
+   "Key": "Spawner_16_medium_buck_legendary_helm (5)_e8c1155275785954abe4bfc341235ce6",
+   "file_id": 57081,
+   "go_name": "Spawner_16_medium_buck_legendary_helm (5)",
+   "LocationNumber": 16,
+   "OptimumTime": 146.6,
+   "is_gate": false,
+   "kill_day": 147
+  },
+  {
+   "Key": "Spawner_16_medium_buck_legendary_shield (7)_3238c2cd6c8c97f43ab209abdf23b8df",
+   "file_id": 56521,
+   "go_name": "Spawner_16_medium_buck_legendary_shield (7)",
+   "LocationNumber": 16,
+   "OptimumTime": 147.2,
+   "is_gate": false,
+   "kill_day": 148
+  },
+  {
+   "Key": "Spawner_16_boss_363f4c1b3ec9c0940b186ed4c9748835",
+   "file_id": 59860,
+   "go_name": "Spawner_16_boss",
+   "LocationNumber": 16,
+   "OptimumTime": 150.0,
+   "is_gate": true,
+   "kill_day": 151
+  },
+  {
+   "Key": "tree_16 (18)_c2cc470f95712094597ca2920877e4f1",
+   "file_id": 60653,
+   "go_name": "tree_16 (18)",
+   "LocationNumber": 16,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "tree_16 (19)_2ed07d0c7198ea047b293ee6cf9d57c2",
+   "file_id": 55800,
+   "go_name": "tree_16 (19)",
+   "LocationNumber": 16,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "tree_16 (20)_ff8efd791945ee5428f281d41e285000",
+   "file_id": 57199,
+   "go_name": "tree_16 (20)",
+   "LocationNumber": 16,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "Spawner_17_easy (3)_1acbed3f60245d744b6fbd5fafe0832c",
+   "file_id": 59918,
+   "go_name": "Spawner_17_easy (3)",
+   "LocationNumber": 17,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "Spawner_17_elite (3)_2aaff8158661bb348b8ce0e99c4b58c0",
+   "file_id": 56668,
+   "go_name": "Spawner_17_elite (3)",
+   "LocationNumber": 17,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "Spawner_17_medium_cut_common_helm (3)_6ae429f836d033e4c96bf10970aabf04",
+   "file_id": 57395,
+   "go_name": "Spawner_17_medium_cut_common_helm (3)",
+   "LocationNumber": 17,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "tree_17 (1)_5e1eaa0a50018844eb77eb0f0868962a",
+   "file_id": 59739,
+   "go_name": "tree_17 (1)",
+   "LocationNumber": 17,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "tree_17 (11)_13edc592e8d45174a97afc7968510c91",
+   "file_id": 58453,
+   "go_name": "tree_17 (11)",
+   "LocationNumber": 17,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "tree_17 (13)_782850567c75fad40a83df7dd8fbba76",
+   "file_id": 56169,
+   "go_name": "tree_17 (13)",
+   "LocationNumber": 17,
+   "OptimumTime": 150.0,
+   "is_gate": false,
+   "kill_day": 150
+  },
+  {
+   "Key": "Spawner_17_medium_cut_common_shield (1)_ec73427c7e9250042b1a0bdf6cd85a11",
+   "file_id": 59344,
+   "go_name": "Spawner_17_medium_cut_common_shield (1)",
+   "LocationNumber": 17,
+   "OptimumTime": 150.9,
+   "is_gate": false,
+   "kill_day": 151
+  },
+  {
+   "Key": "tree_17 (15)_530103997f0c12140916c1df54b3b3ef",
+   "file_id": 59801,
+   "go_name": "tree_17 (15)",
+   "LocationNumber": 17,
+   "OptimumTime": 152.1,
+   "is_gate": false,
+   "kill_day": 153
+  },
+  {
+   "Key": "tree_17 (18)_daab09a65f5c258409f69562d17c417a",
+   "file_id": 58630,
+   "go_name": "tree_17 (18)",
+   "LocationNumber": 17,
+   "OptimumTime": 152.1,
+   "is_gate": false,
+   "kill_day": 153
+  },
+  {
+   "Key": "Spawner_17_easy (5)_9b9da72df46ebca4798f5ac559312489",
+   "file_id": 57966,
+   "go_name": "Spawner_17_easy (5)",
+   "LocationNumber": 17,
+   "OptimumTime": 153.6,
+   "is_gate": false,
+   "kill_day": 154
+  },
+  {
+   "Key": "Spawner_17_easy (1)_ead8456b8929a2745b454bc43e1a09d4",
+   "file_id": 58061,
+   "go_name": "Spawner_17_easy (1)",
+   "LocationNumber": 17,
+   "OptimumTime": 154.5,
+   "is_gate": false,
+   "kill_day": 155
+  },
+  {
+   "Key": "Spawner_17_medium_cut_uncommon_shield_9721331e80d157348a6e9a123fcdb57a",
+   "file_id": 56436,
+   "go_name": "Spawner_17_medium_cut_uncommon_shield",
+   "LocationNumber": 17,
+   "OptimumTime": 154.5,
+   "is_gate": false,
+   "kill_day": 155
+  },
+  {
+   "Key": "tree_17 (2)_fa2a633cbd8c51546bfef0d284bdfe34",
+   "file_id": 59238,
+   "go_name": "tree_17 (2)",
+   "LocationNumber": 17,
+   "OptimumTime": 154.5,
+   "is_gate": false,
+   "kill_day": 155
+  },
+  {
+   "Key": "tree_17 (5)_d4440dd6f523a434c943d7dc0911d488",
+   "file_id": 55957,
+   "go_name": "tree_17 (5)",
+   "LocationNumber": 17,
+   "OptimumTime": 154.5,
+   "is_gate": false,
+   "kill_day": 155
+  },
+  {
+   "Key": "tree_17 (8)_c94425d83849c914ab8b2b374e805cce",
+   "file_id": 58822,
+   "go_name": "tree_17 (8)",
+   "LocationNumber": 17,
+   "OptimumTime": 154.5,
+   "is_gate": false,
+   "kill_day": 155
+  },
+  {
+   "Key": "Spawner_17_knight (2)_970fa4f6b8ce914408c2af9d82a7c00b",
+   "file_id": 58221,
+   "go_name": "Spawner_17_knight (2)",
+   "LocationNumber": 17,
+   "OptimumTime": 155.1,
+   "is_gate": false,
+   "kill_day": 156
+  },
+  {
+   "Key": "Spawner_17_medium_cut_uncommon_helm (4)_4c5cd9c8a96bb7947b90bf584bf2b8e3",
+   "file_id": 58676,
+   "go_name": "Spawner_17_medium_cut_uncommon_helm (4)",
+   "LocationNumber": 17,
+   "OptimumTime": 156.0,
+   "is_gate": false,
+   "kill_day": 156
+  },
+  {
+   "Key": "tree_17 (17)_5997e9e903d3e8d4a99372ac5efbcb78",
+   "file_id": 57355,
+   "go_name": "tree_17 (17)",
+   "LocationNumber": 17,
+   "OptimumTime": 156.3,
+   "is_gate": false,
+   "kill_day": 157
+  },
+  {
+   "Key": "tree_17 (20)_87066a29f3e47034cb9b7e3dfaa8b46e",
+   "file_id": 56344,
+   "go_name": "tree_17 (20)",
+   "LocationNumber": 17,
+   "OptimumTime": 156.3,
+   "is_gate": false,
+   "kill_day": 157
+  },
+  {
+   "Key": "tree_17 (6)_198d6ac560c6e5d4da32bb4af8116dfb",
+   "file_id": 56460,
+   "go_name": "tree_17 (6)",
+   "LocationNumber": 17,
+   "OptimumTime": 156.3,
+   "is_gate": false,
+   "kill_day": 157
+  },
+  {
+   "Key": "Spawner_17_elite (7)_16964537d705d0442906b22dfd5de56f",
+   "file_id": 57521,
+   "go_name": "Spawner_17_elite (7)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "Spawner_17_knight (1)_3f33228164671194195e8c0e810676cb",
+   "file_id": 60131,
+   "go_name": "Spawner_17_knight (1)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "Spawner_17_knight (3)_5c7ec243cb4d8f546985c1064465cd18",
+   "file_id": 55500,
+   "go_name": "Spawner_17_knight (3)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "Spawner_17_knight (4)_8611dc632d8feb342be53405fd2e1623",
+   "file_id": 56319,
+   "go_name": "Spawner_17_knight (4)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "Spawner_17_knight (5)_cd07d5d9adca0d34b96de89fae93d308",
+   "file_id": 58846,
+   "go_name": "Spawner_17_knight (5)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "tree_17 (12)_8a03530e6d29cf840a15295c2438fc3a",
+   "file_id": 56306,
+   "go_name": "tree_17 (12)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "tree_17 (3)_0cc59f1ea4270b84193fd2657c49f770",
+   "file_id": 57651,
+   "go_name": "tree_17 (3)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "tree_17 (9)_2e8adb9937ce6b446bd671255f44207d",
+   "file_id": 57297,
+   "go_name": "tree_17 (9)",
+   "LocationNumber": 17,
+   "OptimumTime": 158.7,
+   "is_gate": false,
+   "kill_day": 159
+  },
+  {
+   "Key": "tree_17 (14)_764d0d606e771c648854c39268ec1711",
+   "file_id": 59901,
+   "go_name": "tree_17 (14)",
+   "LocationNumber": 17,
+   "OptimumTime": 160.8,
+   "is_gate": false,
+   "kill_day": 161
+  },
+  {
+   "Key": "tree_17 (16)_b7be0be37494f8c488de7bc450224e93",
+   "file_id": 56689,
+   "go_name": "tree_17 (16)",
+   "LocationNumber": 17,
+   "OptimumTime": 160.8,
+   "is_gate": false,
+   "kill_day": 161
+  },
+  {
+   "Key": "tree_17 (19)_b699d01910666e645a0062e669e40523",
+   "file_id": 58786,
+   "go_name": "tree_17 (19)",
+   "LocationNumber": 17,
+   "OptimumTime": 160.8,
+   "is_gate": false,
+   "kill_day": 161
+  },
+  {
+   "Key": "Spawner_17_easy (2)_6f3d2acfc0748da47875102068fdaf0b",
+   "file_id": 59006,
+   "go_name": "Spawner_17_easy (2)",
+   "LocationNumber": 17,
+   "OptimumTime": 162.9,
+   "is_gate": false,
+   "kill_day": 163
+  },
+  {
+   "Key": "Spawner_17_medium_cut_epic_shield (2)_5bf320a0e668613459a345346e110d4b",
+   "file_id": 60473,
+   "go_name": "Spawner_17_medium_cut_epic_shield (2)",
+   "LocationNumber": 17,
+   "OptimumTime": 164.7,
+   "is_gate": false,
+   "kill_day": 165
+  },
+  {
+   "Key": "Spawner_17_medium_cut_epic_helmet_25295f92ab27a1b4d8e1292f6e05c85e",
+   "file_id": 57866,
+   "go_name": "Spawner_17_medium_cut_epic_helmet",
+   "LocationNumber": 17,
+   "OptimumTime": 166.2,
+   "is_gate": false,
+   "kill_day": 167
+  },
+  {
+   "Key": "Spawner_17_easy (6)_7359e9334af93314b9690243c1d128af",
+   "file_id": 56834,
+   "go_name": "Spawner_17_easy (6)",
+   "LocationNumber": 17,
+   "OptimumTime": 167.1,
+   "is_gate": false,
+   "kill_day": 168
+  },
+  {
+   "Key": "tree_17 (21)_9d379c459a54ac048a8961e962c0f037",
+   "file_id": 59109,
+   "go_name": "tree_17 (21)",
+   "LocationNumber": 17,
+   "OptimumTime": 169.2,
+   "is_gate": false,
+   "kill_day": 170
+  },
+  {
+   "Key": "tree_17 (22)_6de7291f41c9a174c92a937598871ef5",
+   "file_id": 57182,
+   "go_name": "tree_17 (22)",
+   "LocationNumber": 17,
+   "OptimumTime": 169.2,
+   "is_gate": false,
+   "kill_day": 170
+  },
+  {
+   "Key": "Spawner_17_knight (6)_4a779f58106379f4f8a2076f3646730f",
+   "file_id": 60761,
+   "go_name": "Spawner_17_knight (6)",
+   "LocationNumber": 17,
+   "OptimumTime": 169.8,
+   "is_gate": false,
+   "kill_day": 170
+  },
+  {
+   "Key": "Spawner_17_easy (4)_729771937c43e8f44b1fc3fcc9d7312e",
+   "file_id": 58925,
+   "go_name": "Spawner_17_easy (4)",
+   "LocationNumber": 17,
+   "OptimumTime": 173.1,
+   "is_gate": false,
+   "kill_day": 174
+  },
+  {
+   "Key": "Spawner_17_medium_cut_legendary_helm (5)_619af76fe9c789644b710f06fd5bbec8",
+   "file_id": 59449,
+   "go_name": "Spawner_17_medium_cut_legendary_helm (5)",
+   "LocationNumber": 17,
+   "OptimumTime": 173.1,
+   "is_gate": false,
+   "kill_day": 174
+  },
+  {
+   "Key": "Spawner_17_elite (6)_797b9a50597cf914b972a02d67ad9814",
+   "file_id": 59492,
+   "go_name": "Spawner_17_elite (6)",
+   "LocationNumber": 17,
+   "OptimumTime": 175.5,
+   "is_gate": false,
+   "kill_day": 176
+  },
+  {
+   "Key": "Spawner_17_medium_cut_legendary_shield (3)_5b0e1c06cd3c3ae45bdec388858f7aab",
+   "file_id": 55475,
+   "go_name": "Spawner_17_medium_cut_legendary_shield (3)",
+   "LocationNumber": 17,
+   "OptimumTime": 176.4,
+   "is_gate": false,
+   "kill_day": 177
+  },
+  {
+   "Key": "Spawner_17_boss_91c95a6060c03a94da2561052282c035",
+   "file_id": 57102,
+   "go_name": "Spawner_17_boss",
+   "LocationNumber": 17,
+   "OptimumTime": 180.0,
+   "is_gate": false,
+   "kill_day": 180
+  },
+  {
+   "Key": "Spawner_17_death_ad5213490d8ed204fbf8ef86a51b0e9f",
+   "file_id": 59522,
+   "go_name": "Spawner_17_death",
+   "LocationNumber": 17,
+   "OptimumTime": 180.0,
+   "is_gate": false,
+   "kill_day": 202
+  }
+ ],
+ "theta_grid": [
+  {
+   "which": "start",
+   "theta": 0.5,
+   "bad": 28,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 16,
+    "8": 22,
+    "9": 27,
+    "10": 36,
+    "11": 46,
+    "12": 59,
+    "13": 74,
+    "14": 95,
+    "15": 114,
+    "16": 136,
+    "17": 159
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     15,
+     17
+    ],
+    [
+     17,
+     19
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     30,
+     33
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     46,
+     51
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     57,
+     63
+    ],
+    [
+     63,
+     70
+    ],
+    [
+     70,
+     77
+    ],
+    [
+     77,
+     85
+    ],
+    [
+     85,
+     94
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     104,
+     115
+    ],
+    [
+     115,
+     127
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     140,
+     154
+    ],
+    [
+     154,
+     170
+    ],
+    [
+     170,
+     187
+    ],
+    [
+     187,
+     206
+    ]
+   ]
+  },
+  {
+   "which": "start",
+   "theta": 0.75,
+   "bad": 20,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 27,
+    "10": 35,
+    "11": 45,
+    "12": 58,
+    "13": 72,
+    "14": 92,
+    "15": 112,
+    "16": 133,
+    "17": 154
+   },
+   "bad_spans": [
+    [
+     9,
+     10
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     17,
+     19
+    ],
+    [
+     30,
+     33
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     57,
+     63
+    ],
+    [
+     63,
+     70
+    ],
+    [
+     70,
+     77
+    ],
+    [
+     77,
+     85
+    ],
+    [
+     85,
+     94
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     104,
+     115
+    ],
+    [
+     115,
+     127
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     140,
+     154
+    ],
+    [
+     170,
+     187
+    ]
+   ]
+  },
+  {
+   "which": "start",
+   "theta": 0.9,
+   "bad": 14,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 26,
+    "10": 35,
+    "11": 45,
+    "12": 57,
+    "13": 72,
+    "14": 91,
+    "15": 111,
+    "16": 132,
+    "17": 152
+   },
+   "bad_spans": [
+    [
+     11,
+     13
+    ],
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     63,
+     70
+    ],
+    [
+     70,
+     77
+    ],
+    [
+     77,
+     85
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     104,
+     115
+    ],
+    [
+     115,
+     127
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     140,
+     154
+    ],
+    [
+     170,
+     187
+    ]
+   ]
+  },
+  {
+   "which": "start",
+   "theta": 1.0,
+   "bad": 4,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 26,
+    "10": 35,
+    "11": 44,
+    "12": 57,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 131,
+    "17": 151
+   },
+   "bad_spans": [
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  {
+   "which": "start",
+   "theta": 1.1,
+   "bad": 6,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 26,
+    "10": 34,
+    "11": 44,
+    "12": 56,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 130,
+    "17": 150
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     127,
+     140
+    ]
+   ]
+  },
+  {
+   "which": "start",
+   "theta": 1000000000.0,
+   "bad": 15,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 7,
+    "6": 10,
+    "7": 14,
+    "8": 20,
+    "9": 26,
+    "10": 34,
+    "11": 44,
+    "12": 56,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 130,
+    "17": 150
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     19,
+     21
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     170,
+     187
+    ],
+    [
+     187,
+     206
+    ]
+   ]
+  },
+  {
+   "which": "end",
+   "theta": 0.5,
+   "bad": 26,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 7,
+    "6": 10,
+    "7": 15,
+    "8": 21,
+    "9": 26,
+    "10": 35,
+    "11": 45,
+    "12": 58,
+    "13": 73,
+    "14": 94,
+    "15": 113,
+    "16": 135,
+    "17": 158
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     46,
+     51
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     57,
+     63
+    ],
+    [
+     63,
+     70
+    ],
+    [
+     70,
+     77
+    ],
+    [
+     77,
+     85
+    ],
+    [
+     85,
+     94
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     104,
+     115
+    ],
+    [
+     115,
+     127
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     140,
+     154
+    ],
+    [
+     154,
+     170
+    ],
+    [
+     170,
+     187
+    ],
+    [
+     187,
+     206
+    ]
+   ]
+  },
+  {
+   "which": "end",
+   "theta": 0.75,
+   "bad": 20,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 7,
+    "6": 10,
+    "7": 14,
+    "8": 20,
+    "9": 26,
+    "10": 34,
+    "11": 44,
+    "12": 57,
+    "13": 71,
+    "14": 91,
+    "15": 111,
+    "16": 132,
+    "17": 153
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     19,
+     21
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     63,
+     70
+    ],
+    [
+     77,
+     85
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     104,
+     115
+    ],
+    [
+     115,
+     127
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     140,
+     154
+    ],
+    [
+     170,
+     187
+    ]
+   ]
+  },
+  {
+   "which": "end",
+   "theta": 0.9,
+   "bad": 15,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 7,
+    "6": 10,
+    "7": 14,
+    "8": 20,
+    "9": 26,
+    "10": 34,
+    "11": 44,
+    "12": 56,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 131,
+    "17": 151
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     19,
+     21
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     140,
+     154
+    ],
+    [
+     170,
+     187
+    ]
+   ]
+  },
+  {
+   "which": "end",
+   "theta": 1.0,
+   "bad": 13,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 7,
+    "6": 10,
+    "7": 14,
+    "8": 20,
+    "9": 26,
+    "10": 34,
+    "11": 44,
+    "12": 56,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 130,
+    "17": 150
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     19,
+     21
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     127,
+     140
+    ]
+   ]
+  },
+  {
+   "which": "end",
+   "theta": 1.1,
+   "bad": 13,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 7,
+    "6": 10,
+    "7": 14,
+    "8": 20,
+    "9": 26,
+    "10": 34,
+    "11": 44,
+    "12": 56,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 130,
+    "17": 150
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     19,
+     21
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     127,
+     140
+    ]
+   ]
+  },
+  {
+   "which": "end",
+   "theta": 1000000000.0,
+   "bad": 15,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 7,
+    "6": 10,
+    "7": 14,
+    "8": 20,
+    "9": 26,
+    "10": 34,
+    "11": 44,
+    "12": 56,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 130,
+    "17": 150
+   },
+   "bad_spans": [
+    [
+     6,
+     7
+    ],
+    [
+     7,
+     8
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     10,
+     11
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     13,
+     15
+    ],
+    [
+     19,
+     21
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     51,
+     57
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     170,
+     187
+    ],
+    [
+     187,
+     206
+    ]
+   ]
+  }
+ ],
+ "player_dps_scaling": [
+  {
+   "player_dps_scale": 0.95,
+   "bad": 7,
+   "intervals": 41,
+   "unlock_L5_to_L17": [
+    8,
+    11,
+    15,
+    21,
+    26,
+    35,
+    45,
+    57,
+    71,
+    91,
+    110,
+    131,
+    152
+   ],
+   "bad_spans": [
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     140,
+     154
+    ],
+    [
+     170,
+     187
+    ]
+   ]
+  },
+  {
+   "player_dps_scale": 0.98,
+   "bad": 6,
+   "intervals": 41,
+   "unlock_L5_to_L17": [
+    8,
+    11,
+    15,
+    21,
+    26,
+    35,
+    45,
+    57,
+    71,
+    90,
+    110,
+    131,
+    151
+   ],
+   "bad_spans": [
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     94,
+     104
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  {
+   "player_dps_scale": 0.99,
+   "bad": 5,
+   "intervals": 41,
+   "unlock_L5_to_L17": [
+    8,
+    11,
+    15,
+    21,
+    26,
+    35,
+    45,
+    57,
+    71,
+    90,
+    110,
+    131,
+    151
+   ],
+   "bad_spans": [
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  {
+   "player_dps_scale": 1.0,
+   "bad": 4,
+   "intervals": 41,
+   "unlock_L5_to_L17": [
+    8,
+    11,
+    15,
+    21,
+    26,
+    35,
+    44,
+    57,
+    71,
+    90,
+    110,
+    131,
+    151
+   ],
+   "bad_spans": [
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  {
+   "player_dps_scale": 1.01,
+   "bad": 3,
+   "intervals": 41,
+   "unlock_L5_to_L17": [
+    8,
+    11,
+    15,
+    21,
+    26,
+    35,
+    44,
+    57,
+    71,
+    90,
+    110,
+    131,
+    151
+   ],
+   "bad_spans": [
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  {
+   "player_dps_scale": 1.02,
+   "bad": 2,
+   "intervals": 41,
+   "unlock_L5_to_L17": [
+    8,
+    11,
+    15,
+    21,
+    26,
+    35,
+    44,
+    57,
+    71,
+    90,
+    110,
+    131,
+    151
+   ],
+   "bad_spans": [
+    [
+     24,
+     27
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  {
+   "player_dps_scale": 1.05,
+   "bad": 3,
+   "intervals": 41,
+   "unlock_L5_to_L17": [
+    8,
+    11,
+    15,
+    21,
+    26,
+    34,
+    44,
+    57,
+    71,
+    90,
+    110,
+    131,
+    151
+   ],
+   "bad_spans": [
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  }
+ ],
+ "new_island_planning": [
+  {
+   "new_island_farmed": "same_day",
+   "bad": 4,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 26,
+    "10": 35,
+    "11": 44,
+    "12": 57,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 131,
+    "17": 151
+   },
+   "bad_spans": [
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  {
+   "new_island_farmed": "next_day",
+   "bad": 14,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 9,
+    "6": 12,
+    "7": 16,
+    "8": 22,
+    "9": 27,
+    "10": 36,
+    "11": 45,
+    "12": 58,
+    "13": 72,
+    "14": 91,
+    "15": 111,
+    "16": 132,
+    "17": 152
+   },
+   "bad_spans": [
+    [
+     8,
+     9
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     15,
+     17
+    ],
+    [
+     17,
+     19
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     57,
+     63
+    ],
+    [
+     70,
+     77
+    ],
+    [
+     104,
+     115
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  }
+ ],
+ "kill_predicate_k2k3_lag": [
+  {
+   "k2k3_day": "d",
+   "bad": 4,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 26,
+    "10": 35,
+    "11": 44,
+    "12": 57,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 131,
+    "17": 151
+   },
+   "bad_intervals": [
+    {
+     "from": 17,
+     "to": 19,
+     "residual": {
+      "CutDamageFlat": 500
+     }
+    },
+    {
+     "from": 24,
+     "to": 27,
+     "residual": {
+      "Health": -24000,
+      "HealthRegen": -21
+     }
+    },
+    {
+     "from": 37,
+     "to": 41,
+     "residual": {
+      "StabDamageFlat": 600
+     }
+    },
+    {
+     "from": 140,
+     "to": 154,
+     "residual": {
+      "Health": 1350,
+      "HealthRegen": 69,
+      "CutDefenceFlat": 330,
+      "LifestealFlat": 600
+     }
+    }
+   ]
+  },
+  {
+   "k2k3_day": "d-1",
+   "bad": 6,
+   "intervals": 41,
+   "unlock_days": {
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 26,
+    "10": 35,
+    "11": 45,
+    "12": 57,
+    "13": 71,
+    "14": 91,
+    "15": 110,
+    "16": 131,
+    "17": 151
+   },
+   "bad_intervals": [
+    {
+     "from": 17,
+     "to": 19,
+     "residual": {
+      "CutDamageFlat": 500
+     }
+    },
+    {
+     "from": 24,
+     "to": 27,
+     "residual": {
+      "Health": -24000,
+      "HealthRegen": -21
+     }
+    },
+    {
+     "from": 37,
+     "to": 41,
+     "residual": {
+      "StabDamageFlat": 600
+     }
+    },
+    {
+     "from": 41,
+     "to": 46,
+     "residual": {
+      "Health": 1125,
+      "HealthRegen": 36,
+      "StabDamageFlat": 105,
+      "CutDefenceFlat": 255,
+      "Evasion": 36,
+      "BlockAmount": 36
+     }
+    },
+    {
+     "from": 94,
+     "to": 104,
+     "residual": {
+      "CutDefenceFlat": 4400
+     }
+    },
+    {
+     "from": 140,
+     "to": 154,
+     "residual": {
+      "Health": 1350,
+      "HealthRegen": 69,
+      "CutDefenceFlat": 330,
+      "LifestealFlat": 600
+     }
+    }
+   ]
+  }
+ ]
+}
