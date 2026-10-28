@@ -208,7 +208,7 @@ namespace Codebase.Simulation.EditorTools
                 return false;
             }
 
-            // PlayerPrefs probe: one key, read back from the plist files on disk.
+            // PlayerPrefs probe: one key, read back through cfprefsd (`defaults`) and from the plist files.
             string realPlist = RealPrefsPath(company, product), sandboxPlist = RealPrefsPath(SandboxCompany, SandboxProduct);
             Put("sandbox_plist", sandboxPlist);
             string stamp = Guid.NewGuid().ToString("N");
@@ -218,13 +218,13 @@ namespace Codebase.Simulation.EditorTools
             var sw = Stopwatch.StartNew();
             while (sw.Elapsed.TotalSeconds < 5 && !inSandbox)
             {
-                inSandbox = FileContains(sandboxPlist, stamp);
-                inReal = FileContains(realPlist, stamp);
+                inSandbox = DefaultsRead("unity." + SandboxCompany + "." + SandboxProduct, ProbeKey) == stamp || FileContains(sandboxPlist, stamp);
+                inReal = DefaultsRead("unity." + company + "." + product, ProbeKey) == stamp || FileContains(realPlist, stamp);
                 if (inReal) break;
-                System.Threading.Thread.Sleep(100);
+                if (!inSandbox) System.Threading.Thread.Sleep(100);
             }
-            Put("prefs_probe_in_sandbox_plist", inSandbox);
-            Put("prefs_probe_in_real_plist", inReal);
+            Put("prefs_probe_in_sandbox_domain", inSandbox);
+            Put("prefs_probe_in_real_domain", inReal);
             Put("prefs_probe_wait_ms", sw.ElapsedMilliseconds);
             PlayerPrefs.DeleteKey(ProbeKey);
             PlayerPrefs.Save();
@@ -262,6 +262,21 @@ namespace Codebase.Simulation.EditorTools
 
         private static UnityEngine.Object PlayerSettingsObject() =>
             AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset").FirstOrDefault();
+
+        private static string DefaultsRead(string domain, string key)
+        {
+            var info = new ProcessStartInfo("/usr/bin/defaults", "read \"" + domain + "\" " + key)
+            {
+                UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true
+            };
+            using (Process p = Process.Start(info))
+            {
+                string output = p.StandardOutput.ReadToEnd().Trim();
+                p.StandardError.ReadToEnd();
+                p.WaitForExit(5000);
+                return p.ExitCode == 0 ? output : null;
+            }
+        }
 
         private static bool FileContains(string path, string text)
         {
