@@ -33,13 +33,14 @@ def pytest_configure(config):
         os.environ["TUFU_GOLDEN_RUN"] = uuid.uuid4().hex
 
 
+def pytest_runtest_setup(item):
+    if "perf" in item.keywords:
+        load, cpus = os.getloadavg()[0], os.cpu_count() or 1
+        if load > cpus / 4:
+            pytest.skip(f"machine busy (load {load:.1f} on {cpus} CPUs): wall-clock bounds not meaningful")
+
+
 def pytest_collection_modifyitems(config, items):
-    load, cpus = os.getloadavg()[0], os.cpu_count() or 1
-    if load > cpus / 2:
-        busy = pytest.mark.skip(reason=f"machine busy (load {load:.1f} on {cpus} CPUs): wall-clock bounds not meaningful")
-        for item in items:
-            if "perf" in item.keywords:
-                item.add_marker(busy)
     if config.getoption("--unity"):
         return
     skip = pytest.mark.skip(reason="needs Unity run outputs: pass --unity")
