@@ -108,7 +108,10 @@ namespace Codebase.Simulation.Harness
 
 		public static SimulationRunRequest Load(string path)
 		{
-			return SimulationJson.ReadFile<SimulationRunRequest>(path);
+			string text = File.ReadAllText(path, System.Text.Encoding.UTF8);
+			SimulationRunRequest request = SimulationJson.Read<SimulationRunRequest>(text);
+			request.ReadExactParams(text); // C3c (SimulationRunRequest.Params.cs)
+			return request;
 		}
 
 		// Returns null when valid, else the reason (exit code 5).

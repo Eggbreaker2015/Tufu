@@ -93,12 +93,19 @@ def round_float32(resolved: cparams.Resolved, cs: cparams.CsParams | None = None
     return dataclasses.replace(resolved, params=params, params_hash=cparams.params_hash(params))
 
 
-def job(job_id: str, *, params: Mapping[str, Any] | None = None, source: str | None = None, **kw) -> dict:
-    """``request.make_job`` plus ``params_source`` (``"asset"`` takes no params)."""
+def job(job_id: str, *, params: Mapping[str, Any] | None = None, source: str | None = None,
+        cs: cparams.CsParams | None = None, **kw) -> dict:
+    """``request.make_job`` plus ``params_source`` (``"asset"`` takes no params). Params are checked against the
+    C# class as C# checks them (exact field names, JSON types; partial objects allowed), so a mis-cased or mistyped
+    field fails here instead of in Unity with exit 5. ``request.validate`` stays schema-free for params."""
     if source is not None and source not in SOURCES:
         raise req.RequestError(f"params_source must be one of {SOURCES}")
     if source == "asset" and params is not None:
         raise req.RequestError('params_source "asset" takes no params')
+    if params is not None:
+        problems = cparams.check_against_csharp(params, _csharp(cs), complete=False)
+        if problems:
+            raise req.RequestError("params: " + "; ".join(problems))
     j = req.make_job(job_id, params=params, **kw)
     if source is not None:
         j["params_source"] = source
@@ -172,8 +179,10 @@ def _typed(raw: Any, ctype: str, cs: cparams.CsParams, name: str) -> Any:
         return raw if raw is not None else ""
     if not isinstance(raw, str):
         raise ParamsIoError(f"asset Params.{name}: expected a scalar, got {raw!r}")
-    if base == "bool":
-        return raw.strip() not in ("0", "false", "")
+    if base == "bool":  # Unity writes 0 or 1
+        if raw.strip() not in ("0", "1"):
+            raise ParamsIoError(f"asset Params.{name}: expected 0 or 1, got {raw!r}")
+        return raw.strip() == "1"
     if base in ("float", "double"):
         return float(raw)
     return int(raw)

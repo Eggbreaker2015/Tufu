@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Codebase.Simulation.Rebuild;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,18 +15,27 @@ using Newtonsoft.Json.Linq;
 //   {"op": "format", "doubles": ["<16 hex>", ...], "floats": ["<8 hex>", ...]} -> {"doubles": [...], "floats": [...]}
 //   {"op": "params", "json": {...} | null, "complete": bool}
 //     -> {"ok", "error", "missing", "valid", "effective", "hash", "fields"}
+//   {"op": "request", "text": "<run request JSON>"} -> {"jobs": [{"error", "report", "effective"}]} or {"read_error"}:
+//     SimulationRunRequest.Load's exact params, then the loader's checks (SimulationRebuildParams.FromRequest)
+//   {"op": "parse", "texts": ["<JSON>", ...]} -> {"texts": [canonical text or "error: ..."]}
+//   {"op": "newtonsoft", "texts": ["<JSON number>", ...]} -> {"bits": ["<16 hex>", ...]}: the runtime's own
+//     parse through Newtonsoft (what the request reader holds before SimulationRunRequest.ReadExactParams)
+// Commands are read with SimulationCanonicalJson.ParseToken, as the editor reads request params; runs under .NET
+// and under the editor's Mono (rebuildcheck.py).
 internal static class Program
 {
 	private static int Main()
 	{
-		JArray commands;
-		using (var reader = new JsonTextReader(Console.In) { DateParseHandling = DateParseHandling.None, FloatParseHandling = FloatParseHandling.Double })
-			commands = JArray.Load(reader);
+		string input;
+		using (var stdin = new StreamReader(Console.OpenStandardInput(), new UTF8Encoding(false)))
+			input = stdin.ReadToEnd();
+		var commands = (JArray)SimulationCanonicalJson.ParseToken(input);
 		var results = new JArray();
 		foreach (JObject command in commands.Cast<JObject>()) results.Add(Run(command));
 		var output = new StringWriter(CultureInfo.InvariantCulture);
 		using (var writer = new JsonTextWriter(output)) results.WriteTo(writer);
-		Console.Out.Write(output.ToString());
+		byte[] bytes = new UTF8Encoding(false).GetBytes(output.ToString());
+		using (Stream stdout = Console.OpenStandardOutput()) stdout.Write(bytes, 0, bytes.Length);
 		return 0;
 	}
 
@@ -45,6 +55,12 @@ internal static class Program
 				};
 			case "params":
 				return Params(command);
+			case "request":
+				return Request((string)command["text"]);
+			case "newtonsoft":
+				return new JObject { ["bits"] = new JArray(command["texts"].Select(t => (object)NewtonsoftBits((string)t)).ToArray()) };
+			case "parse":
+				return new JObject { ["texts"] = new JArray(command["texts"].Select(t => (object)ParseText((string)t)).ToArray()) };
 		}
 		throw new ArgumentException("unknown op " + command["op"]);
 	}
@@ -56,12 +72,56 @@ internal static class Program
 		foreach (JArray call in command["calls"].Cast<JArray>())
 		{
 			string stream = (string)call[0];
-			if (call[1].Type == JTokenType.Null) results.Add(random.NextDouble(stream).ToString("R", CultureInfo.InvariantCulture));
+			if (call[1].Type == JTokenType.Null) results.Add(SimulationCanonicalJson.FormatDouble(random.NextDouble(stream))); // not "R": Mono's is not round-trip
 			else results.Add(random.Roll(stream, (double)call[1]));
 		}
 		var carried = new JObject();
 		foreach (string name in random.StreamNames) carried[name] = BitConverter.DoubleToInt64Bits(random.Carried(name)).ToString("x16");
 		return new JObject { ["results"] = results, ["state"] = random.StateText(), ["carried"] = carried };
+	}
+
+	private static string NewtonsoftBits(string number)
+	{
+		using (var reader = new JsonTextReader(new StringReader("[" + number + "]")) { FloatParseHandling = FloatParseHandling.Double })
+		{
+			double d = (double)((JValue)JArray.Load(reader)[0]).Value;
+			return BitConverter.DoubleToInt64Bits(d).ToString("x16", CultureInfo.InvariantCulture);
+		}
+	}
+
+	private static string ParseText(string text)
+	{
+		try
+		{
+			return SimulationCanonicalJson.Write(SimulationCanonicalJson.ParseToken(text));
+		}
+		catch (Exception e)
+		{
+			return "error: " + e.Message;
+		}
+	}
+
+	private static JObject Request(string text)
+	{
+		List<JObject> exact;
+		JObject root;
+		try
+		{
+			root = SimulationCanonicalJson.Parse(text);
+			exact = SimulationCanonicalJson.JobParams(text);
+		}
+		catch (Exception e)
+		{
+			return new JObject { ["read_error"] = e.Message };
+		}
+		var jobs = new JArray();
+		for (int i = 0; i < exact.Count; i++)
+		{
+			var report = new JObject();
+			string error = SimulationRebuildParams.FromRequest(exact[i], (string)root["jobs"][i]["params_hash"], report, out SimulationRebuildParams p);
+			jobs.Add(new JObject { ["error"] = error, ["report"] = report, ["effective"] = error == null ? p.EffectiveCanonicalJson() : null });
+		}
+		return new JObject { ["jobs"] = jobs };
 	}
 
 	private static JObject Params(JObject command)

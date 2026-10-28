@@ -64,35 +64,8 @@ namespace Codebase.Simulation.Rebuild
 				return null;
 			}
 			if (source != SourceRequest) return "params_source must be \"request\" or \"asset\", got \"" + source + "\"";
-			if (job.Params == null)
-			{
-				report["source"] = SourceCodeDefaults;
-				if (job.ParamsHash != null) return "params_hash is given without params";
-				return null;
-			}
-			string requestHash;
-			try
-			{
-				requestHash = SimulationCanonicalJson.Hash(job.Params);
-			}
-			catch (System.Exception e)
-			{
-				return "params: " + e.Message;
-			}
-			report["request_hash"] = requestHash;
-			if (job.ParamsHash != null && job.ParamsHash != requestHash)
-				return "params_hash " + job.ParamsHash + " is not the canonical hash " + requestHash + " of params";
-			try
-			{
-				result = SimulationRebuildParams.FromJson(job.Params, false, out List<string> missing);
-				report["complete"] = missing.Count == 0;
-				report["missing"] = new JArray(missing.ToArray());
-			}
-			catch (System.Exception e)
-			{
-				return "params: " + e.Message;
-			}
-			return null;
+			if (job.ParamsReadError != null) return "params: " + job.ParamsReadError;
+			return SimulationRebuildParams.FromRequest(job.Params, job.ParamsHash, report, out result);
 		}
 
 		private static string LoadInteractive(JObject report, ref SimulationRebuildParams result)

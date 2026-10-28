@@ -15,6 +15,8 @@ from tufu_balance.unity import rebuildcheck, simrandom
 from tufu_balance.unity.simrandom import CARRY, SEEDED, SimulationRandom
 
 needs_dotnet = pytest.mark.skipif(not rebuildcheck.available(), reason="needs the .NET 8 SDK")
+RUNTIMES = [pytest.param(rt, marks=pytest.mark.skipif(not rebuildcheck.available(rt), reason=f"needs {rt}"))
+            for rt in rebuildcheck.RUNTIMES]
 
 # Mixed case: StateText orders streams by ordinal (upper case before lower case), like real item Keys.
 STREAMS = ("knife", "weapon_1", "armor_helmet_3", "Ω-stream", "", "Weapon_A", "armor_b", "Zeta", "ZZ_upper")
@@ -120,14 +122,14 @@ def test_bad_inputs():
 
 # ---------------------------------------------------------------- the C# class, same calls
 
-@needs_dotnet
+@pytest.mark.parametrize("runtime", RUNTIMES)
 @pytest.mark.parametrize("mode,seed", [(CARRY, 1), (SEEDED, 1), (SEEDED, -123456789), (SEEDED, 2147483647)])
-def test_csharp_matches_the_port_bit_for_bit(mode, seed):
+def test_csharp_matches_the_port_bit_for_bit(mode, seed, runtime):
     calls = _sequences(seed & 0xFFFF, 4000)
     rng = random.Random(seed)
     calls = [(s, None) if rng.random() < 0.1 else (s, x) for s, x in calls]
     out, r = _run_py(mode, seed, calls)
-    [cs] = rebuildcheck.run([{"op": "random", "mode": mode, "seed": seed, "calls": [list(c) for c in calls]}])
+    [cs] = rebuildcheck.run([{"op": "random", "mode": mode, "seed": seed, "calls": [list(c) for c in calls]}], runtime)
     py = [n if isinstance(n, int) else n for n in out]
     got = [n if isinstance(n, int) else repr(float(n)) for n in cs["results"]]
     assert got == py

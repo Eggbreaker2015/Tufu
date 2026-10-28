@@ -1,8 +1,9 @@
 """Parameters, random source and trace in Unity (design 1.4.3, 2.6, 4.7, 4.8, 7.3 C3c).
 
 * Request params take effect (the early-snapshot cadence and the fast offline step of an override run follow a
-  reference clock with the overridden values), ``params_hash`` is P10's ``params_hash`` on the C# side too,
-  unknown fields fail the job (exit 5), ``params_source = "asset"`` reads the parameter asset through the
+  reference clock with the overridden values), ``params_hash`` is P10's ``params_hash`` on the C# side too (also
+  for literals the editor's own double parser reads 1 ulp off), unknown fields and a wrong ``params_hash`` fail
+  the job (exit 5), ``params_source = "asset"`` reads the parameter asset through the
   AssetDatabase (the interactive path's loader).
 * ``params import`` writes the asset in a fresh editor that never entered Play; every editor that did enter Play
   logs the importer guard's refusal.
@@ -36,6 +37,8 @@ DAYS = 8
 OVERRIDES = {"FastAfkStepMinutes": 60.0, "EarlySnapshotIntervals": [2.0, 5.0], "RollMode": 1, "Seed": 7}
 IMPORT_OVERRIDES = {"FastAfkStepMinutes": 90.0, "Seed": 11, "RollMode": 1, "EarlySnapshotIntervalStarts": [0.0, 15.0]}
 GUARD_LINE = "[TufuSim] params import guard after Play: "
+# Mono's double parser reads both 1 ulp high (C3c review); the request reader must not.
+MONO_LITERALS = {"FastAfkStepMinutes": 181.0483539212821, "EarlySnapshotIntervals": [1.534053662242575, 5.0]}
 
 
 def _defaults():
@@ -46,9 +49,14 @@ def _override():
     return P.resolve(["defaults"], OVERRIDES)
 
 
+def _mono():
+    return P.resolve(["defaults"], MONO_LITERALS)
+
+
 def _jobs():
     d, o = _defaults(), _override()
     return [
+        engine.engine_job("params-mono-literals", day=1, max_wall_seconds=120.0, probe=NULL, params=_mono().params),
         engine.engine_job("trace-defaults", day=DAYS, max_wall_seconds=300.0, probe=NULL, params=d.params,
                           outputs={"digest_text": True}),
         engine.engine_job("params-override", day=DAYS, max_wall_seconds=300.0, probe=NULL, params=o.params),
@@ -78,6 +86,21 @@ def unknown_run(unity_run):
     params = UNKNOWN_PARAMS
     return unity_run(req.make_request([engine.engine_job("params-unknown", day=1, max_wall_seconds=120.0, probe=NULL,
                                                          params=params)]))
+
+
+@pytest.fixture(scope="module")
+def wrong_hash_run(unity_run):
+    """A job whose params_hash is not the canonical hash of its params: the loader rejects it (exit 5)."""
+    job = engine.engine_job("params-wrong-hash", day=1, max_wall_seconds=120.0, probe=NULL, params=_defaults().params)
+    return unity_run(req.make_request([{**job, "params_hash": "0" * 64}]))
+
+
+def _failed_with_bad_request(result):
+    if result.exit_code != launcher.EXIT_BAD_REQUEST:
+        # A failed run while the user's editor rewrites the real save is reported as a guard failure (Runbook 13).
+        problems = result.report.get("guard_problems") or []
+        assert result.exit_code == launcher.EXIT_GUARD and result.report.get("main_checkout_editors"), result.describe()
+        assert problems and all(p.startswith("real ") for p in problems), result.describe()
 
 
 @pytest.fixture(scope="module")
@@ -193,11 +216,28 @@ def test_unknown_param_field_fails_the_job(unknown_run):
     # A failed job still reports what the loader saw.
     p = m["params"]
     assert p["source"] == "request" and p["request_hash"] == req.params_hash(UNKNOWN_PARAMS) and "Bogus" in p["error"]
-    if unknown_run.exit_code != launcher.EXIT_BAD_REQUEST:
-        # A failed run while the user's editor rewrites the real save is reported as a guard failure (Runbook 13).
-        problems = unknown_run.report.get("guard_problems") or []
-        assert unknown_run.exit_code == launcher.EXIT_GUARD and unknown_run.report.get("main_checkout_editors")
-        assert problems and all(p.startswith("real ") for p in problems), unknown_run.describe()
+    _failed_with_bad_request(unknown_run)
+
+
+def test_wrong_params_hash_fails_the_job(wrong_hash_run):
+    m = wrong_hash_run.manifest("params-wrong-hash")
+    d = _defaults()
+    assert m["exit_code"] == launcher.EXIT_BAD_REQUEST
+    assert m["error"] == f"params_hash {'0' * 64} is not the canonical hash {d.params_hash} of params"
+    p = m["params"]
+    assert p["request_hash"] == d.params_hash and p["request_hash_given"] == "0" * 64 and p["error"] == m["error"]
+    _failed_with_bad_request(wrong_hash_run)
+
+
+def test_literals_the_editor_parser_rounds_keep_the_p10_hash(run):
+    """Newtonsoft under the editor's Mono reads these literals 1 ulp high; the job (params_hash given) still runs
+    and reports P10's hash, and its effective values are the float32 values Python predicts."""
+    m = run.manifest("params-mono-literals")
+    p, mono = m["params"], _mono()
+    assert m["exit_code"] == 0 and p["error"] is None
+    assert p["request_hash"] == p["request_hash_given"] == mono.params_hash
+    assert p["hash"] == paramsio.effective_hash(mono.params)
+    assert m["engine"]["params"] == paramsio.effective(mono.params)
 
 
 def test_editors_that_entered_play_refuse_the_import(run):

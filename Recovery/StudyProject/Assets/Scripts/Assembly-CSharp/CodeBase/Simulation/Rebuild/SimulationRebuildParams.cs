@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -73,13 +72,81 @@ namespace Codebase.Simulation.Rebuild
 				throw new JsonSerializationException("params is missing " + string.Join(", ", missing) + " (a complete object is required)");
 			if (json == null) return result;
 			CheckTokens(json);
-			var settings = new JsonSerializerSettings
-			{
-				MissingMemberHandling = MissingMemberHandling.Error,
-				ObjectCreationHandling = ObjectCreationHandling.Replace,
-			};
-			JsonConvert.PopulateObject(json.ToString(Formatting.None), result, settings);
+			var fields = Fields().ToDictionary(f => f.Name, StringComparer.Ordinal);
+			foreach (JProperty property in json.Properties())
+				fields[property.Name].SetValue(result, FieldValue(property.Value, fields[property.Name].FieldType, property.Name));
 			return result;
+		}
+
+		// The value of a checked token (CheckTokens). Doubles are used as parsed (no text round trip through the
+		// runtime's number parser); an integer for a float field goes through double as Python's float() does.
+		private static object FieldValue(JToken token, Type type, string name)
+		{
+			if (type.IsArray)
+			{
+				if (token.Type == JTokenType.Null) return null;
+				var items = (JArray)token;
+				Array array = System.Array.CreateInstance(type.GetElementType(), items.Count);
+				for (int k = 0; k < items.Count; k++) array.SetValue(FieldValue(items[k], type.GetElementType(), name), k);
+				return array;
+			}
+			if (type == typeof(string)) return token.Type == JTokenType.Null ? null : (string)token;
+			if (type == typeof(bool)) return (bool)token;
+			if (type == typeof(float) || type == typeof(double))
+			{
+				object raw = ((JValue)token).Value;
+				double d;
+				if (raw is double x) d = x;
+				else if (raw is float f) d = f;
+				else if (raw is long || raw is int || raw is BigInteger)
+				{
+					BigInteger big = raw is BigInteger b ? b : new BigInteger(Convert.ToInt64(raw, CultureInfo.InvariantCulture));
+					d = SimulationCanonicalJson.DecimalToDouble(big.Sign < 0, BigInteger.Abs(big), 0);
+				}
+				else throw new JsonSerializationException("params." + name + ": a " + raw.GetType().Name + " number has no exact double");
+				return type == typeof(float) ? (object)(float)d : d;
+			}
+			object integer = ((JValue)token).Value;
+			if (integer is BigInteger) throw new JsonSerializationException("params." + name + ": " + integer + " is out of range");
+			long value = Convert.ToInt64(integer, CultureInfo.InvariantCulture);
+			if (type == typeof(long)) return value;
+			if (value < int.MinValue || value > int.MaxValue) throw new JsonSerializationException("params." + name + ": " + value + " is out of range");
+			return type.IsEnum ? Enum.ToObject(type, (int)value) : (object)(int)value;
+		}
+
+		// A batch job's request params (design 4.8, 1.4.2): `paramsHash`, when given, must be the canonical hash of
+		// `json` (Python's params_hash); the object goes over the code defaults. Null, or why the job cannot run.
+		public static string FromRequest(JObject json, string paramsHash, JObject report, out SimulationRebuildParams result)
+		{
+			result = new SimulationRebuildParams();
+			if (json == null)
+			{
+				report["source"] = "code_defaults";
+				return paramsHash != null ? "params_hash is given without params" : null;
+			}
+			string requestHash;
+			try
+			{
+				requestHash = SimulationCanonicalJson.Hash(json);
+			}
+			catch (Exception e)
+			{
+				return "params: " + e.Message;
+			}
+			report["request_hash"] = requestHash;
+			if (paramsHash != null && paramsHash != requestHash)
+				return "params_hash " + paramsHash + " is not the canonical hash " + requestHash + " of params";
+			try
+			{
+				result = FromJson(json, false, out List<string> missing);
+				report["complete"] = missing.Count == 0;
+				report["missing"] = new JArray(missing.ToArray());
+			}
+			catch (Exception e)
+			{
+				return "params: " + e.Message;
+			}
+			return null;
 		}
 
 		// Newtonsoft matches member names ignoring case and converts strings to numbers and enums; the request's
@@ -232,11 +299,289 @@ namespace Codebase.Simulation.Rebuild
 			return sb.ToString();
 		}
 
-		// Doubles stay doubles, dates stay strings (as SimulationJson.ReadSettings).
+		// JSON as Python's json.loads reads it: numbers with a fraction or exponent become correctly rounded doubles
+		// (the editor's Mono parses some literals 1 ulp off, and Newtonsoft reads -0.0 as 0.0), other numbers
+		// integers (long, else BigInteger), NaN/Infinity/-Infinity are accepted, a repeated key keeps its last value.
 		public static JObject Parse(string json)
 		{
-			using (var reader = new JsonTextReader(new StringReader(json)) { DateParseHandling = DateParseHandling.None, FloatParseHandling = FloatParseHandling.Double })
-				return JObject.Load(reader);
+			return ParseToken(json) as JObject ?? throw new JsonReaderException("expected a JSON object");
+		}
+
+		public static JToken ParseToken(string json)
+		{
+			var parser = new ExactParser(json);
+			JToken token = parser.Value();
+			parser.End();
+			return token;
+		}
+
+		// Each job's "params" of a run request (null when absent or null), read exactly; SimulationRunRequest.Load
+		// puts these in place of the Newtonsoft-read objects.
+		public static List<JObject> JobParams(string requestJson)
+		{
+			JObject root = Parse(requestJson);
+			if (!(root["jobs"] is JArray jobs)) throw new JsonReaderException("request has no jobs array");
+			var result = new List<JObject>();
+			foreach (JToken job in jobs)
+			{
+				JToken p = job is JObject o ? o["params"] : null;
+				if (p != null && p.Type != JTokenType.Null && p.Type != JTokenType.Object) throw new JsonReaderException("params must be an object");
+				result.Add(p as JObject);
+			}
+			return result;
+		}
+
+		// digits * 10^exp10 correctly rounded to a double (round half even); overflow gives infinity, as in Python.
+		public static double DecimalToDouble(bool negative, BigInteger digits, int exp10)
+		{
+			double magnitude = DecimalMagnitude(digits, exp10);
+			return negative ? (magnitude == 0.0 ? NegativeZero : -magnitude) : magnitude;
+		}
+
+				private static readonly double NegativeZero = BitConverter.Int64BitsToDouble(long.MinValue);
+
+		private static double DecimalMagnitude(BigInteger digits, int exp10)
+		{
+			if (digits.IsZero) return 0.0;
+			int n = digits.ToString(CultureInfo.InvariantCulture).Length;
+			if (n + exp10 > 310) return double.PositiveInfinity;
+			if (n + exp10 < -325) return 0.0;
+			BigInteger num = digits * BigInteger.Pow(10, Math.Max(exp10, 0));
+			BigInteger den = BigInteger.Pow(10, Math.Max(-exp10, 0));
+			// q = floor(num / (den * 2^e2)) in [2^52, 2^53), or below 2^52 at e2 = -1074 (subnormals).
+			int e2 = Math.Max(BitLength(num) - BitLength(den) - 53, -1074);
+			BigInteger q, r, divisor;
+			while (true)
+			{
+				BigInteger scaled = e2 < 0 ? num << -e2 : num;
+				divisor = e2 > 0 ? den << e2 : den;
+				q = BigInteger.DivRem(scaled, divisor, out r);
+				if (q >= TwoPow53) e2++;
+				else if (q < TwoPow52 && e2 > -1074) e2--;
+				else break;
+			}
+			int half = (r * 2).CompareTo(divisor);
+			if (half > 0 || (half == 0 && !q.IsEven)) q += 1;
+			if (q == TwoPow53)
+			{
+				q = TwoPow52;
+				e2++;
+			}
+			if (e2 > 971) return double.PositiveInfinity;
+			long bits = q >= TwoPow52 ? ((long)(e2 + 1075) << 52) | (long)(ulong)(q - TwoPow52) : (long)(ulong)q;
+			return BitConverter.Int64BitsToDouble(bits);
+		}
+
+		private static readonly BigInteger TwoPow52 = BigInteger.One << 52, TwoPow53 = BigInteger.One << 53;
+
+		private static int BitLength(BigInteger x)
+		{
+			byte[] bytes = x.ToByteArray();
+			int top = bytes.Length - 1;
+			while (top > 0 && bytes[top] == 0) top--;
+			int bits = 0;
+			for (int b = bytes[top]; b > 0; b >>= 1) bits++;
+			return top * 8 + bits;
+		}
+
+		// Strict JSON (RFC 8259) plus Python's NaN, Infinity and -Infinity.
+		private sealed class ExactParser
+		{
+			private readonly string s;
+			private int i;
+
+			public ExactParser(string text)
+			{
+				s = text ?? throw new ArgumentNullException(nameof(text));
+				if (s.Length > 0 && s[0] == '﻿') i = 1;
+			}
+
+			public void End()
+			{
+				Skip();
+				if (i != s.Length) throw Error("extra data");
+			}
+
+			private JsonReaderException Error(string what) => new JsonReaderException("JSON " + what + " at offset " + i);
+
+			private void Skip()
+			{
+				while (i < s.Length && (s[i] == ' ' || s[i] == '\t' || s[i] == '\n' || s[i] == '\r')) i++;
+			}
+
+			private bool Literal(string word)
+			{
+				if (string.CompareOrdinal(s, i, word, 0, word.Length) != 0) return false;
+				i += word.Length;
+				return true;
+			}
+
+			private bool Digit() => i < s.Length && s[i] >= '0' && s[i] <= '9';
+
+			public JToken Value()
+			{
+				Skip();
+				if (i >= s.Length) throw Error("value expected");
+				char c = s[i];
+				if (c == '{') return Object();
+				if (c == '[') return Array();
+				if (c == '"') return new JValue(String());
+				if (Literal("true")) return new JValue(true);
+				if (Literal("false")) return new JValue(false);
+				if (Literal("null")) return JValue.CreateNull();
+				if (Literal("NaN")) return new JValue(double.NaN);
+				if (Literal("Infinity")) return new JValue(double.PositiveInfinity);
+				if (Literal("-Infinity")) return new JValue(double.NegativeInfinity);
+				if (c == '-' || (c >= '0' && c <= '9')) return Number();
+				throw Error("unexpected character '" + c + "'");
+			}
+
+			private JObject Object()
+			{
+				var o = new JObject();
+				i++;
+				Skip();
+				if (i < s.Length && s[i] == '}')
+				{
+					i++;
+					return o;
+				}
+				while (true)
+				{
+					Skip();
+					if (i >= s.Length || s[i] != '"') throw Error("property name expected");
+					string name = String();
+					Skip();
+					if (i >= s.Length || s[i] != ':') throw Error("':' expected");
+					i++;
+					o[name] = Value();
+					Skip();
+					if (i < s.Length && s[i] == ',')
+					{
+						i++;
+						continue;
+					}
+					if (i < s.Length && s[i] == '}')
+					{
+						i++;
+						return o;
+					}
+					throw Error("',' or '}' expected");
+				}
+			}
+
+			private JArray Array()
+			{
+				var a = new JArray();
+				i++;
+				Skip();
+				if (i < s.Length && s[i] == ']')
+				{
+					i++;
+					return a;
+				}
+				while (true)
+				{
+					a.Add(Value());
+					Skip();
+					if (i < s.Length && s[i] == ',')
+					{
+						i++;
+						continue;
+					}
+					if (i < s.Length && s[i] == ']')
+					{
+						i++;
+						return a;
+					}
+					throw Error("',' or ']' expected");
+				}
+			}
+
+			private string String()
+			{
+				var sb = new StringBuilder();
+				i++;
+				while (true)
+				{
+					if (i >= s.Length) throw Error("unterminated string");
+					char c = s[i++];
+					if (c == '"') return sb.ToString();
+					if (c < 0x20) throw Error("control character in string");
+					if (c != '\\')
+					{
+						sb.Append(c);
+						continue;
+					}
+					if (i >= s.Length) throw Error("unterminated escape");
+					char e = s[i++];
+					switch (e)
+					{
+						case '"': sb.Append('"'); break;
+						case '\\': sb.Append('\\'); break;
+						case '/': sb.Append('/'); break;
+						case 'b': sb.Append('\b'); break;
+						case 'f': sb.Append('\f'); break;
+						case 'n': sb.Append('\n'); break;
+						case 'r': sb.Append('\r'); break;
+						case 't': sb.Append('\t'); break;
+						case 'u':
+							if (i + 4 > s.Length || !s.Substring(i, 4).All(Uri.IsHexDigit)) throw Error("bad \\u escape");
+							sb.Append((char)int.Parse(s.Substring(i, 4), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture));
+							i += 4;
+							break;
+						default: throw Error("bad escape \\" + e);
+					}
+				}
+			}
+
+			// JValue(double) boxes every zero as the cached +0.0 (Newtonsoft's BoxedPrimitives); the object
+			// constructor keeps -0.0.
+			private static JValue Float(double d) => new JValue((object)d);
+
+			private JValue Number()
+			{
+				int start = i;
+				bool negative = s[i] == '-';
+				if (negative) i++;
+				int intStart = i;
+				if (i < s.Length && s[i] == '0') i++;
+				else if (Digit()) while (Digit()) i++;
+				else throw Error("digit expected");
+				string intDigits = s.Substring(intStart, i - intStart), fracDigits = "";
+				bool isFloat = false;
+				if (i < s.Length && s[i] == '.')
+				{
+					int f = ++i;
+					while (Digit()) i++;
+					if (i == f) throw Error("digit expected after '.'");
+					fracDigits = s.Substring(f, i - f);
+					isFloat = true;
+				}
+				BigInteger exponent = BigInteger.Zero;
+				if (i < s.Length && (s[i] == 'e' || s[i] == 'E'))
+				{
+					i++;
+					bool expNegative = false;
+					if (i < s.Length && (s[i] == '+' || s[i] == '-')) expNegative = s[i++] == '-';
+					int f = i;
+					while (Digit()) i++;
+					if (i == f) throw Error("digit expected in exponent");
+					exponent = BigInteger.Parse(s.Substring(f, i - f), CultureInfo.InvariantCulture);
+					if (expNegative) exponent = -exponent;
+					isFloat = true;
+				}
+				if (!isFloat)
+				{
+					BigInteger value = BigInteger.Parse(s.Substring(start, i - start), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
+					return value >= long.MinValue && value <= long.MaxValue ? new JValue((long)value) : new JValue(value);
+				}
+				string all = (intDigits + fracDigits).TrimStart('0');
+				BigInteger exp10 = exponent - fracDigits.Length;
+				if (all.Length == 0 || exp10 + all.Length < -400) return Float(negative ? NegativeZero : 0.0);
+				if (exp10 + all.Length > 400) return Float(negative ? double.NegativeInfinity : double.PositiveInfinity);
+				return Float(DecimalToDouble(negative, BigInteger.Parse(all, CultureInfo.InvariantCulture), (int)exp10));
+			}
 		}
 
 		public static string Sha256(string text)
