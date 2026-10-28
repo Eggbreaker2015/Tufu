@@ -226,6 +226,7 @@ def test_cache_follows_curve_edits(interp):
     assert after != before and after == cfg.get_total_coefficient(100, 3)
 
 
+@pytest.mark.perf
 def test_evaluate_cost_after_caching(interp):
     it = next(it for it in interp.interpolations if it.name == "EventsMult")
     interp.total_coefficient(300.0, 3)

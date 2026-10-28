@@ -611,6 +611,7 @@ def test_h9_double_hook(contexts, rows_inputs, load_fixture, monkeypatch):
     assert {"changed_health": ch, "changed_damage": cd, "double_health_exact": eh, "double_damage_exact": ed} == fx
 
 
+@pytest.mark.perf
 def test_bake_cost(contexts, rows_inputs):
     ctx = contexts[None]
     for _, sp in rows_inputs:

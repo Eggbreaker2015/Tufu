@@ -503,8 +503,15 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 - 用不区分大小写的 `pgrep -fil <工程路径>` 再筛 `-projectpath`，发现已有 Unity 打开同一工程就拒绝。
 - 受保护 DLL 按 `.ps1` 的规则核对，常数与入库的 `.ps1` 一致（测试）。
 - 运行前后核对（Unity 和它的导入进程都退出之后）：真实存档目录下每个文件的 sha256；真实 plist 文件与经 cfprefsd 导出的内容（`defaults export`）；运行工作树里受保护资产、`ProjectSettings.asset`、`EditorSettings.asset`、`TimeManager.asset` 的 sha256；`git status --porcelain -uall`。运行前把真实存档目录和 PlayerPrefs 备份到运行目录的 `_real_backup/`。
-  - 有变化时：运行期间没有发现别的 Unity 进程才从备份恢复（另一个编辑器可能正当地写了它们），否则只报告；两种情况都以 2 结束。没有变化或已恢复时删除备份。
+  - 有变化时：运行期间没有发现别的 Unity 进程才从备份恢复（另一个编辑器可能正当地写了它们），否则只报告；两种情况都以 2 结束（例外见下面两条）。只在没有变化或已恢复时删除备份，其余情况都保留。
   - 例外是编辑器自己的分析会话 `Unity/<云项目 id>/Editor/Analytics/**`（第 9 节）：单列为 `editor_analytics_leftovers`，照样从备份恢复，不判 2。
+  - 用户在主检出的编辑器里游玩时，大约每 5 秒重写一次真实存档（可能还有 PlayerPrefs）。下面几条同时满足时，这些变化记在用户的编辑器名下：列为 `real_changed_by_main_editor`，不恢复（那是用户自己的数据），也不判 2，备份照样保留在 `_real_backup/`。
+    - 运行开始前和结束后都看到主检出上的同一个 Unity 编辑器进程（`main_checkout_editors`，导入进程不算）。
+    - 本次运行的 Unity 正常退出（退出码 0），运行期间没有别的 Unity 打开运行工作树。
+    - 本次运行的 `editor_report.json`（进程号必须等于本次启动的 Unity）证明沙箱生效：`persistentDataPath` 在 `TufuSimSandbox/<名>` 下，不在真实路径之下；它报告的真实路径就是受保护的存档目录；PlayerPrefs 探针只落在沙箱域。
+    - 除了真实存档和 PlayerPrefs，没有别的守卫问题：工程文件或运行工作树有变化时，照旧连同真实存档的变化一起判 2。
+
+    任何一条不满足就和以前一样判 2；只要有别的编辑器在，就不会去恢复。这个探针只证明从改名到 `LeaveSandbox` 这段时间的写入进了沙箱；改名之前，编辑器启动时只写分析会话（上一条）。所以把变化归给主编辑器的依据是：本次运行在这段时间外不写存档，而那个编辑器确实开着。常驻模式（`serve`）还没有这条规则：用户的编辑器一写存档，之后每次提交都判 2，要重启常驻编辑器。
 - 网络：运行中每 2 秒 `lsof -nP -a -p <pid> -i` 采样，按心跳的阶段分成编辑模式与 Play；断言 Play 期间没有编辑模式期间之外的非回环远端。另扫描日志里第一次进入 Play 之后的 SDK 输出（AppMetrica、Adjust、Firebase、AppLovin、MaxSdk、Facebook、Tapjoy、BackendApi、UnityServices、RemoteConfigService），并有静态测试断言 `Assets/Scripts` 与 `Assets/Editor` 里没有网络 API。系统代理（`127.0.0.1:7897`）下 `lsof` 只看得到代理端口，看不到主机名；按主机名的核对仍需代理日志（第 4.3 节）。
 - 每次运行前后删除沙箱的 PlayerPrefs 域（`defaults delete unity.TufuSimSandbox.<名>`，再删残留的 plist 文件）和沙箱存档目录；删除前核对路径确实在 `TufuSimSandbox` 之下。
 

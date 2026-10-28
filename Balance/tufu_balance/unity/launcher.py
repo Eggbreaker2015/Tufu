@@ -329,6 +329,27 @@ def diff_snapshots(before: Mapping, after: Mapping, *, editor_alive: bool = Fals
     return problems
 
 
+def sandbox_proven(run_dir: Path, identity: str, pid: int, real_save_dir: Path) -> bool:
+    """This editor process (``pid``) reported that persistentDataPath and the PlayerPrefs probe followed the
+    sandbox rename away from ``real_save_dir``."""
+    try:
+        report = json.loads((Path(run_dir) / "editor_report.json").read_text())
+        sb = report["sandbox"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    data, real = str(sb.get("sandbox_persistent_data_path") or ""), str(sb.get("real_persistent_data_path") or "")
+    return (report.get("pid") == pid and real == str(real_save_dir)
+            and sb.get("prefs_probe_in_sandbox_domain") is True and sb.get("prefs_probe_in_real_domain") is False
+            and bool(data) and not data.startswith(real) and f"/{req.SANDBOX_COMPANY}/" in data
+            and sb.get("sandbox_product") == identity)
+
+
+def main_checkout_editors() -> set[int]:
+    """Unity editors the user has open on the main checkout (their import workers excluded)."""
+    project = runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR
+    return {pid for pid, cmdline in unity_processes(project) if "AssetImportWorker" not in cmdline}
+
+
 def _is_editor_analytics(problem: str) -> bool:
     prefix = "real save file changed: "
     return problem.startswith(prefix) and bool(EDITOR_ANALYTICS.match(problem[len(prefix):]))
@@ -671,6 +692,7 @@ def _launch_and_check(r: dict, run_dir: Path, *, project: Path, worktree: Path, 
     report: dict[str, Any] = {"schema": "tufu.sim.launcher/1", "method": method, "project": str(project), "dev": dev,
                               "started": now_iso(), **material}
     report["sandbox_residue_removed"] = cleanup_sandbox(identity)
+    main_editors_before = main_checkout_editors()
     before = snapshot(paths, project)
     backup = run_dir / "_real_backup"
     backup_real(paths, backup)
@@ -708,6 +730,8 @@ def _launch_and_check(r: dict, run_dir: Path, *, project: Path, worktree: Path, 
     report["editor_analytics_leftovers"] = analytics
     restored = []
     real_changed = [p for p in problems if p.startswith("real ")] + analytics
+    main_editors = sorted(main_editors_before & main_checkout_editors())
+    report["main_checkout_editors"] = main_editors
     if real_changed:
         foreign = others_seen or [p for p in unity_processes(runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR)]
         if foreign:
@@ -725,6 +749,15 @@ def _launch_and_check(r: dict, run_dir: Path, *, project: Path, worktree: Path, 
         status = runner.porcelain(Path(project).parents[1])
         if status.strip():
             problems.append("run worktree not clean after the run: " + " | ".join(status.splitlines()[:10]))
+    # The user's own editor on the main checkout writes the same real save and PlayerPrefs while it plays.
+    # Those changes are attributed to it, not to this run, only when that editor ran for the whole run, this
+    # editor exited cleanly with nothing else wrong, and it proved that its own writes went to the sandbox.
+    # They are recorded and never restored (another editor is running); the backup is kept.
+    real_problems = [p for p in problems if p.startswith("real ")]
+    if (real_problems and main_editors and unity_exit == 0 and not others_seen
+            and len(real_problems) == len(problems) and sandbox_proven(run_dir, identity, proc.pid, paths.save_dir)):
+        report["real_changed_by_main_editor"] = real_problems
+        problems = []
     guard_problems = [p for p in problems if "dev worktree" not in p]
     if guard_problems:
         exit_code = EXIT_GUARD
@@ -735,7 +768,7 @@ def _launch_and_check(r: dict, run_dir: Path, *, project: Path, worktree: Path, 
     report["others_seen"] = others_seen
     report["exit_code"] = exit_code
     report["finished"] = now_iso()
-    if not [p for p in problems if p.startswith("real ")] or restored:
+    if not real_changed or restored:
         shutil.rmtree(backup, ignore_errors=True)
     for job in r["jobs"]:
         job_dir = run_dir / job["job_id"]

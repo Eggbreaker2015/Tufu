@@ -109,6 +109,7 @@ def test_stat_lookup_cache(sd):
     assert dup.stat(s.stats[0].key).value == 1.0  # First()
 
 
+@pytest.mark.perf
 def test_lookup_costs(sd):
     sd.get_by_time_chunk_index(100.0)
     n = 2000

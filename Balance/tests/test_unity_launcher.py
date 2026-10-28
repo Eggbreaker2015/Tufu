@@ -34,6 +34,7 @@ FAKE_UNITY = textwrap.dedent('''\
     def write(progress):
         beat.write_text(json.dumps({"pid": os.getpid(), "phase": "play:Job", "progress": progress}))
     mode = os.environ.get("FAKE_UNITY_MODE", "ok")
+    modes = set(mode.split("+"))
     if mode == "nobeat":
         time.sleep(60)
     write("0")
@@ -44,15 +45,21 @@ FAKE_UNITY = textwrap.dedent('''\
         write(str(i + 1))
     if mode == "touch_dev":
         (project / "Assets" / "touched.txt").write_text("x")
-    if mode == "touch_real":
+    if os.environ.get("FAKE_EDITOR_SANDBOX"):
+        report = Path(arg("-tufuSimRequest")).parent / "editor_report.json"
+        pid = int(os.environ.get("FAKE_EDITOR_PID") or os.getpid())
+        report.write_text(json.dumps({"pid": pid, "sandbox": json.loads(os.environ["FAKE_EDITOR_SANDBOX"])}))
+    if "touch_real" in modes:
         Path(os.environ["FAKE_REAL_SAVE"]).write_text("changed")
+    if "touch_project" in modes:
+        (project / "ProjectSettings" / "ProjectSettings.asset").write_text("changed")
     if mode == "analytics":
         events = Path(os.environ["FAKE_REAL_SAVE"]).parent / "Unity" / "cloud-id" / "Editor" / "Analytics" / "ArchivedEvents" / "1"
         events.mkdir(parents=True)
         (events / "c").write_text("session")
     if mode == "dirty":
         (project / "Assets" / "untracked.cs").write_text("// new")
-    sys.exit(int(mode.split(":")[1]) if mode.startswith("exit:") else 0)
+    sys.exit(next((int(m.split(":")[1]) for m in modes if m.startswith("exit:")), 0))
 ''')
 
 
@@ -286,6 +293,94 @@ def test_fake_run_real_save_changed_is_restored_and_fails(fake_tree, monkeypatch
     assert any("real save file changed" in p for p in result.report["guard_problems"])
     assert result.report["restored"] == ["save_dir"]
     assert (fake_tree["real"] / "save" / "game_data.bin").read_text() == "original"
+
+
+SANDBOX_DATA = "/Users/u/Library/Application Support/TufuSimSandbox/TufuSimFakeTest"
+
+
+def _proven_sandbox(real_save_dir):
+    return {"real_persistent_data_path": str(real_save_dir), "sandbox_persistent_data_path": SANDBOX_DATA,
+            "sandbox_product": "TufuSimFakeTest", "prefs_probe_in_sandbox_domain": True,
+            "prefs_probe_in_real_domain": False}
+
+
+@pytest.mark.parametrize("change", [
+    None,
+    {"prefs_probe_in_real_domain": True},
+    {"prefs_probe_in_real_domain": None},
+    {"prefs_probe_in_sandbox_domain": False},
+    {"prefs_probe_in_sandbox_domain": "true"},
+    {"sandbox_persistent_data_path": "/real/save"},
+    {"sandbox_persistent_data_path": "/real/save/TufuSimSandbox/x"},
+    {"sandbox_persistent_data_path": "/Users/u/Library/Application Support/Other/TufuSimFakeTest"},
+    {"sandbox_product": "TufuSimOther"},
+    {"real_persistent_data_path": "/real/other"},
+    {"real_persistent_data_path": None},
+    "other pid",
+    "no report",
+])
+def test_sandbox_proven_needs_every_sign(tmp_path, change):
+    if change != "no report":
+        sandbox = {**_proven_sandbox("/real/save"), **(change if isinstance(change, dict) else {})}
+        pid = 99 if change == "other pid" else 42
+        (tmp_path / "editor_report.json").write_text(json.dumps({"pid": pid, "sandbox": sandbox}))
+    assert launcher.sandbox_proven(tmp_path, "TufuSimFakeTest", 42, Path("/real/save")) is (change is None)
+
+
+def _main_editor(monkeypatch, present=lambda look: True):
+    """Pretend the user's editor has the main checkout open; ``present(n)`` says whether the n-th look sees it.
+    Its import worker is always listed and must not count as the editor."""
+    main = (runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR).resolve()
+    other = launcher.unity_processes
+    looks = []
+
+    def fake(project):
+        if Path(project).resolve() != main:
+            return other(project)
+        looks.append(1)
+        worker = [(434343, f"Unity -batchMode -projectPath {main} -name AssetImportWorker0")]
+        return ([(424242, f"Unity -projectPath {main}")] if present(len(looks)) else []) + worker
+    monkeypatch.setattr(launcher, "unity_processes", fake)
+
+
+def _attempt(fake_tree, monkeypatch, mode, sandbox=True):
+    if sandbox:
+        monkeypatch.setenv("FAKE_EDITOR_SANDBOX", json.dumps(_proven_sandbox(fake_tree["paths"].save_dir)))
+    return _run(fake_tree, mode, monkeypatch)
+
+
+def test_fake_run_real_save_written_by_main_editor_is_attributed(fake_tree, monkeypatch):
+    """The user playing in the main checkout's editor writes the real save: recorded, kept, not exit 2."""
+    _main_editor(monkeypatch)
+    result = _attempt(fake_tree, monkeypatch, "touch_real")
+    assert result.exit_code == 0, result.report
+    assert result.report["real_changed_by_main_editor"] == ["real save file changed: game_data.bin"]
+    assert result.report["guard_problems"] == []
+    assert result.report["main_checkout_editors"] == [424242]
+    assert result.report["restored"] == [] and "restore_skipped" in result.report
+    assert (fake_tree["real"] / "save" / "game_data.bin").read_text() == "changed"
+    assert (result.run_dir / "_real_backup" / "save_dir" / "game_data.bin").read_text() == "original"
+
+
+@pytest.mark.parametrize("mode, sandbox, present, also", [
+    ("touch_real", False, lambda n: True, None),                       # no sandbox proof
+    ("touch_real", True, lambda n: n > 1, None),                       # editor appeared after the start
+    ("touch_real", True, lambda n: n == 1, None),                      # editor gone by the end
+    ("touch_real+exit:1", True, lambda n: True, None),                 # this editor did not exit cleanly
+    ("touch_real+touch_project", True, lambda n: True, "project file changed on disk"),
+])
+def test_fake_run_real_save_change_without_attribution_fails(fake_tree, monkeypatch, mode, sandbox, present, also):
+    """Any missing condition: exit 2 with the real change listed, the backup kept, and nothing restored while
+    another editor may be writing."""
+    _main_editor(monkeypatch, present)
+    result = _attempt(fake_tree, monkeypatch, mode, sandbox)
+    assert result.exit_code == launcher.EXIT_GUARD
+    assert "real_changed_by_main_editor" not in result.report
+    assert "real save file changed: game_data.bin" in result.report["guard_problems"]
+    if also:
+        assert any(also in p for p in result.report["guard_problems"])
+    assert result.report["restored"] == [] and "restore_skipped" in result.report
+    assert (result.run_dir / "_real_backup" / "save_dir" / "game_data.bin").read_text() == "original"
 
 
 def test_fake_run_editor_analytics_leftovers_are_restored_not_fatal(fake_tree, monkeypatch):
