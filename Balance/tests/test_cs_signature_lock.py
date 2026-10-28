@@ -247,6 +247,9 @@ def test_locked_members_identical_and_only_rebuild_members_added(tmp_path):
             assert new[key] == m, key
         added.update({(nt["name"], k): new[k] for k in new.keys() - old.keys()})
     assert set(NEW_MEMBERS) <= {k for (_, k) in added}
+    # The internal surface (what SimulationHarness may call) is exact; private Rebuild* helpers are free.
+    assert {k for (_, k), m in added.items() if m["accessibility"] == "internal"} == \
+        {k for k, a in NEW_MEMBERS.items() if a == "internal"}
     for (type_name, key), m in added.items():
         assert type_name == SIM
         assert m["name"].startswith("Rebuild")

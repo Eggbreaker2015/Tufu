@@ -81,8 +81,13 @@ namespace Codebase.Simulation.Systems
 				spawnerChargesUsage.Clear();
 				// Q07: a spawner's death is its cooldown, owned by the bot while IsRunning; a new save has every
 				// spawner populated, whatever wall-clock alignment countdown it was given at bootstrap.
+				RebuildPrepareCooldownsZeroed = 0;
 				foreach (EnemySpawner spawner in enemiesModel.Spawners)
-					if (!spawner.Config.IsEvent && !spawner.Config.IsVip) spawner.Cooldown = 0f;
+				{
+					if (spawner.Config.IsEvent || spawner.Config.IsVip) continue;
+					if (spawner.Cooldown != 0f) RebuildPrepareCooldownsZeroed++;
+					spawner.Cooldown = 0f;
+				}
 				fastTickChunkStatRewards.Clear();
 				fastTickChunkItemRewards.Clear();
 				fastTickChunkSoulRewards.Clear();
@@ -92,6 +97,7 @@ namespace Codebase.Simulation.Systems
 				foreach (StatType type in RPMCalculatedValue.Keys.ToList()) RPMCalculatedValue[type] = 0.0;
 				foreach (string key in SoulRPMCalculatedValue.Keys.ToList()) SoulRPMCalculatedValue[key] = 0.0;
 				ResetAmuletAutoBalance();
+				RebuildApplyProbeGrants();
 				currentBoss = RebuildFindBoss(playerModel.LastUnlockedLocation.Number);
 				UpdateInterpolationStatModifier();
 				playerModel.Unit.CurrentHealth = GetForecastStatValue(StatType.Health);

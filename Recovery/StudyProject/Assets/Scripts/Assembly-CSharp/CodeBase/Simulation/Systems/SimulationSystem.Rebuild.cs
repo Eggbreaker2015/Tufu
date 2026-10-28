@@ -73,8 +73,6 @@ namespace Codebase.Simulation.Systems
 
 		private readonly SortedDictionary<string, double> RebuildCurrencyRewards = new SortedDictionary<string, double>(StringComparer.Ordinal);
 
-		private readonly HashSet<int> RebuildUnlockedLocations = new HashSet<int>();
-
 		private readonly SortedDictionary<string, long> RebuildCounters = new SortedDictionary<string, long>(StringComparer.Ordinal);
 
 		// Per day: [day, fast (0/1), ticks, offline steps, offline minutes, P and T at the day change].
@@ -218,7 +216,9 @@ namespace Codebase.Simulation.Systems
 			if (!percent && reward.StatType == StatType.Health) playerModel.Unit.CurrentHealth += value;
 		}
 
-		// A cleared spawner's gates open once; each island they reach is unlocked once; its slot reward opens.
+		// A cleared spawner's gates open once; each island they reach is unlocked once; its slot reward opens. A
+		// gate to an island that is already open (the back-gates of islands 4, 11, 12, 13) is a no-op, not a
+		// repeat unlock: each gate is its own component and opens on its own first clear.
 		private void RebuildApplyGateReward(EnemySpawner spawner)
 		{
 			EnemySpawnerConfig def = spawner.Config;
@@ -231,7 +231,11 @@ namespace Codebase.Simulation.Systems
 					gatesModel.OpenGate(gate.Key);
 					if (!reached.Contains(gate.NextLocationNumber)) reached.Add(gate.NextLocationNumber);
 				}
-				foreach (int number in reached) RebuildUnlockLocation(number);
+				foreach (int number in reached)
+				{
+					if (number <= playerModel.LastUnlockedLocation.Number) RebuildCount("back_gate_noops");
+					else RebuildUnlockLocation(number);
+				}
 			}
 			if (!string.IsNullOrEmpty(def.SlotReward))
 			{
@@ -248,18 +252,13 @@ namespace Codebase.Simulation.Systems
 		[SimulationRebuild(Provenance.Inferred, "pending:simulation.unlock_location")]
 		private void RebuildUnlockLocation(int number)
 		{
-			if (RebuildUnlockedLocations.Contains(number))
+			// UnlockLocation keeps the maximum, so an island at or below it is open already. Gates never get here
+			// for such an island; a direct call (C4 override, probe) is a repeat unlock and does nothing (X6).
+			if (number <= playerModel.LastUnlockedLocation.Number)
 			{
 				RebuildCount("repeat_unlocks");
 				return;
 			}
-			if (number <= playerModel.LastUnlockedLocation.Number)
-			{
-				// A back-gate to an island that is already open (islands 4, 11, 12, 13).
-				RebuildCount("back_gate_noops");
-				return;
-			}
-			RebuildUnlockedLocations.Add(number);
 			playerModel.UnlockLocation(number);
 			playerModel.AdvanceBossProgressLocation(number);
 			currentBoss = RebuildFindBoss(number);
@@ -339,6 +338,17 @@ namespace Codebase.Simulation.Systems
 
 		// ---- engine probes (request job.engine_probe; tests only) ----
 
+		// Non-event, non-VIP spawners with a non-zero cooldown that PrepareSimulationRun zeroed (Q07).
+		private int RebuildPrepareCooldownsZeroed;
+
+		// Flat stat grants of the probe, before day 0's K modifiers (so DpsData/DefenseData depend on K2).
+		private void RebuildApplyProbeGrants()
+		{
+			if (RebuildProbe?.GrantFlat == null) return;
+			foreach (var pair in RebuildProbe.GrantFlat.OrderBy(pair => pair.Key))
+				RebuildAddStatReward(new StatModifier { Name = "__probeGrant", StatType = (StatType)pair.Key, ModifierType = ModifierType.Flat, Source = ModifierSource.Reward }, pair.Value);
+		}
+
 		private void RebuildApplyProbeSetup()
 		{
 			if (RebuildProbe == null) return;
@@ -352,45 +362,62 @@ namespace Codebase.Simulation.Systems
 			}
 		}
 
-		private JObject RebuildProbeState(EnemySpawner spawner)
+		private JObject RebuildProbeSpawner(EnemySpawner spawner)
 		{
 			spawnerChargesUsage.TryGetValue(spawner, out int used);
-			var stats = new JObject();
-			foreach (Stat stat in playerModel.Unit.Stats)
-				stats[((int)stat.Type).ToString(CultureInfo.InvariantCulture)] = GetSimulationSnapshotStatValue(stat);
 			return new JObject
 			{
 				["usage"] = used,
 				["limit"] = GetSpawnerChargesLimit(spawner),
 				["cooldown"] = SimulationJson.FormatFloat(spawner.Cooldown),
 				["base_cooldown"] = SimulationJson.FormatFloat(spawner.BaseCooldown),
-				["stats"] = stats,
-				["current_health"] = playerModel.Unit.CurrentHealth,
-				["unlocked_location"] = playerModel.LastUnlockedLocation.Number,
-				["current_boss"] = RebuildSpawnerId(currentBoss),
-				["total_playtime"] = (double)config.CurrentTotalPlaytime,
 			};
 		}
 
-		// The write-point scenario of design 7.3 C3b on the fresh run state: immediate and accumulate clears, the
-		// charge cap, a DAFC clear and its +inf cooldown through ResetCooldowns and offline time, a gate cleared
-		// twice, and a direct repeat unlock.
+		private JObject RebuildProbeState(EnemySpawner spawner, IEnumerable<EnemySpawner> watched)
+		{
+			var stats = new JObject();
+			foreach (Stat stat in playerModel.Unit.Stats)
+				stats[((int)stat.Type).ToString(CultureInfo.InvariantCulture)] = GetSimulationSnapshotStatValue(stat);
+			JObject state = RebuildProbeSpawner(spawner);
+			state["stats"] = stats;
+			state["current_health"] = playerModel.Unit.CurrentHealth;
+			state["max_health"] = GetForecastStatValue(StatType.Health);
+			state["regen"] = GetRegen();
+			state["unlocked_location"] = playerModel.LastUnlockedLocation.Number;
+			state["current_boss"] = RebuildSpawnerId(currentBoss);
+			state["playtime"] = (double)config.CurrentPlaytime;
+			state["total_playtime"] = (double)config.CurrentTotalPlaytime;
+			state["day_index"] = RebuildDayIndex();
+			state["time_chunk_index"] = timeChunkIndex;
+			state["watched"] = new JObject(watched.Select(s => new JProperty(RebuildSpawnerId(s), RebuildProbeSpawner(s))));
+			return state;
+		}
+
+		// The write-point scenario of design 7.3 C3b on the fresh run state: immediate and accumulate clears with
+		// Count > 1, the charge cap, an early snapshot after a reward (CurrentGpm = dValue/dP), a DAFC clear and its
+		// +inf cooldown through ResetCooldowns and offline time, a gate cleared twice, a direct repeat unlock, a
+		// day change (charges and finite cooldowns reset, DAFC stays +inf) after a minute of offline (cooldown and
+		// regen), and every back-gate cleared with its target island open.
 		private JObject RebuildRunWritePointProbe()
 		{
-			EnemySpawner Pick(Func<EnemySpawnerConfig, bool> predicate) =>
-				sortedSpawners.FirstOrDefault(s => !s.Config.IsEvent && !s.Config.IsVip && predicate(s.Config));
+			int nonzeroCooldowns = enemiesModel.Spawners.Count(s => !s.Config.IsEvent && !s.Config.IsVip && s.Cooldown != 0f);
+			bool HealthReward(EnemySpawnerConfig c) => c.StatRewards != null && c.StatRewards.Any(r => r.StatType == StatType.Health && r.ModifierType == ModifierType.Flat);
 			bool Plain(EnemySpawnerConfig c) => !c.DisableAfterFirstClear && c.ItemReward == null && (c.Gates == null || c.Gates.Count == 0)
 				&& c.StatRewards != null && c.StatRewards.Count > 0;
+			EnemySpawner Pick(Func<EnemySpawnerConfig, bool> predicate, Func<EnemySpawnerConfig, bool> prefer) =>
+				sortedSpawners.Where(s => !s.Config.IsEvent && !s.Config.IsVip && predicate(s.Config)).OrderByDescending(s => prefer(s.Config)).FirstOrDefault();
 
-			EnemySpawner health = Pick(c => c.LocationNumber == 1 && Plain(c) && c.StatRewards.Any(r => r.StatType == StatType.Health && r.ModifierType == ModifierType.Flat));
-			EnemySpawner other = Pick(c => c.LocationNumber == 1 && Plain(c) && !c.StatRewards.Any(r => r.StatType == StatType.Health));
-			EnemySpawner dafc = Pick(c => c.DisableAfterFirstClear && (c.Gates == null || c.Gates.Count == 0));
+			EnemySpawner health = Pick(c => c.LocationNumber == 1 && Plain(c) && HealthReward(c), c => c.Count > 1);
+			EnemySpawner other = Pick(c => c.LocationNumber == 1 && Plain(c) && !c.StatRewards.Any(r => r.StatType == StatType.Health), c => c.Count > 1);
+			EnemySpawner dafc = Pick(c => c.DisableAfterFirstClear && (c.Gates == null || c.Gates.Count == 0), HealthReward);
 			EnemySpawner gate = RebuildFindBoss(1);
+			var watched = new[] { health, other, dafc };
 			var steps = new JArray();
 
 			void Step(string name, EnemySpawner spawner, Action action)
 			{
-				JObject before = RebuildProbeState(spawner);
+				JObject before = RebuildProbeState(spawner, watched);
 				action();
 				steps.Add(new JObject
 				{
@@ -400,7 +427,7 @@ namespace Codebase.Simulation.Systems
 					["rewards"] = new JArray(spawner.Config.StatRewards == null ? new object[0] : spawner.Config.StatRewards
 						.Select(r => (object)new JObject { ["stat"] = (int)r.StatType, ["type"] = (int)r.ModifierType, ["value"] = (double)r.Value }).ToArray()),
 					["before"] = before,
-					["after"] = RebuildProbeState(spawner),
+					["after"] = RebuildProbeState(spawner, watched),
 					["counters"] = new JObject(RebuildCounters.Select(kv => new JProperty(kv.Key, kv.Value))),
 					["fast_tick_chunk_stat_rewards"] = fastTickChunkStatRewards.Count,
 				});
@@ -408,6 +435,11 @@ namespace Codebase.Simulation.Systems
 
 			Step("immediate", health, () => RebuildApplyClear(health, 1, false));
 			Step("immediate_again", health, () => RebuildApplyClear(health, 1, false));
+			Step("early_snapshot", health, () =>
+			{
+				RebuildIdle(1f);
+				MakeSnapshot();
+			});
 			Step("accumulate", other, () => RebuildApplyClear(other, 2, true));
 			Step("charge_cap", other, () => RebuildApplyClear(other, 1000, true));
 			Step("dafc_clear", dafc, () => RebuildApplyClear(dafc, 3, false));
@@ -417,10 +449,34 @@ namespace Codebase.Simulation.Systems
 			Step("gate_clear", gate, () => RebuildApplyClear(gate, 1, false));
 			Step("gate_clear_again", gate, () => RebuildApplyClear(gate, 1, false));
 			Step("unlock_again", gate, () => RebuildUnlockLocation(2));
+			float toDayEnd = (float)((timeChunkIndex + 1) * (double)config.SpawnerChargesChunkMinutes - config.CurrentTotalPlaytime);
+			Step("afk_to_day_end", health, () => ProcessAFK(toDayEnd - 1f));
+			Step("clear_before_day_change", health, () => RebuildApplyClear(health, 1, false));
+			Step("wound", health, () => playerModel.Unit.CurrentHealth = 1.0);
+			Step("afk_one_minute", health, () => ProcessAFK(1f));
+			Step("day_change", health, UpdateSpawnerChargesChunk);
+			var backGates = sortedSpawners.Where(s => s.Config.Gates != null
+				&& s.Config.Gates.Any(g => g != null && g.NextLocationNumber <= s.Config.LocationNumber)).ToList();
+			if (backGates.Count > 0)
+			{
+				int through = backGates.Max(s => s.Config.LocationNumber);
+				Step("unlock_for_back_gates", gate, () =>
+				{
+					for (int n = playerModel.LastUnlockedLocation.Number + 1; n <= through; n++) RebuildUnlockLocation(n);
+				});
+				foreach (EnemySpawner spawner in backGates)
+					Step("back_gate:" + spawner.Config.LocationNumber.ToString(CultureInfo.InvariantCulture), spawner, () => RebuildApplyClear(spawner, 1, false));
+			}
 			var slots = new JObject();
 			foreach (ItemSlotModel slot in playerModel.ItemSlots)
 				if (!string.IsNullOrEmpty(slot.Key)) slots[slot.Key] = slot.IsUnlocked;
-			return new JObject { ["steps"] = steps, ["slots"] = slots };
+			return new JObject
+			{
+				["steps"] = steps,
+				["slots"] = slots,
+				["nonzero_cooldowns_at_start"] = nonzeroCooldowns,
+				["prepare_cooldowns_zeroed"] = RebuildPrepareCooldownsZeroed,
+			};
 		}
 	}
 }

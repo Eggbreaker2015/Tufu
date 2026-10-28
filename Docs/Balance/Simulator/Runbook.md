@@ -570,7 +570,8 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 - 作业字段 `engine_probe`（`Harness/SimulationRunRequest.Engine.cs`，Python 侧 `tufu_balance.unity.engine`），只给测试用，正式运行里不出现（为 null 时 C# 回显也省略它，C0b 的请求往返测试不变）：
   - `null_policy`：不调用 `FindBestSpawner`，快阶段固定用最小 FastTick（`RebuildAdvanceFastDay(0)`）。C5、C7 填好策略以后，引擎自身的检查照样有意义；
   - `unlock_through: N`：开跑前经 `RebuildUnlockLocation` 依次解锁 2..N 岛（测全部岛屿解锁时的每 Tick 成本）；
-  - `write_points`：`PrepareSimulationRun` 之后跑一遍写入点场景（16.2），结果写进 `manifest.engine.probe`，然后停下。
+  - `write_points`：`PrepareSimulationRun` 之后跑一遍写入点场景（16.5 列出各步），结果写进 `manifest.engine.probe`，然后停下；
+  - `grant_flat: {StatType: Value}`：在第 0 天的 K 修饰器之前给玩家加平坦修饰器（来源 `Reward`）。测试用 `CutDamageFlat`、`CutDefenceFlat` 各 10，让 DpsData/DefenseData 随 K2 变化。
 - 参数：作业的 `params` 对象按字段覆盖代码默认值，未知字段报错（退出码 5）。交互运行（没有批处理）用代码默认值。参数资产与完整的请求覆盖归 C3c。
 - manifest 新增顶层键 `engine`（`free` 等非 `empty` 作业才有）：生效参数、`null_policy`、`Provenance` 枚举的整数值、停止原因、失败信息、P/T 的 float 位、天序号、插值修饰器对应的天、已解锁岛、`currentBoss`、每个岛的 `RebuildFindBoss` 结果（"层级路径|Key"）、计数器（`slow_ticks`、`fast_ticks`、`idle_steps`、`afk_calls`、`day_changes`、`snapshots_early`、`snapshots_day`、`clears`、`kills`、`accumulate_calls`、`unlocks`、`repeat_unlocks`、`back_gate_noops`、`slot_unlocks`、`dafc_clamped`、`ads` 等，没发生的不写）、逐日记录 `days`（天、是否快阶段、Tick 数、离线步数、离线分钟、换天时的 P 与 T）、慢阶段每次离线 `offline`（序号、离线时的 P、离线后的 T、下一个会话的结束点）、`unlocks`。
 - `timings.json` 新增 `slow_tick_ms`、`fast_tick_ms`（样本数、均值、p50、p95、最大值）：同一帧里相邻两次 `OnTickCompleted` 的间隔，每帧第一个 Tick 不计。
@@ -582,7 +583,8 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 - **换天**只在 `UpdateSpawnerChargesChunk`：天序号是 `Mathf.Floor((float)(T / 1440))`；用量清零、冷却清零（`+∞` 除外）、`RpmFirst`（`RecalculateChunkRpmValues` → `UpdateInterpolationStatModifier` → 停用模块 → `RebuildApplyDayOverride` → 强制快照）。`ModifierFirst` 先换修饰器；`StaleTickCache` 不重算 DpsData/DefenseData，只用 GPM 模式重建 `spawnerData` 再算 RPM（最小 FastTick 下 DpsData 停在最后一个慢阶段 Tick 的值）。
 - **快照**：`Value` 是去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器后按 `StatBase.CalculateValue` 原顺序重算的值；SFF/PM 是修饰器当时的 K2/K3；`TotalFlatValue = Value·(1+K2)`，直接属性 `TotalValue = TotalFlatValue·K3`（G11 的顺序，见 16.6）。早期列表的 CurrentGpm 是对上一个早期快照的 ΔValue/ΔP（ΔP = 0 为 NaN，第一个为 0），天列表是 `RPMCalculatedValue`。每个快照追加后调用 `SimulationExport.RecordSnapshot`（槽数、当前血量、物品的 `Evolved` 与 `EvolutionLevel`；未进化时 `EvolutionLevel` 记 0），`PrepareSimulationRun` 调用 `ResetRecorder`。导出按 `GetTrimmedTimeChunkSnapshots` 裁剪（第 0 天起 `max(i+1, ceil((float)(1.1f·i)))`）。
 - **写入点** `RebuildApplyClear(spawner, clears, accumulate)`：用量 `+= Count·clears`（不超过上限），冷却 `= BaseCooldown`，DAFC 次数截成 1、冷却 `+∞`；立即模式发属性（`(float)(Value·Count·clears)`，经 `Stat.AddModifier`，平坦 Health 同时加当前血量）、物品（`GetSpawnerItemRewardCopies` 的份数记进 `RebuildPendingItemCopies`，然后 `ProcessInventory`）、灵魂与货币（只记录）、门禁；累积模式只调用 `AccumulateFastTickSpawnerRewards`。
-- **门禁与解锁**：刷怪点的每个 Gate 只开一次（`GatesModel`），开出的岛去重后逐个 `RebuildUnlockLocation`；`SlotReward` 在同一处打开对应槽位。`RebuildUnlockLocation(n)`：`UnlockLocation`、`AdvanceBossProgressLocation`、`currentBoss = RebuildFindBoss(n)`、`UnlockSimulationWeaponSlot(n)`。同一个岛第二次经过它记 `repeat_unlocks`；指向已开放岛的回头门（岛 4、11、12、13）记 `back_gate_noops`，都不做事。
+- **门禁与解锁**：刷怪点的每个 Gate 只开一次（`GatesModel`），开出的岛去重后逐个处理：岛号不大于已解锁岛的（回头门：岛 4→1、11→8、12→7、13→2，或指向已开岛的前进门）记 `back_gate_noops`，不做事；其余调用 `RebuildUnlockLocation`。`SlotReward` 在同一处打开对应槽位。`RebuildUnlockLocation(n)`：`UnlockLocation`、`AdvanceBossProgressLocation`、`currentBoss = RebuildFindBoss(n)`、`UnlockSimulationWeaponSlot(n)`；n 不大于已解锁岛（`UnlockLocation` 取最大值，所以就是"已开放"）时记 `repeat_unlocks`、不做事。门禁不会走到这一支，只有直接调用（C4 的 unlock 覆盖、探针）会。
+- **槽位只随门禁刷怪点打开**：直接调用 `RebuildUnlockLocation`（C4 的 unlock 覆盖、探针的 `unlock_through`）不会打开 `weapon_2`、`helmet_1`、`shield_1`；`all-islands` 作业解锁到 17 岛，武器槽仍是 1。C4 的 unlock 覆盖要自己打开对应的 `SlotReward` 槽位，C6 不能假定解锁就有槽位。
 - **`RebuildFindBoss(n)`**：注册顺序里第一个在岛 n、带指向 n+1 的门禁的刷怪点；多个时取第一个并记 `boss_ambiguous`（随包数据里没有）。
 - **停止**：`CheckSimulationStopConditions` 在每个 Tick 末尾和 `PrepareSimulationRun` 末尾检查 `StopAtDay`（天序号 ≥ 目标日，即目标日的强制快照之后）与 `StopAtLocation`；停下后 `ExecuteTick` 第一行返回，所以一帧里剩下的 Tick 不再执行。`max_ticks` 只设停止标志，不改 `IsRunning`，停止原因仍是 `max_ticks`。
 - **停用模块**：`AutoGambling`、`CrystalSimulation`、`AutoBalanceAmulet`、`GraphSimulation` 任一打开，作业以 "not supported" 失败（退出码 5）。
@@ -594,10 +596,10 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 
 | 状态 | 慢阶段 Tick（p50 / 均值 / p95）| FastTick（p50 / 均值 / p95）| 说明 |
 |---|---|---|---|
-| 只开岛 1（`engine-30`，n = 64 / 26）| 0.33 / 0.54 / 0.69 毫秒 | 0.36 / 0.39 / 0.38 毫秒 | 两次 `CalculateSpawnerData` 加快照、离线 |
-| 开全部 17 个岛（`all-islands`，n = 64 / 4）| 3.6 / 5.1 / 15.8 毫秒 | 3.7 / 3.7 / 4.2 毫秒 | 716 个刷怪点的 GPM 一遍；FastTick 的成本在换天的 `RecalculateChunkRpmValues` |
+| 只开岛 1（`engine-30`，n = 64 / 26）| 0.32 / 0.53 / 0.70 毫秒 | 0.37 / 0.40 / 0.43 毫秒 | 两次 `CalculateSpawnerData` 加快照、离线 |
+| 开全部 17 个岛（`all-islands`，第 0–30 天，n = 64 / 26）| 3.6 / 5.1 / 15.6 毫秒 | 3.6 / 4.5 / 15.4 毫秒 | 716 个刷怪点的 GPM 一遍；FastTick 的成本在换天的 `RecalculateChunkRpmValues` |
 
-三次运行（提交 `d214306` 两次、`747086d` 一次）的中位数相差不到 0.5 毫秒，表里是最后一次。测量时机器负载约 7–9（10 核）。p95 与最大值主要是换天的那几个慢阶段 Tick（多一遍 `RecalculateChunkRpmValues` 和 36 项修饰器更新）以及第一次换天时的 JIT 编译（只开岛 1 时各次运行的最大值都是约 11 毫秒），不是稳态成本；预算按中位数判定，`tests/unity/test_engine.py::test_per_tick_cost_within_budget`（`perf` 标记，机器忙时跳过）。
+四次运行（提交 `d214306` 两次、`747086d`、评审修复的 WIP 提交 `c915d58` 各一次）的中位数相差不到 0.5 毫秒，表里是最后一次（`all-islands` 改成跑到第 30 天，FastTick 样本从 4 个增加到 26 个）。测量时机器负载约 7–9（10 核），`perf` 测试因此每次都跳过（门槛是负载 ≤ 核数/4），这些数字是负载下的上界。全部岛屿解锁时均值约 5 毫秒、p95 约 16 毫秒，离 5 毫秒的中位数预算只剩约 1.4 毫秒：C5/C7 验收时应在空闲机器上重测，`all-islands` 也按同一预算判定（测试对两个作业都检查）。p95 与最大值主要是换天的那几个慢阶段 Tick（多一遍 `RecalculateChunkRpmValues` 和 36 项修饰器更新）以及第一次换天时的 JIT 编译（只开岛 1 时各次运行的最大值都是约 11 毫秒），不是稳态成本；预算按中位数判定，`tests/unity/test_engine.py::test_per_tick_cost_within_budget`（`perf` 标记，机器忙时跳过）。
 
 定死的预算（2.7）：
 
@@ -619,16 +621,20 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 |---|---|---|
 | 快照 0：属性 Value、knife 1/1、DpsData（Cut 9.2308、其它 0.92308）、DefenseData 全 0、天列表 Health CurrentGpm 2.8507 | 通过，且 DpsData、DefenseData 与天列表全部 CurrentGpm 与随包快照 0 **逐位**相同 | `test_snapshot_zero_equals_the_shipped_snapshot` |
 | 空策略第 0–30 天：会话（G22）、TC = floor(T/1440)、早期节奏 1/5 分钟、早期列表门控（G23）、第 4 天起 FastTick（P 不变、每天 12 个 120 分钟离线步、每天一次换天）、裁剪 | 通过；P、T、TC 与独立的 float32 参考时钟逐位相同 | `test_empty_policy_clock_matches_the_reference`、`test_empty_policy_sessions_days_and_gating` |
-| 换天 `RpmFirst`：X1（列合成）、X2（DpsData/DefenseData）、X7（天列表 CurrentGpm）逐位 | 四种舍入下 X2、X7 都逐位（31 天、930 个 Gpm）；X1 只有 `double_all` 逐位，`stepwise`、`fma`、`double_tail` 各有 26/11880 个格子差（K2/K3 的末位）| `test_day_change_order_rpm_first_bitwise`，黄金 `x1.*` |
+| 换天 `RpmFirst`：X1（列合成）、X2（DpsData/DefenseData）、X7（天列表 CurrentGpm）逐位 | 四种舍入下 X2、X7 都逐位（31 天、930 个 Gpm）；X1 只有 `double_all` 逐位，`stepwise`、`fma`、`double_tail` 各有 26/11880 个格子差（K2/K3 的末位）。空策略下平坦伤害属性为 0，DpsData 分不出 K2 的滞后，所以另跑 `flat-stats`（`grant_flat` 加 Cut 伤害与防御各 10）：`double_all` 下 DpsData/DefenseData 与 K2/K3(d−1) 逐位相同、与 K2/K3(d) 30 天全不同，Gpm 重放 RpmFirst 逐位；其它三种舍入在第 23、26 天差末位，X1 各差 34 格 | `test_day_change_order_rpm_first_bitwise`、`test_day_change_k2_lag_with_flat_stats`，黄金 `x1.*`、`flat_stats.*` |
 | RPM 单调 | 通过 | 同上 |
 | P07 消融可选 | `ModifierFirst` 与预言机的 ModifierFirst 重放逐位相同（与 RpmFirst 只在第 25 天 Health 一个格子不同）；`StaleTickCache` 第 1–3 天的 DpsData 等于 K(d−1) 系数下的值，之后冻结 | `test_p07_ablations_are_selectable` |
-| 写入点：立即与累积模式、充能上限、DAFC 清一次后 `+∞`（`ResetCooldowns` 与离线都不改）、同岛重复解锁 | 通过；正常运行 `repeat_unlocks` 为 0，直接重复调用记 1 | `test_write_points` |
+| 写入点：立即与累积模式、充能上限、DAFC 清一次后 `+∞`（`ResetCooldowns` 与离线都不改）、同岛重复解锁 | 通过。探针选 Count > 1 的刷怪点（立即模式 Count 6、累积模式 Count 4）：用量 `+= Count·次数`、奖励 `Value·Count·次数`、计数器 `clears`/`kills` 的增量都核对；DAFC 选带 Health 奖励的（岛 10 的 ice pike blocker），请求 3 次只记 1 次、奖励只加一份；直接重复调用记 `repeat_unlocks` 1 | `test_write_points` |
+| 换天清用量与冷却、离线递减冷却与回血 | 通过。探针先离线到当天最后一分钟、清一次（冷却 = BaseCooldown 240 秒）、把血量设为 1，再离线 1 分钟：冷却变成 180 秒，血量 = `min(上限, 1 + Regen·60)`，天序号跨到 1；随后 `UpdateSpawnerChargesChunk`：三个被观察刷怪点用量全为 0，有限冷却为 0，DAFC 仍是 `+∞`。`engine-30` 的天列表上 current_health(d) = 第 d−1 天的 Health TotalValue | `test_offline_minute_and_day_change`、`test_regen_refills_to_the_previous_days_health` |
+| 早期列表 CurrentGpm = ΔValue/ΔP | 通过：探针在两次立即清之后空闲 1 分钟写早期快照，每项都与 `(V1 − V0)/(P1 − P0)` 逐位相同（Health 非零），随后第 1 天强制快照的早期副本 ΔP = 0，为 NaN | `test_early_snapshot_gpm_is_dvalue_over_dp` |
+| X6：回头门不算重复解锁 | 通过：按 P6 数据，有回头门的刷怪点正好 4 个（岛 4、11、12、13）；探针先直接解锁到 13，再逐个清：回头门记 `back_gate_noops` 共 6 次，岛 13 的前进门解锁 14 岛，`repeat_unlocks` 不增加。运行中不会重复解锁是结构保证的（门只开一次，指向已开岛的门不进 `RebuildUnlockLocation`）；`engine-30`、`all-islands` 不清门禁，运行级的检查要等 C5/C7 的策略清门禁时才有信息量 | `test_back_gates_are_noops_not_repeat_unlocks` |
+| Q07：引擎自己清零就绪冷却 | 通过：关掉 `zero_ready_cooldowns` 时 `PrepareSimulationRun` 清零 698 个（打开时 0 个，已被沙箱清过），两种情况下探针开始时非零冷却都是 0 | `test_engine_zeroes_ready_cooldowns_without_the_harness` |
 | `RebuildFindBoss` 与 P6 的 `boss_for_location` 一致 | 17/17（岛 17 为 null，岛 4 是 dragon）| `test_find_boss_matches_p6` |
 | `StopAtDay` 恰好停在目标日 | 通过：最后一个天快照是第 6 天，P/T 位与之相同，输出是 30 天运行的前缀 | `test_stop_at_day_is_exact` |
-| 停用模块打开时作业失败 | 三个开关各一个作业：C# 侧以退出码 5 结束，`error` 与 `manifest.engine.failure` 都是 "not supported: SimulationConfig.<开关> is on" | `test_disabled_modules_fail_the_job` |
+| 停用模块打开时作业失败 | Unity 侧通过，启动器层面未通过：在评审修复的 WIP 提交 `c915d58`（C# 与最终提交相同）上三个开关各一个作业（运行 632c0f0a、60e4c9e3、53863ae1），Unity 以退出码 5 结束，`error` 与 `manifest.engine.failure` 都是 "not supported: SimulationConfig.<开关> is on"，`engine.stop_reason = failed`；但用户主检出的编辑器整段时间都在每几秒写真实存档（`game_data.bin`，11:17–11:53 从未安静 90 秒），失败型运行按规则得到启动器退出码 2，测试仍判失败。真实存档安静后重跑 `pytest --unity tests/unity/test_engine.py -k "disabled or heartbeat"` | `test_disabled_modules_fail_the_job` |
 | 每 Tick 耗时写进本节并定预算 | 见 16.3 | `test_per_tick_cost_within_budget` |
 | 7.4 的跨模块调用点全部就位 | 通过（Roslyn 语法检查）| `tests/test_cs_signature_lock.py::test_cross_module_call_sites_in_place` |
-| 交接：作业阶段的心跳只看 Tick | `empty` 作业帧在走、不 Tick：启动器在 8 秒停顿后判超时，`progress` 停在 `frames-only:4:0`（不再含帧数） | `test_heartbeat_follows_ticks_in_the_job_phase` |
+| 交接：作业阶段的心跳只看 Tick | Unity 侧通过，启动器层面未通过（同上）：`c915d58` 上 `empty` 作业帧在走、不 Tick，启动器在 8 秒停顿后杀掉 Unity（`unity_exit` 3），`progress` 停在 `frames-only:4:0`（不再含帧数）；同一运行（6069b3ea）因真实存档被用户编辑器改写，启动器退出码是 2 而不是 3 | `test_heartbeat_follows_ticks_in_the_job_phase` |
 | 交接：`Provenance` 的整数值固定 | 0–4 固定（C# 源码、Python 常量、manifest 三处一致）| `tests/test_engine_static.py::test_provenance_enum_values_are_pinned`、`test_manifest_engine_block` |
 
 ### 16.6 与设计稿不同的地方
@@ -637,7 +643,7 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 - `TotalValue` 按数据的顺序 `(Value·(1+K2))·K3` 计算，没有直接取 `GetStatValue`：`StatBase.CalculateValue` 的顺序是 `(K3·(1+K2))·Value`，末位可能不同，而 G11 的 981/981 是按前一种顺序成立的。
 - 新成员名一律以大写的 `Rebuild` 开头（`RebuildStopped`、`RebuildParams` 等）：设计稿 4.2 的 `rebuildStopped` 这类小写名会被 cscheck 的签名锁拒绝。
 - `SlotReward` 在清掉门禁刷怪点时打开（`RebuildApplyGateReward`），不在 `RebuildUnlockLocation(n)` 里：槽位属于刷怪点，而 `RebuildUnlockLocation` 只知道岛号。随包的三个槽位门禁都只开自己的下一个岛，结果相同。
-- 门禁按 `GatesModel` 只开一次：岛 1 的门禁刷怪点可以反复清，反复清不会再触发解锁；回头门单独计数。
+- 门禁按 `GatesModel` 只开一次：岛 1 的门禁刷怪点可以反复清，反复清不会再触发解锁；指向已开岛的门（回头门）在 `RebuildApplyGateReward` 里记 `back_gate_noops`，不进 `RebuildUnlockLocation`（评审修复：最初的实现先查"已解锁集合"，岛 11→8、12→7、13→2 的回头门会被误记成 `repeat_unlocks`）。
 - 快照的 `Value` 另外去掉装备（`Item`）修饰器（X6）；随包物品都没有 `StatModifiers`，目前没有影响。
 - 停用模块包括 `GraphSimulation`；失败用退出码 5。
 - 引擎从 `SimulationHarness.CurrentJob` 读作业（不引用 `SimulationSandbox`，沙箱钩子清单不变）。

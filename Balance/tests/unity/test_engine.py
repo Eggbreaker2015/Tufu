@@ -32,6 +32,8 @@ NULL = engine.engine_probe(null_policy=True)
 DAYS = 30
 STOP_DAY = 6
 ROUNDINGS = tuple(ip.ROUNDINGS)
+# CutDamageFlat and CutDefenceFlat: main interpolation stats, so DpsData/DefenseData depend on K2.
+FLAT_GRANTS = {8: 10.0, 16: 10.0}
 STAT_FIELDS = (("StatsFromFeaturesFlat", "stats_from_features_flat"), ("PercentMultiplier", "percent_multiplier"),
                ("TotalFlatValue", "total_flat_value"), ("TotalValue", "total_value"))
 
@@ -50,8 +52,10 @@ def _jobs():
         engine.engine_job("stale-tick-cache", day=DAYS, max_wall_seconds=300.0, probe=NULL,
                           params={"DpsCacheProvenance": engine.DPS_CACHE_PROVENANCE["StaleTickCache"]}),
         engine.engine_job("write-points", max_wall_seconds=300.0, probe=engine.engine_probe(write_points=True)),
-        engine.engine_job("all-islands", day=8, max_wall_seconds=300.0,
+        engine.engine_job("all-islands", day=DAYS, max_wall_seconds=300.0,
                           probe=engine.engine_probe(null_policy=True, unlock_through=17)),
+        engine.engine_job("flat-stats", day=DAYS, max_wall_seconds=300.0,
+                          probe=engine.engine_probe(null_policy=True, grant_flat=FLAT_GRANTS)),
     ]
 
 
@@ -62,8 +66,11 @@ def engine_run(unity_run):
 
 @pytest.fixture(scope="module")
 def variant_run(unity_run):
-    """stop-6 again at another SimulationSpeed and without the harness's ready-cooldown zeroing (Q07)."""
-    request = req.make_request([engine.engine_job("stop-6", day=STOP_DAY, max_wall_seconds=300.0, probe=NULL)],
+    """stop-6 and the write-point probe again at another SimulationSpeed and without the harness's ready-cooldown
+    zeroing (Q07)."""
+    request = req.make_request([engine.engine_job("stop-6", day=STOP_DAY, max_wall_seconds=300.0, probe=NULL),
+                                engine.engine_job("write-points", max_wall_seconds=300.0,
+                                                  probe=engine.engine_probe(write_points=True))],
                                unity={"simulation_speed": 3}, sandbox={"zero_ready_cooldowns": False})
     return _ok(unity_run(request))
 
@@ -341,38 +348,91 @@ def test_p07_ablations_are_selectable(engine_run, db, ctx):
     assert [s["Stats"] for s in stale] != [s["Stats"] for s in base]
 
 
+def test_day_change_k2_lag_with_flat_stats(engine_run, db, ctx):
+    """X2 with K2 in play: flat Cut damage and defence granted before day 0, so DpsData/DefenseData change with
+    K2. They match K2/K3(d-1) and not K2/K3(d); the day list's CurrentGpm still replays RpmFirst."""
+    interp = load_interpolations(db)
+    full, slots = _full(engine_run, "flat-stats"), _slots(engine_run, "flat-stats")
+    base0 = {st["Key"]: st["Value"] for st in _full(engine_run, "engine-30")[0]["Stats"]}
+    for s in (full[0], full[-1]):
+        values = {st["Key"]: st["Value"] for st in s["Stats"]}
+        assert all(values[k] == base0[k] + v for k, v in FLAT_GRANTS.items())
+    assert all(x["Value"] > 0.0 for s in full for x in s["DefenseData"] if x["WeaponType"] == 1)
+    x1 = {r.value: len(_x1_mismatches(full, interp, r)) for r in ROUNDINGS}
+    matching = [r for r in ROUNDINGS if x1[r.value] == 0]
+    lag1 = {r.value: _dps_mismatches(ctx, full, interp, r, 1, 0, slots) for r in ROUNDINGS}
+    lag0 = {r.value: _dps_mismatches(ctx, full, interp, r, 0, 0, slots) for r in ROUNDINGS}
+    gpm = {r.value: len(_gpm_mismatches(ctx, full, r, sc.RPM_FIRST)[0]) for r in ROUNDINGS}
+    print(f"flat-stats X1: {x1}; DpsData days off, lag 1: {lag1}; lag 0: {lag0}; RpmFirst Gpm cells off: {gpm}")
+    assert matching
+    for r in matching:
+        assert not lag1[r.value] and gpm[r.value] == 0, r
+    assert all(lag0.values()), "with flat stats DpsData must tell K2(d-1) from K2(d)"
+    check("sim_engine", {
+        "flat_stats.x1_mismatches_by_rounding": exact(x1, source="X1"),
+        "flat_stats.lag1_days_off": exact({k: len(v) for k, v in lag1.items()}, source="X2"),
+        "flat_stats.lag0_days_off": exact({k: len(v) for k, v in lag0.items()}, source="X2"),
+        "flat_stats.gpm_cells_off": exact(gpm, source="X7"),
+    })
+
+
 # ---------------------------------------------------------------- write points, bosses, stop
 
-def test_write_points(engine_run):
+def _deltas(steps):
+    """Counter increments of each probe step (the manifest records the running totals; snapshot counters, which
+    snapshot 0 already moved before the first step, are left out)."""
+    out, previous = {}, {}
+    for step in steps:
+        out[step["name"]] = {k: v - previous.get(k, 0) for k, v in step["counters"].items()
+                             if v != previous.get(k, 0) and not k.startswith("snapshots_")}
+        previous = step["counters"]
+    return out
+
+
+def _cooldown(text: str) -> float:
+    return float(text)
+
+
+def test_write_points(engine_run, db):
     m = engine_run.manifest("write-points")
     assert m["stop_reason"] == "simulation_stopped" and m["engine"]["stop_reason"] == "write_point_probe"
     probe = m["engine"]["probe"]
     steps = {s["name"]: s for s in probe["steps"]}
+    delta = _deltas(probe["steps"])
 
     def usage(step):
         return steps[step]["before"]["usage"], steps[step]["after"]["usage"]
 
-    # Immediate: charges += Count per clear, cooldown = BaseCooldown, each StatReward Value x Count, Health heals.
+    def added(step, clears=1):
+        """Each StatReward Value x Count x clears, as the float the modifier carries."""
+        st = steps[step]
+        return {str(r["stat"]): float(f32(r["value"] * st["count"] * clears)) for r in st["rewards"]}
+
+    # Immediate (Count > 1): charges += Count per clear, cooldown = BaseCooldown, rewards Value x Count, Health heals.
     imm = steps["immediate"]
     count = imm["count"]
+    assert count > 1
     assert usage("immediate") == (0, count) and usage("immediate_again") == (count, 2 * count)
     assert imm["after"]["cooldown"] == imm["after"]["base_cooldown"] != "0"
-    for reward in imm["rewards"]:
-        added = float(f32(reward["value"] * count))
-        assert imm["after"]["stats"][str(reward["stat"])] == imm["before"]["stats"][str(reward["stat"])] + added
-    health_reward = next(float(f32(r["value"] * count)) for r in imm["rewards"] if r["stat"] == 1)
-    assert imm["after"]["current_health"] == imm["before"]["current_health"] + health_reward
+    assert delta["immediate"] == {"clears": 1, "kills": count}
+    for stat, value in added("immediate").items():
+        assert imm["after"]["stats"][stat] == imm["before"]["stats"][stat] + value
+    assert imm["after"]["current_health"] == imm["before"]["current_health"] + added("immediate")["1"]
     again = steps["immediate_again"]
-    assert again["after"]["stats"]["1"] > again["before"]["stats"]["1"]  # merged modifier keeps adding
-    # Accumulate: charges and cooldown at once, no reward until the fast flush (AccumulateFastTickSpawnerRewards).
+    assert again["after"]["stats"]["1"] == again["before"]["stats"]["1"] + added("immediate")["1"]  # merged modifier
+    # Accumulate (Count > 1): charges and cooldown at once, no reward until the fast flush.
     acc = steps["accumulate"]
-    assert usage("accumulate") == (0, 2 * acc["count"]) and acc["after"]["cooldown"] == acc["after"]["base_cooldown"]
+    assert acc["count"] > 1 and usage("accumulate") == (0, 2 * acc["count"])
+    assert acc["after"]["cooldown"] == acc["after"]["base_cooldown"]
     assert acc["after"]["stats"] == acc["before"]["stats"] and acc["after"]["current_health"] == acc["before"]["current_health"]
-    assert acc["counters"]["accumulate_calls"] == 1
+    assert delta["accumulate"] == {"accumulate_calls": 1, "clears": 2, "kills": 2 * acc["count"]}
     assert steps["charge_cap"]["after"]["usage"] == steps["charge_cap"]["after"]["limit"]
-    # DAFC: one clear at most, +inf, untouched by ResetCooldowns and offline time.
+    # DAFC (with a Health reward): three clears asked, one applied; +inf, untouched by ResetCooldowns and offline.
     dafc = steps["dafc_clear"]
-    assert dafc["counters"]["dafc_clamped"] == 1 and dafc["after"]["usage"] == min(dafc["after"]["limit"], dafc["count"])
+    assert dafc["rewards"] and delta["dafc_clear"] == {"dafc_clamped": 1, "clears": 1, "kills": dafc["count"]}
+    for stat, value in added("dafc_clear").items():
+        assert dafc["after"]["stats"][stat] == dafc["before"]["stats"][stat] + value
+    assert dafc["after"]["usage"] == min(dafc["after"]["limit"], dafc["count"])
     assert dafc["after"]["cooldown"] == "Infinity"
     assert steps["reset_cooldowns"]["after"]["cooldown"] == "Infinity"
     off = steps["offline"]
@@ -381,14 +441,107 @@ def test_write_points(engine_run):
     # Gate: the island-1 boss opens island 2 once, its slot reward weapon_2, and currentBoss moves on.
     gate = steps["gate_clear"]
     assert (gate["before"]["unlocked_location"], gate["after"]["unlocked_location"]) == (1, 2)
-    assert gate["after"]["current_boss"] == m["engine"]["bosses"]["2"] and gate["counters"]["unlocks"] == 1
-    assert probe["slots"]["weapon_2"] is True and gate["counters"]["slot_unlocks"] == 1
-    assert "repeat_unlocks" not in steps["gate_clear_again"]["counters"]
+    assert gate["after"]["current_boss"] == m["engine"]["bosses"]["2"] and delta["gate_clear"]["unlocks"] == 1
+    assert probe["slots"]["weapon_2"] is True and delta["gate_clear"]["slot_unlocks"] == 1
+    assert delta["gate_clear_again"] == {"clears": 1, "kills": 1}  # the gate is open: nothing to unlock again
     assert steps["gate_clear_again"]["after"]["unlocked_location"] == 2
-    assert steps["unlock_again"]["counters"]["repeat_unlocks"] == 1  # the counter works ...
-    for job in ("engine-30", "all-islands"):  # ... and a run never re-unlocks (X6)
+    assert delta["unlock_again"] == {"repeat_unlocks": 1}  # a direct call to an open island counts and does nothing
+
+
+def test_offline_minute_and_day_change(engine_run):
+    """A minute of offline runs a finite cooldown down by 60 s and regenerates Regen x 60 (capped); the day change
+    clears every charge usage and cooldown, except a cleared DAFC's +inf."""
+    steps = {s["name"]: s for s in engine_run.manifest("write-points")["engine"]["probe"]["steps"]}
+    pre = steps["clear_before_day_change"]["after"]
+    assert pre["cooldown"] == pre["base_cooldown"] and _cooldown(pre["cooldown"]) > 60.0
+    afk = steps["afk_one_minute"]
+    b, a = afk["before"], afk["after"]
+    assert b["current_health"] == 1.0 and b["regen"] > 0.0
+    assert _cooldown(a["cooldown"]) == float(f32(_cooldown(b["cooldown"]) - 60.0))
+    assert a["current_health"] == min(b["max_health"], 1.0 + b["regen"] * 60.0) < b["max_health"]
+    assert a["total_playtime"] == b["total_playtime"] + 1.0 and a["playtime"] == b["playtime"]
+    assert (b["day_index"], a["day_index"], a["time_chunk_index"]) == (0, 1, 0)
+    day = steps["day_change"]
+    before, after = day["before"]["watched"], day["after"]["watched"]
+    assert day["after"]["time_chunk_index"] == 1
+    assert all(s["usage"] > 0 for s in before.values()) and all(s["usage"] == 0 for s in after.values())
+    finite = [k for k, s in before.items() if s["cooldown"] != "Infinity"]
+    assert any(_cooldown(before[k]["cooldown"]) > 0.0 for k in finite)
+    assert all(after[k]["cooldown"] == "0" for k in finite)
+    assert [after[k]["cooldown"] for k in before if k not in finite] == ["Infinity"]
+
+
+def test_early_snapshot_gpm_is_dvalue_over_dp(engine_run):
+    """Early-list CurrentGpm = (V1 - V0) / (P1 - P0) in double, with a nonzero dValue (the probe's rewards)."""
+    early = _early(engine_run, "write-points")
+    assert [s["Playtime"] for s in early] == [0.0, 1.0, 1.0]
+    v0 = {st["Key"]: st["Value"] for st in early[0]["Stats"]}
+    dp = float(f32(early[1]["Playtime"])) - float(f32(early[0]["Playtime"]))
+    rows = early[1]["Stats"]
+    assert [_bits(st["CurrentGpm"]) for st in rows] == [_bits((st["Value"] - v0[st["Key"]]) / dp) for st in rows]
+    assert any(st["CurrentGpm"] > 0.0 for st in rows)
+    assert all(math.isnan(st["CurrentGpm"]) for st in early[2]["Stats"])  # the day-1 forced copy: dP = 0
+
+
+def test_back_gates_are_noops_not_repeat_unlocks(engine_run, db):
+    """X6: every back-gate (a gate to an island at or below its own) cleared with its target open is a no-op;
+    gates to closed islands still unlock. Expectations from P6's spawner data, not from the engine."""
+    probe = engine_run.manifest("write-points")["engine"]["probe"]
+    steps = {s["name"]: s for s in probe["steps"]}
+    delta = _deltas(probe["steps"])
+    defs = sp.registered(sp.load_spawners(db))
+    ident = {spawner_map.runtime_id(spawner_map.runtime_path(d.scene, d.go_path), d.key): d for d in defs}
+    expected = [d for d in defs if any(n <= d.location for n in d.gate_next_locations)]
+    back = [s for s in probe["steps"] if s["name"].startswith("back_gate:")]
+    assert sorted(s["spawner"] for s in back) == sorted(i for i, d in ident.items() if d in expected) and len(back) == 4
+    last = steps["unlock_for_back_gates"]["after"]["unlocked_location"]
+    assert last == max(d.location for d in expected)
+    noops = unlocks = 0
+    for s in back:
+        for n in dict.fromkeys(ident[s["spawner"]].gate_next_locations):
+            if n <= last:
+                noops += 1
+            else:
+                unlocks, last = unlocks + 1, n
+    assert sum(delta[s["name"]].get("back_gate_noops", 0) for s in back) == noops >= len(back)
+    assert sum(delta[s["name"]].get("unlocks", 0) for s in back) == unlocks
+    assert not any("repeat_unlocks" in delta[s["name"]] for s in back)
+    assert back[-1]["after"]["unlocked_location"] == last
+    # In runs nothing re-unlocks either; structurally guaranteed (gates open once, open islands are no-ops), so
+    # the run-level check only becomes informative once C5/C7 policies clear gates.
+    for job in ("engine-30", "all-islands"):
         assert "repeat_unlocks" not in engine_run.manifest(job)["engine"]["counters"]
     assert engine_run.manifest("all-islands")["engine"]["counters"]["unlocks"] == 16
+    check("sim_engine", {
+        "write_points.back_gate_noops": exact(noops, source="X6", note="back-gates of islands 4, 11, 12, 13"),
+    })
+
+
+def test_engine_zeroes_ready_cooldowns_without_the_harness(engine_run, variant_run):
+    """Q07: with the harness's zeroing off, PrepareSimulationRun zeroes every non-event, non-VIP cooldown itself."""
+    on = engine_run.manifest("write-points")
+    off = variant_run.manifest("write-points")
+    assert off["ready_cooldowns_zeroed"] == 0 and on["ready_cooldowns_zeroed"] > 0
+    assert on["engine"]["probe"]["nonzero_cooldowns_at_start"] == 0 == off["engine"]["probe"]["nonzero_cooldowns_at_start"]
+    zeroed = off["engine"]["probe"]["prepare_cooldowns_zeroed"]
+    assert zeroed > 0
+    check("sim_engine", {
+        "q07.engine_zeroed_without_harness": exact(zeroed, source="Q07"),
+        "q07.engine_zeroed_after_harness": exact(on["engine"]["probe"]["prepare_cooldowns_zeroed"], source="Q07"),
+    })
+
+
+def test_regen_refills_to_the_previous_days_health(engine_run):
+    """Day list: the offline time of day d-1 regenerates to that day's Health, so current_health(d) equals
+    Health TotalValue(d-1) (the day change raises the maximum after the regen)."""
+    side = [r for r in schema.read_csv("snapshots_ext.csv", engine_run.file("engine-30", "snapshots_ext.csv").decode())
+            if r["list"] == "TimeChunkSnapshots"]
+    full = _full(engine_run, "engine-30")
+    health = [next(st["TotalValue"] for st in s["Stats"] if st["Key"] == 1) for s in full]
+    assert side[0]["current_health"] == health[0]
+    for d in range(1, len(full)):
+        assert math.isclose(side[d]["current_health"], health[d - 1], rel_tol=1e-12), d
+    assert len({r["current_health"] for r in side}) > DAYS // 2
 
 
 def test_find_boss_matches_p6(engine_run, db):

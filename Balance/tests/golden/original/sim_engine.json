@@ -81,6 +81,62 @@
    "source": "design 7.3 C3b",
    "value": "e8d563307bacf71f389c65ced906538ac24f0197b9d37dbcfc9c89d7091cb388"
   },
+  "flat_stats.gpm_cells_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "X7",
+   "value": {
+    "double_all": 0,
+    "double_tail": 0,
+    "fma": 0,
+    "stepwise": 0
+   }
+  },
+  "flat_stats.lag0_days_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "X2",
+   "value": {
+    "double_all": 30,
+    "double_tail": 30,
+    "fma": 30,
+    "stepwise": 30
+   }
+  },
+  "flat_stats.lag1_days_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "X2",
+   "value": {
+    "double_all": 0,
+    "double_tail": 2,
+    "fma": 2,
+    "stepwise": 2
+   }
+  },
+  "flat_stats.x1_mismatches_by_rounding": {
+   "kind": "exact",
+   "note": "",
+   "source": "X1",
+   "value": {
+    "double_all": 0,
+    "double_tail": 34,
+    "fma": 34,
+    "stepwise": 34
+   }
+  },
+  "q07.engine_zeroed_after_harness": {
+   "kind": "exact",
+   "note": "",
+   "source": "Q07",
+   "value": 0
+  },
+  "q07.engine_zeroed_without_harness": {
+   "kind": "exact",
+   "note": "",
+   "source": "Q07",
+   "value": 698
+  },
   "snapshot0.dps_cut": {
    "kind": "exact",
    "note": "",
@@ -98,6 +154,12 @@
    "note": "design says 36 (the stat lookup size); Unit.Stats has 30",
    "source": "design 7.3 C3b",
    "value": 30
+  },
+  "write_points.back_gate_noops": {
+   "kind": "exact",
+   "note": "back-gates of islands 4, 11, 12, 13",
+   "source": "X6",
+   "value": 6
   },
   "x1.cells": {
    "kind": "exact",
