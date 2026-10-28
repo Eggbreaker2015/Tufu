@@ -6,6 +6,7 @@ Needs the .NET 8 SDK and the run worktree's Library (.rsp files); skipped otherw
 
 import json
 import shutil
+import subprocess
 import time
 from pathlib import Path
 
@@ -46,6 +47,19 @@ def clone_sources(dest):
         (dest / PROJECT / "Packages").mkdir(parents=True, exist_ok=True)
         shutil.copyfile(src / "Packages" / name, dest / PROJECT / "Packages" / name)
     return dest
+
+
+def pre_split_layout(root):
+    """Put the 6af011f layout of SimulationSystem/SimulationConfig back into a clone (undoing the C3a partial
+    split), so that the injected edits below apply to the original single-file sources."""
+    for rel in (SS, SC):
+        proc = subprocess.run(["git", "-C", str(cscheck.WORKTREE), "show", f"{cscheck.SIGNATURE_REV}:{PROJECT}/{rel}"],
+                              capture_output=True, check=True)
+        (root / PROJECT / rel).write_bytes(proc.stdout)
+    for path in (root / PROJECT / CB / "Simulation" / "Systems").glob("SimulationSystem.*.cs"):
+        path.unlink()
+    shutil.rmtree(root / PROJECT / CB / "Simulation" / "Rebuild", ignore_errors=True)
+    return root
 
 
 def edit(root, rel, old, new):
@@ -235,7 +249,7 @@ EXPECTED_BANS = {
 
 @pytest.fixture(scope="module")
 def injected(tmp_path_factory):
-    root = clone_sources(tmp_path_factory.mktemp("injected"))
+    root = pre_split_layout(clone_sources(tmp_path_factory.mktemp("injected")))
     # Allowed: partial keyword, a method moved to a partial file, private/internal Rebuild* members.
     edit(root, SS, "public class SimulationSystem : SystemBase", "public partial class SimulationSystem : SystemBase")
     edit(root, SS, "\t\tprivate void ProcessDeath()\n\t\t{\n\t\t}\n\n", "")
@@ -397,6 +411,9 @@ def test_editor_api_outside_define_breaks_player_compile(compiled):
 
 def test_membership_follows_unity_rules(tmp_path):
     root = clone_sources(tmp_path)
+    # Files this worktree adds or removes relative to the run worktree's last Unity compile (.rsp) are not
+    # part of the probe: a unit's new C# files stay "added" until Unity compiles its commit there.
+    before = cscheck.sources(root)["assemblies"]
     removed = "Assets/Scripts/Assembly-CSharp/BackgroundColorAttribute.cs"
     (root / PROJECT / removed).unlink()
     add(root, "Assets/Scripts/.hidden/Hidden.cs", "class Hidden {}\n")
@@ -406,9 +423,10 @@ def test_membership_follows_unity_rules(tmp_path):
     add(root, "Assets/Custom/Custom.asmdef", '{"name": "Custom"}\n')
     add(root, "Assets/Custom/Inside.cs", "class Inside {}\n")
     result = cscheck.sources(root)["assemblies"]
-    assert result["Assembly-CSharp"]["removed"] == [removed]
-    assert result["Assembly-CSharp"]["added"] == []
-    assert result["Assembly-CSharp-Editor"]["added"] == ["Assets/Scripts/Tools/Editor/NestedEditor.cs"]
+    assert result["Assembly-CSharp"]["removed"] == sorted([*before["Assembly-CSharp"]["removed"], removed])
+    assert result["Assembly-CSharp"]["added"] == before["Assembly-CSharp"]["added"]
+    assert result["Assembly-CSharp-Editor"]["added"] == sorted(
+        [*before["Assembly-CSharp-Editor"]["added"], "Assets/Scripts/Tools/Editor/NestedEditor.cs"])
     assert result["Assembly-CSharp-firstpass"]["files"] == ["Assets/Plugins/FirstPass.cs"]
     assert result["asmdef:Assets/Custom"]["files"] == ["Assets/Custom/Inside.cs"]
     checked = cscheck.check(root, steps=("signature",))
