@@ -1,0 +1,749 @@
+{
+ "expectations": {
+  "G20.ablation_k2k3_d.hits": {
+   "kind": "exact",
+   "note": "",
+   "source": "G20",
+   "value": 1376
+  },
+  "G20.ablation_k2k3_d.misses": {
+   "kind": "set",
+   "note": "",
+   "source": "G20",
+   "value": [
+    [
+     1,
+     "Health"
+    ],
+    [
+     30,
+     "CritDamagePercent"
+    ],
+    [
+     94,
+     "Health"
+    ],
+    [
+     94,
+     "StabDamageFlat"
+    ]
+   ]
+  },
+  "G20.ablation_k4k5_lag.hits": {
+   "kind": "exact",
+   "note": "",
+   "source": "G20",
+   "value": 1047
+  },
+  "G20.ablation_k4k5_lag_only.hits": {
+   "kind": "exact",
+   "note": "K2/K3 at d, K4/K5 at d-1 (fixture: 1046)",
+   "source": "G20",
+   "value": 1046
+  },
+  "G20.rpm_first.bitwise_equal": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "cells whose replay equals the stored CurrentGpm bit for bit",
+   "source": "G20",
+   "value": 1155
+  },
+  "G20.rpm_first.cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G20",
+   "value": 1380
+  },
+  "G20.rpm_first.hits": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "",
+   "source": "G20",
+   "value": 1380
+  },
+  "G20.rpm_first.max_rel_err": {
+   "kind": "max",
+   "note": "max |stored - replayed| / max(|.|)",
+   "source": "G20",
+   "value": 7.033536613241375e-10
+  },
+  "G20.rpm_first.max_rel_vs_survey": {
+   "kind": "max",
+   "note": "against rpm_replay.json rpm_first_replayed",
+   "source": "G20",
+   "value": 6.307160784680337e-09
+  },
+  "G20.rpm_first.misses": {
+   "better": "subset",
+   "kind": "set",
+   "note": "",
+   "source": "G20",
+   "value": []
+  },
+  "G21.defense_all_zero": {
+   "kind": "exact",
+   "note": "",
+   "source": "G21",
+   "value": true
+  },
+  "G21.dps": {
+   "kind": "exact",
+   "note": "initial player: base stats + knife 1/1, one weapon slot",
+   "source": "G21",
+   "value": {
+    "Buckshot": 0.9230769569351841,
+    "Cutting": 9.23076956935184,
+    "Magic": 0.9230769569351841,
+    "Stabbing": 0.9230769569351841,
+    "Universal": 0.9230769569351841
+   }
+  },
+  "R2.defense.exact": {
+   "kind": "min",
+   "note": "",
+   "source": "R2",
+   "value": 9
+  },
+  "R2.defense.last": {
+   "kind": "max",
+   "note": "",
+   "source": "R2",
+   "value": 0.00115
+  },
+  "R2.defense.max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2",
+   "value": 0.8786
+  },
+  "R2.defense.max_tc": {
+   "kind": "exact",
+   "note": "",
+   "source": "R2",
+   "value": 9
+  },
+  "R2.defense.tc100_max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2",
+   "value": 0.00971
+  },
+  "R2.dps.exact": {
+   "kind": "min",
+   "note": "",
+   "source": "R2",
+   "value": 1
+  },
+  "R2.dps.last": {
+   "kind": "max",
+   "note": "design 3.3 rounds the stage-4 value 0.001323 to 0.00132",
+   "source": "R2",
+   "value": 0.001323
+  },
+  "R2.dps.max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2",
+   "value": 0.2283
+  },
+  "R2.dps.max_tc": {
+   "kind": "exact",
+   "note": "",
+   "source": "R2",
+   "value": 19
+  },
+  "R2.dps.tc100_max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2",
+   "value": 0.01214
+  },
+  "R2.undetermined_evolved": {
+   "kind": "exact",
+   "note": "",
+   "source": "R2",
+   "value": 0
+  },
+  "R2b.defense.exact": {
+   "kind": "min",
+   "note": "",
+   "source": "R2b",
+   "value": 9
+  },
+  "R2b.defense.last": {
+   "kind": "max",
+   "note": "",
+   "source": "R2b",
+   "value": 0.0011448505881627615
+  },
+  "R2b.defense.max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2b",
+   "value": 0.8785771361123541
+  },
+  "R2b.defense.max_tc": {
+   "kind": "exact",
+   "note": "",
+   "source": "R2b",
+   "value": 9
+  },
+  "R2b.defense.tc100_max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2b",
+   "value": 0.00970902122978673
+  },
+  "R2b.dps.exact": {
+   "kind": "min",
+   "note": "",
+   "source": "R2b",
+   "value": 1
+  },
+  "R2b.dps.last": {
+   "kind": "max",
+   "note": "",
+   "source": "R2b",
+   "value": 0.0013227344331099998
+  },
+  "R2b.dps.max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2b",
+   "value": 0.22823352607259992
+  },
+  "R2b.dps.max_tc": {
+   "kind": "exact",
+   "note": "",
+   "source": "R2b",
+   "value": 19
+  },
+  "R2b.dps.tc100_max": {
+   "kind": "max",
+   "note": "",
+   "source": "R2b",
+   "value": 0.012137148512304614
+  },
+  "R2b.minus_R2": {
+   "kind": "exact",
+   "note": "[TC, DPS max err R2b - R2, Defense max err R2b - R2]",
+   "source": "R2b",
+   "value": [
+    [
+     0,
+     0.0,
+     0.0
+    ],
+    [
+     1,
+     0.0,
+     0.0
+    ],
+    [
+     2,
+     0.0,
+     0.0
+    ],
+    [
+     3,
+     0.0,
+     0.0
+    ],
+    [
+     4,
+     0.0,
+     0.0
+    ],
+    [
+     5,
+     0.0,
+     0.0
+    ],
+    [
+     6,
+     0.0,
+     0.0
+    ],
+    [
+     7,
+     0.0,
+     0.0
+    ],
+    [
+     8,
+     0.0,
+     0.0
+    ],
+    [
+     9,
+     0.0,
+     0.0
+    ],
+    [
+     10,
+     0.0,
+     0.0
+    ],
+    [
+     11,
+     0.0,
+     0.0
+    ],
+    [
+     13,
+     0.0,
+     0.34310158318999107
+    ],
+    [
+     15,
+     0.0,
+     0.0
+    ],
+    [
+     17,
+     0.0,
+     0.0
+    ],
+    [
+     19,
+     0.0,
+     0.0
+    ],
+    [
+     21,
+     0.0,
+     0.0
+    ],
+    [
+     24,
+     0.0,
+     0.0
+    ],
+    [
+     27,
+     0.0,
+     0.0
+    ],
+    [
+     30,
+     0.0,
+     0.0
+    ],
+    [
+     33,
+     0.0,
+     0.0
+    ],
+    [
+     37,
+     0.0,
+     0.0
+    ],
+    [
+     41,
+     0.0,
+     0.0
+    ],
+    [
+     46,
+     0.0,
+     0.0
+    ],
+    [
+     51,
+     0.0,
+     0.0
+    ],
+    [
+     57,
+     0.0,
+     0.0
+    ],
+    [
+     63,
+     0.0,
+     0.0
+    ],
+    [
+     70,
+     0.0,
+     0.0
+    ],
+    [
+     77,
+     0.0,
+     0.0
+    ],
+    [
+     85,
+     0.0,
+     0.0
+    ],
+    [
+     94,
+     0.0,
+     0.0
+    ],
+    [
+     104,
+     0.0,
+     0.0
+    ],
+    [
+     115,
+     0.0,
+     0.0
+    ],
+    [
+     127,
+     0.0,
+     0.0
+    ],
+    [
+     140,
+     0.0,
+     0.0
+    ],
+    [
+     154,
+     0.0,
+     0.0
+    ],
+    [
+     170,
+     0.0,
+     0.0
+    ],
+    [
+     187,
+     0.0,
+     0.0
+    ],
+    [
+     206,
+     0.0,
+     0.0
+    ],
+    [
+     227,
+     0.0,
+     0.0
+    ],
+    [
+     250,
+     0.0,
+     0.0
+    ],
+    [
+     275,
+     0.0,
+     0.0
+    ],
+    [
+     303,
+     0.0,
+     0.0
+    ],
+    [
+     334,
+     0.0,
+     0.0
+    ],
+    [
+     368,
+     0.0,
+     0.0
+    ],
+    [
+     405,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "R2b.slots": {
+   "kind": "exact",
+   "note": "[TC, weapon slots, armor slots] from the snapshot Location (P12)",
+   "source": "R2b",
+   "value": [
+    [
+     0,
+     1,
+     0
+    ],
+    [
+     1,
+     2,
+     0
+    ],
+    [
+     2,
+     2,
+     0
+    ],
+    [
+     3,
+     2,
+     0
+    ],
+    [
+     4,
+     2,
+     0
+    ],
+    [
+     5,
+     2,
+     0
+    ],
+    [
+     6,
+     3,
+     0
+    ],
+    [
+     7,
+     3,
+     0
+    ],
+    [
+     8,
+     3,
+     0
+    ],
+    [
+     9,
+     3,
+     1
+    ],
+    [
+     10,
+     3,
+     1
+    ],
+    [
+     11,
+     3,
+     1
+    ],
+    [
+     13,
+     3,
+     2
+    ],
+    [
+     15,
+     3,
+     2
+    ],
+    [
+     17,
+     3,
+     2
+    ],
+    [
+     19,
+     3,
+     2
+    ],
+    [
+     21,
+     3,
+     2
+    ],
+    [
+     24,
+     4,
+     2
+    ],
+    [
+     27,
+     4,
+     2
+    ],
+    [
+     30,
+     4,
+     2
+    ],
+    [
+     33,
+     4,
+     2
+    ],
+    [
+     37,
+     4,
+     2
+    ],
+    [
+     41,
+     4,
+     2
+    ],
+    [
+     46,
+     4,
+     2
+    ],
+    [
+     51,
+     4,
+     2
+    ],
+    [
+     57,
+     4,
+     2
+    ],
+    [
+     63,
+     4,
+     2
+    ],
+    [
+     70,
+     4,
+     2
+    ],
+    [
+     77,
+     4,
+     2
+    ],
+    [
+     85,
+     4,
+     2
+    ],
+    [
+     94,
+     4,
+     2
+    ],
+    [
+     104,
+     4,
+     2
+    ],
+    [
+     115,
+     4,
+     2
+    ],
+    [
+     127,
+     4,
+     2
+    ],
+    [
+     140,
+     4,
+     2
+    ],
+    [
+     154,
+     4,
+     2
+    ],
+    [
+     170,
+     4,
+     2
+    ],
+    [
+     187,
+     4,
+     2
+    ],
+    [
+     206,
+     4,
+     2
+    ],
+    [
+     227,
+     4,
+     2
+    ],
+    [
+     250,
+     4,
+     2
+    ],
+    [
+     275,
+     4,
+     2
+    ],
+    [
+     303,
+     4,
+     2
+    ],
+    [
+     334,
+     4,
+     2
+    ],
+    [
+     368,
+     4,
+     2
+    ],
+    [
+     405,
+     4,
+     2
+    ]
+   ]
+  },
+  "killdays.diff_vs_fixture": {
+   "better": "subset",
+   "kind": "set",
+   "note": "[go_name, file_id, fixture kill day, eligible_spawners kill day]",
+   "source": "7.3 P8",
+   "value": []
+  },
+  "killdays.gate_days": {
+   "kind": "exact",
+   "note": "first kill day of each island's latest-OT day gate",
+   "source": "7.3 P8",
+   "value": {
+    "10": 44,
+    "11": 57,
+    "12": 71,
+    "13": 90,
+    "14": 110,
+    "15": 131,
+    "16": 151,
+    "4": 8,
+    "5": 11,
+    "6": 15,
+    "7": 21,
+    "8": 26,
+    "9": 35
+   }
+  },
+  "killdays.never_before_405": {
+   "kind": "exact",
+   "note": "",
+   "source": "7.3 P8",
+   "value": 1
+  },
+  "killdays.spawners": {
+   "kind": "exact",
+   "note": "day-mode spawners of the fixture",
+   "source": "7.3 P8",
+   "value": 604
+  },
+  "l3_gate.max_rel_vs_fixture": {
+   "kind": "max",
+   "note": "fight_time, loss, H against l3_gate_lethality",
+   "source": "4.5",
+   "value": 3.7252478179109896e-08
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "simcalc"
+}

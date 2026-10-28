@@ -139,6 +139,30 @@ def test_ab_variant_assignment(ab_config):
     assert {float(ab.enemy_hp_damage_multiplier(a, n)) for n in range(1, 18)} == {1.0}
 
 
+def test_ab_overrides_merge_into_class_defaults():
+    """Newtonsoft populates the field-initialized dictionaries: asset overrides are added to the defaults."""
+    blob = "".join(f"{k:02x}000000" for k in (2, 20))
+    row = {"variant": "X",
+           "data.nonElite.cooldownMinutes.defaultValue": 31, "data.nonElite.cooldownMinutes.overridesByLocation.keyData": blob,
+           "data.nonElite.cooldownMinutes.overridesByLocation.valueData": "[7, 99]",
+           "data.nonElite.charges.defaultValue": 4, "data.nonElite.charges.overridesByLocation.keyData": "05000000",
+           "data.nonElite.charges.overridesByLocation.valueData": "01000000",
+           "data.elite.cooldownMinutes.defaultValue": 180, "data.elite.cooldownMinutes.overridesByLocation.keyData": "",
+           "data.elite.cooldownMinutes.overridesByLocation.valueData": "[]",
+           "data.elite.charges.defaultValue": 2, "data.elite.charges.overridesByLocation.keyData": "",
+           "data.elite.charges.overridesByLocation.valueData": ""}
+    config = ab.ABTestConfig({ab.SPAWNER_COOLDOWNS: "rule", ab.ENEMY_HP_DAMAGE_MULT: "rule"},
+                             {ab.SPAWNER_COOLDOWNS: {"X": row}})
+    data = config.spawner_cooldowns("X")
+    want = {loc: float(2 * (loc + 1)) for loc in range(1, 14)} | {2: 7.0, 20: 99.0}
+    assert {k: float(v) for k, v in data.non_elite.cooldown_minutes.overrides.items()} == want
+    assert float(data.non_elite.cooldown_minutes.default) == 31.0
+    assert data.non_elite.charges.overrides == {5: 1} and data.non_elite.charges.get(5) == 1
+    assert {k: float(v) for k, v in data.elite.cooldown_minutes.overrides.items()} == {1: 60.0, 2: 90.0, 3: 120.0, 4: 150.0}
+    assert ab.DEFAULT_SPAWNER_COOLDOWNS.non_elite.cooldown_minutes.overrides[2] == f32(6)  # defaults not mutated
+    assert config.enemy_hp_damage_mult("X") == ab.DEFAULT_ENEMY_HP_DAMAGE_MULT  # no data for X: class defaults
+
+
 # ---------------------------------------------------------------- charges limit and cooldown rules
 
 def test_charges_limit_rules(spawners, cooldowns, meta):
@@ -183,6 +207,10 @@ def test_meta_levels_apply():
     assert sp.base_cooldown(item, cd, meta) == f32(1000 / 3.0) and sp.small_cooldown_seconds(item, cd, meta) == 334
     short = sp.SpawnerDef(**{**base, "cooldown": f32(5)})
     assert not sp.uses_spawner_cooldowns_ab(short) and sp.charges_total(short, cd) == 5
+    boundary = sp.SpawnerDef(**{**base, "cooldown": f32(10)})  # Cooldown >= 10f: the boundary is inclusive
+    assert sp.uses_spawner_cooldowns_ab(boundary) and sp.charges_total(boundary, cd) == 6
+    below = sp.SpawnerDef(**{**base, "cooldown": f32(float(f32(10)) - 2 ** -20)})
+    assert below.cooldown < f32(10) and not sp.uses_spawner_cooldowns_ab(below)
     event = sp.SpawnerDef(**{**base, "is_event": True})
     assert sp.charges_total(event, cd) == 0 and float(sp.base_cooldown(event, cd)) == 600.0
 
