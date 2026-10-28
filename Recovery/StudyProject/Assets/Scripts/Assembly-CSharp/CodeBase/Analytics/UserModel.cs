@@ -428,7 +428,7 @@ namespace Codebase.Analytics
 		public void ResetDailyAdsIfNeeded()
 		{
 			// Original ARM64 ELF VA 0x15aaa0c uses real UTC midnight, not the game time offset.
-			double utcMidnight = new DateTimeOffset(DateTimeOffset.UtcNow.Date, TimeSpan.Zero).ToUnixTimeSeconds();
+			double utcMidnight = new DateTimeOffset((Codebase.Simulation.Harness.SimulationSandbox.Active ? Codebase.Simulation.Harness.SimulationSandbox.ClockUtcOffset : DateTimeOffset.UtcNow).Date, TimeSpan.Zero).ToUnixTimeSeconds();
 			if (utcMidnight > DailyAdsResetTime.Value)
 			{
 				DailyAdsWatched.Value = 0;
@@ -461,8 +461,8 @@ namespace Codebase.Analytics
 			PreviousAppVersion = Data.AppVersion.Value;
 			Data.AppVersion.Value = Application.version;
 			if (installTime.Value <= 0.0)
-				installTime.Value = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-			double elapsed = Math.Max(0.0, DateTimeOffset.UtcNow.ToUnixTimeSeconds() - installTime.Value);
+				installTime.Value = (Codebase.Simulation.Harness.SimulationSandbox.Active ? Codebase.Simulation.Harness.SimulationSandbox.ClockUtcOffset : DateTimeOffset.UtcNow).ToUnixTimeSeconds();
+			double elapsed = Math.Max(0.0, (Codebase.Simulation.Harness.SimulationSandbox.Active ? Codebase.Simulation.Harness.SimulationSandbox.ClockUtcOffset : DateTimeOffset.UtcNow).ToUnixTimeSeconds() - installTime.Value);
 			int days = (int)TimeSpan.FromSeconds(elapsed).TotalDays;
 			if (daysSinceInstall.Value != days)
 				daysSinceInstall.Value = days;

@@ -1,8 +1,12 @@
-# 模拟器无头运行手册（C0a 探路版）
+# 模拟器无头运行手册
 
-> 状态：C0a 首版，2026-10-28。记录无头运行的探路结论、实测耗时和读代码清单，交给 C0b 接手扩写。设计见 [Design.md](Design.md) 第 2 节；本文与设计稿不一致的地方在第 9 节列出，由 Z1 汇总回设计稿。
+> 状态：C0b 版，2026-10-28。第 1–8 节是 C0a 的探路记录，编号保持不变（代码注释和其它文档按编号引用）；第 10–15 节是 C0b 实现的无头运行框架：用法、流程、沙箱钩子清单、启动器的检查、就绪与冷却、实测耗时与验收记录。设计见 [Design.md](Design.md) 第 2 节；本文与设计稿不一致的地方在第 9 节列出，由 Z1 汇总回设计稿。
 
 ## 结论（进退判定）
+
+**C0b：用 batchmode，不退到 F1/F2。** `unity selftest` 在运行工作树里连续 3 次成功（进入 Main、就绪、就绪补救、一个空作业、退出 Play、资产守卫通过，退出码 0），三次的 `manifest.json`、`ready_spawners.csv`、`asset_guard.json` 逐字节相同。整次进程约 11 秒（换提交后第一次约 14 秒，多出来的是编辑器程序集编译）。默认仍不加 `-nographics`（Q11）；`-nographics` 的输出与有图形时逐字节相同（第 15 节），以后可以改成默认。
+
+以下是 C0a 的结论：
 
 **进：首选方案可行，不需要退到 F1/F2。** 在运行工作树里用 `-batchmode` 跑最小入口 `SimulationBatch.Run`：从 Boot 进入 Play、等到就绪、退出 Play、以退出码退出编辑器。代码最终版（提交 `4559118`）上连续 3 次成功，另有 1 次 `-nographics` 成功；此前各提交上同一入口还有 11 次成功，游戏就绪 B 中位数 5.2 秒（上限 120 秒）。2.9 节第 5、6 项都有明确结论：
 
@@ -17,6 +21,8 @@
 - 新档就绪时 `AnyoneAlive && IsEnabled` 的刷怪点有 **699 / 716** 个。17 个例外都在机器人范围之外，或者本来就生不出单位。就绪补救在新档上是空操作（第 6 节）。
 
 ## 1. 环境与命令
+
+> C0a 的入口参数（`-tufuSpikeOut`、`-tufuReadyTimeout`）和 `RenameProbe` 已被 C0b 的入口取代，现行用法见第 10 节。本节保留探路时的记录。
 
 | 项 | 值 |
 |---|---|
@@ -332,7 +338,7 @@
   - 所以沙箱必须从空的 PlayerPrefs 开始，或者 `prefs_seed` 里不能有 `game_loaded_once`。真实 plist 里是 1，共用真实 PlayerPrefs 的话，新档的 `Data.Tests` 会是空的。
   - 钩子放在 `SelectVariant`，对新老用户都成立。
 
-## 8. 给 C0b 的交接
+## 8. 给 C0b 的交接（已完成，实现见第 10–14 节）
 
 - `ED/SimulationBatch.cs` 的所有权转给 C0b。保留的骨架：
   - `SessionState` 加进程号的跨域重载接续；
@@ -374,3 +380,175 @@
 | 2.3 | AB 只与抽组的随机有关 | 还取决于 PlayerPrefs 的 `game_loaded_once`（7.2）|
 | 2.3 | `EditorSettings` 断言域重载与场景重载（属性名待核对）| `enterPlayModeOptionsEnabled` 读出 `False`，与资产里的 1 不符，不能用；只看 `enterPlayModeOptions` 有没有 `DisableDomainReload`/`DisableSceneReload`（第 3 节第 7 条）|
 | 2.3、2.6、7.3 C0b | 沙箱时钟只在 `TimeService` 加钩子；"读墙钟的系统由沙箱时钟冻结"，输出与真实日期无关 | `UserModel.cs:431`、`:464-465` 直接读 `DateTimeOffset.UtcNow`，绕过 `TimeService`：每日广告上限按真实 UTC 零点重置，`installTime` 取真实时刻并影响 `StatReward` 的每日轮换（沙箱时钟早于真实安装日时会抛异常）。C0b 的钩子清单需要加上 `UserModel`，或用 7.1a 的替代办法 |
+| 1.5 第 6 条、2.3 | 资产守卫用 `EditorJsonUtility.ToJson` 比较内存摘要；不同就 `ImportAsset(ForceUpdate)` | `StatBase.Modifiers` 是自动属性，Unity 不序列化它，`ToJson` 看不到 `PlayerConfig.Stats[i].Modifiers` 的改动（它也不会被 `SaveAssets` 落盘，进入 Play 的域重载本身就会丢掉它）。守卫另加了一遍托管字段的遍历（11.4）。每次 Play 之后 Player Config 与 Simulation Config 的内存状态都变了；`ImportAsset(ForceUpdate)` 一次也没有恢复它们，`Resources.UnloadAsset` 后重新加载才恢复 |
+| 2.3 AB | 钩子只在抽组处 | `ABTestModel.TryApply` 对老用户在抽组之前就返回（7.2），所以构造函数里的 `isNewUser` 也加了钩子（`ABTestModel.cs:16`）；否则 `prefs_seed` 里有 `game_loaded_once` 时 `Data.Tests` 为空 |
+| 7.3 C0b 文件清单 | 钩子只在 `TimeService`、`ABTestModel`、`MainSceneInitializer`（及后备的 `GameDataService`）| 按 7.1a 另加了 `Analytics/UserModel.cs` 的三处时钟钩子（所有权偏离，需要 Z1 放行）；`GameDataService` 没有改（改名方案成立）|
+| 2.3 刷怪点就绪 | 补救后断言个数即可 | 另需在设 `IsRunning` 之前把就绪时的 `Cooldown` 清零（请求 `sandbox.zero_ready_cooldowns`，默认开）：沙箱时钟取 2024-01-01T00:00:00Z（UTC 零点）时有 698 个刷怪点的 `Cooldown` 是一整个周期（第 14 节）|
+| 2.3、7.3 C0b | `nettop` 采样断言没有外发连接 | 改为三条口径：`lsof` 采样比较 Play 期间与编辑模式期间的非回环远端；Play 期间日志里没有 SDK 输出；游戏与编辑器代码里没有网络 API（静态测试）。系统代理下所有连接都是 `127.0.0.1:7897`，采样看不到主机名（第 13 节）|
+| 2.2 第 5 条 | 进程退出后真实存档目录不变 | 编辑器在改名之前就把自己的分析会话写进真实 `persistentDataPath` 的 `Unity/<云项目 id>/Editor/Analytics/`，正常退出时删掉；被杀掉的编辑器会留下它。启动器把这部分单列为 `editor_analytics_leftovers`，从备份恢复，不判退出码 2；游戏存档与 PlayerPrefs 的任何改动仍判 2 |
+| 1.4.1、2.4、2.5 | 心跳与队列在 `Temp/TufuSimulation/`，常驻模式的结果放在队列里 | Unity 退出时删除整个 `Temp/`，常驻模式的 `serve_report.json` 因此写到 `Balance/out/sim/serve/<时间>/`。心跳仍在 `Temp/` |
+| 7.4 | 作业结束经 `SimulationHarness` 里声明的 partial 钩子进入 `SimulationBakeExport`、`SimulationConfigPatcher` | C# 的 partial 方法只能有一个实现，C1 与 C8 都要导出、C4 与 C9 都要在开跑前改状态，所以每个单元一个钩子：`RebuildJobApplyPatch`（C9）、`RebuildJobApplyOverride`（C4）、`RebuildJobExportOutputs`（C1）、`RebuildJobExportBake`（C8）；请求的校验同理（`ValidateOverrideFields`/`ValidateBakeFields`/`ValidatePatchFields`）|
+| 1.4.2 | 请求的核心字段 | 另加了 `unity.ready_timeout_s`、`unity.heartbeat_interval_s`、`sandbox.expected_alive_enabled`、`sandbox.skip_integrations`、`sandbox.zero_ready_cooldowns`、`stop.max_frames`、作业的 `test`（自检动作），以及模式 `empty`（只走框架、不设 `IsRunning`）。`override`、`patch` 留给 C4、C9 追加。`sandbox.identity` 只作产品名，公司名固定为 `TufuSimSandbox` |
+| 1.4.3 | 输出清单 | C0b 写 `manifest.json`、`ready_spawners.csv`、`timings.json`、`asset_guard.json`、`unity.log`，以及运行级的 `request.json`、`editor_report.json`、`launcher.json`。状态摘要暂写在 manifest 里（`state_sha256_job_start/end`），逐日的 `digests.csv` 归 C3c |
+| 2.2 第 1 条 | DLL 为已知损坏值时替换后照常运行 | 照做，但替换会让运行工作树不干净，运行后的 `git status` 检查会判 2。入库的 DLL 就是期望值，这条路径没有实际触发过 |
+
+## 10. 用法（C0b）
+
+在工作树的 `Balance/` 下执行。单元工作树用开发工作树的解释器 `/Users/joyfort/MyProjects/Tufu-stage5/Balance/.venv/bin/python`，跑的是自己工作树里的 `tufu_balance`。
+
+```bash
+python -m tufu_balance.unity selftest [--rev REV] [--runs N] [--nographics]
+python -m tufu_balance.unity run (--preset selftest|empty|smoke-11|golden-405|slow-5 | --request R.json) [--rev REV | --dev] [--force]
+python -m tufu_balance.unity serve start [--rev REV] [--idle-timeout 秒] | status | submit (--preset P | --request R.json) | stop
+python -m tufu_balance.unity open [--rev REV | --dev]       # 交互打开工程，参数与 .ps1 相同
+python -m tufu_balance.unity status                         # 锁、运行工作树、Unity 进程、常驻编辑器
+pytest --unity tests/unity                                  # 环境变量 TUFU_UNITY_REV、TUFU_UNITY_NOGRAPHICS=1
+```
+
+- `--rev` 默认是 `tufu_balance` 所在工作树的 HEAD：先提交，再运行。运行工作树检出到该提交（游离 HEAD），检出前后都要求 `git status --porcelain -uall` 为空。
+- `--dev` 在当前工作树里跑，要求它有 `Library`（单元工作树没有），结果不进缓存；Unity 退出后工作树的改动状态变了就退出码 7。
+- 输出在 `Balance/out/sim/runs/<run_key>/`：`request.json`、`unity.log`、`editor_report.json`（编辑器侧：改名探针、守卫基线、各作业结果）、`launcher.json`（启动器侧：命令、耗时、真实存档核对、网络采样、日志扫描），以及每个作业的 `<job_id>/{manifest.json, ready_spawners.csv, asset_guard.json, timings.json, unity.log}`。除 `timings.json` 外都可以逐字节比较。
+- 同一 `run_key` 已有退出码 0 的结果时直接复用，`--force` 重跑。`run_key` 的组成见设计稿 1.4.2；只影响速度的 `simulation_speed`、`frame_budget_ms`、`heartbeat_interval_s`、`ready_timeout_s` 不计入。
+- 预设 `smoke-11`、`golden-405`、`slow-5` 要等 C3b 填好引擎才有意义：现在 `free` 作业的 `ExecuteTick` 是空的，只会在 `max_wall_seconds` 停下。
+- Python API：`tufu_balance.unity.launcher.run(request, rev=…)`、`selftest()`、`serve_*()`；请求由 `tufu_balance.unity.request` 生成和校验（`make_request`、`make_job`、`empty_job`、`preset`、`validate`）。其它单元追加请求字段时用 `request.register_fields`，C# 一侧写自己的 `SimulationRunRequest.<单元>.cs`。
+
+退出码（C# 与启动器共用）：
+
+| 码 | 含义 | 由谁给出 |
+|---|---|---|
+| 0 | 成功 | |
+| 1 | 未捕获的异常 | 运行时或编辑器 |
+| 2 | 守卫失败：资产在内存或磁盘上没能恢复、真实存档或 PlayerPrefs 变了、运行工作树不干净、进入 Play 的设置关掉了重载、PlayerPrefs 探针落进真实域、宠物没能关闭 | 编辑器或启动器（启动器的判定覆盖 Unity 的退出码）|
+| 3 | 超时：启动后没有心跳（默认 600 秒）、心跳停止前进（默认 120 秒）、超过总时限 | 启动器（杀掉进程组），编辑器的作业硬时限 |
+| 4 | 游戏未就绪（`ready_timeout_s`）、运行时一侧没有起来、商店 RPM 一直不空闲 | 运行时 |
+| 5 | 请求无效：解析失败（含未知字段）、校验不过、常驻模式下 `code_rev` 或 `identity` 不符 | 编辑器或启动器 |
+| 6 | 自检失败：冻结期间玩家血量或 `RPMCalculatedValue` 被其它系统改了 | 运行时 |
+| 7 | `--dev` 运行期间工作树被改动 | 启动器 |
+| 8 | 就绪核对失败：AB 分组、`expected_ready_spawners` 表、`AnyoneAlive && IsEnabled` 个数 | 运行时 |
+
+## 11. 流程
+
+### 11.1 编辑器一侧（`ED/SimulationPlayModeDriver.cs`）
+
+1. `SimulationBatch.Run/SelfTest/Serve` 读参数，Newtonsoft 解析请求（未知成员报错），校验；失败以 5 退出，`editor_report.json` 写在请求文件旁边。
+2. 进入 Play 的设置：只看 `enterPlayModeOptions` 里有没有 `DisableDomainReload`/`DisableSceneReload`（第 3 节第 7 条），有就以 2 退出。
+3. 资产守卫取基线（首次进入 Play 之前）。
+4. 改名进沙箱：公司名固定为 `TufuSimSandbox`，产品名取 `sandbox.identity`（默认也是 `TufuSimSandbox`）；断言 `persistentDataPath` 已变，写一个探针键经 `defaults read` 确认它在沙箱域、不在真实域，否则以 2 退出。
+5. 每个作业：清空沙箱存档目录和 PlayerPrefs，写入 `prefs_seed`（整数 → `SetInt`，小数 → `SetFloat`，字符串 → `SetString`）并 `Save()`；写 `Temp/TufuSimulation/active_request.json`（进程号、请求路径、作业序号）；从 Boot 进入 Play；等运行时一侧完成；退出 Play；资产守卫核对与恢复，写 `asset_guard.json`；把编辑器侧的耗时并进 `timings.json`。作业失败就结束整个请求。
+6. 结束：`PlayerPrefs.Save()`（仍在沙箱域）、改回名字并清掉 PlayerSettings 的脏标记、删除 `active_request.json`、写 `editor_report.json`、`EditorApplication.Exit(code)`。
+
+状态放在 `SessionState`，进入 Play 的域重载之后由 `[InitializeOnLoad]` 的静态构造接续；存的进程号与当前进程不符时一律不动作。
+
+### 11.2 运行时一侧（`CB/Simulation/Harness/`）
+
+- `SimulationSandbox`：`SubsystemRegistration` 时读 `active_request.json`，进程号相符才打开沙箱标志，记下请求、作业、时钟；`BeforeSceneLoad` 时建一个隐藏的 `SimulationHarness` 对象（`DontDestroyOnLoad`，退出 Play 时随之销毁）。这两个方法只编进编辑器（`#if UNITY_EDITOR`），播放器构建里沙箱标志永远是关的。
+- `SimulationHarness` 每帧推进一个阶段：
+  1. **WaitReady**：判据同 C0a（`SimulationSystem.Instance`、`EnemiesModel.Spawners` 非空、两个待自举队列为空，保持 1 秒），超过 `ready_timeout_s` 退出码 4。
+  2. **就绪**：沙箱报告（存档路径、PlayerPrefs 域、`TimeService.Now`、`CheatOffset`、预置键的读回值、宠物）；AB 核对；就绪补救（第 14 节）；写 `ready_spawners.csv` 的内容；与 `expected_ready_spawners`（有就核对）和 `expected_alive_enabled`（默认 699）比较，不符退出码 8。然后 `Time.timeScale = 0`、`config.DisableUi = true`。
+  3. **Settle**：至少 10 帧，并且商店的 RPM 计算空闲（`ShopLotRpmCalculationSystem.isProcessing` 为假）。
+  4. **Quiet**：再冻结 30 帧，前后比较玩家血量与 `RPMCalculatedValue`、`SoulRPMCalculatedValue` 的 IEEE 位，变了退出码 6。
+  5. **Job**：应用 `config_overrides`（只允许白名单里的运行开关）、停止条件、`SimulationSpeed`；把就绪时的 `Cooldown` 清零（第 14 节）；记下作业开始的状态摘要；依次调 `RebuildJobApplyPatch`（C9）、`RebuildJobApplyOverride`（C4）；`empty` 以外的模式设 `IsRunning = true`；执行 `test` 里的自检动作。停止原因：`simulation_stopped`（模拟自己停了）、`max_ticks`、`max_frames`、`max_wall_seconds`；`empty` 默认 30 帧后停。每帧按上一帧的耗时调整 `SimulationSpeed`，范围 1 到请求值的 16 倍。
+  6. **Export**：`IsRunning = false`；`empty` 作业再核对一次血量与 RPM；记下作业结束的状态摘要；依次调 `RebuildJobExportOutputs`（C1）、`RebuildJobExportBake`（C8）；写 `manifest.json`、`ready_spawners.csv`、`timings.json`。
+- 给后面单元的接口：
+  - `SimulationHarness.OnTickCompleted()`：C3b 的 `RebuildOnTickCompleted` 每个 Tick 调一次；它累加 Tick 数、写心跳，达到 `max_ticks` 时返回真（`StopRequested`），重建的 `ExecuteTick` 应当据此停下。
+  - 上面四个 partial 钩子，参数是作业、作业目录和 manifest 的 `JObject`（可以往里加字段）。
+- 状态摘要（`state_sha256_job_start/end`）：36 项属性的 `Value` 与 `SpecificValue`、血量、物品 (Key, Level, Copies, Evolved)、当前与已解锁的岛、RPM 字典、每个刷怪点的 (Key, ChargesLeft, Cooldown, 单位数)、AB 分组，全部按位、按键排序后取 sha256。P、T 等引擎状态等 C3b/C3c 补进逐日摘要。
+
+### 11.3 心跳
+
+- 文件 `Recovery/StudyProject/Temp/TufuSimulation/heartbeat.json`：`pid`、`phase`、`job_id`、`progress`、`ticks`、`frames`、`utc`。Unity 退出时会删掉整个 `Temp/`。
+- 运行时在 `Update` 和 `OnTickCompleted` 里按 `heartbeat_interval_s`（默认 5 秒）写；编辑器在编辑模式下（作业之间、常驻空闲）写。
+- `progress` 只在作业、阶段、Tick 数、帧数（编辑模式下是编辑器的 update 计数）变化时才变。启动器看的是 `progress`：一帧再长，只要 Tick 在走就不算停；Tick 和帧都不动才判超时（退出码 3）。验收：一帧 12 秒、一直调 Tick 钩子的作业，6 秒的停顿超时没有触发；一帧 60 秒不调钩子的作业在 8 秒停顿后被杀，退出码 3。
+
+### 11.4 资产守卫（`ED/SimulationAssetGuard.cs`）
+
+- 受保护资产：Simulation Config、Simulation Data、Combat Balance Config、Player Config、ABTest Data Config、Locations Config、`Assets/Simulation/Simulation Rebuild Params.asset`（C3c 建之前跳过）。
+- 内存摘要 = 每个对象的 `EditorJsonUtility.ToJson`，加上一遍托管字段的遍历：基本类型、字符串、列表和 `[Serializable]` 类型的字段（含自动属性的后备字段，如 `StatBase.Modifiers`），跳过 UniMob 的原子与缓存、委托、指针、字典。另记磁盘文件的 sha256。
+- 每个作业退出 Play 后与基线比较：不同就 `ImportAsset(ForceUpdate | ForceSynchronousImport)`，仍不同就对其中的对象 `Resources.UnloadAsset` 再重新加载；还不同、或磁盘文件变了，就以 2 结束。结果写进 `asset_guard.json`（变了的资产、恢复方式、变化后的摘要）。下一个作业紧接着进入 Play，中间没有别的代码运行，所以这一步就是"进入 Play 之前的核对"。
+- 实测：每次 Play 之后 Simulation Config（`OnAwake` 改写，第 8 节）和 Player Config（`PlayerModel` 构造时把资产里 `Stats[i].Modifiers` 的列表交给活的属性）在内存里都变了；`ImportAsset` 一次也没能恢复，全部靠 `UnloadAsset` 恢复。每个作业约 0.14 秒。
+- 自检作业：`test.mutate_player_config` 在 Play 里往 `PlayerConfig.Stats[0].Modifiers` 加一个修饰器，守卫看到的 Player Config 摘要与普通作业不同，恢复后下一个作业的状态摘要与新开的 selftest 相同；`test.skip_reimport` 让守卫不做恢复，结果是退出码 2。
+- `StatBase.Modifiers` 不被 Unity 序列化：进入 Play 的域重载本身就会丢掉它，`SaveAssets` 也不会把它落盘。
+
+### 11.5 常驻模式
+
+- `serve start`：取锁、检出、记下真实存档基线、在 `Temp/TufuSimulation/queue/{inbox,running,done}` 建队列，启动 `SimulationBatch.Serve`，把锁的持有者改成 Unity 的进程号（CLI 返回后锁仍在），等心跳进入 `edit:idle`。
+- `serve submit`：按常驻编辑器的提交计算 `run_key`，把请求写进 `inbox/`，等 `done/<名>.result.json`；中途核对一次真实存档（忽略编辑器自己的分析文件）。
+- 编辑器按文件名顺序取请求，每个作业仍是 `reenter_play`，作业后的守卫照常；`code_rev` 或 `identity` 与常驻编辑器不同的请求以 5 拒绝。收到 `stop` 文件、空闲超时（默认 30 分钟）或守卫失败时退出。
+- `serve stop`：写 `stop`、等进程退出、做进程退出后的全部核对、清理沙箱、释放锁。编辑器的报告写在 `Balance/out/sim/serve/<时间>/serve_report.json`（`Temp/` 会被删掉）。
+- 验收：常驻编辑器里两个相同的 `empty` 作业，状态摘要和 `ready_spawners.csv` 彼此相同，也与冷启动的 selftest 相同。
+
+## 12. 沙箱钩子清单
+
+游戏代码里的钩子都写成"标志关时原样执行"，并由 `tests/test_unity_launcher.py` 检查：每一处都在本表登记了文件与行号，并且都是 `SimulationSandbox.Active ? 沙箱值 : 原表达式` 或 `!Active` 守着的跳过。
+
+| 文件:行 | 标志打开时 | 标志关闭时 |
+|---|---|---|
+| `Services/Time/TimeService.cs:23` | `Now` 取 `sandbox.clock_epoch_utc`，固定不动 | `DateTime.UtcNow + 偏移` |
+| `Services/Time/TimeService.cs:32` | 不读 PlayerPrefs 的 `TimeSkipSeconds`，偏移为 0 | 原样读取 |
+| `ABTests/ABTestModel.cs:16` | 一律按新用户处理（不看 `game_loaded_once`）| 原样 |
+| `ABTests/ABTestModel.cs:39` | 抽组返回请求的分组（不在可选分组里时取第一个），不调 `UnityEngine.Random` | 原样随机 |
+| `Analytics/UserModel.cs:431` | 每日广告重置按沙箱时钟的 UTC 零点 | 真实 UTC 零点 |
+| `Analytics/UserModel.cs:464` | 新档的 `installTime` 取沙箱时钟 | 真实时刻 |
+| `Analytics/UserModel.cs:465` | `daysSinceInstall` 按沙箱时钟 | 真实时刻 |
+| `Core/MainSceneInitializer.cs:205` | `sandbox.skip_integrations` 为真时跳过 `BackendApi.Init`、`HubBackendBootstrap.TryLogin`（`:206-207`）和用户同意（`:223`）| 原样 |
+| `Core/MainSceneInitializer.cs:253` | 同上，跳过 `ApplyConsent`、`BootTimeEvent`、Adjust、Firebase、`CollectDeviceIdentifiers`（`:255-260`）| 原样 |
+
+路径相对 `CB` = `Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase`。没有改 `GameDataService`（改名方案成立，不需要存档目录钩子）。`Boot.cs:119` 的 `GameLoadedEvent` 不在 C0b 的文件范围内，没有跳过（`Send` 是空桩，第 4 节）。宠物：本分支没有 `PetConfig`，沙箱报告 `absent`；合并宠物以后，`SimulationSandbox` 用反射把找到的 `PetConfig` 实例的 `Enabled` 设为假并报告 `disabled`（这条路径还没有在真实数据上跑过）。
+
+## 13. 启动器的检查（`tufu_balance/unity/launcher.py`）
+
+- 拒绝主检出 `/Users/joyfort/MyProjects/Tufu/Recovery/StudyProject`（`--allow-main-checkout` 才放行）。
+- 锁：`<工作树>/Balance/out/unity.lock`，JSON 里记持有者进程号；持有者已不在就视为过期接管；被占时排队（默认最多等 1 小时），不抢。常驻模式和 `open` 把持有者改成 Unity 的进程号。
+- 用不区分大小写的 `pgrep -fil <工程路径>` 再筛 `-projectpath`，发现已有 Unity 打开同一工程就拒绝。
+- 受保护 DLL 按 `.ps1` 的规则核对，常数与入库的 `.ps1` 一致（测试）。
+- 运行前后核对（Unity 和它的导入进程都退出之后）：真实存档目录下每个文件的 sha256；真实 plist 文件与经 cfprefsd 导出的内容（`defaults export`）；运行工作树里受保护资产、`ProjectSettings.asset`、`EditorSettings.asset`、`TimeManager.asset` 的 sha256；`git status --porcelain -uall`。运行前把真实存档目录和 PlayerPrefs 备份到运行目录的 `_real_backup/`。
+  - 有变化时：运行期间没有发现别的 Unity 进程才从备份恢复（另一个编辑器可能正当地写了它们），否则只报告；两种情况都以 2 结束。没有变化或已恢复时删除备份。
+  - 例外是编辑器自己的分析会话 `Unity/<云项目 id>/Editor/Analytics/**`（第 9 节）：单列为 `editor_analytics_leftovers`，照样从备份恢复，不判 2。
+- 网络：运行中每 2 秒 `lsof -nP -a -p <pid> -i` 采样，按心跳的阶段分成编辑模式与 Play；断言 Play 期间没有编辑模式期间之外的非回环远端。另扫描日志里第一次进入 Play 之后的 SDK 输出（AppMetrica、Adjust、Firebase、AppLovin、MaxSdk、Facebook、Tapjoy、BackendApi、UnityServices、RemoteConfigService），并有静态测试断言 `Assets/Scripts` 与 `Assets/Editor` 里没有网络 API。系统代理（`127.0.0.1:7897`）下 `lsof` 只看得到代理端口，看不到主机名；按主机名的核对仍需代理日志（第 4.3 节）。
+- 每次运行前后删除沙箱的 PlayerPrefs 域（`defaults delete unity.TufuSimSandbox.<名>`，再删残留的 plist 文件）和沙箱存档目录；删除前核对路径确实在 `TufuSimSandbox` 之下。
+
+## 14. 刷怪点就绪与冷却（C0b 实测）
+
+- 补救按 6.2 节的建议实现：对每个非活动、非 VIP、`!IsBootstrapComplete` 的刷怪点调 `CompleteBootstrap(now)`（`internal`，不用反射），对 `!IsEnabled` 的调 `SetEnabled(true)`。新档上两者都是 0 个，耗时约 0.02 毫秒。
+- 补救后 `AnyoneAlive && IsEnabled` = **699**（冻结值，请求默认 `expected_alive_enabled = 699`）；例外 17 个：活动 5、VIP 10、`Spawner_Dummy_b310…`、`BossTower_c296…`。注册 716 个、场景里 717 个组件、敌人 1015 个。三次 selftest、`TimeSkipSeconds = 259200` 的运行和常驻模式里都相同。
+- 就绪时的 `Cooldown`：沙箱时钟 2024-01-01T00:00:00Z 恰好是 UTC 零点，所以满员刷怪点的 `Cooldown` 是一个整周期（到下一个对齐时刻）而不是 0。作业开始、设 `IsRunning` 之前，把非活动、非 VIP 刷怪点的非零 `Cooldown` 清零：698 个（`ready_cooldowns_zeroed`）。`ready_spawners.csv` 记的是清零之前的值。C3b 若要自己管理 `Cooldown`（Q07），可以在请求里关掉 `zero_ready_cooldowns`。
+- `expected_ready_spawners`（P6 的表）：列 `key`、`charges_total`、`base_cooldown`，可选 `path`（有 `path` 时按"层级路径|Key"对应，能区分重复的 Key）。P6 的表还没有，现在只导出；核对的代码用 selftest 自己的表验证过：全部 716 个相等时通过，改一个 `BaseCooldown` 就以 8 结束。P6 完成后补跑并冻结。
+- AB：请求 A 时 13 个测试里 11 个被分配，全是 A（`level_pass`、`rewarded_delay_from_start` 没有规则）；`fastRPMParams` 生效值 (10, 1)；`spawner_cooldowns_v3` 的 A 组表（非精英默认 30 分钟、岛 1–13 为 4–28 分钟、3 次充能；精英默认 180 分钟、岛 1–4 为 60–150 分钟、2 次充能）记在 manifest 里。
+
+## 15. 实测耗时与验收记录
+
+运行工作树检出 C0b 的提交，有图形，Library 已就绪：
+
+| 运行 | 进程总耗时 | 说明 |
+|---|---|---|
+| selftest（3 次）| 10.7–11.4 秒；换提交后的第一次 14.2 秒 | `E` 2.4–2.5 秒（换提交后 5.8 秒，含编辑器程序集编译）、`B` 5.09–5.13 秒、`X` 0.11 秒；守卫约 0.14 秒 |
+| 两个作业（`reenter_play`）| 15.8 秒 | 第二个作业多约 5 秒 |
+| 常驻模式提交两个作业 | 12.0 秒 | 不含编辑器启动 |
+| 一帧 12 秒的心跳作业 | 22.8 秒 | |
+| 停顿超时（8 秒）| 17.1 秒 | 退出码 3 |
+| 未就绪（`ready_timeout_s = 1`）| 7.0 秒 | 退出码 4 |
+| 未知字段 | 4.9 秒 | 退出码 5，进 Play 之前 |
+
+`pytest --unity tests/unity` 全部约 3 分钟。`-nographics` 与有图形时的 selftest 输出逐字节相同（manifest 里不放图形设备，图形设备和 `batchmode` 记在 `timings.json`）。
+
+验收对照（设计稿 7.3 C0b）：
+
+| 项 | 结果 | 测试 |
+|---|---|---|
+| selftest 连续 3 次成功 | 通过 | `tests/unity/test_headless_smoke.py::test_selftest_three_times_in_a_row` |
+| 真实存档、plist、`ProjectSettings.asset`、受保护资产不变，运行工作树干净 | 通过（每次运行都核对）| `test_sandbox.py::test_real_save_prefs_and_project_unchanged` |
+| 日志里的存档路径与 PlayerPrefs 域在沙箱名下 | 通过 | `test_save_and_prefs_paths_are_sandboxed` |
+| 沙箱时钟；`TimeSkipSeconds = 259200` 时就绪表与摘要不变 | 通过 | `test_sandbox_clock`、`test_time_skip_and_shared_prefs_do_not_change_the_state` |
+| AB 分组与生效表 | 通过；P6 的表未到，只导出（核对代码已用合成表验证）| `test_ab_groups_fixed_to_the_request`、`test_expected_ready_spawner_table_gate` |
+| 补救后个数等于冻结值 699，例外按 SpawnerId 列出 | 通过 | `test_ready_spawners_after_remedy`、黄金套件 `harness` |
+| 分析与集成跳过，没有外发连接 | 通过（按第 13 节的口径）| `test_integrations_skipped_and_no_outbound`、`test_no_network_api_in_game_code` |
+| 宠物 `absent` | 通过 | `test_pets_absent` |
+| 冻结期间血量与 RPM 不变 | 通过 | `test_health_and_rpm_untouched_while_frozen` |
+| 两次启动的注册顺序摘要相同 | 通过（`2c531b36…`）| `test_registration_order_and_ab_stable` |
+| 资产守卫检测并恢复 Player Config 的修饰器 | 通过（靠 `UnloadAsset`）| `test_asset_guard_restores_a_mutated_player_config` |
+| 请求往返；未知字段报错 | 通过 | `test_request_round_trip_through_csharp`、`test_unknown_field_fails_in_csharp_with_exit_5`、`tests/test_request_roundtrip.py` |
+| 心跳：长帧不误判，停顿才超时 | 通过 | `test_long_frame_with_ticks_is_not_a_stall`、`test_stalled_frame_times_out_with_exit_3` |
+| 启动器：主检出、脏工作树、`--dev` 退出码 7、`pgrep -fi`、DLL 常数、`run_key` 敏感性、退出码 2/3/4/5/7/8 | 通过（7 与部分 2、3 用假编辑器）| `tests/test_unity_launcher.py`、`test_sandbox.py::test_exit_codes` |
+| 常驻模式两个相同作业摘要相同 | 通过 | `test_serve_mode_reenter_play_two_identical_jobs` |
+
+没有做的：可选的 `ED/SimulationRunnerWindow.cs`（交互窗口、单步）。
