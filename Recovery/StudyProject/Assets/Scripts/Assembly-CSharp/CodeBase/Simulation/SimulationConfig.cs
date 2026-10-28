@@ -8,10 +8,11 @@ using System;
 using System.Linq;
 using Codebase.Unit;
 using Codebase.Services.Damage;
+using Codebase.Simulation.Rebuild;
 
 namespace Codebase.Simulation
 {
-	public class SimulationConfig : ScriptableObject
+	public partial class SimulationConfig : ScriptableObject
 	{
 		private const string GROUP_DEPENDENCIES = "Dependencies";
 		private const string BOT_PROFILE = "bot_profile";
@@ -79,22 +80,27 @@ namespace Codebase.Simulation
 		private bool canRebake => false;
 		private bool canApplyBalance => false;
 
+		[SimulationRebuild(Provenance.Null)]
 		public void ResetCombatConfigValues()
 		{
 		}
 
+		[SimulationRebuild(Provenance.Null)]
 		public void Tick()
 		{
 		}
 
+		[SimulationRebuild(Provenance.Null)]
 		public void ResetAmuletLevelBalance(int levelsCount)
 		{
 		}
 
+		[SimulationRebuild(Provenance.Null)]
 		public void SetAmuletLevelBalance(int level, double experience, Dictionary<string, double> soulRewards)
 		{
 		}
 
+		[SimulationRebuild(Provenance.Null)]
 		private List<SimulationSnapshot> GetTrimmedTimeChunkSnapshots()
 		{
 			return null;
