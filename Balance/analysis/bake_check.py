@@ -176,7 +176,8 @@ def implied_time(ctx, sp, attr, target, lo=0.0, hi=405.0, steps=40):
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     con = data.connect()
-    ctx = data.load_bake_context(con)
+    # Stage-4 numbers (and the frozen fixture stage4_summaries.json) were measured with stepwise K4/K5.
+    ctx = data.load_bake_context(con, rounding="stepwise")
     armors = data.load_armor_configs(con)
     rows = data.load_spawner_rows(con)
     spawners = [(r, data.spawner_input_from_row(r, armors)) for r in rows]

@@ -12,6 +12,11 @@ Only reads; never writes. Tables used:
 * ``c_LocationsConfig__Locations`` (PreferredWeaponType).
 * ``c_ArmorConfig__Armors`` (by asset name, list order kept).
 * ``spawners`` (one row per EnemySpawner, original field names, ``stat.*`` base values).
+
+The bake can run on another simulation's snapshots: ``load_bake_context(con, simulation_data=...)``
+takes a :class:`SimulationData`, a connection to (or the path of) a database with the same
+``c_SimulationData__*`` tables, e.g. the ``sim.sqlite`` that ``tufu_balance.unity`` imports from a
+run. Paths are opened read-only.
 """
 
 from __future__ import annotations
@@ -22,7 +27,7 @@ from pathlib import Path
 
 from .bake import ArmorEntry, BakeContext, SpawnerBakeInput
 from .f32 import f32
-from .interpolation import BalanceInterpolation, BalanceInterpolationsConfig
+from .interpolation import BalanceInterpolation, BalanceInterpolationsConfig, Rounding
 from .snapshots import SimulationData, SimulationItem, SimulationSnapshot, SimulationStat
 
 DEFAULT_DB = Path(__file__).resolve().parents[2] / "out" / "balance.sqlite"
@@ -102,14 +107,35 @@ def config_snapshot_lists_empty(con: sqlite3.Connection) -> dict[str, bool]:
     return {k: str(sc[k]).strip() == "[]" for k in ("Snapshots", "TimeChunkSnapshots")}
 
 
-def load_bake_context(con: sqlite3.Connection) -> BakeContext:
+def _simulation_data(source) -> SimulationData:
+    if isinstance(source, SimulationData):
+        return source
+    if isinstance(source, sqlite3.Connection):
+        return load_simulation_data(source)
+    if isinstance(source, (str, Path)):
+        if not Path(source).exists():
+            raise FileNotFoundError(source)
+        sim = connect(source)
+        try:
+            return load_simulation_data(sim)
+        finally:
+            sim.close()
+    raise TypeError(f"simulation_data must be SimulationData, sqlite3.Connection or a path, not {type(source).__name__}")
+
+
+def load_bake_context(con: sqlite3.Connection, simulation_data=None,
+                      rounding: Rounding | str | None = None) -> BakeContext:
+    """Bake inputs from ``con``; snapshots from ``simulation_data`` when given (see module doc).
+
+    ``rounding``: K4/K5 interpolation rounding (``None`` = ``interpolation_default.json``).
+    """
     sc = con.execute("SELECT * FROM c_SimulationConfig").fetchone()
     empty = config_snapshot_lists_empty(con)
     if not empty["TimeChunkSnapshots"]:
         # GetSnapshotForBake would use these instead of Simulation Data; they are not extracted.
         raise NotImplementedError("SimulationConfig.TimeChunkSnapshots is not empty; extract it before baking")
     return BakeContext(
-        simulation_data=load_simulation_data(con),
+        simulation_data=load_simulation_data(con) if simulation_data is None else _simulation_data(simulation_data),
         interpolations=load_interpolations(con),
         island_target_days=load_island_target_days(con),
         preferred_weapon_type=load_preferred_weapon_types(con),
@@ -117,6 +143,7 @@ def load_bake_context(con: sqlite3.Connection) -> BakeContext:
         early_offset_relative_part=f32(sc["EarlySpawnerOptimumTimeOffsetRelativePart"]),
         early_offset_multiplier=f32(sc["EarlySpawnerOptimumTimeOffsetMultiplier"]),
         config_time_chunk_snapshots=[],  # checked above: SimulationConfig.TimeChunkSnapshots == []
+        rounding=rounding,
     )
 
 
@@ -139,4 +166,5 @@ def spawner_input_from_row(r: sqlite3.Row, armor_configs: dict[str, list[ArmorEn
         difficulty=f32(_num(r["Difficulty"], 1.0)), armors=list(armor_configs.get(str(r["ArmorConfig"]), [])),
         health_base=_num(r["stat.Health"]), damage_base=_num(r["stat.Damage"]),
         attack_cooldown_base=_num(r["stat.AttackCooldown"]),
+        spawner_id=(str(r["scene"]), int(r["file_id"])),
     )
