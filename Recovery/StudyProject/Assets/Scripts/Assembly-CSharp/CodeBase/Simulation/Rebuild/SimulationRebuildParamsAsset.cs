@@ -33,7 +33,8 @@ namespace Codebase.Simulation.Rebuild
 		public const string SourceRequest = "request", SourceAsset = "asset", SourceCodeDefaults = "code_defaults";
 
 		// Null, or why the job cannot run (exit code 5). `result` is always usable (code defaults on errors).
-		internal static string Load(SimulationRunRequest.Job job, out SimulationRebuildParams result, out JObject report)
+		// Public for the importer's read-back, which takes this path with a non-default asset.
+		public static string Load(SimulationRunRequest.Job job, out SimulationRebuildParams result, out JObject report)
 		{
 			result = new SimulationRebuildParams();
 			report = new JObject { ["schema"] = Schema, ["interactive"] = job == null };

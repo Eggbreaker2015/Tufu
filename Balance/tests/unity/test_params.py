@@ -54,7 +54,7 @@ def _jobs():
         engine.engine_job("params-override", day=DAYS, max_wall_seconds=300.0, probe=NULL, params=o.params),
         {**engine.engine_job("params-asset", day=2, max_wall_seconds=300.0, probe=NULL), "params_source": "asset"},
         engine.engine_job("trace-write-points", max_wall_seconds=300.0, probe=engine.engine_probe(write_points=True),
-                          params=d.params),
+                          params=d.params, outputs={"digest_text": True}),
     ]
 
 
@@ -68,10 +68,14 @@ def run(unity_run):
     return _ok(unity_run(req.make_request(_jobs())))
 
 
+UNKNOWN_PARAMS = {**P.resolve(["defaults"]).params, "Bogus": 1}
+
+
 @pytest.fixture(scope="module")
 def unknown_run(unity_run):
-    """A job whose params carry an unknown field: C# rejects it (exit 5); the request's hash itself is right."""
-    params = {**_defaults().params, "Bogus": 1}
+    """A job whose params carry an unknown field: C# rejects it (exit 5); the request's hash itself is right.
+    (Mis-cased names and wrongly typed values take the same path; tests/test_params_hash.py runs them.)"""
+    params = UNKNOWN_PARAMS
     return unity_run(req.make_request([engine.engine_job("params-unknown", day=1, max_wall_seconds=120.0, probe=NULL,
                                                          params=params)]))
 
@@ -186,6 +190,9 @@ def test_unknown_param_field_fails_the_job(unknown_run):
     m = unknown_run.manifest("params-unknown")
     assert m["exit_code"] == launcher.EXIT_BAD_REQUEST
     assert "Bogus" in m["error"] and m["error"].startswith("params")
+    # A failed job still reports what the loader saw.
+    p = m["params"]
+    assert p["source"] == "request" and p["request_hash"] == req.params_hash(UNKNOWN_PARAMS) and "Bogus" in p["error"]
     if unknown_run.exit_code != launcher.EXIT_BAD_REQUEST:
         # A failed run while the user's editor rewrites the real save is reported as a guard failure (Runbook 13).
         problems = unknown_run.report.get("guard_problems") or []
@@ -206,6 +213,13 @@ def test_params_import_in_a_fresh_editor(imported):
     assert all(report["checks"].values()) and report["importer"]["entered_play"] is False
     assert report["importer"]["read_back"]["asset_found"] is True
     resolved = P.resolve(["defaults"], IMPORT_OVERRIDES)
+    # The run loader on the new, non-default asset: a params_source "asset" job and the interactive branch.
+    assert resolved.params_hash != _defaults().params_hash
+    for key, interactive in (("read_back_job", False), ("read_back_interactive", True)):
+        loader = report["importer"][key]
+        assert (loader["source"], loader["interactive"], loader["asset_found"], loader["error"]) == ("asset", interactive, True, None)
+        assert loader["hash"] == loader["result_hash"] == resolved.params_hash
+        assert (loader["roll_mode"], loader["seed"]) == (IMPORT_OVERRIDES["RollMode"], IMPORT_OVERRIDES["Seed"])
     assert paramsio.read_asset(imported.dest) == paramsio.effective(resolved.params)
     assert imported.dest.read_text(encoding="utf-8") == paramsio.asset_text(paramsio.effective(resolved.params))
     assert report["restored_run_worktree_asset"] and report["guard_problems"] == []
@@ -222,7 +236,7 @@ def traced(run):
 def test_trace_files_validate_against_the_schema(run, traced):
     for job, t in traced.items():
         assert set(t.manifest["files"]) == {trace.DAILY, trace.EVENTS, trace.DIGESTS} | (
-            {trace.DIGEST_TEXT} if job == "trace-defaults" else set())
+            {trace.DIGEST_TEXT} if job in ("trace-defaults", "trace-write-points") else set())
         header = run.file(job, trace.DAILY).decode().splitlines()[0].split(",")
         assert header == [n for n, _ in schema.CSV_SCHEMAS[trace.DAILY]]
     # Through C1's ingest as well.
@@ -285,7 +299,8 @@ def test_events_follow_the_write_points(run, traced):
 def test_digest_covers_design_2_6(run, traced):
     """Every item of the 2.6 list in the day's digest text, equal to the exported day snapshot: stat Value and
     TotalValue, items (Key, Level, Copies, Evolved), Location, P and T, the RPM dictionary, charges used (none
-    under the empty policy); plus health, K modifiers and the random streams."""
+    under the empty policy; the closing day's in charges_closed, see the write-point test); plus health, K
+    modifiers and the random streams."""
     t = traced["trace-defaults"]
     full = _json(run, "trace-defaults", "timechunk_full.json")["TimeChunkSnapshots"]
     items = list(csv.DictReader(io.StringIO(run.file("trace-defaults", "items_ext.csv").decode())))
@@ -318,6 +333,8 @@ def test_digest_covers_design_2_6(run, traced):
         # Empty policy: nothing cleared, so no charges used, and only event/VIP spawners (outside the bot,
         # never zeroed) keep a cooldown.
         assert not [k for k in f if k.startswith("charges.")]
+        closed = {k: v for k, v in f.items() if k.startswith("charges_closed.")}
+        assert closed == ({} if row["day"] == 0 else {"charges_closed.day": str(row["day"] - 1)})
         assert {k[len("cooldown."):] for k in f if k.startswith("cooldown.")} <= outside
         assert f["random.0"] == "mode=0,seed=1"
 
@@ -330,3 +347,24 @@ def test_digests_differ_only_where_the_state_differs(traced):
     b = dict(a, **{"random.0": "mode=1,seed=7"})
     text = "".join(sorted(f"{k}={v}\n" for k, v in b.items()))
     assert hashlib.sha256(text.encode()).hexdigest() == b_digest
+
+
+def test_digest_carries_the_charges_of_the_closed_day(run, traced):
+    """The day change clears spawnerChargesUsage before the next day's digest, so the digest carries the closing
+    day's usage as charges_closed.*: in the write-point probe, the usage of every spawner cleared on day 0 just
+    before its day change (the probe's own state records), and none of the clears made after it."""
+    t = traced["trace-write-points"]
+    steps = run.manifest("trace-write-points")["engine"]["probe"]["steps"]
+    by_name = {s["name"]: s for s in steps}
+    change = by_name["day_change"]
+    expected = {sid: w["usage"] for sid, w in change["before"]["watched"].items() if w["usage"]}
+    gate = by_name["gate_clear_again"]
+    expected[gate["spawner"]] = gate["after"]["usage"]
+    assert len(expected) == 4 and all(v > 0 for v in expected.values())
+    assert change["after"]["watched"] and all(w["usage"] == 0 for w in change["after"]["watched"].values())
+    assert [r["day"] for r in t.digests] == [0, 1] and set(t.texts) == {0, 1}
+    day0, day1 = (trace.digest_fields(t.texts[d][1]) for d in (0, 1))
+    assert not [k for k in day0 if k.startswith("charges")]
+    closed = {k[len("charges_closed."):]: int(v) for k, v in day1.items() if k.startswith("charges_closed.")}
+    assert closed.pop("day") == 0 and closed == expected
+    assert not [k for k in day1 if k.startswith("charges.")]

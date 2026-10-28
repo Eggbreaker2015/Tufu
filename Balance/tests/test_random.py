@@ -16,7 +16,8 @@ from tufu_balance.unity.simrandom import CARRY, SEEDED, SimulationRandom
 
 needs_dotnet = pytest.mark.skipif(not rebuildcheck.available(), reason="needs the .NET 8 SDK")
 
-STREAMS = ("knife", "weapon_1", "armor_helmet_3", "Ω-stream", "")
+# Mixed case: StateText orders streams by ordinal (upper case before lower case), like real item Keys.
+STREAMS = ("knife", "weapon_1", "armor_helmet_3", "Ω-stream", "", "Weapon_A", "armor_b", "Zeta", "ZZ_upper")
 
 
 def _sequences(seed: int, n: int):
@@ -131,6 +132,8 @@ def test_csharp_matches_the_port_bit_for_bit(mode, seed):
     got = [n if isinstance(n, int) else repr(float(n)) for n in cs["results"]]
     assert got == py
     assert cs["state"] == r.state_text()
+    names = [line.split("=")[0] for line in cs["state"].splitlines()[1:]]
+    assert names == sorted(names, key=lambda n: n.encode("utf-16-be")) != sorted(names, key=str.lower)
     for stream, bits in cs["carried"].items():
         assert bits == format(struct.unpack("<Q", struct.pack("<d", r.carried(stream)))[0], "016x")
 

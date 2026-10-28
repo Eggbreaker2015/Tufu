@@ -14,6 +14,8 @@ on request, ``digests.txt``. Written by the C# ``SimulationTrace`` for every non
   ``slot_unlock.count`` the unlocked slots of that slot type after the unlock.
 * ``digests.csv``: per day, right after the day's forced snapshot and override, the sha256 of the state text
   (see :func:`parse_digest_texts` and Runbook 17); ``digests.txt`` holds the texts (output ``digest_text``).
+  The day change clears the charges, so day d's text carries day d-1's usage at its close as
+  ``charges_closed.<spawner>`` (and ``charges_closed.day``); ``charges.<spawner>`` is the usage so far.
 
 ``manifest.trace`` lists every written file with sha256, bytes and rows; :func:`read` checks them.
 """
@@ -40,7 +42,7 @@ RANDOM_KEYS = {"mode": "int", "seed": "int", "streams": "int", "state_sha256": "
 FILE_KEYS = {"sha256": "sha256", "bytes": "int", "rows": "int"}
 # Line prefixes of the digest text (design 2.6 plus the engine state the next day depends on).
 DIGEST_SECTIONS = ("clock", "modifiers", "stat", "health", "item", "slot", "location", "gate", "rpm", "soul_rpm",
-                   "charges", "cooldown", "pending_item", "fast", "souls", "currency", "policy", "random")
+                   "charges", "charges_closed", "cooldown", "pending_item", "fast", "souls", "currency", "policy", "random")
 
 schema.register_csv_columns(DAILY, DAILY_EXTRA)
 schema.register_output("digest_text", "C3c")

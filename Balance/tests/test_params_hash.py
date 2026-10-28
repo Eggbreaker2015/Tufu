@@ -112,6 +112,40 @@ def test_canonical_json_and_hash_match_python():
     assert {h["hash"] for h in hashes} == {P.resolve(["defaults"]).params_hash}
 
 
+def _powers_of_two():
+    """Binade boundaries (the lower neighbour is half as far) of doubles and float32s, both signs, with their
+    neighbours."""
+    doubles, floats = [], []
+    for e in range(-1074, 1024):
+        p = math.ldexp(1.0, e)
+        doubles += [p, -p, math.nextafter(p, 0), math.nextafter(p, math.inf)]
+    for e in range(-149, 128):
+        b = struct.unpack("<I", struct.pack("<f", math.ldexp(1.0, e)))[0]
+        floats += [b, b | 0x80000000, b - 1, b + 1]
+    return doubles, [b for b in floats if 0 < (b & 0x7FFFFFFF) < 0x7F800000]
+
+
+@needs_dotnet
+def test_powers_of_two_and_signed_zero_format_as_python():
+    doubles, floats = _powers_of_two()
+    doubles += [0.0, -0.0]
+    floats += [0x00000000, 0x80000000]
+    [res] = rebuildcheck.run([{"op": "format", "doubles": [format(struct.unpack("<Q", struct.pack("<d", x))[0], "016x") for x in doubles],
+                               "floats": [format(b, "08x") for b in floats]}])
+    assert [(x, g) for x, g in zip(doubles, res["doubles"]) if g != repr(x)] == []
+    expected = [repr(float(paramsio.float32_text(_float(b)))) for b in floats]
+    assert [(hex(b), g, e) for b, g, e in zip(floats, res["floats"], expected) if g != e] == []
+    assert res["doubles"][-2:] == ["0.0", "-0.0"] and res["floats"][-2:] == ["0.0", "-0.0"]
+
+
+@needs_dotnet
+def test_control_characters_are_escaped_as_python_does():
+    texts = ["\b", "\f", "\r", "\n", "\t", "\x00", "\x1f", "\x7f", "\u2028", "a\bb\fc\r\nd", '"\\/']
+    values = [{t: t} for t in texts] + [texts]
+    results = rebuildcheck.run([{"op": "canonical", "value": v} for v in values])
+    assert [r["text"] for r in results] == [req.canonical_json(v) for v in values]
+
+
 @needs_dotnet
 def test_negative_zero_loses_its_sign_in_newtonsoft():
     """Known difference (Runbook 17): Newtonsoft reads -0.0 as 0.0, so such a request fails its params_hash
@@ -161,6 +195,78 @@ def test_unknown_missing_and_invalid_fields():
     assert not missing["ok"] and "Seed" in missing["error"]
     assert partial["ok"] and set(partial["missing"]) == set(defaults) - {"DpsCacheProvenance"}
     assert invalid["ok"] and "RollMode" in invalid["valid"]
+
+
+@needs_dotnet
+def test_field_names_and_json_types_are_strict():
+    """Newtonsoft alone matches names ignoring case and converts strings to numbers and enums; FromJson takes
+    exact names and JSON types that fit the field only."""
+    d = P.resolve(["defaults"]).params
+    no_seed = {k: v for k, v in d.items() if k != "Seed"}
+    bad = {
+        "lower_extra": {**d, "seed": 3},
+        "lower_extra_float": {**d, "fastAfkStepMinutes": 7},
+        "lower_instead": {**no_seed, "seed": 3},
+        "upper": {**no_seed, "SEED": 3},
+        "string_int": {**d, "Seed": "7"},
+        "string_enum": {**d, "RollMode": "Seeded"},
+        "string_float": {**d, "FastAfkStepMinutes": "120"},
+        "float_int": {**d, "Seed": 7.0},
+        "float_enum": {**d, "RollMode": 1.0},
+        "bool_int": {**d, "Seed": True},
+        "null_int": {**d, "Seed": None},
+        "bool_float": {**d, "FastAfkStepMinutes": True},
+        "string_array": {**d, "EarlySnapshotIntervals": "1,5"},
+        "string_item": {**d, "EarlySnapshotIntervals": [1.0, "5"]},
+        "null_array": {**d, "EarlySnapshotIntervals": None},
+        "object": {**d, "Seed": {"value": 1}},
+    }
+    results = rebuildcheck.run([{"op": "params", "json": v, "complete": c} for v in bad.values() for c in (False, True)])
+    for (name, _), r in zip([(n, c) for n in bad for c in (False, True)], results):
+        assert not r["ok"], (name, r)
+    by_name = dict(zip(bad, results[::2]))
+    assert "'seed'" in by_name["lower_extra"]["error"] and "case-sensitive: Seed" in by_name["lower_extra"]["error"]
+    assert "'SEED'" in by_name["upper"]["error"]
+    assert "params.RollMode" in by_name["string_enum"]["error"] and "integer" in by_name["string_enum"]["error"]
+    assert "params.EarlySnapshotIntervals" in by_name["string_item"]["error"]
+    # Integers are numbers for float fields; JSON order and exact duplicates as Python reads them.
+    ok, = rebuildcheck.run_text('[{"op": "params", "complete": true, "json": %s}]'
+                                % json.dumps({**d, "FastAfkStepMinutes": 120}))
+    assert ok["ok"] and ok["hash"] == P.resolve(["defaults"]).params_hash
+
+
+@needs_dotnet
+def test_validate_rejects_each_bad_value():
+    d = P.resolve(["defaults"]).params
+    cases = {
+        "SchemaVersion": {"SchemaVersion": 2},
+        "DpsCacheProvenance": {"DpsCacheProvenance": 3},
+        "RollMode": {"RollMode": 2},
+        "AutoBalanceMode": {"AutoBalanceMode": 2},
+        "EarlySnapshotIntervalStarts must start": {"EarlySnapshotIntervalStarts": [1.0, 20.0]},
+        "EarlySnapshotIntervalStarts must start ": {"EarlySnapshotIntervalStarts": [0.0], "EarlySnapshotIntervals": [1.0, 5.0]},
+        "EarlySnapshotIntervalStarts must start  ": {"EarlySnapshotIntervalStarts": [], "EarlySnapshotIntervals": []},
+        "EarlySnapshotIntervalStarts must increase": {"EarlySnapshotIntervalStarts": [0.0, 0.0]},
+        "EarlySnapshotIntervalStarts must increase ": {"EarlySnapshotIntervalStarts": [0.0, 20.0, 10.0],
+                                                       "EarlySnapshotIntervals": [1.0, 5.0, 5.0]},
+        "EarlySnapshotIntervals must be > 0": {"EarlySnapshotIntervals": [1.0, 0.0]},
+        "EarlySnapshotIntervals must be > 0 ": {"EarlySnapshotIntervals": [-1.0, 5.0]},
+        "FastAfkStepMinutes must be > 0": {"FastAfkStepMinutes": 0.0},
+        "FastAfkStepMinutes must be > 0 ": {"FastAfkStepMinutes": -120.0},
+        "FastAfkStepMinutes must be finite": {"FastAfkStepMinutes": 1e39},  # parses to float +inf
+        "FastAfkStepMinutes must be finite ": {"FastAfkStepMinutes": math.inf},
+        "FastAfkStepMinutes must be finite  ": {"FastAfkStepMinutes": math.nan},
+        "EarlySnapshotIntervals must be finite": {"EarlySnapshotIntervals": [1.0, math.inf]},
+    }
+    results = rebuildcheck.run([{"op": "params", "json": {**d, **v}, "complete": True} for v in cases.values()])
+    for expect, r in zip(cases, results):
+        assert r["ok"] and r["valid"] and expect.strip() in r["valid"], (expect, r)
+    # Every enum member is valid, including the ablation DpsCacheProvenance 2, and written as its integer.
+    members = [{"DpsCacheProvenance": 2}, {"DpsCacheProvenance": 1}, {"RollMode": 1}, {"AutoBalanceMode": 1}]
+    results = rebuildcheck.run([{"op": "params", "json": {**d, **v}, "complete": True} for v in members])
+    for v, r in zip(members, results):
+        assert r["ok"] and r["valid"] is None and r["hash"] == P.resolve(["defaults"], v).params_hash, (v, r)
+        assert json.loads(r["effective"])[next(iter(v))] == next(iter(v.values()))
 
 
 def test_python_effective_model():
@@ -239,3 +345,12 @@ def test_request_helpers():
         paramsio.job("b", source="asset", params={"Seed": 1})
     with pytest.raises(req.RequestError):
         req.validate(req.make_request([{**j, "params_source": 3}], out_dir="/x"))
+
+
+def test_rebuildcheck_sources_are_tracked():
+    """The tool builds from tracked files only (the root .gitignore ignores *.csproj: it is force-added)."""
+    for path in rebuildcheck.sources():
+        rel = path.resolve().relative_to(REPO.resolve())
+        proc = rebuildcheck.subprocess.run(["git", "-C", str(REPO), "ls-files", "--error-unmatch", str(rel)],
+                                           capture_output=True, text=True)
+        assert proc.returncode == 0, f"{rel} is not tracked: {proc.stderr.strip()}"

@@ -38,12 +38,15 @@ namespace Codebase.Simulation.Rebuild
 
 		public static SimulationTrace Current { get; private set; }
 
-		// A new recorder for a run that starts: its parameter report (manifest "params") and random source.
-		public static SimulationTrace Begin(JObject paramsReport, SimulationRandom random, bool keepDigestText)
+		// A new recorder for a run that starts: its job (null when interactive), parameter report (manifest
+		// "params") and random source.
+		public static SimulationTrace Begin(object job, JObject paramsReport, SimulationRandom random, bool keepDigestText)
 		{
-			Current = new SimulationTrace { Params = paramsReport, Random = random, KeepDigestText = keepDigestText };
+			Current = new SimulationTrace { Job = job, Params = paramsReport, Random = random, KeepDigestText = keepDigestText };
 			return Current;
 		}
+
+		public object Job { get; private set; }
 
 		public JObject Params { get; private set; }
 
@@ -60,6 +63,10 @@ namespace Codebase.Simulation.Rebuild
 		internal int EligibleCount = -1;
 		internal string EligibleSignature = "";
 		internal readonly HashSet<string> Killed = new HashSet<string>(StringComparer.Ordinal);
+		// Charges used by the day that closed last ("hierarchy path|Key" -> usage), taken before the day change
+		// clears them; the next day's digest carries them as charges_closed.*.
+		internal readonly SortedDictionary<string, int> ClosedCharges = new SortedDictionary<string, int>(StringComparer.Ordinal);
+		internal int ClosedChargesDay = -1;
 		// Spawner identity ("hierarchy path|Key") cache.
 		internal readonly Dictionary<object, string> Ids = new Dictionary<object, string>();
 
@@ -211,15 +218,17 @@ namespace Codebase.Simulation.Harness
 
 	public sealed partial class SimulationHarness
 	{
-		// C3c's export hook (design 1.4.3, 2.6): after C1's outputs, before manifest.json is written.
+		// C3c's export hook (design 1.4.3, 2.6): after C1's outputs, before manifest.json is written. A failed job
+		// (jobDir null, from Complete) gets the parameter report only.
 		partial void RebuildJobExportTrace(SimulationRunRequest.Job current, string jobDir, JObject jobManifest)
 		{
-			if (current.Mode == "empty") return;
+			if (current == null || current.Mode == "empty") return;
+			SimulationTrace trace = SimulationTrace.Current;
+			if (trace == null || !ReferenceEquals(trace.Job, current)) return;
+			if (trace.Params != null) jobManifest["params"] = trace.Params;
+			if (jobDir == null) return;
 			SimulationSystem engine = SimulationSystem.Instance;
 			engine?.RebuildTraceFlush();
-			SimulationTrace trace = SimulationTrace.Current;
-			if (trace == null) return;
-			if (trace.Params != null) jobManifest["params"] = trace.Params;
 			bool Enabled(string name) =>
 				current.Outputs != null && current.Outputs.TryGetValue(name, out bool on) ? on : SimulationTrace.OutputDefaults.TryGetValue(name, out bool d) && d;
 			jobManifest["trace"] = trace.Write(jobDir, Enabled);

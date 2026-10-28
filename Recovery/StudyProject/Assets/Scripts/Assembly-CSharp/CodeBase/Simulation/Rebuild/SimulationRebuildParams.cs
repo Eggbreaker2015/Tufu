@@ -72,6 +72,7 @@ namespace Codebase.Simulation.Rebuild
 			if (requireComplete && missing.Count > 0)
 				throw new JsonSerializationException("params is missing " + string.Join(", ", missing) + " (a complete object is required)");
 			if (json == null) return result;
+			CheckTokens(json);
 			var settings = new JsonSerializerSettings
 			{
 				MissingMemberHandling = MissingMemberHandling.Error,
@@ -81,9 +82,57 @@ namespace Codebase.Simulation.Rebuild
 			return result;
 		}
 
+		// Newtonsoft matches member names ignoring case and converts strings to numbers and enums; the request's
+		// params_hash covers the text as written, so only exact names and JSON types that fit the field pass.
+		private static void CheckTokens(JObject json)
+		{
+			var fields = Fields().ToDictionary(f => f.Name, StringComparer.Ordinal);
+			foreach (JProperty property in json.Properties())
+			{
+				if (!fields.TryGetValue(property.Name, out FieldInfo field))
+				{
+					string near = fields.Keys.FirstOrDefault(k => string.Equals(k, property.Name, StringComparison.OrdinalIgnoreCase));
+					throw new JsonSerializationException("Could not find member '" + property.Name + "' on SimulationRebuildParams"
+						+ (near != null ? " (field names are case-sensitive: " + near + ")" : ""));
+				}
+				string problem = TokenProblem(property.Value, field.FieldType);
+				if (problem != null) throw new JsonSerializationException("params." + property.Name + ": " + problem);
+			}
+		}
+
+		private static string TokenProblem(JToken token, Type type)
+		{
+			JTokenType kind = token.Type;
+			if (type.IsArray)
+			{
+				if (kind != JTokenType.Array) return "expected an array, got " + kind;
+				foreach (JToken item in (JArray)token)
+				{
+					string problem = TokenProblem(item, type.GetElementType());
+					if (problem != null) return problem;
+				}
+				return null;
+			}
+			if (type == typeof(string)) return kind == JTokenType.String || kind == JTokenType.Null ? null : "expected a string, got " + kind;
+			if (type == typeof(bool)) return kind == JTokenType.Boolean ? null : "expected true or false, got " + kind;
+			if (type.IsEnum || type == typeof(int) || type == typeof(long))
+				return kind == JTokenType.Integer ? null : "expected an integer" + (type.IsEnum ? " (" + type.Name + " member value)" : "") + ", got " + kind;
+			if (type == typeof(float) || type == typeof(double))
+				return kind == JTokenType.Integer || kind == JTokenType.Float ? null : "expected a number, got " + kind;
+			return "field type " + type.Name + " is not a parameter type (design 4.8)";
+		}
+
 		// Null when usable, else the reason.
 		public string Validate()
 		{
+			foreach (FieldInfo field in Fields())
+			{
+				object value = field.GetValue(this);
+				IEnumerable<object> numbers = value is float f ? new object[] { f } : value is double d ? new object[] { d }
+					: value is float[] fs ? fs.Cast<object>() : value is double[] ds ? ds.Cast<object>() : Enumerable.Empty<object>();
+				if (numbers.Any(x => x is float y ? float.IsNaN(y) || float.IsInfinity(y) : double.IsNaN((double)x) || double.IsInfinity((double)x)))
+					return "params." + field.Name + " must be finite";
+			}
 			if (SchemaVersion != 1) return "params.SchemaVersion " + SchemaVersion + " is not supported";
 			if (!Enum.IsDefined(typeof(DpsCacheProvenance), DpsCacheProvenance)) return "params.DpsCacheProvenance " + (int)DpsCacheProvenance + " is unknown";
 			if (!Enum.IsDefined(typeof(RollMode), RollMode)) return "params.RollMode " + (int)RollMode + " is unknown";

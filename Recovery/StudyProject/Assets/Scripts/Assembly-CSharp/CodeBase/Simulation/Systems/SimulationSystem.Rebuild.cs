@@ -139,7 +139,7 @@ namespace Codebase.Simulation.Systems
 			string error = SimulationRebuildParamsLoader.Load(job, out RebuildParams, out JObject report);
 			RebuildRandom = new SimulationRandom(RebuildParams.RollMode, RebuildParams.Seed);
 			bool digestText = job?.Outputs != null && job.Outputs.TryGetValue("digest_text", out bool on) && on;
-			SimulationTrace.Begin(report, RebuildRandom, digestText);
+			SimulationTrace.Begin(job, report, RebuildRandom, digestText);
 			if (error != null) RebuildFail(SimulationHarness.ExitBadRequest, error.StartsWith("params", StringComparison.Ordinal) ? error : "params: " + error);
 		}
 

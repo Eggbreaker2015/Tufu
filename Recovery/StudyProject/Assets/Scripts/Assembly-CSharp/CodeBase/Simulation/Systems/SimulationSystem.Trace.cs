@@ -35,10 +35,16 @@ namespace Codebase.Simulation.Systems
 			t.AddDigest(timeChunkIndex, t.DaySnapshotIndex, config.CurrentPlaytime, config.CurrentTotalPlaytime, RebuildDigestText());
 		}
 
+		// Before the day change clears spawnerChargesUsage: the closing day's charge usage goes into the next digest.
 		private void RebuildTraceDayEnd()
 		{
 			SimulationTrace t = SimulationTrace.Current;
-			if (t == null || t.DayIndex < 0) return;
+			if (t == null) return;
+			t.ClosedCharges.Clear();
+			foreach (var pair in spawnerChargesUsage)
+				if (pair.Value != 0) t.ClosedCharges[RebuildTraceId(pair.Key)] = pair.Value;
+			t.ClosedChargesDay = timeChunkIndex;
+			if (t.DayIndex < 0) return;
 			t.AddDay(RebuildTraceRow(t, true));
 		}
 
@@ -142,7 +148,7 @@ namespace Codebase.Simulation.Systems
 		// The day's state digest text (design 2.6), "key=value" lines sorted by ordinal: every stat's Value and
 		// TotalValue as the snapshot composes them plus the live value, health, items (Key, Level, Copies,
 		// Evolved), slots, locations and position, gates, P, T and the session clock, the K modifiers, the RPM
-		// and soul RPM dictionaries, charges used, non-zero cooldowns, pending and fast-accumulated rewards, souls
+		// and soul RPM dictionaries, charges used (the day so far, and the previous day's at its close), non-zero cooldowns, pending and fast-accumulated rewards, souls
 		// and currencies, the policy state, and the random streams. Floats and doubles as IEEE bits.
 		private string RebuildDigestText()
 		{
@@ -182,6 +188,12 @@ namespace Codebase.Simulation.Systems
 			foreach (var pair in SoulRPMCalculatedValue) Add("soul_rpm." + pair.Key, RebuildTraceBits(pair.Value));
 			foreach (var pair in spawnerChargesUsage)
 				if (pair.Value != 0) Add("charges." + RebuildTraceId(pair.Key), RebuildTraceText(pair.Value));
+			SimulationTrace trace = SimulationTrace.Current;
+			if (trace != null && trace.ClosedChargesDay >= 0)
+			{
+				Add("charges_closed.day", RebuildTraceText(trace.ClosedChargesDay));
+				foreach (var pair in trace.ClosedCharges) Add("charges_closed." + pair.Key, RebuildTraceText(pair.Value));
+			}
 			foreach (EnemySpawner spawner in enemiesModel.Spawners)
 				if (spawner.Cooldown != 0f) Add("cooldown." + RebuildTraceId(spawner), RebuildTraceBits(spawner.Cooldown));
 			foreach (var pair in RebuildPendingItemCopies) Add("pending_item." + pair.Key.Key, RebuildTraceText(pair.Value));

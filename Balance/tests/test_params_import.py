@@ -28,23 +28,44 @@ FAKE = textwrap.dedent('''\
     Path(arg("-logFile")).write_text("fake unity\\n")
     assert arg("-executeMethod") == paramsio.IMPORTER
     doc = json.loads(Path(arg("-tufuSimParams")).read_text())
-    mode = os.environ.get("FAKE_IMPORT_MODE", "ok")
-    report = {"schema": paramsio.IMPORT_REPORT_SCHEMA, "ok": False, "entered_play": mode == "refuse"}
+    modes = os.environ.get("FAKE_IMPORT_MODE", "ok").split("+")
+    report = {"schema": paramsio.IMPORT_REPORT_SCHEMA, "ok": False, "entered_play": "refuse" in modes or "played" in modes}
     code = 0
-    if mode == "refuse":
+    if "real_save" in modes:
+        Path(os.environ["FAKE_REAL_SAVE"]).write_text(f"rewritten by an editor {os.getpid()}")
+    if "refuse" in modes:
         report["error"] = "refused: this editor process has entered Play mode"
         code = 2
+    elif "reject" in modes:
+        report["error"] = "params: Could not find member 'Bogus'"
+        code = 5
     else:
         params = dict(doc["params"])
-        if mode == "wrong_value":
+        if "wrong_value" in modes:
             params["Seed"] += 1
         asset = project / paramsio.ASSET_REL
         asset.write_text(paramsio.asset_text(params), encoding="utf-8")
         h = doc["params_hash"]
+        loader = {"source": "asset", "asset_found": True, "error": None, "hash": h, "result_hash": h}
         report.update(ok=True, params_hash=h, request_hash=h, effective_hash=h, read_back_hash=h,
-                      file_sha256=paramsio.runner.sha256_file(asset))
-        if mode == "touch_other":
+                      file_sha256=paramsio.runner.sha256_file(asset), read_back_job=dict(loader),
+                      read_back_interactive=dict(loader))
+        if "touch_other" in modes:
             (project / "ProjectSettings" / "ProjectSettings.asset").write_text("changed")
+        if "new_file" in modes:
+            (project / "Assets" / "Simulation" / "Extra.asset").write_text("new")
+        if "bad_sha" in modes:
+            report["file_sha256"] = "0" * 64
+        if "loader_defaults" in modes:
+            report["read_back_job"]["result_hash"] = "1" * 64
+        if "interactive_defaults" in modes:
+            report["read_back_interactive"]["source"] = "code_defaults"
+        if "stage_asset" in modes:
+            import subprocess
+            subprocess.run(["git", "-C", str(project), "add", "--", str(asset)], check=True)
+        if "fail_after_write" in modes:
+            report.update(ok=False, error="read back: differs")
+            code = 1
     Path(arg("-tufuSimParamsReport")).write_text(json.dumps(report))
     sys.exit(code)
 ''')
@@ -83,6 +104,8 @@ def tree(tmp_path, monkeypatch):
     real = tmp_path / "real"
     (real / "save").mkdir(parents=True)
     (real / "save" / "game_data.bin").write_text("original")
+    monkeypatch.setenv("FAKE_REAL_SAVE", str(real / "save" / "game_data.bin"))
+    monkeypatch.setattr(launcher, "main_checkout_editors", lambda: set())
     return {"tree": tree, "project": project, "tmp": tmp_path,
             "paths": launcher.ProtectedPaths(save_dir=real / "save", plist=real / "fake.plist", domain=None),
             "opts": launcher.Options(unity=unity, worker_exit_wait_s=1, lock_wait_s=5)}
@@ -113,7 +136,17 @@ def test_import_writes_checks_copies_and_restores(tree, monkeypatch):
 @pytest.mark.parametrize("mode,code,problem", [
     ("refuse", 2, None),
     ("touch_other", 2, "project file changed on disk: ProjectSettings/ProjectSettings.asset"),
-    ("wrong_value", 1, "import checks failed"),
+    ("new_file", 2, "run worktree changed beyond the parameter asset: ?? Recovery/StudyProject/Assets/Simulation/Extra.asset"),
+    ("wrong_value", 1, "import checks failed: asset_values, asset_hash"),
+    ("bad_sha", 1, "import checks failed: asset_file_sha256"),
+    ("played", 1, "import checks failed: importer_report"),
+    ("loader_defaults", 1, "import checks failed: importer_read_back_job"),
+    ("interactive_defaults", 1, "import checks failed: importer_read_back_interactive"),
+    ("fail_after_write", 2, "the parameter asset changed although the import failed"),
+    ("stage_asset", 2, "run worktree changed beyond the parameter asset: M  Recovery/StudyProject/Assets/Simulation/"),
+    ("reject", 5, None),
+    ("real_save", 2, "real save file changed"),
+    ("real_save+played", 2, "real save file changed"),
 ])
 def test_import_failures(tree, monkeypatch, mode, code, problem):
     result = _import(tree, mode, monkeypatch)
@@ -135,3 +168,30 @@ def test_dest_inside_the_run_worktree_is_refused(tree, monkeypatch):
 def test_unknown_layer_field_is_refused_before_unity(tree, monkeypatch):
     with pytest.raises(P.ParamsError):
         _import(tree, "ok", monkeypatch, overrides={"Bogus": 1})
+
+
+def test_real_save_changes_while_the_users_editor_runs_are_attributed(tree, monkeypatch):
+    """The importer never enters Play, so a real save rewritten while an editor on the main checkout ran for the
+    whole import is that editor's (Runbook 13, 17); not when the importer says it played or failed."""
+    monkeypatch.setattr(launcher, "main_checkout_editors", lambda: {4242})
+    result = _import(tree, "ok+real_save", monkeypatch)
+    assert result.exit_code == 0, result.report
+    assert result.report["real_changed_by_main_editor"] and result.report["main_checkout_editors"] == [4242]
+    assert result.dest is not None and result.report["guard_problems"] == []
+    for mode in ("real_save+played", "real_save+fail_after_write", "real_save+reject"):
+        result = _import(tree, mode, monkeypatch)
+        assert result.exit_code == 2 and any(p.startswith("real save") for p in result.report["guard_problems"]), mode
+        assert result.dest is None and "real_changed_by_main_editor" not in result.report
+
+
+def test_non_float32_values_are_refused_before_unity(tree, monkeypatch):
+    with pytest.raises(paramsio.ParamsIoError, match="FastAfkStepMinutes"):
+        _import(tree, "ok", monkeypatch, overrides={"FastAfkStepMinutes": 120.00000001})
+    assert not (tree["tmp"] / "out").exists()
+    result = paramsio.import_params([], {"FastAfkStepMinutes": 120.00000001}, rev="HEAD", dest=tree["tmp"] / "dest" / "p.asset",
+                                    opts=tree["opts"], worktree=tree["tree"], run_tree=tree["tree"], paths=tree["paths"],
+                                    out_root=tree["tmp"] / "out", timeout_s=60, float32=True, log=lambda *_: None)
+    assert result.exit_code == 0, result.report
+    assert paramsio.read_asset(result.dest)["FastAfkStepMinutes"] == 120.0
+    rounded = paramsio.round_float32(paramsio.resolve_layers([], {"FastAfkStepMinutes": 120.00000001}))
+    assert result.report["params_hash"] == rounded.params_hash == P.resolve(["defaults"]).params_hash

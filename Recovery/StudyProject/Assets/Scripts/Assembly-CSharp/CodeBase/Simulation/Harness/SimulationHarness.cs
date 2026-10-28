@@ -164,7 +164,8 @@ namespace Codebase.Simulation.Harness
 
 		partial void RebuildJobExportBake(SimulationRunRequest.Job current, string jobDir, JObject jobManifest);
 
-		// After C1's outputs: C3c's daily records, events, digests and manifest "params"/"trace" (SimulationTrace.cs).
+		// After C1's outputs: C3c's daily records, events, digests and manifest "params"/"trace" (SimulationTrace.cs);
+		// for a failed job (jobDir null) manifest "params" only.
 		partial void RebuildJobExportTrace(SimulationRunRequest.Job current, string jobDir, JObject jobManifest);
 
 		// After the stop, before the export hooks: C2's Play-mode differential probes (job.probes).
@@ -776,6 +777,7 @@ namespace Codebase.Simulation.Harness
 				{
 					string dir = request.JobDir(job);
 					Directory.CreateDirectory(dir);
+					if (code != ExitOk) RebuildJobExportTrace(job, null, manifest);
 					if (readyRows.Count > 0) SimulationJson.WriteText(Path.Combine(dir, "ready_spawners.csv"), readyRows[0]);
 					SimulationJson.WriteText(Path.Combine(dir, "manifest.json"), manifest.ToString(Newtonsoft.Json.Formatting.Indented).Replace("\r\n", "\n") + "\n");
 					SimulationJson.WriteText(Path.Combine(dir, "timings.json"), timings.ToString(Newtonsoft.Json.Formatting.Indented).Replace("\r\n", "\n") + "\n");

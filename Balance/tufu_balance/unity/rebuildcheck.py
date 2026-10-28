@@ -22,11 +22,12 @@ REBUILD = cscheck.WORKTREE / "Recovery" / "StudyProject" / "Assets" / "Scripts" 
 
 
 def available() -> bool:
+    """The .NET SDK is installed and the tool's project is present (tests skip otherwise)."""
     try:
         cscheck.dotnet()
     except cscheck.CsCheckError:
         return False
-    return True
+    return all(p.exists() for p in sources())
 
 
 def sources() -> list[Path]:

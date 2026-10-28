@@ -9,7 +9,7 @@ build|import``.
 * Manifest ``params`` (``tufu.sim.params/1``): ``source`` (request, code_defaults, asset), ``interactive``,
   ``complete``/``missing`` (fields a partial request left at the code defaults), ``request_hash``,
   ``request_hash_given``, ``hash``, ``matches_request``, ``roll_mode``, ``seed``, ``asset_path``,
-  ``asset_guid``, ``asset_found``, ``error``.
+  ``asset_guid``, ``asset_found``, ``error``. A failed job carries it too when the loader ran.
 * Asset: ``Recovery/StudyProject/Assets/Simulation/Simulation Rebuild Params.asset`` (:func:`read_asset`,
   :func:`asset_text`). Only :func:`import_params` changes it: a fresh batch editor runs
   ``SimulationParamsImporter.Import`` in the run worktree, the launcher accepts exactly that one file changing,
@@ -78,6 +78,19 @@ def effective(params: Mapping[str, Any], cs: cparams.CsParams | None = None) -> 
 
 def effective_hash(params: Mapping[str, Any], cs: cparams.CsParams | None = None) -> str:
     return cparams.params_hash(effective(params, cs))
+
+
+def not_float32(params: Mapping[str, Any], cs: cparams.CsParams | None = None) -> list[str]:
+    """Fields holding a float that C# would change on load (not the shortest text of a float32 value)."""
+    held = effective(params, cs)
+    return [k for k in sorted(params) if json.dumps(held[k]) != json.dumps(params[k])]
+
+
+def round_float32(resolved: cparams.Resolved, cs: cparams.CsParams | None = None) -> cparams.Resolved:
+    """``resolved`` with every float field rounded to its float32 value, and its ``params_hash`` recomputed
+    (``params build|import --float32``; for fitted doubles, design 4.8)."""
+    params = effective(resolved.params, cs)
+    return dataclasses.replace(resolved, params=params, params_hash=cparams.params_hash(params))
 
 
 def job(job_id: str, *, params: Mapping[str, Any] | None = None, source: str | None = None, **kw) -> dict:
@@ -218,16 +231,23 @@ def import_params(layers: Sequence[str | Path | Mapping[str, Any]] = (), overrid
                   rev: str | None = None, dest: str | Path | None = None, opts: launcher.Options | None = None,
                   worktree: Path | None = None, run_tree: Path | None = None, paths: launcher.ProtectedPaths | None = None,
                   out_root: Path | None = None, timeout_s: float = 900.0, cs: cparams.CsParams | None = None,
-                  log=print) -> ImportResult:
+                  float32: bool = False, log=print) -> ImportResult:
     """Write the resolved parameters into the parameter asset through ``SimulationParamsImporter`` in a fresh
     batch editor on the run worktree at ``rev`` (default: this worktree's HEAD), then copy the asset to
     ``dest`` (default: this worktree's asset) and restore the run worktree. Exit codes as the launcher's; the
-    only project file allowed to change is the asset."""
+    only project file allowed to change is the asset. The asset holds float32 values: a float field that is
+    not one is an error before Unity starts (the importer would refuse it), unless ``float32`` rounds it."""
     opts = opts or launcher.Options()
     worktree = Path(worktree or runner.WORKTREE)
     run_tree = Path(run_tree or runner.run_worktree())
     cs = _csharp(cs)
     resolved = resolve_layers(layers, overrides)
+    if float32:
+        resolved = round_float32(resolved, cs)
+    odd = not_float32(resolved.params, cs)
+    if odd:
+        raise ParamsIoError(f"float fields not exactly float32 values: {', '.join(odd)} (the asset stores float32; "
+                            "round them in the layer or pass --float32)")
     project = runner.project_dir(run_tree)
     launcher._refuse_main(project, opts)
     if not (project / "Library").is_dir():
@@ -326,7 +346,7 @@ def _import(resolved, out_dir: Path, *, project: Path, run_tree: Path, code_rev:
     elif asset_changed:
         problems.append("the parameter asset changed although the import failed")
     if any(path == asset_git for _, path in _status_entries(run_tree)):
-        runner.git(run_tree, "checkout", "--quiet", "--", asset_git)
+        runner.git(run_tree, "checkout", "--quiet", "HEAD", "--", asset_git)  # index too, should it be staged
     report["restored_run_worktree_asset"] = runner.sha256_file(asset) == report["asset_sha256_before"]
 
     # Real save/PlayerPrefs: the importer never enters Play (its report says so), so a change made while the
@@ -371,6 +391,13 @@ def _verify_import(resolved, asset: Path, imported: Mapping | None, cs) -> dict[
     imported = imported or {}
     for key in ("params_hash", "request_hash", "effective_hash", "read_back_hash"):
         checks[f"importer_{key}"] = imported.get(key) == resolved.params_hash
+    # The run loader (SimulationRebuildParamsLoader.Load) on the written asset: a params_source "asset" job and
+    # the interactive branch.
+    for key in ("read_back_job", "read_back_interactive"):
+        loader = imported.get(key) or {}
+        checks[f"importer_{key}"] = (loader.get("source") == "asset" and loader.get("asset_found") is True
+                                     and loader.get("error") is None and loader.get("hash") == resolved.params_hash
+                                     and loader.get("result_hash") == resolved.params_hash)
     try:
         values = read_asset(asset, cs)
         checks["asset_values"] = values == effective(resolved.params, cs)

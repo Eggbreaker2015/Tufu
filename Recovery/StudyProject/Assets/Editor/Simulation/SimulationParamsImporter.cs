@@ -158,6 +158,20 @@ namespace Codebase.Simulation.EditorTools
 				report["error"] = "read back " + loaded.EffectiveCanonicalJson() + " differs from the input";
 				return SimulationBatch.ExitException;
 			}
+			// And through the run loader on the new (non-default) values: a batch job with params_source "asset",
+			// and the interactive branch (no job).
+			foreach (var (key, job) in new[] { ("read_back_job", new SimulationRunRequest.Job { JobId = "params-import", ParamsSource = SimulationRebuildParamsLoader.SourceAsset }),
+			                                   ("read_back_interactive", (SimulationRunRequest.Job)null) })
+			{
+				string loadError = SimulationRebuildParamsLoader.Load(job, out SimulationRebuildParams viaLoader, out JObject loaderReport);
+				loaderReport["result_hash"] = viaLoader.EffectiveHash();
+				report[key] = loaderReport;
+				if (loadError != null || (string)loaderReport["source"] != SimulationRebuildParamsLoader.SourceAsset || viaLoader.EffectiveHash() != requestHash)
+				{
+					report["error"] = key + ": " + (loadError ?? "source " + loaderReport["source"] + ", values " + viaLoader.EffectiveCanonicalJson());
+					return SimulationBatch.ExitException;
+				}
+			}
 			report["ok"] = true;
 			return SimulationBatch.ExitOk;
 		}
