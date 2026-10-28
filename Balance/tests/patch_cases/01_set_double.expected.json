@@ -1,0 +1,8 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.CopyValueTargetShare", "row": {}, "index": null, "old": 0.5, "new": 0.6}
+  ],
+  "ops": [{"source": "override", "node": "CombatBalanceConfig.CopyValueTargetShare", "rows": 1, "leaves": 1}],
+  "warnings": ["out_of_range"],
+  "passthrough": []
+}

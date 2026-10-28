@@ -1,0 +1,12 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.IslandTargetDays", "row": {}, "index": 9, "old": 44.0, "new": 46.0},
+    {"node": "CombatBalanceConfig.IslandTargetDays", "row": {}, "index": 10, "old": 56.0, "new": 57.0}
+  ],
+  "ops": [
+    {"source": "base:add_array_element", "node": "CombatBalanceConfig.IslandTargetDays", "rows": 1, "leaves": 1},
+    {"source": "override", "node": "CombatBalanceConfig.IslandTargetDays", "rows": 1, "leaves": 1}
+  ],
+  "warnings": [],
+  "passthrough": []
+}

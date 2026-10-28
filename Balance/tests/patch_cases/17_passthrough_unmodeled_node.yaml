@@ -1,0 +1,6 @@
+name: passthrough_unmodeled_node
+description: a dictionary node the Python model does not hold goes to C# only, with a warning
+overrides:
+  - node: EnemySpawnerConfig.AggroRange
+    where: {go_name: Spawner_elite_HP}
+    set: 5

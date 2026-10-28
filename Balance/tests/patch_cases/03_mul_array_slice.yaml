@@ -1,0 +1,6 @@
+name: mul_array_slice
+description: half-open slice "0:3" of a float array, mul (binary32 result)
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: "0:3"
+    mul: 2

@@ -1,0 +1,254 @@
+{
+ "leaves": [
+  {
+   "node": "CombatBalanceConfig.IslandTargetDays",
+   "row": {},
+   "index": 0,
+   "old": 0.5,
+   "new": 0.75
+  },
+  {
+   "node": "SpawnerRelativeOptimumTimeTool.Islands[].MaxOptimumTime",
+   "row": {
+    "idx": 0
+   },
+   "index": null,
+   "old": 30.0,
+   "new": 45.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 55401
+   },
+   "index": null,
+   "old": 2.0,
+   "new": 3.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 55555
+   },
+   "index": null,
+   "old": 20.0,
+   "new": 30.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 55840
+   },
+   "index": null,
+   "old": 5.0,
+   "new": 8.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56070
+   },
+   "index": null,
+   "old": 10.0,
+   "new": 15.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56210
+   },
+   "index": null,
+   "old": 7.0,
+   "new": 10.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56642
+   },
+   "index": null,
+   "old": 7.0,
+   "new": 10.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 56778
+   },
+   "index": null,
+   "old": 15.0,
+   "new": 22.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57043
+   },
+   "index": null,
+   "old": 10.0,
+   "new": 15.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57046
+   },
+   "index": null,
+   "old": 7.0,
+   "new": 10.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57288
+   },
+   "index": null,
+   "old": 10.0,
+   "new": 15.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57417
+   },
+   "index": null,
+   "old": 20.0,
+   "new": 30.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57553
+   },
+   "index": null,
+   "old": 10.0,
+   "new": 15.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 57810
+   },
+   "index": null,
+   "old": 2.0,
+   "new": 3.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58341
+   },
+   "index": null,
+   "old": 4.0,
+   "new": 6.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58343
+   },
+   "index": null,
+   "old": 5.0,
+   "new": 8.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 58987
+   },
+   "index": null,
+   "old": 5.0,
+   "new": 8.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59372
+   },
+   "index": null,
+   "old": 8.0,
+   "new": 12.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 59647
+   },
+   "index": null,
+   "old": 30.0,
+   "new": 45.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 60635
+   },
+   "index": null,
+   "old": 16.0,
+   "new": 24.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 60674
+   },
+   "index": null,
+   "old": 10.0,
+   "new": 15.0
+  },
+  {
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "row": {
+    "scene": "Scenes/Main.unity",
+    "file_id": 60749
+   },
+   "index": null,
+   "old": 15.0,
+   "new": 22.0
+  }
+ ],
+ "ops": [
+  {
+   "source": "override",
+   "node": "CombatBalanceConfig.IslandTargetDays",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.optimum_time_from_relative",
+   "node": "SpawnerRelativeOptimumTimeTool.Islands[].MaxOptimumTime",
+   "rows": 1,
+   "leaves": 1
+  },
+  {
+   "source": "regenerate.optimum_time_from_relative",
+   "node": "EnemySpawnerConfig.OptimumTime",
+   "rows": 21,
+   "leaves": 21
+  }
+ ],
+ "warnings": [
+  "exception_kept"
+ ],
+ "passthrough": []
+}

@@ -1,0 +1,5 @@
+name: set_whole_int_array
+description: set a whole List<int> (hex-encoded) to a shorter list; the dropped element has new = null
+overrides:
+  - node: AmuletConfig.LevelTargetDays
+    set: [21, 26, 34, 56, 90, 130]

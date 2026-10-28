@@ -1,0 +1,6 @@
+{
+  "leaves": [],
+  "ops": [],
+  "warnings": ["not_python_patchable"],
+  "passthrough": ["EnemySpawnerConfig.AggroRange"]
+}

@@ -1,0 +1,7 @@
+name: base_stacking
+description: base patches apply first (their ops are tagged base:<name>)
+base: 02_add_array_element.yaml
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 10
+    add: 1

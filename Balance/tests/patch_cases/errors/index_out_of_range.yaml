@@ -1,0 +1,3 @@
+name: index_out_of_range
+overrides:
+  - {node: CombatBalanceConfig.IslandTargetDays, index: 99, add: 1}

@@ -1,0 +1,6 @@
+name: stat_field
+description: a spawner stat (EnemySpawnerConfig.Stats[Health]) doubled for the elite of island 1
+overrides:
+  - node: EnemySpawnerConfig.Stats[Health]
+    where: {LocationNumber: 1, IsEliteBoss: true}
+    mul: 2

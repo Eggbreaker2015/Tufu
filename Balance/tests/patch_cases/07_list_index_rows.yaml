@@ -1,0 +1,6 @@
+name: list_index_rows
+description: index on a scalar field of a list table selects list positions
+overrides:
+  - node: CombatBalanceConfig.EvolutionIslandFillRuleRows[].StartValue
+    index: "0:2"
+    add: 0.5

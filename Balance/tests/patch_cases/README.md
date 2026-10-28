@@ -1,0 +1,50 @@
+# 补丁语义用例
+
+Python（`tufu_balance.model.patch`，P9）与 C#（`SimulationConfigPatcher`，C9）共用的补丁用例。补丁格式见[阶段 5 设计](../../../Docs/Balance/Simulator/Design.md) 6.1 节，本文写明两侧都要遵守的细节。
+
+## 文件
+
+| 文件 | 内容 |
+|---|---|
+| `NN_<名字>.yaml` | 一份补丁，作用在随包配置上 |
+| `NN_<名字>.expected.json` | 期望的叶子级 `PatchReport`：`leaves`（净变化）、`ops`（每条覆盖或生成步骤命中的行数与叶子数）、`warnings`（警告代码）、`passthrough`（只交给 C# 的节点）|
+| `errors/<名字>.yaml` + `.expected.json` | 必须报错的补丁，期望里只有错误代码 `{"error": "<code>"}` |
+
+期望值都由独立的查询和算术得出（SQL 读库、numpy 的 float32），不是把 `patch.py` 的输出抄进来。`16_regenerate_island17` 与 `19_regenerate_exception_kept` 的期望由一个只调用 `model.timeline` 规则和 SQL 的脚本生成。
+
+## 叶子
+
+一个叶子是 `(node, row, index)`：
+
+- `node`：`data_dictionary` 的节点名，例如 `CombatBalanceConfig.IslandTargetDays`、`EnemySpawnerConfig.Stats[Health]`；
+- `row`：行标识。单个资产（`CombatBalanceConfig`、`AmuletConfig`、`SimulationConfig`）是 `{}`；列表元素是 `{"idx": 列表下标}`；刷怪点是 `{"scene", "file_id"}`（C# 侧经 C1 的身份映射换成层级路径 + Key）；按资产区分的配置是 `{"asset": "MonoBehaviour/xxx.asset"}`，护甲表再加 `idx`；
+- `index`：数组字段的元素下标，标量字段为 `null`。
+
+`old`/`new` 是字段的 C# 类型下的值：`float` 写成 float32 扩成 double 后的数，`double` 原样，`int`/枚举写整数，`bool` 写 true/false，字符串与资产引用写字符串或 null。数组变短或变长时，多出或缺少的元素一侧为 null。`leaves` 只列出净变化（补丁前与补丁后不同的叶子）；`ops` 的叶子数包括被选中但值没变的叶子。
+
+## 语义
+
+- 覆盖按顺序执行，每条作用在前一条的结果上；`base` 补丁的覆盖排在最前面（来源记为 `base:<名字>`）。
+- 选行：单个资产不用选择器。其它表必须给 `where`（字段等值；枚举也可写成员名，bool 可写 0/1；`where: {}` 表示全部行），列表表也可用 `index` 选列表下标。命中 0 行是错误。
+- 数组字段：`index` 选元素（整数或 `"a:b"`，左闭右开，`"a:"` 到末尾）；不给 `index` 时 `add`/`mul` 作用于每个元素，`set` 需要一个列表并整体替换（长度可以变）。
+- 算术一律先用 double 计算，再存成字段类型：`float` 字段 `(float)((double)old + arg)`、`(float)((double)old * arg)`；`double` 字段直接用 double；`int` 字段只接受整数结果（否则报 `bad_type`）。`set` 把值换成字段类型。`bool`、字符串、资产引用和枚举只能 `set`；资产引用必须指向存在的资产。
+- AB 的 `overridesByLocation`：`keyData`/`valueData` 是两个数组字段。删掉某个键（两个数组同时去掉该元素）后，游戏里该岛回落到 C# 字段初始化器里的类覆盖值，不是 `defaultValue`（Newtonsoft 把资产合并到类默认字典上，见 `model/ab.py`），用例 12、13。
+- 节点在 `data_dictionary` 里、但 Python 模型不持有的，原样交给 C#，并给出 `not_python_patchable` 警告（列出读取它的公式）。
+
+## 生成步骤
+
+`regenerate` 打开的步骤（岛表尾部、rel→OT 与相对窗口、进化岛位与进化时间点、插值节点、进化表）由 Python 按阶段 3/4 的规则重算，结果展开成显式的 `set`，附在 `PatchReport.expanded` 里发给 C#；C# 不实现生成规则。
+
+- 在基线配置里本来就不符合规则的叶子（例外，例如 G03 的 16 个 OT 例外）保留原值；规则给出的新值变了时警告 `exception_kept`。
+- 本补丁直接改过的叶子也保留，规则给出不同的值时警告 `override_kept`（用例 16）。
+- `evolution_tables: replay_stored_inputs | fitted_h` 整表替换生成行的 Value、CopyValue、ReferenceStatPercent。`SyncShieldValuesByLeader` 打开时，`fitted_h` 按类型分别生成护甲，三种类型不再相同：`evolution_armor_sync: report`（默认）给出 `armor_sync_broken` 警告并列出不一致的 (稀有度, 等级)；写成 `Stabbing`/`Cutting`/`Buckshot` 时以该类型为准同步 Value 与 CopyValue。
+
+## 错误代码与警告代码
+
+错误：`unknown_node`、`bad_patch`、`bad_op`、`bad_type`、`bad_index`、`bad_where`、`bad_selector`、`no_match`、`missing_value`、`bad_ref`。
+
+警告：`out_of_range`（新值超出字典的 min/max）、`not_python_patchable`、`not_modeled_static`（Python 持有但 `derive_static` 不读的字段，只有 C# 模拟会反应）、`exception_kept`、`override_kept`、`armor_sync_broken`、`no_window`。
+
+## C9 的核对方式
+
+对每个用例，C# 应用 `PatchReport.expanded`（不跑生成步骤），写出的 `applied_patch.json` 与 `leaves` 逐叶子相同。`tests/test_config_patch.py::test_expanded_patch_reproduces_the_leaves` 在 Python 一侧做同样的检查。
