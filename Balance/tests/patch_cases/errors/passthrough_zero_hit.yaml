@@ -1,0 +1,6 @@
+name: passthrough_zero_hit
+description: a passthrough node's where is resolved on its source table; no matching row is an error
+overrides:
+  - node: EnemySpawnerConfig.AggroRange
+    where: {go_name: NO_SUCH_SPAWNER}
+    set: 5

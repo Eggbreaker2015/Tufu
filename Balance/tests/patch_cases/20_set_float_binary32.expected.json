@@ -1,0 +1,14 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.EvolutionIslandFillRuleRows[].StartValue", "row": {"idx": 0}, "index": null, "old": 7.5, "new": 7.300000190734863},
+    {"node": "CombatBalanceConfig.IslandTargetDays", "row": {}, "index": 0, "old": 0.5, "new": 0.10000000149011612}
+  ],
+  "ops": [
+    {"source": "override", "node": "CombatBalanceConfig.IslandTargetDays", "rows": 1, "leaves": 1,
+     "values": [{"row": {}, "index": 0, "old": 0.5, "new": 0.10000000149011612}]},
+    {"source": "override", "node": "CombatBalanceConfig.EvolutionIslandFillRuleRows[].StartValue", "rows": 1, "leaves": 1,
+     "values": [{"row": {"idx": 0}, "index": null, "old": 7.5, "new": 7.300000190734863}]}
+  ],
+  "warnings": ["out_of_range"],
+  "passthrough": []
+}

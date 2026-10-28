@@ -29,6 +29,10 @@ model function (:mod:`.timeline`, :mod:`.evolution_gen`, :mod:`.items`, :mod:`.s
 Exceptions keep their stored values in the config (6.3); here they are flagged (``exception``) against
 the base config given as ``exceptions_from`` (default: the config itself).
 
+A patched config can leave a rule without a value (an island timing past the last island, a whole-array
+``IslandTargetDays`` that is too short): that row's derived cells are None and a ``derive_error`` warning
+lists them; a section that cannot be derived at all leaves its tables empty.
+
 ``evolution_tables`` picks the generator for the ``evolution_values`` table (``frozen`` = the stored rows);
 the G07 counts always come from ``replay_stored_inputs``. With ``SyncShieldValuesByLeader`` on, a
 regenerating mode either reports the armor cells that differ across types (``armor_sync="report"``,
@@ -70,6 +74,17 @@ class StaticResult:
 
 def _sid(scene, file_id) -> str:
     return f"{scene}:{file_id}"
+
+
+class _Errors(list):
+    """Rows (or whole sections) whose rule raised on this config (see module doc)."""
+
+    def call(self, table: str, key, fn, *args):
+        try:
+            return fn(*args)
+        except ValueError as e:
+            self.append({"table": table, "key": key, "error": str(e)})
+            return None
 
 
 def _f(x) -> float | None:
@@ -116,17 +131,18 @@ evolution_config = P.evolution_config
 # Tables
 
 
-def _timeline_tables(cfg: C.GameConfig, base: C.GameConfig, out: dict, checks: dict) -> None:
+def _timeline_tables(cfg: C.GameConfig, base: C.GameConfig, out: dict, checks: dict, err: _Errors) -> None:
     itd = list(cfg.value(ITD))
     gated = [s for s in spawner_defs(cfg) if s.gate_next_locations]
     rows = {s.spawner_id: r for s, r in zip(spawner_defs(cfg), spawner_rows(cfg))}
-    from_gates = TL.island_target_days_from_gates(
-        (s.location, rows[s.spawner_id]["OptimumTime"], s.is_days) for s in gated)
-    regenerated = TL.generate_island_target_days(itd[:TL.TAIL_FIRST_ISLAND - 1], len(itd))
+    from_gates = err.call("island_target_days", "from_gates", TL.island_target_days_from_gates,
+                          [(s.location, rows[s.spawner_id]["OptimumTime"], s.is_days) for s in gated]) or {}
+    regenerated = err.call("island_target_days", "regenerated", TL.generate_island_target_days,
+                           itd[:TL.TAIL_FIRST_ISLAND - 1], len(itd))
     out["island_target_days"] = [{
         "island": i, "stored": itd[i - 1],
         "closed_form": float(TL.island_target_days_closed_form(i)) if i >= TL.TAIL_FIRST_ISLAND else None,
-        "regenerated": float(regenerated[i - 1]), "from_gates": _f(from_gates.get(i)),
+        "regenerated": _f(regenerated[i - 1]) if regenerated else None, "from_gates": _f(from_gates.get(i)),
         "start_day": float(TL.island_start_day(itd, i))} for i in range(1, len(itd) + 1)]
     t = out["island_target_days"]
     checks["G01.tail_f32_exact"] = sum(r["closed_form"] == r["stored"] for r in t if r["closed_form"] is not None)
@@ -141,10 +157,10 @@ def _timeline_tables(cfg: C.GameConfig, base: C.GameConfig, out: dict, checks: d
     rw = []
     for r in tool_rows:
         L = int(r["LocationNumber"])
-        lo, hi, days = TL.relative_window(itd, L)
+        lo, hi, days = err.call("relative_windows", L, TL.relative_window, itd, L) or (None, None, None)
         windows[L] = (f_min.decode(r), f_max.decode(r))
-        rw.append({"island": L, "min": float(lo), "max": float(hi), "is_days": bool(days), "tool_min": f_min.decode(r),
-                   "tool_max": f_max.decode(r), "tool_is_days": f_days.decode(r)})
+        rw.append({"island": L, "min": _f(lo), "max": _f(hi), "is_days": None if days is None else bool(days),
+                   "tool_min": f_min.decode(r), "tool_max": f_max.decode(r), "tool_is_days": f_days.decode(r)})
     out["relative_windows"] = sorted(rw, key=lambda r: r["island"])
     checks["G03.window_from_itd_eq_tool"] = sum(
         (r["min"], r["max"], r["is_days"]) == (r["tool_min"], r["tool_max"], r["tool_is_days"]) for r in rw)
@@ -169,8 +185,9 @@ def _timeline_tables(cfg: C.GameConfig, base: C.GameConfig, out: dict, checks: d
             ei.append({"rarity": int(r["Rarity"]), "name": str(r["Name"]), "k": k, "stored": a, "fill_rule": b})
         array = P._target_array(r)
         stored_days = C.FIELDS[f"CombatBalanceConfig.{array}"].decode(cbc)
-        days = [float(x) for x in TL.evolution_target_timings(stored, itd)]
         kind = "armor" if "Armor" in array else "weapon"
+        days = err.call("evolution_target_days", [kind, int(r["Rarity"])], TL.evolution_target_timings, stored, itd)
+        days = [float(x) for x in days] if days is not None else [None] * len(stored_days)
         for k, (a, b) in enumerate(zip(stored_days, days), start=1):
             et.append({"kind": kind, "rarity": int(r["Rarity"]), "k": k, "array": array, "stored": a, "derived": b})
     out["evolution_islands"] = sorted(ei, key=lambda r: (r["rarity"], r["name"], r["k"]))
@@ -182,24 +199,29 @@ def _timeline_tables(cfg: C.GameConfig, base: C.GameConfig, out: dict, checks: d
     knots = close = exact = text_ok = 0
     for r in cfg.tables[f"{C.CBC}__Interpolations.Interpolations"].rows:
         islands = P._island_points(r["IslandPoints"])
+        idx = int(r["Interpolations.Interpolations#idx"])
         derived = None
-        if islands is not None:
-            points = TL.interpolation_timing_points(islands, itd)
+        points = (err.call("interpolation_points", idx, TL.interpolation_timing_points, islands, itd)
+                  if islands is not None else None)
+        if points is not None:
             derived = TL.format_points(points)
             stored = [float(x) for x in str(r["TimingPoints"]).split(";")]
-            for got, s in zip(points, stored, strict=True):
+            if len(stored) != len(points):
+                err.append({"table": "interpolation_points", "key": idx, "error": f"{len(stored)} TimingPoints "
+                            f"for {len(points)} IslandPoints"})
+            for got, s in zip(points, stored):
                 knots += 1
                 close += abs(float(got) - float(f32(s))) <= 5e-5
                 exact += got == f32(s)
             text_ok += derived == r["TimingPoints"]
-        ip.append({"idx": int(r["Interpolations.Interpolations#idx"]), "name": r["Name"], "type": int(r["Type"]),
+        ip.append({"idx": idx, "name": r["Name"], "type": int(r["Type"]),
                    "stored": r["TimingPoints"], "derived": derived})
     out["interpolation_points"] = ip
     checks.update({"G05.knots": knots, "G05.knots_le_5e-5": close, "G05.knots_f32_exact": exact,
                    "G05.curves_text_exact": text_ok})
 
     level_days = C.FIELDS["AmuletConfig.LevelTargetDays"].decode(cfg.tables["c_AmuletConfig"].rows[0])
-    derived = [float(x) for x in TL.amulet_level_target_days(itd)]
+    derived = [float(x) for x in err.call("amulet_level_days", None, TL.amulet_level_target_days, itd) or []]
     out["amulet_level_days"] = [{"level": k, "island": TL.AMULET_TARGET_ISLANDS[k - 1] if k <= len(derived) else None,
                                  "stored": a, "derived": derived[k - 1] if k <= len(derived) else None}
                                 for k, a in enumerate(level_days, start=1)]
@@ -323,7 +345,7 @@ def _bake(cfg: C.GameConfig, out: dict, checks: dict, warnings: list, rounding) 
                "stored_damage": sp.damage_base}
         try:
             rep = B.bake_spawner(ctx, sp)
-        except B.BakeError as e:
+        except ValueError as e:  # BakeError, or a rule that has no value on this config
             errors.append(row["spawner"])
             row.update({"error": str(e)})
             table.append(row)
@@ -396,12 +418,22 @@ def derive_static(cfg: C.GameConfig, *, evolution_tables: str = "frozen", armor_
     tables: dict = {}
     checks: dict = {}
     warnings: list = []
-    _timeline_tables(cfg, exceptions_from or cfg, tables, checks)
-    _evolution_tables(cfg, tables, checks, warnings, evolution_tables, armor_sync)
-    _composition(cfg, tables, checks, rounding)
-    _bake(cfg, tables, checks, warnings, rounding)
-    _spawners(cfg, tables, checks, variant)
-    _items(cfg, tables, checks)
+    err = _Errors()
+    sections = (
+        ("timeline", lambda: _timeline_tables(cfg, exceptions_from or cfg, tables, checks, err)),
+        ("evolution_values", lambda: _evolution_tables(cfg, tables, checks, warnings, evolution_tables, armor_sync)),
+        ("snapshot_composition", lambda: _composition(cfg, tables, checks, rounding)),
+        ("bake", lambda: _bake(cfg, tables, checks, warnings, rounding)),
+        ("spawners", lambda: _spawners(cfg, tables, checks, variant)),
+        ("item_evolve_jumps", lambda: _items(cfg, tables, checks)),
+    )
+    for name, run_section in sections:
+        err.call(name, None, run_section)
+    for name in KEYS:
+        tables.setdefault(name, [])
+    if err:
+        warnings.append({"code": "derive_error", "message": f"{len(err)} rule(s) have no value on this config "
+                         "(cells None; a failed section leaves its tables empty)", "errors": list(err)})
     return StaticResult(tables, dict(KEYS), {k: _plain(v) for k, v in checks.items()}, warnings)
 
 
@@ -444,6 +476,13 @@ def diff_static(base: StaticResult, patched: StaticResult) -> dict[str, list[dic
     return out
 
 
+def diff_checks(base: StaticResult, patched: StaticResult) -> dict[str, dict]:
+    """Checks whose value differs: ``{name: {base, patched}}`` (absent on one side: None)."""
+    return {k: {"base": base.checks.get(k), "patched": patched.checks.get(k)}
+            for k in sorted(set(base.checks) | set(patched.checks))
+            if base.checks.get(k) != patched.checks.get(k)}
+
+
 @dataclass
 class PipelineResult:
     config: C.GameConfig
@@ -452,34 +491,61 @@ class PipelineResult:
     patched: StaticResult
     diff: dict[str, list[dict]]
     warnings: list[dict]
+    checks_diff: dict[str, dict] = field(default_factory=dict)
 
 
-def _bake_inputs_changed(report: P.PatchReport) -> dict[str, set[str]]:
+BAKE_OUTPUTS = ("recalc_optimum_time", "day", "new_health", "new_damage", "error")
+
+
+def exception_spawners(base: StaticResult) -> dict[str, set[str]]:
+    """The exception points of design 6.3 step 2 in a base result: OT exceptions (G03), HandBalance spawners
+    and bake exceptions (minute spawners whose stored Health/Damage differ from the recomputed bake, G13)."""
+    bake = base.tables["bake"]
+    return {
+        "ot_exception": {r["spawner"] for r in base.tables["optimum_time"] if r["exception"]},
+        "hand_balance": {r["spawner"] for r in bake if r["hand_balance"]},
+        "bake_exception": {r["spawner"] for r in bake if not r["is_days"] and not r["hand_balance"]
+                           and r["error"] is None
+                           and (r["stored_health"], r["stored_damage"]) != (r["new_health"], r["new_damage"])},
+    }
+
+
+def _exception_inputs_changed(report: P.PatchReport, diff: Mapping[str, list[dict]]) -> dict[str, set[str]]:
+    """Per spawner: its patched leaves and the recomputed cells (OT rule, bake outputs) that moved."""
     by_spawner: dict[str, set[str]] = {}
     for leaf in report.leaves:
-        if leaf.node.startswith("EnemySpawnerConfig."):
+        if leaf.node.startswith("EnemySpawnerConfig.") and C.FIELDS[leaf.node].modeled is True:
             by_spawner.setdefault(_sid(leaf.row["scene"], leaf.row["file_id"]), set()).add(leaf.node)
+    for table, fields in (("optimum_time", ("rule",)), ("bake", BAKE_OUTPUTS)):
+        for c in diff.get(table, []):
+            if c["field"] in fields:
+                by_spawner.setdefault(c["key"][0], set()).add(f"{table}.{c['field']}")
     return by_spawner
 
 
 def run(base_cfg: C.GameConfig, patch: P.Patch, **options: Any) -> PipelineResult:
-    """Design 6.3 steps 1-2: patch the config, ``derive_static`` on both sides, diff the tables.
+    """Design 6.3 steps 1-2: patch the config, ``derive_static`` on both sides, diff the tables and checks.
 
-    ``options`` go to :func:`derive_static`; ``evolution_tables``/``evolution_armor_sync`` default to the
-    patch's ``regenerate`` settings. Warns when an exception spawner (OT exception or ``HandBalance``) has
-    a changed input: its stored value stays and no longer matches its inputs."""
+    ``options`` go to :func:`derive_static`. ``evolution_tables`` defaults to ``frozen``: the patched config
+    already holds the rows the patch's ``regenerate.evolution_tables`` generated; ``armor_sync`` defaults to
+    the patch's ``evolution_armor_sync``. Warns when an exception spawner (OT exception, ``HandBalance`` or
+    bake exception) has a changed input or a moved recomputation: its stored values stay and no longer match;
+    and when the patch changes leaves but no derived table or check moves (``no_static_effect``)."""
     patched_cfg, report = P.apply(base_cfg, patch)
     options.setdefault("evolution_tables", "frozen")
     options.setdefault("armor_sync", patch.regen("evolution_armor_sync"))
     base = derive_static(base_cfg, **options)
     patched = derive_static(patched_cfg, exceptions_from=base_cfg, **options)
+    diff, checks = diff_static(base, patched), diff_checks(base, patched)
     warnings = [w.to_json() for w in report.warnings] + patched.warnings
-    changed = _bake_inputs_changed(report)
-    exc = {r["spawner"] for r in base.tables["optimum_time"] if r["exception"]}
-    hand = {r["spawner"] for r in base.tables["bake"] if r["hand_balance"]}
-    for name, ids in (("ot_exception_input_changed", exc), ("hand_balance_input_changed", hand)):
+    changed = _exception_inputs_changed(report, diff)
+    for kind, ids in exception_spawners(base).items():
         hit = sorted(s for s in changed if s in ids)
         if hit:
-            warnings.append({"code": name, "message": f"{len(hit)} exception spawner(s) keep stored values although "
-                             "their inputs changed", "spawners": {s: sorted(changed[s]) for s in hit}})
-    return PipelineResult(patched_cfg, report, base, patched, diff_static(base, patched), warnings)
+            warnings.append({"code": f"{kind}_input_changed", "message": f"{len(hit)} {kind} spawner(s) keep their "
+                             "stored values although their inputs or recomputed values changed",
+                             "spawners": {s: sorted(changed[s]) for s in hit}})
+    if report.leaves and not diff and not checks:
+        warnings.append({"code": "no_static_effect", "message": "the patch changes leaves but no derive_static table "
+                         "or check moves", "nodes": sorted({x.node for x in report.leaves})})
+    return PipelineResult(patched_cfg, report, base, patched, diff, warnings, checks)

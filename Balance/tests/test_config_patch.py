@@ -188,7 +188,7 @@ def test_patch_case(cfg, path):
     got = report.to_json()
     assert _canon(got["leaves"]) == _canon(expected["leaves"])
     ops = [{"source": o["source"], "node": o["node"], "rows": o["rows"], "leaves": len(o["leaves"])} for o in got["ops"]]
-    want = [{k: v for k, v in o.items() if k != "first"} for o in expected["ops"]]
+    want = [{k: v for k, v in o.items() if k not in ("first", "values")} for o in expected["ops"]]
     plain = [o for o in ops if not o["source"].startswith("regenerate.")]
     assert plain == [o for o in want if not o["source"].startswith("regenerate.")]
     key = lambda o: (o["source"], o["node"])  # noqa: E731
@@ -197,6 +197,9 @@ def test_patch_case(cfg, path):
     for o, w in zip(got["ops"], expected["ops"]):
         if "first" in w:
             assert {"old": o["leaves"][0]["old"], "new": o["leaves"][0]["new"]} == w["first"]
+        if "values" in w:  # op-level leaves (what P12's overrides.csv shows), not only the net change
+            assert _canon([{k: x[k] for k in ("row", "index", "old", "new")} | {"node": o["node"]}
+                           for x in o["leaves"]]) == _canon([x | {"node": o["node"]} for x in w["values"]])
     assert sorted({w["code"] for w in got["warnings"]}) == sorted(expected["warnings"])
     assert [o["node"] for o in got["passthrough"]] == expected["passthrough"]
     # every net leaf is readable on the patched config
@@ -218,10 +221,13 @@ def test_expanded_patch_reproduces_the_leaves(cfg, path):
     """What C# receives (overrides as written + generated explicit sets, no generators) yields the same leaves."""
     out, report = P.apply(cfg, P.load_patch(path))
     again, report2 = P.apply(cfg, P.parse_patch({"name": "expanded", "overrides": report.expanded}))
-    assert [x.to_json() for x in report2.leaves] == [x.to_json() for x in report.leaves]
-    generated = [x for o in report.ops if o.override is None for x in o.leaves]
+    assert [x.to_json() for x in report2.leaves] == [x.to_json() for x in report.csharp_leaves()]
+    generated = [x for o in report.ops if o.override is None for x in o.leaves if P.csharp_node(x.node)]
     sets = report.expanded[len(report.expanded) - len(generated):]
     assert all(set(s) <= {"node", "index", "where", "set"} and "set" in s for s in sets)
+    # the relative-window tool is a scene editor tool: its leaves stay in Python
+    assert report.python_only == sorted({x.node for x in report.leaves if x.node.startswith("SpawnerRelative")})
+    assert not any(o["node"].startswith("SpawnerRelative") for o in report.expanded)
 
 
 def test_report_is_deterministic_json(cfg):
@@ -385,3 +391,89 @@ def test_spawner_stat_mirror_follows_patch(cfg):
     assert v == leaf.new == 8612.0
     assert re.match(r"^\[.*\]$", out.connection().execute(
         "SELECT IslandTargetDays FROM c_CombatBalanceConfig").fetchone()[0])
+
+
+# ---------------------------------------------------------------------------------------------
+# Review fixes: values, modeled conditions, generator errors
+
+
+def test_non_finite_values(cfg):
+    """A result that is not finite as the field's type is rejected; a stored inf stays inf under add/mul."""
+    for ov in ({"node": "CombatBalanceConfig.IslandTargetDays", "index": 98, "mul": float("inf")},
+               {"node": "CombatBalanceConfig.IslandTargetDays", "index": 98, "mul": 1e38},
+               {"node": "EnemySpawnerConfig.Stats[Health]", "where": {"go_name": "Spawner_elite_HP"}, "set": float("nan")}):
+        with pytest.raises(P.PatchError) as e:
+            P.apply(cfg, P.parse_patch({"name": "x", "overrides": [ov]}))
+        assert e.value.code == "bad_type", ov
+    inf = [r for r in cfg.tables[C.SPAWNERS].rows if r["stat.Health"] == float("inf")]
+    assert inf
+    _, report = P.apply(cfg, P.parse_patch({"name": "x", "overrides": [
+        {"node": "EnemySpawnerConfig.Stats[Health]", "where": {"scene": inf[0]["scene"], "file_id": inf[0]["file_id"]},
+         "add": 1}]}))
+    assert report.leaves == [] and report.ops[0].leaves[0].new == float("inf")
+
+
+def test_passthrough_selects_rows_on_the_source_table(cfg, db):
+    _, report = P.apply(cfg, P.load_patch(CASES / "17_passthrough_unmodeled_node.yaml"))
+    (w,) = report.warnings
+    (n,) = db.execute("SELECT COUNT(*) FROM spawners WHERE go_name = 'Spawner_elite_HP'").fetchone()
+    assert w.detail["rows"] == n == 1
+    with pytest.raises(P.PatchError) as e:
+        P.apply(cfg, P.parse_patch({"name": "x", "overrides": [{"node": "EnemySpawnerConfig.AggroRange", "set": 5}]}))
+    assert e.value.code == "bad_selector"
+    _, report = P.apply(cfg, P.parse_patch({"name": "x", "overrides": [
+        {"node": "EnemySpawnerConfig.AggroRange", "where": {"LocationNumber": 3}, "mul": 2}]}))
+    (n,) = db.execute("SELECT COUNT(*) FROM spawners WHERE LocationNumber = 3").fetchone()
+    assert report.warnings[0].detail["rows"] == n > 1
+
+
+def test_modeled_conditions(cfg):
+    """Row- and mode-dependent ``modeled``: curves outside GetTotalCoefficient 2-5 and the evolution generator
+    levers under evolution_tables=frozen warn not_modeled_static."""
+    interp = {int(r["Type"]): r["Interpolations.Interpolations#idx"]
+              for r in cfg.tables[f"{C.CBC}__Interpolations.Interpolations"].rows}
+
+    def codes(ovs, regen=None):
+        _, report = P.apply(cfg, P.parse_patch({"name": "x", "overrides": ovs, "regenerate": regen or {}}))
+        return {w.code for w in report.warnings}
+
+    node = "CombatBalanceConfig.Interpolations.Interpolations[].Use"
+    assert "not_modeled_static" in codes([{"node": node, "index": interp[0], "set": False}])
+    assert "not_modeled_static" not in codes([{"node": node, "index": interp[2], "set": False}])
+    lever = [{"node": "CombatBalanceConfig.CopyValueTargetShare", "mul": 0.9}]
+    assert "not_modeled_static" in codes(lever)
+    assert "not_modeled_static" not in codes(lever, {"evolution_tables": "replay_stored_inputs"})
+    for node in ("ItemConfig.AttackCooldown", "ItemConfig.SimulationDpsWeaponMultiplier",
+                 "CombatBalanceConfig.MythicalEvolutionValues[].Value"):
+        assert not C.FIELDS[node].modeled, node
+
+
+def test_generator_rule_without_a_value_warns(cfg):
+    """Evolution islands pushed past the last island: the timing rule has no value, the leaves keep theirs."""
+    patch = P.parse_patch({"name": "x", "overrides": [
+        {"node": f"CombatBalanceConfig.EvolutionIslandTimingRows[].E{k}", "where": {}, "mul": 2} for k in range(11, 16)],
+        "regenerate": {"evolution_target_timings": True}})
+    _, report = P.apply(cfg, patch)
+    (w,) = [w for w in report.warnings if w.code == "rule_error"]
+    assert w.detail["rows"] and all("out of range" in r["error"] for r in w.detail["rows"])
+
+
+def test_tail_generator_never_moves_the_tail(cfg):
+    """Design fact (for Z1): P3's tail is a closed form of the island index alone, so regenerating it after a
+    head edit sets nothing; the shipped tail already matches it (G01 84/84)."""
+    patch = P.parse_patch({"name": "x", "overrides": [{"node": "CombatBalanceConfig.IslandTargetDays", "index": "0:15",
+                                                       "add": 3}], "regenerate": {"island_target_days_tail": True}})
+    _, report = P.apply(cfg, patch)
+    assert not [o for o in report.ops if o.source == "regenerate.island_target_days_tail"]
+    assert {x.index for x in report.leaves} == set(range(15))
+
+
+def test_armor_sync_cells_compare_value_and_copy_value(cfg):
+    rows = list(P.evolution_config(cfg).rows)
+    levels = P.evolution_config(cfg).levers.max_evolution_level
+    assert P.armor_sync_cells(rows, levels) == []
+    k = next(i for i, r in enumerate(rows) if r.kind == "armor" and r.damage_type == 1 and r.rarity == 2
+             and r.evolution_level == 3)
+    copy_only = rows[:k] + [P.replace(rows[k], copy_value=rows[k].copy_value + 1)] + rows[k + 1:]
+    value_only = rows[:k] + [P.replace(rows[k], value=rows[k].value + 1)] + rows[k + 1:]
+    assert P.armor_sync_cells(copy_only, levels) == P.armor_sync_cells(value_only, levels) == [(2, 3)]

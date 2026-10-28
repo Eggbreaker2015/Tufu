@@ -1,0 +1,6 @@
+name: passthrough_type_error
+description: a passthrough value is checked against the stored cells (numbers here)
+overrides:
+  - node: EnemySpawnerConfig.AggroRange
+    where: {go_name: Spawner_elite_HP}
+    set: abc

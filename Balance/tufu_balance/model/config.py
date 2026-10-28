@@ -55,12 +55,19 @@ class FieldSpec:
     type: str
     array: str | None = None
     enum: str | None = None  # model.enums class for type "enum"
-    modeled: bool = True  # read by pipeline.derive_static
+    modeled: bool | str = True  # read by pipeline.derive_static (a MODELED_WHEN key: only under that condition)
     values_column: str | None = None  # key_data: the sibling valueData column
+    csharp: bool = True  # False: Python-only leaves (not sent to the C# patcher, see patch.PatchReport)
 
     @property
     def node(self) -> str:
         return dictionary_node(self.sql, self.column)
+
+    def modeled_for(self, row: Mapping[str, Any], evolution_tables: str = "frozen") -> bool:
+        """Whether ``derive_static`` reacts to this field on ``row`` (see :data:`MODELED_WHEN`)."""
+        if isinstance(self.modeled, bool):
+            return self.modeled
+        return MODELED_WHEN[self.modeled](row, evolution_tables)
 
     @property
     def is_array(self) -> bool:
@@ -164,8 +171,19 @@ class TableSpec:
         return None
 
 
-def _f(sql, column, type_, array=None, enum=None, modeled=True, values_column=None) -> FieldSpec:
-    return FieldSpec(sql, column, type_, array, enum, modeled, values_column)
+# Interpolation types derive_static reads: GetTotalCoefficient 2/3 (snapshot composition, K2/K3) and 4/5
+# (bake K4/K5). The other curves (item emission, tower) only feed the C# simulation.
+STATIC_INTERPOLATION_TYPES = (2, 3, 4, 5)
+
+MODELED_WHEN = {
+    # generator levers: read only when evolution_tables regenerates the evolution rows
+    "evolution_regenerated": lambda row, evolution_tables: evolution_tables != "frozen",
+    "static_interpolation": lambda row, evolution_tables: int(row["Type"]) in STATIC_INTERPOLATION_TYPES,
+}
+
+
+def _f(sql, column, type_, array=None, enum=None, modeled=True, values_column=None, csharp=True) -> FieldSpec:
+    return FieldSpec(sql, column, type_, array, enum, modeled, values_column, csharp)
 
 
 def _fields(sql, spec: str, type_: str, **kw) -> tuple[FieldSpec, ...]:
@@ -203,8 +221,8 @@ _SP_STATS = ("Health", "Damage", "AttackCooldown")
 TABLES: tuple[TableSpec, ...] = (
     TableSpec(CBC, (), (
         *_fields(CBC, "MinCopyValueGrowthMultiplier CopyValueTargetShare MinEvolutionValueFromShardsMultiplier "
-                      "MinArmorEvolutionValueFromPreviousEvolutionMultiplier", "double"),
-        _f(CBC, "SyncShieldValuesByLeader", "bool"),
+                      "MinArmorEvolutionValueFromPreviousEvolutionMultiplier", "double", modeled="evolution_regenerated"),
+        _f(CBC, "SyncShieldValuesByLeader", "bool", modeled="evolution_regenerated"),
         _f(CBC, "IslandTargetDays", "float", array="json"),
         *_fields(CBC, " ".join(TARGET_TIMING_ARRAYS), "float", array="json"),
         *_fields(CBC, "CutDamageBaseByRarity PierceDamageBaseByRarity SmashDamageBaseByRarity "
@@ -217,9 +235,10 @@ TABLES: tuple[TableSpec, ...] = (
     *(TableSpec(f"{CBC}__{t}", (f"{t}#idx",), (_f(f"{CBC}__{t}", "Value", "int"),),
                 selectors=("Rarity", "EvolutionLevel"))
       for t in ("EvolutionDamageShardsRequirements", "EvolutionArmorShardsRequirements")),
+    # read by the C# simulation; derive_static only checks their identities (G10)
     TableSpec(f"{CBC}__MythicalEvolutionValues", ("MythicalEvolutionValues#idx",), (
-        _f(f"{CBC}__MythicalEvolutionValues", "CopiesToEvolve", "int"),
-        *_fields(f"{CBC}__MythicalEvolutionValues", "CopyValue Value", "float"),
+        _f(f"{CBC}__MythicalEvolutionValues", "CopiesToEvolve", "int", modeled=False),
+        *_fields(f"{CBC}__MythicalEvolutionValues", "CopyValue Value", "float", modeled=False),
     ), selectors=("EvolutionLevel",)),
     TableSpec(f"{CBC}__EvolutionIslandFillRuleRows", ("EvolutionIslandFillRuleRows#idx",),
               _fields(f"{CBC}__EvolutionIslandFillRuleRows", "StartValue StepPerEvolution", "float"),
@@ -228,8 +247,9 @@ TABLES: tuple[TableSpec, ...] = (
               _fields(f"{CBC}__EvolutionIslandTimingRows", " ".join(f"E{k}" for k in range(1, 16)), "float"),
               selectors=("Rarity", "Name")),
     TableSpec(f"{CBC}__Interpolations.Interpolations", ("Interpolations.Interpolations#idx",), (
-        _f(f"{CBC}__Interpolations.Interpolations", "Use", "bool"),
-        *_fields(f"{CBC}__Interpolations.Interpolations", "IslandPoints TimingPoints CoefPoints", "string"),
+        _f(f"{CBC}__Interpolations.Interpolations", "Use", "bool", modeled="static_interpolation"),
+        *_fields(f"{CBC}__Interpolations.Interpolations", "IslandPoints TimingPoints", "string"),
+        _f(f"{CBC}__Interpolations.Interpolations", "CoefPoints", "string", modeled="static_interpolation"),
     ), selectors=("Name", "Type")),
     TableSpec(SPAWNERS, ("scene", "file_id"), (
         *_fields(SPAWNERS, _SP_FLOAT, "float"),
@@ -248,16 +268,19 @@ TABLES: tuple[TableSpec, ...] = (
         *(_f(SPAWNERS, f"stat.{s}", "double", modeled=False) for s in ("HealthRegen", "MovementSpeed", "AttackRange")),
     ), selectors=("Key", "go_path", "go_name", "IsStatic", "IsDays"), order=("scene", "file_id")),
     TableSpec("c_AmuletConfig", (), (_f("c_AmuletConfig", "LevelTargetDays", "int", array="hex_i32"),)),
+    # a scene editor tool: the game reads only the OptimumTime it wrote, so its leaves stay in Python
     TableSpec("s_SpawnerRelativeOptimumTimeTool__Islands", ("Islands#idx",), (
-        _f("s_SpawnerRelativeOptimumTimeTool__Islands", "IsDays", "bool"),
-        *_fields("s_SpawnerRelativeOptimumTimeTool__Islands", "MinOptimumTime MaxOptimumTime", "float"),
+        _f("s_SpawnerRelativeOptimumTimeTool__Islands", "IsDays", "bool", csharp=False),
+        *_fields("s_SpawnerRelativeOptimumTimeTool__Islands", "MinOptimumTime MaxOptimumTime", "float", csharp=False),
     ), selectors=("LocationNumber",)),
     TableSpec("c_ItemConfig", ("asset",), (
         _f("c_ItemConfig", "Rarity", "enum", enum="Rarity"),
         _f("c_ItemConfig", "SlotType", "enum", enum="ItemSlotType"),
         _f("c_ItemConfig", "DamageType", "enum", enum="WeaponType"),
-        *_fields("c_ItemConfig", "DamageStatTypeFlat DamageStatTypePercent", "enum", enum="StatType"),
-        *_fields("c_ItemConfig", "FlatDamage AttackCooldown SimulationDpsWeaponMultiplier", "float"),
+        _f("c_ItemConfig", "FlatDamage", "float"),
+        # read by simcalc and the C# simulation, not by derive_static
+        *_fields("c_ItemConfig", "DamageStatTypeFlat DamageStatTypePercent", "enum", enum="StatType", modeled=False),
+        *_fields("c_ItemConfig", "AttackCooldown SimulationDpsWeaponMultiplier", "float", modeled=False),
     ), selectors=("Key", "asset_name")),
     TableSpec("c_ArmorConfig__Armors", ("asset", "Armors#idx"), (
         _f("c_ArmorConfig__Armors", "Type", "enum", enum="WeaponType"),

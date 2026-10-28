@@ -5,7 +5,9 @@
     {"node": "EnemySpawnerConfig.AverageFightTime", "row": {"scene": "Scenes/Main.unity", "file_id": 59210}, "index": null, "old": 8.0, "new": 9.600000381469727},
     {"node": "EnemySpawnerConfig.AverageFightTime", "row": {"scene": "Scenes/Main.unity", "file_id": 59663}, "index": null, "old": 12.0, "new": 14.399999618530273}
   ],
-  "ops": [{"source": "override", "node": "EnemySpawnerConfig.AverageFightTime", "rows": 4, "leaves": 4}],
+  "ops": [
+    {"source": "override", "node": "EnemySpawnerConfig.AverageFightTime", "rows": 4, "leaves": 4, "values": [{"row": {"scene": "Scenes/Main.unity", "file_id": 56592}, "index": null, "old": 10.0, "new": 12.0}, {"row": {"scene": "Scenes/Main.unity", "file_id": 57327}, "index": null, "old": 100.0, "new": 120.0}, {"row": {"scene": "Scenes/Main.unity", "file_id": 59210}, "index": null, "old": 8.0, "new": 9.600000381469727}, {"row": {"scene": "Scenes/Main.unity", "file_id": 59663}, "index": null, "old": 12.0, "new": 14.399999618530273}]}
+  ],
   "warnings": [],
   "passthrough": []
 }

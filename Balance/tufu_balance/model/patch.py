@@ -26,18 +26,26 @@ Semantics shared with the C# patcher (C9; cases in ``tests/patch_cases``):
   with ``old``/``new`` null).
 * Arithmetic is done in double and stored as the field's C# type: ``float`` fields
   ``(float)((double)old + arg)`` / ``(float)((double)old * arg)``, ``double`` fields in double, ``int``
-  fields only when the result is integral. ``set`` converts the value to the field type. ``bool``,
-  ``string``, ``ref`` and ``enum`` fields take ``set`` only (enums by int or member name; refs must
-  name an existing asset).
+  fields only when the result is integral. ``set`` converts the value to the field type. A result that
+  is not finite as the field type (``1e39`` as a float, ``mul: .inf``) is an error; a stored inf stays
+  inf. ``bool``, ``string``, ``ref`` and ``enum`` fields take ``set`` only (enums by int or member name;
+  refs must name an existing asset; interpolation point lists must be ``;``-separated numbers).
 * A node that is in ``data_dictionary`` but not a :mod:`.config` field is passed through to C# with a
-  warning listing the formulas that read it; a patchable field that ``derive_static`` does not read also
-  warns. New values outside the dictionary's min/max warn.
+  warning listing the formulas that read it. Its ``where`` is still resolved on the dictionary's source
+  tables (unknown field, zero rows and a missing selector are errors) and its value checked against the
+  stored cells; the report has no leaves for it. A patchable field that ``derive_static`` does not read
+  (on that row, or under ``evolution_tables: frozen`` for the generator levers) warns. New values
+  outside the dictionary's min/max warn.
+* Python-only fields (the scene tool ``SpawnerRelativeOptimumTimeTool``: the game reads only the
+  ``OptimumTime`` it wrote) have leaves in the report but never reach ``expanded``
+  (:attr:`PatchReport.python_only`).
 
 Generator steps (``regenerate``) recompute derived leaves from the patched inputs with the stage-3/4
 rules (:mod:`.timeline`, :mod:`.evolution_gen`) and are expanded into explicit ``set`` overrides
 (:attr:`PatchReport.expanded`), so the C# side never runs a rule. A derived leaf that did not follow its
 rule in the base config (an exception, e.g. the 16 OT exceptions of G03) keeps its value, as does a
-leaf the patch sets directly; both warn when the rule's result moves. ``evolution_tables`` replaces the
+leaf the patch sets directly; both warn when the rule's result moves. A rule that has no value on the
+patched inputs (``rule_error``) keeps the leaf. ``evolution_tables`` replaces the
 generated rows wholesale (``replay_stored_inputs`` / ``fitted_h``); with ``SyncShieldValuesByLeader`` on,
 ``evolution_armor_sync`` either reports the armor cells whose types disagree (``report``, default) or
 copies Value/CopyValue from a leader type.
@@ -51,6 +59,7 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+import numpy as np
 import yaml
 
 from . import config as C
@@ -73,6 +82,8 @@ REGENERATE_DEFAULTS = {"island_target_days_tail": False, "optimum_time_from_rela
                        "bake": False}
 INT32 = (-2 ** 31, 2 ** 31 - 1)
 ITD = "CombatBalanceConfig.IslandTargetDays"
+POINT_LISTS = tuple(f"CombatBalanceConfig.Interpolations.Interpolations[].{c}"
+                    for c in ("IslandPoints", "TimingPoints", "CoefPoints"))
 
 
 class PatchError(ValueError):
@@ -237,7 +248,8 @@ class OpResult:
 
 @dataclass
 class PatchWarning:
-    code: str  # out_of_range | not_python_patchable | not_modeled_static | exception_kept | override_kept | armor_sync_broken
+    code: str  # out_of_range | not_python_patchable | not_modeled_static | exception_kept | override_kept |
+    # armor_sync_broken | no_window | rule_error
     node: str | None
     message: str
     detail: Mapping[str, Any] = field(default_factory=dict)
@@ -253,17 +265,23 @@ class PatchReport:
     leaves: list[Leaf]  # net: base config -> patched config, sorted
     warnings: list[PatchWarning]
     passthrough: list[Override]  # dictionary nodes the Python model does not hold (C# only)
-    expanded: list[dict]  # the patch for C#: overrides as written + generated explicit sets
+    expanded: list[dict]  # the patch for C#: overrides as written + generated explicit sets (C# nodes only)
     regenerate: Mapping[str, Any]
+    python_only: list[str] = field(default_factory=list)  # nodes of ``leaves`` that C# never sees
 
     def to_json(self) -> dict:
         return {"schema": "tufu.patch_report/1", "name": self.name, "regenerate": dict(self.regenerate),
                 "ops": [o.to_json() for o in self.ops], "leaves": [x.to_json() for x in self.leaves],
                 "warnings": [w.to_json() for w in self.warnings],
-                "passthrough": [o.to_json() for o in self.passthrough], "expanded": self.expanded}
+                "passthrough": [o.to_json() for o in self.passthrough], "python_only": list(self.python_only),
+                "expanded": self.expanded}
 
     def leaf_map(self) -> dict[tuple, Leaf]:
         return {x.address(): x for x in self.leaves}
+
+    def csharp_leaves(self) -> list[Leaf]:
+        """The leaves C9's ``applied_patch.json`` must reproduce (Python-only nodes left out)."""
+        return [x for x in self.leaves if x.node not in self.python_only]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -284,7 +302,7 @@ def _coerce(cfg: C.GameConfig, f: C.FieldSpec, value, i: int):
     if t in ("float", "double"):
         if not _is_number(value) or not math.isfinite(float(value)):
             raise PatchError("bad_type", f"{t} field needs a finite number, got {value!r}", override=i, node=f.node)
-        return float(f32(value)) if t == "float" else float(value)
+        return _finite(f, _to_float(value) if t == "float" else float(value), value, i)
     if t == "int":
         if not _is_number(value) or float(value) != int(value):
             raise PatchError("bad_type", f"int field needs an integer, got {value!r}", override=i, node=f.node)
@@ -305,21 +323,40 @@ def _coerce(cfg: C.GameConfig, f: C.FieldSpec, value, i: int):
         raise PatchError("bad_type", f"{t} field needs a string, got {value!r}", override=i, node=f.node)
     if t == "ref" and value is not None and value not in _ref_names(cfg, f):
         raise PatchError("bad_ref", f"no asset named {value!r} for {f.column}", override=i, node=f.node)
+    if f.node in POINT_LISTS and value is not None:
+        try:
+            ok = all(math.isfinite(float(x)) for x in str(value).split(";"))
+        except ValueError:
+            ok = False
+        if not ok:
+            raise PatchError("bad_type", f"{f.column} needs ';'-separated finite numbers, got {value!r}",
+                             override=i, node=f.node)
     return value
+
+
+def _to_float(x) -> float:
+    """``(float)x`` widened back to double (inf on overflow, rejected by :func:`_finite`)."""
+    with np.errstate(over="ignore"):
+        return float(f32(x))
+
+
+def _finite(f: C.FieldSpec, v: float, arg, i: int) -> float:
+    if not math.isfinite(v):
+        raise PatchError("bad_type", f"{arg!r} gives {v!r} as a {f.type}", override=i, node=f.node)
+    return v
 
 
 def _arith(f: C.FieldSpec, op: str, old, arg, i: int):
     if f.type not in ("float", "double", "int"):
         raise PatchError("bad_op", f"{op} needs a numeric field, {f.node} is {f.type}", override=i, node=f.node)
-    if not _is_number(arg):
-        raise PatchError("bad_type", f"{op} needs a number, got {arg!r}", override=i, node=f.node)
+    if not _is_number(arg) or not math.isfinite(float(arg)):
+        raise PatchError("bad_type", f"{op} needs a finite number, got {arg!r}", override=i, node=f.node)
     if old is None:
         raise PatchError("missing_value", f"{op} on a missing value", override=i, node=f.node)
     r = float(old) + float(arg) if op == "add" else float(old) * float(arg)
-    if f.type == "float":
-        return float(f32(r))
-    if f.type == "double":
-        return r
+    if f.type in ("float", "double"):
+        r = _to_float(r) if f.type == "float" else r
+        return _finite(f, r, f"{op} {arg!r}", i) if math.isfinite(float(old)) else r  # stored inf/NaN stay
     if r != math.floor(r) or not INT32[0] <= r <= INT32[1]:
         raise PatchError("bad_type", f"int field result {r!r} is not an int32", override=i, node=f.node)
     return int(r)
@@ -393,8 +430,9 @@ def _select_rows(spec: C.TableSpec, rows: Sequence[dict], ov: Override, f: C.Fie
 class _State:
     """Working copy of the tables while a patch is applied."""
 
-    def __init__(self, cfg: C.GameConfig):
+    def __init__(self, cfg: C.GameConfig, evolution_tables: str = "frozen"):
         self.cfg = cfg
+        self.evolution_tables = evolution_tables
         self.rows: dict[str, list[dict]] = {}
         self.dirty: set[str] = set()
         self.touched: set[tuple] = set()  # leaf addresses set by overrides (protected from generators)
@@ -476,10 +514,122 @@ def _apply_override(st: _State, ov: Override, i: int) -> OpResult:
     for x in leaves:
         st.touched.add(x.address())
     _range_check(st, f, [x.new for x in leaves], i)
-    if not f.modeled:
-        st.warn("not_modeled_static", ov.node, "derive_static does not read this field; only the C# simulation "
-                "reacts to it", formulas=formulas_reading(st.cfg, ov.node))
+    unmodeled = [p for p in positions if not f.modeled_for(rows[p], st.evolution_tables)]
+    if unmodeled:
+        why = (" with evolution_tables=frozen (it only feeds the evolution generators)"
+               if f.modeled == "evolution_regenerated" else
+               " on curves of types other than " + "/".join(map(str, C.STATIC_INTERPOLATION_TYPES))
+               if f.modeled == "static_interpolation" else "")
+        st.warn("not_modeled_static", ov.node, f"derive_static does not read this field{why}; only the C# "
+                "simulation reacts to it", formulas=formulas_reading(st.cfg, ov.node),
+                rows=[spec.row_id(rows[p]) for p in unmodeled] if not spec.singleton else [])
     return OpResult(ov.source, ov, ov.node, len(positions), leaves)
+
+
+# ---------------------------------------------------------------------------------------------
+# Passthrough nodes (C# only): validated against the dictionary's source tables
+
+
+def _source_table(cfg: C.GameConfig, sql: str) -> tuple[list[str], list[dict]]:
+    def read():
+        try:
+            cur = cfg.source.execute(f"SELECT * FROM {C._quote(sql)}")
+        except Exception:  # noqa: BLE001  (a dictionary table that is not in this database)
+            return [], []
+        cols = [d[0] for d in cur.description]
+        return cols, [dict(zip(cols, r)) for r in cur]
+    return cfg.base.cached(("source_table", sql), read)
+
+
+def _passthrough_kind(values: list) -> str | None:
+    """What the stored cells of a passthrough column look like: int, bool, number, array, string (None: empty)."""
+    if not values:
+        return None
+    if all(_is_number(v) for v in values):
+        if all(isinstance(v, int) for v in values):
+            return "bool" if set(values) <= {0, 1} else "int"
+        return "number"
+    if all(isinstance(v, str) and v.startswith("[") for v in values):
+        return "array"
+    return "string"
+
+
+def _check_passthrough_value(ov: Override, kind: str | None, i: int) -> None:
+    def bad(msg):
+        raise PatchError("bad_type", msg, override=i, node=ov.node)
+
+    def number(x):
+        return _is_number(x) and math.isfinite(float(x))
+
+    if kind is None:
+        return
+    if ov.op != "set":
+        if kind == "string" or (kind == "bool" and ov.index is None):
+            raise PatchError("bad_op", f"{ov.op} needs a numeric field (stored cells are {kind})", override=i,
+                             node=ov.node)
+        if not number(ov.arg):
+            bad(f"{ov.op} needs a finite number, got {ov.arg!r}")
+        return
+    v = ov.arg
+    if kind == "array" and ov.index is None:
+        if not isinstance(v, (list, tuple)):
+            bad(f"set on a whole array needs a list, got {v!r}")
+        return
+    if kind in ("int", "bool", "number") and not (number(v) or isinstance(v, bool)):
+        bad(f"stored cells are {kind}s, got {v!r}")
+    if kind == "int" and not isinstance(v, bool) and float(v) != int(v):
+        bad(f"stored cells are ints, got {v!r}")
+    if kind == "bool" and not (isinstance(v, bool) or v in (0, 1)):
+        bad(f"stored cells are bools, got {v!r}")
+    if kind == "string" and v is not None and not isinstance(v, str):
+        bad(f"stored cells are strings, got {v!r}")
+
+
+def check_passthrough(cfg: C.GameConfig, ov: Override, i: int) -> int | None:
+    """Rows of the dictionary's source tables that a passthrough override selects (None: no source column to
+    check). ``where`` is resolved like a Python field (unknown field: bad_where, no row: no_match, several rows
+    and no selector: bad_selector) and the value is checked against the stored cells."""
+    entry = cfg.dictionary[ov.node]
+    tables = [t.strip() for t in str(entry.tables or "").split(",") if t.strip()]
+    hits, found, known, values = 0, False, set(), []
+    for sql in tables:
+        cols, rows = _source_table(cfg, sql)
+        column = next((c for c in cols if C.dictionary_node(sql, c) == ov.node), None)
+        if column is None:
+            continue
+        found = True
+        prefix = C.dictionary_node(sql, "x")[:-2]
+        names = {c: c for c in cols}
+        for c in cols:
+            n = C.dictionary_node(sql, c)
+            if n and n.startswith(prefix + "."):
+                names.setdefault(n[len(prefix) + 1:], c)
+        values += [r[column] for r in rows if r[column] is not None]
+        if ov.where is None:
+            if len(rows) > 1 and ov.index is None:
+                raise PatchError("bad_selector", f"{sql} has {len(rows)} rows: give where (where: {{}} for all)",
+                                 override=i, node=ov.node)
+            hits += len(rows) if ov.index is None else 1
+            continue
+        selected = rows
+        for name, want in ov.where.items():
+            c = names.get(str(name))
+            if c is None:
+                selected = []
+                continue
+            known.add(str(name))
+            selected = [r for r in selected if _matches(None, r, c, want)]
+        hits += len(selected)
+    if not found:
+        return None
+    unknown = sorted(set(map(str, ov.where or {})) - known)
+    if unknown:
+        raise PatchError("bad_where", f"no source table of {ov.node} has field(s) {unknown}", override=i, node=ov.node)
+    if not hits:
+        raise PatchError("no_match", f"selector {ov.to_json()} matches no row of {', '.join(tables)}", override=i,
+                         node=ov.node)
+    _check_passthrough_value(ov, _passthrough_kind(values), i)
+    return hits
 
 
 # ---------------------------------------------------------------------------------------------
@@ -535,6 +685,16 @@ class _Generator:
         self.st, self.base, self.step, self.exceptions = st, base, step, exceptions
         self.ops: dict[str, OpResult] = {}
         self.kept: dict[str, list] = {}
+        self.errors: list[dict] = []
+
+    def rule(self, fn, *args, row=None):
+        """``fn(*args)``, or None when the rule cannot be evaluated on the patched inputs (warned in finish)."""
+        try:
+            return fn(*args)
+        except ValueError as e:
+            if row is not None:
+                self.errors.append({"row": dict(row), "error": str(e)})
+            return None
 
     def leaf(self, f: C.FieldSpec, pos: int, index: int | None, rule, base_rule=None, base_stored=None) -> None:
         rows = self.st.table_rows(f.sql)
@@ -559,6 +719,9 @@ class _Generator:
         op.leaves.append(Leaf(f.node, row_id, index, current, rule))
 
     def finish(self) -> list[OpResult]:
+        if self.errors:
+            self.st.warn("rule_error", None, f"regenerate.{self.step}: the rule cannot be evaluated for "
+                         f"{len(self.errors)} row(s); their derived leaves keep their values", rows=self.errors)
         for code, items in self.kept.items():
             what = "base exception (rule != stored in the base config)" if code == "exception_kept" \
                 else "leaf set by an override"
@@ -576,6 +739,8 @@ def _itd(cfg: C.GameConfig) -> tuple:
 
 
 def _regen_itd_tail(st: _State, base: C.GameConfig) -> list[OpResult]:
+    # P3's tail is a closed form of the island index alone (no anchor on the hand-filled head) and the shipped
+    # tail already matches it; tail cells a patch writes are kept, so this step never emits a set (Z1).
     g = _Generator(st, base, "island_target_days_tail")
     f = C.field_for(ITD)
     cur_itd, base_itd = _itd(st.config()), _itd(base)
@@ -598,7 +763,10 @@ def _regen_optimum_time(st: _State, base: C.GameConfig) -> list[OpResult]:
     base_tool = {int(r["LocationNumber"]): r for r in base.tables[tool].rows}
     for pos, r in enumerate(st.table_rows(tool)):
         L = int(r["LocationNumber"])
-        lo, hi, days = TL.relative_window(itd, L)
+        window = g.rule(TL.relative_window, itd, L, row={"LocationNumber": L})
+        if window is None:
+            continue
+        lo, hi, days = window
         blo, bhi, bdays = TL.relative_window(base_itd, L)
         b = base_tool.get(L)
         for f, rule, brule in ((f_min, float(lo), float(blo)), (f_max, float(hi), float(bhi)),
@@ -659,7 +827,10 @@ def _regen_evolution_target_timings(st: _State, base: C.GameConfig) -> list[OpRe
         islands = [x.decode(r) for x in e_fields]
         b = base_timing.get((int(r["Rarity"]), str(r["Name"])))
         b_islands = [x.decode(b) for x in e_fields] if b is not None else None
-        rule = [float(x) for x in TL.evolution_target_timings(islands, itd)]
+        rule = g.rule(TL.evolution_target_timings, islands, itd, row=C.TABLE_BY_SQL[timing].row_id(r))
+        if rule is None:
+            continue
+        rule = [float(x) for x in rule]
         brule = [float(x) for x in TL.evolution_target_timings(b_islands, base_itd)] if b_islands else None
         stored = f.decode(base.tables[C.CBC].rows[0])
         for k, v in enumerate(rule):
@@ -683,7 +854,10 @@ def _regen_interpolation_points(st: _State, base: C.GameConfig) -> list[OpResult
         islands = _island_points(f_ip.decode(r))
         if islands is None:
             continue
-        rule = TL.format_points(TL.interpolation_timing_points(islands, itd))
+        points = g.rule(TL.interpolation_timing_points, islands, itd, row=C.TABLE_BY_SQL[sql].row_id(r))
+        if points is None:
+            continue
+        rule = TL.format_points(points)
         b = base_rows.row(C.TABLE_BY_SQL[sql].row_key(r))
         b_islands = _island_points(f_ip.decode(b))
         brule = TL.format_points(TL.interpolation_timing_points(b_islands, base_itd)) if b_islands else None
@@ -806,18 +980,26 @@ def _explicit_set(leaf: Leaf) -> dict:
     return out
 
 
+def csharp_node(node: str) -> bool:
+    """Whether the C# patcher receives this node (passthrough nodes included; Python-only fields not)."""
+    f = C.field_for(node)
+    return f is None or f.csharp
+
+
 def apply(cfg: C.GameConfig, patch: Patch) -> tuple[C.GameConfig, PatchReport]:
     """Apply ``patch`` to ``cfg``: overrides in order, then the enabled generator steps."""
-    st = _State(cfg)
+    st = _State(cfg, patch.regen("evolution_tables"))
     ops: list[OpResult] = []
     passthrough: list[Override] = []
     for i, ov in enumerate(patch.overrides):
         if ov.node not in cfg.dictionary:
             raise PatchError("unknown_node", f"{ov.node!r} is not a data_dictionary node", override=i, node=ov.node)
         if C.field_for(ov.node) is None:
+            rows = check_passthrough(cfg, ov, i)
             passthrough.append(ov)
             st.warn("not_python_patchable", ov.node, "the Python model does not hold this field; it is passed to "
-                    "the C# patcher only and derive_static will not react", formulas=formulas_reading(cfg, ov.node))
+                    "the C# patcher only and derive_static will not react (no leaves in this report)",
+                    formulas=formulas_reading(cfg, ov.node), rows=rows)
             continue
         ops.append(_apply_override(st, ov, i))
     if patch.regen("island_target_days_tail"):
@@ -833,7 +1015,9 @@ def apply(cfg: C.GameConfig, patch: Patch) -> tuple[C.GameConfig, PatchReport]:
     out = st.config()
     leaves = _net_leaves(cfg, out)
     generated = [x for op in ops if op.override is None for x in sorted(op.leaves, key=_sort_key)]
-    expanded = [o.to_json() for o in patch.overrides] + [_explicit_set(x) for x in generated]
+    expanded = ([o.to_json() for o in patch.overrides if csharp_node(o.node)]
+                + [_explicit_set(x) for x in generated if csharp_node(x.node)])
+    python_only = sorted({x.node for x in leaves if not csharp_node(x.node)})
     report = PatchReport(patch.name, ops, leaves, st.warnings, passthrough, expanded,
-                         {k: patch.regen(k) for k in REGENERATE_DEFAULTS})
+                         {k: patch.regen(k) for k in REGENERATE_DEFAULTS}, python_only)
     return out, report
