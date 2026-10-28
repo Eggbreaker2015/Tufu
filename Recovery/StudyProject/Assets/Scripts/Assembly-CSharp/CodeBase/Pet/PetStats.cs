@@ -218,7 +218,9 @@ namespace Codebase.Pet
 			info.AttackPercent = GetInheritedValue(stats, config.DamageStatTypePercent, inheritance);
 			Stat speed = FindStat(stats, StatType.MovementSpeed);
 			info.PlayerMoveSpeed = speed != null ? speed.FastSpecificValue : 0.0;
-			info.AttacksPerSecond = config.AttackCooldown > 0f ? GetAttackSpeedMultiplier(item) / config.AttackCooldown : 0f;
+			// Ability tick factors are only kept up to date for equipped items (AbilityExecuteEventSystem); others read 0 or stale.
+			float attackSpeed = playerModel.EquippedItems.Contains(item) ? GetAttackSpeedMultiplier(item) : 1f;
+			info.AttacksPerSecond = config.AttackCooldown > 0f ? attackSpeed / config.AttackCooldown : 0f;
 			return true;
 		}
 

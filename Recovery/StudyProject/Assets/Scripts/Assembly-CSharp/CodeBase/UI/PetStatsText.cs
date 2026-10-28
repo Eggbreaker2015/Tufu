@@ -147,7 +147,8 @@ namespace Codebase.UI
 
 		private static string Ratio(float ratio)
 		{
-			return ratio.ToString("0.00", CultureInfo.InvariantCulture) + "×";
+			// "倍" reads clearer than a bare "×" suffix, which also showed as a missing glyph in the context menu.
+			return ratio.ToString("0.00", CultureInfo.InvariantCulture) + "倍";
 		}
 
 		private static bool Changed(double from, double to)
