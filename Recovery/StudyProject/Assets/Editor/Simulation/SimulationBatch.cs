@@ -526,9 +526,41 @@ namespace Codebase.Simulation.EditorTools
                 double bot = sw.Elapsed.TotalMilliseconds / n;
                 Put("calc_spawner_data_gpm_ms", gpm);
                 Put("calc_spawner_data_bot_ms", bot);
+                Put("calc_spawner_data_entries", SpawnerDataCount(system));
                 Put("base_tick_estimate_ms", gpm + bot);
                 Put("base_ticks_per_1s_frame", Math.Floor(1000.0 / Math.Max(1e-6, gpm + bot)));
+
+                // A new save has island 1 unlocked only, and CalculateSpawnerData skips locked islands.
+                // Unlock every island in memory for one measurement, then put the saved number back.
+                var player = GameContext.Get<Codebase.Player.Models.PlayerModel>();
+                int saved = player.Data.UnlockedLocationNumber.Value;
+                int last = GameContext.Get<EnemiesModel>().Spawners.Where(x => !x.Config.IsEvent).Max(x => x.Config.LocationNumber);
+                try
+                {
+                    player.Data.UnlockedLocationNumber.Value = last;
+                    spawnerData.Invoke(system, new object[] { true });
+                    sw.Restart();
+                    for (int i = 0; i < n; i++) spawnerData.Invoke(system, new object[] { true });
+                    double gpmAll = sw.Elapsed.TotalMilliseconds / n;
+                    sw.Restart();
+                    for (int i = 0; i < n; i++) spawnerData.Invoke(system, new object[] { false });
+                    double botAll = sw.Elapsed.TotalMilliseconds / n;
+                    Put("all_islands_unlocked_location", last);
+                    Put("all_islands_calc_spawner_data_gpm_ms", gpmAll);
+                    Put("all_islands_calc_spawner_data_bot_ms", botAll);
+                    Put("all_islands_calc_spawner_data_entries", SpawnerDataCount(system));
+                    Put("all_islands_base_tick_estimate_ms", gpmAll + botAll);
+                    Put("all_islands_base_ticks_per_1s_frame", Math.Floor(1000.0 / Math.Max(1e-6, gpmAll + botAll)));
+                }
+                finally
+                {
+                    player.Data.UnlockedLocationNumber.Value = saved;
+                    spawnerData.Invoke(system, new object[] { false });
+                }
             }
+
+            private static int SpawnerDataCount(SimulationSystem system) =>
+                ((System.Collections.ICollection)typeof(SimulationSystem).GetField("spawnerData", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(system)).Count;
 
             // Q36: which call brings units back under a fixed `now`, before any IsRunning.
             private static void RemedyProbe()
