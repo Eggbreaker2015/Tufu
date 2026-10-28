@@ -189,7 +189,9 @@ namespace Codebase.Simulation.EditorTools
             Put("real_company", company);
             Put("real_product", product);
             Put("real_persistent_data_path", realData);
-            Put("player_settings_dirty_before", EditorUtility.IsDirty(PlayerSettingsObject()));
+            bool wasDirty = EditorUtility.IsDirty(PlayerSettingsObject());
+            Put("player_settings_dirty_before", wasDirty);
+            SessionState.SetBool(Prefix + "wasDirty", wasDirty);
             SessionState.SetString(Prefix + "company", company);
             SessionState.SetString(Prefix + "product", product);
             SessionState.SetBool(Prefix + "renamed", true);
@@ -249,6 +251,8 @@ namespace Codebase.Simulation.EditorTools
             PlayerSettings.companyName = SessionState.GetString(Prefix + "company", PlayerSettings.companyName);
             PlayerSettings.productName = SessionState.GetString(Prefix + "product", PlayerSettings.productName);
             SessionState.EraseBool(Prefix + "renamed");
+            // The names are back to their saved values; keep a later SaveAssets from rewriting ProjectSettings.asset.
+            if (!SessionState.GetBool(Prefix + "wasDirty", true)) EditorUtility.ClearDirty(PlayerSettingsObject());
             Put("restored_company", PlayerSettings.companyName);
             Put("restored_product", PlayerSettings.productName);
             Put("restored_persistent_data_path", Application.persistentDataPath);
