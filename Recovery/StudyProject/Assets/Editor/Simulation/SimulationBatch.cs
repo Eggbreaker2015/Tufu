@@ -437,7 +437,12 @@ namespace Codebase.Simulation.EditorTools
             {
                 // Flush PlayerPrefs set without Save() during Play (e.g. Boot's game_loaded_once) into the sandbox
                 // domain, then restore the real names in the same call as Exit: nothing can write between the two.
-                if (SessionState.GetBool(Prefix + "renamed", false)) PlayerPrefs.Save();
+                if (SessionState.GetBool(Prefix + "renamed", false))
+                {
+                    Put("prefs_game_loaded_once_edit_before_save", PlayerPrefs.GetInt("game_loaded_once", -1));
+                    PlayerPrefs.Save();
+                    Put("prefs_game_loaded_once_sandbox_domain_after_save", DefaultsRead("unity." + SandboxCompany + "." + SandboxProduct, "game_loaded_once") ?? "absent");
+                }
                 LeaveSandbox();
                 if (!string.IsNullOrEmpty(outDir)) File.WriteAllText(Path.Combine(outDir, "spike_report.txt"), report.ToString());
                 SessionState.EraseBool(Prefix + "active");
@@ -468,6 +473,8 @@ namespace Codebase.Simulation.EditorTools
                     case 0:
                         Put("sandbox_persistent_data_path_play", Application.persistentDataPath);
                         Put("active_scene", UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+                        Put("prefs_game_loaded_once_play", PlayerPrefs.GetInt("game_loaded_once", -1));
+                        Put("prefs_game_loaded_once_sandbox_domain_play", DefaultsRead("unity." + SandboxCompany + "." + SandboxProduct, "game_loaded_once") ?? "absent");
                         DumpAb();
                         DumpSpawners("spawners_ready.csv", "ready");
                         clock = Stopwatch.StartNew();
