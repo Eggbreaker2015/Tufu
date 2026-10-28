@@ -267,7 +267,8 @@ def block_bootstrap(blocks: Mapping[Any, Sequence[Any]] | Sequence[Sequence[Any]
     """Percentile interval of ``statistic`` over resampled blocks.
 
     ``blocks`` are the observations grouped by TC interval (a mapping is taken in sorted key order); each
-    replicate draws as many blocks as there are, with replacement, and concatenates their observations.
+    replicate draws as many blocks as there are, with replacement, and concatenates their observations:
+    replicate i takes the blocks ``numpy.random.default_rng(seed).integers(0, n, (n_boot, n))[i]``.
     """
     groups = [list(blocks[k]) for k in sorted(blocks)] if isinstance(blocks, Mapping) else [list(b) for b in blocks]
     groups = [g for g in groups if g]

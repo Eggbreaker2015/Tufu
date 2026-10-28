@@ -5,10 +5,11 @@
 1. computes each job's ``job_key`` (:mod:`.runcache`) and returns cached results without starting Unity;
 2. sends the misses in batches of at most ``batch_size`` (default 12) jobs, to the resident editor when one
    is serving (``launcher.serve_submit``) or as one batch launch each (``launcher.run``);
-3. per batch, in job order: a job with exit 0 is done (cached) unless the launcher found a guard problem;
-   the first job that failed (non-zero exit, or no manifest because Unity crashed or timed out on it) is
-   retried once, alone; jobs after it did not run (the editor ends a request at its first failing job)
-   and go back into a batch without counting an attempt. A guard problem discards the whole batch: each
+3. per batch, in job order: a valid job (:func:`.runcache.job_verdict`: manifest exit 0, the editor's
+   asset guard after it passed, the editor's own result for it 0) is done (cached) unless the launcher
+   found a guard problem; the first job that failed (non-zero exit, a failed asset guard, or no complete
+   record because Unity crashed or timed out on it) is retried once, alone; jobs after it did not run (the
+   editor ends a request at its first failing job) and go back into a batch without counting an attempt. A guard problem discards the whole batch: each
    job that ran counts an attempt and goes back into a batch (a second guard problem fails it). A batch
    the launcher refused (no run directory) counts an attempt for every job, each retried alone;
 4. indexes every job that finished with exit 0 in a run without guard problems in the cache.
@@ -20,12 +21,11 @@ so tests drive the logic without Unity.
 from __future__ import annotations
 
 import dataclasses
-import json
 from pathlib import Path
 from typing import Any, Callable, Mapping, Protocol, Sequence
 
 from ..unity import launcher, request as req, runner
-from .runcache import CodeIdentity, RunCache, job_key, run_ok, single_job_request
+from .runcache import CodeIdentity, RunCache, job_key, job_verdict, run_ok, single_job_request
 
 DEFAULT_BATCH = 12
 
@@ -112,13 +112,6 @@ class JobResult:
         return None if self.job_dir is None else self.job_dir / "sim.sqlite"
 
 
-def _job_exit(run_dir: Path, job_id: str) -> int | None:
-    try:
-        return json.loads((Path(run_dir) / job_id / "manifest.json").read_text()).get("exit_code")
-    except (OSError, ValueError, AttributeError):
-        return None
-
-
 class Driver:
     def __init__(self, backend: Backend, *, cache: RunCache | None = None, template: Mapping[str, Any] | None = None,
                  batch_size: int = DEFAULT_BATCH, resolve: Callable | None = None, log=print):
@@ -195,10 +188,10 @@ class Driver:
             for job in batch:
                 jid = job["job_id"]
                 runs[jid].append(run_dir)
-                code = _job_exit(run_dir, jid)
-                if code is None and culprit:
+                if culprit:
                     again.append(job)  # the request ended before this job: not an attempt
                     continue
+                _ran, code = job_verdict(run_dir, jid)
                 attempts[jid] += 1
                 if code == 0 and guard_ok:
                     entry = self.cache.store(key_of[jid], run_dir / jid, run_dir, jid, backend=self.backend.name)

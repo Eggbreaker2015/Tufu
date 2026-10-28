@@ -9,11 +9,14 @@ which jobs are independent of the batch they ran in (``reenter_play``).
 * a job from a batch is indexed in ``out/sim/jobcache/<job_key>.json``, pointing at its directory in the
   batch run and recording the sha256 of its ``manifest.json``.
 
-A hit needs the job's manifest exit code 0 and an unchanged manifest, in a run whose launcher found no
-guard problem. A later job's failure, crash or timeout does not invalidate it: the editor runs the jobs
-in order, and writes a job's ``manifest.json`` (with its exit code) only after that job's outputs, so a
-manifest with exit 0 marks a finished job. Guard problems (real save, run worktree, protected files)
-belong to the whole run and cannot be attributed to one job.
+A hit needs a valid job (:func:`job_verdict`) with an unchanged manifest, in a run whose launcher found no
+guard problem. A job is valid when its ``manifest.json`` says exit 0, the editor's asset guard after it
+passed (``asset_guard.json``, written after the manifest), and the editor's own result for it, when the
+run has one (``editor_report.json`` ``job_results`` in run mode, ``launcher.json`` ``result.jobs`` in
+serve mode), says exit 0: the editor turns a job whose guard failed into exit 2 after its manifest was
+written. A later job's failure, crash or timeout does not invalidate it: the editor runs the jobs in
+order and checks a job completely before starting the next. Guard problems of the launcher (real save,
+run worktree, protected files) belong to the whole run and cannot be attributed to one job.
 Computing a key never touches the run worktree (no checkout): the tree hashes come from the object
 store, which every worktree shares.
 """
@@ -89,6 +92,54 @@ def _exit_code(path: Path) -> int | None:
         return None
 
 
+def _json(path: Path) -> Any:
+    try:
+        return json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def editor_job_results(run_dir: Path) -> dict[str, int | None]:
+    """The editor's per-job exit codes: ``result.jobs`` of a served request (``launcher.json``), else
+    ``job_results`` of ``editor_report.json`` (run mode; absent when Unity died)."""
+    run_dir = Path(run_dir)
+    rep = _json(run_dir / "launcher.json")
+    jobs = (rep.get("result") or {}).get("jobs") if isinstance(rep, dict) else None
+    if jobs is None:
+        editor = _json(run_dir / "editor_report.json")
+        jobs = editor.get("job_results") if isinstance(editor, dict) else None
+    return {j["job_id"]: j.get("exit_code") for j in jobs or [] if isinstance(j, dict) and "job_id" in j}
+
+
+def job_verdict(run_dir: Path, job_id: str) -> tuple[bool, int | None]:
+    """(ran, exit code) of one job of a run. ``ran`` is False when the job left nothing (the request ended
+    before it). The code is 0 only for a valid job: manifest exit 0, asset guard passed, and no non-zero
+    editor result. A job that ran but whose code cannot be read (Unity died while it ran, or between its
+    manifest and its asset guard) gets None."""
+    job_dir = Path(run_dir) / job_id
+    manifest = _exit_code(job_dir / "manifest.json")
+    guard = _json(job_dir / "asset_guard.json")
+    guard_ok = (guard.get("after_job") or {}).get("ok") if isinstance(guard, dict) else None
+    editor = editor_job_results(run_dir)
+    ran = (job_dir / "manifest.json").exists() or guard is not None or job_id in editor
+    if not ran:
+        return False, None
+    code = editor.get(job_id)
+    if code not in (None, 0):
+        return True, code
+    if manifest not in (None, 0):
+        return True, manifest
+    if guard_ok is False:
+        return True, launcher.EXIT_GUARD
+    if manifest is None or guard_ok is not True:
+        return True, None
+    return True, 0
+
+
+def job_ok(run_dir: Path, job_id: str) -> bool:
+    return job_verdict(run_dir, job_id) == (True, 0)
+
+
 def run_ok(run_dir: Path) -> bool:
     """The launcher checked the run and found no guard problem (a timeout or a crash of a later job is
     not one: the jobs that finished before it are valid)."""
@@ -117,7 +168,7 @@ class RunCache:
 
     def lookup(self, key: str, job_id: str | None = None) -> CacheEntry | None:
         run_dir = self.root / "runs" / key
-        if _exit_code(run_dir / "launcher.json") == 0:
+        if _exit_code(run_dir / "launcher.json") == 0 and run_ok(run_dir):
             req_path = run_dir / "request.json"
             try:
                 jobs = json.loads(req_path.read_text())["jobs"]
@@ -125,7 +176,7 @@ class RunCache:
                 jobs = []
             if len(jobs) == 1:
                 jid = jobs[0]["job_id"]
-                if _exit_code(run_dir / jid / "manifest.json") == 0:
+                if job_ok(run_dir, jid):
                     return CacheEntry(key, run_dir / jid, run_dir, jid)
         record = self.index / f"{key}.json"
         try:
@@ -134,15 +185,17 @@ class RunCache:
             return None
         job_dir, run = Path(rec["job_dir"]), Path(rec["run_dir"])
         manifest = job_dir / "manifest.json"
-        if run_ok(run) and _exit_code(manifest) == 0 and _sha(manifest) == rec.get("manifest_sha256"):
+        if run_ok(run) and job_ok(run, rec["job_id"]) and job_dir == run / rec["job_id"] \
+                and _sha(manifest) == rec.get("manifest_sha256"):
             return CacheEntry(key, job_dir, run, rec["job_id"])
         return None
 
     def store(self, key: str, job_dir: Path, run_dir: Path, job_id: str, **info) -> CacheEntry:
-        """Index a finished job of a batch run (exit 0 jobs of runs without guard problems only)."""
+        """Index a finished job of a batch run (valid jobs of runs without guard problems only)."""
         job_dir, run_dir = Path(job_dir), Path(run_dir)
-        if not run_ok(run_dir) or _exit_code(job_dir / "manifest.json") != 0:
-            raise ValueError(f"not caching {job_dir}: the run had guard problems or the job did not exit 0")
+        if job_dir != run_dir / job_id or not run_ok(run_dir) or not job_ok(run_dir, job_id):
+            raise ValueError(f"not caching {job_dir}: the run had guard problems or the job is not valid "
+                             f"{job_verdict(run_dir, job_id)}")
         self.index.mkdir(parents=True, exist_ok=True)
         rec = {"job_key": key, "job_id": job_id, "job_dir": str(job_dir), "run_dir": str(run_dir),
                "manifest_sha256": _sha(job_dir / "manifest.json"), **info}

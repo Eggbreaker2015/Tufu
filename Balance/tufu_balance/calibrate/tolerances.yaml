@@ -6,14 +6,18 @@
 #     g20: x (G20's test, |sim-ref| <= x*max(1, |ref|), simcalc.gpm_matches)
 #     abs_or_rel: [a, r]            rel_or_bound: r  (|sim-ref| <= max(r*|ref|, the cell's bound))
 #     bound: true (|sim-ref| <= the cell's bound)                  window: [lo, hi] on the residual
-#     ranges: {island: [lo, hi]}, slack: s (the run's unlock interval within the range, or <= s away)
+#     ranges: {island: [lo, hi]}, slack: s (the run's unlock interval within the range, or <= s away);
+#       day_ranges: {island: [lo, hi]}, slack_days: d (or the run's unlock day <= d days from that day range)
 #   open / closed: "n/a" (the design's "—"), or per group:
 #     all_ok, frac_ok_min, median_rel_max, rel_max_all, max_failing_units (null: frozen at the first run),
-#     report: true (verdicts are listed, the status is "report"), pending: <why> (set by a later unit).
-#   A group missing from a mode entry is reported only. Cells of an "n/a" mode, and of a group the run has no
-#   values for (status unavailable), get no verdict (ok empty).
-# Closed-loop tolerances that the design freezes after a first run (T05, T07 count, T15) are "pending" or null
-# here; K1/K3 set them (design 5.1 general rule: never stricter than the open-loop value).
+#     report: true (verdicts are listed, the status is "report"), pending: <why> (set by a later unit),
+#     pending_clause: <why> (the rest of the rule is checked; when it holds the status is "pending", not "pass").
+#   A group missing from a mode entry is reported only. Cells of an "n/a" mode, and of a group the run does not
+#   export at all (status unavailable, e.g. T17 without slot columns), get no verdict (ok empty). A cell whose
+#   reference exists but the run never reached that state (island never unlocked, level never reached, item
+#   absent, day snapshot missing) has no residual and fails.
+# Closed-loop tolerances that the design freezes after a first run (T05, T07 count, T15) are "pending",
+# "pending_clause" or null here; K1/K3 set them (design 5.1 general rule: never stricter than the open-loop value).
 schema: tufu.calib.tolerances/1
 holdout_from_tc: 104
 targets:
@@ -99,7 +103,10 @@ targets:
     title: 解锁岛的日子
     split: post-hoc (islands 5-17)
     cells:
-      by_playtime: {ranges: {2: [31.2, 37.4], 3: [110.2, 115.3]}, slack: 0}
+      # islands 2-3 are measured in active minutes; the design's "<= 1 day" is on the unlock day: the shipped
+      # ranges lie in TC0 (P 31.2-37.4) and TC1 (P 110.2-115.3)
+      by_playtime: {ranges: {2: [31.2, 37.4], 3: [110.2, 115.3]}, slack: 0, day_ranges: {2: [0, 0], 3: [1, 1]},
+                    slack_days: 1}
       island_4: {ranges: {4: [5, 5]}, slack: 1}
       islands_5_17:
         ranges: {5: [8, 8], 6: [11, 12], 7: [15, 16], 8: [21, 23], 9: [27, 29], 10: [34, 36], 11: [44, 45],
@@ -112,7 +119,9 @@ targets:
     closed:
       by_playtime: {all_ok: true}
       island_4: {all_ok: true}
-      islands_5_17: {all_ok: true}
+      islands_5_17:
+        all_ok: true
+        pending_clause: in-range count >= open-loop in-range count - flips allowed by the sensitivity curve (K3)
   T09:
     title: 天快照 CurrentGpm
     split: validation
@@ -145,28 +154,30 @@ targets:
   T12:
     title: 每个物品刷怪点每天的份数（稀有度 × 阶段）
     split: post-hoc structure (Chain, Swapped, late plateau)
-    # Design: training <= 5%, holdout <= 7%, late plateau <= 2% (copies per charge). Mapping here: a phase
-    # wholly before TC104 is training (5%); a phase reaching past TC104 (57-154, 154-405) takes the holdout 7%
-    # (never stricter than the design for its holdout days). The 2% plateau is per charge and needs charge
-    # counts (events/spawner_days, C5); it is not checked yet. Cells are per (kind, rarity): design 7.3 K-units
-    # name weapon and armor separately.
+    # Design: training <= 5%, holdout <= 7%, late plateau <= 2% (copies per charge). The design's 57-154 phase
+    # is cut at TC104 (a day snapshot), so every phase is wholly training (5%) or wholly holdout (7%). The 2%
+    # plateau is per charge and needs charge counts (events/spawner_days, C5); it is not checked yet. Cells are
+    # per (kind, rarity): design 7.3 K-units name weapon and armor separately.
     cells:
       daily: {rel_max: 0.05}
       phase_4_19: {rel_max: 0.05}
       phase_19_57: {rel_max: 0.05}
-      phase_57_154: {rel_max: 0.07}
+      phase_57_104: {rel_max: 0.05}
+      phase_104_154: {rel_max: 0.07}
       phase_154_405: {rel_max: 0.07}
     open:
       daily: {all_ok: true}
       phase_4_19: {all_ok: true}
       phase_19_57: {all_ok: true}
-      phase_57_154: {all_ok: true}
+      phase_57_104: {all_ok: true}
+      phase_104_154: {all_ok: true}
       phase_154_405: {all_ok: true}
     closed:
       daily: {all_ok: true}
       phase_4_19: {all_ok: true}
       phase_19_57: {all_ok: true}
-      phase_57_154: {all_ok: true}
+      phase_57_104: {all_ok: true}
+      phase_104_154: {all_ok: true}
       phase_154_405: {all_ok: true}
   T13:
     title: 进化到达时间

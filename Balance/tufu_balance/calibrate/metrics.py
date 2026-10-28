@@ -38,7 +38,8 @@ TARGET_IDS = ("T01", "T02", "T03", "T04", "T05", "T06", "T07", "T09", "T10", "T1
 MODES = ("open", "closed")
 FAST_FROM_TC = 4  # FastTickStartChunkOffset (shipped config)
 HOLDOUT_TC = 104  # design 5.1: training TC < 104, holdout TC >= 104
-T12_PHASES = ((4, 19), (19, 57), (57, 154), (154, 405))
+# Design 5.1's phases, with 57-154 cut at the holdout boundary (TC104 is a day snapshot)
+T12_PHASES = ((4, 19), (19, 57), (57, 104), (104, 154), (154, 405))
 T16_MAIN = ("Health", "HealthRegen", "MovementSpeed")
 SLOT_ARMOR_FROM_TC = 9
 EARLY_INTERVALS = ((0.0, 20.0), (1.0, 5.0))  # P06 defaults: (EarlySnapshotIntervalStarts, EarlySnapshotIntervals)
@@ -54,7 +55,7 @@ class Cell:
     key: str
     sim: Any
     ref: Any
-    residual: float | int | None  # None: the run has no value for this cell
+    residual: float | int | None  # None: no value on one side (the run never reached the reference's state)
     rel: float | None = None
     stat: str | None = None
     tc: int | None = None  # TC the cell belongs to (end of an interval)
@@ -62,6 +63,7 @@ class Cell:
     split: str = ""  # train | holdout | structure | report
     bound: float | None = None  # a per-cell bound used by the criterion (T06, T16: one-clear reward)
     note: str = ""
+    available: bool = True  # False: the run does not export this column at all (no verdict, "unavailable")
     ok: bool | None = None  # set by evaluate()
 
     def sort_key(self) -> tuple:
@@ -256,6 +258,11 @@ def unlock_interval_playtime(series: T.Series, island: int) -> list[float] | Non
     return None
 
 
+def unlock_day_early(series: T.Series, island: int) -> int | None:
+    """TC of the first early row at or past the island."""
+    return next((s.tc for s in series.early if s.location >= island), None)
+
+
 def _interval_distance(a: Sequence[float] | None, b: Sequence[float] | None) -> float | None:
     if a is None or b is None:
         return None
@@ -265,12 +272,14 @@ def _interval_distance(a: Sequence[float] | None, b: Sequence[float] | None) -> 
 def t07(sim: T.Series, tg: T.Targets) -> list[Cell]:
     out = []
     for island in range(2, 18):
+        tc = None
         if island <= 3:
             s, r, group = unlock_interval_playtime(sim, island), unlock_interval_playtime(tg.shipped, island), "by_playtime"
+            tc = unlock_day_early(sim, island)  # the run's unlock day, for the "<= 1 day" clause
         else:
             s, r = unlock_interval_days(sim, island), unlock_interval_days(tg.shipped, island)
             group = "island_4" if island == 4 else "islands_5_17"
-        out.append(Cell("T07", group, f"island {island:02d}", s, r, _interval_distance(s, r), split="report"))
+        out.append(Cell("T07", group, f"island {island:02d}", s, r, _interval_distance(s, r), tc=tc, split="report"))
     return out
 
 
@@ -471,14 +480,16 @@ def t17(sim: T.Series, tg: T.Targets) -> list[Cell]:
     if tg.slot_schedule is None:
         return []
     out = []
+    exported = sim.slots is not None
     for tc, (weapon, armor) in sorted(tg.slot_schedule.items()):
         got = (sim.slots or {}).get(tc)
         sw = None if got is None else got[0]
         out.append(Cell("T17", "weapon", f"{tc:03d}|weapon", sw, weapon, _diff(sw, weapon), tc=tc, split="train",
-                        note="reference is fitted (stage4_slot_schedule)"))
+                        note="reference is fitted (stage4_slot_schedule)", available=exported))
         if tc < SLOT_ARMOR_FROM_TC:
             sa = None if got is None else got[1]
-            out.append(Cell("T17", "armor_before_9", f"{tc:03d}|armor", sa, 0, sa, tc=tc, split="train"))
+            out.append(Cell("T17", "armor_before_9", f"{tc:03d}|armor", sa, 0, sa, tc=tc, split="train",
+                            available=exported))
     return out
 
 
@@ -556,11 +567,16 @@ def _cell_ok(cell: Cell, crit: Mapping[str, Any]) -> bool | None:
     if "window" in crit:
         lo, hi = crit["window"]
         ok &= lo <= r <= hi
-    if "ranges" in crit:  # T07: within the design range or at most `slack` away
-        rng = crit["ranges"].get(int(cell.key.split()[-1]))
+    if "ranges" in crit:  # T07: within the design range or at most `slack` away (or the day clause)
+        island = int(cell.key.split()[-1])
+        rng = crit["ranges"].get(island)
         if rng is None or cell.sim is None:
             return False
-        ok &= _interval_distance(cell.sim, rng) <= crit.get("slack", 0)
+        near = _interval_distance(cell.sim, rng) <= crit.get("slack", 0)
+        days = (crit.get("day_ranges") or {}).get(island)
+        if not near and days is not None and cell.tc is not None:
+            near = _interval_distance([cell.tc, cell.tc], days) <= crit.get("slack_days", 0)
+        ok &= near
     return bool(ok)
 
 
@@ -599,8 +615,8 @@ def _rule_text(rule: Mapping[str, Any]) -> str:
 def _group_status(tid: str, group: str, cells: list[Cell], rule: Any) -> GroupResult:
     oks = [c.ok for c in cells if c.ok is not None]
     n_ok = sum(oks) if oks else None
-    if all(c.residual is None for c in cells):
-        return GroupResult(tid, group, "unavailable", len(cells), n_ok, "", "the run has no values for this group")
+    if all(not c.available for c in cells):
+        return GroupResult(tid, group, "unavailable", len(cells), n_ok, "", "the run does not export this group")
     if rule in (None, "report"):
         return GroupResult(tid, group, "report", len(cells), n_ok, "report")
     if rule == "n/a":
@@ -640,6 +656,9 @@ def _group_status(tid: str, group: str, cells: list[Cell], rule: Any) -> GroupRe
             return GroupResult(tid, group, "report", len(cells), n_ok, _rule_text(rule),
                                "; ".join(details) + "; limit frozen at the first run")
         ok &= failing <= limit
+    if ok and "pending_clause" in rule:  # the rest of the rule holds; a clause set by a later unit is open
+        details.append(f"pending: {rule['pending_clause']}")
+        return GroupResult(tid, group, "pending", len(cells), n_ok, _rule_text(rule), "; ".join(details))
     return GroupResult(tid, group, "pass" if ok else "fail", len(cells), n_ok, _rule_text(rule), "; ".join(details))
 
 
@@ -655,12 +674,12 @@ def evaluate(cells: Sequence[Cell], tolerances: Mapping[str, Any], mode: str) ->
     by_group: dict[tuple[str, str], list[Cell]] = {}
     specs = tolerances["targets"]
     missing = {(c.target, c.group) for c in cells}
-    missing -= {(c.target, c.group) for c in cells if c.residual is not None}
+    missing -= {(c.target, c.group) for c in cells if c.available}
     for c in cells:
         spec = specs[c.target]
         crit = (spec.get(f"cells_{mode}") or {}).get(c.group) or (spec.get("cells") or {}).get(c.group) or {}
         if _group_rule(spec, mode, c.group) == "n/a" or (c.target, c.group) in missing:
-            crit = {}  # no verdict: a mode the design leaves empty ("—"), or a group the run has no values for
+            crit = {}  # no verdict: a mode the design leaves empty ("—"), or a group the run does not export
         c = replace(c, ok=_cell_ok(c, crit))
         out_cells.append(c)
         by_group.setdefault((c.target, c.group), []).append(c)

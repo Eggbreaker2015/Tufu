@@ -20,7 +20,8 @@ number. Keys starting with ``_`` are comments.
 The C# side is the authority on field names, types and enum values: :func:`read_csharp_params` parses
 the partial ``SimulationRebuildParams*.cs`` files under ``CodeBase/Simulation`` and the enums of the
 whole ``Assembly-CSharp`` tree (those under ``CodeBase/Simulation`` first) with the extractor's enum
-parser, and :func:`check_against_csharp` compares a resolved object with them.
+parser, and :func:`check_against_csharp` compares a resolved object with them (:func:`resolve` runs it
+whenever the declarations are known).
 """
 
 from __future__ import annotations
@@ -124,8 +125,8 @@ class CsParams:
 
 
 _CLASS = re.compile(r"\bpartial\s+class\s+" + PARAMS_CLASS + r"\b[^{]*\{")
-_FIELD = re.compile(r"^\s*public\s+(?!static|const|class|enum|partial)([\w.]+(?:\[\])?)\s+(\w+)\s*(?:=\s*([^;]+))?;",
-                    re.M)
+_FIELD = re.compile(r"^\s*(?:\[[^\]\n]*\]\s*)*public\s+(?!static|const|class|enum|partial|readonly)"
+                    r"([\w.]+(?:\[\])?)\s+(\w+)\s*(?:=\s*([^;]+))?;", re.M)
 _COMMENT = re.compile(r"//[^\n]*|/\*.*?\*/", re.S)
 
 
@@ -313,8 +314,8 @@ def resolve(layers: Sequence[str | Path | Mapping[str, Any] | Layer] = ("default
             overrides: Mapping[str, Any] | None = None, *, root: str | Path = PARAMS_ROOT,
             csharp: CsParams | str | None = AUTO) -> Resolved:
     """Merge ``layers`` (the first must be the defaults) and ``overrides`` into the complete object.
-    ``csharp``: the C# declarations (enum names, spelling check); ``AUTO`` reads this worktree's class,
-    ``None`` skips them."""
+    ``csharp``: the C# declarations (enum names, spelling check, and :func:`check_against_csharp` on the
+    result: fields, types, enum members); ``AUTO`` reads this worktree's class, ``None`` skips them."""
     if isinstance(csharp, str):
         if csharp != AUTO:
             raise ValueError(f"csharp must be a CsParams, {AUTO!r} or None")
@@ -341,6 +342,10 @@ def resolve(layers: Sequence[str | Path | Mapping[str, Any] | Layer] = ("default
             params[k] = _coerce(k, v, params[k], members, f"layer {layer.name}")
             source[k] = layer.name
     ordered = {k: params[k] for k in sorted(params)}
+    if csharp is not None:
+        problems = check_against_csharp(ordered, csharp)
+        if problems:
+            raise ParamsError("resolved parameters do not match the C# class: " + "; ".join(problems))
     return Resolved(params=ordered, params_hash=params_hash(ordered), source={k: source[k] for k in sorted(source)},
                     layers=tuple(x.name for x in loaded))
 
