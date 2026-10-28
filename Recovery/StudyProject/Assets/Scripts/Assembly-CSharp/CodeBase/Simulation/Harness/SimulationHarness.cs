@@ -572,6 +572,12 @@ namespace Codebase.Simulation.Harness
 			speedCap = Math.Max(1, request.Unity.SimulationSpeed) * 16;
 			speedMin = speedMax = config.SimulationSpeed;
 
+			// S1's in-session reset (design 7.4); false while S1 is absent, when only a fresh Play session resets.
+			if (!SimulationSystem.Instance.RebuildTryResetForJob() && request.Unity.ResetMode != "reenter_play")
+			{
+				Fail(ExitBadRequest, "reset_mode " + request.Unity.ResetMode + " needs S1's RebuildResetForJob");
+				return;
+			}
 			int zeroed = 0;
 			if (request.Sandbox.ZeroReadyCooldowns)
 			{

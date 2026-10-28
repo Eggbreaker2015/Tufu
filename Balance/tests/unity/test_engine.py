@@ -426,7 +426,12 @@ def test_write_points(engine_run, db):
     assert acc["after"]["cooldown"] == acc["after"]["base_cooldown"]
     assert acc["after"]["stats"] == acc["before"]["stats"] and acc["after"]["current_health"] == acc["before"]["current_health"]
     assert delta["accumulate"] == {"accumulate_calls": 1, "clears": 2, "kills": 2 * acc["count"]}
-    assert steps["charge_cap"]["after"]["usage"] == steps["charge_cap"]["after"]["limit"]
+    # Charge cap: clears stop once used >= limit (the bot filter's rule), the last one may overshoot the cap.
+    cap = steps["charge_cap"]
+    allowed = -(-(cap["before"]["limit"] - cap["before"]["usage"]) // cap["count"])
+    assert 0 < allowed < 1000 and cap["after"]["usage"] == cap["after"]["limit"]
+    assert delta["charge_cap"] == {"accumulate_calls": 1, "clears": allowed, "kills": allowed * cap["count"],
+                                   "charge_clamped": 1000 - allowed}
     # DAFC (with a Health reward): three clears asked, one applied; +inf, untouched by ResetCooldowns and offline.
     dafc = steps["dafc_clear"]
     assert dafc["rewards"] and delta["dafc_clear"] == {"dafc_clamped": 1, "clears": 1, "kills": dafc["count"]}
@@ -446,6 +451,60 @@ def test_write_points(engine_run, db):
     assert delta["gate_clear_again"] == {"clears": 1, "kills": 1}  # the gate is open: nothing to unlock again
     assert steps["gate_clear_again"]["after"]["unlocked_location"] == 2
     assert delta["unlock_again"] == {"repeat_unlocks": 1}  # a direct call to an open island counts and does nothing
+
+
+def _rewards_by_spawner(db):
+    """SoulReward / CurrencyReward of every registered spawner, keyed by runtime id (from the DB, not the engine)."""
+    rows = {(r[0], int(r[1])): tuple(r)[2:] for r in db.execute(
+        "SELECT scene, file_id, SoulReward, CurrencyReward, CurrencyRewardAmount FROM spawners")}
+    return {spawner_map.runtime_id(spawner_map.runtime_path(d.scene, d.go_path), d.key): (d, *rows[d.spawner_id])
+            for d in sp.registered(sp.load_spawners(db))}
+
+
+def test_write_points_record_souls_and_currencies(engine_run, db):
+    """Immediate clears record SoulReward x Count x clears and CurrencyRewardAmount x clears (design 4.5); the
+    accumulate path records nothing until C5's flush."""
+    probe = engine_run.manifest("write-points")["engine"]["probe"]
+    delta = _deltas(probe["steps"])
+    info = _rewards_by_spawner(db)
+    souls_prev, money_prev, checked = {}, {}, 0
+    for step in probe["steps"]:
+        d, soul, currency, amount = info[step["spawner"]]
+        clears = delta[step["name"]].get("clears", 0)
+        immediate = clears and "accumulate_calls" not in delta[step["name"]]
+        expect_souls, expect_money = dict(souls_prev), dict(money_prev)
+        if immediate and soul and soul.strip():
+            expect_souls[soul] = expect_souls.get(soul, 0.0) + clears * d.count
+            checked += 1
+        if immediate and currency and currency.strip():
+            expect_money[currency] = expect_money.get(currency, 0.0) + clears * amount
+        assert step["souls"] == expect_souls, step["name"]
+        assert step["currencies"] == expect_money, step["name"]
+        souls_prev, money_prev = step["souls"], step["currencies"]
+    assert checked >= 3
+
+
+def test_fast_tick_gate_flush(engine_run, db):
+    """RebuildFlushFastTickGates consumes the gate set between two planning rounds: the gate opens its island,
+    currentBoss moves on, the slot reward opens, the set is emptied, and no stat or clear changes (design 4.5)."""
+    m = engine_run.manifest("write-points")
+    steps = {s["name"]: s for s in m["engine"]["probe"]["steps"]}
+    delta = _deltas(m["engine"]["probe"]["steps"])
+    fl = steps["flush_fast_gates"]
+    d = _rewards_by_spawner(db)[fl["spawner"]][0]
+    before = fl["before"]["unlocked_location"]
+    assert fl["spawner"] == m["engine"]["bosses"][str(before)]
+    target = max(n for n in d.gate_next_locations)
+    assert target == before + 1 and fl["after"]["unlocked_location"] == target
+    assert fl["after"]["current_boss"] == m["engine"]["bosses"][str(target)]
+    expected = {"unlocks": 1}
+    if d.slot_reward:
+        expected["slot_unlocks"] = 1
+    assert delta["flush_fast_gates"] == expected
+    assert fl["after"]["stats"] == fl["before"]["stats"] and fl["after"]["current_health"] == fl["before"]["current_health"]
+    assert fl["after"]["watched"] == fl["before"]["watched"]
+    assert fl["fast_tick_chunk_gate_spawners"] == 0
+    assert all(s["fast_tick_chunk_gate_spawners"] == 0 for s in m["engine"]["probe"]["steps"])
 
 
 def test_offline_minute_and_day_change(engine_run):

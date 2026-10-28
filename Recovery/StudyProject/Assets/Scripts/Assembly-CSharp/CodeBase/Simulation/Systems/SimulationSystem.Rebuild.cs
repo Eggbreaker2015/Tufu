@@ -162,8 +162,21 @@ namespace Codebase.Simulation.Systems
 				RebuildCount("dafc_clamped");
 				clears = 1;
 			}
+			// The bot filter admits a spawner while used < limit, so the last admitted clear may overshoot the cap;
+			// clears beyond that are not done.
 			spawnerChargesUsage.TryGetValue(spawner, out int used);
-			spawnerChargesUsage[spawner] = Math.Min(GetSpawnerChargesLimit(spawner), used + GetSpawnerChargesPerClear(spawner) * clears);
+			int limit = GetSpawnerChargesLimit(spawner), perClear = GetSpawnerChargesPerClear(spawner);
+			if (perClear > 0)
+			{
+				int allowed = used >= limit ? 0 : (limit - used + perClear - 1) / perClear;
+				if (clears > allowed)
+				{
+					RebuildCount("charge_clamped", clears - allowed);
+					clears = allowed;
+					if (clears == 0) return;
+				}
+			}
+			spawnerChargesUsage[spawner] = Math.Min(limit, used + perClear * clears);
 			spawner.Cooldown = def.DisableAfterFirstClear ? float.PositiveInfinity : spawner.BaseCooldown;
 			RebuildCount("clears", clears);
 			RebuildCount("kills", (long)clears * def.Count);
@@ -398,7 +411,7 @@ namespace Codebase.Simulation.Systems
 		// Count > 1, the charge cap, an early snapshot after a reward (CurrentGpm = dValue/dP), a DAFC clear and its
 		// +inf cooldown through ResetCooldowns and offline time, a gate cleared twice, a direct repeat unlock, a
 		// day change (charges and finite cooldowns reset, DAFC stays +inf) after a minute of offline (cooldown and
-		// regen), and every back-gate cleared with its target island open.
+		// regen), the same-day gate flush of the fast phase, and every back-gate cleared with its target island open.
 		private JObject RebuildRunWritePointProbe()
 		{
 			int nonzeroCooldowns = enemiesModel.Spawners.Count(s => !s.Config.IsEvent && !s.Config.IsVip && s.Cooldown != 0f);
@@ -429,7 +442,10 @@ namespace Codebase.Simulation.Systems
 					["before"] = before,
 					["after"] = RebuildProbeState(spawner, watched),
 					["counters"] = new JObject(RebuildCounters.Select(kv => new JProperty(kv.Key, kv.Value))),
+					["souls"] = new JObject(RebuildSoulRewards.Select(kv => new JProperty(kv.Key, kv.Value))),
+					["currencies"] = new JObject(RebuildCurrencyRewards.Select(kv => new JProperty(kv.Key, kv.Value))),
 					["fast_tick_chunk_stat_rewards"] = fastTickChunkStatRewards.Count,
+					["fast_tick_chunk_gate_spawners"] = fastTickChunkGateRewardSpawners.Count,
 				});
 			}
 
@@ -455,6 +471,13 @@ namespace Codebase.Simulation.Systems
 			Step("wound", health, () => playerModel.Unit.CurrentHealth = 1.0);
 			Step("afk_one_minute", health, () => ProcessAFK(1f));
 			Step("day_change", health, UpdateSpawnerChargesChunk);
+			EnemySpawner nextGate = RebuildFindBoss(playerModel.LastUnlockedLocation.Number);
+			if (nextGate != null)
+				Step("flush_fast_gates", nextGate, () =>
+				{
+					fastTickChunkGateRewardSpawners.Add(nextGate);
+					RebuildFlushFastTickGates();
+				});
 			var backGates = sortedSpawners.Where(s => s.Config.Gates != null
 				&& s.Config.Gates.Any(g => g != null && g.NextLocationNumber <= s.Config.LocationNumber)).ToList();
 			if (backGates.Count > 0)

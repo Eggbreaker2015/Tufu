@@ -417,6 +417,27 @@ def test_cross_module_call_sites_in_place(current):
     assert all(m["invocations"] == [] for m in stubs)
 
 
+def test_day_override_follows_the_forced_snapshot(current):
+    """Design 4.6: the replay/checkpoint override of day d takes effect after day d's forced snapshot, on day 0
+    as on every day change (the 4.4 pseudo-code has it before; the deviation is in Runbook 16.6)."""
+    by_name = {m["name"]: m["invocations"] for m in methods(current, "SimulationSystem")}
+    for caller in ("PrepareSimulationRun", "UpdateSpawnerChargesChunk"):
+        calls = by_name[caller]
+        assert calls.count("RebuildApplyDayOverride") == 1 and calls.count("MakeSnapshot") == 1, caller
+        assert calls.index("MakeSnapshot") < calls.index("RebuildApplyDayOverride"), caller
+    calls = by_name["UpdateSpawnerChargesChunk"]
+    last_modifier = max(i for i, c in enumerate(calls) if c in ("RecalculateChunkRpmValues", "UpdateInterpolationStatModifier"))
+    assert last_modifier < calls.index("MakeSnapshot")
+
+
+def test_harness_calls_the_reset_bridge():
+    """Design 7.4: SimulationHarness -> RebuildResetForJob (S1), through the internal bridge, at job start."""
+    harness = {m["name"]: m["invocations"] for m in methods(members_of([HARNESS], "SimulationHarness"), "SimulationHarness")}
+    calls = harness["StartJob"]
+    assert "RebuildTryResetForJob" in calls
+    assert calls.index("RebuildTryResetForJob") < calls.index("StateDigestText")
+
+
 def test_hooks_do_not_collide_with_harness_hooks(current):
     harness = members_of([HARNESS], "SimulationHarness")
     harness_hooks = {m["name"] for m in methods(harness, "SimulationHarness") if "partial" in m["modifiers"]}

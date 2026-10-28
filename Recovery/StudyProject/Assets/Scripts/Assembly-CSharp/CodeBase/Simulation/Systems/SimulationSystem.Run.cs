@@ -44,8 +44,10 @@ namespace Codebase.Simulation.Systems
 			RebuildOnTickCompleted();
 		}
 
-		// Idempotent (isSimulationPrepared). Resets the run state of design 4.2 on the fresh save of the Play
-		// session, then day 0: K2/K3(0) modifiers, RPM, the forced snapshot 0 in both lists.
+		// Idempotent (isSimulationPrepared). Resets the engine, position and policy state of design 4.2 to its
+		// OnAwake values; PlayerModel, items, slots and GatesModel come from the fresh save of the Play session
+		// (reenter_play; in-session jobs need S1). Then day 0: K2/K3(0) modifiers, RPM, the forced snapshot 0 in
+		// both lists, the replay/checkpoint override.
 		[SimulationRebuild(Provenance.Inferred, "pending:simulation.prepare_run")]
 		private void PrepareSimulationRun()
 		{
@@ -76,6 +78,12 @@ namespace Codebase.Simulation.Systems
 				wasFastTickActive = false;
 				RebuildLastSnapshotPlaytime = 0f;
 				currentSpawner = null;
+				currentPosition = Vector3.zero;
+				lastRewardStat = null;
+				foreach (StatType type in statsBenefitKeys) statsBenefit[type] = 1f;
+				itemBenefit.Clear();
+				PathSpawners.Clear();
+				statBenefitCandidates.Clear();
 				totalFightTime = totalMoveTime = 0.0;
 				countFight = countNeighbFight = countFightWithStrong = countRespawn = 0;
 				spawnerChargesUsage.Clear();
@@ -222,7 +230,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// The only place a day changes (design 4.3). Order RpmFirst (G20): RPM and DpsData under the old
-		// K2/K3(d-1) modifiers (K4/K5 already read d), then the K(d) modifiers, then the forced snapshot.
+		// K2/K3(d-1) modifiers (K4/K5 already read d), then the K(d) modifiers, the forced snapshot, the override.
 		[SimulationRebuild(Provenance.Inferred, "pending:simulation.day_change_order")]
 		private void UpdateSpawnerChargesChunk()
 		{
@@ -247,8 +255,10 @@ namespace Codebase.Simulation.Systems
 			}
 			ProcessAmuletAutoBalanceTargets(day);
 			ProcessCrystalSimulationChunk();
-			RebuildApplyDayOverride(day);
 			MakeSnapshot(true);
+			// After the forced snapshot, as on day 0, so day d's snapshot keeps the closed-loop state (design 4.6;
+			// the 4.4 pseudo-code has it before the snapshot).
+			RebuildApplyDayOverride(day);
 			RebuildCount("day_changes");
 		}
 
