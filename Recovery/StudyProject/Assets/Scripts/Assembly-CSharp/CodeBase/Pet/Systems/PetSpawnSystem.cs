@@ -116,6 +116,11 @@ namespace Codebase.Pet.Systems
 				unit.Dispose();
 				unit.HealthBar = null;
 			}
+			// The EntityProvider does not remove its entity on destroy; without this NavMeshSyncSystem
+			// keeps reading the destroyed NavMeshAgent (MissingReferenceException every frame).
+			Entity entity = unit.EntityProvider.Entity;
+			if (!World.IsDisposed(entity))
+				World.RemoveEntity(entity);
 			Object.Destroy(unit.gameObject);
 		}
 
