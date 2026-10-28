@@ -12,7 +12,7 @@ namespace Codebase.Simulation.Harness
 	{
 		public partial class Job
 		{
-			[JsonProperty("probes")] public ProbeOptions Probes;
+			[JsonProperty("probes", NullValueHandling = NullValueHandling.Ignore)] public ProbeOptions Probes;
 		}
 
 		[JsonObject(MemberSerialization.OptIn)]
