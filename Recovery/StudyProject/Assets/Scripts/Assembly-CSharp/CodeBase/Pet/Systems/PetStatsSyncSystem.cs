@@ -10,6 +10,7 @@ namespace Codebase.Pet.Systems
 {
 	// Rebuilds pet stats from the player's inheritable modifiers; runs after AbilityExecuteEventSystem.
 	// Health, Damage and the weapon's typed flat damage are scaled by the pet's ratios (PetStats.GetRatios).
+	// Flat regen and flat lifesteal follow the health ratio, so a pet heals the same share of its max health as the player.
 	public class PetStatsSyncSystem : SystemBase
 	{
 		private const string RatioName = "pet.ratio";
@@ -108,13 +109,18 @@ namespace Codebase.Pet.Systems
 
 		private static bool IsRatioStat(StatType type, StatType flatType)
 		{
-			return type == StatType.Health || type == StatType.Damage || type == flatType;
+			return IsHealthRatioStat(type) || type == StatType.Damage || type == flatType;
 		}
 
-		// Health -> health ratio; Damage and the weapon's typed flat damage (the player attack) -> attack ratio.
+		private static bool IsHealthRatioStat(StatType type)
+		{
+			return type == StatType.Health || type == StatType.HealthRegen || type == StatType.LifestealFlat;
+		}
+
+		// Health, regen and flat lifesteal -> health ratio; Damage and the weapon's typed flat damage (the player attack) -> attack ratio.
 		private static float GetRatio(StatType type, StatType flatType, PetStatRatios ratios)
 		{
-			if (type == StatType.Health)
+			if (IsHealthRatioStat(type))
 				return ratios.Health;
 			if (type == StatType.Damage || type == flatType)
 				return ratios.Attack;

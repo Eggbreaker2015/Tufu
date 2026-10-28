@@ -520,6 +520,8 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 
 新建 `PetRegenSystem`（筛选 `PetTag`，存活）：每帧 `CurrentHealth += HealthRegen 的 specific 值 × dt`，上限为最大生命，参照 `PlayerRegenSystem.cs:20-38`。不乘玩家的 `AbilityHealthRegenMultiplier`。
 
+宠物的 `HealthRegen` 和 `LifestealFlat` 要乘宠物的生命比例（`PetStatsSyncSystem`）。这样宠物每秒回复的血量占自身最大生命的比例与玩家相同。如果不乘，宠物会继承玩家的全额回血，而它的血量只有玩家的 0.7～1.2 倍，按比例算回得过快。`LifestealPercent` 本来就按最大生命计算，所以不缩放。
+
 ---
 
 ## 8. 死亡与复活
