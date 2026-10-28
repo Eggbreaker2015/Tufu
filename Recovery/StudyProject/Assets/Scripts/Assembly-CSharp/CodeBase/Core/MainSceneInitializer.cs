@@ -288,6 +288,8 @@ namespace Codebase.Core
             };
             foreach (string address in addresses)
             {
+                // Loaded from the project copy in the editor (RecoveredAddressables); no bundle to warm up.
+                if (RecoveredAddressables.HasProjectCopy(address)) continue;
                 var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>(address);
                 editorStartupAssets.Add(handle);
                 while (!handle.IsDone)

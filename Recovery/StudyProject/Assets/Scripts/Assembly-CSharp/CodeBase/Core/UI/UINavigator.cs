@@ -93,7 +93,7 @@ namespace Codebase.Core.UI
 		{
 			// Native ELF VA 0x17d1e44; cache hit casts to T, preserving native invalid-cast behavior.
 			if (prefabCache.TryGetValue(key, out PopupView cached)) return (T)cached;
-			GameObject obj = Addressables.LoadAssetAsync<GameObject>(key).WaitForCompletion();
+			GameObject obj = RecoveredAddressables.Load(key);
 			if (obj == null)
 			{
 			    Debug.LogError("[UINavigator] Failed to load prefab: " + key);
@@ -113,7 +113,7 @@ namespace Codebase.Core.UI
 		{
 			// Native ELF VA 0x154910c; exact original error strings resolved through ELF RELA.
 			if (prefabCache.TryGetValue(key, out PopupView prefab)) return prefab;
-			GameObject obj = Addressables.LoadAssetAsync<GameObject>(key).WaitForCompletion();
+			GameObject obj = RecoveredAddressables.Load(key);
 			if (obj == null)
 			{
 			    Debug.LogError("[UINavigator] Failed to load prefab: " + key);
@@ -134,7 +134,7 @@ namespace Codebase.Core.UI
 			// Native ELF VA 0x1549610.
 			if (backgroundPrefab == null)
 			{
-			    GameObject obj = Addressables.LoadAssetAsync<GameObject>(backgroundKey).WaitForCompletion();
+			    GameObject obj = RecoveredAddressables.Load(backgroundKey);
 			    if (obj == null)
 			    {
 			        Debug.LogError("[UINavigator] Failed to load background prefab: " + backgroundKey);

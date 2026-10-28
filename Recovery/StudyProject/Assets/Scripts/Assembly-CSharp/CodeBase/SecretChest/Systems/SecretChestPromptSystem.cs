@@ -112,7 +112,7 @@ namespace Codebase.SecretChest.Systems
         {
             // APK 0x1411d1c: preserve the original Addressables asset and synchronous load.
             if (prefabCache.TryGetValue(address, out var prefab)) return prefab;
-            var asset = Addressables.LoadAssetAsync<GameObject>(address).WaitForCompletion();
+            var asset = global::Codebase.Core.RecoveredAddressables.Load(address);
             if (asset == null || !asset.TryGetComponent<SecretChestPromptView>(out prefab))
                 throw new InvalidOperationException("Secret chest prompt prefab is missing: " + address);
             prefabCache[address] = prefab;

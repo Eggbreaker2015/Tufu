@@ -122,7 +122,9 @@ namespace Codebase.Abilities.Vfx
 			// Native ELF VA 0x15e483c; cache owns successful original Addressables handles.
 			if (loadedPrefabs.TryGetValue(key, out ParticleSystem prefab)) return prefab;
 #if UNITY_EDITOR
-			prefab = LoadProjectPrefab(key);
+			// Editor: the project copy instead of the Windows-built bundle (see RecoveredAddressables).
+			GameObject local = Codebase.Core.RecoveredAddressables.LoadProjectCopy(key);
+			prefab = local != null ? local.GetComponent<ParticleSystem>() : null;
 			if (prefab != null)
 			{
 				loadedPrefabs[key] = prefab;
@@ -138,39 +140,5 @@ namespace Codebase.Abilities.Vfx
 			loadedPrefabs[key] = prefab;
 			return prefab;
 		}
-
-#if UNITY_EDITOR
-		// Editor only: the recovered bundles are built for StandaloneWindows64 and their particle materials and
-		// textures render as white squares in the macOS (Metal) editor. Load the project's own copy of each prefab
-		// instead (Recovery/Evidence/addressables-recovered-asset-map.json; serialized trees match the originals).
-		private const string ProjectFxRoot = "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/";
-
-		private static readonly Dictionary<string, string> projectPrefabs = new Dictionary<string, string>
-		{
-			{ "Stunned.prefab", "Assets/JMO Assets/Epic Toon FX/Prefabs/Combat/Brawling/Stun/StunnedCirclingStars.prefab" },
-			{ "DeathEvasion.prefab", ProjectFxRoot + "DeathEvasion.prefab" },
-			{ "HealBig.prefab", ProjectFxRoot + "HealTrigger1.prefab" },
-			{ "HealSmall.prefab", ProjectFxRoot + "HealTriggerSmall.prefab" },
-			{ "ApplyMark.prefab", ProjectFxRoot + "Mark.prefab" },
-			{ "MegaLightning.prefab", ProjectFxRoot + "MegaLightning.prefab" },
-			{ "RageLevelUp1.prefab", ProjectFxRoot + "Rage_Stage_1.prefab" },
-			{ "RageLevelUp2.prefab", ProjectFxRoot + "Rage_Stage_2.prefab" },
-			{ "RageLevelUp3.prefab", ProjectFxRoot + "Rage_Stage_3.prefab" },
-			{ "ReflectionStrike.prefab", ProjectFxRoot + "ReflectionStrike.prefab" },
-			{ "ShockLightning.prefab", ProjectFxRoot + "ShockLightning.prefab" },
-			{ "ApplyShock.prefab", ProjectFxRoot + "Shocked.prefab" },
-			{ "SpeedupTrigger.prefab", ProjectFxRoot + "SpeedupTrigger.prefab" },
-			{ "SuperCrit_Blue.prefab", ProjectFxRoot + "SuperCrit_Blue.prefab" },
-			{ "SwordCrit.prefab", ProjectFxRoot + "SwordCrit_Slime.prefab" },
-			{ "SwordHit.prefab", ProjectFxRoot + "SwordHit_Slime.prefab" },
-		};
-
-		private static ParticleSystem LoadProjectPrefab(string key)
-		{
-			if (!projectPrefabs.TryGetValue(System.IO.Path.GetFileName(key), out string path)) return null;
-			GameObject obj = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
-			return obj != null ? obj.GetComponent<ParticleSystem>() : null;
-		}
-#endif
 	}
 }

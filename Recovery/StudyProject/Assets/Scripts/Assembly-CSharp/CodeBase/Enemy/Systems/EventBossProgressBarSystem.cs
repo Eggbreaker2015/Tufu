@@ -107,12 +107,12 @@ namespace Codebase.Enemy.Systems
 
 		private void LoadPrefab()
 		{
-			Addressables.LoadAssetAsync<GameObject>(PrefabAddress).Completed += operation =>
+			global::Codebase.Core.RecoveredAddressables.LoadAsync(PrefabAddress, result =>
 			{
-				if (operation.Result == null) return;
-				prefab = operation.Result.GetComponent<BossHuntProgressView>();
+				if (result == null) return;
+				prefab = result.GetComponent<BossHuntProgressView>();
 				if (prefab != null) prefabLoaded = true;
-			};
+			});
 		}
 
 		public BossHuntProgressView GetProgressView()

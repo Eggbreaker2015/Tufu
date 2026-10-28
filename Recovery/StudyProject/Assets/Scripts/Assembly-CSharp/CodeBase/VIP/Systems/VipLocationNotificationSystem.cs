@@ -54,11 +54,11 @@ namespace Codebase.VIP.Systems
 		private void LoadPrefab()
 		{
             // Native 0x15c016c + callback0x15c0618.
-            Addressables.LoadAssetAsync<GameObject>("Assets/Prefabs/UI/VipLocationNotification.prefab").Completed += handle =>
+            global::Codebase.Core.RecoveredAddressables.LoadAsync("Assets/Prefabs/UI/VipLocationNotification.prefab", result =>
             {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
-                    prefab = handle.Result.GetComponent<VipLocationNotificationView>();
-            };
+                if (result != null)
+                    prefab = result.GetComponent<VipLocationNotificationView>();
+            });
 		}
 
 		private VipLocationNotificationStateComponent Create(Entity entity)

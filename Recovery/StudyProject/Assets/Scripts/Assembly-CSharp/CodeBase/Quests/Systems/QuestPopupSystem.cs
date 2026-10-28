@@ -152,7 +152,7 @@ namespace Codebase.Quests.Systems
 		{
 			// Original ELF 0x143159c.
 			if (prefab != null) return prefab;
-			var go = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>("Assets/Prefabs/UI/Mines/Quests/QuestPopup.prefab").WaitForCompletion();
+			var go = global::Codebase.Core.RecoveredAddressables.Load("Assets/Prefabs/UI/Mines/Quests/QuestPopup.prefab");
 			prefab = go.GetComponent<QuestPopupView>();
 			return prefab;
 		}
