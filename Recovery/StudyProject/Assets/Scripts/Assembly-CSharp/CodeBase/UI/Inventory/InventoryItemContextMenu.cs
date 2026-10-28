@@ -4,6 +4,7 @@ using Codebase.Player;
 using System.Linq;
 using Codebase.Core;
 using Codebase.Core.UI;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
 using TMPro;
@@ -102,6 +103,18 @@ namespace Codebase.UI.Inventory
 
 		private float colorOffset;
 
+		// Pet mode: the item's pet stats sit in a block cloned from the stat label, between the stats and the abilities.
+		private const float PetStatsHeight = 300f;
+
+		// Part of the block that goes into the existing gap above the abilities.
+		private const float PetStatsOverlap = 24f;
+
+		private TMP_Text petStatsText;
+
+		private Vector2 abilitiesPosition;
+
+		private float petStatsRefreshTime;
+
 		protected override void Awake()
 		{
 			// Native ELF VA 0x164df78; original split-code branch continues to all three button listeners.
@@ -141,6 +154,7 @@ namespace Codebase.UI.Inventory
 		private void LateUpdate()
 		{
 			// Native ELF VA 0x164e178; original mythical text hue cycles at 0.5 per second.
+			if (petStatsText != null && petStatsText.gameObject.activeSelf && Time.unscaledTime >= petStatsRefreshTime) RefreshPetStats(playerModel.SelectedItem);
 			if (playerModel.SelectedItem == null || playerModel.SelectedItem.Config.Rarity != Rarity.Mythical) return;
 			itemPreviewRarity.color = Color.HSVToRGB(colorOffset, 0.25f, 1f, true);
 			colorOffset += Time.deltaTime * 0.5f;
@@ -157,6 +171,7 @@ namespace Codebase.UI.Inventory
 			if (item.HasUnlockableAbility) height += abilitiesView.GetHeight();
 			if (item.HasStars) starsView.Setup(item);
 			else height -= ((RectTransform)starsView.transform).sizeDelta.y * 0.25f;
+			height += RenderPetStats(item);
 			mainStatText.text = LocalizationStrings.Get(item.IsArmor ? "STAT_Armor" : "STAT_Damage");
 			starsView.gameObject.SetActive(item.HasStars);
 			RectTransform.sizeDelta = new Vector2(RectTransform.sizeDelta.x, height);
@@ -175,6 +190,7 @@ namespace Codebase.UI.Inventory
 			itemPreviewTitle.text = LocalizationStrings.Get("ITEM_NAME_" + item.Config.Key);
 			bool cancel = inventoryView.UnequipState;
 			itemPreviewEquipText.text = LocalizationStrings.Get(cancel ? "INVENTORY_CANCEL" : playerModel.EquippedItems.Contains(item) ? "INVENTORY_UNEQUIP" : "INVENTORY_EQUIP");
+			bool isPet = PetStats.TryGet(item, out PetStatsInfo pet);
 			IconStyleConfig styles = GameContext.Get<IconStyleConfig>();
 			ItemsProvider items = GameContext.Get<ItemsProvider>();
 			string iconName = styles.WeaponTypeStyles.First(style => style.WeaponType == item.Config.DamageType).Sprite.name;
@@ -191,16 +207,65 @@ namespace Codebase.UI.Inventory
 			}
 			itemPreviewRarity.text = (rarityStyle.HasGradient ? "" : "<color=" + color + ">") + LocalizationStrings.Get(string.Format("ITEM_RARITY_{0}", rarity));
 			itemPreviewType.text = "<sprite name=" + iconName + ">" + LocalizationStrings.Get(string.Format("WEAPON_TYPE_{0}", item.Config.DamageType));
+			// Pet mode: the damage row shows the pet's attack (own + player share) and its next-level value.
+			if (isPet)
+			{
+			    value = pet.Attack;
+			    next = pet.NextAttack;
+			}
 			itemPreviewDamage.text = "<sprite name=" + iconName + ">" + value.Format();
 			itemPreviewDamageNext.text = next.Format();
 			itemPreviewAttackSpeed.text = item.Config.AttackCooldown.ToString() + "s";
 			itemPreviewStatPerCopyLabel.text = LocalizationStrings.Get(item.IsArmor ? "ITEMS_ArmorPerCopy" : "ITEMS_DamagePerCopy");
-			itemPreviewStatPerCopyValue.text = "<sprite name=" + iconName + "> " + item.StatPerCopy.Format();
+			itemPreviewStatPerCopyValue.text = "<sprite name=" + iconName + "> " + (isPet ? PetStatsText.AttackPerCopy(pet) : item.StatPerCopy).Format();
 			itemPreviewAttackSpeedRoot.SetActive(!item.IsArmor);
 			itemPreviewRarity.enableVertexGradient = rarityStyle.HasGradient;
 			itemPreviewRarity.colorGradient = rarityStyle.Gradient;
 			itemPreviewRarity.color = Color.white;
 			equipButtonImage.sprite = cancel ? cancelButtonSprite : equipButtonSprite;
+		}
+
+		// Returns the height the pet block adds to the menu; hides it and restores the abilities outside pet mode or for armor.
+		private float RenderPetStats(ItemModel item)
+		{
+			RectTransform abilities = (RectTransform)abilitiesView.transform;
+			if (!PetStats.TryGet(item, out PetStatsInfo pet))
+			{
+			    if (petStatsText != null && petStatsText.gameObject.activeSelf)
+			    {
+			        petStatsText.gameObject.SetActive(false);
+			        abilities.anchoredPosition = abilitiesPosition;
+			    }
+			    return 0f;
+			}
+			if (petStatsText == null)
+			{
+			    abilitiesPosition = abilities.anchoredPosition;
+			    petStatsText = PetStatsText.CreateBlock(mainStatText, RectTransform, "PetStats");
+			    petStatsText.fontSizeMax = 40f;
+			    RectTransform block = petStatsText.rectTransform;
+			    block.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y + PetStatsOverlap);
+			    block.sizeDelta = new Vector2(abilities.sizeDelta.x - 2f * mainStatText.rectTransform.anchoredPosition.x, PetStatsHeight);
+			}
+			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), true));
+			petStatsText.gameObject.SetActive(true);
+			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
+			float shift = PetStatsHeight - PetStatsOverlap;
+			abilities.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y - shift);
+			return shift;
+		}
+
+		// Live absolute values: the player's stats are not atoms the render reaction tracks.
+		private void RefreshPetStats(ItemModel item)
+		{
+			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
+			if (!PetStats.TryGet(item, out PetStatsInfo pet)) return;
+			PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, PetStatsText.Next(pet), true));
+			IconStyleConfig styles = GameContext.Get<IconStyleConfig>();
+			string iconName = styles.WeaponTypeStyles.First(style => style.WeaponType == item.Config.DamageType).Sprite.name;
+			itemPreviewDamage.text = "<sprite name=" + iconName + ">" + pet.Attack.Format();
+			itemPreviewDamageNext.text = pet.NextAttack.Format();
+			itemPreviewStatPerCopyValue.text = "<sprite name=" + iconName + "> " + PetStatsText.AttackPerCopy(pet).Format();
 		}
 
 		public void SelectStat(string title, string value)

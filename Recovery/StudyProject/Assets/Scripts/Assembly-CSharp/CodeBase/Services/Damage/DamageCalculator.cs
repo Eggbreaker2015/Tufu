@@ -80,7 +80,7 @@ namespace Codebase.Services.Damage
 			        attack *= (double)Math.Max(0f, attacker.EventDamageRampTimer - 5f) * 0.04 + 1.0;
 			    if (attacker != null && attacker.Config != null && attacker.Config.IsBossFightPart)
 			        attack /= meta.Get("tower_damage_reduction").Value + 1.0;
-			    // Pet mode: a pet target gets no helmet/shield armor and no rage reduction; its defence is scaled by its definition.
+			    // Pet mode: a pet target gets no helmet/shield armor and no rage reduction; its defence is scaled by its defence ratio.
 			    PetUnit petTarget = PetConfig.Enabled ? data.Target as PetUnit : null;
 			    PlayerModel player = GameContext.Get<PlayerModel>();
 			    double armor = petTarget != null ? 0.0 : player.EquippedArmors.Where(item => item.Config.DamageType == WeaponType.Universal || item.Config.DamageType == data.DamageType).Sum(item => item.Armor);
@@ -88,7 +88,7 @@ namespace Codebase.Services.Damage
 			    double typedPercent = data.Target.GetStatValue(percentType);
 			    double flatScale = fromSimulation ? simulationFlatDefenceMultiplier : 1.0;
 			    double defence = flatScale * (universalFlat + armor + typedFlat) * typedPercent;
-			    if (petTarget != null && petTarget.Definition != null) defence *= petTarget.Definition.DefenceMultiplier;
+			    if (petTarget != null && petTarget.Item != null) defence *= PetStats.GetRatios(petTarget.Item, petTarget.Definition).Defence;
 			    double incoming = ApplyDamageDefense(attack, defence);
 			    incoming = Math.Max((1.0 - universalPercent) * incoming, 0.0);
 			    bool dodge = data.Target.GetStatSpecificValue(StatType.Evasion).Roll();
@@ -131,6 +131,9 @@ namespace Codebase.Services.Damage
 			float resist = resistance.Resist;
 			double baseAttack = data.Source.GetStatValue(StatType.Damage);
 			double weaponDamage = data.Weapon.Damage;
+			// Pet mode: a pet hits with its own attack (a scaled share of the weapon damage); the player attack comes in through
+			// its Damage and typed flat stats, which PetStatsSyncSystem scales by the attack ratio.
+			if (PetConfig.Enabled && data.Source is PetUnit petSource) weaponDamage = PetStats.GetOwnAttack(weaponDamage, petSource.Definition);
 			double flatDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypeFlat);
 			double percentDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypePercent);
 			double universalDefense = data.Target.GetStatValue(StatType.UniversalDefencePercent);
@@ -194,9 +197,6 @@ namespace Codebase.Services.Damage
 			        if (consumed > 0) damage *= (double)(owner.DamagePerConsumedShockOnTarget * (float)consumed + 1f);
 			    }
 			}
-			// Pet mode: a pet's outgoing damage is scaled by its definition's DamageMultiplier.
-			if (PetConfig.Enabled && data.Source is PetUnit pet && pet.Definition != null)
-			    damage *= pet.Definition.DamageMultiplier;
 			double evasion = data.Target.GetStatSpecificValue(StatType.Evasion);
 			if (!fromSimulation)
 			{

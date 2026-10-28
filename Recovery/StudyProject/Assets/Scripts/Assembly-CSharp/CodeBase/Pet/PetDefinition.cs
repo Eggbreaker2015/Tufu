@@ -14,13 +14,20 @@ namespace Codebase.Pet
 
 		public GameObject Prefab;
 
-		public float HealthMultiplier = 1f;
+		public string DisplayName;
 
-		public float DamageMultiplier = 1f;
+		// Species ratios of the player's inherited stats, before rarity and level (PetStats.GetRatios).
+		public float HealthRatio = 1f;
 
-		public float DefenceMultiplier = 1f;
+		public float AttackRatio = 1f;
 
-		public float AttackSpeedMultiplier = 1f;
+		public float DefenceRatio = 1f;
+
+		// In combat only; following the player uses PetConfig.FollowSpeedMultiplier.
+		public float MoveSpeedRatio = 1f;
+
+		// Own attack = weapon damage * PetConfig.OwnAttackScale * OwnAttackMultiplier.
+		public float OwnAttackMultiplier = 1f;
 
 		public bool IsFallback => string.IsNullOrEmpty(ItemKey);
 	}

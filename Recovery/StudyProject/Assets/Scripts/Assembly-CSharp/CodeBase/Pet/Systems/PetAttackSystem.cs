@@ -158,13 +158,7 @@ namespace Codebase.Pet.Systems
 
 		private float GetAttackSpeed(PetModel pet, EnemyUnit target)
 		{
-			ItemModel item = pet.Item;
-			float attackSpeed = 1f;
-			foreach (var ability in item.AbilityStates)
-				attackSpeed *= ability.GetWeaponStatMultiplier(WeaponBuffType.AttackSpeed);
-			attackSpeed *= item.AbilityAttackSpeedMultiplier;
-			if (pet.Definition != null)
-				attackSpeed *= pet.Definition.AttackSpeedMultiplier;
+			float attackSpeed = PetStats.GetAttackSpeedMultiplier(pet.Item);
 			// Weak enemies and event golems are judged on the pet's own target.
 			if (IsValid(target) && playerAttack != null && playerAttack.CanClassifyEnemies && (playerAttack.IsWeakEnemy(target) || playerAttack.IsEventGolem(target)))
 				attackSpeed *= WeakEnemyAttackSpeedMultiplier;

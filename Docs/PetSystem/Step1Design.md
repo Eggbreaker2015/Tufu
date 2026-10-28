@@ -673,6 +673,11 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 | 14 | 用作弊让物品进化（knife 进化到 Lv1） | 能力在宠物攻击时触发，例如 knife 的 OnKill 加 CutDamageFlat |
 | 15 | 用作弊装备 chainsaw（开放怒气）**并且**给护符升级 `graph_rage_extra_hit_7_21`（设定阈值），两者缺一不可 | 到达怒气阈值时，伤害最高的存活宠物和玩家各自提前出手一次 |
 | 16 | 存档、重开 | 物品和槽位不变，宠物全部存活，没有读档异常 |
+| 17 | 宠物模式下新存档，查看玩家 Damage 属性 | 玩家 Damage = 10（`PlayerBaseAttack`），爪子按它出伤；存档、重开多次后仍是 10，不叠加；关闭 `PetConfig.Enabled` 重启后为 0 |
+| 18 | 打开背包里任一武器的详情 | 出现宠物属性块：名字 + 生命、攻击、防御、移速、攻速 5 行；攻击 = 自身 + 玩家 × 比例，数值与第 15.3 节公式一致；吞噬后绝对值在 0.5s 内刷新；关闭宠物模式后详情与原作一致 |
+| 19 | 用作弊给武器加副本、进化 | 详情里的下一级预览（箭头后绿色数值）与升级后的实际值一致；场上对应宠物的最大生命和攻击随之重建，不需要等玩家属性变化 |
+| 20 | 宠物追打敌人、然后脱战 | 战斗中移速 = 玩家移速 × 移速比例；脱战后回到玩家移速 × 1.2 跟随，跑远仍会瞬移 |
+| 21 | 断点查看宠物打出的一击 | `weaponDamage` = 武器原伤害 × 0.6 × `OwnAttackMultiplier`；宠物 Damage 与类型 Flat 属性带 `pet.ratio` 修饰；最终伤害不再乘旧的 `DamageMultiplier` |
 
 第 14、15 项需要 `CheatsPanel`（`CodeBase/Services/Cheats/CheatsPanel.cs`）里的现有功能。如果没有对应功能，需要临时加。
 
@@ -711,7 +716,7 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
 
 ## 14. 已确认的决定（2026-10-27，覆盖前文的"待确认"与"推荐"）
 
-1. **宠物基础属性用倍率表示。** 每种宠物在 `PetConfig` 里配置相对主角的倍率，例如"胖子"宠物：生命 1.2、攻击 0.8。
+1. **宠物基础属性用倍率表示。**（**已被第 15 节取代**：下面的四个倍率字段已删除，改为比例公式。） 每种宠物在 `PetConfig` 里配置相对主角的倍率，例如"胖子"宠物：生命 1.2、攻击 0.8。
    - 字段：`HealthMultiplier`、`DamageMultiplier`、`DefenceMultiplier`、`AttackSpeedMultiplier`，默认都是 1。
    - 生命：宠物继承后的 Health 再乘 `HealthMultiplier`（PostFormulaMultiplicative 修饰）。
    - 攻击：宠物打出的最终伤害乘 `DamageMultiplier`（在 `DamageCalculator` 里，Source 是宠物时生效）。
@@ -733,3 +738,126 @@ else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
    - 外观先按伤害类型选 3 只现有敌人，每只配一组倍率；15 把基础武器按伤害类型套用。
    - 怒气"多打一下"同时作用于伤害最高的存活宠物和玩家。
 4. 全部改动由 `PetConfig.Enabled` 控制，关闭时行为与原作一致，便于对照。
+
+---
+
+## 15. 宠物属性比例（方案 A）
+
+2026-10-28 用户确认。宠物属性改为"玩家属性的比例"，同时缩小宠物的直接增伤（武器自带伤害）。本节覆盖：
+
+- 第 14 节第 1 条：`HealthMultiplier`、`DamageMultiplier`、`DefenceMultiplier`、`AttackSpeedMultiplier` 四个字段全部删除，最终伤害不再乘 `DamageMultiplier`，攻速不再乘种族系数。
+- 第 5.2 节的 `pet.health_mult` 修饰：改为 `pet.ratio`，见 15.3。
+- 第 5.3 节"`Pet.Damage` 实际为 0"：宠物模式下玩家 Damage 基础值为 10，宠物继承它，见 15.4。`W.Damage` 在宠物出手时换成自身攻击，见 15.3。
+- 第 13.1 节第 3 条的宠物生命值。
+
+"玩家属性"仍指宠物已经在用的继承集合（杀怪获得 + 直接获得，不含装备，规则见 5.1）。例外是移速，见 15.3。
+
+### 15.1 比例公式
+
+```
+ratio(stat, item) = 种族比例[stat]
+                  × RarityRatioFactor[item.Rarity]
+                  × (1 + LevelRatioGrowth × (max(1, 宠物等级) − 1))
+
+宠物等级 = 进化前：Copies
+         进化后：已进化 1..Level 消耗的副本数之和 + Copies + Level
+```
+
+- `item.Rarity` 在进化后返回 Divine。
+- 宠物等级不用 `item.EffectiveLevel`：原作进化会扣掉副本，`EffectiveLevel` 从副本数（≥ 进化需求，如普通 100、优秀 130）跌回 `Level` = 1，比例会下降 40%~60%。宠物等级改为累计收集的副本数，进化时不变，于是首次进化只多了 Divine 系数和 +1 级（神话保持 1.7 系数，只 +1 级）；之后每次进化 +1 级，进化后的每个副本也 +1 级。消耗数用 `CombatBalanceConfig.GetEvolutionShardsRequirement`，与 `ItemModel.LevelsToEvolve` 相同。
+- 公式只写在一处：`CodeBase/Pet/PetStats.cs` 的 `PetStats.GetRatios(def, rarity, level)`，另有 `GetLevel(ItemModel)`、`GetRatios(ItemModel, def)`、`GetNextRatios`、`GetOwnAttack`、`GetAttackSpeedMultiplier`、`FindDefinition`。属性同步、`DamageCalculator`、`PetMovementSystem` 和 UI 都调用它。
+- 四个比例（生命、攻击、防御、移速）都按这个公式随稀有度和等级增长。**待确认**：移速是否也应随等级增长。目前进化后的穿刺宠物在 Lv1 战斗移速就是玩家的 1.1 × 1.7 = 1.87 倍。
+
+### 15.2 配置值
+
+`PetConfig` 全局字段（`Assets/Resources/Pet Config.asset`）：
+
+| 字段 | 值 | 说明 |
+|---|---|---|
+| `PlayerBaseAttack` | 10 | 宠物模式下玩家 Damage 属性的初始值 |
+| `OwnAttackScale` | 0.6 | 自身攻击 = 武器原伤害 × 0.6 × 种族 `OwnAttackMultiplier` |
+| `LevelRatioGrowth` | 0.02 | 每级比例增长 2% |
+| `RarityRatioFactor` | [1.0, 1.1, 1.2, 1.35, 1.5, 1.7, 1.7] | 按 `Rarity` 枚举 Common、Uncommon、Rare、Epic、Legendary、Divine、Mythical |
+| `FollowSpeedMultiplier` | 1.2 | 不变，脱战跟随用 |
+
+`PetDefinition` 种族字段：`HealthRatio`、`AttackRatio`、`DefenceRatio`、`MoveSpeedRatio`、`OwnAttackMultiplier`、`DisplayName`。C# 默认值都是 1，字段缺失时仍能运行。
+
+| DamageType | 外观 prefab | 名字 | 生命 | 攻击 | 防御 | 移速 | 自身攻击 |
+|---|---|---|---|---|---|---|---|
+| 3 钝击 Buckshot | `buck_buck_medium` | 胖子 | 1.2 | 0.6 | 1.2 | 0.85 | 1.0 |
+| 1 斩击 Cutting | `cut_cut_easy` | 斧头兵 | 0.8 | 0.8 | 1.0 | 1.0 | 1.0 |
+| 0 穿刺 Stabbing | `pier_pier_easy` | 长矛兵 | 0.7 | 1.0 | 0.8 | 1.1 | 1.0 |
+
+### 15.3 各属性组
+
+| 属性组 | 规则 | 实现位置 |
+|---|---|---|
+| 生命 | 宠物最大生命 = 玩家生命 × 生命比例 | `PetStatsSyncSystem.Build`：Health 加 PercentMultiplicative 修饰 `pet.ratio`（最大生命读原始值，所以用 PercentMultiplicative） |
+| 攻击 | 宠物攻击 = 自身攻击 + 玩家攻击 × 攻击比例 | 见下 |
+| 防御 | 宠物受击时防御值 `d` 乘防御比例 | `DamageCalculator` 原有的宠物目标分支，`DefenceMultiplier` 换成 `GetRatios(...).Defence` |
+| 移速 | 战斗中（有 `CurrentTarget`，追击或出手）= 玩家实际移速（`GetStatSpecificValue`，m/s）× 移速比例；脱战跟随 = 玩家移速 × 1.2，跑远照旧瞬移 | `PetMovementSystem` |
+| 攻速 | 不用比例，就是武器自己的 `AttackCooldown`（再乘能力倍率，与原来一致） | `PetAttackSystem`，种族攻速系数已删除 |
+| 暴击、闪避、吸血、回血等 | 1:1 继承，不乘比例，UI 不显示 | 不变 |
+
+攻击拆成两部分：
+
+```
+自身攻击 = item.Damage × OwnAttackScale × OwnAttackMultiplier        // "宠物的直接增伤需要缩小"
+玩家攻击 = 玩家 Damage(StatType 3) + 玩家 Stat(W.DamageStatTypeFlat)
+宠物 dmg = Pet.Stat(W.DamageStatTypePercent)                          // 类型百分比不乘比例，照旧乘整体
+           × ( 自身攻击 + 玩家攻击 × 攻击比例 + AbilityDamageFlat … )
+           × (1 − 抗性) × 暴击 × …                                    // 其余同 5.3
+```
+
+- `PetStatsSyncSystem.Build` 给宠物的 Damage 和对应类型的 `*DamageFlat` 加 PercentMultiplicative 修饰 `pet.ratio`，值为攻击比例。
+- `DamageCalculator` 在 Source 是 `PetUnit` 时，用 `PetStats.GetOwnAttack(data.Weapon.Damage, def)` 代替 `data.Weapon.Damage`。
+- `SimulationSystem` 和 `SolveAttackDamage*` 的 Source 是玩家或敌人，不经过宠物分支，行为不变；只是宠物模式下玩家 Damage 多了 10。
+- 宠物属性的 BaseValue 改取玩家**运行时**的基础值，不再取 `PlayerConfig`，这样宠物能看到 +10。
+
+### 15.4 玩家基础攻击 10
+
+- 只在宠物模式下：`PlayerModel` 构造时创建 `LastStats` 后，给 Damage 的 BaseValue 加 `PlayerBaseAttack`（10）。爪子攻击按它出伤，宠物通过继承把它算进玩家攻击。
+- 不会存档叠加：`SaveStats` 会写出 BaseValue，但 `LoadStats` 不读回（保留 `PlayerConfig` 的值），其他地方也不读存档里的 `base_value`。
+- 关闭宠物模式时不加。运行中途关掉 `PetConfig.Enabled` 时，这 10 点要重启才消失。
+
+### 15.5 升级规则
+
+- 武器加副本（进化前后都算）和进化都会提高宠物等级或 `Rarity`，于是比例按 15.1 上涨；自身攻击随原作武器伤害表（`CalcDamage`、进化表）上涨。
+- `PetModel.SyncedRatios` 记录上次同步的比例。比例变化时重建该宠物的 Health、Damage 和类型 Flat 属性，不必等玩家属性的 Version 变化。
+- 下一级预览：`GetNextRatios` 用宠物等级 + 1 和当前 `item.Rarity`（进化前是多一个副本，进化后是下一次进化，两者都是 +1 级），下一级自身攻击用 `item.NextLevelDamage`。首次进化（未进化 → Divine Lv1）没有"下一级"预览；进化界面直接比较新旧两个 ItemModel。
+
+### 15.6 UI
+
+只在宠物模式下生效，关闭时各界面走原作代码。凡是显示武器伤害或 DPS 的地方改为显示宠物：
+
+```
+长矛兵
+生命 0.84× (11.1K)
+攻击 965 (自身 720 + 玩家 167 × 1.46)
+防御 1.02×
+移速 1.10× (战斗中)
+攻速 每秒 1.19 次
+```
+
+- 生命同时显示比例和绝对值；攻击显示总值和拆分；防御和移速只显示比例；攻速 = 能力攻速倍率之积 × `AbilityAttackSpeedMultiplier` / `AttackCooldown`（`PetStats.GetAttackSpeedMultiplier`，与 `PetAttackSystem` 相同，不含随目标变化的弱敌倍率），宠物 DPS 用同一攻速。爪子 DPS 含玩家 Damage 属性（基础攻击 10 + 吞噬所得）。
+- 运行时字体不设 `DontSave`，在 `Application.quitting`（编辑器退出播放模式时也会触发）里销毁，避免每次播放泄漏一份系统字体和图集。
+- 绝对值用玩家当前属性，每 0.5s 不受时间缩放刷新一次（`PetStatsText.RefreshInterval`）。原因是 `PetStats` 的继承缓存不登记 UniMob 依赖。数字用 `.Format()`，所以 11053 显示为 11.1K；比例用 `0.00`。
+- 有"下一级"的界面在变化的数值后追加 `<sprite name=atlas_59>` 箭头和绿色新值。
+- 涉及的界面：背包物品详情 `InventoryItemContextMenu`（含下一级）、`ItemMiniView`（只有当前值）、`EvolveItemView`（旧 → 新，替换伤害行）、`InventoryStatView`（Damage 显示全部宠物 DPS + 爪子 DPS）、宝箱和武器奖励弹窗（旧 → 新的伤害数字改为宠物攻击）。
+- 实现：`CodeBase/UI/PetStatsText.cs`。属性块在运行时克隆界面上已有的 TMP 文本，没有改 prefab 和场景 YAML。原有行保留本地化标签（DAMAGE 等），只把数值换成宠物的。中文缺字（胖、兵、矛、宠）由运行时创建的系统 CJK 字体副本补到 fallback，不修改共享字体资源。
+- 背包排序和"一键装备最佳"仍按 `item.DPS`，不变。
+
+### 15.7 算例
+
+第 3 岛拿到的稀有（Rare）pick，Lv12，穿刺类，对应长矛兵。玩家继承的穿刺类型 Flat 为 157。
+
+| | 原作 | 方案 A |
+|---|---|---|
+| 武器伤害部分 | 1200 | 自身攻击 = 1200 × 0.6 × 1.0 = 720 |
+| 玩家部分 | 157（Damage 0 + Flat 157） | 玩家攻击 = 10 + 157 = 167 |
+| 攻击比例 | — | 1.0 × 1.2 × (1 + 0.02 × 11) = 1.464 |
+| 每击（乘类型百分比之前） | 1200 + 157 = **1357** | 720 + 167 × 1.46 ≈ **965** |
+
+同一只宠物的其余比例：生命 0.7 × 1.464 = 1.02×，防御 0.8 × 1.464 = 1.17×，战斗移速 1.1 × 1.464 = 1.61×。
+
+单击伤害约为原作的 71%。武器本身伤害的权重下降，玩家吞噬成长通过攻击比例放大后占比上升。

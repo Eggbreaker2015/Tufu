@@ -6,6 +6,7 @@ using BrunoMikoski.AnimationSequencer;
 using CodeBase.Audio;
 using Codebase.Core;
 using Codebase.Core.UI;
+using Codebase.Pet;
 using Codebase.Player;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
@@ -219,6 +220,12 @@ namespace Codebase.UI.Shop
 			}
 
 			double current = model.IsArmor ? model.Armor : model.Damage;
+			// Pet mode: a weapon shows its pet's attack before and after the drop.
+			if (PetStats.TryGet(model, out PetStatsInfo pet))
+			{
+				previous = PetStatsText.AttackAt(pet, previous, preDivine ? currentLevel - previousLevel : Math.Min(copiesGained, model.Copies));
+				current = pet.Attack;
+			}
 			// Preserve the original ordered float comparisons, including unordered NaN behavior.
 			float abs = Mathf.Abs((float)previous), nextAbs = Mathf.Abs((float)current);
 			if (abs <= nextAbs)

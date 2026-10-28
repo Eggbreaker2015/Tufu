@@ -539,8 +539,17 @@ namespace Codebase.Player.Models
 			ItemSlots = config.Slots.Select(slot => new ItemSlotModel(Lifetime, slot.SlotType, slot.UnlockedByDefault) { Key = slot.Key, IsVip = slot.IsVip }).ToList();
 			foreach (Stat stat in config.Stats)
 				stat.Modifiers?.Clear();
-			LastStats = config.Stats.Select(stat => new Stat(Lifetime, stat.BaseValue, stat.Type, stat.Modifiers)).ToList();
+			LastStats = config.Stats.Select(stat => new Stat(Lifetime, GetInitialBaseValue(stat), stat.Type, stat.Modifiers)).ToList();
 			version = Atom.Value(Lifetime, 0);
+		}
+
+		// Pet mode: the Damage stat starts at PetConfig.PlayerBaseAttack. Base values are not loaded from the save
+		// (LoadStats keeps PlayerConfig's), so this never persists or stacks.
+		private static double GetInitialBaseValue(Stat stat)
+		{
+			if (stat.Type == StatType.Damage && global::Codebase.Pet.PetConfig.Enabled)
+				return stat.BaseValue + global::Codebase.Pet.PetConfig.Instance.PlayerBaseAttack;
+			return stat.BaseValue;
 		}
 
 		public override void Initialize()

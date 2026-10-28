@@ -30,6 +30,18 @@ namespace Codebase.Pet
 
 		public float FollowSpeedMultiplier = 1.2f;
 
+		// Initial value of the player's Damage stat in pet mode; pets inherit it as part of the player attack.
+		public float PlayerBaseAttack = 10f;
+
+		// Share of the weapon's damage a pet keeps as its own attack.
+		public float OwnAttackScale = 0.6f;
+
+		// Ratio growth per effective level above 1.
+		public float LevelRatioGrowth = 0.02f;
+
+		// Ratio factor per item rarity, indexed by Rarity (Common..Mythical).
+		public float[] RarityRatioFactor = { 1f, 1.1f, 1.2f, 1.35f, 1.5f, 1.7f, 1.7f };
+
 		public List<PetDefinition> Pets = new List<PetDefinition>();
 
 		public static PetConfig Instance
@@ -53,6 +65,14 @@ namespace Codebase.Pet
 		{
 			instance = null;
 			loaded = false;
+		}
+
+		public float GetRarityRatioFactor(Rarity rarity)
+		{
+			int index = (int)rarity;
+			if (RarityRatioFactor == null || index < 0 || index >= RarityRatioFactor.Length)
+				return 1f;
+			return RarityRatioFactor[index];
 		}
 
 		public PetDefinition Find(ItemConfig item)

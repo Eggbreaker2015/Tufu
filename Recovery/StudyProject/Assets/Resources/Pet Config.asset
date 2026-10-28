@@ -19,25 +19,42 @@ MonoBehaviour:
   TeleportDistance: 18
   EngageRadius: 8
   FollowSpeedMultiplier: 1.2
+  PlayerBaseAttack: 10
+  OwnAttackScale: 0.6
+  LevelRatioGrowth: 0.02
+  RarityRatioFactor:
+  - 1
+  - 1.1
+  - 1.2
+  - 1.35
+  - 1.5
+  - 1.7
+  - 1.7
   Pets:
   - ItemKey:
     DamageType: 3
     Prefab: {fileID: 1709254077376921, guid: 2c9f7ff7c066762499cdee2da133e62b, type: 3}
-    HealthMultiplier: 1.2
-    DamageMultiplier: 0.8
-    DefenceMultiplier: 1
-    AttackSpeedMultiplier: 1
+    DisplayName: "\u80D6\u5B50"
+    HealthRatio: 1.2
+    AttackRatio: 0.6
+    DefenceRatio: 1.2
+    MoveSpeedRatio: 0.85
+    OwnAttackMultiplier: 1
   - ItemKey:
     DamageType: 1
     Prefab: {fileID: 1709254077376921, guid: 46a11c0c40b90db4ca9ef550691f2e38, type: 3}
-    HealthMultiplier: 1
-    DamageMultiplier: 1
-    DefenceMultiplier: 1
-    AttackSpeedMultiplier: 1
+    DisplayName: "\u65A7\u5934\u5175"
+    HealthRatio: 0.8
+    AttackRatio: 0.8
+    DefenceRatio: 1
+    MoveSpeedRatio: 1
+    OwnAttackMultiplier: 1
   - ItemKey:
     DamageType: 0
     Prefab: {fileID: 1709254077376921, guid: ce5a67b56d13ae2418bb1f2bfdf15ecd, type: 3}
-    HealthMultiplier: 0.85
-    DamageMultiplier: 1.15
-    DefenceMultiplier: 1
-    AttackSpeedMultiplier: 1
+    DisplayName: "\u957F\u77DB\u5175"
+    HealthRatio: 0.7
+    AttackRatio: 1
+    DefenceRatio: 0.8
+    MoveSpeedRatio: 1.1
+    OwnAttackMultiplier: 1

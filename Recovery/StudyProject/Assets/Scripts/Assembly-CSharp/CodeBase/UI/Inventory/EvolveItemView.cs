@@ -11,6 +11,7 @@ using CodeBase.Audio;
 using Codebase.Abilities;
 using Codebase.Core;
 using Codebase.Core.UI;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.CompilerServices;
@@ -139,6 +140,9 @@ namespace Codebase.UI.Inventory
 
 		private bool animationFinished;
 
+		// Pet mode: the pet's stats replace the damage row inside the stats panel.
+		private TMP_Text petStatsText;
+
 		protected override void Awake()
 		{
 			// Native ELF VA 0x164a8cc.
@@ -230,6 +234,38 @@ namespace Codebase.UI.Inventory
 			damageText.text = abilityIndices != null && value != previousStat
 			    ? "<sprite name=" + sprite + "><color=white>" + previousStat.Format() + "</color> <sprite name=atlas_59> <color=#7CFF7C>" + value.Format()
 			    : "<sprite name=" + sprite + ">" + value.Format();
+			RenderPetStats(item, abilityIndices != null ? oldItem : null);
+		}
+
+		// The diff (ShowDiff) is the pet of the item before evolving against the evolved one.
+		private void RenderPetStats(ItemModel item, ItemModel previous)
+		{
+			GameObject damageRow = damageName.transform.parent.gameObject;
+			if (!PetStats.TryGet(item, out PetStatsInfo pet))
+			{
+			    if (petStatsText != null && petStatsText.gameObject.activeSelf)
+			    {
+			        petStatsText.gameObject.SetActive(false);
+			        damageRow.SetActive(true);
+			    }
+			    return;
+			}
+			if (petStatsText == null)
+			{
+			    petStatsText = PetStatsText.CreateBlock(damageName, damageRow.transform.parent, "PetStats");
+			    petStatsText.fontSizeMax = 36f;
+			    petStatsText.alignment = TextAlignmentOptions.MidlineLeft;
+			    RectTransform block = petStatsText.rectTransform;
+			    block.anchorMin = Vector2.zero;
+			    block.anchorMax = Vector2.one;
+			    block.pivot = new Vector2(0.5f, 0.5f);
+			    block.offsetMin = new Vector2(damageName.rectTransform.anchoredPosition.x, 10f);
+			    block.offsetMax = new Vector2(-20f, -10f);
+			}
+			PetStatsInfo from = previous != null && PetStats.TryGet(previous, out PetStatsInfo old) ? old : pet;
+			PetStatsText.SetText(petStatsText, PetStatsText.Build(from, pet, false));
+			petStatsText.gameObject.SetActive(true);
+			damageRow.SetActive(false);
 		}
 
 		private static List<int> ComputeDiffIndices(ItemModel oldItem, ItemModel newItem)

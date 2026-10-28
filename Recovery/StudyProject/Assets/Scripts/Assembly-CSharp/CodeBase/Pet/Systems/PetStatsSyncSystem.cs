@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Player;
-using Codebase.Player.Inventory;
 using Codebase.Player.Models;
 using Codebase.Unit;
 using Scellecs.Morpeh;
@@ -10,9 +9,10 @@ using Scellecs.Morpeh;
 namespace Codebase.Pet.Systems
 {
 	// Rebuilds pet stats from the player's inheritable modifiers; runs after AbilityExecuteEventSystem.
+	// Health, Damage and the weapon's typed flat damage are scaled by the pet's ratios (PetStats.GetRatios).
 	public class PetStatsSyncSystem : SystemBase
 	{
-		private const string HealthMultiplierName = "pet.health_mult";
+		private const string RatioName = "pet.ratio";
 
 		private const int StatTypeCount = 36;
 
@@ -21,9 +21,6 @@ namespace Codebase.Pet.Systems
 
 		[Inject]
 		private PlayerConfig playerConfig;
-
-		[Inject]
-		private ItemsProvider itemsProvider;
 
 		[Inject]
 		private PetsModel petsModel;
@@ -41,7 +38,7 @@ namespace Codebase.Pet.Systems
 			if (!PetConfig.Enabled || playerModel.Unit == null || petsModel.Pets.Count == 0)
 				return;
 			if (inheritance == null)
-				inheritance = new PetStatInheritance(itemsProvider);
+				inheritance = petsModel.Inheritance;
 			Array.Clear(playerStats, 0, playerStats.Length);
 			foreach (Stat stat in playerModel.Unit.Stats)
 				if (playerStats[(int)stat.Type] == null)
@@ -65,8 +62,10 @@ namespace Codebase.Pet.Systems
 					unit.Stats.Add(null);
 			}
 
-			float healthMultiplier = pet.Definition != null ? pet.Definition.HealthMultiplier : 1f;
-			bool healthMultiplierChanged = pet.SyncedHealthMultiplier != healthMultiplier;
+			// Level-ups, copies and evolution change the ratios without touching the player's stats.
+			PetStatRatios ratios = PetStats.GetRatios(pet.Item, pet.Definition);
+			bool ratiosChanged = !pet.SyncedRatios.Equals(ratios);
+			StatType flatType = pet.Item.Config.DamageStatTypeFlat;
 			double previousMaxHealth = initial ? 0.0 : unit.GetStatValue(StatType.Health);
 			bool changed = false;
 			for (int i = 0; i < baseStats.Count; i++)
@@ -74,20 +73,21 @@ namespace Codebase.Pet.Systems
 				StatType type = baseStats[i].Type;
 				Stat source = playerStats[(int)type];
 				int version = source != null ? source.Version : 0;
+				float ratio = GetRatio(type, flatType, ratios);
 				bool dirty = initial || pet.SyncedSources[i] != source || pet.SyncedVersions[i] != version ||
-					(type == StatType.Health && healthMultiplierChanged);
+					(ratiosChanged && IsRatioStat(type, flatType));
 				if (!dirty)
 					continue;
 				pet.SyncedSources[i] = source;
 				pet.SyncedVersions[i] = version;
 				// Excluded modifiers (e.g. a shield scaled by missing health) bump the version every frame; skip identical rebuilds.
-				if (!initial && unit.Stats[i] != null && Matches(unit.Stats[i], source, healthMultiplier))
+				if (!initial && unit.Stats[i] != null && Matches(unit.Stats[i], baseStats[i], source, ratio))
 					continue;
-				unit.Stats[i] = Build(baseStats[i], source, healthMultiplier);
+				unit.Stats[i] = Build(baseStats[i], source, ratio);
 				changed = true;
 			}
 
-			pet.SyncedHealthMultiplier = healthMultiplier;
+			pet.SyncedRatios = ratios;
 			if (!changed)
 				return;
 			unit.BuildStatLookup();
@@ -106,9 +106,26 @@ namespace Codebase.Pet.Systems
 			}
 		}
 
-		// True when the pet stat already holds exactly what Build would produce from this source.
-		private bool Matches(Stat current, Stat source, float healthMultiplier)
+		private static bool IsRatioStat(StatType type, StatType flatType)
 		{
+			return type == StatType.Health || type == StatType.Damage || type == flatType;
+		}
+
+		// Health -> health ratio; Damage and the weapon's typed flat damage (the player attack) -> attack ratio.
+		private static float GetRatio(StatType type, StatType flatType, PetStatRatios ratios)
+		{
+			if (type == StatType.Health)
+				return ratios.Health;
+			if (type == StatType.Damage || type == flatType)
+				return ratios.Attack;
+			return 1f;
+		}
+
+		// True when the pet stat already holds exactly what Build would produce from this source.
+		private bool Matches(Stat current, Stat baseStat, Stat source, float ratio)
+		{
+			if (current.BaseValue != (source != null ? source.BaseValue : baseStat.BaseValue))
+				return false;
 			List<StatModifier> existing = current.Modifiers;
 			int index = 0;
 			if (source != null)
@@ -120,26 +137,27 @@ namespace Codebase.Pet.Systems
 						return false;
 					index++;
 				}
-			if (current.Type == StatType.Health && healthMultiplier != 1f)
+			if (ratio != 1f)
 			{
-				if (index >= existing.Count || existing[index].Name != HealthMultiplierName || existing[index].Value != healthMultiplier)
+				if (index >= existing.Count || existing[index].Name != RatioName || existing[index].Value != ratio)
 					return false;
 				index++;
 			}
 			return index == existing.Count;
 		}
 
-		private Stat Build(Stat baseStat, Stat source, float healthMultiplier)
+		private Stat Build(Stat baseStat, Stat source, float ratio)
 		{
-			// Fresh modifier list: PlayerConfig/LastStats/Unit stats share one list instance.
-			List<StatModifier> modifiers = new List<StatModifier>();
+			// Max health and damage are read from the raw value, which post-formula modifiers do not touch.
+			StatModifier ratioModifier = ratio != 1f
+				? new StatModifier { Name = RatioName, StatType = baseStat.Type, ModifierType = ModifierType.PercentMultiplicative, Source = ModifierSource.Item, Value = ratio }
+				: null;
+			// The player's runtime base value: in pet mode its Damage starts at PetConfig.PlayerBaseAttack.
 			if (source != null)
-				foreach (StatModifier modifier in source.Modifiers)
-					if (inheritance.Inherits(modifier))
-						modifiers.Add(PetStatInheritance.Copy(modifier));
-			// Max health is read from the raw value, which post-formula modifiers do not touch.
-			if (baseStat.Type == StatType.Health && healthMultiplier != 1f)
-				modifiers.Add(new StatModifier { Name = HealthMultiplierName, StatType = StatType.Health, ModifierType = ModifierType.PercentMultiplicative, Source = ModifierSource.Item, Value = healthMultiplier });
+				return PetStats.BuildInherited(source, inheritance, ratioModifier, petsModel.Lifetime);
+			List<StatModifier> modifiers = new List<StatModifier>();
+			if (ratioModifier != null)
+				modifiers.Add(ratioModifier);
 			return new Stat(petsModel.Lifetime, baseStat.BaseValue, baseStat.Type, modifiers);
 		}
 	}

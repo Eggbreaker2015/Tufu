@@ -30,7 +30,8 @@ namespace Codebase.Pet
 
 		public int[] SyncedVersions;
 
-		public float SyncedHealthMultiplier;
+		// Ratios the pet's Health/Damage stats were last built with; changes with the item's level, copies and evolution.
+		public PetStatRatios SyncedRatios;
 
 		public bool IsAlive => State == PetState.Alive && Unit != null;
 

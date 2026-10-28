@@ -44,7 +44,9 @@ namespace Codebase.Pet.Systems
 				return;
 			PetConfig config = PetConfig.Instance;
 			bool paused = !playerModel.CanMove || player.IsDying || player.IsSleeping;
-			float speed = (float)player.GetStatSpecificValue(StatType.MovementSpeed) * config.FollowSpeedMultiplier;
+			float playerSpeed = (float)player.GetStatSpecificValue(StatType.MovementSpeed);
+			// Following keeps up with the player; only chasing a target uses the pet's move speed ratio.
+			float followSpeed = playerSpeed * config.FollowSpeedMultiplier;
 			Transform owner = player.transform;
 			Vector3 ownerPosition = owner.position;
 			float leashSqr = config.LeashRadius * config.LeashRadius;
@@ -67,7 +69,6 @@ namespace Codebase.Pet.Systems
 					continue;
 				}
 
-				agent.speed = speed;
 				EnemyUnit target = unit.CurrentTarget;
 				// A target that cannot be reached for a while is dropped instead of teleporting.
 				if (paused || ownerDistanceSqr > leashSqr || target == null || target.IsDead || pet.PathFailTimer >= PathFailTeleportTime)
@@ -78,6 +79,7 @@ namespace Codebase.Pet.Systems
 					target = null;
 				}
 
+				agent.speed = target != null ? playerSpeed * PetStats.GetRatios(pet.Item, pet.Definition).MoveSpeed : followSpeed;
 				bool moving;
 				if (target != null)
 					moving = Chase(unit, agent, target, deltaTime);

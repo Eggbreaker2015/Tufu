@@ -1,4 +1,5 @@
 using Codebase.Core;
+using Codebase.Pet;
 using Codebase.Player.Inventory;
 using Codebase.UI.Inventory;
 using TMPro;
@@ -83,9 +84,11 @@ namespace Codebase.UI.World
             {
                 int copiesAdded = unchecked(model.Copies - previousLevel);
                 if (copiesAdded < 2) copiesAdded = 1;
-                double perCopy = model.StatPerCopy;
+                double gained = model.StatPerCopy * (double)copiesAdded;
+                // Pet mode: copies of an evolved weapon add the pet's own attack and raise its level.
+                if (PetStats.TryGet(model, out PetStatsInfo copyPet)) gained = PetStatsText.AttackGain(copyPet, copiesAdded);
                 levelUpText.text = "<sprite name=atlas_42>" + global::Codebase.Utilities.LocalizationStrings.GetPlural("REWARD_COPY_ADDED", copiesAdded) + "<sprite name=atlas_42>";
-                damageText.text = statName + " <color=green>+" + global::Codebase.Utilities.DoubleExtensions.Format(perCopy * (double)copiesAdded) + "</color>";
+                damageText.text = statName + " <color=green>+" + global::Codebase.Utilities.DoubleExtensions.Format(gained) + "</color>";
                 SetCopiesTextVisible(true);
                 bool canEvolve = model.CanEvolve;
                 int copies = model.Copies;
@@ -98,6 +101,12 @@ namespace Codebase.UI.World
                 levelUpText.text = "<sprite name=atlas_42>" + global::Codebase.Utilities.LocalizationStrings.Get("REWARD_LEVEL_UP") + "<sprite name=atlas_42>";
                 double oldValue = model.IsArmor ? model.CalcArmor(previousLevel) : model.CalcDamage(previousLevel);
                 double newValue = model.IsArmor ? model.Armor : model.Damage;
+                // Pet mode: a weapon shows its pet's attack before and after the level-up.
+                if (PetStats.TryGet(model, out PetStatsInfo pet))
+                {
+                    oldValue = PetStatsText.AttackAt(pet, oldValue, model.EffectiveLevel - previousLevel);
+                    newValue = pet.Attack;
+                }
                 damageText.text = statName + " <color=white>" + global::Codebase.Utilities.DoubleExtensions.Format(oldValue) + " </color>> <color=green>" + global::Codebase.Utilities.DoubleExtensions.Format(newValue);
             }
             else

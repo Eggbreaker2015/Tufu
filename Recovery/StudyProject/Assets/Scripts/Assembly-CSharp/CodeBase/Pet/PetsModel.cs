@@ -31,6 +31,19 @@ namespace Codebase.Pet
 		// Revive times of dead pets whose unit was despawned (item unequipped or moved), so re-equipping keeps the cooldown.
 		private readonly Dictionary<ItemModel, float> pendingRevives = new Dictionary<ItemModel, float>();
 
+		private PetStatInheritance inheritance;
+
+		// Shared by stat sync and the UI (PetStats.TryGet).
+		public PetStatInheritance Inheritance
+		{
+			get
+			{
+				if (inheritance == null)
+					inheritance = new PetStatInheritance(GameContext.Get<ItemsProvider>());
+				return inheritance;
+			}
+		}
+
 		public IEnumerable<PetModel> AlivePets
 		{
 			get
