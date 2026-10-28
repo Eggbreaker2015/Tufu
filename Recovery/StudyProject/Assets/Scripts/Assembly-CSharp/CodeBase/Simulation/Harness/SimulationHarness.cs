@@ -575,6 +575,7 @@ namespace Codebase.Simulation.Harness
 			}
 			manifest["ready_cooldowns_zeroed"] = zeroed;
 			manifest["state_sha256_job_start"] = Sha256(StateDigestText());
+			SimulationExport.ResetRecorder(); // no snapshot record carries over from an earlier job (design 2.6)
 			RebuildJobApplyPatch(job, manifest);
 			RebuildJobApplyOverride(job, manifest);
 			SetPhase(HarnessPhase.Job);

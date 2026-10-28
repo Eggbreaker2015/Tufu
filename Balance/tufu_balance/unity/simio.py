@@ -151,8 +151,10 @@ def read_snapshot_file(path: Path, lists: Iterable[str] = schema.SIMULATION_DATA
         if sha != expected.get("sha256"):
             raise SimioError(f"{path}: sha256 {sha} differs from the manifest's {expected.get('sha256')}")
         digest = bits_digest(data)
-        for key in ("doubles", "floats", "nans", "bits_sha256"):
-            if key in expected and digest[key] != expected[key]:
+        for key in schema.EXPORT_BITS_KEYS:
+            if key not in expected:
+                raise SimioError(f"{path}: the manifest entry has no {key!r}; the bits check cannot run")
+            if digest[key] != expected[key]:
                 raise SimioError(f"{path}: {key} {digest[key]} differs from the exporter's {expected[key]}: "
                                  "a value did not survive the text round trip")
     return data
@@ -160,13 +162,46 @@ def read_snapshot_file(path: Path, lists: Iterable[str] = schema.SIMULATION_DATA
 
 # ---------------------------------------------------------------- tables
 
+def _struct_columns(owner: str) -> list[str]:
+    """Columns ``split_record`` makes from one decoded element of ``owner`` (lists counted as non-empty)."""
+    out = []
+    for name, kind in schema.STRUCT_FIELDS[owner]:
+        if kind.endswith("[]"):
+            out.append(f"{name}#count")
+        else:
+            out.append(name)
+            if kind.startswith("enum:"):
+                out.append(f"{name}__name")
+    return out
+
+
+def snapshot_table_layout(prefix: str = "c", class_name: str = "SimulationData",
+                          lists: Iterable[str] = schema.SIMULATION_DATA_LISTS) -> dict[str, list[str]]:
+    """Columns of every child table the extractor makes for a SimulationData-shaped object when each list
+    is non-empty: ``ingest`` creates the ones a run left without rows, so ``load_simulation_data`` reads an
+    empty list as empty instead of failing on a missing table."""
+    keys = ["asset", "asset_name"]
+    out = {}
+    base = f"{prefix}_{class_name}"
+    for list_name in lists:
+        table = extract.table_name(base, list_name)
+        out[table] = keys + [f"{list_name}#idx"] + _struct_columns("SimulationSnapshot")
+        for name, kind in schema.STRUCT_FIELDS["SimulationSnapshot"]:
+            if kind.endswith("[]"):
+                out[extract.table_name(table, name)] = (keys + [f"{list_name}#idx", f"{name}#idx"]
+                                                        + _struct_columns(kind[:-2]))
+    return out
+
+
 def snapshot_tables(tables: extract.Tables, data: Mapping[str, Any], *, prefix: str = "c",
                     class_name: str = "SimulationData", asset: str = SHIPPED_ASSET, asset_name: str = SHIPPED_NAME,
-                    types: FieldTypes | None = None) -> None:
-    """Add the extractor's tables for one SimulationData-shaped object (``extract_assets`` path)."""
+                    types: FieldTypes | None = None) -> dict[str, list[str]]:
+    """Add the extractor's tables for one SimulationData-shaped object (``extract_assets`` path). Returns
+    the layout of the child tables that got no rows (empty lists; see :func:`snapshot_table_layout`)."""
     types = types or field_types()
     decoded = types.decode("SimulationData", yaml_shape("SimulationData", data))
     extract.add_record_tables(tables, prefix, class_name, {"asset": asset, "asset_name": asset_name}, decoded, "assets")
+    return {t: cols for t, cols in snapshot_table_layout(prefix, class_name, data.keys()).items() if not tables.rows.get(t)}
 
 
 def write_tables(tables: extract.Tables, db_path: Path, columns_of: Mapping[str, list[str]] | None = None) -> None:
@@ -212,21 +247,21 @@ def ingest(job_dir: str | Path, db_path: str | Path | None = None, *, asset: str
     elif require_manifest:
         raise SimioError(f"{job_dir}: no manifest.json")
     files = ((manifest or {}).get("export") or {}).get("files", {})
+    if manifest is not None:
+        verify_export_files(job_dir, files)
     job_id = (manifest or {}).get("job_id", job_dir.name)
     types = types or field_types()
     tables = extract.Tables()
     found = []
+    columns_of = {}
     for name, (prefix, class_name, lists) in SNAPSHOT_FILES.items():
         path = job_dir / name
         if not path.exists():
             continue
-        if manifest is not None and name not in files:
-            raise SimioError(f"{path}: not listed in the manifest's export")
         data = read_snapshot_file(path, lists, files.get(name) if manifest is not None else None)
-        snapshot_tables(tables, data, prefix=prefix, class_name=class_name, asset=asset, asset_name=asset_name,
-                        types=types)
+        columns_of.update(snapshot_tables(tables, data, prefix=prefix, class_name=class_name, asset=asset,
+                                          asset_name=asset_name, types=types))
         found.append(name)
-    columns_of = {}
     for file, table in schema.SIDE_TABLES.items():
         path = job_dir / file
         if path.exists():
@@ -255,14 +290,36 @@ def ingest(job_dir: str | Path, db_path: str | Path | None = None, *, asset: str
     return db_path
 
 
+def verify_export_files(job_dir: Path, files: Mapping[str, Mapping[str, Any]]) -> None:
+    """Every file the manifest's ``export.files`` lists exists with its sha256 and size (CSV: its row count);
+    a C1 file on disk that the manifest does not list is an error too."""
+    for name, info in files.items():
+        path = job_dir / name
+        if not path.exists():
+            raise SimioError(f"{path}: listed in the manifest's export but missing")
+        raw = path.read_bytes()
+        sha = hashlib.sha256(raw).hexdigest()
+        if sha != info["sha256"] or len(raw) != info["bytes"]:
+            raise SimioError(f"{path}: sha256 {sha} ({len(raw)} bytes) differs from the manifest's "
+                             f"{info['sha256']} ({info['bytes']} bytes)")
+        if name.endswith(".csv"):
+            file = Path(name).name
+            rows = len(schema.read_csv(file, raw.decode("utf-8"))) if file in schema.CSV_SCHEMAS else None
+            if rows is not None and rows != info["rows"]:
+                raise SimioError(f"{path}: {rows} rows, the manifest says {info['rows']}")
+    for name in schema.EXPORT_FILES:
+        if name not in files and (job_dir / name).exists():
+            raise SimioError(f"{job_dir / name}: not listed in the manifest's export")
+
+
 def ingest_snapshot_file(path: str | Path, db_path: str | Path, *, expected: Mapping[str, Any] | None = None,
                          asset: str = SHIPPED_ASSET, asset_name: str = SHIPPED_NAME,
                          types: FieldTypes | None = None) -> Path:
     """One SimulationData-shaped JSON file (e.g. ``shipped/simulation_data.json``) -> its own database."""
     data = read_snapshot_file(path, schema.SIMULATION_DATA_LISTS, expected)
     tables = extract.Tables()
-    snapshot_tables(tables, data, asset=asset, asset_name=asset_name, types=types)
-    write_tables(tables, Path(db_path))
+    empty = snapshot_tables(tables, data, asset=asset, asset_name=asset_name, types=types)
+    write_tables(tables, Path(db_path), empty)
     return Path(db_path)
 
 
@@ -295,7 +352,7 @@ def compare_tables(a: sqlite3.Connection, b: sqlite3.Connection, prefix: str = "
     for table in sorted(set(ta) & set(tb)):
         ca, cb = _cols(a, table), _cols(b, table)
         if ca != cb:
-            report["differences"].append({"table": table, "columns": [ca, cb]})
+            report["differences"].append({"table": table, "columns": [ca, cb], "problem": "columns differ"})
             continue
         columns = [c for c, _ in ca if c not in ignore]
         select = ", ".join(f'"{c}", typeof("{c}")' for c in columns)
@@ -303,7 +360,8 @@ def compare_tables(a: sqlite3.Connection, b: sqlite3.Connection, prefix: str = "
         rb = b.execute(f'SELECT {select} FROM "{table}" ORDER BY rowid').fetchall()
         report["rows"][table] = len(ra)
         if len(ra) != len(rb):
-            report["differences"].append({"table": table, "row_count": [len(ra), len(rb)]})
+            report["differences"].append({"table": table, "row_count": [len(ra), len(rb)],
+                                          "problem": "row count differs"})
             continue
         for i, (x, y) in enumerate(zip(ra, rb)):
             for j, column in enumerate(columns):

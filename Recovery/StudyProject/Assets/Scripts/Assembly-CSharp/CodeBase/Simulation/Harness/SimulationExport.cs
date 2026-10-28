@@ -64,12 +64,16 @@ namespace Codebase.Simulation.Harness
 		// config.Snapshots (timeChunkList false) or config.TimeChunkSnapshots (true); items in Items order.
 		public static void RecordSnapshot(bool timeChunkList, int index, SnapshotExt ext)
 		{
-			string list = timeChunkList ? ListTimeChunks : ListSnapshots;
-			if (!recorded.TryGetValue(list, out var byIndex)) recorded[list] = byIndex = new SortedDictionary<int, SnapshotExt>();
+			Record(recorded, timeChunkList ? ListTimeChunks : ListSnapshots, index, ext);
+		}
+
+		private static void Record(Dictionary<string, SortedDictionary<int, SnapshotExt>> record, string list, int index, SnapshotExt ext)
+		{
+			if (!record.TryGetValue(list, out var byIndex)) record[list] = byIndex = new SortedDictionary<int, SnapshotExt>();
 			byIndex[index] = ext;
 		}
 
-		// Called when the engine starts a run with fresh snapshot lists.
+		// Called when the engine starts a run with fresh snapshot lists; the harness also calls it at every job start.
 		public static void ResetRecorder()
 		{
 			recorded.Clear();
@@ -261,13 +265,15 @@ namespace Codebase.Simulation.Harness
 
 		public const string ItemsExtHeader = "list,index,item_index,key,level,copies,evolved,evolution_level";
 
-		public static ExportedFile WriteSnapshotsExt(string path, IList<SimulationSnapshot> snapshots, IList<SimulationSnapshot> timeChunks, int[] timeChunkExported)
+		public static ExportedFile WriteSnapshotsExt(string path, IList<SimulationSnapshot> snapshots, IList<SimulationSnapshot> timeChunks, int[] timeChunkExported,
+			Dictionary<string, SortedDictionary<int, SnapshotExt>> record = null)
 		{
+			record = record ?? recorded;
 			var sb = new StringBuilder(SnapshotsExtHeader).Append('\n');
 			int rows = 0;
 			foreach (var (list, items, exported) in Lists(snapshots, timeChunks, timeChunkExported))
 			{
-				recorded.TryGetValue(list, out var ext);
+				record.TryGetValue(list, out var ext);
 				for (int i = 0; i < items.Count; i++)
 				{
 					SimulationSnapshot s = items[i];
@@ -287,13 +293,15 @@ namespace Codebase.Simulation.Harness
 
 		// items_ext.csv: one row per item of every snapshot (Key, Level, Copies from the snapshot); Evolved
 		// and EvolutionLevel come from the engine's record and are empty without one.
-		public static ExportedFile WriteItemsExt(string path, IList<SimulationSnapshot> snapshots, IList<SimulationSnapshot> timeChunks, List<string> problems)
+		public static ExportedFile WriteItemsExt(string path, IList<SimulationSnapshot> snapshots, IList<SimulationSnapshot> timeChunks, List<string> problems,
+			Dictionary<string, SortedDictionary<int, SnapshotExt>> record = null)
 		{
+			record = record ?? recorded;
 			var sb = new StringBuilder(ItemsExtHeader).Append('\n');
 			int rows = 0;
 			foreach (var (list, items, _) in Lists(snapshots, timeChunks, null))
 			{
-				recorded.TryGetValue(list, out var ext);
+				record.TryGetValue(list, out var ext);
 				for (int i = 0; i < items.Count; i++)
 				{
 					List<SimulationItemData> inv = items[i].Items ?? new List<SimulationItemData>();
@@ -337,6 +345,54 @@ namespace Codebase.Simulation.Harness
 				else result[i] = -1;
 			}
 			return j == trimmed.Count ? result : null;
+		}
+
+		// ---- shipped probe: the side-file writers on real lists before the engine records anything ----
+		// Rules mirrored by tests/unity/test_export_roundtrip.py::test_shipped_side_files_follow_the_probe.
+
+		public const string ProbeTrimRule = "TimeChunkSnapshots[i] kept when i % 3 != 1";
+		public const string ProbeRecordRule = "Snapshots[i] when i % 4 != 3, TimeChunkSnapshots[i] when i % 5 != 2: "
+			+ "weapon slots i % 6, armor slots Location, health TotalPlaytime / 3.0, item k evolved (i + k) % 2 == 0, "
+			+ "evolution level Level * 10 + Copies; Snapshots[1] recorded without its last item (a mismatch)";
+
+		public static JObject WriteShippedProbe(string dir, SimulationData shipped, JObject files)
+		{
+			List<SimulationSnapshot> snapshots = shipped.Snapshots ?? new List<SimulationSnapshot>();
+			List<SimulationSnapshot> full = shipped.TimeChunkSnapshots ?? new List<SimulationSnapshot>();
+			List<SimulationSnapshot> trimmed = full.Where((x, i) => i % 3 != 1).ToList();
+			int[] exported = ExportedIndices(full, trimmed);
+			var reversed = Enumerable.Reverse(trimmed).ToList();
+			bool notSubsequenceNull = trimmed.Count < 2 || ExportedIndices(full, reversed) == null;
+
+			var record = new Dictionary<string, SortedDictionary<int, SnapshotExt>>();
+			int recordedCount = 0;
+			foreach (var (list, items, period, gap) in new[] { (ListSnapshots, snapshots, 4, 3), (ListTimeChunks, full, 5, 2) })
+			{
+				for (int i = 0; i < items.Count; i++)
+				{
+					if (i % period == gap) continue;
+					SimulationSnapshot s = items[i];
+					var ext = new SnapshotExt { UnlockedWeaponSlots = i % 6, UnlockedArmorSlots = s.Location, CurrentHealth = s.TotalPlaytime / 3.0 };
+					List<SimulationItemData> inv = s.Items ?? new List<SimulationItemData>();
+					int count = list == ListSnapshots && i == 1 ? inv.Count - 1 : inv.Count;
+					for (int k = 0; k < count; k++)
+						ext.Items.Add(new ItemExt { Key = inv[k].Key, Level = inv[k].Level, Copies = inv[k].Copies, Evolved = (i + k) % 2 == 0, EvolutionLevel = inv[k].Level * 10 + inv[k].Copies });
+					Record(record, list, i, ext);
+					recordedCount++;
+				}
+			}
+			var problems = new List<string>();
+			files[ShippedDir + "/" + SnapshotsExtFile] = WriteSnapshotsExt(Path.Combine(dir, SnapshotsExtFile), snapshots, full, exported, record).ToJson();
+			files[ShippedDir + "/" + ItemsExtFile] = WriteItemsExt(Path.Combine(dir, ItemsExtFile), snapshots, full, problems, record).ToJson();
+			return new JObject
+			{
+				["trim_rule"] = ProbeTrimRule,
+				["record_rule"] = ProbeRecordRule,
+				["trimmed"] = trimmed.Count,
+				["recorded"] = recordedCount,
+				["not_subsequence_is_null"] = notSubsequenceNull,
+				["problems"] = new JArray(problems.Cast<object>().ToArray()),
+			};
 		}
 
 		private static string Csv(string s) => s == null ? "" : s.IndexOfAny(new[] { ',', '"', '\n' }) >= 0 ? "\"" + s.Replace("\"", "\"\"") + "\"" : s;
@@ -386,6 +442,7 @@ namespace Codebase.Simulation.Harness
 				files[rel] = info.ToJson();
 				export["shipped_twice_identical"] = first == File.ReadAllText(Path.Combine(jobDir, SimulationExport.ShippedDir, SimulationExport.SimulationDataFile), new UTF8Encoding(false));
 				export["shipped_asset"] = shipped.name;
+				export["shipped_probe"] = SimulationExport.WriteShippedProbe(Path.Combine(jobDir, SimulationExport.ShippedDir), shipped, files);
 			}
 			if (!any) return;
 			export["snapshots"] = snapshots.Count;

@@ -310,11 +310,16 @@ MANIFEST_KEYS: dict[str, str] = {
 
 EXPORT_KEYS = {"schema": "str", "files": "object", "time_chunk_trim": "str", "snapshots": "int",
                "time_chunk_snapshots_full": "int", "trim_simulation_data": "bool", "recorded_snapshot_ext": "int",
-               "problems": "list", "shipped_twice_identical": "bool", "shipped_asset": "str"}
+               "problems": "list", "shipped_twice_identical": "bool", "shipped_asset": "str", "shipped_probe": "object"}
 EXPORT_FILE_KEYS = {"sha256": "sha256", "bytes": "int", "rows": "int", "doubles": "int", "floats": "int", "nans": "int",
                     "bits_sha256": "sha256"}
+EXPORT_BITS_KEYS = ("doubles", "floats", "nans", "bits_sha256")  # required for a .json entry; "rows" for a .csv one
 EXPORT_FILES = ("simulation_data.json", "timechunk_full.json", "snapshots_ext.csv", "items_ext.csv",
-                "shipped/simulation_data.json")
+                "shipped/simulation_data.json", "shipped/snapshots_ext.csv", "shipped/items_ext.csv")
+# export.shipped_probe (SimulationExport.ShippedProbe): the side-file writers run on the shipped lists with a
+# synthetic engine record and a trimmed TimeChunkSnapshots, so their columns are checked before C3b exists.
+SHIPPED_PROBE_KEYS = {"trim_rule": "str", "record_rule": "str", "trimmed": "int", "recorded": "int",
+                      "not_subsequence_is_null": "bool", "problems": "list"}
 
 
 def register_manifest_keys(keys: Mapping[str, str]) -> None:
@@ -355,6 +360,16 @@ def validate_export(export: Mapping[str, Any], where: str = "export") -> None:
             if key not in EXPORT_FILE_KEYS:
                 raise SchemaError(f"{where}.files.{name}: unknown key {key!r}")
             _check_value(EXPORT_FILE_KEYS[key], value, f"{where}.files.{name}.{key}")
-        for key in ("sha256", "bytes"):
+        required = ("sha256", "bytes") + (EXPORT_BITS_KEYS if name.endswith(".json") else ("rows",))
+        for key in required:
             if key not in info:
                 raise SchemaError(f"{where}.files.{name}: missing {key!r}")
+    if "shipped_probe" in export:
+        probe = export["shipped_probe"]
+        for key, value in probe.items():
+            if key not in SHIPPED_PROBE_KEYS:
+                raise SchemaError(f"{where}.shipped_probe: unknown key {key!r}")
+            _check_value(SHIPPED_PROBE_KEYS[key], value, f"{where}.shipped_probe.{key}")
+        for key in SHIPPED_PROBE_KEYS:
+            if key not in probe:
+                raise SchemaError(f"{where}.shipped_probe: missing {key!r}")
