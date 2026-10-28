@@ -207,6 +207,7 @@ def test_params_import_in_a_fresh_editor(imported):
     assert report["importer"]["read_back"]["asset_found"] is True
     resolved = P.resolve(["defaults"], IMPORT_OVERRIDES)
     assert paramsio.read_asset(imported.dest) == paramsio.effective(resolved.params)
+    assert imported.dest.read_text(encoding="utf-8") == paramsio.asset_text(paramsio.effective(resolved.params))
     assert report["restored_run_worktree_asset"] and report["guard_problems"] == []
     assert not launcher.runner.porcelain(launcher.runner.run_worktree()).strip()
 
@@ -289,6 +290,8 @@ def test_digest_covers_design_2_6(run, traced):
     full = _json(run, "trace-defaults", "timechunk_full.json")["TimeChunkSnapshots"]
     items = list(csv.DictReader(io.StringIO(run.file("trace-defaults", "items_ext.csv").decode())))
     ext = list(csv.DictReader(io.StringIO(run.file("trace-defaults", "snapshots_ext.csv").decode())))
+    ready = csv.DictReader(io.StringIO(run.file("trace-defaults", "ready_spawners.csv").decode()))
+    outside = {f"{r['path']}|{r['key']}" for r in ready if r["is_event"] == "1" or r["is_vip"] == "1"}
     assert [r["day"] for r in t.digests] == list(range(DAYS + 1)) and set(t.texts) == set(range(DAYS + 1))
     for row, snap in zip(t.digests, full):
         assert (row["playtime"], row["total_playtime"], row["time_chunk_index"]) == (snap["Playtime"], snap["TotalPlaytime"], row["day"])
@@ -312,7 +315,10 @@ def test_digest_covers_design_2_6(run, traced):
         k2 = next(st for st in snap["Stats"] if st["Key"] == 1)
         _, b2, b3 = f["modifiers"].split(",")
         assert (b2, b3) == (_bits_f(f32(k2["StatsFromFeaturesFlat"])), _bits_f(f32(k2["PercentMultiplier"])))
-        assert not [k for k in f if k.startswith(("charges.", "cooldown."))]  # empty policy: nothing cleared
+        # Empty policy: nothing cleared, so no charges used, and only event/VIP spawners (outside the bot,
+        # never zeroed) keep a cooldown.
+        assert not [k for k in f if k.startswith("charges.")]
+        assert {k[len("cooldown."):] for k in f if k.startswith("cooldown.")} <= outside
         assert f["random.0"] == "mode=0,seed=1"
 
 

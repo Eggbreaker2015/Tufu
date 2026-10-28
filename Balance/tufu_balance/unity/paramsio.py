@@ -121,14 +121,15 @@ def _yaml_scalar(value: Any, base: str, cs: cparams.CsParams) -> str:
 
 
 def asset_text(params: Mapping[str, Any], cs: cparams.CsParams | None = None, script_guid: str | None = None) -> str:
-    """The parameter asset as Unity serializes the ScriptableObject (fields in declaration order)."""
+    """The parameter asset as Unity 6000.6 writes the ScriptableObject (fields in declaration order); the
+    importer's output for the same values is this text byte for byte (tests/unity/test_params.py)."""
     cs = _csharp(cs)
     guid = script_guid or asset_script_guid()
     lines = ["%YAML 1.1", "%TAG !u! tag:unity3d.com,2011:", "--- !u!114 &11400000", "MonoBehaviour:",
              "  m_ObjectHideFlags: 0", "  m_CorrespondingSourceObject: {fileID: 0}", "  m_PrefabInstance: {fileID: 0}",
              "  m_PrefabAsset: {fileID: 0}", "  m_GameObject: {fileID: 0}", "  m_Enabled: 1", "  m_EditorHideFlags: 0",
              f"  m_Script: {{fileID: 11500000, guid: {guid}, type: 3}}", f"  m_Name: {ASSET_NAME}",
-             "  m_EditorClassIdentifier:", "  Params:"]
+             "  m_EditorClassIdentifier: ", "  Params:"]
     unknown = sorted(set(params) - set(cs.fields))
     if unknown:
         raise ParamsIoError(f"no such fields in SimulationRebuildParams: {unknown}")

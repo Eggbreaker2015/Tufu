@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 385f01c3a2a1452ba6c6c35f21fcd3c9, type: 3}
   m_Name: Simulation Rebuild Params
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   Params:
     SchemaVersion: 1
     RollMode: 0
