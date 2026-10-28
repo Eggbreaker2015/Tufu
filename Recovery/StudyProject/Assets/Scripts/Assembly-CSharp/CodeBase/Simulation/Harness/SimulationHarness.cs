@@ -53,6 +53,9 @@ namespace Codebase.Simulation.Harness
 		// Set once max_ticks is reached; the rebuilt ExecuteTick stops on it (wired by C3b).
 		public static bool StopRequested { get; private set; }
 
+		// The job of this Play session (null outside batch runs): the engine reads params and engine_probe from it.
+		internal static SimulationRunRequest.Job CurrentJob => instance != null ? instance.job : null;
+
 		private static SimulationHarness instance;
 		private static readonly Stopwatch heartbeatClock = new Stopwatch();
 		private static string heartbeatPath;
@@ -74,6 +77,10 @@ namespace Codebase.Simulation.Harness
 		private readonly List<string> readyRows = new List<string>();
 		private string readySnapshot, quietSnapshot;
 		private int logErrors, logExceptions;
+		// Per-tick wall time of slow ticks and FastTicks (C3b, design 2.7): consecutive ticks of one frame only.
+		private readonly Stopwatch tickClock = new Stopwatch();
+		private int tickClockFrame = -1;
+		private readonly List<double> slowTickMs = new List<double>(), fastTickMs = new List<double>();
 
 		// ---- creation, statics, heartbeat ----
 
@@ -98,17 +105,19 @@ namespace Codebase.Simulation.Harness
 			Ticks++;
 			if (instance != null && instance.job != null && instance.job.Stop.MaxTicks.HasValue && Ticks >= instance.job.Stop.MaxTicks.Value)
 				StopRequested = true;
+			if (instance != null) instance.SampleTick();
 			Beat(false);
 			return StopRequested;
 		}
 
 		// Heartbeat (design 2.4): the launcher's stall timeout looks at "progress", which changes only
-		// when ticks, frames or the phase advance.
+		// when ticks, frames or the phase advance. In the Job phase only ticks count (C3b): a job whose
+		// frames run but whose simulation does not tick is a stall.
 		public static void Beat(bool force)
 		{
 			if (heartbeatPath == null) return;
 			if (!force && heartbeatClock.IsRunning && heartbeatClock.Elapsed.TotalSeconds < heartbeatInterval) return;
-			string progress = (heartbeatJob ?? "-") + ":" + (int)Phase + ":" + Ticks + ":" + Frames;
+			string progress = (heartbeatJob ?? "-") + ":" + (int)Phase + ":" + Ticks + (Phase == HarnessPhase.Job ? "" : ":" + Frames);
 			WriteHeartbeat("play:" + Phase, heartbeatJob, progress, Ticks, Frames);
 		}
 
@@ -613,6 +622,13 @@ namespace Codebase.Simulation.Harness
 			double frameMs = frameClock.Elapsed.TotalMilliseconds;
 			frameClock.Restart();
 			SimulationRunRequest.StopOptions stop = job.Stop;
+			SimulationSystem engine = SimulationSystem.Instance;
+			if (job.Mode != "empty" && engine != null && engine.RebuildFailure != null)
+			{
+				manifest["engine"] = engine.RebuildManifest();
+				Fail(engine.RebuildFailureExitCode, engine.RebuildFailure);
+				return;
+			}
 			string reason = null;
 			if (job.Mode == "empty")
 			{
@@ -648,6 +664,9 @@ namespace Codebase.Simulation.Harness
 			timings["simulation_speed_max"] = speedMax;
 			manifest["stop_reason"] = reason;
 			manifest["counts"] = new JObject { ["ticks"] = Ticks };
+			if (job.Mode != "empty" && SimulationSystem.Instance != null) manifest["engine"] = SimulationSystem.Instance.RebuildManifest();
+			timings["slow_tick_ms"] = TickStats(slowTickMs);
+			timings["fast_tick_ms"] = TickStats(fastTickMs);
 			if (job.Mode == "empty")
 			{
 				bool same = QuietState() == quietSnapshot;
@@ -664,6 +683,26 @@ namespace Codebase.Simulation.Harness
 			RebuildJobExportOutputs(job, dir, manifest);
 			RebuildJobExportBake(job, dir, manifest);
 			Complete(ExitOk, null);
+		}
+
+		private void SampleTick()
+		{
+			bool fast = SimulationSystem.Instance != null && SimulationSystem.Instance.RebuildLastTickWasFast;
+			if (tickClockFrame == Frames && tickClock.IsRunning) (fast ? fastTickMs : slowTickMs).Add(tickClock.Elapsed.TotalMilliseconds);
+			tickClockFrame = Frames;
+			tickClock.Restart();
+		}
+
+		private static JObject TickStats(List<double> samples)
+		{
+			var stats = new JObject { ["n"] = samples.Count };
+			if (samples.Count == 0) return stats;
+			var sorted = samples.OrderBy(x => x).ToList();
+			stats["mean"] = sorted.Average();
+			stats["p50"] = sorted[sorted.Count / 2];
+			stats["p95"] = sorted[Math.Min(sorted.Count - 1, (int)(sorted.Count * 0.95))];
+			stats["max"] = sorted[sorted.Count - 1];
+			return stats;
 		}
 
 		// ---- state digest (design 2.6, harness subset; C3c adds per-day digests) ----

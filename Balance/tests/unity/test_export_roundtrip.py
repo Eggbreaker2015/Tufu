@@ -75,7 +75,7 @@ def test_job_outputs_ingest_and_validate(export_run):
                                     SHIPPED, *SHIPPED_SIDE}
     assert export["snapshots"] == 0 and export["time_chunk_snapshots_full"] == 0 and export["problems"] == []
     assert export["trim_simulation_data"] is False
-    assert export["time_chunk_trim"].startswith("none")  # C3b fills GetTrimmedTimeChunkSnapshots
+    assert export["time_chunk_trim"] == "GetTrimmedTimeChunkSnapshots"  # filled by C3b (an empty list here)
     con = sqlite3.connect(simio.ingest(job))
     tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
     assert {"c_SimulationData", "c_SimulationDataFull", "sim_snapshots_ext", "sim_items_ext", "sim_ready_spawners",

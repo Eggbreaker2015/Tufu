@@ -16,9 +16,12 @@ namespace Codebase.Simulation.Systems
 		{
 		}
 
-		[SimulationRebuild(Provenance.Null)]
+		// Call-site skeleton (C3b): duration, health, lethality and death are C7's; the clear goes through the
+		// write point, in this body only (design 4.5).
+		[SimulationRebuild(Provenance.Null, "pending:simulation.slow_fight")]
 		private void SimulateFightWithSpawner(SpawnerData bestSpawner)
 		{
+			RebuildApplyClear(bestSpawner.spawner, 1, false);
 		}
 
 		[SimulationRebuild(Provenance.DebugOnly)]
