@@ -17,8 +17,9 @@ float expression is rounded to binary32 step by step (see :mod:`.f32`).
 The ability curves K4/K5 (``GetInterpolationCoefficient``) go through
 :meth:`~.interpolation.BalanceInterpolationsConfig.total_coefficient` with ``BakeContext.rounding``
 (``None`` = the default of ``interpolation_default.json``). The G13 counts are the same under
-``stepwise`` and ``fma``; 47 day-mode spawners get a different K4 or K5 (and raw Health/Damage).
-``analysis/bake_check.py`` pins ``stepwise`` to keep its stage-4 numbers, and its H9 test swaps
+``stepwise`` and ``fma``; 47 day-mode spawners get a different K4 or K5, which changes raw Health on
+20 and raw Damage on 12 of them (rounded: Health 20, Damage 2). ``analysis/bake_check.py`` pins
+``stepwise`` to keep its stage-4 numbers, and its H9 test swaps
 this module's ``f32`` for ``np.float64``: while swapped, K4/K5 take the legacy double path of
 ``get_interpolation_coefficient``.
 
@@ -86,9 +87,9 @@ class SpawnerBakeInput:
     count: int
     difficulty: np.float32
     armors: list[ArmorEntry]
-    health_base: float
-    damage_base: float
-    attack_cooldown_base: float
+    health_base: float | None  # None: Stats has no such row (C# ``Stats.First`` throws)
+    damage_base: float | None
+    attack_cooldown_base: float | None
     spawner_id: tuple[str, int] | None = None  # (scene, file_id); Key is not unique
 
 
@@ -218,6 +219,9 @@ def build_spawner_bake_report(ctx: BakeContext, sp: SpawnerBakeInput, optimum_ti
 
 
 def _build_report(ctx, sp, optimum_time, recalc_time, is_days, snapshot) -> SpawnerBakeReport:
+    for stat, v in (("Health", sp.health_base), ("Damage", sp.damage_base), ("AttackCooldown", sp.attack_cooldown_base)):
+        if v is None:  # :115-116, :145
+            raise BakeError(sp, f"spawner Stats has no {stat} stat (Stats.First throws)")
     if not sp.armors:
         raise BakeError(sp, "ArmorConfig has no armor rows (rows.First() throws)")
     if sp.location_number not in ctx.preferred_weapon_type:

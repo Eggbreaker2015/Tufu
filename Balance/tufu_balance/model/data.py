@@ -147,7 +147,7 @@ def load_bake_context(con: sqlite3.Connection, simulation_data=None,
     )
 
 
-def _num(v, default=0.0) -> float:
+def _num(v, default: float | None = 0.0) -> float | None:
     if v is None or v == "":
         return default
     return float(v)
@@ -164,7 +164,7 @@ def spawner_input_from_row(r: sqlite3.Row, armor_configs: dict[str, list[ArmorEn
         relative_optimum_time=f32(_num(r["RelativeOptimumTime"])),
         average_fight_time=f32(_num(r["AverageFightTime"])), count=int(r["Count"]),
         difficulty=f32(_num(r["Difficulty"], 1.0)), armors=list(armor_configs.get(str(r["ArmorConfig"]), [])),
-        health_base=_num(r["stat.Health"]), damage_base=_num(r["stat.Damage"]),
-        attack_cooldown_base=_num(r["stat.AttackCooldown"]),
+        health_base=_num(r["stat.Health"], None), damage_base=_num(r["stat.Damage"], None),
+        attack_cooldown_base=_num(r["stat.AttackCooldown"], None),  # None: no such stat (bake raises BakeError)
         spawner_id=(str(r["scene"]), int(r["file_id"])),
     )

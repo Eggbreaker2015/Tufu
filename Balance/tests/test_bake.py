@@ -11,6 +11,7 @@ import dataclasses
 import hashlib
 import math
 import re
+import shutil
 import sqlite3
 import statistics
 import time
@@ -24,6 +25,7 @@ from tufu_balance.model import bake as B
 from tufu_balance.model import data as MD
 from tufu_balance.model import interpolation as I
 from tufu_balance.model import snapshots as S
+from tufu_balance.model.enums import StatType
 from tufu_balance.model.interpolation import ROUNDINGS, Rounding
 
 TOL1, TOL5 = 0.01, 0.05
@@ -152,6 +154,7 @@ def test_g13_roundings(baked, load_fixture):
 def test_k4_k5_follow_rounding(contexts, rows_inputs):
     """The bake's ability coefficients come from total_coefficient under ctx.rounding."""
     differ = set()
+    raw_h = raw_d = new_h = new_d = 0
     for _, sp in rows_inputs:
         reps = {r.value: B.bake_spawner(contexts[r.value], sp) for r in (Rounding.STEPWISE, Rounding.FMA)}
         for r, rep in reps.items():
@@ -164,8 +167,39 @@ def test_k4_k5_follow_rounding(contexts, rows_inputs):
         if (st.ability_dps, st.ability_ehp) != (fm.ability_dps, fm.ability_ehp):
             differ.add(_sid(sp))
             assert sp.is_days
-    check("bake", {"G13.k4k5_differ_stepwise_fma": exact(len(differ), source="G13",
-                                                         note="spawners whose K4 or K5 differ; counts still equal")})
+        else:
+            assert (st.new_health_raw, st.new_damage_raw) == (fm.new_health_raw, fm.new_damage_raw)
+        raw_h += st.new_health_raw != fm.new_health_raw
+        raw_d += st.new_damage_raw != fm.new_damage_raw
+        new_h += st.new_health != fm.new_health
+        new_d += st.new_damage != fm.new_damage
+    check("bake", {
+        "G13.k4k5_differ_stepwise_fma": exact(len(differ), source="G13",
+                                              note="spawners whose K4 or K5 differ; counts still equal"),
+        "G13.raw_differ_stepwise_fma": exact({"health_raw": raw_h, "damage_raw": raw_d, "health": new_h, "damage": new_d},
+                                             source="G13", note="of the K4/K5 spawners; integral damage raw absorbs most K5 changes"),
+    })
+
+
+_RAW_FIELDS = ("recalc_optimum_time", "day", "ability_dps", "ability_ehp", "new_health_raw", "new_damage_raw",
+               "new_health", "new_damage")
+
+
+def _raw_bits(rows) -> list[str]:
+    """One line per spawner: SpawnerId, chosen armor type and the exact bits of the oracle's outputs."""
+    return [" ".join([_sid(sp), str(rep.armor_type)] + [float(getattr(rep, f)).hex() for f in _RAW_FIELDS])
+            for _, sp, rep in rows]
+
+
+def test_bake_raw_bits(baked):
+    """Pins the per-spawner raw values bit for bit (C2/DP5 and C8 compare against them)."""
+    st, df = _raw_bits(baked["stepwise"]), _raw_bits(baked[None])
+    assert len(st) == len(df) == 717
+    check("bake", {
+        "oracle.raw_bits.stepwise": exact(_fingerprint(st), source="G13",
+                                          note="sha256 of sorted lines: SpawnerId armor_type " + " ".join(_RAW_FIELDS)),
+        "oracle.raw_bits.default": exact(_fingerprint(df), source="G13", note="same under interpolation_default.json"),
+    })
 
 
 # ----------------------------------------------------------------------------- G15
@@ -367,6 +401,109 @@ def test_bake_error_unknown_location(contexts, rows_inputs):
         B.build_spawner_bake_report(contexts[None], sp, sp.optimum_time, sp.optimum_time, sp.is_days)
 
 
+def test_bake_error_missing_spawner_stat(contexts, rows_inputs):
+    sp = _one(rows_inputs)
+    for field_, stat in (("health_base", "Health"), ("damage_base", "Damage"), ("attack_cooldown_base", "AttackCooldown")):
+        with pytest.raises(B.BakeError, match=re.escape(sp.name) + f".*no {stat} stat"):
+            B.bake_spawner(contexts[None], dataclasses.replace(sp, **{field_: None}))
+
+
+# ----------------------------------------------------------------------------- C# branches absent from shipped data
+F = np.float32
+
+
+def test_early_offset_branches(contexts, rows_inputs):
+    """GetReCalcOptimumTime edges (SimulationConfig.cs:219-231), recomputed here with numpy float32 steps."""
+    ctx = contexts[None]
+    assert (ctx.early_offset_start_location, ctx.early_offset_relative_part, ctx.early_offset_multiplier) == (11, F(0.5), F(1.0))
+    sp = dataclasses.replace(_one(rows_inputs, min_location=12), relative_optimum_time=F(0.25))
+    L, itd = sp.location_number, ctx.island_target_days
+    span = F(itd[L - 1]) - F(itd[L - 2])
+    assert span > 0
+
+    def want(s, mult):
+        d = span * (F(0.5) - s.relative_optimum_time) * F(mult)
+        return s.optimum_time - (d if s.is_days else d * F(60))
+
+    assert B.recalc_optimum_time(sp, ctx) == want(sp, 1.0) < sp.optimum_time
+    # minute-mode on L >= 11 (none shipped): delta x 60
+    mm = dataclasses.replace(sp, is_days=False, optimum_time=F(sp.optimum_time * F(60)))
+    assert B.recalc_optimum_time(mm, ctx) == want(mm, 1.0)
+    assert sp.optimum_time * F(60) - want(mm, 1.0) > 59 * (sp.optimum_time - want(sp, 1.0))
+    # Multiplier != 1 (shipped 1)
+    m15 = dataclasses.replace(ctx, early_offset_multiplier=F(1.5))
+    assert B.recalc_optimum_time(sp, m15) == want(sp, 1.5) != want(sp, 1.0)
+    assert B.recalc_optimum_time(mm, m15) == want(mm, 1.5)
+    # strict Rel < RelPart: at 0.5 the branch is not taken, so even an out-of-range L does not throw
+    assert B.recalc_optimum_time(dataclasses.replace(sp, relative_optimum_time=F(0.5), location_number=150), ctx) \
+        == sp.optimum_time
+    assert B.recalc_optimum_time(dataclasses.replace(sp, location_number=10), ctx) == sp.optimum_time
+
+
+def _edge_setup(ctx, rows_inputs, day=None):
+    sp = _one(rows_inputs)
+    t = B.recalc_optimum_time(sp, ctx) if day is None else F(day)
+    return sp, t, ctx.snapshot_for_bake(t, True)
+
+
+def _report(ctx, sp, t, snap, armors, dps=None, **kw):
+    s = dataclasses.replace(sp, armors=armors, **kw)
+    sn = snap if dps is None else dataclasses.replace(snap, dps_data=dps)
+    return B.build_spawner_bake_report(ctx, s, s.optimum_time, t, True, snapshot=sn)
+
+
+def test_armor_choice_branches(contexts, rows_inputs):
+    """Resist clamp (:130), Score on the unclamped resist (:126), stable OrderByDescending, NaN last."""
+    ctx = contexts[None]
+    sp, t, snap = _edge_setup(ctx, rows_inputs)
+    A, Bt = snap.dps_data[0][0], snap.dps_data[1][0]
+    Ar = B.ArmorEntry
+    flat = [(A, 100.0), (Bt, 100.0)]
+    for r, clamp in ((0.95, 0.9), (-0.95, -0.9)):
+        hi = _report(ctx, sp, t, snap, [Ar(A, F(r))], flat)
+        at = _report(ctx, sp, t, snap, [Ar(A, F(clamp))], flat)
+        assert (hi.armor_resist_raw, hi.armor_resist_used) == (float(F(r)), float(F(clamp)))
+        assert hi.new_health_raw == at.new_health_raw
+        assert hi.new_health_raw != _report(ctx, sp, t, snap, [Ar(A, F(0.0))], flat).new_health_raw
+    # Scores 120 * (1 - 0.95) = 6 < 100 * (1 - 0.92) = 8 pick B; clamped resists (12 > 10) would pick A
+    assert _report(ctx, sp, t, snap, [Ar(A, F(0.95)), Ar(Bt, F(0.92))], [(A, 120.0), (Bt, 100.0)]).armor_type == Bt
+    # equal scores: the first armor row wins
+    assert _report(ctx, sp, t, snap, [Ar(A, F(0.2)), Ar(Bt, F(0.2))], flat).armor_type == A
+    assert _report(ctx, sp, t, snap, [Ar(Bt, F(0.2)), Ar(A, F(0.2))], flat).armor_type == Bt
+    # NaN compares below every number in .NET, so OrderByDescending puts it last
+    nan = [(A, math.nan), (Bt, 50.0)]
+    for armors in ([Ar(A, F(0.2)), Ar(Bt, F(0.2))], [Ar(Bt, F(0.2)), Ar(A, F(0.2))]):
+        assert _report(ctx, sp, t, snap, armors, nan).armor_type == Bt
+
+
+def test_difficulty_fallback(contexts, rows_inputs):
+    """Difficulty <= 0 is replaced by 1 (:141); other values are used as they are."""
+    ctx = contexts[None]
+    sp, t, snap = _edge_setup(ctx, rows_inputs)
+    one = _report(ctx, sp, t, snap, sp.armors, difficulty=F(1.0))
+    for d in (0.0, -1.0):
+        rep = _report(ctx, sp, t, snap, sp.armors, difficulty=F(d))
+        assert rep.difficulty_used == 1.0
+        assert (rep.new_damage_raw, rep.battle_regen) == (one.new_damage_raw, one.battle_regen)
+    half = _report(ctx, sp, t, snap, sp.armors, difficulty=F(0.5))
+    assert half.difficulty_used == 0.5 and half.new_damage_raw != one.new_damage_raw
+
+
+def test_health_rounds_half_to_even(contexts, rows_inputs):
+    """Math.Round(double) is banker's rounding (:160). Day 1: K4 = 0; CritChance 0 makes crit vanish."""
+    ctx = contexts[None]
+    sp, t, snap = _edge_setup(ctx, rows_inputs, day=1.0)
+    snap = dataclasses.replace(snap, stats=[dataclasses.replace(s, total_value=0.0) if s.key == StatType.CritChance
+                                            else s for s in snap.stats])
+    A = snap.dps_data[0][0]
+    for dps, want in ((0.5, 0.0), (2.5, 2.0), (3.5, 4.0), (4.5, 4.0)):
+        rep = _report(ctx, sp, t, snap, [B.ArmorEntry(A, F(0.0))], [(A, dps)],
+                      average_fight_time=F(1.0), count=1)
+        assert rep.ability_dps == 0.0 and rep.crit_chance == 0.0
+        assert rep.new_health_raw == dps  # (0 + 1) * dps * 1 / 1 * (1 - 0)
+        assert rep.new_health == want, dps
+
+
 # ----------------------------------------------------------------------------- injection, read-only
 def _make_sim_db(db_path, path, scale_dps: float = 1.0):
     """A stand-in for a run's ``sim.sqlite``: only the ``c_SimulationData__*`` tables."""
@@ -423,12 +560,22 @@ def test_load_bake_context_injects_simulation_data(db, db_path, tmp_path, baked,
         MD.load_bake_context(db, simulation_data=tmp_path / "missing.sqlite")
 
 
-def test_database_is_read_only(db_path):
-    before = _sha(db_path)
-    con = MD.connect(db_path)
+def test_database_is_read_only(db_path, tmp_path):
+    # The write probe runs on a private copy: if connect() ever opened read-write, it must not hit the shared DB.
+    copy = tmp_path / "copy.sqlite"
+    shutil.copyfile(db_path, copy)
+    copy_sha = _sha(copy)
+    con = MD.connect(copy)
     try:
         with pytest.raises(sqlite3.OperationalError, match="readonly"):
             con.execute("CREATE TABLE p7_probe (a)")
+    finally:
+        con.close()
+    assert _sha(copy) == copy_sha
+
+    before = _sha(db_path)
+    con = MD.connect(db_path)
+    try:
         ctx = MD.load_bake_context(con)
         armors = MD.load_armor_configs(con)
         for r in MD.load_spawner_rows(con)[:50]:
