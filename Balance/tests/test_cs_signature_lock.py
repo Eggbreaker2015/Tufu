@@ -1,12 +1,14 @@
-"""Partial split of SimulationSystem (design 0, 1.5, 4.1, 7.3 C3a, 7.4): a mechanical, behaviour-neutral move.
+"""Partial split of SimulationSystem (design 0, 1.5, 4.1, 7.3 C3a, 7.4) and the engine bodies (7.3 C3b).
 
-* The semantic signature lock (cscheck, P0) is identical to 6af011f; the only new members are the Rebuild*
-  partial hooks of 7.4 (private/internal).
-* Every empty method of 6af011f moved verbatim (declaration and body) into its module's partial file; the
-  recovered bodies stay in SimulationSystem.cs, which is the 6af011f text minus the moved methods plus
-  ``partial``. SimulationConfig only gains ``partial`` and annotations.
-* Every empty method carries ``[SimulationRebuild(Provenance.Null | Provenance.DebugOnly)]``.
-* The hooks are declared in .Rebuild.cs, implemented (empty) only in .Replay.cs and called nowhere yet.
+* The semantic signature lock (cscheck, P0) is identical to 6af011f; new members are Rebuild* and
+  private/internal: the partial hooks of 7.4 (C3a) and the engine members of C3b.
+* Every empty method of 6af011f moved (declaration verbatim) into its module's partial file; the recovered
+  bodies stay in SimulationSystem.cs, which is the 6af011f text minus the moved methods plus ``partial``.
+  Only the methods C3b filled (``FILLED``) have new bodies. SimulationConfig gains ``partial``, annotations
+  and the bodies of Tick and GetTrimmedTimeChunkSnapshots.
+* Every empty method of 6af011f carries one ``[SimulationRebuild]``: ``FILLED`` gives the provenance of the
+  methods C3b filled; the rest stay ``Provenance.Null | Provenance.DebugOnly`` until their unit fills them.
+* The hooks are declared in .Rebuild.cs; the cross-module call sites of 7.4 are in place (C3b).
 
 Source structure is read with Roslyn (tools/csmembers, syntax only); semantics with cscheck.
 """
@@ -73,7 +75,7 @@ DEBUG_ONLY = {"GetNextLocationInterpolationTiming", "GetBestSpawnerForInfo", "Tr
 HOOKS = {
     "RebuildApplyDayOverride(int)": "Replay",
     "RebuildApplyReplayCaches()": "Replay",
-    "RebuildOnTickCompleted()": None,
+    "RebuildOnTickCompleted()": "Rebuild",
     "RebuildResetForJob(ref bool)": None,
 }
 NEW_MEMBERS = {
@@ -82,7 +84,50 @@ NEW_MEMBERS = {
     "method:RebuildOnTickCompleted()": "private",
     "method:RebuildResetForJob(ref bool)": "private",
     "method:RebuildTryResetForJob()": "internal",
+    # C3b: the write point, unlock, gate flush, boss lookup, fast-day advance (design 4.5, 7.4)
+    "method:RebuildApplyClear(Codebase.Enemy.EnemySpawner, int, bool)": "private",
+    "method:RebuildUnlockLocation(int)": "private",
+    "method:RebuildFlushFastTickGates()": "private",
+    "method:RebuildFindBoss(int)": "private",
+    "method:RebuildAdvanceFastDay(float)": "private",
+    "method:RebuildManifest()": "internal",
+    "property:RebuildFailure": "internal",
+    "property:RebuildFailureExitCode": "internal",
+    "property:RebuildLastTickWasFast": "internal",
 }
+# Design 4.1: provenance of the empty methods C3b filled (SimulationSystem and SimulationConfig).
+FILLED = {
+    "PrepareSimulationRun": "Inferred", "ExecuteTick": "Inferred", "Tick": "Inferred",
+    "CheckSimulationStopConditions": "Inferred", "UpdateSpawnerChargesChunk": "Inferred", "ResetCooldowns": "Inferred",
+    "RecalculateChunkRpmValues": "Inferred", "GetSpawnerChargesPerClear": "Inferred",
+    "UpdateInterpolationStatModifier": "Inferred", "GetSimulationInterpolationCoefficient": "Inferred",
+    "GetSimulationSnapshotStatValue": "Inferred", "UsesInterpolationStats": "Inferred",
+    "GetForecastUnlockedLocationNumber": "Inferred", "ConvertIslandTimingToDays": "Inferred",
+    "GetNextLocationInterpolationTiming": "DebugOnly",
+    "CheckLifeCycle": "Inferred", "NextLifeCycle": "Inferred", "ProcessAFK": "Inferred", "ApplyRegen": "Inferred",
+    "ProcessSimulateAds": "Inferred", "CalculateBestRewardStat": "Inferred", "MakeSnapshot": "Inferred",
+    # null modules: fail the job when switched on (design 4.5)
+    "ResetAmuletAutoBalance": "Null", "ProcessAmuletAutoBalanceTargets": "Null", "ProcessCrystalSimulationChunk": "Null",
+    "UpgradeCrystalsGreedy": "Null",
+    # skeletons handed to C5 (.FastTick.cs) and C7 (.Fight.cs)
+    "FastTick": "Null", "FlushFastTickChunkRewards": "Null", "SimulateFightWithSpawnerFast": "Null",
+    "SimulateFightWithSpawner": "Null",
+}
+FILLED_CONFIG = {"Tick": "Inferred", "GetTrimmedTimeChunkSnapshots": "Inferred"}
+# Design 7.4: every cross-module call site (caller -> callee), placed by C3b.
+CALL_SITES = [
+    ("PrepareSimulationRun", "RebuildApplyDayOverride"), ("UpdateSpawnerChargesChunk", "RebuildApplyDayOverride"),
+    ("Tick", "RebuildApplyReplayCaches"), ("Tick", "CalculateStatBenefit"), ("Tick", "FindBestSpawner"),
+    ("Tick", "SimulateFightWithSpawner"), ("SimulateFightWithSpawner", "RebuildApplyClear"),
+    ("SimulateFightWithSpawnerFast", "RebuildApplyClear"), ("RebuildApplyClear", "GetSpawnerItemRewardCopies"),
+    ("RebuildApplyClear", "ProcessInventory"), ("RebuildApplyClear", "AccumulateFastTickSpawnerRewards"),
+    ("RebuildUnlockLocation", "UnlockSimulationWeaponSlot"), ("RebuildAdvanceFastDay", "FlushFastTickChunkRewards"),
+    ("FlushFastTickChunkRewards", "RollFractionalCount"), ("FlushFastTickChunkRewards", "ProcessInventory"),
+    ("ExecuteTick", "RebuildOnTickCompleted"), ("RebuildOnTickCompleted", "OnTickCompleted"),
+    ("FastTick", "RebuildAdvanceFastDay"), ("ExecuteTick", "FastTick"), ("ExecuteTick", "Tick"),
+    ("UpdateSpawnerChargesChunk", "RecalculateChunkRpmValues"), ("UpdateSpawnerChargesChunk", "UpdateInterpolationStatModifier"),
+    ("UpdateSpawnerChargesChunk", "MakeSnapshot"), ("PrepareSimulationRun", "MakeSnapshot"),
+]
 REBUILD_ATTR = re.compile(r"^(?:Codebase\.Simulation\.Rebuild\.)?SimulationRebuild(?:Attribute)?$")
 
 
@@ -201,11 +246,14 @@ def test_locked_members_identical_and_only_rebuild_members_added(tmp_path):
         for key, m in old.items():
             assert new[key] == m, key
         added.update({(nt["name"], k): new[k] for k in new.keys() - old.keys()})
-    assert {k for (_, k) in added} == set(NEW_MEMBERS)
+    assert set(NEW_MEMBERS) <= {k for (_, k) in added}
+    # The internal surface (what SimulationHarness may call) is exact; private Rebuild* helpers are free.
+    assert {k for (_, k), m in added.items() if m["accessibility"] == "internal"} == \
+        {k for k, a in NEW_MEMBERS.items() if a == "internal"}
     for (type_name, key), m in added.items():
         assert type_name == SIM
         assert m["name"].startswith("Rebuild")
-        assert m["accessibility"] == NEW_MEMBERS[key]
+        assert m["accessibility"] == NEW_MEMBERS.get(key, m["accessibility"]) and m["accessibility"] in ("private", "internal")
 
 
 # ---------------------------------------------------------------- the move is verbatim
@@ -232,17 +280,26 @@ def test_main_file_is_original_minus_moved_methods(original):
     assert SS.read_text(encoding="utf-8") == expected
 
 
-def test_config_gains_only_partial_and_annotations(original):
+def test_config_gains_only_partial_annotations_and_filled_bodies(original, current):
     now = SC.read_text(encoding="utf-8")
+    # The two filled methods (with their comments and annotation) go back to the 6af011f text first.
+    orig_text = original["sources"][SC.name]
+    spans = {m["name"]: m["full_span"] for m in methods(original, "SimulationConfig") if m["name"] in FILLED_CONFIG}
+    for m in sorted((m for m in methods(current, "SimulationConfig") if m["name"] in FILLED_CONFIG),
+                    key=lambda m: -m["full_span"][0]):
+        a, b = spans[m["name"]]
+        now = now[:m["full_span"][0]] + orig_text[a:b] + now[m["full_span"][1]:]
     stripped = re.sub(r"(?m)^\t\t\[SimulationRebuild\(Provenance\.\w+\)\]\n", "", now)
     stripped = stripped.replace("using Codebase.Simulation.Rebuild;\n", "", 1)
     stripped = stripped.replace("\tpublic partial class SimulationConfig : ScriptableObject\n",
                                 "\tpublic class SimulationConfig : ScriptableObject\n", 1)
     assert stripped == original["sources"][SC.name]
-    assert len(now.splitlines()) - len(stripped.splitlines()) == len(CONFIG_STUBS) + 1
+    assert len(now.splitlines()) - len(stripped.splitlines()) == len(CONFIG_STUBS) - len(FILLED_CONFIG) + 1
 
 
 def test_every_method_kept_its_declaration_and_body(original, current):
+    """Headers never change; bodies change only for the methods C3b filled."""
+    filled = {"SimulationSystem": FILLED, "SimulationConfig": FILLED_CONFIG}
     for type_name in ("SimulationSystem", "SimulationConfig"):
         now = {}
         for m in methods(current, type_name):
@@ -253,7 +310,8 @@ def test_every_method_kept_its_declaration_and_body(original, current):
         for m in methods(original, type_name):
             n = now.get(m["key"])
             assert n is not None, f"{type_name}.{m['key']} missing"
-            assert n["header"] == m["header"] and n["body"] == m["body"], m["key"]
+            assert n["header"] == m["header"], m["key"]
+            assert (n["body"] != m["body"]) == (m["name"] in filled[type_name]), m["key"]
             assert [a for a in n["attributes"] if not REBUILD_ATTR.match(a["name"])] == m["attributes"], m["key"]
 
 
@@ -268,8 +326,13 @@ def test_methods_are_in_their_module_files(original, current):
 
 
 def test_partial_files_hold_only_methods():
+    """Methods only, except the engine state (Rebuild* fields and properties) in .Rebuild.cs."""
     doc = members_of([SYSTEMS / f"SimulationSystem.{m}.cs" for m in PARTIAL_FILES], "SimulationSystem")
-    assert {m["kind"] for m in doc["members"]} == {"MethodDeclaration"}
+    others = [m for m in doc["members"] if m["kind"] != "MethodDeclaration"]
+    assert {m["kind"] for m in others} <= {"FieldDeclaration", "PropertyDeclaration"}
+    for m in others:
+        assert m["file"] == "SimulationSystem.Rebuild.cs", m["key"]
+        assert all(name.strip().startswith("Rebuild") for name in m["name"].split(",")), m["key"]
     assert len(doc["types"]) == len(PARTIAL_FILES)
     for t in doc["types"]:
         assert t["modifiers"] == ["public", "partial"] and t["base_list"] is None
@@ -279,24 +342,29 @@ def test_partial_files_hold_only_methods():
 # ---------------------------------------------------------------- annotations
 
 
-def test_every_empty_method_is_annotated(current):
-    seen = set()
+def test_every_empty_method_is_annotated(original, current):
+    """Each empty method of 6af011f: one annotation, its provenance per FILLED (else Null/DebugOnly), a formula
+    id once filled. Recovered bodies carry none; new Rebuild* members may."""
+    filled = {"SimulationSystem": FILLED, "SimulationConfig": FILLED_CONFIG}
     for type_name in ("SimulationSystem", "SimulationConfig"):
+        stubs = {m["key"]: m for m in methods(original, type_name) if is_stub(m)}
         for m in methods(current, type_name):
             attrs = rebuild_attributes(m)
             if not m["has_body"]:
                 assert attrs == [], m["key"]
                 continue
-            if not is_stub(m):
-                assert attrs == [], f"recovered or new body {m['key']} must not be annotated"
+            if m["key"] not in stubs:
+                assert attrs == [] or m["name"].startswith("Rebuild"), f"recovered body {m['key']} must not be annotated"
                 continue
             assert len(attrs) == 1, m["key"]
-            expected = "Provenance.DebugOnly" if m["name"] in DEBUG_ONLY else "Provenance.Null"
-            assert attrs[0]["args"] == [expected], m["key"]
-            seen.add((type_name, m["name"]))
-    sim = {n for names in MODULES.values() for n in names}
-    replay = {"RebuildApplyDayOverride", "RebuildApplyReplayCaches"}
-    assert seen == {("SimulationSystem", n) for n in sim | replay} | {("SimulationConfig", n) for n in CONFIG_STUBS}
+            args = attrs[0]["args"]
+            if m["name"] in filled[type_name]:
+                assert args[0] == "Provenance." + filled[type_name][m["name"]], m["key"]
+                assert len(args) == 2 and args[1].startswith('"'), f"{m['key']} needs a formula id"
+            else:
+                expected = "Provenance.DebugOnly" if m["name"] in DEBUG_ONLY else "Provenance.Null"
+                assert args[0] == expected, m["key"]
+        assert set(stubs) <= {m["key"] for m in methods(current, type_name) if rebuild_attributes(m)}
 
 
 def test_registry_scanner_sees_the_same_annotations(current):
@@ -305,7 +373,7 @@ def test_registry_scanner_sees_the_same_annotations(current):
                     for t in ("SimulationSystem", "SimulationConfig") for m in methods(current, t) if rebuild_attributes(m))
     scanned = sorted((Path(a.file).name, a.member, a.provenance) for a in registry.scan_csharp()
                      if a.type_name in ("SimulationSystem", "SimulationConfig"))
-    assert scanned == roslyn and len(scanned) == 62
+    assert scanned == roslyn and len(scanned) >= 62
 
 
 def test_attribute_declares_the_design_provenances():
@@ -333,17 +401,41 @@ def test_hooks_declared_in_rebuild_file(current):
     assert {k: m["file"] for k, m in impls.items()} == {
         k: f"SimulationSystem.{f}.cs" for k, f in HOOKS.items() if f is not None}
     for m in impls.values():
-        assert m["statements"] == [], f"{m['key']} is an empty placeholder until C4"
+        if m["file"] == "SimulationSystem.Replay.cs":
+            assert m["statements"] == [], f"{m['key']} is an empty placeholder until C4"
 
 
-def test_no_call_sites_yet(current):
-    """C3b places the calls; the only call is the internal bridge for SimulationHarness to the S1 hook."""
-    new_names = {k.split(":")[1].split("(")[0] for k in NEW_MEMBERS}  # RebuildPerFrameCaches is original
-    calls = [(m["name"], c) for t in ("SimulationSystem", "SimulationConfig") for m in methods(current, t)
-             for c in m["invocations"] if c in new_names]
-    assert calls == [("RebuildTryResetForJob", "RebuildResetForJob")]
+def test_cross_module_call_sites_in_place(current):
+    """Design 7.4: every call site exists; RebuildApplyClear is called only from the two fight bodies (and the
+    test-only write-point probe), never from Tick/FastTick; stubs still unfilled call nothing."""
+    calls = {(m["name"], c) for m in methods(current, "SimulationSystem") for c in m["invocations"]}
+    missing = [edge for edge in CALL_SITES if edge not in calls]
+    assert missing == []
+    clear_callers = {caller for caller, callee in calls if callee == "RebuildApplyClear"}
+    assert clear_callers == {"SimulateFightWithSpawner", "SimulateFightWithSpawnerFast", "RebuildRunWritePointProbe"}
     stubs = [m for t in ("SimulationSystem", "SimulationConfig") for m in methods(current, t) if is_stub(m)]
     assert all(m["invocations"] == [] for m in stubs)
+
+
+def test_day_override_follows_the_forced_snapshot(current):
+    """Design 4.6: the replay/checkpoint override of day d takes effect after day d's forced snapshot, on day 0
+    as on every day change (the 4.4 pseudo-code has it before; the deviation is in Runbook 16.6)."""
+    by_name = {m["name"]: m["invocations"] for m in methods(current, "SimulationSystem")}
+    for caller in ("PrepareSimulationRun", "UpdateSpawnerChargesChunk"):
+        calls = by_name[caller]
+        assert calls.count("RebuildApplyDayOverride") == 1 and calls.count("MakeSnapshot") == 1, caller
+        assert calls.index("MakeSnapshot") < calls.index("RebuildApplyDayOverride"), caller
+    calls = by_name["UpdateSpawnerChargesChunk"]
+    last_modifier = max(i for i, c in enumerate(calls) if c in ("RecalculateChunkRpmValues", "UpdateInterpolationStatModifier"))
+    assert last_modifier < calls.index("MakeSnapshot")
+
+
+def test_harness_calls_the_reset_bridge():
+    """Design 7.4: SimulationHarness -> RebuildResetForJob (S1), through the internal bridge, at job start."""
+    harness = {m["name"]: m["invocations"] for m in methods(members_of([HARNESS], "SimulationHarness"), "SimulationHarness")}
+    calls = harness["StartJob"]
+    assert "RebuildTryResetForJob" in calls
+    assert calls.index("RebuildTryResetForJob") < calls.index("StateDigestText")
 
 
 def test_hooks_do_not_collide_with_harness_hooks(current):
@@ -360,7 +452,8 @@ def test_hooks_do_not_collide_with_harness_hooks(current):
 
 
 def test_new_files_have_unique_meta():
-    new = [SIM_DIR / "Rebuild", ATTRIBUTE, *(SYSTEMS / f"SimulationSystem.{m}.cs" for m in PARTIAL_FILES)]
+    new = [SIM_DIR / "Rebuild", ATTRIBUTE, *(SYSTEMS / f"SimulationSystem.{m}.cs" for m in PARTIAL_FILES),
+           SIM_DIR / "Rebuild" / "SimulationRebuildParams.cs", SIM_DIR / "Harness" / "SimulationRunRequest.Engine.cs"]
     tracked = subprocess.run(["git", "-C", str(WORKTREE), "ls-files", "-z", "--", "*.meta"],
                              capture_output=True, text=True, check=True).stdout.split("\0")
     ours = {str((p.parent / (p.name + ".meta")).relative_to(WORKTREE)) for p in new}

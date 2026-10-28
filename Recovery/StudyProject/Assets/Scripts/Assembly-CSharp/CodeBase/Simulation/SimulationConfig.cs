@@ -85,9 +85,11 @@ namespace Codebase.Simulation
 		{
 		}
 
-		[SimulationRebuild(Provenance.Null)]
+		// Inspector button: one hand tick (SimulationSystem.OnUpdate consumes the flag).
+		[SimulationRebuild(Provenance.Inferred, "pending:simulation.hand_tick")]
 		public void Tick()
 		{
+			handTick = true;
 		}
 
 		[SimulationRebuild(Provenance.Null)]
@@ -100,10 +102,22 @@ namespace Codebase.Simulation
 		{
 		}
 
-		[SimulationRebuild(Provenance.Null)]
+		// Day snapshots kept in the exported data (G19): day 0, then i_{n+1} = max(i_n + 1, ceil(1.1f * i_n)) in
+		// float32; the last day is kept only when the rule reaches it.
+		[SimulationRebuild(Provenance.Inferred, "simulation.snapshot_trim")]
 		private List<SimulationSnapshot> GetTrimmedTimeChunkSnapshots()
 		{
-			return null;
+			var trimmed = new List<SimulationSnapshot>();
+			if (TimeChunkSnapshots == null) return trimmed;
+			int next = 0;
+			foreach (SimulationSnapshot snapshot in TimeChunkSnapshots)
+			{
+				int day = snapshot.TimeChunkIndex;
+				if (day < next) continue;
+				trimmed.Add(snapshot);
+				next = Math.Max(day + 1, (int)Mathf.Ceil((float)(1.1f * day)));
+			}
+			return trimmed;
 		}
 
 		public SpawnerBakeReportData BuildSpawnerBakeReport(EnemySpawner spawner)
