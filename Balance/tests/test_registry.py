@@ -99,6 +99,21 @@ namespace Codebase.Simulation
 		[method: SimulationRebuild(Provenance.DebugOnly, FormulaId = "pending:spawners.priority")]
 		public float GetPriority<T>(T x) { return 0f; }
 	}
+
+	public partial class SimulationSystem
+	{
+		[SimulationRebuild(Provenance.Null, "simulation.rpm_time_chunk")]
+		private (double, double, string) GetUnlockTimingLogData(EnemySpawner spawner) { return default; }
+
+		[SimulationRebuild(Provenance.Null)]
+		private static (Stat stat, StatModifier modifier)? ModifyFromItem<T>(T item, int n = 0) => default;
+
+		[SimulationRebuild(Provenance.Inferred)]
+		public (int Count, float Sum) Totals { get; private set; }
+
+		[SimulationRebuild(Provenance.Inferred)]
+		internal Task<(int, Dictionary<int, float>)> LoadAsync() { return null; }
+	}
 }
 '''
 
@@ -112,6 +127,10 @@ def test_parse_rebuild_annotations():
         (15, "SimulationSystem", "SimulationSpeed", "Calibrated", "simulation.rpm_time_chunk"),
         (19, "SimulationSystem", "RebuildApplyDayOverride", "Null", None),
         (24, "SpawnerData", "GetPriority", "DebugOnly", "pending:spawners.priority"),
+        (30, "SimulationSystem", "GetUnlockTimingLogData", "Null", "simulation.rpm_time_chunk"),
+        (33, "SimulationSystem", "ModifyFromItem", "Null", None),
+        (36, "SimulationSystem", "Totals", "Inferred", None),
+        (39, "SimulationSystem", "LoadAsync", "Inferred", None),
     ]
     assert parse_rebuild_annotations("class A { [Obsolete] void F() {} }") == []
 

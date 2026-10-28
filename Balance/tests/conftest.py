@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+import uuid
 from pathlib import Path
 
 import pytest
@@ -24,6 +25,12 @@ FIXTURES = TESTS / "golden" / "fixtures"
 def pytest_addoption(parser):
     parser.addoption("--unity", action="store_true", default=False,
                      help="run tests marked 'unity' (may start Unity in the run worktree)")
+
+
+def pytest_configure(config):
+    # One id per session (xdist workers inherit it): golden results recorded by an earlier session are dropped.
+    if not hasattr(config, "workerinput"):
+        os.environ["TUFU_GOLDEN_RUN"] = uuid.uuid4().hex
 
 
 def pytest_collection_modifyitems(config, items):

@@ -5,9 +5,9 @@ Tests record measured values and compare them with CURRENT::
     from tufu_balance.golden import at_most, check, exact, same_set
 
     check("timeline", {
-        "G01.itd_tail_exact": exact(84, source="G01"),
+        "G01.itd_tail_exact": exact(hits, source="G01", original=84),  # original= the design's number
         "G03.exceptions": same_set(exceptions, source="G03", better="subset"),
-        "R2.dps_max_error": at_most(0.2283, source="R2"),
+        "R2.dps_max_error": at_most(err, source="R2", original=0.2283),
     })
 
 Command line: ``python -m tufu_balance.golden status|accept|rebaseline-original|guard``. See

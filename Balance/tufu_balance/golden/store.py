@@ -19,17 +19,26 @@ plus an optional ``"better"`` that says which direction counts as tighter:
 Tests call :meth:`GoldenStore.check`; it records the measured values under
 ``Balance/out/golden/latest/`` (not tracked) and compares them strictly with CURRENT. ``accept``
 copies recorded values into CURRENT.
+
+ORIGINAL is never taken from a measurement silently. A test declares the design's number next to
+the measurement (``exact(n, original=84)``) and ``accept`` seeds ORIGINAL from that declaration,
+refusing (without ``--loosen``) when the measurement is looser. Keys the design marks as "measured
+and frozen on first run" have no number to declare; ``accept --seed-original`` freezes their
+measurement and logs it in ``accepted/``.
 """
 
 from __future__ import annotations
 
 import datetime
+import fcntl
 import hashlib
 import json
 import math
 import os
 import subprocess
+import uuid
 import warnings
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping
@@ -43,6 +52,8 @@ KINDS = ("exact", "min", "max", "set")
 BETTER = {"exact": (None, "higher", "lower"), "set": (None, "superset", "subset"), "min": (None,), "max": (None,)}
 LAYERS = ("original", "current")
 TIGHTEN_REL = 1e-9  # ratchet improvements below this relative size are not reported
+RUN_ENV = "TUFU_GOLDEN_RUN"  # shared by every process of one pytest session (set in tests/conftest.py)
+_UNSET = object()
 
 
 class GoldenError(Exception):
@@ -54,7 +65,8 @@ class GoldenMismatch(AssertionError):
 
 
 class AcceptRefused(GoldenError):
-    """accept would loosen a key beyond ORIGINAL without ``--loosen``."""
+    """accept would loosen a key beyond ORIGINAL without ``--loosen``, seed ORIGINAL from a
+    measurement without ``--seed-original``, or take results recorded at another commit."""
 
     def __init__(self, message: str, keys: list[str]):
         super().__init__(message)
@@ -127,16 +139,33 @@ class Expectation:
     source: str = ""
     note: str = ""
     better: str | None = None
+    # The design's ORIGINAL number for this key, declared by the test; not stored in original/current.
+    declared: Any = field(default=_UNSET, compare=False, repr=False)
 
     def __post_init__(self):
         if self.kind not in KINDS:
             raise GoldenError(f"unknown expectation kind {self.kind!r}; expected one of {KINDS}")
         if self.better not in BETTER[self.kind]:
             raise GoldenError(f"kind {self.kind!r} does not take better={self.better!r}")
-        value = _sorted_set(self.value) if self.kind == "set" else _plain(self.value)
+        object.__setattr__(self, "value", self._normalise(self.value))
+        if self.declared is not _UNSET:
+            object.__setattr__(self, "declared", self._normalise(self.declared))
+
+    def _normalise(self, value: Any) -> Any:
+        value = _sorted_set(value) if self.kind == "set" else _plain(value)
         if self.kind in ("min", "max"):
             _number(value, "expectation")
-        object.__setattr__(self, "value", value)
+        return value
+
+    @property
+    def has_declared(self) -> bool:
+        return self.declared is not _UNSET
+
+    def declared_expectation(self) -> "Expectation":
+        """The declared ORIGINAL as an expectation of the same kind, source, note and direction."""
+        if not self.has_declared:
+            raise GoldenError("no declared original")
+        return Expectation(self.kind, self.declared, self.source, self.note, self.better)
 
     def to_json(self) -> dict:
         out = {"kind": self.kind, "value": self.value, "source": self.source, "note": self.note}
@@ -156,22 +185,29 @@ class Expectation:
                                                                     other.better) and same(self.value, other.value)
 
 
-def exact(value: Any, source: str = "", note: str = "", better: str | None = None) -> Expectation:
-    return Expectation("exact", value, source, note, better)
+# ``original``: the design's number for this key (section 3.3), which seeds ORIGINAL on first accept.
 
 
-def at_least(value: float, source: str = "", note: str = "") -> Expectation:
+def exact(value: Any, source: str = "", note: str = "", better: str | None = None,
+          original: Any = _UNSET) -> Expectation:
+    return Expectation("exact", value, source, note, better, original)
+
+
+def at_least(value: float, source: str = "", note: str = "", original: Any = _UNSET) -> Expectation:
     """Ratchet: measured value must stay ``>=`` the accepted bound."""
-    return Expectation("min", value, source, note)
+    return Expectation("min", value, source, note, None, original)
 
 
-def at_most(value: float, source: str = "", note: str = "") -> Expectation:
+def at_most(value: float, source: str = "", note: str = "", original: Any = _UNSET) -> Expectation:
     """Ratchet: measured value must stay ``<=`` the accepted bound."""
-    return Expectation("max", value, source, note)
+    return Expectation("max", value, source, note, None, original)
 
 
-def same_set(values: Iterable[Any], source: str = "", note: str = "", better: str | None = None) -> Expectation:
-    return Expectation("set", list(values), source, note, better)
+def same_set(values: Iterable[Any], source: str = "", note: str = "", better: str | None = None,
+             original: Any = _UNSET) -> Expectation:
+    if original is not _UNSET:
+        original = list(original)
+    return Expectation("set", list(values), source, note, better, original)
 
 
 def _as_expectation(value: Any) -> Expectation:
@@ -293,11 +329,36 @@ def _check_suite_name(suite: str) -> str:
     return suite
 
 
+def run_id() -> str:
+    """Id of this test session: ``$TUFU_GOLDEN_RUN`` (shared with pytest-xdist workers), else per process."""
+    global _RUN
+    if os.environ.get(RUN_ENV):
+        return os.environ[RUN_ENV]
+    if _RUN is None:
+        _RUN = uuid.uuid4().hex
+    return _RUN
+
+
+_RUN: str | None = None
+
+
+@contextmanager
+def _locked(directory: Path):
+    """Serialise read-modify-write of recorded results across processes."""
+    directory.mkdir(parents=True, exist_ok=True)
+    with (directory / ".lock").open("a") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+
 @dataclass
 class AcceptResult:
     suite: str
     changed: list[str] = field(default_factory=list)
-    seeded_original: list[str] = field(default_factory=list)
+    seeded_original: list[str] = field(default_factory=list)  # from a declared original or --seed-original
     loosened: list[str] = field(default_factory=list)
     dropped: list[str] = field(default_factory=list)
 
@@ -360,20 +421,37 @@ class GoldenStore:
     def latest_path(self, suite: str) -> Path:
         return self.latest_dir / f"{_check_suite_name(suite)}.json"
 
-    def latest(self, suite: str) -> dict[str, Expectation]:
+    def _latest_data(self, suite: str) -> dict:
         path = self.latest_path(suite)
-        if not path.exists():
-            return {}
-        data = json.loads(path.read_text(encoding="utf-8"))
-        return {k: Expectation.from_json({f: v[f] for f in v if f != "recorded"}) for k, v in data["results"].items()}
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"suite": suite, "results": {}}
+
+    def latest(self, suite: str) -> dict[str, Expectation]:
+        out = {}
+        for k, v in self._latest_data(suite)["results"].items():
+            exp = Expectation.from_json({f: v[f] for f in v if f not in ("recorded", "original")})
+            if "original" in v:
+                exp = Expectation(exp.kind, exp.value, exp.source, exp.note, exp.better, v["original"])
+            out[k] = exp
+        return out
+
+    def latest_revs(self, suite: str) -> dict[str, str]:
+        """git rev each recorded result was measured at."""
+        return {k: v.get("recorded", {}).get("git_rev", "unknown")
+                for k, v in self._latest_data(suite)["results"].items()}
 
     def record(self, suite: str, results: Mapping[str, Expectation]) -> None:
-        path = self.latest_path(suite)
-        data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"suite": suite, "results": {}}
-        stamp = {"git_rev": _cached_rev(), "date": today()}
-        for key, exp in results.items():
-            data["results"][key] = {**exp.to_json(), "recorded": stamp}
-        _write_json(path, data)
+        """Merge results into the latest record; a new test session starts the suite's record afresh."""
+        with _locked(self.latest_dir):
+            data = self._latest_data(suite)
+            if data.get("run") != run_id():
+                data = {"suite": suite, "run": run_id(), "results": {}}
+            stamp = {"git_rev": _cached_rev(), "date": today()}
+            for key, exp in results.items():
+                entry = {**exp.to_json(), "recorded": stamp}
+                if exp.has_declared:
+                    entry["original"] = exp.declared
+                data["results"][key] = entry
+            _write_json(self.latest_path(suite), data)
 
     # -- test-side check -----------------------------------------------------------------------
 
@@ -385,9 +463,13 @@ class GoldenStore:
         """
         measured = {str(k): _as_expectation(v) for k, v in results.items()}
         self.record(suite, measured)
-        current = self.load("current", suite)
+        current, original = self.load("current", suite), self.load("original", suite)
         failures, hints = [], []
         for key in sorted(measured):
+            if measured[key].has_declared and key in original and \
+                    not original[key].same_as(measured[key].declared_expectation()):
+                failures.append(f"{key}: the test declares original {_short(measured[key].declared)} but "
+                                f"original/{suite}.json has {_short(original[key].value)}")
             base = current.get(key)
             if base is None:
                 failures.append(f"{key}: no current baseline (measured {_short(measured[key].value)})")
@@ -415,10 +497,23 @@ class GoldenStore:
         base = self.latest_dir / "files" if layer == "latest" else self.root / layer
         return base / _check_suite_name(suite) / name
 
+    def _files_manifest(self, suite: str) -> Path:
+        return self.latest_dir / "files" / f"{_check_suite_name(suite)}.json"
+
     def check_file(self, suite: str, name: str, data: bytes) -> None:
         latest = self.file_path("latest", suite, name)
-        latest.parent.mkdir(parents=True, exist_ok=True)
-        latest.write_bytes(data)
+        with _locked(self.latest_dir):
+            manifest = self._files_manifest(suite)
+            info = json.loads(manifest.read_text(encoding="utf-8")) if manifest.exists() else {}
+            if info.get("run") != run_id():
+                if latest.parent.exists():
+                    for old in latest.parent.iterdir():
+                        old.unlink()
+                info = {"suite": suite, "run": run_id(), "files": {}}
+            latest.parent.mkdir(parents=True, exist_ok=True)
+            latest.write_bytes(data)
+            info["files"][name] = {"git_rev": _cached_rev(), "date": today()}
+            _write_json(manifest, info)
         current = self.file_path("current", suite, name)
         if not current.exists():
             raise GoldenMismatch(f"golden file {suite}/{name}: no current baseline (measured copy in {latest})")
@@ -427,15 +522,18 @@ class GoldenStore:
                                  f"(sha256 {_sha(current.read_bytes())} -> {_sha(data)}; measured copy in {latest})")
 
     def accept_files(self, suite: str, reason: str, names: Iterable[str] | None = None,
-                     rev: str | None = None) -> list[str]:
+                     rev: str | None = None, allow_stale: bool = False) -> list[str]:
         if not reason.strip():
             raise GoldenError("accept needs a non-empty --reason")
         src_dir = self.latest_dir / "files" / _check_suite_name(suite)
-        available = sorted(p.name for p in src_dir.glob("*")) if src_dir.exists() else []
+        manifest = self._files_manifest(suite)
+        recorded = json.loads(manifest.read_text(encoding="utf-8"))["files"] if manifest.exists() else {}
+        available = sorted(n for n in recorded if (src_dir / n).exists())
         names = sorted(names) if names else available
         missing = [n for n in names if n not in available]
-        if missing:
-            raise GoldenError(f"no recorded file(s) {missing} for suite {suite!r}")
+        if missing or not names:
+            raise GoldenError(f"no recorded file(s) {missing or '(any)'} for suite {suite!r}")
+        self._refuse_stale(suite, {n: recorded[n].get("git_rev", "unknown") for n in names}, allow_stale)
         changes = []
         for name in names:
             data = (src_dir / name).read_bytes()
@@ -485,14 +583,25 @@ class GoldenStore:
 
     # -- accept / rebaseline -------------------------------------------------------------------
 
-    def accept(self, suite: str, reason: str, keys: Iterable[str] | None = None, loosen: bool = False,
-               drop: Iterable[str] = (), rev: str | None = None) -> AcceptResult:
-        """Copy recorded values of ``keys`` (default: all recorded keys) into CURRENT.
+    def _refuse_stale(self, suite: str, revs: Mapping[str, str], allow_stale: bool) -> None:
+        head = _cached_rev()
+        stale = sorted(k for k, r in revs.items() if r != head)
+        if stale and not allow_stale:
+            raise AcceptRefused(f"refusing to accept {suite}: {stale} were recorded at another commit than HEAD "
+                                f"{head[:12]} ({sorted({revs[k][:12] for k in stale})}); rerun the tests, or pass "
+                                "--allow-stale", stale)
 
-        Keys new to the suite are also seeded into ORIGINAL (their first measurement is today's
-        number). A change that is looser than ORIGINAL and not already covered by a registered
-        loosening is refused unless ``loosen``; with ``loosen`` it is registered. ``drop`` removes
-        keys from CURRENT, which always counts as loosening.
+    def accept(self, suite: str, reason: str, keys: Iterable[str] | None = None, loosen: bool = False,
+               drop: Iterable[str] = (), rev: str | None = None, seed_original: bool = False,
+               allow_stale: bool = False) -> AcceptResult:
+        """Copy recorded values of ``keys`` (default: every key recorded by the last test session) into CURRENT.
+
+        A key new to ORIGINAL is seeded from the original its test declares; a key without a
+        declared original is refused unless ``seed_original`` (design: "measured and frozen on
+        first run"), which freezes the measurement. A change that is looser than ORIGINAL and not
+        already covered by a registered loosening is refused unless ``loosen``; with ``loosen`` it
+        is registered. ``drop`` removes keys from CURRENT, which always counts as loosening.
+        Results recorded at another commit than HEAD are refused unless ``allow_stale``.
         """
         if not reason.strip():
             raise GoldenError("accept needs a non-empty --reason")
@@ -513,28 +622,47 @@ class GoldenStore:
             raise GoldenError(f"cannot drop key(s) {unknown_drop}: not in current/{suite}.json")
         if set(keys) & set(drop):
             raise GoldenError("a key cannot be both accepted and dropped")
-        records = self.loosening(suite)
+        revs = self.latest_revs(suite)
+        self._refuse_stale(suite, {k: revs[k] for k in keys}, allow_stale)
+        mismatch = [k for k in keys if k in original and latest[k].has_declared
+                    and not original[k].same_as(latest[k].declared_expectation())]
+        if mismatch:
+            raise GoldenError(f"key(s) {mismatch}: the declared original differs from original/{suite}.json; "
+                              "fix the test, or use rebaseline-original if the shipped data changed")
         changed = [k for k in keys if k not in current or not current[k].same_as(latest[k])]
-        looser = [k for k in changed if k in original and is_looser(original[k], latest[k])
+        seeds = {}
+        for k in keys:
+            if k not in original:
+                seeds[k] = (latest[k].declared_expectation(), "declared") if latest[k].has_declared else \
+                    (latest[k], "measured")
+        unseeded = sorted(k for k, (_, how) in seeds.items() if how == "measured")
+        if unseeded and not seed_original:
+            raise AcceptRefused(f"refusing to accept {suite}: key(s) {unseeded} have no original baseline and "
+                                "their tests declare none; declare the design's number with original=..., or pass "
+                                "--seed-original only for numbers the design measures and freezes on first run",
+                                unseeded)
+        base = {**original, **{k: e for k, (e, _) in seeds.items()}}
+        records = self.loosening(suite)
+        looser = [k for k in keys if (k in changed or k in seeds) and is_looser(base[k], latest[k])
                   and not self.covered(suite, k, latest[k], records)]
         looser += [k for k in drop if k in original and not self.covered(suite, k, None, records)]
         if looser and not loosen:
             raise AcceptRefused(f"refusing to accept {suite}: key(s) {looser} would be looser than the original "
                                 "baseline; pass --loosen to register the loosening", looser)
-        result = AcceptResult(suite, changed=changed, dropped=drop, loosened=sorted(looser))
-        if not changed and not drop:
+        result = AcceptResult(suite, changed=changed, dropped=drop, loosened=sorted(looser),
+                              seeded_original=sorted(seeds))
+        if not changed and not drop and not seeds:
             return result
         rev, date = rev or git_rev(), today()
         old = dict(current)
+        original = base
         for k in changed:
             current[k] = latest[k]
-            if k not in original:
-                original[k] = latest[k]
-                result.seeded_original.append(k)
         for k in drop:
             del current[k]
-        self.save("current", suite, dict(sorted(current.items())))
-        if result.seeded_original:
+        if changed or drop:
+            self.save("current", suite, dict(sorted(current.items())))
+        if seeds:
             self.save("original", suite, dict(sorted(original.items())))
         for k in result.loosened:
             to = None if k in drop else latest[k]
@@ -546,12 +674,15 @@ class GoldenStore:
             "action": "accept", "reason": reason, "date": date, "git_rev": rev,
             "changes": [{"key": k, "from": old[k].to_json() if k in old else None,
                          "to": None if k in drop else current[k].to_json()} for k in sorted(changed + drop)],
-            "seeded_original": result.seeded_original, "loosened": result.loosened})
+            "seeded_original": [{"key": k, "from": how, "value": seeds[k][0].value} for k, (_, how) in
+                                sorted(seeds.items())],
+            "loosened": result.loosened})
         return result
 
     def rebaseline_original(self, suite: str, reason: str, keys: Iterable[str] | None = None,
-                            rev: str | None = None) -> list[str]:
-        """Replace ORIGINAL expectations with recorded values (only when the shipped data changed)."""
+                            rev: str | None = None, allow_stale: bool = False) -> list[str]:
+        """Replace ORIGINAL expectations (only when the shipped data changed) with the originals the
+        tests declare, or with the recorded measurement for keys that declare none."""
         if not reason.strip():
             raise GoldenError("rebaseline-original needs a non-empty --reason")
         latest = self.latest(suite)
@@ -559,13 +690,16 @@ class GoldenStore:
         missing = [k for k in keys if k not in latest]
         if missing or not keys:
             raise GoldenError(f"no recorded result for key(s) {missing or '(any)'} in suite {suite!r}")
+        revs = self.latest_revs(suite)
+        self._refuse_stale(suite, {k: revs[k] for k in keys}, allow_stale)
+        target = {k: latest[k].declared_expectation() if latest[k].has_declared else latest[k] for k in keys}
         original = self.load("original", suite)
-        changed = [k for k in keys if k not in original or not original[k].same_as(latest[k])]
+        changed = [k for k in keys if k not in original or not original[k].same_as(target[k])]
         if not changed:
             return []
         old = dict(original)
         for k in changed:
-            original[k] = latest[k]
+            original[k] = target[k]
         self.save("original", suite, dict(sorted(original.items())))
         _append_jsonl(self.root / "accepted" / f"{suite}.jsonl", {
             "action": "rebaseline-original", "reason": reason, "date": today(), "git_rev": rev or git_rev(),
@@ -591,6 +725,8 @@ class GoldenStore:
             if key in original:
                 loose = is_looser(original[key], cur)
                 guard = ("loosened" if self.covered(suite, key, cur) else "VIOLATION") if loose else "ok"
+                if lat is not None and lat.has_declared and not original[key].same_as(lat.declared_expectation()):
+                    state = "FAIL"  # the test's declared original disagrees with original/
             rows.append({"key": key, "kind": (cur or lat or original.get(key)).kind, "state": state, "guard": guard,
                          "current": None if cur is None else cur.value, "latest": None if lat is None else lat.value,
                          "original": original[key].value if key in original else None})

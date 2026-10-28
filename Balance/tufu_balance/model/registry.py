@@ -245,6 +245,9 @@ _PROVENANCE_ARG = re.compile(r"^(?:global::)?(?:[A-Za-z_]\w*\.)*Provenance\.([A-
 _STRING = re.compile(r'^@?"((?:\\.|[^"\\])*)"$')
 _KEYWORDS = {"if", "for", "foreach", "while", "switch", "using", "lock", "catch", "return", "new", "typeof",
              "nameof", "sizeof", "default", "base", "this"}
+_MODIFIERS = {"public", "private", "protected", "internal", "static", "readonly", "virtual", "override", "abstract",
+              "sealed", "extern", "unsafe", "async", "partial", "volatile", "const", "ref", "out", "in", "params",
+              "implicit", "explicit", "operator", "required", "file", "event", "delegate"}
 
 
 def _strip_comments(text: str) -> str:
@@ -305,10 +308,19 @@ def _member_after(text: str, pos: int) -> str | None:
         if i != -1:
             end = min(end, i)
     header = text[pos:end]
-    m = re.search(r"([A-Za-z_]\w*)\s*(?:<[^()]*>)?\s*\(", header)
-    if m and m.group(1) not in _KEYWORDS:
-        return m.group(1)
-    names = re.findall(r"[A-Za-z_]\w*", header)
+    # The parameter list is the first top-level "(" preceded by a name (optionally generic) that is
+    # not a modifier; this skips tuple return types such as "private (float, int) F(...)".
+    depth = 0
+    for i, c in enumerate(header):
+        if c == "(" and depth == 0:
+            m = re.search(r"([A-Za-z_]\w*)\s*(?:<[^()]*>)?\s*$", header[:i])
+            if m and m.group(1) not in _KEYWORDS and m.group(1) not in _MODIFIERS:
+                return m.group(1)
+        if c in "(<":
+            depth += 1
+        elif c in ")>":
+            depth -= 1
+    names = re.findall(r"[A-Za-z_]\w*", re.sub(r"\((?:[^()]|\([^()]*\))*\)|<[^<>]*>", " ", header))
     return names[-1] if names else None
 
 
