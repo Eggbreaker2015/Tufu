@@ -1,0 +1,717 @@
+index,path,key,location,is_event,is_vip,is_dummy,is_elite,item_reward,anyone_alive,is_enabled,count,max_count,bootstrap_complete,charges_left,charges_total,base_cooldown,cooldown,remedied
+0,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (11),tree_1 (11)_95791ab9307a4e9428c2925d2ee749bb,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+1,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (40),tree_1 (40)_61f96e58ae95ade4da908302f389f9ec,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+2,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (36),tree_1 (36)_73692c1e469f6d24e82f6d2cb7ad1137,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+3,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_small_dragon_rare_helm_buck,Spawner_1_small_dragon_rare_helm_buck_855af7bef04961f4e9655bcb624f85ba,10,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+4,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium (5),Spawner_1_medium (5)_a09f9aa63d65021448995c266323c27c,11,0,0,0,0,0,1,1,2,2,1,4,6,1440,86400,0
+5,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (18),tree_1 (18)_0fc1c5c163a60d54faaed7f9f9f236a6,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+6,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (20),Spawner_1 (20)_3a1c902d256614c48bb7859cb65fc077,6,0,0,0,0,0,1,1,3,3,1,6,9,840,86400,0
+7,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (25),tree_1 (25)_276989d96beffd6419c8e653976cd95d,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+8,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (19),tree_1 (19)_b51e004f9b9f0b74a9a6eea2a78476bd,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+9,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_epic_helmet,Spawner_16_medium_buck_epic_helmet_d051253d4b85996448c55178644ea59c,16,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+10,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (30),tree_1 (30)_1bca0dae14d30ce479dce274d3295bb5,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+11,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_legendary_shield (3),Spawner_17_medium_cut_legendary_shield (3)_5b0e1c06cd3c3ae45bdec388858f7aab,17,0,0,0,0,1,1,1,1,1,1,0,1,21600,86400,0
+12,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (9),tree_16 (9)_3e04a52bb9e87194494595642725b23b,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+13,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (33),tree_1 (33)_14f0692ea80de154a9388c862f6e74f4,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+14,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (40),tree_1 (40)_5eb3087c2ba25014399f4b9c910c05af,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+15,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_knight (5),Spawner_1_knight (5)_623336a2038984b4589f2417b9bfb8f3,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+16,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1 (12),Spawner_1 (12)_328a41ded420dc84e973de30eef5dd6d,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+17,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_knight (3),Spawner_17_knight (3)_5c7ec243cb4d8f546985c1064465cd18,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+18,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (35),tree_1 (35)_f43028c52ddb0a143a65e7cc68db6ee4,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+19,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (12),tree_1 (12)_3f279c24d7d625f42937a8429481a74e,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+20,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_common_cut (2),Spawner_1_common_cut (2)_5e9d6c05f17ed6244b6710e452f234ee,7,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+21,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (29),tree_1 (29)_c6544391f7896e84aa3b8feab7d29b52,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+22,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (39),tree_1 (39)_9933a65bf5279424697a1c7eb6286411,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+23,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (35),tree_1 (35)_dadd09e70a7695d40a572d78c8a40f1b,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+24,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1,Spawner_1_2016e2a64658094419b1b0f4baea98ce,9,0,0,0,0,0,1,1,5,5,1,10,15,1200,86400,0
+25,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (7),tree_1 (7)_85469a9085ff7cc4e89caab27b56bf71,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+26,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_1 (8),Spawner_1 (8)_bcd41076977805340890d6fb92f699e1,4,0,0,0,0,0,1,1,7,7,1,14,21,600,86400,0
+27,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1_pierc_uncommon,Spawner_1_pierc_uncommon_3f7f605ca6efd8e41961a38ee6e74ad2,2,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+28,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (9),Spawner_1 (9)_f0644a19ddf089c468737cd3d70c2d5f,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+29,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (45),tree_1 (45)_b6e0b3140c25a2a4d9af4871de1c6bdb,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+30,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1 (2),Spawner_1 (2)_9c7352801cf035840b6d5ec28c28448b,9,0,0,0,0,0,1,1,6,6,1,12,18,1200,86400,0
+31,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_medium (2),Spawner_1_medium (2)_72bc5f45b7c825b429c2cf001faac87f,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+32,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (25),tree_1 (25)_4903edfe469e78649ab0d02aea8a0177,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+33,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_helm_buck_uncommon,Spawner_helm_buck_uncommon_db23c9d43abd11d40abedc308e217c2d,7,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+34,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_1 (9),Spawner_1 (9)_e6fad1cdf69e3b3498a00caccefa2be6,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+35,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_helm_pier_epic,Spawner_1_knight_helm_pier_epic_28aeaa8c75f1f1044821b497b1a7d976,12,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+36,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_medium (1),Spawner_1_medium (1)_89d53005e1d9792438d7ed4cb3e62688,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+37,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_medium (3),Spawner_1_medium (3)_25de37189eaf2f8448a76a7ad1c30289,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+38,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_elite health,Spawner_elite health_3bdd62ca295a8f248b4b4367dfd0fcf6,4,0,0,0,1,0,1,1,1,1,1,1,2,9000,86400,0
+39,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (1),tree_1 (1)_cab2982e460073649a2f7dadc4bd33af,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+40,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (37),tree_1 (37)_fada6b3970be0b242aadc0c73de5b581,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+41,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (32),tree_1 (32)_451ba3b20c0718e489427b123ef5f2c6,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+42,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_knight (1),Spawner_1_knight (1)_fa773d0bf652ceb4f963569b0290d22d,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+43,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (32),tree_1 (32)_2f2f7f2c01e63334e9805075c5a24ad8,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+44,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (6),tree_15 (6)_5f92bbab41702ba43b90c1d88d608eb9,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+45,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon_shield_common (1),Spawner_medium_small_dragon_shield_common (1)_8fe486e44d095d24ba9e90a19767b7da,9,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+46,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (26),tree_1 (26)_78e0610ddb18a394ba09f2a3562f3568,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+47,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium_helmet_cut_uncommon (1),Spawner_1_medium_helmet_cut_uncommon (1)_729b780a59ade654694bc1b1d9c49669,14,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+48,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (41),tree_1 (41)_b1d310a39e6ea4a42b1accdff4f50b62,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+49,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_elite (2),Spawner_15_elite (2)_bad945ead6be53e40b6283f1897a07ab,15,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+50,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1 (9),Spawner_1 (9)_5e4a7a330facd784e9dbdedf437c6e21,7,0,0,0,0,0,1,1,8,8,1,16,24,960,86400,0
+51,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (19),tree_16 (19)_2ed07d0c7198ea047b293ee6cf9d57c2,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+52,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (31),tree_1 (31)_4ac73bedf5f359341b4d647b2bfb30b9,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+53,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (22),tree_1 (22)_29432dd3cde5b06458747fba9a9bdb4f,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+54,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (29),tree_1 (29)_84b816a31b9cc28479a6f167e228ff23,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+55,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_common_cut,Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723,1,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+56,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium_shield_cut_uncommon,Spawner_1_medium_shield_cut_uncommon_425c60128655e424c9b96fcc3fe41a67,14,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+57,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (39),tree_1 (39)_67da3b1302f3ed44b8716e2c455cee76,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+58,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1 (15),Spawner_1 (15)_916b95497cbee1e4ab48916173ee74de,8,0,0,0,0,0,1,1,3,3,1,6,9,1080,86400,0
+59,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_common_shield (5),Spawner_16_medium_buck_common_shield (5)_06b2a2cf77cc2d54c9b713282a248ef0,16,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+60,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (40),tree_1 (40)_83f37d5d9d88afa4f80bb361c7a11650,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+61,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_mid_smash_rare,Spawner_mid_smash_rare_3d01adeee9163dc47813c7f7664a1020,3,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+62,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (28),tree_1 (28)_c567a33aaec6c8d41a37a8822b81efb4,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+63,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (1),tree_16 (1)_c2ade786ad55190459490aa192d35d3c,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+64,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (11),tree_16 (11)_708f3ba8a69f1ad43aaf50b8331bd92b,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+65,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (13),tree_1 (13)_7f84d040a9c5aab45ab00f4378f56f2e,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+66,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1_helmet_pierce_common,Spawner_1_helmet_pierce_common_1501322a8554e5748b5450fbd5cfa5bb,6,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+67,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (31),tree_1 (31)_7486f40420b7d1045a4a9cc04d98bf29,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+68,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (35),tree_1 (35)_52b1c8d683cb86048b1e703f5a7faa47,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+69,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_superboss_legendary_pierce,Spawner_superboss_legendary_pierce_713e4fb237332364c89159262510dddd,6,0,0,0,0,1,1,1,1,1,1,0,1,14400,86400,0
+70,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (2),ice pike blocker (2)_ddaf024299280dd41b897c2e9fd72881,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+71,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (42),tree_1 (42)_7fb12a885a435f34caad34d8a449381b,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+72,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_easy_shield_buck_common (1),Spawner_1_easy_shield_buck_common (1)_c13f11075b3589e4aa80a75e1512af6b,10,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+73,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (5),tree_17 (5)_d4440dd6f523a434c943d7dc0911d488,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+74,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (28),tree_1 (28)_2aa5fe86419e32c469b9c158edf93768,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+75,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_epic_cut,Spawner_1_knight_epic_cut_f0280181997bac24ea61e897facc9d6d,13,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+76,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (31),tree_1 (31)_a37d76a953c6a9943931b8e6a7ec4a9e,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+77,Main:Events/Spawners/Eventspawner_MiniBoss,Eventspawner_MiniBoss_ae45f65b28328c04abd43feb495413ee,1,1,0,0,0,0,0,1,0,1,1,0,0,5,0,0
+78,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (37),tree_1 (37)_809ed59412e865c4194380902cb76bc5,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+79,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (21),tree_1 (21)_8a9748acf01833e4f8beb144492d0eb3,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+80,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (12),tree_15 (12)_49dde8ee044e5c44f8ceae5adbe828a3,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+81,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (34),tree_1 (34)_0475372fc41863741821bfc41be87a2d,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+82,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_boss_smash_uncommon,Spawner_boss_smash_uncommon_4c73a9d643e38264d9943f25dfa76569,2,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+83,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (27),tree_1 (27)_0ed89fdba8993604ba6eb52b9e461396,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+84,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_mid_smash_common,Spawner_mid_smash_common_ad5f4301b782f47488393abd89d8cfc9,3,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+85,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (10),tree_1 (10)_a68da335600538e45bc642d3cc861abe,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+86,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_boss,Spawner_15_boss_b024427a70eb8844ea732daa4f57092e,15,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+87,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_elite regen,Spawner_1_elite regen_de3a10ea9a5989a45bd8d5f1bd02c6e3,11,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+88,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (28),tree_1 (28)_a06f2059c235eaf4999e93d8df5b0dfc,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+89,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (17),Spawner_1_medium (17)_ae1a1e0023b4a864d9a2d09c2d2de12f,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+90,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_knight (4),Spawner_16_knight (4)_0c6f453c168dac646b2c0ec4e21f89ba,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+91,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (13),Spawner_1 (13)_bd2fd4ce49dc8e948a62d22e1cba0484,5,0,0,0,0,0,1,1,6,6,1,12,18,720,86400,0
+92,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (31),tree_1 (31)_209d190c3e88c474bb1fc33947954461,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+93,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_elite (3),Spawner_16_elite (3)_b16f7d34d791bbe42bad36345439e473,16,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+94,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (47),tree_1 (47)_8949854ae45dec649aedc895a663a073,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+95,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (33),tree_1 (33)_334d6e267c3da6d40b01e081a6ee7a80,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+96,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium (6),Spawner_1_medium (6)_08a15e835d304c6458e28c38b783da78,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+97,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (20),ice pike blocker (20)_ad908c7343f5bc84aa1e679458989a17,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+98,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_knight_pierce_epic,Spawner_1_knight_pierce_epic_4a73d25333f615846ae828a75febb3fa,11,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+99,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (13),tree_17 (13)_782850567c75fad40a83df7dd8fbba76,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+100,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (33),tree_1 (33)_debc5534ad047e4408ca043d91a933f7,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+101,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (16),tree_1 (16)_03cd4a27ff32d3f46b5bfe059cc56602,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+102,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (31),tree_1 (31)_2859fc8a650d9854e866115ef54b426f,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+103,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1 (13),Spawner_1 (13)_f30cfe0a0871af14ea759e330b1f7319,8,0,0,0,0,0,1,1,2,2,1,4,6,1080,86400,0
+104,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (29),tree_1 (29)_3749bb813fd7c0043beedf709b4226d8,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+105,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_elite (1),Spawner_1_elite (1)_6d2d0b59da1f5304fad58f13b07da6aa,14,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+106,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (10),Spawner_1 (10)_93564675f3d0b3f4fbe8124f83886c3c,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+107,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (22),tree_1 (22)_f4d5cc31e472bbc4aaa711b37fc1c199,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+108,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (28),tree_1 (28)_9de59370b68a36342aee9d0de3ad6407,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+109,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (24),tree_1 (24)_fbe7530cf15eccb42beeebf7c692f8f0,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+110,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (13),tree_15 (13)_e3c2dd9ed091d31418be357b5119da78,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+111,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (18),ice pike blocker (18)_bef73e05a460e6e48b1c94cd28406a2c,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+112,Main:Factories/EnemyFactory/island (4)/spawners/dragon,dragon_8f9ac85ca43354a47a74878ee811d12f,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+113,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_boss (3),Spawner_boss (3)_3ca5ca347e6c7424f9ee96dc1993465f,4,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+114,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (12),tree_17 (12)_8a03530e6d29cf840a15295c2438fc3a,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+115,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_elite (1),Spawner_15_elite (1)_de67f42898545344997193a3ec763004,15,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+116,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (22),tree_1 (22)_59cfbff7b3a80ca4ea877f9579d87963,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+117,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_knight (4),Spawner_17_knight (4)_8611dc632d8feb342be53405fd2e1623,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+118,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (22),Spawner_1 (22)_9192e8fe12b95a44f87c663b2ca509d5,6,0,0,0,0,0,1,1,3,3,1,6,9,840,86400,0
+119,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (20),tree_17 (20)_87066a29f3e47034cb9b7e3dfaa8b46e,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+120,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_boss (3),Spawner_boss (3)_95e04d08974d86c498b344bb902a3637,7,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+121,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (2),tree_15 (2)_532309f309016594482c12b0e7efe5c5,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+122,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium,Spawner_1_medium_acc84b78ced054d439efc39eed995192,11,0,0,0,0,0,1,1,2,2,1,4,6,1440,86400,0
+123,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (47),tree_1 (47)_00d41ecfb6272fe47b98eadf7031b0eb,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+124,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (26),tree_1 (26)_6ee4fe36bc1419742b2e75663023965c,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+125,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_easy,Spawner_15_easy_17c1019a386a386438be74b8c3100470,15,0,0,0,0,0,1,1,10,10,1,20,30,1800,86400,0
+126,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1_uncommon_pierce_helmet,Spawner_1_uncommon_pierce_helmet_e2e9a8f33618f5143826c24c879224f9,6,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+127,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (12),tree_16 (12)_7616454792930e54c986a182f07fa75c,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+128,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (47),tree_1 (47)_3b03398fbd719f44b9459be9a9cfb51c,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+129,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (9),tree_15 (9)_efd61ec8f4ce2194c807a664ac714b64,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+130,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_uncommon_shield,Spawner_17_medium_cut_uncommon_shield_9721331e80d157348a6e9a123fcdb57a,17,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+131,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (16),tree_1 (16)_e49c3ecc2533a7248a1e831ec9735430,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+132,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_boss_cut_rare,Spawner_boss_cut_rare_388cbec464ee05f4f8d74d172daa4da3,3,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+133,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (34),tree_1 (34)_fb989244e6fee3e4d9cfd330db81b628,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+134,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (6),tree_17 (6)_198d6ac560c6e5d4da32bb4af8116dfb,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+135,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_knight (2),Spawner_1_knight (2)_e5a94b5125c3cbe4a85c7b60fa9b9ade,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+136,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_buck (6),Spawner_1_medium_common_buck (6)_08690b291d1933646bc277dd97d06ce4,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+137,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_rare_cut,Spawner_1_knight_rare_cut_fd47b0b5bf1a7f247bde76edb4c5f321,13,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+138,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (11),tree_15 (11)_07e492c63fa5cb04b9e0f2ca3789cd15,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+139,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_superboss_legendary_buck,Spawner_superboss_legendary_buck_76e3068b56ceae34ca80168464bffda2,7,0,0,0,0,1,1,1,1,1,1,0,1,14400,86400,0
+140,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium_helmet_cut_common,Spawner_1_medium_helmet_cut_common_ec75a166592e8b74fba067577617184c,11,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+141,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium_shield_cut_common (1),Spawner_1_medium_shield_cut_common (1)_09baee804f14b914faeb91bfe9f2c026,11,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+142,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (10),tree_15 (10)_9f860f74aa950b04996fc721a0c78998,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+143,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1 (16),Spawner_1 (16)_9081feb6d6caca54e8efd593154fa3c1,8,0,0,0,0,0,1,1,6,6,1,12,18,3,86400,0
+144,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_legendary_shield (7),Spawner_16_medium_buck_legendary_shield (7)_3238c2cd6c8c97f43ab209abdf23b8df,16,0,0,0,0,1,1,1,1,1,1,0,1,21600,86400,0
+145,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_easy (6),Spawner_1_easy (6)_cfa18967e8464694189272d03c02fafc,13,0,0,0,0,0,1,1,5,5,1,10,15,1680,86400,0
+146,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (25),tree_1 (25)_f5ff7ae39ccf78641a605082810ea889,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+147,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_rare_pierce_shield (12),Spawner_15_medium_rare_pierce_shield (12)_3d32d64d4f4094d44baba58a7aa054be,15,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+148,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (33),tree_1 (33)_9a23fc0acec3e1d44a7ceab7a6a371b8,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+149,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_medium (4),Spawner_1_medium (4)_e8cc5f671d3959548838a1afaf1d9a71,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+150,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (22),tree_1 (22)_67c9db292e9c4b441bf05e4d9096a90f,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+151,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (21),tree_1 (21)_32cbc72c977836540a0412fc1eb32de4,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+152,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (2),tree_1 (2)_8664cc31e7d27eb43b8d55bcc5628ff5,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+153,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (29),tree_1 (29)_003d0ab9a27d3bf4ea1289092f986ac3,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+154,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_medium (1),Spawner_1_medium (1)_b177de14b20894b4f828214ffce03545,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+155,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_elite pierce,Spawner_elite pierce_e2799eda5ed1d294ea2908171e611179,10,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+156,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (38),tree_1 (38)_3e890954c66dee44e9bbcdcfe5d99157,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+157,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (15),tree_1 (15)_b35f2f8938be4134cb3ea5c31a3fe4ac,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+158,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (34),tree_1 (34)_2d037d14996004244843646f1c3960ba,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+159,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (29),tree_1 (29)_308f5d2855fc8ad489a200027ef2203a,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+160,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (45),tree_1 (45)_f98804aa621e90d47aa85277b11558f1,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+161,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_knight (6),Spawner_15_knight (6)_c7bd3b1bfc99d354f94be0dd4bb4bf2c,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+162,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_1 (1),Spawner_1 (1)_e8eb48749381f114d9a39596d3fbfc8f,1,0,0,0,0,0,1,1,6,6,1,12,18,240,86400,0
+163,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (25),tree_1 (25)_92325cd86b2a4684e9c9599ec74141d8,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+164,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_elite pier,Spawner_1_elite pier_aee896d9aa24d27449a9663c32c52084,11,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+165,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_elite (3),Spawner_17_elite (3)_2aaff8158661bb348b8ce0e99c4b58c0,17,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+166,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_easy (1),Spawner_15_easy (1)_6991b96170047c640ad780593f707104,15,0,0,0,0,0,1,1,14,14,1,28,42,1800,86400,0
+167,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1 (10),Spawner_1 (10)_e71a65e0f9aa5f14aa166b864998e967,2,0,0,0,0,0,1,1,3,3,1,6,9,360,86400,0
+168,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (25),tree_1 (25)_9ae478b3034619e49ad4d6391fdab96e,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+169,Main:Factories/EnemyFactory/vip location (3 island)/spawners/Spawner_vip_3 (5),Spawner_vip_3 (5)_e70d19cf3d8e3e64d9b9db8aa059b8fc,3,0,1,0,0,0,0,1,0,3,1,3,3,60,-1.7040672E+09,0
+170,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (16),tree_17 (16)_b7be0be37494f8c488de7bc450224e93,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+171,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1 (12),Spawner_1 (12)_d7ddcf7b7a6beba44a492676c3a82c21,7,0,0,0,0,0,1,1,2,2,1,4,6,960,86400,0
+172,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_elite cut def,Spawner_1_elite cut def_eebde9318082bd64692380450159bf10,11,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+173,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (44),tree_1 (44)_c7e0a800e9d629e408798063f7811969,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+174,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_mid_cut_rare,Spawner_mid_cut_rare_8d6db228f86b3ad44b99c32a4141eb44,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+175,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (43),tree_1 (43)_0af3267bdcc875b44920192d08465b20,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+176,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_shield_buck_uncommon (1),Spawner_1_knight_shield_buck_uncommon (1)_da1d5dcdc67523d42abfea0a01ee2859,13,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+177,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (13),tree_1 (13)_82a41d833ff96f345837b4be91e35857,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+178,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1 (8),Spawner_1 (8)_1bdb1323c259502438ca350d70b82707,7,0,0,0,0,0,1,1,8,8,1,16,24,960,86400,0
+179,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (26),tree_1 (26)_4345c6f34fb95924587d834bde543b00,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+180,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_elite (2),Spawner_1_elite (2)_df23336813ce1ae48a155508dc62d5fb,14,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+181,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_uncommon_cut (1),Spawner_uncommon_cut (1)_18dae3bb28583e14891599c5187b63bf,1,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+182,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_buck_rare,Spawner_1_knight_buck_rare_1d75d35c43790434895c66147dce5dcf,12,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+183,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (23),tree_1 (23)_6d7b594c0f596604ea980ce6dc783c64,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+184,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (36),tree_1 (36)_8af20fb92025963499987f888fa43f21,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+185,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_1 (10),Spawner_1 (10)_d53e81685213a764c88cdb4e89ba395f,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+186,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (25),tree_1 (25)_7603bf967d93c2e4eb50081fa52d3dcc,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+187,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_medium (2),Spawner_1_medium (2)_9144637ac9dd5dd48b5adff1a4863374,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+188,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (8),Spawner_1 (8)_ada7c786c3c61b9489f218c0265cfd38,5,0,0,0,0,0,1,1,2,2,1,4,6,720,86400,0
+189,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (17),tree_16 (17)_9ad71fc3c226e2f48bb7cd67da1f6051,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+190,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (6),Spawner_17_easy (6)_7359e9334af93314b9690243c1d128af,17,0,0,0,0,0,1,1,3,3,1,6,9,1800,86400,0
+191,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (26),tree_1 (26)_5ffdb1726d8712248a2ac90049c88c7b,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+192,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_sheild_buck_uncommon,Spawner_sheild_buck_uncommon_a29f651fd1005d144ae1e505ee8e1bd4,7,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+193,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_legendary_pierce_shield,Spawner_15_medium_legendary_pierce_shield_75cd186f3b136bb4084d97b45a05ec0c,15,0,0,0,0,1,1,1,1,1,1,0,1,21600,86400,0
+194,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (29),tree_1 (29)_ac8f89bb2da922b468a5e18cc85b3667,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+195,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_boss_smash_legendary,Spawner_boss_smash_legendary_a4f71962e64aac54bb02b0db8d3d79c2,11,0,0,0,0,1,1,1,1,1,1,0,1,14400,86400,0
+196,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (43),tree_1 (43)_78299201a87ff3646845a84ac184bb79,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+197,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker,ice pike blocker_8f121b3d6f243f448a0750e900602fe4,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+198,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_medium (3),Spawner_1_medium (3)_c0dcf2b06e225a54799278a8ceee0f14,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+199,Main:Events/Spawners/EventSpawner_Golem,EventSpawner_Golem_7e65cdc0b256ba64cbd2582453fb62e3,1,1,0,0,0,0,0,1,0,60,1,0,0,60,0,0
+200,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (14),tree_1 (14)_aed583c94ab6482499c1f5d6c49110f0,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+201,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_common_cut,Spawner_1_common_cut_7322598e9a7c693478f89d6f8b3e15ce,7,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+202,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (47),tree_1 (47)_64c1a5331618d47439975c387438d546,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+203,Main:Factories/EnemyFactory/vip location (3 island)/spawners/Spawner_vip_3 (2),Spawner_vip_3 (2)_c8f8e260e3f23f945adb106f26492c4a,3,0,1,0,0,0,0,1,0,3,1,3,3,60,-1.7040672E+09,0
+204,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (14),tree_1 (14)_6643cc2c3eedd8342831d9ea5a734ce0,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+205,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_medium,Spawner_1_medium_301a335d7e7aa3b43957d33f1f73f702,10,0,0,0,0,0,1,1,2,2,1,4,6,1320,86400,0
+206,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (14),tree_1 (14)_dd4e815e24db8ff4abef625b8164d7a5,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+207,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon (9),Spawner_medium_small_dragon (9)_69de5a9edec530e42ac51be3822a0b06,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+208,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_hard_stab_uncommon (1),Spawner_1_hard_stab_uncommon (1)_6687805256676b34696766589f744b82,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+209,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_knight_pierce_rare,Spawner_1_knight_pierce_rare_8957642e15a04c14eaf54c99f2187478,11,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+210,Main:Factories/BossTower,BossTower_c296e152609ae5849bb7d52b03df895a,15,0,0,0,0,1,0,1,0,0,1,0,0,1800,0,0
+211,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_superboss_legendary_cut,Spawner_superboss_legendary_cut_9aedadb2c5890ba4e92d5b1d57bb938b,8,0,0,0,0,1,1,1,1,1,1,0,1,14400,86400,0
+212,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (17),ice pike blocker (17)_7602140147e1d664a8f408198960108c,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+213,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (21),tree_1 (21)_50db23897011672498757e6bb03f82b8,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+214,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (35),tree_1 (35)_56c444a7403e0f147b2d716b7312fb1e,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+215,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (28),tree_1 (28)_a4b14f46f18e37d42ac8c4006fece8c8,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+216,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (16),tree_1 (16)_402e20add60cfae46932f74233f0a253,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+217,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium (1),Spawner_1_medium (1)_74f382d0a7742b247b70fc86ff3046e6,11,0,0,0,0,0,1,1,2,2,1,4,6,1440,86400,0
+218,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (19),tree_1 (19)_3f743b5d668efff4a9449b4a088a94df,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+219,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_1 (2),Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b,1,0,0,0,0,0,1,1,4,4,1,8,12,240,86400,0
+220,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (4),tree_1 (4)_58a59c9cb18ad524d8144f4405529db0,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+221,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (13),Spawner_1 (13)_2f80b87f0c6303a409319bf0e767e002,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+222,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_elite cut,Spawner_1_elite cut_637bf0b2d8b98e04daf327279d09cd3e,13,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+223,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (18),tree_1 (18)_5fece5f2a8a737c458fa94de51f6f164,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+224,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (6),tree_16 (6)_0f4f062927f021c40a6788e43d3441da,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+225,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (28),tree_1 (28)_7a783f16aae30c64182d18a27cca156f,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+226,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (1),ice pike blocker (1)_70dc8cadae969bc4b9404322acd12645,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+227,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_legendary_helm (5),Spawner_16_medium_buck_legendary_helm (5)_e8c1155275785954abe4bfc341235ce6,16,0,0,0,0,1,1,1,1,1,1,0,1,21600,86400,0
+228,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1 (17),Spawner_1 (17)_014e151bf3535494e97bbbbd67501b72,8,0,0,0,0,0,1,1,3,3,1,6,9,1080,86400,0
+229,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (25),tree_1 (25)_f3415c22b4106024196a3ba534833bb2,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+230,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (13),tree_16 (13)_409e4db46c7d835419c29c87b69fcd60,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+231,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_boss,Spawner_17_boss_91c95a6060c03a94da2561052282c035,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+232,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (24),tree_1 (24)_ab6f0e3d70ead064c84deab5800c2b61,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+233,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (22),tree_1 (22)_9050235f6c578d942ae9b040431eb8ba,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+234,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (38),tree_1 (38)_90bd0c5f0b818864291d9d56532a7ee4,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+235,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (12),tree_1 (12)_2fa9bed035a4aa84f8b2077aa62821f6,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+236,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (10),Spawner_1 (10)_1873e964da1a6b344acb4e561404aaf3,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+237,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (45),tree_1 (45)_875800c796ed2944a95774e8e6d3d94c,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+238,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_pierce (1),Spawner_1_medium_common_pierce (1)_05dd44985bf712a448a5d7e3ee1cdb29,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+239,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (26),tree_1 (26)_2e9427e067a17f340a273b5ba57b3461,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+240,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (18),tree_1 (18)_c6874ac8d8a2d9e43873e6c20a78f425,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+241,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (5),ice pike blocker (5)_e7b77381381e9a34ba72f2306f201b27,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+242,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_medium (2),Spawner_1_medium (2)_aa213260a7597784fb02a2204ecb820f,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+243,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium_helmet_cut_common (1),Spawner_1_medium_helmet_cut_common (1)_ca2839d6d0e248f41b376001b1518b30,11,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+244,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (27),Spawner_1 (27)_44a403690bd1c594a80bba266b5e4cb4,6,0,0,0,0,0,1,1,2,2,1,4,6,840,86400,0
+245,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (22),tree_17 (22)_6de7291f41c9a174c92a937598871ef5,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+246,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (20),tree_1 (20)_1bc26a7ac241c2949affdb5d78ffceca,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+247,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (20),tree_16 (20)_ff8efd791945ee5428f281d41e285000,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+248,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1 (10),Spawner_1 (10)_5fb26eaf12575c045a26c633bba1f3b6,7,0,0,0,0,0,1,1,8,8,1,16,24,960,86400,0
+249,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (33),tree_1 (33)_e7160592e240373418cbbf189216ee4f,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+250,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_shield_buck_common,Spawner_shield_buck_common_80a735f512bd0774bac20eb8bfa87036,7,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+251,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (23),tree_1 (23)_73a4a1ab247244a44a6f07afb6cabc15,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+252,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (38),tree_1 (38)_3b407473c2be7ea4dbc8cf9519e914c6,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+253,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_knight (3),Spawner_1_knight (3)_fe4c1c4bcf1786e4a96fed8461648773,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+254,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (8),tree_1 (8)_11a25dfdc96faf44c81cc663dd379a1b,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+255,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (41),tree_1 (41)_bce813bc7377eb241a6ec58dd3e1f5a6,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+256,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (9),tree_17 (9)_2e8adb9937ce6b446bd671255f44207d,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+257,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_easy (4),Spawner_1_easy (4)_247361fd45e761945aa00f527b8062d3,12,0,0,0,0,0,1,1,3,3,1,6,9,1560,86400,0
+258,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (46),tree_1 (46)_c77c9e75800bb3546907d52a74a3f679,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+259,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (49),tree_1 (49)_f2f0158a027fa514f8d40bf51e881b4d,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+260,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_boss (3),Spawner_boss (3)_9e9d40ea95c1b384aa595f2c58a6d242,6,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+261,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_elite smash defence,Spawner_elite smash defence_d5fac98b084a0fe48a0d87b90b5b7778,10,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+262,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_1 (4),Spawner_1 (4)_1b5174cd5b8c37441bcc427a6d08be35,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+263,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (17),tree_17 (17)_5997e9e903d3e8d4a99372ac5efbcb78,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+264,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (26),Spawner_1 (26)_cd2f77e45f533c64aa2b54ceb583e365,6,0,0,0,0,0,1,1,2,2,1,4,6,840,86400,0
+265,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (21),tree_1 (21)_9fccd512eeb1a064cb343d24e48ef4fb,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+266,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (29),tree_1 (29)_2f8d2eb20d373c448b7fbb515f6ff6aa,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+267,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_common_helm (3),Spawner_17_medium_cut_common_helm (3)_6ae429f836d033e4c96bf10970aabf04,17,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+268,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (10),ice pike blocker (10)_c86090ce964edaa43ba3a8ced5be4cdb,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+269,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (5),tree_1 (5)_8b2c996375e6bb94c91eed670a953ce6,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+270,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (23),tree_1 (23)_4361cd047c04cfe4cbb1bc2342baa4c7,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+271,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (26),tree_1 (26)_025e5916dd41b9147935d4ce54e4b11f,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+272,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (14),Spawner_1 (14)_832f8c06cfc24fe4bb3527e570c81edf,3,0,0,0,0,0,1,1,3,3,1,6,9,480,86400,0
+273,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_epic_pierce_helmet,Spawner_15_medium_epic_pierce_helmet_61ec0dde67a70f34eab69e08f614df41,15,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+274,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (17),tree_1 (17)_fe39a66283ce89c4991b224607ff5c5c,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+275,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_easy (3),Spawner_1_easy (3)_a01cdc26ef625d14ea1316410c510e83,12,0,0,0,0,0,1,1,4,4,1,8,12,1560,86400,0
+276,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (7),ice pike blocker (7)_55152700a2168d24c8e78033cf18065b,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+277,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (35),tree_1 (35)_cbc6c747e8efa5142a4542a4793b424f,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+278,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_elite (1),Spawner_16_elite (1)_7e6a768fab9206e4aad64e1fb4cf7080,16,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+279,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (18),Spawner_1_medium (18)_cca4ae63361acfc439d1a3955c881ca3,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+280,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (14),Spawner_1_medium (14)_653fffb13d25fd34ebfa8ac42cbd6a4f,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+281,Main:Events/Spawners/Eventspawner_Boss,Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507,1,1,0,0,0,0,0,1,0,1,1,0,0,5,0,0
+282,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (40),tree_1 (40)_b6ba8e06d57114d4fb4f627055bc96b2,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+283,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_elite (7),Spawner_17_elite (7)_16964537d705d0442906b22dfd5de56f,17,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+284,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_uncommon_helm (8),Spawner_16_medium_buck_uncommon_helm (8)_2eb6e588f4fd12f4bba030a771833aa6,16,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+285,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (13),tree_1 (13)_c796a8bbf791f2640a56b8c1042f52e4,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+286,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_knight_pierce_epic,Spawner_1_knight_pierce_epic_ef7a8dbadd94e4044b7471cdb74bafbb,11,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+287,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_1 (3),Spawner_1 (3)_09e2f503e0347364090ed5a72b1110fa,1,0,0,0,0,0,1,1,2,2,1,4,6,240,86400,0
+288,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_buck (6),Spawner_1_medium_common_buck (6)_9867b4ef3c04aad49b16a3b94e176c32,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+289,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium (3),Spawner_1_medium (3)_e497cb911f6ffbc4f8f407a73e1236f6,11,0,0,0,0,0,1,1,2,2,1,4,6,1440,86400,0
+290,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_shield_cut_common(1),Spawner_1_medium_shield_cut_common(1)_cbf58935e9269ee419f15d1caa4491dc,8,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+291,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (25),Spawner_1 (25)_fa21a3729665f3d4c8f4deea2463d56e,6,0,0,0,0,0,1,1,3,3,1,6,9,840,86400,0
+292,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (46),tree_1 (46)_663b8c80e310dda438097728cb471b5f,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+293,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_knight (5),Spawner_16_knight (5)_180c90f4c97d96a4dbdb87377468d997,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+294,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_hard_buck_uncommon (1),Spawner_1_hard_buck_uncommon (1)_6ca0ddc2014a3704fa77d804641f6473,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+295,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_legendary_pierce_helm,Spawner_15_medium_legendary_pierce_helm_75da93d9d4bc9b043b2edc8db0d4a13e,15,0,0,0,0,1,1,1,1,1,1,0,1,21600,86400,0
+296,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (24),tree_1 (24)_800051a1c17e55a48b41725d0c2c9dc5,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+297,Main:Factories/EnemyFactory/vip location (3 island)/spawners/Spawner_vip_3 (1),Spawner_vip_3 (1)_df1e8a9d53ff1484b89c230a01eeab01,3,0,1,0,0,0,0,1,0,3,1,3,3,60,-1.7040672E+09,0
+298,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_epic_shield (6),Spawner_16_medium_buck_epic_shield (6)_d92bf745dc4f57c4b96b9f0a39859792,16,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+299,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (8),Spawner_1 (8)_9ac4cf810a5ed5f4aae31cf32c2a53ee,3,0,0,0,0,0,1,1,3,3,1,6,9,480,86400,0
+300,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (3),tree_17 (3)_0cc59f1ea4270b84193fd2657c49f770,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+301,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_small_dragon_cut_rare,Spawner_1_small_dragon_cut_rare_430e450e7cc407a4eb5bac12a2732e96,10,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+302,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (20),tree_1 (20)_20209fe8704d9f84b9e30a093f2404c7,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+303,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (35),tree_1 (35)_bcaaf3a31ab3e9045b079ca718d46a91,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+304,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (23),tree_1 (23)_85d883c7a6bbb26449b86e8eb4ee80a4,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+305,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (23),tree_1 (23)_19e942496e3b02e429ba37aba24e7fc5,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+306,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (19),tree_1 (19)_084b33231c390544ca99a575f77d39c3,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+307,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_knight_stab_uncommon,Spawner_1_knight_stab_uncommon_da0a07bc38b038b4e978f96240e8f8a7,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+308,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (41),tree_1 (41)_1a241ef4afc4b044ea05e557db8f32d1,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+309,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (27),tree_1 (27)_f94274568b2700f409d7861e10304631,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+310,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_small_dragon_stab_rare,Spawner_1_small_dragon_stab_rare_d6a60794dce42a843bbdbf75694f4d14,10,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+311,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_elite_regen,Spawner_elite_regen_1458da43bc78c2d4c8ee1b7a1056375e,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+312,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (13),tree_1 (13)_6443293613957b6458af51123237c29e,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+313,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (36),tree_1 (36)_726178413e944cf4d803f18c49b67478,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+314,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (41),tree_1 (41)_4f75d2a2afc063943b157bc48f3e0137,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+315,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_easy (2),Spawner_1_easy (2)_90a81eee51ea3a6469e5736b61865d9f,12,0,0,0,0,0,1,1,4,4,1,8,12,1560,86400,0
+316,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_shield_pier_uncommon (1),Spawner_1_knight_shield_pier_uncommon (1)_a3fe3b1e6449b3742b009fd31a86364a,12,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+317,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1 (11),Spawner_1 (11)_ba069006740febc449725ddd92ba6032,7,0,0,0,0,0,1,1,4,4,1,8,12,960,86400,0
+318,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (37),tree_1 (37)_75c4e5eebb2ed964e8bed3a7f9271f2c,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+319,Main:Events/Spawners (1)/Eventspawner_MiniBoss,Eventspawner_MiniBoss_cf6afea22c3937646951d9e2210526c3,1,1,0,0,0,0,0,1,0,1,1,0,0,30,0,0
+320,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (24),tree_1 (24)_626900de4297a5c4ca6fa7dbc32e60c6,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+321,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_easy (4),Spawner_16_easy (4)_3e94be7e54abe224abad018e7c3e6ff3,16,0,0,0,0,0,1,1,2,2,1,4,6,1800,86400,0
+322,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_Dummy,Spawner_Dummy_b310762d24f050b4a8be8d6dcb3f77c0,1,0,0,1,0,0,0,1,0,1,1,3,3,1,-1.7040672E+09,0
+323,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (6),ice pike blocker (6)_b499af4303cfa98418322d5c2376c6e8,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+324,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_1_epic_buck,Spawner_1_epic_buck_2ba349a5f8d406649b6bb3e0abb39c2e,4,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+325,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (23),tree_1 (23)_e54d52721e496f7428a25481b5f4bda1,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+326,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_epic_helmet,Spawner_17_medium_cut_epic_helmet_25295f92ab27a1b4d8e1292f6e05c85e,17,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+327,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_knight,Spawner_1_knight_645fc1e44f8a0c241b58b6bdd9e29686,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+328,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (33),tree_1 (33)_378d476e7831f6d4cb4e6cd9f17adfc7,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+329,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_knight_pierce_rare,Spawner_1_knight_pierce_rare_198cac1f382fddc41b0c38bf8dbcd74a,11,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+330,Main:Factories/EnemyFactory/island (1)/resources/tree_1,tree_1_c5d46e300c9ecdd4db0b6d7e30e85c91,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+331,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (28),tree_1 (28)_97732f504d7634d44bca5aa1e555626b,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+332,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (5),Spawner_17_easy (5)_9b9da72df46ebca4798f5ac559312489,17,0,0,0,0,0,1,1,5,5,1,10,15,1800,86400,0
+333,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_buck (5),Spawner_1_medium_common_buck (5)_b9b10b62755d97941a539a11a8972e14,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+334,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_easy_helm_buck_common,Spawner_1_easy_helm_buck_common_77966524e32a9824e9c80a0ad41bb9b4,10,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+335,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (1),tree_15 (1)_4d3e47553b45f014da771268abbaed7b,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+336,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_easy (1),Spawner_1_easy (1)_ab11835270e2d1d4095dc69d81fc6bca,12,0,0,0,0,0,1,1,4,4,1,8,12,1560,86400,0
+337,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium (4),Spawner_1_medium (4)_5bbc890499d10b14db1f7717e855339b,11,0,0,0,0,0,1,1,2,2,1,4,6,1440,86400,0
+338,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_elite buck,Spawner_1_elite buck_f7862cf01fb4af24598b91bdba496538,12,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+339,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1_pierc_rare,Spawner_1_pierc_rare_e72fdc2b093b37b47b99ed8385a63a1b,2,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+340,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (28),tree_1 (28)_ab922ab6a7a482342925fd04216cd069,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+341,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (15),ice pike blocker (15)_ae4a21ae027361c4eac1fbf126438db0,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+342,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_knight_helmet_cut_rare,Spawner_1_knight_helmet_cut_rare_892678eaaa57e2c47830b888e736acce,8,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+343,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_Crystal,Spawner_Crystal_4f60e7,9,0,0,0,0,0,1,1,1,1,1,2,3,5,0,0
+344,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_mid_common_helm,Spawner_mid_common_helm_0a45621834047a94985968f5a3cfcac3,5,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+345,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (1),Spawner_17_easy (1)_ead8456b8929a2745b454bc43e1a09d4,17,0,0,0,0,0,1,1,6,6,1,12,18,1800,86400,0
+346,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (14),tree_1 (14)_63dbc7a44a4381045a479cc21c5810b0,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+347,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_hard_cut_uncommon (1),Spawner_1_hard_cut_uncommon (1)_0791d6f1910bbfd489fa26c1b3a8aa71,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+348,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (7),Spawner_1 (7)_d83f2a398ba32e545ac12e34474cce1e,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+349,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_helmet_buck_epic (1),Spawner_1_knight_helmet_buck_epic (1)_a614ecaa2757ff3448b0fb76f57186a6,13,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+350,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (14),Spawner_1 (14)_921f7a84ae3faad4a87aee524004990c,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+351,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (17),tree_1 (17)_91389ffcc650d7d4c9b9946e0a965c0f,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+352,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (8),tree_16 (8)_fc7eecb5de0be5643afc29b3dafa6679,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+353,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (21),tree_1 (21)_160ecd96d4d85b24d93bb3b4e3faadb3,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+354,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (27),tree_1 (27)_dd5efc14e7f466d46bd32ffe04423f7f,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+355,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_easy (3),Spawner_1_easy (3)_0368bc999e560b245a0d3a3526fa1f88,13,0,0,0,0,0,1,1,5,5,1,10,15,1680,86400,0
+356,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_easy_shield_buck_common,Spawner_1_easy_shield_buck_common_73c49cc19542ab04ca816b1832d6dc6c,10,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+357,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_elite,Spawner_1_elite_6e7cd9ced6a224d45b39d45a0601a9b4,14,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+358,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (27),tree_1 (27)_b20f55651f060584cb4ef5cc221ce3f3,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+359,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (9),Spawner_1_medium (9)_b476efe169714b6419e1e76f1d557227,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+360,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (27),tree_1 (27)_34fae2b860cdc9c49a905602911c4ada,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+361,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (9),Spawner_1 (9)_8de63db1a02301c4083be023e95189ed,5,0,0,0,0,0,1,1,3,3,1,6,9,720,86400,0
+362,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_easy (7),Spawner_1_easy (7)_9ee4664d97fa7d1478f112fae658f6b3,13,0,0,0,0,0,1,1,6,6,1,12,18,1680,86400,0
+363,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (36),tree_1 (36)_7f8800a9656c3cf47990188c7846bc20,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+364,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1 (5),Spawner_1 (5)_dfbb92f71e19ab743b752e24f128bbed,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+365,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (14),tree_15 (14)_9bf825cb8b33e24489970965a5f9066a,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+366,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (22),tree_1 (22)_e6911ec07392f7d40b3477ad25fe8a2c,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+367,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (40),tree_1 (40)_83a3b454cacb0b74c9f8db1aac29ae01,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+368,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (19),Spawner_1 (19)_77cbd47bc1c36ac45be836465aa32108,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+369,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (50),tree_1 (50)_5a2c94acad0bed342ad138260db65cec,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+370,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (14),Spawner_1 (14)_eeddc696f05ad0e4aa0240d96859562e,5,0,0,0,0,0,1,1,3,3,1,6,9,720,86400,0
+371,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (48),tree_1 (48)_65ff27a43022a0b43a3748fc34808dbc,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+372,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_knight (2),Spawner_17_knight (2)_970fa4f6b8ce914408c2af9d82a7c00b,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+373,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (22),tree_1 (22)_dee0b3f1c3e47554eba54ee916a4ece7,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+374,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (48),tree_1 (48)_2c2165cf1675bc540921b5766bb6a9b8,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+375,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_shield_cut_uncommon,Spawner_1_medium_shield_cut_uncommon_d5a689c9e39924344a60e4c5071b51ee,8,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+376,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (26),tree_1 (26)_94a194a726bb23b4c95f8b49b7df8e3a,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+377,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1 (8),Spawner_1 (8)_d6be6d57f23f34840bc6df085eadba3b,2,0,0,0,0,0,1,1,10,10,1,20,30,3,86400,0
+378,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_1 (14),Spawner_1 (14)_a32453918cdb465458d410a80e4095f7,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+379,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (38),tree_1 (38)_101a9a26ca651cc449d6647df3b672a7,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+380,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (15),tree_15 (15)_a45e7c78f4a49a24493e76a6fc76783b,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+381,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_elite (3),Spawner_15_elite (3)_43af825f0676506468e9442908fb9c6d,15,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+382,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_medium (1),Spawner_1_medium (1)_4df34760f5c6f7747b723e9468b45443,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+383,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (12),tree_1 (12)_ef5013694cad0f74e9c00539a3dd25d3,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+384,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (14),tree_1 (14)_1baeb1cfdda86ae47b336e9b12f65aec,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+385,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (17),Spawner_1 (17)_a5b3b3e21462a104697e4a22c6c96611,5,0,0,0,0,0,1,1,4,4,1,8,12,720,86400,0
+386,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_knight_smash_uncommon,Spawner_1_knight_smash_uncommon_d178f353f926ca04883bb8a3de12dc3b,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+387,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_knight_shield_cut_rare (1),Spawner_1_knight_shield_cut_rare (1)_69e308f34fe68114e856dde0a993c119,8,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+388,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (32),tree_1 (32)_fc27206e45c599c40b6a167a518d98c7,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+389,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (32),tree_1 (32)_2c05aeac738e6f1439c07877b4156501,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+390,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (12),Spawner_1 (12)_762dca2caed23ae4ea7c9837c6d662f6,6,0,0,0,0,0,1,1,4,4,1,8,12,840,86400,0
+391,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (34),tree_1 (34)_4e62f71bb3b315b46a1a305623876ee4,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+392,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_knight (2),Spawner_15_knight (2)_2078bb610ccaf1746b3e2b2e2ac9ff9a,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+393,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium_shield_cut_epic,Spawner_1_medium_shield_cut_epic_0603e4b72f56e9740bbe1742f8d65c3c,14,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+394,Main:Factories/EnemyFactory/vip location (6 island)/spawners/Spawner_vip_6 (5),Spawner_vip_6 (5)_1276dc64a7eb1524da1d2aabbf873590,6,0,1,0,0,0,0,1,0,4,1,4,4,60,-1.7040672E+09,0
+395,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (26),tree_1 (26)_e0d0505243f396e4abc3a72619c2ffb1,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+396,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_buck_epic,Spawner_1_knight_buck_epic_c7b66d929c13af942b5611216c2ecfcc,12,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+397,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_knight (3),Spawner_16_knight (3)_6f2987398673bd84ab6083e156fc042d,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+398,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (11),tree_17 (11)_13edc592e8d45174a97afc7968510c91,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+399,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (29),tree_1 (29)_1257a6257551d8441924b4356ecfd5f0,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+400,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (36),tree_1 (36)_7b86066cc0f5e3242815310ae2e2b80d,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+401,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_hard_cut_uncommon,Spawner_1_hard_cut_uncommon_822642d9a97fb1c4e9c2c74d6118db36,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+402,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_easy (2),Spawner_1_easy (2)_5d629899182d92f49be49167ad7b8cf8,11,0,0,0,0,0,1,1,5,5,1,10,15,1440,86400,0
+403,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (40),tree_1 (40)_cb6354e02dd55cd42926db908e94ff3a,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+404,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_knight (6),Spawner_16_knight (6)_9cd6f64aa4f19b042ab3989a8bb10169,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+405,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (42),tree_1 (42)_0c6538ea0a570b8499d827c71ecdcbd1,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+406,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (17),Spawner_1 (17)_477327c9e861b944a96bca0982f05127,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+407,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (18),Spawner_1 (18)_f161e1f21d94c2245b7ca6fe35602029,5,0,0,0,0,0,1,1,3,3,1,6,9,720,86400,0
+408,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (27),tree_1 (27)_fcd97c57ae7c1e34eb36b57bfec21597,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+409,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium_helmet_cut_epic,Spawner_1_medium_helmet_cut_epic_7481a2160e2f1c140a13f1d7064b6c28,14,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+410,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_mid_cut_epic,Spawner_mid_cut_epic_c690472f3def8b746b0bb9ed3986d263,4,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+411,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (8),tree_15 (8)_a3f87e97df9267b47bd1d842e2dce575,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+412,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_epic_pierce_shield,Spawner_15_medium_epic_pierce_shield_c8fc06d1c3ff202409f66a9dd09baf5c,15,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+413,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_helmet_buck_uncommon,Spawner_1_knight_helmet_buck_uncommon_628f6bdfede2e564683465cca45b482f,13,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+414,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (15),tree_1 (15)_01f9d6bb7c1b8a043abe87cbc0f79e14,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+415,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (14),ice pike blocker (14)_8cbfa09aa9ecbb74482ab861945cb6a1,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+416,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_uncommon_pierce_helm (9),Spawner_15_medium_uncommon_pierce_helm (9)_10529384b0fa0bf48b26003f2537db4b,15,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+417,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (17),tree_15 (17)_4a55b933722dade43ab0183e47704253,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+418,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (42),tree_1 (42)_96b31776aaccdda46b3462eccb938bee,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+419,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_easy (3),Spawner_16_easy (3)_3c52449ba89d37f4cb589a088bbfd270,16,0,0,0,0,0,1,1,7,7,1,14,21,1800,86400,0
+420,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (6),Spawner_1_medium (6)_3dccb3619bfe19f4f87b95d63609a656,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+421,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (26),tree_1 (26)_eafdf333e1afaf14285cc064230055d5,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+422,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_shield_buck_epic,Spawner_1_knight_shield_buck_epic_692aeba376d21c54eb311f77a3776320,13,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+423,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_common_cut (3),Spawner_1_common_cut (3)_59d5566da74572d49956b00448d635be,7,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+424,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_easy (2),Spawner_16_easy (2)_95281f8de2d4c6d439550a4afc474e21,16,0,0,0,0,0,1,1,10,10,1,20,30,1800,86400,0
+425,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (18),tree_17 (18)_daab09a65f5c258409f69562d17c417a,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+426,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_elite health,Spawner_1_elite health_36b2aab7fb5d51b42a876dc3c17a84d3,12,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+427,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (44),tree_1 (44)_b85d2ab7afc4315419dc2b43eee1259c,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+428,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (16),tree_15 (16)_b84b38c3686b75d40bc24b4c8f8089e6,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+429,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (16),Spawner_1_medium (16)_e64f43935b37ab84a8db85484ed4b054,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+430,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_common_helm (3),Spawner_16_medium_buck_common_helm (3)_844f1b203b0cf6140b9922309963ab4c,16,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+431,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_boss_dragon_rare_buck_shield (3),Spawner_boss_dragon_rare_buck_shield (3)_12e214c91c4d6744c8c898781e6c6692,9,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+432,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (34),tree_1 (34)_e297108656f2bc44ca2bac31953f34a0,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+433,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (20),tree_1 (20)_a4b9b3af5708b2c489fcfe1e873a76fc,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+434,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (21),tree_1 (21)_b1380480fc3481d418672adbc627c0a1,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+435,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_uncommon_helm (4),Spawner_17_medium_cut_uncommon_helm (4)_4c5cd9c8a96bb7947b90bf584bf2b8e3,17,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+436,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (42),tree_1 (42)_cf98e966de0fa524892da59cd10cfb21,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+437,Main:Factories/EnemyFactory/vip location (6 island)/spawners/Spawner_vip_6 (3),Spawner_vip_6 (3)_580930aa017a6e449891063b97482f2e,6,0,1,0,0,0,0,1,0,4,1,4,4,60,-1.7040672E+09,0
+438,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (24),tree_1 (24)_6fcb7c7377ef3fb4ba2a57ad5918e46c,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+439,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (37),tree_1 (37)_3dc88b5d39168c4499ef3d4b7afd3e22,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+440,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (16),Spawner_1 (16)_b5b44921418f00b4ea1aa63a7a1fd8e5,5,0,0,0,0,0,1,1,5,5,1,10,15,720,86400,0
+441,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_knight,Spawner_1_knight_bfdfda542c6e78e47ae3693d6647c63b,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+442,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_hard_buck_uncommon,Spawner_1_hard_buck_uncommon_cf92590d8265f954d802b59b3a55e361,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+443,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_elite pier,Spawner_1_elite pier_0bd3aeedd3776174c9cb77c8bf8d8aac,8,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+444,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (34),tree_1 (34)_ee2548757106ba34b9060e8e96ed3925,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+445,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (16),tree_1 (16)_e4b69c87f9bbfac49b553e627de28768,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+446,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (39),tree_1 (39)_d8d77d94136f14c47b0c5d03bb20840c,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+447,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_elite pier def,Spawner_1_elite pier def_4357f4592f0d28e46bb577b414a571fa,12,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+448,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (27),tree_1 (27)_e398d56829d4f724d8ed178641d84750,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+449,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (23),tree_1 (23)_45edcd23be60a4c4bb833029c0b0413f,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+450,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (48),tree_1 (48)_67bccfaa2033c8e498ba3f3e64697373,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+451,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (43),tree_1 (43)_7e4417e7d4d84b947b7cc66f2c07dd17,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+452,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (19),tree_17 (19)_b699d01910666e645a0062e669e40523,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+453,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (4),tree_16 (4)_f9b653c797122234eb5e0a03336068f8,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+454,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (8),tree_17 (8)_c94425d83849c914ab8b2b374e805cce,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+455,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_medium,Spawner_1_medium_d3e8a3e3aa9c7c347904417f0a9e680a,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+456,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_knight_cut_uncommon,Spawner_1_knight_cut_uncommon_d0d30d1f339d835419e25a7c0e492860,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+457,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_easy (2),Spawner_15_easy (2)_b5462b744aeee7f4bb1e6fbbd6a793f1,15,0,0,0,0,0,1,1,8,8,1,16,24,1800,86400,0
+458,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_knight (5),Spawner_17_knight (5)_cd07d5d9adca0d34b96de89fae93d308,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+459,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (8),ice pike blocker (8)_e1ae2506389a91e4e8620fcd3bc48052,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+460,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_elite defense,Spawner_1_elite defense_2e046dbf2323c0a41acdfed11a60fdec,13,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+461,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (15),tree_16 (15)_b4eb9be20ad92dc41ac388e59719a72b,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+462,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_common_pierce_shield (3),Spawner_15_medium_common_pierce_shield (3)_5296c0896bc01614ca9ffd751282aa0b,15,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+463,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (7),tree_16 (7)_2442821c2d84c304eae6d14085411ca8,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+464,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (17),tree_1 (17)_bee2e8fd3278dc24e8cb05da58303d7e,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+465,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (27),tree_1 (27)_be364199f2a491448af32299620887df,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+466,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (32),tree_1 (32)_6db661ebf73863f459b1c415fd541b44,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+467,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (4),Spawner_17_easy (4)_729771937c43e8f44b1fc3fcc9d7312e,17,0,0,0,0,0,1,1,6,6,1,12,18,1800,86400,0
+468,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_uncommon_shield (6),Spawner_16_medium_buck_uncommon_shield (6)_b4e68f41b5e33d14d91075a93696a705,16,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+469,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (31),tree_1 (31)_6bb218d8980fb2a4c89e4e9dd785251f,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+470,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_elite_HP,Spawner_elite_HP_cef4e24ff9718b24e8ad34034ac851fd,1,0,0,0,1,0,1,1,1,1,1,1,2,3600,86400,0
+471,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (30),tree_1 (30)_2ae22837e79f3e944b9d1c6cf89b2f61,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+472,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (11),tree_1 (11)_79702de2c5acd7349a27f0c43ba55caa,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+473,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_common_cut (1),Spawner_1_common_cut (1)_e2d0de2bb29a09c4b92dfa864a48c1fa,7,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+474,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (19),ice pike blocker (19)_a9cae35ee1929df4d9bdbfeb4207af1b,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+475,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (32),tree_1 (32)_f4be85e7604f8344b8297fb307072678,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+476,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (19),tree_1 (19)_529292d6d577d9c4d9aa74ee40c53821,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+477,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_medium (5),Spawner_1_medium (5)_6d24d3f98b76c784da3c75eb2d1c639e,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+478,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_easy,Spawner_1_easy_f09bac93a348f13499adb608c1aba01d,12,0,0,0,0,0,1,1,4,4,1,8,12,1560,86400,0
+479,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_1 (5),Spawner_1 (5)_e05c477c5fdf39749ab20e6d23ff5c6b,1,0,0,0,0,0,1,1,3,3,1,6,9,240,86400,0
+480,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_easy_helm_buck_common (1),Spawner_1_easy_helm_buck_common (1)_b775c6adcf8a97a45b66b4fa15e8deca,10,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+481,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (27),tree_1 (27)_32aa783f788cded4c9b81d31e2125d0f,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+482,Main:Events/Spawners (1)/EventSpawner_Golem,EventSpawner_Golem_ce1ad032a769cfd48a6852cb69f1c7d9,1,1,0,0,0,0,0,1,0,60,1,0,0,60,0,0
+483,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (2),Spawner_17_easy (2)_6f3d2acfc0748da47875102068fdaf0b,17,0,0,0,0,0,1,1,6,6,1,12,18,1800,86400,0
+484,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (30),tree_1 (30)_e377e5cb0a5fe2f4f891c02b5bdc2ee0,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+485,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (29),tree_1 (29)_fd413ddd49ffd774ca6d4b474c2285bc,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+486,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (15),tree_1 (15)_82c227a3aa0f1b54b9b802ab203f566d,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+487,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_helm_pier_uncommon,Spawner_1_knight_helm_pier_uncommon_d0499138fbca2cd4bb005f841af06ea0,12,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+488,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (35),tree_1 (35)_684109d61e751b6429371a3a2c501a45,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+489,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (34),tree_1 (34)_81ebfea4b4d2207439d441b45374c2a2,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+490,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (26),tree_1 (26)_15c0e0534eb64cf40859ba567fc60622,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+491,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (21),tree_16 (21)_50959bad823cfd341b6fd05a7a7aca71,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+492,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium (7),Spawner_1_medium (7)_62053415e48f3b548ad2499d718b804e,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+493,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1 (12),Spawner_1 (12)_d714caf03e90f5d49b28d3dd50c2056e,8,0,0,0,0,0,1,1,3,3,1,6,9,1080,86400,0
+494,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (35),tree_1 (35)_eac809ee3efa1bd4eba024c85446eeb6,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+495,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_boss (3),Spawner_boss (3)_e91552426bfb713409aa1ef6e8beaf85,13,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+496,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (21),tree_17 (21)_9d379c459a54ac048a8961e962c0f037,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+497,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (36),tree_1 (36)_ff1cdb9d0c4c9c94bbfd3ad50fe2ab0b,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+498,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (45),tree_1 (45)_40f17e0af4ff2934d9f3e70599faf24e,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+499,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (10),Spawner_1_medium (10)_9b2298a59b38c744482c57cec32aaf41,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+500,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (16),Spawner_1 (16)_c87fa9f3f405d6440a1ac5a6d9b908b9,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+501,Main:Factories/EnemyFactory/vip location (6 island)/spawners/Spawner_vip_6 (4),Spawner_vip_6 (4)_563705905f59ae749847a18e2c751ba8,6,0,1,0,0,0,0,1,0,4,1,4,4,60,-1.7040672E+09,0
+502,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon (7),Spawner_medium_small_dragon (7)_6afc8be96be6cda44b7dc10a01a354ac,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+503,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (39),tree_1 (39)_eeed206e07dde8f47894b92d6975d5f9,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+504,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_easy (3),Spawner_1_easy (3)_bf8b8bdcc1e9ccb488ff9acfb93afbc9,11,0,0,0,0,0,1,1,5,5,1,10,15,1440,86400,0
+505,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_easy (1),Spawner_1_easy (1)_c3c6063c9ce431b42a8786513929e4c7,11,0,0,0,0,0,1,1,5,5,1,10,15,1440,86400,0
+506,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1 (1),Spawner_1 (1)_bf4b6e357e741b9429365473518af472,9,0,0,0,0,0,1,1,5,5,1,10,15,1200,86400,0
+507,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (3),ice pike blocker (3)_148fbc5fc553fe8448bbb63e3e3e8246,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+508,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (36),tree_1 (36)_b085d96c1cbd7e846915b1b2d5ca1942,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+509,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_elite smash,Spawner_elite smash_a058bb7fed81a294cb789e56f761a7e7,10,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+510,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (13),ice pike blocker (13)_01904caca862ca3439cc24761bd6fdb7,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+511,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (43),tree_1 (43)_df5948dfd4fbf2c44ade6dfd95bb581b,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+512,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_boss (3),Spawner_boss (3)_95520d2a097991c44af7487dd2fe7190,14,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+513,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon_helmet_common_ pierce (1),Spawner_medium_small_dragon_helmet_common_ pierce (1)_8374c8ff60ba7224385ceb803a482b55,9,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+514,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (39),tree_1 (39)_417686b0a6a11124f857e90de0729adf,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+515,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (2),tree_17 (2)_fa2a633cbd8c51546bfef0d284bdfe34,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+516,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_pierce (3),Spawner_1_medium_common_pierce (3)_27571365c14a5e24aa7001eef43e0f57,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+517,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (25),tree_1 (25)_a5994d52f5742174f92dcd4b45b72bf3,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+518,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (49),tree_1 (49)_3b5c0ab71b74f3443b31e4b31f5eec35,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+519,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (30),tree_1 (30)_7ae22e7499873aa4cb7550fe491f0048,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+520,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_knight (4),Spawner_15_knight (4)_92da8ec979a2ae04aa4c3f6e8991d869,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+521,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_easy (1),Spawner_1_easy (1)_b7051a7b27709314881916057bf53dff,13,0,0,0,0,0,1,1,5,5,1,10,15,1680,86400,0
+522,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_common_shield (1),Spawner_17_medium_cut_common_shield (1)_ec73427c7e9250042b1a0bdf6cd85a11,17,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+523,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (20),tree_1 (20)_d7a65a8df9a0f0940b6107d23e3f56ea,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+524,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (31),tree_1 (31)_23405b19acdd36b448979379ce89a3b5,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+525,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (24),tree_1 (24)_9ad1b3926f803ae4e9dd278475dc6087,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+526,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium (2),Spawner_1_medium (2)_811879a69ddecbd41a524cd76f6fdee8,11,0,0,0,0,0,1,1,2,2,1,4,6,1440,86400,0
+527,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (24),tree_1 (24)_a0b48c767dffd7d4a8b561e5c20385d6,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+528,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (9),tree_1 (9)_2dc52608b773d5a46ac053446068229c,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+529,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (31),tree_1 (31)_727135792420a9a488ef361ef9f8a696,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+530,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (38),tree_1 (38)_8fbd5922d47ebe74487235806bb5100d,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+531,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (13),Spawner_1_medium (13)_392b6e8cb2ad8ac40870e0cd3ae9da66,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+532,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (20),tree_1 (20)_72725ba7ac6e6e4438a998cd051fca45,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+533,Main:Factories/EnemyFactory/vip location (3 island)/spawners/Spawner_vip_3 (4),Spawner_vip_3 (4)_356f96918ed5cfa42831b2fa3a3c6e44,3,0,1,0,0,0,0,1,0,3,1,3,3,60,-1.7040672E+09,0
+534,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_elite smash,Spawner_1_elite smash_0ae0327a1827cf74abfccea79117c3e1,9,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+535,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon_shield_rare,Spawner_medium_small_dragon_shield_rare_ae0910898a597bb4f8f39e980c15044a,9,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+536,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (33),tree_1 (33)_9e142482384fba94491a4b74d24b500c,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+537,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_1 (11),Spawner_1 (11)_4fb69e25d90463e4c8e9eb1afb2731ef,4,0,0,0,0,0,1,1,20,20,1,40,60,2,86400,0
+538,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_legendary_helm (5),Spawner_17_medium_cut_legendary_helm (5)_619af76fe9c789644b710f06fd5bbec8,17,0,0,0,0,1,1,1,1,1,1,0,1,21600,86400,0
+539,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (34),tree_1 (34)_84c84216ee8d31b4696e46df6fb0c299,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+540,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (16),ice pike blocker (16)_11ec27f84626499448a503d776842032,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+541,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (19),Spawner_1 (19)_ccfd7b0eae41aa641bee2d328dd7d4ab,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+542,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (50),tree_1 (50)_296349024b9452649b95c9d8a9f7fe63,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+543,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_rare_cut (1),Spawner_1_knight_rare_cut (1)_de164f5a626eaa54e90b59de63bd9c4b,13,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+544,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_knight (4),Spawner_1_knight (4)_08056f71b444fed4986dd5fcb21e1b85,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+545,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_elite (6),Spawner_17_elite (6)_797b9a50597cf914b972a02d67ad9814,17,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+546,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_knight (1),Spawner_1_knight (1)_803f60438187b7443bb745619c953169,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+547,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (30),tree_1 (30)_f95716d0e4daa444182a3b0ac43f1a28,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+548,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon (8),Spawner_medium_small_dragon (8)_70528cdc89fbd564691cdd1983583466,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+549,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_elite health,Spawner_1_elite health_d0f9a0d470d3e9a41a26ddb8cd15be56,8,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+550,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon_shield_common,Spawner_medium_small_dragon_shield_common_ddf7a2c0cd8de004988a647e526e3346,9,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+551,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_death,Spawner_17_death_ad5213490d8ed204fbf8ef86a51b0e9f,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+552,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (30),tree_1 (30)_4f4af095fa20b604c84d1fabe80b80f1,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+553,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (34),tree_1 (34)_e796bc9dcfb59e1429df89e364ed006d,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+554,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (28),tree_1 (28)_3e1af58a35da29e45b4dc6d94d939624,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+555,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_knight (2),Spawner_1_knight (2)_941ec0258df0536469e7a743dd9fed66,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+556,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_elite smash,Spawner_elite smash_7732a81a4d334794fba5b90d8b8cfd93,6,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+557,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_easy (1),Spawner_16_easy (1)_2179cbf1057bd764cbe2e5bd5b237854,16,0,0,0,0,0,1,1,10,10,1,20,30,1800,86400,0
+558,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_medium (1),Spawner_1_medium (1)_b2237805cd76487479601d53acf026d9,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+559,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (49),tree_1 (49)_bd82c2f0eba40654d8005ae0cbe63e5b,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+560,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_easy (4),Spawner_1_easy (4)_bedc3527bd37c27449269e5b39deafc1,11,0,0,0,0,0,1,1,5,5,1,10,15,1440,86400,0
+561,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (32),tree_1 (32)_c67f4ff0264c0d146b90f3415cd381a1,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+562,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (23),tree_1 (23)_435a2d8a7df6609408370c47cf24b543,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+563,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_knight (3),Spawner_15_knight (3)_2ebe2cecb99670a49b3a0791ee0ee954,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+564,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (32),tree_1 (32)_0f34b9addb637a54f9d37ef8d813ee80,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+565,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_boss_pier_common_slot,Spawner_boss_pier_common_slot_3a6eab0d4328bc3408bb980099f1c5ee,1,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+566,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_small_dragon_cut_rare,Spawner_1_small_dragon_cut_rare_253d102672a312646adbe8f02d287852,10,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+567,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_elite cut,Spawner_elite cut_0eacc6cb8e611254faec60009bdf1170,10,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+568,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (35),tree_1 (35)_fbb8f4351bcb10e4e9afae7a1309d6bb,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+569,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (29),tree_1 (29)_10c7215b7eab64844bda129ddcd98f7b,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+570,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1 (6),Spawner_1 (6)_4a3bf7b4d69a5e449a68c9f48618a8e3,2,0,0,0,0,0,1,1,5,5,1,10,15,360,86400,0
+571,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_pierce (2),Spawner_1_medium_common_pierce (2)_d6563973b79e7984580ed9ec33fca1a7,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+572,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_elite lifesteal,Spawner_1_elite lifesteal_dc53ea0728a9f4644a205d274dbb501c,8,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+573,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (37),tree_1 (37)_9954342f9beb52e43b3d0c94161f3dad,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+574,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_medium,Spawner_1_medium_60d3336082fa5e24e96f211d8eee2e16,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+575,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (15),Spawner_1 (15)_055a25cbdf1b6704dae03a5cb94da3cd,3,0,0,0,0,0,1,1,3,3,1,6,9,480,86400,0
+576,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (1),tree_17 (1)_5e1eaa0a50018844eb77eb0f0868962a,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+577,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_common_pierce_helm (4),Spawner_15_medium_common_pierce_helm (4)_29ac5a709ae303d49a15c040ccf94dab,15,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+578,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_shield_pier_epic,Spawner_1_knight_shield_pier_epic_7deb2f52ec4e87849aefa293face49e0,12,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+579,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (34),tree_1 (34)_b1d7089271788d84eb88726b284303ba,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+580,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (22),tree_1 (22)_b15bf5a689f07214393623f545014bb3,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+581,Main:Factories/EnemyFactory/island (4)/spawners/Spawner_1 (13),Spawner_1 (13)_a8e807afb1dc519499bfb179186bbbd3,4,0,0,0,0,0,1,1,6,6,1,12,18,600,86400,0
+582,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (15),tree_17 (15)_530103997f0c12140916c1df54b3b3ef,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+583,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_boss (3),Spawner_boss (3)_13c728bd54fede04798009588be5b802,5,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+584,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1 (7),Spawner_1 (7)_b184be54ee8a6f6498bd1269f629c096,7,0,0,0,0,0,1,1,8,8,1,16,24,960,86400,0
+585,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_medium_small_dragon_helmet_common_ pierce,Spawner_medium_small_dragon_helmet_common_ pierce_42e681eabb536a54ca70857eddd03291,9,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+586,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_boss,Spawner_16_boss_363f4c1b3ec9c0940b186ed4c9748835,16,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+587,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (22),tree_1 (22)_8298ede42eb099c4aab8b87a61fbe92a,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+588,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_1 (11),Spawner_1 (11)_cff2f54afc87aa546be1ed12b741f939,2,0,0,0,0,0,1,1,2,2,1,4,6,360,86400,0
+589,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_buck_rare,Spawner_1_knight_buck_rare_8372b7dfc0163ea4e864f097ed02b1dd,12,0,0,0,0,1,1,1,1,1,1,3,4,3600,86400,0
+590,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_boss (3),Spawner_boss (3)_51927f4c765610249a450d00c14b2703,8,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+591,Main:Factories/EnemyFactory/island (17)/resources/tree_17 (14),tree_17 (14)_764d0d606e771c648854c39268ec1711,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+592,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (4),tree_15 (4)_12b5b1a2015def241b902a37f2359779,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+593,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (7),Spawner_1_medium (7)_b2367a62c8b5e4c47a1e2a67790f1212,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+594,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (3),Spawner_17_easy (3)_1acbed3f60245d744b6fbd5fafe0832c,17,0,0,0,0,0,1,1,6,6,1,12,18,1800,86400,0
+595,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (27),tree_1 (27)_1abeeafd0dcb6f147bd1ed6142d5da2d,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+596,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (42),tree_1 (42)_b6383edbe53a635409cf2142d9292237,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+597,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (16),tree_1 (16)_d5061659bd1f2fb4a8b4208a5df2dbd6,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+598,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_medium,Spawner_1_medium_e500108c4550f2a4f9f7e0d4ebd8beb3,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+599,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (28),tree_1 (28)_45de946aac8d43143aaf0d28ca540b77,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+600,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_Creeper,Spawner_Creeper_cdee7a,6,0,0,0,0,0,1,1,1,1,1,2,3,840,0,0
+601,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (21),tree_1 (21)_be39b2a9626e80e4aa155ba870f0cbb2,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+602,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (46),tree_1 (46)_2bda4caa5c41b084388817e2e085cf27,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+603,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_elite cut,Spawner_elite cut_3bb4617c1b65bdf4080bbbacce72af23,7,0,0,0,1,0,1,1,1,1,1,1,2,10800,86400,0
+604,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (30),tree_1 (30)_7dc7835eb90a3bd40afa7357cfe7c131,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+605,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (3),tree_15 (3)_2489279db4c2a5248ae048b5d2b8a2bf,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+606,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (29),tree_1 (29)_bdba3cf4846343e4ea19e848d156d37c,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+607,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (15),Spawner_1 (15)_6f4012ee518398f48bd06fe7c424395b,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+608,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (23),tree_1 (23)_073b076727b5afe49a5631264846185d,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+609,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (15),Spawner_1 (15)_a5ee3bb0c6319cc41ae61a45bce2a1f6,5,0,0,0,0,0,1,1,5,5,1,10,15,720,86400,0
+610,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (20),tree_1 (20)_d833f87a5a4eefa4e976b2da457f82b5,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+611,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (19),tree_1 (19)_5c1ee0fcd403ad3429bdcbac035a8dd4,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+612,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_easy (4),Spawner_1_easy (4)_8316cdc4581d35941908a7b53eda2f74,13,0,0,0,0,0,1,1,6,6,1,12,18,1680,86400,0
+613,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (30),tree_1 (30)_eb8e12d1659c8174fb0e84ad954ad24c,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+614,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (11),Spawner_1 (11)_3f3afcb2b9f970b409400b9dbb5604d3,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+615,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (26),tree_1 (26)_13b2429751d079d4c88773fe5be68f93,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+616,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_medium (4),Spawner_1_medium (4)_cec6322b789479e4ba6f5fa5ac08d6e7,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+617,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (27),tree_1 (27)_59f96587cd24d594fb37414cf9516097,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+618,Main:Factories/EnemyFactory/island (7)/spawners/Spawner_1_medium (3),Spawner_1_medium (3)_9269f8ddc19f8364a92b5137c0a81bef,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+619,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (20),tree_1 (20)_642a33b60985814479bf4056ce0507cd,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+620,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (36),tree_1 (36)_8360f2fa9ca397d4e8fd9a2b8914299b,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+621,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (46),tree_1 (46)_62781de855881cc41a6b898acfcf7011,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+622,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (24),Spawner_1 (24)_6068ec3eabd4bdc4abba4d4bb2be709b,6,0,0,0,0,0,1,1,3,3,1,6,9,840,86400,0
+623,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (25),tree_1 (25)_572656c104fd8ec43b7e01c863205a0c,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+624,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (23),tree_1 (23)_a55123d71ed98ad40910fa24be61e8c0,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+625,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (19),tree_15 (19)_b88da2b9409012a4fac46e4331a38a26,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+626,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_knight (1),Spawner_17_knight (1)_3f33228164671194195e8c0e810676cb,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+627,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_easy,Spawner_1_easy_c375cdc83b59687448defed5a1405b80,11,0,0,0,0,0,1,1,3,3,1,6,9,1440,86400,0
+628,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (15),tree_1 (15)_4422704187111ce45b289985ce6c9dc6,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+629,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (25),tree_1 (25)_566cb1b393d65b14d920943ac7cca8ae,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+630,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_knight (1),Spawner_16_knight (1)_2704f736d3104a84298d50ccfea0df71,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+631,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (43),tree_1 (43)_bc7aa54984686384e9c0d89e89ae32f1,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+632,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (23),Spawner_1 (23)_58ed56344eaf20b43bbce20899958d67,6,0,0,0,0,0,1,1,2,2,1,4,6,840,86400,0
+633,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (18),tree_15 (18)_c8a9f7988d54b9f499935a99b8439e77,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+634,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (12),Spawner_1 (12)_14af224b7414ab74abf7866e1c5edbc5,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+635,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (13),Spawner_1 (13)_6a248bc2c25ec8246a1817a34a1e2245,6,0,0,0,0,0,1,1,3,3,1,6,9,840,86400,0
+636,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (21),Spawner_1 (21)_05c5ad75492b23046a0c39feb9edaf08,6,0,0,0,0,0,1,1,4,4,1,8,12,840,86400,0
+637,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (14),tree_16 (14)_c6ecd285b3e9ab049a522a84f34f7b9f,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+638,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (16),tree_16 (16)_26efa85609cbe90408ceee3ca39d32bd,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+639,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_medium_buck_rare_shield (4),Spawner_16_medium_buck_rare_shield (4)_87730b30f7fe3774b8512d64bc304f6d,16,0,0,0,0,1,1,1,1,1,1,3,4,5400,86400,0
+640,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (9),ice pike blocker (9)_0e5d5d376a4035c43aa3c7408f8f264f,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+641,Main:Factories/EnemyFactory/island (9)/spawners/Spawner_1_hard_stab_uncommon,Spawner_1_hard_stab_uncommon_060506a94d6e1f54d9ddd1fb0568e96d,9,0,0,0,0,1,1,1,1,1,1,5,6,1800,86400,0
+642,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_knight (1),Spawner_15_knight (1)_43f3e13e407f5da419a1dbd36650da6e,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+643,Main:Factories/EnemyFactory/island (11)/spawners/Spawner_1_medium_shield_cut_common,Spawner_1_medium_shield_cut_common_e4aeda1253aff504c91bcad3f2ffd4df,11,0,0,0,0,1,1,1,1,1,1,7,8,1800,86400,0
+644,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (3),tree_16 (3)_34bd5bcc985855f4bac56006f10d6acc,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+645,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium,Spawner_1_medium_b038a078272963c45b182eb0c2d116b2,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+646,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (36),tree_1 (36)_1b473d165b261a14e8dc2ca0b8ee0881,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+647,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (36),tree_1 (36)_0fcc67cedd86b204cb94c608adb014f7,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+648,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1_uncommon_pierce_helmet (1),Spawner_1_uncommon_pierce_helmet (1)_26dcde0c280cd614396dd13393b95f67,6,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+649,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (3),Spawner_1_medium (3)_47e9529148ef91241aab0f5daba7ec55,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+650,Main:Factories/EnemyFactory/island (1)/spawners/Spawner_1,Spawner_1_8dc2006722e6c994593946eef6f4f007,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+651,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (31),tree_1 (31)_7f0006d2302d1fa49a5bc04d14d8a93f,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+652,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (24),tree_1 (24)_66018d6cfcae22b41ab6d7263f87f339,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+653,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (35),tree_1 (35)_9b0bdd14dd6cc704982519ad96c93975,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+654,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_elite smash,Spawner_elite smash_b9de753553e6a04438fa097a9eaf7636,3,0,0,0,1,0,1,1,1,1,1,1,2,7200,86400,0
+655,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_1_easy,Spawner_1_easy_3719222ac762e4f4a94665c3cf94dfa0,10,0,0,0,0,0,1,1,2,2,1,4,6,1320,86400,0
+656,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (10),tree_16 (10)_b07538bdb52b58e4297d3f285a79aa7a,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+657,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (29),tree_1 (29)_92cd5af248819504bb01daa2d63b3208,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+658,Main:Factories/EnemyFactory/vip location (6 island)/spawners/Spawner_vip_6 (1),Spawner_vip_6 (1)_3345ab5ae0c7c464a8dd86a537cd4e7b,6,0,1,0,0,0,0,1,0,4,1,4,4,60,-1.7040672E+09,0
+659,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (18),tree_1 (18)_7abfb707fdc1bd64399fbc39679b27a5,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+660,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (11),Spawner_1_medium (11)_7b8febb43122ec04db8fa80a7e0a157a,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+661,Main:Factories/EnemyFactory/island (11)/resources/tree_1 (42),tree_1 (42)_3953005e71d439a4fb1222aed53269bb,11,0,0,0,0,0,1,1,1,1,1,2,3,1440,86400,0
+662,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_easy (5),Spawner_1_easy (5)_e08ee761cc1c74940880e98688875d05,13,0,0,0,0,0,1,1,6,6,1,12,18,1680,86400,0
+663,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_boss_cut_legendary,Spawner_boss_cut_legendary_3c0d1a7f7ba8c104283bd84bf7f07fcd,12,0,0,0,0,1,1,1,1,1,1,0,1,14400,86400,0
+664,Main:Factories/EnemyFactory/island (5)/resources/tree_1 (23),tree_1 (23)_66c246824ce592544aa531b6a2dca4f2,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+665,Main:Factories/EnemyFactory/vip location (6 island)/spawners/Spawner_vip_6 (2),Spawner_vip_6 (2)_2d8760af197e55b479c47335026c4eca,6,0,1,0,0,0,0,1,0,4,1,4,4,60,-1.7040672E+09,0
+666,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (39),tree_1 (39)_49dfab66a3a147340bbcc1a5032dc486,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+667,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_medium (2),Spawner_1_medium (2)_ae1b94f63741e9c48b46b71429359c6b,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+668,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (44),tree_1 (44)_1ae5d518c8c5f2745a07af63529c2bd2,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+669,Main:Factories/EnemyFactory/island (3)/spawners/Spawner_1 (6),Spawner_1 (6)_f36c481fb081eaa4c8330347b600195b,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+670,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (32),tree_1 (32)_b342cbccf223c6346a03a8d6991e38d6,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+671,Main:Factories/EnemyFactory/vip location (3 island)/spawners/Spawner_vip_3 (3),Spawner_vip_3 (3)_f1e0353e6aaa26b4599e49e5eb0c7d04,3,0,1,0,0,0,0,1,0,3,1,3,3,60,-1.7040672E+09,0
+672,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_knight (5),Spawner_15_knight (5)_cce445d738840434980b6065fe65b35f,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+673,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (28),tree_1 (28)_5056fce0257fc014bb8cecc62708a83f,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+674,Main:Factories/EnemyFactory/island (10)/resources/ice pike blocker (4),ice pike blocker (4)_6604937aea5db564fbb41d40d916a12c,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+675,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_epic_shield (2),Spawner_17_medium_cut_epic_shield (2)_5bf320a0e668613459a345346e110d4b,17,0,0,0,0,1,1,1,1,1,1,1,2,10800,86400,0
+676,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1 (14),Spawner_1 (14)_c4925eee0c742514da7c04b1245b82ec,8,0,0,0,0,0,1,1,3,3,1,6,9,1080,86400,0
+677,Main:Factories/EnemyFactory/island (6)/spawners/Spawner_1 (18),Spawner_1 (18)_a3697eeda241c414598fa691a27e1d36,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+678,Main:Factories/EnemyFactory/island (3)/resources/tree_1 (33),tree_1 (33)_af849bc7da84c314881189cd77c2bf73,3,0,0,0,0,0,1,1,1,1,1,2,3,480,86400,0
+679,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_pierce,Spawner_1_medium_common_pierce_2a21bdc51910b464596a57595f888f28,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+680,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (15),Spawner_1_medium (15)_6f0c2e8e3769a67419c98044c265e88e,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+681,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (44),tree_1 (44)_2880baf37cc5b984695c02eb1414605d,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+682,Main:Factories/EnemyFactory/island (14)/spawners/Spawner_1_medium (1),Spawner_1_medium (1)_d437983d965392943b13bc518e88407e,14,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+683,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_medium,Spawner_1_medium_21ff8c7926acc604ca75d35457d50e7e,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+684,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (33),tree_1 (33)_da0862cbc7d438e46a93d4c6520c3efa,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+685,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (5),tree_15 (5)_25472010574bee140bc9719096355534,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+686,Main:Factories/EnemyFactory/island (4)/resources/tree_1 (24),tree_1 (24)_3abc68c2fd3f4bc4ca83610e6037ab38,4,0,0,0,0,0,1,1,1,1,1,2,3,600,86400,0
+687,Main:Factories/EnemyFactory/island (1)/objectives/second_biome_door,second_biome_door_0f7edb,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+688,Main:Factories/EnemyFactory/island (12)/spawners/Spawner_1_knight_buck_epic,Spawner_1_knight_buck_epic_297ce77ff805d2645b981399aa2dff1b,12,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+689,Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_knight (2),Spawner_16_knight (2)_39a8b582d260825409bea05b7c4423f2,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+690,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_easy (2),Spawner_1_easy (2)_d0b016fa70033cb4592552b3ba54b636,13,0,0,0,0,0,1,1,5,5,1,10,15,1680,86400,0
+691,Main:Factories/EnemyFactory/island (8)/spawners/Spawner_1_medium_common_buck (4),Spawner_1_medium_common_buck (4)_d377feb6ee402894192e9181bf8decf1,8,0,0,0,0,1,1,1,1,1,1,7,8,1200,86400,0
+692,Main:Factories/EnemyFactory/island (2)/resources/tree_1 (15),tree_1 (15)_bf882ce4f9a6cec4fafe64e0208c71a8,2,0,0,0,0,0,1,1,1,1,1,2,3,360,86400,0
+693,Main:Factories/EnemyFactory/island (7)/resources/tree_1 (44),tree_1 (44)_412a372d746d9c54f84a355c9143d5a5,7,0,0,0,0,0,1,1,1,1,1,2,3,960,86400,0
+694,Main:Factories/EnemyFactory/island (13)/spawners/Spawner_1_knight_epic_cut (1),Spawner_1_knight_epic_cut (1)_f4f9465536e012d4eb7d44504ba7ff4a,13,0,0,0,0,1,1,1,1,1,1,1,2,7200,86400,0
+695,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (13),tree_1 (13)_f418a9d7f8e6fa14f86fb66223b62ec3,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+696,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (18),tree_16 (18)_c2cc470f95712094597ca2920877e4f1,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+697,Main:Factories/EnemyFactory/island (15)/resources/tree_15 (7),tree_15 (7)_d41620dfea0d9b349a3a748de9a052e6,15,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+698,Main:Factories/EnemyFactory/island (6)/resources/tree_1 (40),tree_1 (40)_c506c19b85c76f34982391368f7357ee,6,0,0,0,0,0,1,1,1,1,1,2,3,840,86400,0
+699,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (12),Spawner_1 (12)_4b360cd87675d3b4ea8a2b55a288def0,5,0,0,0,0,0,1,1,2,2,1,4,6,720,86400,0
+700,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (6),tree_1 (6)_9d8979c866b01d74488059dd05f17173,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+701,Main:Factories/EnemyFactory/island (13)/resources/tree_1 (33),tree_1 (33)_6061932425cb6c64aab0f97ab0aca844,13,0,0,0,0,0,1,1,1,1,1,2,3,1680,86400,0
+702,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (15),tree_1 (15)_610b75fa8c835cb41a69f7c62268f444,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+703,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (25),tree_1 (25)_cc74531b557f9b044972079cac4a08be,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+704,Main:Factories/EnemyFactory/island (15)/spawners/Spawner_15_medium_uncommon_pierce_shield (10),Spawner_15_medium_uncommon_pierce_shield (10)_f04ec3490030d87488edbbaa169f7d6d,15,0,0,0,0,1,1,1,1,1,1,5,6,2700,86400,0
+705,Main:Factories/EnemyFactory/island (10)/resources/tree_1 (38),tree_1 (38)_d5892c8a272730a47b6e154ae0360bd2,10,0,0,0,0,0,1,1,1,1,1,2,3,1320,86400,0
+706,Main:Factories/EnemyFactory/island (5)/spawners/Spawner_1 (11),Spawner_1 (11)_2ce5de94c4a4dfe49a3bcb9b644618da,5,0,0,0,0,0,1,1,1,1,1,2,3,720,86400,0
+707,Main:Factories/EnemyFactory/island (12)/resources/tree_1 (30),tree_1 (30)_b38093ef16caa294788233e66ce5b75e,12,0,0,0,0,0,1,1,1,1,1,2,3,1560,86400,0
+708,Main:Factories/EnemyFactory/island (2)/spawners/Spawner_elite_regen,Spawner_elite_regen_f26d4d9599e8c23418b5a902e2182553,2,0,0,0,1,0,1,1,1,1,1,1,2,5400,86400,0
+709,Main:Factories/EnemyFactory/island (1)/resources/tree_1 (3),tree_1 (3)_cb11e7328fefe70488ee26296721d71a,1,0,0,0,0,0,1,1,1,1,1,2,3,240,86400,0
+710,Main:Factories/EnemyFactory/island (16)/resources/tree_16 (2),tree_16 (2)_2164d987e0e2ad344907aa25c41f759b,16,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+711,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (21),tree_1 (21)_489177b03baa3cc4fa35a52d24cd6492,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+712,Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_knight (6),Spawner_17_knight (6)_4a779f58106379f4f8a2076f3646730f,17,0,0,0,0,0,1,1,1,1,1,2,3,1800,86400,0
+713,Main:Factories/EnemyFactory/island (8)/resources/tree_1 (24),tree_1 (24)_a8b6dd47bc2b4e94887f810b786d1677,8,0,0,0,0,0,1,1,1,1,1,2,3,1080,86400,0
+714,Main:Factories/EnemyFactory/island (9)/resources/tree_1 (28),tree_1 (28)_a254c52ae14e9b74397c7c975801016b,9,0,0,0,0,0,1,1,1,1,1,2,3,1200,86400,0
+715,Main:Factories/EnemyFactory/island (10)/spawners/Spawner_boss_piercing_legendary,Spawner_boss_piercing_legendary_69d874b5a20b80146b9a78ea663c4e46,10,0,0,0,0,1,1,1,1,1,1,0,1,14400,86400,0

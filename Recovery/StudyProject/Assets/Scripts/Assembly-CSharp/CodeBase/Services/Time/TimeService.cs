@@ -20,7 +20,7 @@ namespace Codebase.Services.Time
                 var frame = UnityEngine.Time.frameCount;
                 if (frame == _cachedGameTimeFrame) return _cachedGameTime;
                 _cachedGameTimeFrame = frame;
-                _cachedGameTime = GameTime.FromDateTime(DateTime.UtcNow + _cachedCheatOffset);
+                _cachedGameTime = GameTime.FromDateTime(Codebase.Simulation.Harness.SimulationSandbox.Active ? Codebase.Simulation.Harness.SimulationSandbox.ClockUtc : DateTime.UtcNow + _cachedCheatOffset);
                 return _cachedGameTime;
             }
         }
@@ -29,7 +29,7 @@ namespace Codebase.Services.Time
             Lifetime = lifetime;
             _cachedCheatOffset = LoadCheatOffset();
         }
-        private TimeSpan LoadCheatOffset() => TimeSpan.Zero + TimeSpan.FromSeconds(PlayerPrefs.GetFloat(TimeOffset, 0f));
+        private TimeSpan LoadCheatOffset() => Codebase.Simulation.Harness.SimulationSandbox.Active ? TimeSpan.Zero : TimeSpan.Zero + TimeSpan.FromSeconds(PlayerPrefs.GetFloat(TimeOffset, 0f));
         public bool InPast(GameTime time) => time < Now;
         public bool InFuture(GameTime time) => time > Now;
         public void UpdateCheatOffset(float offset)
