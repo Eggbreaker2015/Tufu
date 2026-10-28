@@ -1,0 +1,149 @@
+{
+ "expectations": {
+  "csharp.shipped_sha256": {
+   "kind": "exact",
+   "note": "the exporter's bytes for the shipped asset",
+   "source": "design 7.3 C1",
+   "value": "996a9b957d85727b2d5c690e598898bd6738acad316e6942d906f98318a35370"
+  },
+  "csharp_roundtrip.equal": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C1",
+   "value": true
+  },
+  "csharp_roundtrip.float32_bit_identical": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C1",
+   "value": 218
+  },
+  "csharp_roundtrip.nan_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G19",
+   "value": 60
+  },
+  "csharp_roundtrip.values": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C1",
+   "value": 59210
+  },
+  "identity.csv_sha256": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 1.5 item 5",
+   "value": "1365c369d06495f60a93db09d93ac8082db58665fd03ec9074dee3a7672d6dfc"
+  },
+  "identity.entries": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 3.4",
+   "value": 717
+  },
+  "identity.registered": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 3.4, Runbook 6.1",
+   "value": 716
+  },
+  "identity.runtime_difference": {
+   "kind": "set",
+   "note": "table rows that never register",
+   "source": "Runbook 6.1",
+   "value": [
+    [
+     "Scenes/Main.unity",
+     57694,
+     "Main:Events/Spawners (1)/Eventspawner_Boss|Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507"
+    ]
+   ]
+  },
+  "identity.runtime_registered": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": 716
+  },
+  "identity.unregistered": {
+   "kind": "set",
+   "note": "the inactive duplicate Eventspawner_Boss",
+   "source": "Runbook 6.1",
+   "value": [
+    [
+     "Scenes/Main.unity",
+     57694,
+     "Main:Events/Spawners (1)/Eventspawner_Boss|Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507"
+    ]
+   ]
+  },
+  "ready_gate.compared": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6, Runbook 6.1",
+   "value": 716
+  },
+  "ready_gate.mismatched": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6",
+   "value": 0
+  },
+  "shipped.bits": {
+   "kind": "exact",
+   "note": "every float/double of the shipped asset; the C# export must reproduce it",
+   "source": "design 7.3 C1",
+   "value": {
+    "bits_sha256": "da74989f7c1f2341a32798d8f4b0806398c3d645005b440a8b78eda53ef9746a",
+    "doubles": 20710,
+    "floats": 218,
+    "nans": 60
+   }
+  },
+  "yaml_roundtrip.equal": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C1",
+   "value": true
+  },
+  "yaml_roundtrip.name_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C1",
+   "value": 4360
+  },
+  "yaml_roundtrip.nan_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G19",
+   "value": 60
+  },
+  "yaml_roundtrip.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C1",
+   "value": {
+    "c_SimulationData": 1,
+    "c_SimulationData__Snapshots": 63,
+    "c_SimulationData__Snapshots__DefenseData": 315,
+    "c_SimulationData__Snapshots__DpsData": 315,
+    "c_SimulationData__Snapshots__Items": 298,
+    "c_SimulationData__Snapshots__Stats": 1890,
+    "c_SimulationData__TimeChunkSnapshots": 46,
+    "c_SimulationData__TimeChunkSnapshots__DefenseData": 230,
+    "c_SimulationData__TimeChunkSnapshots__DpsData": 230,
+    "c_SimulationData__TimeChunkSnapshots__Items": 1293,
+    "c_SimulationData__TimeChunkSnapshots__Stats": 1380
+   }
+  },
+  "yaml_roundtrip.values": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C1",
+   "value": 59210
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "export"
+}
