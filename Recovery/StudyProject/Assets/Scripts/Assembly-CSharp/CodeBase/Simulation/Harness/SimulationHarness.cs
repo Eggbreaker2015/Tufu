@@ -437,11 +437,13 @@ namespace Codebase.Simulation.Harness
 		{
 			string path = request.Sandbox.ExpectedReadySpawners;
 			if (string.IsNullOrEmpty(path)) return new JObject { ["checked"] = false };
+			// The manifest names the table as the request does (relative to out_dir), so it stays byte-comparable across runs.
+			string named = path;
 			if (!Path.IsPathRooted(path)) path = Path.Combine(request.OutDir, path);
 			if (!File.Exists(path))
 			{
 				failures.Add("ready: expected_ready_spawners not found: " + path);
-				return new JObject { ["checked"] = false, ["path"] = path };
+				return new JObject { ["checked"] = false, ["path"] = named };
 			}
 			string[] lines = File.ReadAllLines(path).Where(l => l.Length > 0).ToArray();
 			string[] header = SplitCsv(lines[0]);
@@ -450,7 +452,7 @@ namespace Codebase.Simulation.Harness
 			if (iKey < 0 || iCharges < 0 || iCooldown < 0)
 			{
 				failures.Add("ready: expected_ready_spawners needs key, charges_total, base_cooldown columns");
-				return new JObject { ["checked"] = false, ["path"] = path };
+				return new JObject { ["checked"] = false, ["path"] = named };
 			}
 			var expected = new Dictionary<string, (int charges, float cooldown)>();
 			foreach (string line in lines.Skip(1))
@@ -487,7 +489,7 @@ namespace Codebase.Simulation.Harness
 				if (details.Count < 50) details.Add("not registered: " + id);
 			}
 			if (mismatched > 0) failures.Add("ready: " + mismatched + " spawner(s) differ from expected_ready_spawners");
-			return new JObject { ["checked"] = true, ["path"] = path, ["compared"] = compared, ["mismatched"] = mismatched, ["details"] = details };
+			return new JObject { ["checked"] = true, ["path"] = named, ["compared"] = compared, ["mismatched"] = mismatched, ["details"] = details };
 		}
 
 		// ---- settle and quiet window ----

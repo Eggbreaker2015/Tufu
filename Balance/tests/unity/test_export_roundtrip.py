@@ -102,6 +102,7 @@ def test_readiness_gate_uses_p6s_table(export_run):
         assert table["checked"] and table["mismatched"] == 0 and table["details"] == []
     name = export_run.request["sandbox"]["expected_ready_spawners"]
     assert name.startswith("ready_spawners.expected.") and (export_run.run_dir / name).exists()
+    assert table["path"] == name  # as the request names it: manifests stay comparable across run directories
     check("export", {
         "ready_gate.compared": exact(table["compared"], source="DP6, Runbook 6.1", original=716),
         "ready_gate.mismatched": exact(table["mismatched"], source="DP6", original=0),
