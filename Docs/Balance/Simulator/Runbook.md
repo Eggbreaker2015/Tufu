@@ -758,7 +758,22 @@ string s = random.StateText();                                // 进每天的状
 
 ### 17.6 验收记录（设计稿 7.3 C3c）
 
-（见第 17.7 节之后的运行记录，由本单元最后一次提交补全。）
+在提交 `a2c6080` 上，运行工作树里 `pytest --unity tests/unity/test_params.py tests/unity/test_engine.py tests/unity/test_export_roundtrip.py -k "not disabled and not heartbeat"`：35 通过、1 跳过（`perf`，机器负载 8.5/10 核）。不需要 Unity 的测试：`tests/test_random.py`、`tests/test_params_hash.py`、`tests/test_params_import.py` 与 P10 的 `tests/test_calibration_harness.py` 全部通过。
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 请求覆盖生效 | 通过：`params-override`（`FastAfkStepMinutes` 60、`EarlySnapshotIntervals` [2, 5]、`RollMode` 1、`Seed` 7）的早期列表与天列表逐位等于用这些值的参考时钟，P < 20 的早期快照是 0, 2, …, 18（默认运行是 0…19），快阶段每天 24 个 60 分钟离线步；`manifest.trace.random` 为 (1, 7) | `test_request_overrides_take_effect` |
+| `params_hash` 稳定、与 P10 相同 | 通过：Unity 里 `request_hash = request_hash_given = hash = P10 params_hash`（默认值与覆盖两组）；.NET 下 C# 规范 JSON 与 Python 逐字节相同（约 8000 个 double、6000 个 float32、300 个随机 JSON），成员顺序和数字写法（`1.2e2`、`20.000`）不改变哈希 | `test_request_params_hash_equals_p10`、`tests/test_params_hash.py` |
+| P10 的 `resolve()`/`check_against_csharp` 对真实类仍通过 | 通过 | `tests/test_calibration_harness.py`（含 `test_csharp_parameter_class_of_this_worktree`）|
+| 未知字段报错 | 通过：Unity 里作业以 5 失败，`error` 写明 `Bogus`；启动器层面因用户主检出的编辑器一直在写真实存档，失败型运行得到 2（第 13 节的规则），测试按这一情形核对 | `test_unknown_param_field_fails_the_job`、`test_unknown_missing_and_invalid_fields` |
+| 交互运行经 `AssetDatabase` 读资产 | 通过（经批处理的 `params_source = "asset"` 走同一个加载函数）：`source = asset`、`asset_found`、GUID 与 `.meta` 相同，哈希等于从资产 YAML 独立读出的值 | `test_params_asset_is_read_through_the_asset_database` |
+| `params import` 只在没进过 Play 的新编辑器进程里执行、能写资产 | 通过：新批处理编辑器约 6.4 秒写入（`entered_play = false`），读回哈希、文件 sha256、独立解析的值全部一致，Unity 写出的文本与 `paramsio.asset_text` 逐字节相同；运行工作树恢复干净，资产复制到目标路径。每个进过 Play 的批处理编辑器在退出 Play 时都记下 "refused: this editor process has entered Play mode"（4 个作业 4 行）。导入期间真实存档的变化按 17.2 归给用户的编辑器 | `test_params_import_in_a_fresh_editor`、`test_editors_that_entered_play_refuse_the_import`、`tests/test_params_import.py` |
+| 资产守卫只对这个入口放行 | 通过：启动器只允许导入时参数资产一个文件变化，其它变化退出码 2、不复制；写资产的编辑器 API 只出现在导入入口 | `tests/test_params_import.py`、`test_only_the_importer_writes_assets` |
+| `Carry` 下 Σn 与 Σx 之差 < 1 | 通过：每个流、每个前缀都满足 `0 ≤ Σx − Σn < 1`（精确有理数求和，2 万次调用含近 1 与极小的小数）| `test_carry_keeps_every_stream_within_one` |
+| `Seeded` 的流按名字分开，改一个流不影响其它流 | 通过（两种模式都检查）；C# 与 Python 移植在 .NET 下逐位一致 | `test_streams_are_independent`、`test_csharp_matches_the_port_bit_for_bit`、`test_csharp_streams_are_independent` |
+| 轨迹按 C1 的 `schema.py` 校验 | 通过：三个文件（加 `digests.txt`）按 manifest 的 sha256/字节数/行数与 schema 校验，并经 `simio.ingest` 导入 | `test_trace_files_validate_against_the_schema`、`test_daily_rows_follow_the_snapshots`、`test_events_follow_the_write_points` |
+| 摘要覆盖 2.6 | 通过：第 0–8 天每项属性的 Value/TotalValue、RPM、P、T、Location、物品（Key/Level/Copies/Evolved）、血量、K2/K3 与导出快照逐位相同；空策略下没有充能用量，冷却只有活动/VIP 刷怪点；两次运行第 0 天只差随机源一行 | `test_digest_covers_design_2_6`、`test_digests_differ_only_where_the_state_differs` |
+| 不改变 C3b/C1 的结果 | 通过：C3b 的引擎测试（除去失败型运行的两个）和 C1 的往返测试照常通过；空策略每 Tick 耗时（`engine-30` 慢阶段 p50 0.33 毫秒，`all-islands` 3.58 毫秒；FastTick p50 0.54 / 3.91 毫秒）与 16.3 相同量级 | `tests/unity/test_engine.py`、`tests/unity/test_export_roundtrip.py` |
 
 ### 17.7 与设计稿不同的地方
 

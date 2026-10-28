@@ -53,8 +53,12 @@ def ensure_built() -> Path:
 
 
 def run(commands: Sequence[Mapping[str, Any]]) -> list[dict]:
-    proc = subprocess.run([cscheck.dotnet(), str(ensure_built())], input=json.dumps(list(commands), allow_nan=True),
-                          capture_output=True, text=True)
+    return run_text(json.dumps(list(commands), allow_nan=True))
+
+
+def run_text(commands_json: str) -> list[dict]:
+    """As :func:`run`, with the commands as JSON text (to send number spellings Python would normalise)."""
+    proc = subprocess.run([cscheck.dotnet(), str(ensure_built())], input=commands_json, capture_output=True, text=True)
     if proc.returncode != 0:
         raise RuntimeError("rebuildcheck failed:\n" + proc.stderr[-4000:])
     return json.loads(proc.stdout)

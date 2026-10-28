@@ -104,6 +104,12 @@ def test_canonical_json_and_hash_match_python():
     for v, r in zip(values, results):
         assert r["text"] == req.canonical_json(v)
         assert r["hash"] == req.params_hash(v)
+    # Stable: member order and number spelling (1.0 vs 1.00, 1e1 vs 10.0) do not change the hash.
+    defaults = P.resolve(["defaults"]).params
+    shuffled = dict(reversed(list(defaults.items())))
+    texts = [json.dumps(shuffled), json.dumps(defaults).replace("120.0", "1.2e2").replace("20.0", "20.000")]
+    hashes = rebuildcheck.run_text("[" + ",".join('{"op": "canonical", "value": %s}' % t for t in texts) + "]")
+    assert {h["hash"] for h in hashes} == {P.resolve(["defaults"]).params_hash}
 
 
 @needs_dotnet
