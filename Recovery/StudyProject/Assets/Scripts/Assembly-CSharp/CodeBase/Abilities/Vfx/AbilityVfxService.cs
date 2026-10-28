@@ -121,63 +121,55 @@ namespace Codebase.Abilities.Vfx
 		{
 			// Native ELF VA 0x15e483c; cache owns successful original Addressables handles.
 			if (loadedPrefabs.TryGetValue(key, out ParticleSystem prefab)) return prefab;
+#if UNITY_EDITOR
+			prefab = LoadProjectPrefab(key);
+			if (prefab != null)
+			{
+				loadedPrefabs[key] = prefab;
+				return prefab;
+			}
+#endif
 			AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(key);
 			GameObject obj = handle.WaitForCompletion();
 			if (obj == null) return null;
 			prefab = obj.GetComponent<ParticleSystem>();
 			if (prefab == null) return null;
-#if UNITY_EDITOR
-			RebindBundleShaders(obj);
-#endif
 			handles[key] = handle;
 			loadedPrefabs[key] = prefab;
 			return prefab;
 		}
 
 #if UNITY_EDITOR
-		private static readonly Dictionary<string, Shader> editorShaders = new Dictionary<string, Shader>();
+		// Editor only: the recovered bundles are built for StandaloneWindows64 and their particle materials and
+		// textures render as white squares in the macOS (Metal) editor. Load the project's own copy of each prefab
+		// instead (Recovery/Evidence/addressables-recovered-asset-map.json; serialized trees match the originals).
+		private const string ProjectFxRoot = "Assets/Models/AssetsV2/ButcherMiningCave/FX/Prefabs/";
 
-		private static bool builtinExtraLoaded;
-
-		// Editor only: the recovered bundles are built for StandaloneWindows64, so the shaders baked into them
-		// have no Metal programs and fall back to opaque VertexLit (white squares on macOS).
-		// Point every bundle material at the editor's own shader of the same name (an asset the AssetDatabase knows).
-		private static void RebindBundleShaders(GameObject root)
+		private static readonly Dictionary<string, string> projectPrefabs = new Dictionary<string, string>
 		{
-			foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
-				foreach (Material material in renderer.sharedMaterials)
-				{
-					if (material == null || material.shader == null || UnityEditor.AssetDatabase.Contains(material)) continue;
-					if (UnityEditor.AssetDatabase.Contains(material.shader)) continue;
-					Shader local = FindEditorShader(material.shader.name);
-					if (local == null) continue;
-					int renderQueue = material.renderQueue;
-					material.shader = local;
-					material.renderQueue = renderQueue;
-				}
-		}
+			{ "Stunned.prefab", "Assets/JMO Assets/Epic Toon FX/Prefabs/Combat/Brawling/Stun/StunnedCirclingStars.prefab" },
+			{ "DeathEvasion.prefab", ProjectFxRoot + "DeathEvasion.prefab" },
+			{ "HealBig.prefab", ProjectFxRoot + "HealTrigger1.prefab" },
+			{ "HealSmall.prefab", ProjectFxRoot + "HealTriggerSmall.prefab" },
+			{ "ApplyMark.prefab", ProjectFxRoot + "Mark.prefab" },
+			{ "MegaLightning.prefab", ProjectFxRoot + "MegaLightning.prefab" },
+			{ "RageLevelUp1.prefab", ProjectFxRoot + "Rage_Stage_1.prefab" },
+			{ "RageLevelUp2.prefab", ProjectFxRoot + "Rage_Stage_2.prefab" },
+			{ "RageLevelUp3.prefab", ProjectFxRoot + "Rage_Stage_3.prefab" },
+			{ "ReflectionStrike.prefab", ProjectFxRoot + "ReflectionStrike.prefab" },
+			{ "ShockLightning.prefab", ProjectFxRoot + "ShockLightning.prefab" },
+			{ "ApplyShock.prefab", ProjectFxRoot + "Shocked.prefab" },
+			{ "SpeedupTrigger.prefab", ProjectFxRoot + "SpeedupTrigger.prefab" },
+			{ "SuperCrit_Blue.prefab", ProjectFxRoot + "SuperCrit_Blue.prefab" },
+			{ "SwordCrit.prefab", ProjectFxRoot + "SwordCrit_Slime.prefab" },
+			{ "SwordHit.prefab", ProjectFxRoot + "SwordHit_Slime.prefab" },
+		};
 
-		private static Shader FindEditorShader(string name)
+		private static ParticleSystem LoadProjectPrefab(string key)
 		{
-			if (editorShaders.TryGetValue(name, out Shader shader)) return shader;
-			shader = SearchEditorShader(name);
-			if (shader == null && !builtinExtraLoaded)
-			{
-				// Built-in extra shaders (e.g. Particles/Standard Unlit) are only in memory once something references them.
-				builtinExtraLoaded = true;
-				UnityEditor.AssetDatabase.LoadAllAssetsAtPath("Resources/unity_builtin_extra");
-				shader = SearchEditorShader(name);
-			}
-			if (shader == null) Debug.LogWarning("AbilityVfxService: no editor shader named " + name + " to replace the bundle copy");
-			editorShaders[name] = shader;
-			return shader;
-		}
-
-		private static Shader SearchEditorShader(string name)
-		{
-			foreach (Shader candidate in Resources.FindObjectsOfTypeAll<Shader>())
-				if (candidate.name == name && UnityEditor.AssetDatabase.Contains(candidate)) return candidate;
-			return null;
+			if (!projectPrefabs.TryGetValue(System.IO.Path.GetFileName(key), out string path)) return null;
+			GameObject obj = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+			return obj != null ? obj.GetComponent<ParticleSystem>() : null;
 		}
 #endif
 	}
