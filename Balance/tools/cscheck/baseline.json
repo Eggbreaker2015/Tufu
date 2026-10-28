@@ -1,0 +1,18 @@
+{
+  "schema": "tufu.cscheck.baseline/1",
+  "warnings": {
+    "Assembly-CSharp": {
+      "CS0105": 4,
+      "CS0169": 1343,
+      "CS0414": 10,
+      "CS0618": 10,
+      "CS0649": 2339,
+      "CS4014": 6,
+      "CS8632": 1
+    },
+    "Assembly-CSharp-Editor": {
+      "CS0649": 8
+    }
+  },
+  "no_editor_errors": []
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TieredPGO>true</TieredPGO>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Same Roslyn as Unity 6000.6.3f1 (DotNetSdk 8.0.318 ships Microsoft.CodeAnalysis.CSharp 4.10.0-3). -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[4.10.0]" />
+  </ItemGroup>
+
+</Project>
