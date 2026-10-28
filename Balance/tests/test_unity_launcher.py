@@ -77,6 +77,12 @@ def fake_tree(tmp_path, monkeypatch):
     _git(tree, "init", "-q")
     _git(tree, "-c", "user.name=t", "-c", "user.email=t@t", "add", "-A")
     _git(tree, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init")
+    # An editor the user has open on the main checkout would make the launcher skip restoring a changed real
+    # save (another editor may legitimately write it); the fake runs must not depend on that.
+    real_processes = launcher.unity_processes
+    main = (runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR).resolve()
+    monkeypatch.setattr(launcher, "unity_processes",
+                        lambda project: [] if Path(project).resolve() == main else real_processes(project))
     monkeypatch.setattr(launcher, "DLL_RULES", {
         name: {"expected": runner.sha256_file(project / "Assets" / "Plugins" / name), "damaged": "0" * 64}
         for name in runner.PROTECTED_DLLS})
