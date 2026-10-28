@@ -91,4 +91,5 @@ DP3 之后把 `model/interpolation_default.json` 的 `rounding` 从 `fma` 改成
 
 - G11：默认舍入下 K2、K3 仍是 109/109，SFF/PM/TF/TV 仍是 981/981，`G11.default.*` 不变；
 - G13：默认舍入下的计数与集合不变（79/108、104/108、79；76/78；13、43）；
-- 只有依赖默认舍入的指纹 `bake` 套件的 `oracle.raw_bits.default` 变了，带写明舍入切换的接受记录重新接受；其它基线都没有变。
+- G20：A 组 1380/1380 不变；
+- 只有两个按默认舍入取指纹的键变了：`bake` 套件的 `oracle.raw_bits.default`，`simcalc` 套件的 `G20.variant_b`（B 组重放，没有随包参照，第 115、127、140 天等的和在 1e-8 量级上变化）。两者都带写明舍入切换的接受记录重新接受；`exact` 键的任何变化对原版基线都算放宽，所以同时在 `loosening/bake.jsonl`、`loosening/simcalc.jsonl` 登记。其它基线都没有变。
