@@ -1,7 +1,9 @@
 """Launcher, run worktree and run_key (unit C0b). No Unity: a fake editor script plays its part.
 
 The fake editor (written to a temp dir) reads -projectPath/-logFile/-tufuSimRequest like the real one
-and behaves according to FAKE_UNITY_MODE: ok, stall, nobeat, exit:N, touch_dev, touch_real, dirty.
+and behaves according to FAKE_UNITY_MODE: ok, stall, nobeat, exit:N, touch_dev, touch_real, dirty. With
+-tufuSimServe it plays the resident editor: writes sandbox.json, serves the queue (each request's jobs get
+a manifest with exit FAKE_SERVE_EXIT; touch_real/touch_project fire while a request runs) until the stop file.
 """
 
 from __future__ import annotations
@@ -35,6 +37,44 @@ FAKE_UNITY = textwrap.dedent('''\
         beat.write_text(json.dumps({"pid": os.getpid(), "phase": "play:Job", "progress": progress}))
     mode = os.environ.get("FAKE_UNITY_MODE", "ok")
     modes = set(mode.split("+"))
+    if arg("-tufuSimServe"):
+        cfg = json.loads(Path(arg("-tufuSimServe")).read_text())
+        queue, report_dir = Path(cfg["queue_dir"]), Path(cfg["report_dir"])
+        if os.environ.get("FAKE_EDITOR_SANDBOX"):
+            pid = int(os.environ.get("FAKE_EDITOR_PID") or os.getpid())
+            (report_dir / "sandbox.json").write_text(json.dumps(
+                {"schema": "tufu.sim.sandbox/1", "entry": "serve", "pid": pid,
+                 "sandbox": json.loads(os.environ["FAKE_EDITOR_SANDBOX"])}))
+        served, n, deadline = [], 0, time.time() + 60
+        while time.time() < deadline and not (queue / "stop").exists():
+            n += 1
+            beat.write_text(json.dumps({"pid": os.getpid(), "phase": "edit:idle", "progress": str(n)}))
+            inbox = sorted((queue / "inbox").glob("*.json"))
+            if not inbox:
+                time.sleep(0.1)
+                continue
+            running = queue / "running" / inbox[0].name
+            inbox[0].rename(running)
+            r = json.loads(running.read_text())
+            code = int(os.environ.get("FAKE_SERVE_EXIT", "0"))
+            jobs = []
+            for job in r["jobs"]:
+                d = Path(r["out_dir"]) / job["job_id"]
+                d.mkdir(parents=True, exist_ok=True)
+                (d / "manifest.json").write_text(json.dumps({"job_id": job["job_id"], "exit_code": code}))
+                jobs.append({"job_id": job["job_id"], "exit_code": code})
+            if "touch_real" in modes:
+                Path(os.environ["FAKE_REAL_SAVE"]).write_text("changed")
+            if "touch_project" in modes:
+                (project / "ProjectSettings" / "ProjectSettings.asset").write_text("changed")
+            result = {"request": running.name, "exit_code": code, "jobs": jobs}
+            tmp = queue / "done" / ".result.tmp"
+            tmp.write_text(json.dumps(result))
+            tmp.rename(queue / "done" / (running.stem + ".result.json"))
+            running.rename(queue / "done" / running.name)
+            served.append(result)
+        (report_dir / "serve_report.json").write_text(json.dumps({"exit_code": 0, "served": served}))
+        sys.exit(0)
     if mode == "nobeat":
         time.sleep(60)
     write("0")
@@ -425,6 +465,92 @@ def test_invalid_request_is_refused_before_launch(fake_tree, monkeypatch):
         launcher.run(request, rev="HEAD", opts=fake_tree["opts"], out_root=fake_tree["out"], worktree=fake_tree["tree"],
                      run_tree=fake_tree["tree"], paths=fake_tree["paths"], log=lambda *_: None)
     assert e.value.code == launcher.EXIT_BAD_REQUEST
+
+
+# ---------------------------------------------------------------- resident mode with the fake editor
+
+@pytest.fixture
+def serve_tree(fake_tree, monkeypatch):
+    """fake_tree plus a stop at teardown, so a failing test never leaves a fake resident editor behind."""
+    monkeypatch.setenv("FAKE_REAL_SAVE", str(fake_tree["real"] / "save" / "game_data.bin"))
+    yield fake_tree
+    if launcher._serve_state_path(fake_tree["tree"]).exists():
+        launcher.serve_stop(run_tree=fake_tree["tree"], opts=fake_tree["opts"], wait_s=10, log=lambda *_: None)
+
+
+def _serve_start(ft, monkeypatch, mode="ok", sandbox=True, **env):
+    monkeypatch.setenv("FAKE_UNITY_MODE", mode)
+    if sandbox:
+        monkeypatch.setenv("FAKE_EDITOR_SANDBOX", json.dumps(_proven_sandbox(ft["paths"].save_dir)))
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    return launcher.serve_start(rev="HEAD", identity="TufuSimFakeTest", opts=ft["opts"], worktree=ft["tree"],
+                                run_tree=ft["tree"], out_root=ft["out"], paths=ft["paths"], ready_wait_s=20,
+                                log=lambda *_: None)
+
+
+def _serve_submit(ft):
+    request = req.make_request([req.empty_job("fake")], sandbox={"identity": "TufuSimFakeTest"})
+    return launcher.serve_submit(request, run_tree=ft["tree"], worktree=ft["tree"], opts=ft["opts"],
+                                 out_root=ft["out"], timeout_s=30, log=lambda *_: None)
+
+
+def _serve_stop(ft):
+    return launcher.serve_stop(run_tree=ft["tree"], opts=ft["opts"], wait_s=20, log=lambda *_: None)
+
+
+def test_fake_serve_clean(serve_tree, monkeypatch):
+    state = _serve_start(serve_tree, monkeypatch)
+    assert state["main_editors"] == [] and state["paths"]["save_dir"] == str(serve_tree["paths"].save_dir)
+    result = _serve_submit(serve_tree)
+    assert result.exit_code == 0 and result.report["guard_problems"] == []
+    assert json.loads((result.run_dir / "fake" / "manifest.json").read_text())["exit_code"] == 0
+    out = _serve_stop(serve_tree)
+    assert out["guard_problems"] == [] and out["editor_exit_code"] == 0 and out["served"] == 1
+    assert not (Path(state["serve_dir"]) / "_real_backup").exists()
+
+
+def test_fake_serve_real_save_written_by_main_editor_is_attributed(serve_tree, monkeypatch):
+    """The user plays in the main checkout's editor while the resident editor serves: every submit and the
+    stop record the real-save change under that editor, never restore it, keep the backup, exit 0."""
+    _main_editor(monkeypatch)
+    state = _serve_start(serve_tree, monkeypatch, "touch_real")
+    assert state["main_editors"] == [424242]
+    assert json.loads((Path(state["serve_dir"]) / "sandbox.json").read_text())["pid"] == state["pid"]
+    for _ in range(2):
+        result = _serve_submit(serve_tree)
+        assert result.exit_code == 0, result.report
+        assert result.report["real_changed_by_main_editor"] == ["real save file changed: game_data.bin"]
+        assert result.report["guard_problems"] == [] and result.report["main_checkout_editors"] == [424242]
+    out = _serve_stop(serve_tree)
+    assert out["guard_problems"] == [] and out["restored"] == []
+    assert out["real_changed_by_main_editor"] == ["real save file changed: game_data.bin"]
+    assert (serve_tree["real"] / "save" / "game_data.bin").read_text() == "changed"
+    assert (Path(state["serve_dir"]) / "_real_backup" / "save_dir" / "game_data.bin").read_text() == "original"
+
+
+@pytest.mark.parametrize("mode, sandbox, present, env, also", [
+    ("touch_real", False, lambda n: True, {}, None),                              # no sandbox proof
+    ("touch_real", True, lambda n: True, {"FAKE_EDITOR_PID": "99"}, None),         # proof from another pid
+    ("touch_real", True, lambda n: n > 1, {}, None),                              # editor appeared after start
+    ("touch_real", True, lambda n: n == 1, {}, None),                             # editor gone by the submit
+    ("touch_real", True, lambda n: True, {"FAKE_SERVE_EXIT": "1"}, None),         # the job did not finish cleanly
+    ("touch_real+touch_project", True, lambda n: True, {}, "project file changed on disk"),
+])
+def test_fake_serve_real_save_change_without_attribution_fails(serve_tree, monkeypatch, mode, sandbox, present, env,
+                                                               also):
+    _main_editor(monkeypatch, present)
+    state = _serve_start(serve_tree, monkeypatch, mode, sandbox, **env)
+    result = _serve_submit(serve_tree)
+    assert result.exit_code == launcher.EXIT_GUARD
+    assert "real_changed_by_main_editor" not in result.report
+    assert "real save file changed: game_data.bin" in result.report["guard_problems"]
+    if also:
+        assert any(also in p for p in result.report["guard_problems"])
+    out = _serve_stop(serve_tree)
+    assert "real_changed_by_main_editor" not in out and out["guard_problems"]
+    if not out["restored"]:
+        assert (Path(state["serve_dir"]) / "_real_backup" / "save_dir" / "game_data.bin").read_text() == "original"
 
 
 # ---------------------------------------------------------------- sandbox hooks in game code

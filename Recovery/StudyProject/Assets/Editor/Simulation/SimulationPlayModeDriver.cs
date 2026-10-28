@@ -145,7 +145,26 @@ namespace Codebase.Simulation.EditorTools
 				Finish(SimulationBatch.ExitGuard);
 				return false;
 			}
+			WriteSandboxProof();
 			return true;
+		}
+
+		// <out_dir>/sandbox.json: the sandbox section as soon as the rename is proven, with this editor's pid.
+		// The launcher reads it to attribute real-save writes to the user's own editor while this one is
+		// still running (serve mode); run mode also gets it, next to editor_report.json.
+		private static void WriteSandboxProof()
+		{
+			string outDir = SessionState.GetString(P + "out_dir", "");
+			if (string.IsNullOrEmpty(outDir)) return;
+			Directory.CreateDirectory(outDir);
+			var proof = new JObject
+			{
+				["schema"] = "tufu.sim.sandbox/1",
+				["entry"] = SessionState.GetString(P + "entry", ""),
+				["pid"] = Process.GetCurrentProcess().Id,
+				["sandbox"] = LoadReport()["sandbox"],
+			};
+			SimulationJson.WriteText(Path.Combine(outDir, "sandbox.json"), Indented(proof));
 		}
 
 		private static string PlistPath(string company, string product) =>
