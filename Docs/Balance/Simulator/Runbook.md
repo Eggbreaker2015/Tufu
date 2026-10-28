@@ -405,6 +405,7 @@ python -m tufu_balance.unity status                         # 锁、运行工作
 pytest --unity tests/unity                                  # 环境变量 TUFU_UNITY_REV、TUFU_UNITY_NOGRAPHICS=1
 ```
 
+- **前提：抽取好的数据库**。请求的 `sandbox.expected_ready_spawners` 默认是 `"auto"`（C1，见第 14 节），启动器要从 `$TUFU_BALANCE_DB`（没有时 `Balance/out/balance.sqlite`）生成就绪核对表，`selftest` 也一样；数据库不存在时以退出码 5 拒绝。没有数据库又要跑时，在请求里把 `expected_ready_spawners` 显式设为 `null`（不做这项核对）。
 - `--rev` 默认是 `tufu_balance` 所在工作树的 HEAD：先提交，再运行。运行工作树检出到该提交（游离 HEAD），检出前后都要求 `git status --porcelain -uall` 为空。
 - `--dev` 在当前工作树里跑，要求它有 `Library`（单元工作树没有），结果不进缓存；Unity 退出后工作树的改动状态变了就退出码 7。
 - 输出在 `Balance/out/sim/runs/<run_key>/`：`request.json`、`unity.log`、`editor_report.json`（编辑器侧：改名探针、守卫基线、各作业结果）、`launcher.json`（启动器侧：命令、耗时、真实存档核对、网络采样、日志扫描），以及每个作业的 `<job_id>/{manifest.json, ready_spawners.csv, asset_guard.json, timings.json, unity.log}`。除 `timings.json` 外都可以逐字节比较。

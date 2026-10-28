@@ -13,10 +13,11 @@ C1 单元的说明：C# 导出器、Python 导入、旁路文件的格式、刷�
 | `snapshots_ext.csv` | `snapshots_ext`（开，随 `simulation_data`）| 完整列表里每个快照一行：`list,index,exported_index,time_chunk_index,playtime,total_playtime,location,unlocked_weapon_slots,unlocked_armor_slots,current_health`。`exported_index` 是它在 `simulation_data.json` 里的序号（被裁掉为空）；后三列由引擎记录，没有记录时为空 |
 | `items_ext.csv` | `items_ext`（开）| 每个快照的每件物品：`list,index,item_index,key,level,copies,evolved,evolution_level`。前几列取自快照的 `Items`，`evolved`、`evolution_level` 来自引擎的记录，没有时为空 |
 | `shipped/simulation_data.json` | `shipped_simulation_data`（关）| 随包 `Simulation Data` 资产走同一个导出器，往返测试的参照 |
+| `shipped/snapshots_ext.csv`、`shipped/items_ext.csv` | 同上 | 探针：用真正的写出函数，对随包的两个列表写旁路文件。`TimeChunkSnapshots` 按"位置 i % 3 != 1 的保留"裁剪后算 `exported_index`；引擎记录用一套合成规则（`Snapshots[i]` 在 i % 4 != 3 时、`TimeChunkSnapshots[i]` 在 i % 5 != 2 时记录；武器槽 i % 6、护甲槽取 `Location`、血量 `TotalPlaytime / 3.0`、第 k 件物品 `evolved = (i + k) % 2 == 0`、`evolution_level = Level * 10 + Copies`；`Snapshots[1]` 故意少记一件物品，进化列应为空并在探针的 `problems` 里写明）。规则写在 `SimulationExport.WriteShippedProbe`，测试按同一规则从 `balance.sqlite` 独立算出每一行比较。这样在 C3b 产出快照之前，每一列、`ExportedIndices`（含"不是子序列时返回 null"）都已经在真实数据上跑过 |
 
-manifest 里加一个 `export` 对象（只在导出了文件时出现，所以 selftest 的 manifest 不变）：`schema`（`tufu.sim.export/1`）、`files`（每个文件的 `sha256`、`bytes`；快照文件另有 `doubles`、`floats`、`nans`、`bits_sha256`，CSV 有 `rows`）、`time_chunk_trim`、`trim_simulation_data`、`snapshots`、`time_chunk_snapshots_full`、`recorded_snapshot_ext`、`problems`，以及 `shipped_twice_identical`、`shipped_asset`。
+manifest 里加一个 `export` 对象（只在导出了文件时出现，所以 selftest 的 manifest 不变）：`schema`（`tufu.sim.export/1`）、`files`（每个文件的 `sha256`、`bytes`；快照文件另有 `doubles`、`floats`、`nans`、`bits_sha256`，CSV 有 `rows`）、`time_chunk_trim`、`trim_simulation_data`、`snapshots`、`time_chunk_snapshots_full`、`recorded_snapshot_ext`、`problems`，以及 `shipped_twice_identical`、`shipped_asset`、`shipped_probe`（`trim_rule`、`record_rule`、`trimmed`、`recorded`、`not_subsequence_is_null`、`problems`）。
 
-**给 C3b 的接口**：`SimulationSnapshot` 里没有的状态由 `MakeSnapshot` 在追加快照后调用 `SimulationExport.RecordSnapshot(timeChunkList, index, ext)` 记下（`index` 是在 `config.Snapshots` 或 `config.TimeChunkSnapshots` 里的位置，`ext.Items` 与快照的 `Items` 同序）；开始一次新的运行、新建列表时调用 `SimulationExport.ResetRecorder()`。记录的物品与快照的 `Items` 对不上时，该快照的进化列留空，`export.problems` 写明。
+**给 C3b 的接口**：`SimulationSnapshot` 里没有的状态由 `MakeSnapshot` 在追加快照后调用 `SimulationExport.RecordSnapshot(timeChunkList, index, ext)` 记下（`index` 是在 `config.Snapshots` 或 `config.TimeChunkSnapshots` 里的位置，`ext.Items` 与快照的 `Items` 同序）；开始一次新的运行、新建列表时调用 `SimulationExport.ResetRecorder()`。作为兜底，`SimulationHarness.StartJob` 在每个作业开始时也调用一次，所以上一个作业的记录不会带进下一个（2.6；`in_session` 模式下静态字段不随域重载清空）。记录的物品与快照的 `Items` 对不上时，该快照的进化列留空，`export.problems` 写明。
 
 ## 2. 数值格式
 
@@ -32,14 +33,16 @@ manifest 里加一个 `export` 对象（只在导出了文件时出现，所以 
 python -m tufu_balance.unity ingest <job_dir> [--db PATH]     # → <job_dir>/sim.sqlite
 ```
 
-- 先按 `schema.py` 校验 manifest（未知的顶层键、`export` 键、文件名都报错），校验快照文件的 sha256 与逐位摘要。
+- 先按 `schema.py` 校验 manifest：未知的顶层键、`export` 键、`export.files` 的文件名和键、`export.shipped_probe` 的键都报错；`.json` 条目必须有 `doubles`、`floats`、`nans`、`bits_sha256`，`.csv` 条目必须有 `rows`。**严格只到这一层**：C0b 写的嵌套对象（`ready`、`sandbox`、`ab`、`unity`、`counts`、`selfcheck` 等）只检查是对象，里面的字段不校验，它们的内容由 C0b 的测试负责。
+- `export.files` 列出的每个文件都要存在，sha256 与字节数相同，CSV 的数据行数等于 `rows`；目录里有 C1 的文件（`EXPORT_FILES`）而 manifest 没列出，也报错。快照文件再按逐位摘要核对，缺摘要的键不会跳过而是报错。
 - `simulation_data.json` 先变成"抽取器从 Unity 的 YAML 里读到的样子"，再走 `extract.add_record_tables` 和同一个枚举解码器（`Key__name`、`WeaponType__name`），用抽取器的 `cell`、`sql_type` 和列名规则写表。"YAML 的样子"指：
   - float32 字段（`Playtime`、`TotalPlaytime`）取它最短往返十进制文本对应的 double，这正是 Unity 写进 YAML、抽取器读出的值；
   - 有限的整数值（|x| < 1e15）变成整数，Unity 把 100.0 写成 `100`；
   - NaN 存成文本 `nan`，与抽取器相同。
 - 表：`c_SimulationData`、`c_SimulationData__Snapshots`、`…__Stats`、`…__Items`、`…__DpsData`、`…__DefenseData` 及 `TimeChunkSnapshots` 的同名表，`asset`/`asset_name` 默认取随包资产的（`MonoBehaviour/Simulation Data.asset`、`Simulation Data`），所以按名字选资产的现有工具读模拟结果不用改；`timechunk_full.json` 进 `c_SimulationDataFull*`；旁路文件进 `sim_snapshots_ext`、`sim_items_ext`、`sim_ready_spawners`、`sim_daily`、`sim_digests`、`sim_events`（公共列加 `data` JSON）、`sim_manifest`。
-- 与抽取器一样，**空列表**不生成子表，而是父表里一个值为 `[]` 的列。`model.data.load_simulation_data` 在这种库上会因为缺表而失败；有快照的运行不受影响。
-- `simio.compare_tables(a, b)` 逐表、逐行（rowid 顺序）比较：列名与声明类型、行数、每个值的存储类型都要相同；REAL 逐位相同，float32 字段按 `f32` 比较（另计逐位相同的个数）；NaN 位置相同。
+- 与抽取器一样，**空列表**在父表里是一个值为 `[]` 的列。抽取器此时不建子表；导入则把缺的子表按抽取器的列名（`simio.snapshot_table_layout`，由 `STRUCT_FIELDS` 推出）建成空表，所以任一列表为空（`Snapshots`、`TimeChunkSnapshots`，或所有快照的 `Items` 都为空）时 `load_simulation_data` 读出空列表，而不是因为缺表失败。空表的列没有数据，声明类型一律是 `TEXT`。
+- `-0.0` 存成整数 `0`：与抽取器一致（Unity 的 YAML 写 `-0`，YAML 读成整数 0）。逐位摘要按 JSON 文本核对，`-0.0` 的符号在那里是保留的；只有落表时丢掉。随包数据里没有 `-0.0`。
+- `simio.compare_tables(a, b)` 逐表、逐行（rowid 顺序）比较：列名与声明类型、行数、每个值的存储类型都要相同；REAL 逐位相同，float32 字段按 `f32` 比较（另计逐位相同的个数）；NaN 位置相同。每一处不同是 `differences` 里带 `problem` 的一条。它本身有故障注入测试（`tests/test_simio.py::test_compare_tables_reports_each_planted_fault`）：在随包表的副本里分别埋下差 1 ulp 的 double、差 1 ulp 的 float32、改动的 `Key__name` 与 `asset_name`、挪了位置的 NaN、少一行，以及无类型列里同值不同存储类型，每一种都要恰好报出对应的那一条。
 
 ## 4. 旁路文件的格式（`tufu_balance.unity.schema`）
 
@@ -72,7 +75,7 @@ python -m tufu_balance.unity spawner-map [--out CSV]     # scene,file_id,path,ke
 | 随包资产经 C# 导出、`simio` 导入后 `c_SimulationData__*` 与 `balance.sqlite` 相同 | 通过：11 张表、59210 个值；double 逐位；218 个 float32 值按 `f32` 相同，并且全部逐位相同；60 个 NaN 位置相同；4360 个 `__name` 相同 | `tests/unity/test_export_roundtrip.py::test_shipped_data_round_trips_through_the_csharp_exporter` |
 | 编辑器内存里的每个 float/double 与资产 YAML 的值逐位相同 | 通过：20710 个 double、218 个 float、60 个 NaN，摘要相同 | 同上 |
 | `load_simulation_data(connect(sim.sqlite))` 与从 `balance.sqlite` 读出的相等 | 通过（`repr` 逐字相同，NaN 也算）| 同上；不经 Unity 的同一检查：`tests/test_simio.py` |
-| 旁路文件按 `schema.py` 校验，未知字段报错 | 通过 | `tests/test_simio.py` 的 schema 测试、`test_job_outputs_ingest_and_validate` |
+| 旁路文件按 `schema.py` 校验，未知字段报错 | 通过；C# 写出的旁路文件在随包数据上逐行核对（探针）| `tests/test_simio.py` 的 schema 测试、`test_job_outputs_ingest_and_validate`、`test_shipped_side_files_follow_the_probe` |
 | 同一数据导出两次逐字节相同 | 通过：同一 Play 里两次相同，两个作业（两次 Play）的全部导出文件相同 | `test_export_is_byte_identical_twice` |
 | 刷怪点映射覆盖全部运行时注册的刷怪点，差集单列 | 通过：716/716，差集 1 个 | `test_runtime_spawners_match_the_identity_map`、`tests/test_simio.py::test_spawner_identity_map` |
 | C0b 遗留：就绪核对用 P6 的表 | 通过：716 个比较、0 个不符 | `test_readiness_gate_uses_p6s_table`、`test_sandbox.py::test_ab_groups_fixed_to_the_request` |
@@ -88,3 +91,5 @@ python -m tufu_balance.unity spawner-map [--out CSV]     # scene,file_id,path,ke
 - 1.4.3 说 double 用 `"R"`：Mono 的 `"R"` 不保证往返，也不是最短，所以加了解析核对与 `G17` 后备，并在 manifest 里加了逐位摘要。
 - 1.4.3 的 `snapshots_ext.csv`/`items_ext.csv` 只列了内容；这里定了列名，并加了 `exported_index`、`time_chunk_index`、`playtime` 等连接用的列。`daily.csv`、`events.jsonl`、`digests.csv` 的列由本单元先定，C3c 可以追加。
 - `rebuild_coverage.json` 不在本单元范围内（没有写）。
+- 改了 C0b 的文件（7.4 的交接，由 Z1 记进设计稿）：`launcher.py`、`request.py`（`"auto"` 就绪表，C0b 遗留 a）、`SimulationJson.cs`（JSON 数值带 `.0`，遗留 b）、`SimulationHarness.cs`（manifest 的 `expected_table.path` 按请求写的名字记录；`StartJob` 里调 `SimulationExport.ResetRecorder()`）、`__main__.py`（`ingest`、`spawner-map` 两个命令）、`tests/test_unity_launcher.py`（假运行不受主检出上打开的编辑器影响）、`tests/unity/test_sandbox.py`（`test_ab_groups_fixed_to_the_request` 现在期望 `expected_table` 为 checked、716 个比较、0 个不符；`test_request_round_trip_through_csharp` 按类型严格比较）、Runbook 第 10、14 节。
+- `selftest` 现在也需要抽取好的数据库（见 Runbook 第 10 节）。
