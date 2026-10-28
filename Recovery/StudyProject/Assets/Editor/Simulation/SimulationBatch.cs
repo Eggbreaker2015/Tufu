@@ -435,7 +435,9 @@ namespace Codebase.Simulation.EditorTools
             }
             finally
             {
-                // Restore the real names in the same call as Exit: nothing in the game can write between the two.
+                // Flush PlayerPrefs set without Save() during Play (e.g. Boot's game_loaded_once) into the sandbox
+                // domain, then restore the real names in the same call as Exit: nothing can write between the two.
+                if (SessionState.GetBool(Prefix + "renamed", false)) PlayerPrefs.Save();
                 LeaveSandbox();
                 if (!string.IsNullOrEmpty(outDir)) File.WriteAllText(Path.Combine(outDir, "spike_report.txt"), report.ToString());
                 SessionState.EraseBool(Prefix + "active");
