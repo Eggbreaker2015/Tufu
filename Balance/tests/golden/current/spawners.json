@@ -1,0 +1,556 @@
+{
+ "expectations": {
+  "G17.ab_override": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 569
+  },
+  "G17.count_zero": {
+   "kind": "set",
+   "note": "",
+   "source": "G17",
+   "value": [
+    [
+     "BossTower",
+     15
+    ]
+   ]
+  },
+  "G17.dafc": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 25
+  },
+  "G17.elite": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 33
+  },
+  "G17.event": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 6
+  },
+  "G17.gate_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 17
+  },
+  "G17.is_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 609
+  },
+  "G17.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 717
+  },
+  "G17.slot_rewards": {
+   "kind": "set",
+   "note": "slot, go_name, island, gate NextLocationNumbers",
+   "source": "G17",
+   "value": [
+    [
+     "helmet_1",
+     "dragon",
+     4,
+     [
+      5,
+      5
+     ]
+    ],
+    [
+     "shield_1",
+     "Spawner_boss (3)",
+     5,
+     [
+      6,
+      6
+     ]
+    ],
+    [
+     "weapon_2",
+     "Spawner_boss_pier_common_slot",
+     1,
+     [
+      2
+     ]
+    ]
+   ]
+  },
+  "G17.static": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 362
+  },
+  "G17.vip": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17",
+   "value": 10
+  },
+  "G17b.charges_per_unit": {
+   "kind": "exact",
+   "note": "AB charges per unit: non-elite, elite (no overrides)",
+   "source": "G17b",
+   "value": [
+    3,
+    2
+   ]
+  },
+  "G17b.cooldown_defaults": {
+   "kind": "exact",
+   "note": "minutes beyond the overrides (islands 14+ non-elite, 5+ elite)",
+   "source": "G17b",
+   "value": [
+    30.0,
+    180.0
+   ]
+  },
+  "G17b.elite_cooldown_minutes": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17b",
+   "value": [
+    60.0,
+    90.0,
+    120.0,
+    150.0
+   ]
+  },
+  "G17b.fast_rpm_A": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17b",
+   "value": [
+    10.0,
+    1.0
+   ]
+  },
+  "G17b.fast_rpm_B": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17b",
+   "value": [
+    15.0,
+    5.0
+   ]
+  },
+  "G17b.item_charges_by_rarity": {
+   "kind": "set",
+   "note": "[rarity, ChargesTotal, spawners]; the 0 is one Common spawner with ChargesBeforeBigRespawn 0",
+   "source": "G17b",
+   "value": [
+    [
+     "Common",
+     0,
+     1
+    ],
+    [
+     "Common",
+     8,
+     39
+    ],
+    [
+     "Epic",
+     2,
+     21
+    ],
+    [
+     "Legendary",
+     1,
+     12
+    ],
+    [
+     "Rare",
+     4,
+     24
+    ],
+    [
+     "Uncommon",
+     6,
+     30
+    ]
+   ]
+  },
+  "G17b.item_spawners": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17b",
+   "value": 127
+  },
+  "G17b.non_elite_cooldown_minutes": {
+   "kind": "exact",
+   "note": "",
+   "source": "G17b",
+   "value": [
+    4.0,
+    6.0,
+    8.0,
+    10.0,
+    12.0,
+    14.0,
+    16.0,
+    18.0,
+    20.0,
+    22.0,
+    24.0,
+    26.0,
+    28.0
+   ]
+  },
+  "P17.boss_by_location": {
+   "kind": "exact",
+   "note": "[go_name, scene, file_id] per island 1-17",
+   "source": "P17/B11",
+   "value": {
+    "1": [
+     "Spawner_boss_pier_common_slot",
+     "Scenes/Main.unity",
+     59647
+    ],
+    "10": [
+     "Spawner_boss_piercing_legendary",
+     "Scenes/Main.unity",
+     60785
+    ],
+    "11": [
+     "Spawner_boss_smash_legendary",
+     "Scenes/Main.unity",
+     56866
+    ],
+    "12": [
+     "Spawner_boss_cut_legendary",
+     "Scenes/Main.unity",
+     60381
+    ],
+    "13": [
+     "Spawner_boss (3)",
+     "Scenes/Main.unity",
+     59107
+    ],
+    "14": [
+     "Spawner_boss (3)",
+     "Scenes/Main.unity",
+     59221
+    ],
+    "15": [
+     "Spawner_15_boss",
+     "Scenes/Main.unity",
+     56073
+    ],
+    "16": [
+     "Spawner_16_boss",
+     "Scenes/Main.unity",
+     59860
+    ],
+    "17": null,
+    "2": [
+     "Spawner_boss_smash_uncommon",
+     "Scenes/Main.unity",
+     56036
+    ],
+    "3": [
+     "Spawner_boss_cut_rare",
+     "Scenes/Main.unity",
+     56453
+    ],
+    "4": [
+     "dragon",
+     "Scenes/Main.unity",
+     56293
+    ],
+    "5": [
+     "Spawner_boss (3)",
+     "Scenes/Main.unity",
+     59827
+    ],
+    "6": [
+     "Spawner_boss (3)",
+     "Scenes/Main.unity",
+     57324
+    ],
+    "7": [
+     "Spawner_boss (3)",
+     "Scenes/Main.unity",
+     56351
+    ],
+    "8": [
+     "Spawner_boss (3)",
+     "Scenes/Main.unity",
+     59894
+    ],
+    "9": [
+     "Spawner_boss_dragon_rare_buck_shield (3)",
+     "Scenes/Main.unity",
+     58652
+    ]
+   }
+  },
+  "P17.other_gates": {
+   "kind": "set",
+   "note": "[go_name, island, NextLocationNumber] for gates not leading to island + 1",
+   "source": "P17/B11",
+   "value": [
+    [
+     "Spawner_boss (3)",
+     13,
+     2
+    ],
+    [
+     "Spawner_boss (3)",
+     4,
+     1
+    ],
+    [
+     "Spawner_boss_cut_legendary",
+     12,
+     7
+    ],
+    [
+     "Spawner_boss_smash_legendary",
+     11,
+     8
+    ]
+   ]
+  },
+  "limit.classes": {
+   "kind": "exact",
+   "note": "AB non-elite 3*Count, AB elite 2*Count, DAFC Count, item ChargesBeforeBigRespawn",
+   "source": "7.3 P6",
+   "value": {
+    "ab_elite": 33,
+    "ab_non_elite": 512,
+    "dafc": 25,
+    "event": 6,
+    "item": 127,
+    "other": 14
+   }
+  },
+  "ready.alive": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": 699
+  },
+  "ready.base_cooldown_hist": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6",
+   "value": {
+    "1.0": 1,
+    "1080.0": 28,
+    "10800.0": 41,
+    "1200.0": 46,
+    "1320.0": 54,
+    "1440.0": 32,
+    "14400.0": 6,
+    "1560.0": 32,
+    "1680.0": 26,
+    "1800.0": 148,
+    "2.0": 1,
+    "21600.0": 6,
+    "240.0": 24,
+    "2700.0": 18,
+    "3.0": 2,
+    "30.0": 1,
+    "360.0": 23,
+    "3600.0": 13,
+    "480.0": 37,
+    "5.0": 3,
+    "5400.0": 13,
+    "60.0": 12,
+    "600.0": 26,
+    "720.0": 35,
+    "7200.0": 10,
+    "840.0": 43,
+    "9000.0": 1,
+    "960.0": 34
+   }
+  },
+  "ready.c0a_runtime_equal": {
+   "kind": "exact",
+   "note": "C0a run fix1_6288800, ChargesTotal/BaseCooldown/alive",
+   "source": "DP6",
+   "value": 716
+  },
+  "ready.charges_total_hist": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP6",
+   "value": {
+    "0": 6,
+    "1": 12,
+    "12": 9,
+    "15": 14,
+    "18": 12,
+    "2": 54,
+    "21": 2,
+    "24": 5,
+    "3": 460,
+    "30": 4,
+    "4": 29,
+    "42": 1,
+    "6": 48,
+    "60": 1,
+    "8": 39,
+    "9": 20
+   }
+  },
+  "ready.csv_sha256": {
+   "kind": "exact",
+   "note": "expected_ready_spawners('A') as written into the request",
+   "source": "DP6",
+   "value": "5d87da5f440af2651399f947d7addd0706eadb1678ff4e68e728dfa6c9c767f3"
+  },
+  "ready.exceptions": {
+   "kind": "set",
+   "note": "[scene, file_id, Key, reason]",
+   "source": "Runbook 6.1",
+   "value": [
+    [
+     "Scenes/Main.unity",
+     55990,
+     "Eventspawner_MiniBoss_ae45f65b28328c04abd43feb495413ee",
+     "event"
+    ],
+    [
+     "Scenes/Main.unity",
+     56686,
+     "Spawner_vip_3 (5)_e70d19cf3d8e3e64d9b9db8aa059b8fc",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     56885,
+     "EventSpawner_Golem_7e65cdc0b256ba64cbd2582453fb62e3",
+     "event"
+    ],
+    [
+     "Scenes/Main.unity",
+     56899,
+     "Spawner_vip_3 (2)_c8f8e260e3f23f945adb106f26492c4a",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     56955,
+     "BossTower_c296e152609ae5849bb7d52b03df895a",
+     "count0"
+    ],
+    [
+     "Scenes/Main.unity",
+     57516,
+     "Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507",
+     "event"
+    ],
+    [
+     "Scenes/Main.unity",
+     57614,
+     "Spawner_vip_3 (1)_df1e8a9d53ff1484b89c230a01eeab01",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     57790,
+     "Eventspawner_MiniBoss_cf6afea22c3937646951d9e2210526c3",
+     "event"
+    ],
+    [
+     "Scenes/Main.unity",
+     57810,
+     "Spawner_Dummy_b310762d24f050b4a8be8d6dcb3f77c0",
+     "dummy"
+    ],
+    [
+     "Scenes/Main.unity",
+     58431,
+     "Spawner_vip_6 (5)_1276dc64a7eb1524da1d2aabbf873590",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     58697,
+     "Spawner_vip_6 (3)_580930aa017a6e449891063b97482f2e",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     58995,
+     "EventSpawner_Golem_ce1ad032a769cfd48a6852cb69f1c7d9",
+     "event"
+    ],
+    [
+     "Scenes/Main.unity",
+     59149,
+     "Spawner_vip_6 (4)_563705905f59ae749847a18e2c751ba8",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     59415,
+     "Spawner_vip_3 (4)_356f96918ed5cfa42831b2fa3a3c6e44",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     60353,
+     "Spawner_vip_6 (1)_3345ab5ae0c7c464a8dd86a537cd4e7b",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     60405,
+     "Spawner_vip_6 (2)_2d8760af197e55b479c47335026c4eca",
+     "vip"
+    ],
+    [
+     "Scenes/Main.unity",
+     60441,
+     "Spawner_vip_3 (3)_f1e0353e6aaa26b4599e49e5eb0c7d04",
+     "vip"
+    ]
+   ]
+  },
+  "ready.no_unit_reasons": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": {
+    "count0": 1,
+    "dummy": 1,
+    "event": 5,
+    "vip": 10
+   }
+  },
+  "ready.registered": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": 716
+  },
+  "ready.unregistered": {
+   "kind": "set",
+   "note": "the inactive duplicate Eventspawner_Boss",
+   "source": "Runbook 6.1",
+   "value": [
+    [
+     "Scenes/Main.unity",
+     57694,
+     "Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507"
+    ]
+   ]
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "spawners"
+}
