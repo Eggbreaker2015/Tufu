@@ -41,7 +41,7 @@ from ..model import items as IT
 from ..model import spawners as SP
 from ..model.defense import (apply_damage_defense, get_battle_regen, solve_attack_damage_for_incoming,
                              weapon_type_to_defence)
-from ..model.enums import BalanceInterpolationType, Rarity, StatType, WeaponType
+from ..model.enums import Rarity, StatType, WeaponType
 from ..model.f32 import bits32, f32, r32, ulp_diff32
 from ..model.interpolation import ROUNDINGS, Rounding
 from ..model.snapshots import SimulationData, SimulationSnapshot
@@ -575,7 +575,6 @@ def compare_dp5(out: Mapping, con: sqlite3.Connection, rounding: Rounding | str 
                            "new_health_raw_explained_by_mono": 0, "new_health_raw_rel_diff_max": 0.0}
     seen = set()
     for c in out["spawners"]:
-        path, key = c["id"].rsplit("|", 1)
         e = identity.by_runtime_id.get(c["id"])
         if e is None:
             res["unknown"].append(c["id"])
