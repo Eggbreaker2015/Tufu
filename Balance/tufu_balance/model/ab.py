@@ -9,6 +9,14 @@ returns the requested variant for every test that has a non-empty ``rules`` stri
 rules (``rewarded_delay_from_start``, ``level_pass``) are never applied and stay unassigned. A test
 whose assigned variant has no data uses the C# class defaults (``GetOrCreateDefaultValue``).
 
+Variant data reaches the game as JSON: ``ABTestInitializer.ApplyDevelopTests`` serializes the asset with
+``ABTestDataConfig.BuildDataJson`` and ``ABTestDataGroup.ApplyRemote`` reads it back with
+``JsonConvert.DeserializeObject<Dictionary<string, T>>`` (default ``ObjectCreationHandling.Auto``, no
+global settings in the code). Newtonsoft populates the object a ``new T()`` already holds, so every
+``overridesByLocation`` (a ``Dictionary`` subclass) is the field-initialized class-default dictionary with
+the asset entries added on top (asset wins per key); scalars are replaced. :func:`_value_by_location`
+builds the same merge.
+
 ``overridesByLocation`` is a ``UnitySerializedDictionary``: ``keyData`` is a ``List<int>`` that Unity
 writes as one hex blob of little-endian int32s. Databases extracted before the extractor fix
 (design Q27) hold an all-digit blob such as ``01000000020000000300000004000000`` as the float
@@ -47,6 +55,7 @@ AB_KEYS = {
 SPAWNER_COOLDOWNS = AB_KEYS["spawnerCooldowns"]
 ENEMY_HP_DAMAGE_MULT = AB_KEYS["enemyHpDamageMult"]
 FAST_RPM_PARAMS = AB_KEYS["fastRPMParams"]
+COMMON_REWARD_MULTIPLIERS = AB_KEYS["commonRewardMultipliers"]
 
 DEFAULT_VARIANT = "A"
 
@@ -122,13 +131,20 @@ class ValueByLocation:
         return int(value) if self.is_int else f32(value)
 
 
-def _value_by_location(row: Mapping[str, Any], prefix: str, is_int: bool = False) -> ValueByLocation:
+def _value_by_location(row: Mapping[str, Any], prefix: str, base: ValueByLocation) -> ValueByLocation:
+    """The asset's ``ValueByLocation`` as the game holds it after the JSON round trip: ``defaultValue``
+    replaced, ``overridesByLocation`` = ``base`` (the C# field initializer) updated with the asset entries."""
+    is_int = base.is_int
+    if f"{prefix}.defaultValue" not in row:  # field absent from the data: Newtonsoft keeps the initializer
+        return base
     default = row[f"{prefix}.defaultValue"]
     values = decode_value_data(row.get(f"{prefix}.overridesByLocation.valueData"), f"{prefix}.valueData")
     keys = decode_key_data(row.get(f"{prefix}.overridesByLocation.keyData"), len(values), f"{prefix}.keyData")
-    overrides: dict[int, float | int] = {}
+    asset: dict[int, float | int] = {}
     for k, v in zip(keys, values):  # OnAfterDeserialize pairs up to the shorter list; later keys win
-        overrides[int(k)] = int(v) if is_int else f32(v)
+        asset[int(k)] = int(v) if is_int else f32(v)
+    overrides = dict(base.overrides)
+    overrides.update(asset)  # JSON populate into the existing dictionary: asset wins, defaults stay
     return ValueByLocation(int(default) if is_int else f32(default), overrides, is_int)
 
 
@@ -172,26 +188,51 @@ DEFAULT_ENEMY_HP_DAMAGE_MULT = EnemyHpDamageMultData(ValueByLocation(f32(1), {})
 DEFAULT_FAST_RPM_PARAMS = FastRPMParamsData(f32(10.0), f32(1.0))
 
 
-def _spawner_cooldowns(row: Mapping[str, Any]) -> SpawnerCooldownsData:
-    def group(name: str) -> SpawnerCooldownsGroup:
-        return SpawnerCooldownsGroup(_value_by_location(row, f"data.{name}.cooldownMinutes"),
-                                     _value_by_location(row, f"data.{name}.charges", is_int=True))
-    return SpawnerCooldownsData(group("nonElite"), group("elite"))
+@dataclass(frozen=True)
+class CommonRewardMultipliersData:
+    """``CommonRewardMultipliersData``: only the three stat-class RPM multipliers are used here."""
+
+    attack_stat_value_multiplier: Any = f32(1.0)  # float32
+    armor_stat_value_multiplier: Any = f32(1.0)
+    sustain_stat_value_multiplier: Any = f32(1.0)
 
 
-def _enemy_hp_damage_mult(row: Mapping[str, Any]) -> EnemyHpDamageMultData:
-    return EnemyHpDamageMultData(_value_by_location(row, "data.damageMultiplier"),
-                                 float(row["data.rewardedValueMultiplier"]))
+DEFAULT_COMMON_REWARD_MULTIPLIERS = CommonRewardMultipliersData()
 
 
-def _fast_rpm_params(row: Mapping[str, Any]) -> FastRPMParamsData:
-    return FastRPMParamsData(f32(row["data.fightTimeSeconds"]), f32(row["data.maxHealthLossMultiplier"]))
+def _scalar(row: Mapping[str, Any], column: str, default, convert):
+    return convert(row[column]) if column in row and row[column] is not None else default
+
+
+def _spawner_cooldowns(row: Mapping[str, Any], base: SpawnerCooldownsData) -> SpawnerCooldownsData:
+    def group(name: str, g: SpawnerCooldownsGroup) -> SpawnerCooldownsGroup:
+        return SpawnerCooldownsGroup(_value_by_location(row, f"data.{name}.cooldownMinutes", g.cooldown_minutes),
+                                     _value_by_location(row, f"data.{name}.charges", g.charges))
+    return SpawnerCooldownsData(group("nonElite", base.non_elite), group("elite", base.elite))
+
+
+def _enemy_hp_damage_mult(row: Mapping[str, Any], base: EnemyHpDamageMultData) -> EnemyHpDamageMultData:
+    return EnemyHpDamageMultData(_value_by_location(row, "data.damageMultiplier", base.damage_multiplier),
+                                 _scalar(row, "data.rewardedValueMultiplier", base.rewarded_value_multiplier, float))
+
+
+def _fast_rpm_params(row: Mapping[str, Any], base: FastRPMParamsData) -> FastRPMParamsData:
+    return FastRPMParamsData(_scalar(row, "data.fightTimeSeconds", base.fight_time_seconds, f32),
+                             _scalar(row, "data.maxHealthLossMultiplier", base.max_health_loss_multiplier, f32))
+
+
+def _common_reward_multipliers(row: Mapping[str, Any], base: CommonRewardMultipliersData) -> CommonRewardMultipliersData:
+    return CommonRewardMultipliersData(
+        _scalar(row, "data.attackStatValueMultiplier", base.attack_stat_value_multiplier, f32),
+        _scalar(row, "data.armorStatValueMultiplier", base.armor_stat_value_multiplier, f32),
+        _scalar(row, "data.sustainStatValueMultiplier", base.sustain_stat_value_multiplier, f32))
 
 
 _PARSERS = {
     SPAWNER_COOLDOWNS: (_spawner_cooldowns, DEFAULT_SPAWNER_COOLDOWNS),
     ENEMY_HP_DAMAGE_MULT: (_enemy_hp_damage_mult, DEFAULT_ENEMY_HP_DAMAGE_MULT),
     FAST_RPM_PARAMS: (_fast_rpm_params, DEFAULT_FAST_RPM_PARAMS),
+    COMMON_REWARD_MULTIPLIERS: (_common_reward_multipliers, DEFAULT_COMMON_REWARD_MULTIPLIERS),
 }
 
 Variant = str | Mapping[str, str | None] | None
@@ -213,13 +254,13 @@ class ABTestConfig:
 
     def data(self, ab_key: str, variant: Variant = DEFAULT_VARIANT):
         """``ABTestDataGroup<T>.GetCurrentValue`` for the parsed tests (spawner cooldowns, enemy
-        HP/damage multiplier, fast RPM parameters)."""
+        HP/damage multiplier, fast RPM parameters, common reward multipliers)."""
         assigned = self.assigned_variant(ab_key, variant)
         key = (ab_key, assigned)
         if key not in self._cache:
             parse, default = _PARSERS[ab_key]
             row = self.variants.get(ab_key, {}).get(assigned) if assigned else None
-            self._cache[key] = parse(row) if row is not None else default
+            self._cache[key] = parse(row, default) if row is not None else default
         return self._cache[key]
 
     def spawner_cooldowns(self, variant: Variant = DEFAULT_VARIANT) -> SpawnerCooldownsData:
@@ -230,6 +271,9 @@ class ABTestConfig:
 
     def fast_rpm_params(self, variant: Variant = DEFAULT_VARIANT) -> FastRPMParamsData:
         return self.data(FAST_RPM_PARAMS, variant)
+
+    def common_reward_multipliers(self, variant: Variant = DEFAULT_VARIANT) -> CommonRewardMultipliersData:
+        return self.data(COMMON_REWARD_MULTIPLIERS, variant)
 
 
 def load_ab_config(con: sqlite3.Connection) -> ABTestConfig:
@@ -280,3 +324,24 @@ def enemy_hp_damage_multiplier(data: EnemyHpDamageMultData, location: int):
 def fast_rpm_config(data: FastRPMParamsData) -> tuple[float, float]:
     """``SimulationSystem.GetFastRPMConfig``: the two float parameters widened to double."""
     return float(data.fight_time_seconds), float(data.max_health_loss_multiplier)
+
+
+_SUSTAIN_STATS = frozenset({1, 2, 22})  # Health, HealthRegen, LifestealFlat
+_ATTACK_STATS = frozenset({6, 8, 12})  # Stab/Cut/BuckshotDamageFlat
+_ARMOR_STATS = frozenset({14, 16, 20})  # Stab/Cut/BuckshotDefenceFlat
+
+
+@implements("simulation.rpm_stat_class_ab_multiplier", provenance=Provenance.PORT,
+            code_ref="CodeBase/ABTests/ABTestService.cs:40-41,49-58")
+def rpm_stat_value_multiplier(data: CommonRewardMultipliersData, stat_type: int):
+    """``GetRpmStatValueMultiplier(StatType)`` (float32): sustain, attack or armor class multiplier, else 1.
+
+    No VA: ``ABTestService.cs`` carries no recovered-VA comments (like the other ABTestService ports here)."""
+    t = int(stat_type)
+    if t in _SUSTAIN_STATS:
+        return f32(data.sustain_stat_value_multiplier)
+    if t in _ATTACK_STATS:
+        return f32(data.attack_stat_value_multiplier)
+    if t in _ARMOR_STATS:
+        return f32(data.armor_stat_value_multiplier)
+    return f32(1.0)
