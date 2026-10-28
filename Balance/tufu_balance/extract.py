@@ -27,6 +27,8 @@ REPO = Path(__file__).resolve().parents[2]
 ASSETS = REPO / "Recovery" / "StudyProject" / "Assets"
 OUT = REPO / "Balance" / "out"
 SCENES = ["Scenes/Main.unity", "Scenes/Boot.unity"]
+# The stage 5 simulator rebuild adds these directories; their types are tooling, not game data.
+REBUILD_SCRIPT_DIRS = ["Assembly-CSharp/CodeBase/Simulation/Harness", "Assembly-CSharp/CodeBase/Simulation/Rebuild"]
 SPAWNER_CLASS = "EnemySpawner"
 
 
@@ -464,7 +466,7 @@ def main():
 
     started = time.monotonic()
     index = GuidIndex(ASSETS)
-    enum_rows = parse_enums(ASSETS / "Scripts")
+    enum_rows = parse_enums(ASSETS / "Scripts", exclude=REBUILD_SCRIPT_DIRS)
     decoder = EnumDecoder(enum_rows)
     types = FieldTypes(ASSETS / "Scripts", decoder)
     tables, unresolved = Tables(), set()

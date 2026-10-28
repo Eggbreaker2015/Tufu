@@ -18,11 +18,17 @@ def _evaluate(expression, known):
     return int(eval(expression, {"__builtins__": {}}))  # digits and bit operators only
 
 
-def parse_enums(scripts_root):
-    """Return rows (enum, namespace, member, value, file) for every enum under scripts_root."""
+def parse_enums(scripts_root, exclude=()):
+    """Return rows (enum, namespace, member, value, file) for every enum under scripts_root.
+
+    ``exclude`` lists directories, relative to scripts_root, whose files are skipped.
+    """
     root = Path(scripts_root)
+    skipped = [root / d for d in exclude]
     rows = []
     for path in sorted(root.rglob("*.cs")):
+        if any(path.is_relative_to(d) for d in skipped):
+            continue
         text = COMMENT.sub("", path.read_text(encoding="utf-8", errors="replace"))
         namespace_match = NAMESPACE.search(text)
         namespace = namespace_match.group(1) if namespace_match else ""

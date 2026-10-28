@@ -185,7 +185,7 @@ def optimum_time_from_relative(rel: float, window_min: float, window_max: float,
 
     ``k`` = 10 for day spawners (0.1 day), 1 for minute spawners; the step follows the spawner's
     ``IsDays``, the window the tool's island range. Default: float32 and ``Mathf.Round`` (ties to
-    even), 701/717 (G03). Ablations: ``rounding="half_up"`` 682/717; ``precision="f64"`` (double
+    even), 701/717 (G03). Ablations: ties half up (the ``rounding`` argument) 682/717; ``precision="f64"`` (double
     arithmetic on the float fields) 676/717 with either tie rule, so the data favours float32.
     """
     if rounding not in ROUNDINGS:
