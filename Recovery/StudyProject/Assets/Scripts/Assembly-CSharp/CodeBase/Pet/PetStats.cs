@@ -108,7 +108,7 @@ namespace Codebase.Pet
 			consumedCopiesConfig = null;
 		}
 
-		// ratio = species ratio * rarity factor * (1 + growth * (level - 1)).
+		// ratio = species ratio * rarity factor * (1 + growth * (level - 1)); combat move speed uses the species ratio alone.
 		public static PetStatRatios GetRatios(PetDefinition definition, Rarity rarity, int effectiveLevel)
 		{
 			PetConfig config = PetConfig.Instance;
@@ -120,7 +120,7 @@ namespace Codebase.Pet
 				Health = (definition != null ? definition.HealthRatio : 1f) * scale,
 				Attack = (definition != null ? definition.AttackRatio : 1f) * scale,
 				Defence = (definition != null ? definition.DefenceRatio : 1f) * scale,
-				MoveSpeed = (definition != null ? definition.MoveSpeedRatio : 1f) * scale
+				MoveSpeed = definition != null ? definition.MoveSpeedRatio : 1f
 			};
 		}
 

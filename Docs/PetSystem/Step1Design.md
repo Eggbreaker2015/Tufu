@@ -766,7 +766,7 @@ ratio(stat, item) = 种族比例[stat]
 - `item.Rarity` 在进化后返回 Divine。
 - 宠物等级不用 `item.EffectiveLevel`：原作进化会扣掉副本，`EffectiveLevel` 从副本数（≥ 进化需求，如普通 100、优秀 130）跌回 `Level` = 1，比例会下降 40%~60%。宠物等级改为累计收集的副本数，进化时不变，于是首次进化只多了 Divine 系数和 +1 级（神话保持 1.7 系数，只 +1 级）；之后每次进化 +1 级，进化后的每个副本也 +1 级。消耗数用 `CombatBalanceConfig.GetEvolutionShardsRequirement`，与 `ItemModel.LevelsToEvolve` 相同。
 - 公式只写在一处：`CodeBase/Pet/PetStats.cs` 的 `PetStats.GetRatios(def, rarity, level)`，另有 `GetLevel(ItemModel)`、`GetRatios(ItemModel, def)`、`GetNextRatios`、`GetOwnAttack`、`GetAttackSpeedMultiplier`、`FindDefinition`。属性同步、`DamageCalculator`、`PetMovementSystem` 和 UI 都调用它。
-- 四个比例（生命、攻击、防御、移速）都按这个公式随稀有度和等级增长。**待确认**：移速是否也应随等级增长。目前进化后的穿刺宠物在 Lv1 战斗移速就是玩家的 1.1 × 1.7 = 1.87 倍。
+- 生命、攻击、防御三个比例按这个公式随稀有度和等级增长。**战斗移速不成长**，只用种类比例（`MoveSpeedRatio`），已确认。
 
 ### 15.2 配置值
 
@@ -858,6 +858,6 @@ ratio(stat, item) = 种族比例[stat]
 | 攻击比例 | — | 1.0 × 1.2 × (1 + 0.02 × 11) = 1.464 |
 | 每击（乘类型百分比之前） | 1200 + 157 = **1357** | 720 + 167 × 1.46 ≈ **965** |
 
-同一只宠物的其余比例：生命 0.7 × 1.464 = 1.02×，防御 0.8 × 1.464 = 1.17×，战斗移速 1.1 × 1.464 = 1.61×。
+同一只宠物的其余比例：生命 0.7 × 1.464 = 1.02×，防御 0.8 × 1.464 = 1.17×，战斗移速 1.1×（不随稀有度和等级变化）。
 
 单击伤害约为原作的 71%。武器本身伤害的权重下降，玩家吞噬成长通过攻击比例放大后占比上升。
