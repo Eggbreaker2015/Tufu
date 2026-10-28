@@ -1,0 +1,538 @@
+{
+ "expectations": {
+  "G01.regenerated_table_f32_exact": {
+   "kind": "exact",
+   "note": "timeline suite: G01.regenerated_table_f32_exact",
+   "source": "G01",
+   "value": 99
+  },
+  "G01.tail_f32_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G01",
+   "value": 84
+  },
+  "G02.gate_ot_eq_itd": {
+   "kind": "exact",
+   "note": "",
+   "source": "G02",
+   "value": 16
+  },
+  "G03.exceptions": {
+   "kind": "set",
+   "note": "timeline suite: G03.exceptions",
+   "source": "G03",
+   "value": [
+    "Scenes/Main.unity:55497",
+    "Scenes/Main.unity:55751",
+    "Scenes/Main.unity:55816",
+    "Scenes/Main.unity:55927",
+    "Scenes/Main.unity:56447",
+    "Scenes/Main.unity:56574",
+    "Scenes/Main.unity:56670",
+    "Scenes/Main.unity:57718",
+    "Scenes/Main.unity:57815",
+    "Scenes/Main.unity:58041",
+    "Scenes/Main.unity:58145",
+    "Scenes/Main.unity:58941",
+    "Scenes/Main.unity:59596",
+    "Scenes/Main.unity:59878",
+    "Scenes/Main.unity:59922",
+    "Scenes/Main.unity:60557"
+   ]
+  },
+  "G03.rel_to_ot_hits": {
+   "kind": "exact",
+   "note": "",
+   "source": "G03",
+   "value": 701
+  },
+  "G03.window_from_itd_eq_tool": {
+   "kind": "exact",
+   "note": "timeline suite: G03.window_from_itd_eq_tool",
+   "source": "G03",
+   "value": 17
+  },
+  "G04.fill_rule_island_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G04",
+   "value": 150
+  },
+  "G04.target_timings_f32_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G04",
+   "value": 150
+  },
+  "G05.curves_text_exact": {
+   "kind": "exact",
+   "note": "timeline suite: G05.curves_text_exact",
+   "source": "G05",
+   "value": 19
+  },
+  "G05.knots": {
+   "kind": "exact",
+   "note": "",
+   "source": "G05",
+   "value": 49
+  },
+  "G05.knots_f32_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G05",
+   "value": 45
+  },
+  "G05.knots_le_5e-5": {
+   "kind": "exact",
+   "note": "",
+   "source": "G05",
+   "value": 49
+  },
+  "G06.amulet_level_target_days_eq_island_start": {
+   "kind": "exact",
+   "note": "",
+   "source": "G06",
+   "value": 7
+  },
+  "G07.armor_copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G07.armor_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G07.replay_table": {
+   "kind": "exact",
+   "note": "evolution_values table regenerated with replay_stored_inputs == stored rows",
+   "source": "G07",
+   "value": {
+    "armor_copy_value": 225,
+    "armor_value": 225,
+    "weapon_copy_value": 225,
+    "weapon_value": 225
+   }
+  },
+  "G07.weapon_copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G07.weapon_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G07",
+   "value": 225
+  },
+  "G08.half_even": {
+   "kind": "exact",
+   "note": "",
+   "source": "G08",
+   "value": 450
+  },
+  "G09.armor_sync_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_heuristic": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_shards": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.armor_sync_stat_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 48
+  },
+  "G09.armor_sync_time_chunk": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 48
+  },
+  "G09.armor_sync_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 75
+  },
+  "G09.filled_copy_value_frozen": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 265
+  },
+  "G09.filled_h_eq_last_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 265
+  },
+  "G09.filled_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 265
+  },
+  "G09.reference_shards_eq_table": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 570
+  },
+  "G09.reference_shards_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 570
+  },
+  "G09.universal_placeholders": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 150
+  },
+  "G09.universal_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G09",
+   "value": 150
+  },
+  "G10.copied_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 120
+  },
+  "G10.copies_to_evolve": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 15
+  },
+  "G10.copy_value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 15
+  },
+  "G10.on_nice_grid": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 11
+  },
+  "G10.shards_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 30
+  },
+  "G10.value": {
+   "kind": "exact",
+   "note": "",
+   "source": "G10",
+   "value": 15
+  },
+  "G11.cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.k2": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.k3": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.other": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 2289
+  },
+  "G11.other_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 2289
+  },
+  "G11.pm": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.sff": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.tf": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.tv": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G12.bracket_checked": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 162
+  },
+  "G12.bracket_inside": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 157
+  },
+  "G12.bracket_outside_in_other_type": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 5
+  },
+  "G12.groups": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 178
+  },
+  "G12.groups_single_valued": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 178
+  },
+  "G12.rel_lt_1e-6": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 16
+  },
+  "G12.rows_at_snapshot_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "G12",
+   "value": 16
+  },
+  "G13.bakeinfo_damage_eq_pred": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 43
+  },
+  "G13.bakeinfo_health_eq_pred": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 13
+  },
+  "G13.minute_both_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 79
+  },
+  "G13.minute_damage_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 104
+  },
+  "G13.minute_hp_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 79
+  },
+  "G13.minute_hp_exact_set": {
+   "kind": "set",
+   "note": "bake suite: G13.minute_hp_exact_set",
+   "source": "G13",
+   "value": [
+    "Scenes/Main.unity:55401",
+    "Scenes/Main.unity:55446",
+    "Scenes/Main.unity:55497",
+    "Scenes/Main.unity:55508",
+    "Scenes/Main.unity:55511",
+    "Scenes/Main.unity:55533",
+    "Scenes/Main.unity:55555",
+    "Scenes/Main.unity:55579",
+    "Scenes/Main.unity:55692",
+    "Scenes/Main.unity:55751",
+    "Scenes/Main.unity:55816",
+    "Scenes/Main.unity:55840",
+    "Scenes/Main.unity:55852",
+    "Scenes/Main.unity:55881",
+    "Scenes/Main.unity:56000",
+    "Scenes/Main.unity:56036",
+    "Scenes/Main.unity:56062",
+    "Scenes/Main.unity:56070",
+    "Scenes/Main.unity:56210",
+    "Scenes/Main.unity:56252",
+    "Scenes/Main.unity:56276",
+    "Scenes/Main.unity:56447",
+    "Scenes/Main.unity:56457",
+    "Scenes/Main.unity:56574",
+    "Scenes/Main.unity:56586",
+    "Scenes/Main.unity:56642",
+    "Scenes/Main.unity:56652",
+    "Scenes/Main.unity:56670",
+    "Scenes/Main.unity:56686",
+    "Scenes/Main.unity:56778",
+    "Scenes/Main.unity:56803",
+    "Scenes/Main.unity:56899",
+    "Scenes/Main.unity:56935",
+    "Scenes/Main.unity:57043",
+    "Scenes/Main.unity:57046",
+    "Scenes/Main.unity:57055",
+    "Scenes/Main.unity:57060",
+    "Scenes/Main.unity:57110",
+    "Scenes/Main.unity:57126",
+    "Scenes/Main.unity:57183",
+    "Scenes/Main.unity:57288",
+    "Scenes/Main.unity:57352",
+    "Scenes/Main.unity:57417",
+    "Scenes/Main.unity:57532",
+    "Scenes/Main.unity:57553",
+    "Scenes/Main.unity:57614",
+    "Scenes/Main.unity:57664",
+    "Scenes/Main.unity:57683",
+    "Scenes/Main.unity:57723",
+    "Scenes/Main.unity:57852",
+    "Scenes/Main.unity:57932",
+    "Scenes/Main.unity:58064",
+    "Scenes/Main.unity:58145",
+    "Scenes/Main.unity:58263",
+    "Scenes/Main.unity:58322",
+    "Scenes/Main.unity:58341",
+    "Scenes/Main.unity:58343",
+    "Scenes/Main.unity:58546",
+    "Scenes/Main.unity:58941",
+    "Scenes/Main.unity:58961",
+    "Scenes/Main.unity:58987",
+    "Scenes/Main.unity:59037",
+    "Scenes/Main.unity:59372",
+    "Scenes/Main.unity:59415",
+    "Scenes/Main.unity:59596",
+    "Scenes/Main.unity:59647",
+    "Scenes/Main.unity:59687",
+    "Scenes/Main.unity:59922",
+    "Scenes/Main.unity:60010",
+    "Scenes/Main.unity:60102",
+    "Scenes/Main.unity:60332",
+    "Scenes/Main.unity:60441",
+    "Scenes/Main.unity:60507",
+    "Scenes/Main.unity:60602",
+    "Scenes/Main.unity:60635",
+    "Scenes/Main.unity:60674",
+    "Scenes/Main.unity:60686",
+    "Scenes/Main.unity:60747",
+    "Scenes/Main.unity:60749"
+   ]
+  },
+  "G13.minute_n": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 108
+  },
+  "G13.ot_0_120_hp_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 76
+  },
+  "G13.ot_0_120_n": {
+   "kind": "exact",
+   "note": "",
+   "source": "G13",
+   "value": 78
+  },
+  "G18.n": {
+   "kind": "exact",
+   "note": "items suite: G18.n",
+   "source": "G18",
+   "value": 675
+  },
+  "fitted_h.armor_unsynced_cells": {
+   "kind": "exact",
+   "note": "(rarity, level) armor cells whose types differ; of 75",
+   "source": "G09",
+   "value": 75
+  },
+  "fitted_h.leader_stabbing_regenerated_eq_stored": {
+   "kind": "exact",
+   "note": "armor synced to the Stabbing rows",
+   "source": "R4",
+   "value": {
+    "armor_copy_value": 75,
+    "armor_value": 108,
+    "weapon_copy_value": 182,
+    "weapon_value": 176
+   }
+  },
+  "fitted_h.regenerated_eq_stored": {
+   "kind": "exact",
+   "note": "whole tables, chained recursion (P5 fitted_h)",
+   "source": "R4",
+   "value": {
+    "armor_copy_value": 39,
+    "armor_value": 51,
+    "weapon_copy_value": 182,
+    "weapon_value": 176
+   }
+  },
+  "spawners.registered": {
+   "kind": "exact",
+   "note": "spawners suite: ready.registered",
+   "source": "spawners",
+   "value": 716
+  },
+  "spawners.uses_ab": {
+   "kind": "exact",
+   "note": "spawners suite: G17.ab_override",
+   "source": "spawners",
+   "value": 569
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "pipeline"
+}
