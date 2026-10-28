@@ -5,10 +5,13 @@
 1. computes each job's ``job_key`` (:mod:`.runcache`) and returns cached results without starting Unity;
 2. sends the misses in batches of at most ``batch_size`` (default 12) jobs, to the resident editor when one
    is serving (``launcher.serve_submit``) or as one batch launch each (``launcher.run``);
-3. a job that failed is retried once, alone; jobs that did not run because an earlier job of their batch
-   failed (the editor ends a request at its first failing job) go into the next batch without counting
-   as an attempt;
-4. indexes every job that finished with exit 0 in the cache.
+3. per batch, in job order: a job with exit 0 is done (cached) unless the launcher found a guard problem;
+   the first job that failed (non-zero exit, or no manifest because Unity crashed or timed out on it) is
+   retried once, alone; jobs after it did not run (the editor ends a request at its first failing job)
+   and go back into a batch without counting an attempt. A guard problem discards the whole batch: each
+   job that ran counts an attempt and goes back into a batch (a second guard problem fails it). A batch
+   the launcher refused (no run directory) counts an attempt for every job, each retried alone;
+4. indexes every job that finished with exit 0 in a run without guard problems in the cache.
 
 Results come back in input order. The backends are small objects with ``identity()`` and ``submit()``,
 so tests drive the logic without Unity.
@@ -159,6 +162,17 @@ class Driver:
         runs: dict[str, list[Path]] = {j["job_id"]: [] for j in pending}
         retry: list[dict] = []
         queue = list(pending)
+
+        def failed(job, run_dir, code, launcher_exit, error):
+            jid = job["job_id"]
+            if attempts[jid] < 2:
+                return job
+            results[jid] = JobResult(jid, key_of[jid], "failed", None if run_dir is None else run_dir / jid,
+                                     attempts[jid], self.backend.name, runs[jid],
+                                     code if code is not None else launcher_exit,
+                                     error or f"job exit {code}, launcher exit {launcher_exit}")
+            return None
+
         while queue or retry:
             if retry:
                 batch, retry = [retry[0]], retry[1:]
@@ -170,34 +184,30 @@ class Driver:
                 run_dir, launcher_exit, error = result.run_dir, result.exit_code, None
             except launcher.LauncherError as e:
                 run_dir, launcher_exit, error = None, getattr(e, "code", launcher.EXIT_EXCEPTION), str(e)
-            ran_any = False
-            not_run = []
+            if run_dir is None:  # refused before anything ran
+                for job in batch:
+                    attempts[job["job_id"]] += 1
+                    retry += [j for j in [failed(job, None, None, launcher_exit, error)] if j]
+                continue
+            guard_ok = run_ok(run_dir)
+            again: list[dict] = []  # back into a batch
+            culprit = False
             for job in batch:
                 jid = job["job_id"]
-                code = None if run_dir is None else _job_exit(run_dir, jid)
-                if run_dir is not None:
-                    runs[jid].append(run_dir)
-                if code is None and len(batch) > 1 and run_dir is not None:
-                    not_run.append(job)  # the request ended before this job
+                runs[jid].append(run_dir)
+                code = _job_exit(run_dir, jid)
+                if code is None and culprit:
+                    again.append(job)  # the request ended before this job: not an attempt
                     continue
-                ran_any = True
                 attempts[jid] += 1
-                if code == 0 and run_dir is not None and run_ok(run_dir):
+                if code == 0 and guard_ok:
                     entry = self.cache.store(key_of[jid], run_dir / jid, run_dir, jid, backend=self.backend.name)
                     results[jid] = JobResult(jid, key_of[jid], "ok", entry.job_dir, attempts[jid], self.backend.name,
                                              runs[jid], 0)
-                elif attempts[jid] < 2:
-                    retry.append(job)
-                else:
-                    results[jid] = JobResult(jid, key_of[jid], "failed", None if run_dir is None else run_dir / jid,
-                                             attempts[jid], self.backend.name, runs[jid],
-                                             code if code is not None else launcher_exit,
-                                             error or f"job exit {code}, launcher exit {launcher_exit}")
-            if not ran_any:  # nothing in the batch produced a result: count it as a failure of every job
-                for job in not_run:
-                    jid = job["job_id"]
-                    attempts[jid] += 1
-                    retry.append(job)
-                not_run = []
-            queue = not_run + queue
+                elif code == 0:  # finished, but the run had a guard problem: discarded
+                    again += [j for j in [failed(job, run_dir, code, launcher_exit, "guard problem")] if j]
+                else:  # this job failed (or Unity died while it ran)
+                    culprit = True
+                    retry += [j for j in [failed(job, run_dir, code, launcher_exit, error)] if j]
+            queue = again + queue
         return [results[i] for i in ids]

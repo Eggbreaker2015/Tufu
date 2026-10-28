@@ -852,6 +852,11 @@ def _serve_attribution(state: Mapping, problems: list[str], *, clean: bool, othe
     return problems, [], main
 
 
+def _served_clean(result: Mapping) -> bool:
+    """A served request finished cleanly: its exit code and every job's are 0."""
+    return result.get("exit_code") == 0 and all(j.get("exit_code") == 0 for j in result.get("jobs") or [])
+
+
 def _other_unity(project: Path, pid: int) -> list[tuple[int, str]]:
     return [(p, c) for p, c in unity_processes(project) if p != pid and "AssetImportWorker" not in c]
 
@@ -971,7 +976,7 @@ def serve_submit(request: Mapping, *, run_tree: Path | None = None, worktree: Pa
     result = json.loads(result_path.read_text())
     paths = _serve_paths(state)
     problems = diff_snapshots(state["before"], snapshot(paths, project), editor_alive=True)
-    clean = result.get("exit_code") == 0 and all(j.get("exit_code") == 0 for j in result.get("jobs") or [])
+    clean = _served_clean(result)
     others = _other_unity(project, state["pid"])
     problems, attributed, main = _serve_attribution(state, problems, clean=clean, others=others, paths=paths)
     report = {"schema": "tufu.sim.launcher/1", "method": "Serve", "result": result, "wall_s": time.monotonic() - t0,
@@ -1022,8 +1027,8 @@ def serve_stop(*, run_tree: Path | None = None, opts: Options | None = None, wai
     report_path = Path(state["serve_dir"]) / "serve_report.json"
     serve_report = json.loads(report_path.read_text()) if report_path.exists() else {}
     others = [(p, c) for p, c in left if "AssetImportWorker" not in c]
-    # clean = the editor exited 0 and every request it served finished 0 (run mode: Unity exit 0)
-    clean = serve_report.get("exit_code") == 0 and all(r.get("exit_code") == 0 for r in serve_report.get("served") or [])
+    # clean = the editor exited 0 and every request it served, and each of its jobs, finished 0 (run mode: Unity exit 0)
+    clean = serve_report.get("exit_code") == 0 and all(_served_clean(r) for r in serve_report.get("served") or [])
     problems, attributed, main = _serve_attribution(state, problems, clean=clean, others=others, paths=paths)
     removed = cleanup_sandbox(state["identity"])
     shutil.rmtree(queue, ignore_errors=True)

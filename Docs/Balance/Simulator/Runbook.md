@@ -408,7 +408,7 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 - **前提：抽取好的数据库**。请求的 `sandbox.expected_ready_spawners` 默认是 `"auto"`（C1，见第 14 节），启动器要从 `$TUFU_BALANCE_DB`（没有时 `Balance/out/balance.sqlite`）生成就绪核对表，`selftest` 也一样；数据库不存在时以退出码 5 拒绝。没有数据库又要跑时，在请求里把 `expected_ready_spawners` 显式设为 `null`（不做这项核对）。
 - `--rev` 默认是 `tufu_balance` 所在工作树的 HEAD：先提交，再运行。运行工作树检出到该提交（游离 HEAD），检出前后都要求 `git status --porcelain -uall` 为空。
 - `--dev` 在当前工作树里跑，要求它有 `Library`（单元工作树没有），结果不进缓存；Unity 退出后工作树的改动状态变了就退出码 7。
-- 输出在 `Balance/out/sim/runs/<run_key>/`：`request.json`、`unity.log`、`sandbox.json`（编辑器改名进沙箱、探针通过后立即写：沙箱段与编辑器进程号）、`editor_report.json`（编辑器侧：改名探针、守卫基线、各作业结果，退出时写）、`launcher.json`（启动器侧：命令、耗时、真实存档核对、网络采样、日志扫描），以及每个作业的 `<job_id>/{manifest.json, ready_spawners.csv, asset_guard.json, timings.json, unity.log}`。除 `timings.json` 外都可以逐字节比较。
+- 输出在 `Balance/out/sim/runs/<run_key>/`：`request.json`、`unity.log`、`sandbox.json`（编辑器改名进沙箱、探针通过后立即写：沙箱段与编辑器进程号）、`editor_report.json`（编辑器侧：改名探针、守卫基线、各作业结果，退出时写）、`launcher.json`（启动器侧：命令、耗时、真实存档核对、网络采样、日志扫描），以及每个作业的 `<job_id>/{manifest.json, ready_spawners.csv, asset_guard.json, timings.json, unity.log}`。作业目录里除 `timings.json` 外的文件和 `request.json` 可以逐字节比较；`sandbox.json`、`editor_report.json` 带编辑器进程号，`launcher.json` 带进程号、时间和耗时，`unity.log` 带时间，这几个不能逐字节比较。
 - 同一 `run_key` 已有退出码 0 的结果时直接复用，`--force` 重跑。`run_key` 的组成见设计稿 1.4.2；只影响速度的 `simulation_speed`、`frame_budget_ms`、`heartbeat_interval_s`、`ready_timeout_s` 不计入。
 - 预设 `smoke-11`、`golden-405`、`slow-5` 要等 C3b 填好引擎才有意义：现在 `free` 作业的 `ExecuteTick` 是空的，只会在 `max_wall_seconds` 停下。
 - Python API：`tufu_balance.unity.launcher.run(request, rev=…)`、`selftest()`、`serve_*()`；请求由 `tufu_balance.unity.request` 生成和校验（`make_request`、`make_job`、`empty_job`、`preset`、`validate`）。其它单元追加请求字段时用 `request.register_fields`，C# 一侧写自己的 `SimulationRunRequest.<单元>.cs`。
@@ -514,7 +514,7 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
     任何一条不满足就和以前一样判 2；只要有别的编辑器在，就不会去恢复。这个探针只证明从改名到 `LeaveSandbox` 这段时间的写入进了沙箱；改名之前，编辑器启动时只写分析会话（上一条）。所以把变化归给主编辑器的依据是：本次运行在这段时间外不写存档，而那个编辑器确实开着。
   - 常驻模式（`serve`，P10）用同一组条件，在 `serve submit` 和 `serve stop` 时各判一次：
     - `serve start` 时记下的主检出编辑器（`main_editors`）此刻仍开着（同一进程号）；
-    - 干净：`submit` 要求这个请求的退出码与它每个作业的退出码都是 0；`stop` 要求常驻编辑器以 0 退出，并且它服务过的每个请求都是 0；
+    - 干净：`submit` 要求这个请求的退出码与它每个作业的退出码都是 0；`stop` 要求常驻编辑器以 0 退出，并且它服务过的每个请求及其每个作业都是 0；
     - 除常驻编辑器自己（和导入进程）外没有别的 Unity 打开运行工作树；
     - 常驻编辑器的 `serve/<时间>/sandbox.json`（进程号必须等于常驻编辑器，即 `state.json` 的 `pid`）证明沙箱生效，判据同上；`editor_report.json` 要到退出时才写，所以常驻模式读的是进入沙箱后立即写下的 `sandbox.json`；
     - 除了真实存档和 PlayerPrefs 没有别的守卫问题。

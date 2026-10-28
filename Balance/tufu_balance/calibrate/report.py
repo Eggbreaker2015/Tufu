@@ -204,7 +204,7 @@ def main(argv=None) -> int:
     tg = T.build(con, slot_schedule=T.load_slot_schedule())
     with tempfile.TemporaryDirectory() as tmp:
         if args.shipped:
-            db = simio.ingest(M.write_shipped_job(Path(tmp) / "shipped", slot_schedule=tg.slot_schedule))
+            db = simio.ingest(M.write_shipped_job(Path(tmp) / "shipped"))
         elif args.sim and Path(args.sim).is_dir():
             db = Path(args.sim) / simio.SIM_DB
             if not db.exists():

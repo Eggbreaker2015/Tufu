@@ -64,6 +64,7 @@ class Series:
     full: list[Snapshot] | None = None  # untrimmed day list when the run exported it
     slots: dict[int, tuple[int | None, int | None]] | None = None  # TC -> (weapon, armor) slots (sim_snapshots_ext)
     items_evolved: dict[tuple[int, str], tuple[bool | None, int | None]] | None = None  # (TC, Key) -> (evolved, level)
+    params: dict[str, Any] | None = None  # the job's parameter object (sim_manifest), None for the shipped data
     source: str = ""
 
     @property
@@ -148,8 +149,14 @@ def load_series(con: sqlite3.Connection, source: str = "") -> Series:
             if tc is not None:
                 evolved[(int(tc), str(r["key"]))] = (bool(r["evolved"]), r["evolution_level"])
         evolved = evolved or None
+    params = None
+    if "sim_manifest" in tables:
+        for r in _rows(con, "SELECT manifest FROM sim_manifest"):
+            job = (json.loads(r["manifest"] or "null") or {}).get("job") or {}
+            if isinstance(job.get("params"), dict):
+                params = job["params"]
     return Series(tc=load_snapshots(con, "TimeChunkSnapshots"), early=load_snapshots(con, "Snapshots"),
-                  full=full, slots=slots, items_evolved=evolved, source=source)
+                  full=full, slots=slots, items_evolved=evolved, params=params, source=source)
 
 
 # ---------------------------------------------------------------- the survey's target series
@@ -208,6 +215,7 @@ class Targets:
     shipped: Series
     items: dict[str, ItemInfo]
     one_clear_reward: dict[str, dict[int, float]]  # stat -> location -> max(Value x Count) up to that island
+    one_clear_source: dict[str, dict[int, str | None]] = field(default_factory=dict)  # stat -> location -> spawner Key
     interpolations: Any = None  # model.interpolation.BalanceInterpolationsConfig (T18)
     slot_schedule: dict[int, tuple[int, int]] | None = None  # TC -> fitted (weapon, armor) slots (T17)
     meta: dict = field(default_factory=dict)
@@ -237,12 +245,14 @@ def load_items(con: sqlite3.Connection) -> dict[str, ItemInfo]:
     return out
 
 
-def load_one_clear_rewards(con: sqlite3.Connection) -> dict[str, dict[int, float]]:
+def load_one_clear_rewards(con: sqlite3.Connection, sources: dict | None = None) -> dict[str, dict[int, float]]:
     """Largest ``Value x Count`` one clear of a registered, non-event, non-VIP, non-dummy spawner on islands
-    ``<= L`` gives, per stat (design 5.1 T16: the tolerance of the small flat stats)."""
+    ``<= L`` gives, per stat (design 5.1 T16: the tolerance of the small flat stats). ``sources`` receives
+    the Key of the spawner each bound comes from."""
     from ..model.simcalc import load_sim_spawners
 
     best: dict[str, dict[int, float]] = {k: {loc: 0.0 for loc in ISLANDS} for k in STATS}
+    src: dict[str, dict[int, str | None]] = {k: {loc: None for loc in ISLANDS} for k in STATS}
     for s in load_sim_spawners(con):
         d = s.d
         if d.is_event or d.is_vip or d.is_dummy or d.count <= 0:
@@ -254,7 +264,9 @@ def load_one_clear_rewards(con: sqlite3.Connection) -> dict[str, dict[int, float
             amount = float(r.value) * d.count
             for loc in ISLANDS:
                 if loc >= d.location and amount > best[name][loc]:
-                    best[name][loc] = amount
+                    best[name][loc], src[name][loc] = amount, d.key
+    if sources is not None:
+        sources.update(src)
     return best
 
 
@@ -272,7 +284,9 @@ def build(con: sqlite3.Connection, *, slot_schedule: Mapping[int, tuple[int, int
     if con.row_factory is None:
         con.row_factory = sqlite3.Row  # the model loaders index rows by name
     shipped = load_series(con, source="balance.sqlite")
-    return Targets(shipped=shipped, items=load_items(con), one_clear_reward=load_one_clear_rewards(con),
+    sources: dict = {}
+    return Targets(shipped=shipped, items=load_items(con), one_clear_reward=load_one_clear_rewards(con, sources),
+                   one_clear_source=sources,
                    interpolations=load_interpolations(con) if with_interpolations else None,
                    slot_schedule=dict(slot_schedule) if slot_schedule is not None else None,
                    meta={"tc_snapshots": len(shipped.tc), "early_snapshots": len(shipped.early)})

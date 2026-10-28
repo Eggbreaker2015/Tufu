@@ -10,13 +10,17 @@ Layers, merged in this order (later wins):
 
 Later layers may only set fields the defaults define. Enum fields are integers in JSON (as in the C#
 ``SimulationRebuildParams``); a layer may also name the member (``"KillState": "AfterPass"``) when the
-C# enum declarations are at hand, and :func:`resolve` turns it into the integer. Integers given for a
-float field become floats, so the canonical JSON and :func:`params_hash` do not depend on how a layer
-spelled a number. Keys starting with ``_`` are comments.
+C# enum declarations are at hand, and :func:`resolve` turns it into the integer. The defaults fix each
+number's type by their spelling (``120.0`` float, ``120`` integer); when the C# class exists (read by
+default) a defaults file that spells a float field as an integer, or the reverse, is rejected, so the
+defaults hash the same with and without the C# declarations. Integers given for a float field in later
+layers become floats, so the canonical JSON and :func:`params_hash` do not depend on how a layer spelled a
+number. Keys starting with ``_`` are comments.
 
 The C# side is the authority on field names, types and enum values: :func:`read_csharp_params` parses
-the partial ``SimulationRebuildParams*.cs`` files and the enums under ``CodeBase/Simulation`` with the
-extractor's enum parser, and :func:`check_against_csharp` compares a resolved object with them.
+the partial ``SimulationRebuildParams*.cs`` files under ``CodeBase/Simulation`` and the enums of the
+whole ``Assembly-CSharp`` tree (those under ``CodeBase/Simulation`` first) with the extractor's enum
+parser, and :func:`check_against_csharp` compares a resolved object with them.
 """
 
 from __future__ import annotations
@@ -32,8 +36,9 @@ from ..unity import request as req
 
 BALANCE = Path(__file__).resolve().parents[2]
 PARAMS_ROOT = BALANCE / "sim" / "params"
-SIMULATION_SCRIPTS = (BALANCE.parent / "Recovery" / "StudyProject" / "Assets" / "Scripts" / "Assembly-CSharp"
-                      / "CodeBase" / "Simulation")
+ASSEMBLY_SCRIPTS = BALANCE.parent / "Recovery" / "StudyProject" / "Assets" / "Scripts" / "Assembly-CSharp"
+SIMULATION_SCRIPTS = ASSEMBLY_SCRIPTS / "CodeBase" / "Simulation"
+AUTO = "auto"  # resolve(csharp=AUTO): read this worktree's C# class (None while it does not exist)
 CALIBRATION_LAYERS = ("open", "slow", "calibrated")
 PARAMS_CLASS = "SimulationRebuildParams"
 
@@ -111,6 +116,7 @@ class CsParams:
     defaults: dict[str, str]  # name -> initializer text
     enums: dict[str, dict[str, int]]  # enum -> member -> value
     files: tuple[str, ...] = ()
+    ambiguous: frozenset[str] = frozenset()  # enum names declared with different members in several places
 
     def enum_of(self, name: str) -> str | None:
         t = self.fields.get(name, "").rstrip("[]")
@@ -131,8 +137,11 @@ def _class_body(text: str, start: int) -> str:
     return text[start:i - 1]
 
 
-def read_csharp_params(scripts_root: str | Path = SIMULATION_SCRIPTS) -> CsParams | None:
-    """Parse the C# parameter class; None when no ``partial class SimulationRebuildParams`` exists yet."""
+def read_csharp_params(scripts_root: str | Path = SIMULATION_SCRIPTS,
+                       enum_roots: Sequence[str | Path] | None = None) -> CsParams | None:
+    """Parse the C# parameter class; None when no ``partial class SimulationRebuildParams`` exists yet.
+    Enums come from ``scripts_root`` first, then ``enum_roots`` (default: the whole Assembly-CSharp tree
+    when ``scripts_root`` is this worktree's ``CodeBase/Simulation``)."""
     root = Path(scripts_root)
     fields: dict[str, str] = {}
     defaults: dict[str, str] = {}
@@ -149,10 +158,25 @@ def read_csharp_params(scripts_root: str | Path = SIMULATION_SCRIPTS) -> CsParam
                 fields[name], defaults[name] = ctype, init
     if not files:
         return None
+    if enum_roots is None:
+        enum_roots = [ASSEMBLY_SCRIPTS] if root.resolve() == SIMULATION_SCRIPTS.resolve() else []
     enums: dict[str, dict[str, int]] = {}
-    for enum, _ns, member, value, _file in parse_enums(root):
-        enums.setdefault(enum, {})[member] = value
-    return CsParams(fields=fields, defaults=defaults, enums=enums, files=tuple(sorted(set(files))))
+    ambiguous: set[str] = set()
+    for i, where in enumerate([root, *map(Path, enum_roots)]):
+        found: dict[tuple[str, str, str], dict[str, int]] = {}
+        for enum, ns, member, value, file in parse_enums(where):
+            found.setdefault((enum, ns, file), {})[member] = value
+        names: dict[str, list[dict[str, int]]] = {}
+        for (enum, _ns, _file), members in found.items():
+            names.setdefault(enum, []).append(members)
+        for enum, decls in names.items():
+            if i and enum in enums:
+                continue  # declared under scripts_root (or an earlier root): that one wins
+            if any(d != decls[0] for d in decls[1:]):
+                ambiguous.add(enum)
+            enums[enum] = decls[0]
+    return CsParams(fields=fields, defaults=defaults, enums=enums, files=tuple(sorted(set(files))),
+                    ambiguous=frozenset(ambiguous))
 
 
 _NUMBER = re.compile(r"^-?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?[fFdDmM]?$")
@@ -210,6 +234,8 @@ def _type_problems(value: Any, ctype: str, cs: CsParams) -> list[str]:
         if not isinstance(value, list):
             return [f"expected an array for {ctype}"]
         return [p for v in value for p in _type_problems(v, ctype[:-2], cs)]
+    if ctype in cs.ambiguous:
+        return [f"enum {ctype} is declared with different members in several places"]
     if ctype in cs.enums:
         if isinstance(value, bool) or not isinstance(value, int):
             return [f"enum {ctype} must be an integer in JSON, got {value!r}"]
@@ -252,7 +278,8 @@ def _coerce(name: str, value: Any, base: Any, enum_members: Mapping[str, int] | 
         if isinstance(value, float) and value.is_integer():
             return int(value)
         if not isinstance(value, int):
-            raise ParamsError(f"{where}: {name} = {value!r} must be an integer")
+            raise ParamsError(f"{where}: {name} = {value!r} must be an integer (the defaults spell it {base!r}; "
+                              "write a float field's default with a decimal point)")
         return value
     if isinstance(base, list):
         if not isinstance(value, list):
@@ -266,22 +293,45 @@ def _coerce(name: str, value: Any, base: Any, enum_members: Mapping[str, int] | 
     raise ParamsError(f"{where}: {name}: unsupported default {base!r}")
 
 
+def _spelling_problems(values: Mapping[str, Any], cs: CsParams) -> list[str]:
+    """Numbers of the defaults whose JSON spelling disagrees with the C# type (``120`` for a float)."""
+    problems = []
+    for name, value in sorted(values.items()):
+        ctype = cs.fields.get(name, "").rstrip("[]")
+        kind = "float" if ctype in ("float", "double") else "int" if ctype in ("int", "long") else None
+        for v in value if isinstance(value, list) else [value]:
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or kind is None:
+                continue
+            if kind == "float" and isinstance(v, int):
+                problems.append(f"{name} is a C# {ctype}: write {v} as {float(v)!r}")
+            elif kind == "int" and isinstance(v, float):
+                problems.append(f"{name} is a C# {ctype}: write {v!r} as an integer")
+    return problems
+
+
 def resolve(layers: Sequence[str | Path | Mapping[str, Any] | Layer] = ("defaults",),
             overrides: Mapping[str, Any] | None = None, *, root: str | Path = PARAMS_ROOT,
-            csharp: CsParams | None = None) -> Resolved:
-    """Merge ``layers`` (the first must be the defaults) and ``overrides`` into the complete object."""
+            csharp: CsParams | str | None = AUTO) -> Resolved:
+    """Merge ``layers`` (the first must be the defaults) and ``overrides`` into the complete object.
+    ``csharp``: the C# declarations (enum names, spelling check); ``AUTO`` reads this worktree's class,
+    ``None`` skips them."""
+    if isinstance(csharp, str):
+        if csharp != AUTO:
+            raise ValueError(f"csharp must be a CsParams, {AUTO!r} or None")
+        csharp = read_csharp_params()
     loaded = [load_layer(x, root) for x in layers]
     if overrides:
         loaded.append(Layer("overrides", _strip(overrides, "overrides")))
     if not loaded:
         raise ParamsError("no layers")
     base = loaded[0]
+    if base.name != "defaults":
+        raise ParamsError(f"the first layer must be the defaults, got {base.name!r}")
     params = dict(base.values)
-    if csharp is not None:  # a float field written as 1 in the defaults is 1.0
-        for k, v in params.items():
-            ctype = csharp.fields.get(k, "").rstrip("[]")
-            if ctype in ("float", "double"):
-                params[k] = [float(x) for x in v] if isinstance(v, list) else float(v)
+    if csharp is not None:
+        problems = _spelling_problems(params, csharp)
+        if problems:
+            raise ParamsError("defaults: " + "; ".join(problems))
     source = {k: base.name for k in params}
     for layer in loaded[1:]:
         for k, v in layer.values.items():

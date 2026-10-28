@@ -10,8 +10,10 @@ which jobs are independent of the batch they ran in (``reenter_play``).
   batch run and recording the sha256 of its ``manifest.json``.
 
 A hit needs the job's manifest exit code 0 and an unchanged manifest, in a run whose launcher found no
-guard problem and no timeout (a batch whose later job failed still holds valid earlier jobs: the editor
-runs them in order and stops at the first failure).
+guard problem. A later job's failure, crash or timeout does not invalidate it: the editor runs the jobs
+in order, and writes a job's ``manifest.json`` (with its exit code) only after that job's outputs, so a
+manifest with exit 0 marks a finished job. Guard problems (real save, run worktree, protected files)
+belong to the whole run and cannot be attributed to one job.
 Computing a key never touches the run worktree (no checkout): the tree hashes come from the object
 store, which every worktree shares.
 """
@@ -88,12 +90,13 @@ def _exit_code(path: Path) -> int | None:
 
 
 def run_ok(run_dir: Path) -> bool:
-    """The launcher checked the run and found nothing wrong outside the jobs themselves."""
+    """The launcher checked the run and found no guard problem (a timeout or a crash of a later job is
+    not one: the jobs that finished before it are valid)."""
     try:
         rep = json.loads((Path(run_dir) / "launcher.json").read_text())
     except (OSError, ValueError):
         return False
-    return isinstance(rep, dict) and not rep.get("guard_problems") and not rep.get("reason")
+    return isinstance(rep, dict) and "guard_problems" in rep and not rep.get("guard_problems")
 
 
 @dataclasses.dataclass

@@ -38,7 +38,7 @@ def tg(db):
 
 @pytest.fixture(scope="module")
 def shipped_db(tg, tmp_path_factory):
-    job = M.write_shipped_job(tmp_path_factory.mktemp("shipped") / "shipped", slot_schedule=tg.slot_schedule)
+    job = M.write_shipped_job(tmp_path_factory.mktemp("shipped") / "shipped")
     return simio.ingest(job)
 
 
@@ -116,14 +116,18 @@ def test_shipped_against_shipped_has_zero_residuals(tg, shipped_db, tolerances):
     cells = M.compute(sim, tg)
     by_target = Counter(c.target for c in cells)
     assert set(by_target) == set(COMPUTED)
-    nonzero = [c for c in cells if c.residual != 0]
+    # the shipped Simulation Data has no slot counts: T17 has no values for it (not synthesized)
+    assert sim.slots is None and {c.residual for c in cells if c.target == "T17"} == {None}
+    nonzero = [c for c in cells if c.residual != 0 and c.target != "T17"]
     assert nonzero == []
     for mode in M.MODES:
         ev = M.evaluate(cells, tolerances, mode)
         assert ev.failing_cells() == []
-        assert {t: s for t, s in ev.targets.items() if t in COMPUTED and s not in ("pass", "report", "n/a", "pending")} == {}
+        assert {c.ok for c in ev.cells if c.target == "T17"} == {None} and ev.targets["T17"] == "unavailable"
+        assert {t: s for t, s in ev.targets.items()
+                if t in COMPUTED and s not in ("pass", "report", "n/a", "pending", "unavailable")} == {}
     closed = M.evaluate(cells, tolerances, "closed").targets
-    assert [t for t in COMPUTED if closed[t] == "pass"] == [t for t in COMPUTED if t not in ("T05", "T11")]
+    assert [t for t in COMPUTED if closed[t] == "pass"] == [t for t in COMPUTED if t not in ("T05", "T11", "T17")]
     check("calibrate", {
         "T01.days": exact(by_target["T01"], source="T01", original=46),
         "T05.cells": exact(by_target["T05"], source="T05", note="41 intervals from TC4 x 15 stats", original=615),
@@ -143,12 +147,15 @@ def test_health_times_1_01_fails_only_health_cells(tg, shipped_db, tolerances, t
     con.commit()
     con.close()
     expected = {"open": {"T05", "T10", "T18"}, "closed": {"T06", "T10", "T18"}}
+    cells_failing = {"open": {"T05", "T10", "T18"}, "closed": {"T05", "T06", "T10", "T18"}}  # closed T05: pending
     for mode in M.MODES:
         ev = M.evaluate_run(db, tg, mode, tolerances)
         failing = ev.failing_cells()
         assert failing and {c.stat for c in failing} == {"Health"}
         assert {t for t, s in ev.targets.items() if s == "fail"} == expected[mode]
-        assert {c.target for c in failing} == {"T05", "T06", "T10", "T18"}
+        assert {c.target for c in failing} == cells_failing[mode]
+    open_ = M.evaluate_run(db, tg, "open", tolerances)
+    assert open_.targets["T06"] == "n/a" and {c.ok for c in open_.cells if c.target in ("T06", "T16")} == {None}
     closed = M.evaluate_run(db, tg, "closed", tolerances)
     assert closed.targets["T16"] == "pass"  # TC1-4 Health: 1% is inside the slow-phase 5%
     assert closed.targets["T09"] == "pass" and closed.targets["T04"] == "pass"
@@ -201,6 +208,309 @@ def test_tolerances_name_every_group(tg, shipped_db, tolerances):
             assert tid not in groups
 
 
+# ---------------------------------------------------------------- criteria and group rules at their boundaries
+
+def _cell(residual, ref=100.0, rel=None, bound=None, unit=None, key="k", sim=None, ok=None):
+    if sim is None and residual is not None and not (isinstance(residual, float) and math.isnan(residual)):
+        sim = ref + residual
+    return M.Cell("TX", "g", key, sim, ref, residual, rel, bound=bound, unit=unit, ok=ok)
+
+
+@pytest.mark.parametrize("crit, cell, ok", [
+    ({"exact": True}, _cell(0), True),
+    ({"exact": True}, _cell(1e-12), False),
+    ({"abs_max": 3}, _cell(-3), True),
+    ({"abs_max": 3}, _cell(3.0001), False),
+    ({"rel_max": 0.05}, _cell(5, rel=0.05), True),
+    ({"rel_max": 0.05}, _cell(5.01, rel=0.0501), False),
+    ({"rel_max": 0.05}, _cell(0, rel=None), False),
+    # T05: absolute 0.5 OR relative 2e-5
+    ({"abs_or_rel": [0.5, 2.0e-5]}, _cell(0.5, ref=1.0, rel=0.5), True),
+    ({"abs_or_rel": [0.5, 2.0e-5]}, _cell(-0.5, ref=1.0, rel=0.5), True),
+    ({"abs_or_rel": [0.5, 2.0e-5]}, _cell(10.0, ref=5.0e5, rel=2.0e-5), True),
+    ({"abs_or_rel": [0.5, 2.0e-5]}, _cell(10.5, ref=5.0e5, rel=2.1e-5), False),
+    ({"abs_or_rel": [0.5, 2.0e-5]}, _cell(0.51, ref=1.0, rel=0.51), False),
+    # T06: |sim - ref| <= max(rel * |ref|, the one-clear bound)
+    ({"rel_or_bound": 0.02}, _cell(5.0, ref=100.0, bound=5.0), True),
+    ({"rel_or_bound": 0.02}, _cell(5.01, ref=100.0, bound=5.0), False),
+    ({"rel_or_bound": 0.02}, _cell(-20.0, ref=1000.0, bound=5.0), True),
+    ({"rel_or_bound": 0.02}, _cell(20.01, ref=1000.0, bound=5.0), False),
+    ({"rel_or_bound": 0.02}, _cell(2.0, ref=100.0), True),
+    # T16 small stats: within one clear of the most rewarding reachable spawner
+    ({"bound": True}, _cell(80.0, bound=80.0), True),
+    ({"bound": True}, _cell(-80.0, bound=80.0), True),
+    ({"bound": True}, _cell(80.5, bound=80.0), False),
+    ({"bound": True}, _cell(1.0, bound=None), False),
+    # T11/T13: in day snapshots
+    ({"window": [-1, 1]}, _cell(-1), True),
+    ({"window": [-1, 1]}, _cell(1), True),
+    ({"window": [-1, 1]}, _cell(-2), False),
+    ({"window": [-1, 1]}, _cell(2), False),
+    # T09 open: G20's cell test, |sim - ref| <= 1e-4 * max(1, |ref|)
+    ({"g20": 1.0e-4}, _cell(0.9e-4, ref=0.5, rel=1.8e-4), True),
+    ({"g20": 1.0e-4}, _cell(1.1e-4, ref=0.5, rel=2.2e-4), False),
+    ({"g20": 1.0e-4}, _cell(0.5e-4, ref=0.0, rel=math.inf), True),
+    ({"g20": 1.0e-4}, _cell(2.0e-4, ref=0.0, rel=math.inf), False),
+    ({"g20": 1.0e-4}, _cell(0.15, ref=2000.0, rel=7.5e-5), True),
+    ({"g20": 1.0e-4}, _cell(0.25, ref=2000.0, rel=1.25e-4), False),
+    # no value, NaN
+    ({"abs_max": 3}, _cell(None), False),
+    ({"abs_max": 3}, _cell(math.nan), False),
+    ({}, _cell(1e9), None),
+])
+def test_cell_criteria_at_their_boundaries(crit, cell, ok):
+    assert M._cell_ok(cell, crit) is ok
+
+
+@pytest.mark.parametrize("sim, ok", [([34, 36], True), ([37, 37], True), ([38, 38], False), ([33, 33], True),
+                                     ([32, 32], False), (None, False)])
+def test_t07_range_and_slack(sim, ok):
+    cell = M.Cell("T07", "islands_5_17", "island 10", sim, [33, 36], 0 if sim else None)
+    assert M._cell_ok(cell, {"ranges": {10: [34, 36]}, "slack": 1}) is ok
+
+
+def _group(oks, rels=None, units=None, residual=0.0):
+    rels = rels or [0.0] * len(oks)
+    units = units or [None] * len(oks)
+    return [_cell(residual, rel=r, unit=u, key=f"k{i}", ok=o) for i, (o, r, u) in enumerate(zip(oks, rels, units))]
+
+
+@pytest.mark.parametrize("cells, rule, status", [
+    (_group([True, True]), {"all_ok": True}, "pass"),
+    (_group([True, False]), {"all_ok": True}, "fail"),
+    (_group([True] * 9 + [False]), {"frac_ok_min": 0.9}, "pass"),
+    (_group([True] * 8 + [False] * 2), {"frac_ok_min": 0.9}, "fail"),
+    (_group([True] * 3, rels=[0.01, 0.02, 0.5]), {"median_rel_max": 0.02}, "pass"),
+    (_group([True] * 3, rels=[0.01, 0.03, 0.5]), {"median_rel_max": 0.02}, "fail"),
+    (_group([True, True], rels=[0.0, 0.02]), {"rel_max_all": 0.02}, "pass"),
+    (_group([True, True], rels=[0.0, 0.0201]), {"rel_max_all": 0.02}, "fail"),
+    (_group([True, True], rels=[0.0, None]), {"rel_max_all": 0.02}, "fail"),
+    (_group([True] * 9 + [False], rels=[0.01] * 9 + [0.03]), {"frac_ok_min": 0.95, "rel_max_all": 0.05}, "fail"),
+    (_group([True] * 19 + [False], rels=[0.01] * 19 + [0.03]), {"frac_ok_min": 0.95, "rel_max_all": 0.02}, "fail"),
+    (_group([True] * 19 + [False], rels=[0.01] * 19 + [0.02]), {"frac_ok_min": 0.95, "rel_max_all": 0.02}, "pass"),
+    # T05 multi-day intervals: a unit (interval) fails when any of its cells fails
+    (_group([True, False, False, True, True], units=["a", "a", "b", "c", "c"]), {"max_failing_units": 2}, "pass"),
+    (_group([True, False, False, True, False], units=["a", "a", "b", "c", "c"]), {"max_failing_units": 2}, "fail"),
+    (_group([True, False, False, True, True], units=["a", "a", "b", "c", "c"]), {"max_failing_units": 1}, "fail"),
+    (_group([False], units=["a"]), {"max_failing_units": None}, "report"),
+    (_group([False]), "n/a", "n/a"),
+    (_group([False]), "report", "report"),
+    (_group([False]), {"report": True, "note": "x"}, "report"),
+    (_group([False]), {"pending": "C5"}, "pending"),
+    ([_cell(None), _cell(None)], {"all_ok": True}, "unavailable"),
+])
+def test_group_rules_at_their_boundaries(cells, rule, status):
+    assert M._group_status("TX", "g", cells, rule).status == status
+
+
+def test_mode_without_a_rule_gives_cells_no_verdict(tolerances):
+    cells = [M.Cell("T06", "tc_ge_24", "024|Health", 2.0, 1.0, 1.0, 1.0, stat="Health", tc=24),
+             M.Cell("T17", "weapon", "001|weapon", None, 2, None, tc=1)]
+    for mode in M.MODES:
+        ev = M.evaluate(cells, tolerances, mode)
+        assert ev.cells[1].ok is None and ev.targets["T17"] == "unavailable"
+        assert ev.cells[0].ok is (None if mode == "open" else False)
+        assert ev.failing_cells() == ([] if mode == "open" else [ev.cells[0]])
+
+
+def test_group_and_split_boundaries(tg, shipped_db, tolerances):
+    cells = {(c.target, c.key): c for c in M.compute(_series(shipped_db), tg)}
+    t04 = {"003->004": "day_0_3", "004->005": "tc_4_10", "010->011": "tc_4_10", "011->013": "tc_ge_11"}
+    assert {k: cells[("T04", k)].group for k in t04} == t04
+    t05 = {"010->011|Health": "daily", "011->013|Health": "multi_day"}
+    assert {k: cells[("T05", k)].group for k in t05} == t05 and cells[("T05", "011->013|Health")].unit == "011->013"
+    t06 = {"001|Health": "tc_1_4", "004|Health": "tc_1_4", "005|Health": "tc_5_23", "021|Health": "tc_5_23",
+           "024|Health": "tc_ge_24"}
+    assert {k: cells[("T06", k)].group for k in t06} == t06
+    assert (cells[("T16", "002|Health")].group, cells[("T16", "002|BuckshotDamageFlat")].group) == ("main", "small")
+    assert (M._split(103), M._split(104)) == ("train", "holdout") and tolerances["holdout_from_tc"] == M.HOLDOUT_TC
+    assert cells[("T06", "094|Health")].split == "train" and cells[("T06", "104|Health")].split == "holdout"
+
+
+def test_one_clear_bounds_of_hand_checked_spawners(tg, shipped_db):
+    """Largest Value x Count among registered non-event, non-VIP, non-dummy spawners on islands <= L (checked
+    by hand against the spawner list: the VIP spawners of island 3 would give 4800 Health, 360 Buckshot)."""
+    bound, src = tg.one_clear_reward, tg.one_clear_source
+    assert bound["Health"][1] == bound["Health"][3] == 500.0 and src["Health"][3].startswith("Spawner_elite_HP_")
+    assert bound["Health"][4] == 2500.0 and src["Health"][4].startswith("Spawner_elite health_")
+    assert bound["BuckshotDamageFlat"][1] == bound["BuckshotDamageFlat"][2] == 0.0
+    assert bound["BuckshotDamageFlat"][3] == 80.0 and src["BuckshotDamageFlat"][3].startswith("Spawner_elite smash_")
+    assert bound["HealthRegen"][1] == 2.0 and src["HealthRegen"][1].startswith("Spawner_1 (2)_")  # 0.5 x 4
+    cells = {(c.target, c.key): c for c in M.compute(_series(shipped_db), tg, ["T16"])}
+    assert [cells[("T16", f"00{d}|Health")].bound for d in (2, 3, 4)] == [500.0] * 3
+    assert [cells[("T16", f"00{d}|BuckshotDamageFlat")].bound for d in (2, 3, 4)] == [80.0] * 3
+
+
+@pytest.mark.parametrize("extra, ok", [(80.0, True), (81.0, False)])
+def test_t16_small_stat_within_one_clear(tg, shipped_db, tolerances, extra, ok):
+    sim = copy.deepcopy(_series(shipped_db))
+    sim.day(3).stats["BuckshotDamageFlat"]["Value"] += extra
+    ev = M.evaluate(M.compute(sim, tg, ["T16"]), tolerances, "closed")
+    assert ev.targets["T16"] == ("pass" if ok else "fail")
+    assert {c.key for c in ev.failing_cells()} == (set() if ok else {"003|BuckshotDamageFlat"})
+
+
+def test_t09_open_uses_g20s_criterion(tg, shipped_db, tolerances):
+    sim = copy.deepcopy(_series(shipped_db))
+    small = next((s, k) for s in sim.tc for k, f in s.stats.items() if 0.5 <= abs(f["CurrentGpm"]) < 1.0)
+    zero = next((s, k) for s in sim.tc for k, f in s.stats.items() if f["CurrentGpm"] == 0.0)
+    small[0].stats[small[1]]["CurrentGpm"] += 0.9e-4  # relative 1e-4 of |ref| < 1 would fail
+    zero[0].stats[zero[1]]["CurrentGpm"] = 0.5e-4
+    assert M.evaluate(M.compute(sim, tg, ["T09"]), tolerances, "open").targets["T09"] == "pass"
+    zero[0].stats[zero[1]]["CurrentGpm"] = 2.0e-4
+    small[0].stats[small[1]]["CurrentGpm"] += 0.2e-4  # now 1.1e-4 away
+    ev = M.evaluate(M.compute(sim, tg, ["T09"]), tolerances, "open")
+    assert ev.targets["T09"] == "fail"
+    assert sorted(c.key for c in ev.failing_cells()) == sorted(f"{s.tc:03d}|{k}" for s, k in (small, zero))
+
+
+# ---------------------------------------------------------------- T03 cadence on a synthetic early list
+
+def _early(tg, playtimes, params=None):
+    template = tg.shipped.early[0]
+    rows = []
+    for i, p in enumerate(playtimes):
+        s = copy.deepcopy(template)
+        s.index, s.tc, s.playtime, s.total_playtime = i, 0, p, p
+        rows.append(s)
+    return T.Series(tc=[], early=rows, params=params)
+
+
+@pytest.mark.parametrize("playtimes, params, bad", [
+    ([0.0, 1.0, 2.0, 3.0], None, []),
+    ([0.0, 1.0, 1.9, 3.0], None, ["Snapshots[02]"]),            # too soon: 0.9 < 1
+    ([0.0, 1.0, 4.0, 5.0], None, []),                            # 3.0 = interval 1 + 2 min of one action
+    ([0.0, 1.0, 4.5, 5.5], None, ["Snapshots[02]"]),            # too late
+    ([0.0, 19.5, 25.0, 30.0], None, ["Snapshots[01]"]),         # 19.5 late; P = 25 > 20: interval 5
+    ([0.0, 1.0, 2.0, 3.0], {"EarlySnapshotIntervalStarts": [0.0], "EarlySnapshotIntervals": [2.0]},
+     ["Snapshots[01]", "Snapshots[02]", "Snapshots[03]"]),       # the run's own P06
+])
+def test_t03_cadence_both_ways_with_the_runs_intervals(tg, playtimes, params, bad):
+    cells = [c for c in M.t03(_early(tg, playtimes, params), tg) if c.group == "cadence"]
+    assert [c.key for c in cells if c.residual != 0] == bad
+
+
+def test_position_counts_a_day_between_snapshots_at_the_next_one():
+    days = [0, 1, 2, 13, 15]
+    assert [M._position(days, tc) for tc in (0, 2, 3, 12, 13, 14, 16)] == [0, 2, 3, 3, 3, 4, 5]
+
+
+@pytest.mark.parametrize("offline, ok", [(230.004, True), (460.0, True), (230.02, False), (100.0, False)])
+def test_t02_offline_time_is_a_multiple_of_230(tg, offline, ok):
+    series = _early(tg, [0.0, 50.0])
+    series.early[1].total_playtime = 50.0 + offline
+    cell = next(c for c in M.t02(series, tg) if c.key == "Snapshots[01]" and c.group == "offline_multiple")
+    assert (cell.residual == 0) is ok
+
+
+@pytest.mark.parametrize("factor, ok", [(0.95, True), (1.05, True), (0.94, False)])
+def test_t14_copies_relative_to_the_reference(tg, shipped_db, tolerances, factor, ok):
+    sim = copy.deepcopy(_series(shipped_db))
+    day = sim.day(405)
+    item = next(x for x in day.items if x["Copies"] % 100 == 0 and x["Copies"] > 0 and x["Level"] != x["Copies"])
+    ref = item["Copies"]
+    item["Copies"] = int(round(ref * factor))
+    cells = [c for c in M.evaluate(M.compute(sim, tg, ["T14"]), tolerances, "closed").cells if c.residual != 0]
+    assert [(c.group, c.key, c.ref, c.ok) for c in cells] == [("copies", f"405|{item['Key']}", ref, ok)]
+
+
+# ---------------------------------------------------------------- items: copy accounting, T11-T14 under perturbation
+
+def test_acquired_counts_the_shards_paid_for_evolution():
+    info = T.ItemInfo("x", "Common", "Weapon", False, (100, 390, 800), (17.0, 30.0, 45.0))
+    assert M._acquired(info, False, 0, 7) == 7
+    assert M._acquired(info, True, 1, 7) == 107
+    assert M._acquired(info, True, 2, 7) == 7 + 100 + 390
+
+
+def test_gains_across_an_evolution(tg):
+    a, b = copy.deepcopy(tg.shipped.tc[4]), copy.deepcopy(tg.shipped.tc[5])
+    a.items = [{"Key": "knife", "Level": 95, "Copies": 95}]
+    b.items = [{"Key": "knife", "Level": 1, "Copies": 7}]  # evolved: paid 100 shards, 12 copies gained
+    series = T.Series(tc=[a, b], early=[])
+    assert M._gains(series, tg, a.tc, b.tc) == {("weapon", "Common"): 12}
+    assert tg.items["knife"].shards[0] == 100
+
+
+def _scaled_copies(series, from_tc, factor, keep_reading=True):
+    out = copy.deepcopy(series)
+    for s in out.tc:
+        if s.tc < from_tc:
+            continue
+        for x in s.items:
+            unevolved = x["Level"] == x["Copies"]
+            x["Copies"] = int(round(x["Copies"] * factor))
+            if keep_reading and unevolved:
+                x["Level"] = x["Copies"]
+    return out
+
+
+def test_fewer_copies_fail_t12_and_t14(tg, shipped_db, tolerances):
+    sim = _scaled_copies(_series(shipped_db), 57, 0.9)
+    cells = M.compute(sim, tg, ["T12", "T13", "T14"])
+    for mode in M.MODES:
+        ev = M.evaluate(cells, tolerances, mode)
+        assert ev.targets["T12"] == "fail" and ev.targets["T13"] == "pass"
+        # 154-405: both ends scaled, and the shards paid for evolution (not scaled) dominate the gain
+        assert {c.group for c in ev.failing_cells() if c.target == "T12"} == {"phase_19_57", "phase_57_154"}
+    closed = M.evaluate(cells, tolerances, "closed")
+    assert closed.targets["T14"] == "fail"
+    assert all(c.tc >= 57 for c in closed.failing_cells() if c.target == "T14")
+
+
+def test_heuristic_evolution_level_stays_inside_the_tables(tg, shipped_db):
+    """Copies changed without the run's evolved flags: a Level that cannot be an evolution level is rejected
+    (no invented (item, level) cells)."""
+    sim = _scaled_copies(_series(shipped_db), 154, 0.9, keep_reading=False)
+    cells = M.compute(sim, tg, ["T12", "T13"])
+    t13 = [c for c in cells if c.target == "T13"]
+    assert all(int(c.key.rsplit("|L", 1)[1]) <= len(tg.items[c.key.split("|")[0]].shards) for c in t13)
+    shipped = {c.key for c in M.compute(_series(shipped_db), tg, ["T13"])}
+    assert {c.key for c in t13} == shipped
+    assert any("readings rejected" in c.note for c in cells if c.target == "T12" and c.tc >= 154)
+
+
+@pytest.mark.parametrize("drop, residual", [((7,), 1), ((7, 8), 2)])
+def test_a_rarity_appearing_later_moves_t11(tg, shipped_db, tolerances, drop, residual):
+    sim = copy.deepcopy(_series(shipped_db))
+    epic = {k for k, i in tg.items.items() if (i.slot, i.rarity) == ("Weapon", "Epic")}
+    for s in sim.tc:
+        if s.tc in drop:
+            s.items = [x for x in s.items if x["Key"] not in epic]
+    ev = M.evaluate(M.compute(sim, tg, ["T11"]), tolerances, "closed")
+    cells = {c.key: c for c in ev.cells}
+    assert (cells["Weapon|Epic"].sim, cells["Weapon|Epic"].ref) == (7 + len(drop), 7)
+    assert cells["Weapon|Epic"].residual == residual and cells["Weapon|Epic"].ok is (residual <= 1)
+    assert {k for k, c in cells.items() if c.residual != 0} == {"Weapon|Epic"}
+
+
+@pytest.mark.parametrize("late, residual", [((19,), 1), ((19, 21), 2)])
+def test_a_later_evolution_moves_t13(tg, shipped_db, tolerances, late, residual):
+    sim = copy.deepcopy(_series(shipped_db))
+    for s in sim.tc:
+        if s.tc in late:
+            for x in s.items:
+                if x["Key"] == "knife":
+                    x["Copies"] = x["Level"] = x["Copies"] + 100  # not evolved yet: the 100 shards still held
+    ev = M.evaluate(M.compute(sim, tg, ["T13"]), tolerances, "closed")
+    cell = next(c for c in ev.cells if c.key == "knife|L01")
+    assert (cell.ref, cell.residual, cell.ok) == (19, residual, residual <= 1)
+    assert [c.key for c in ev.cells if c.residual != 0] == ["knife|L01"]
+
+
+def test_t17_compares_armor_with_the_design_not_the_fitted_fixture(tg, shipped_db, tolerances, tmp_path):
+    assert tg.slot_schedule[0] == (1, 1)  # the fitted fixture: armor 1 before any armor item (unidentifiable)
+    written = _series(simio.ingest(M.write_shipped_job(tmp_path / "slots", slot_schedule=tg.slot_schedule)))
+    assert written.slots == tg.slot_schedule  # verbatim, nothing synthesized
+    sim = copy.deepcopy(_series(shipped_db))
+    sim.slots = {tc: (w, 0 if tc < 9 else a) for tc, (w, a) in tg.slot_schedule.items()}
+    ev = M.evaluate(M.compute(sim, tg, ["T17"]), tolerances, "closed")
+    assert ev.targets["T17"] == "pass" and {c.ref for c in ev.cells if c.group == "armor_before_9"} == {0}
+    sim.slots[5] = (sim.slots[5][0], 1)
+    ev = M.evaluate(M.compute(sim, tg, ["T17"]), tolerances, "closed")
+    assert ev.targets["T17"] == "fail" and [c.key for c in ev.failing_cells()] == ["005|armor"]
+
+
 # ---------------------------------------------------------------- parameter layers
 
 def _layers(root: Path, engine: dict, fasttick: dict, **calib) -> Path:
@@ -220,7 +530,7 @@ FASTTICK = {"KillState": 0, "Kappa": 0.245, "KillLossFromAb": False}
 def test_param_layers_merge_deterministically(tmp_path):
     root = _layers(tmp_path / "a", ENGINE, FASTTICK, open={"Kappa": 0.25, "KillState": 1},
                    calibrated={"Kappa": 0.2468})
-    r = P.resolve(["defaults", "open", "calibrated"], {"Seed": 7}, root=root)
+    r = P.resolve(["defaults", "open", "calibrated"], {"Seed": 7}, root=root, csharp=None)
     assert list(r.params) == sorted(r.params)
     assert r.params == {"EarlySnapshotIntervals": [1.0, 5.0], "FastAfkStepMinutes": 120.0, "Kappa": 0.2468,
                         "KillLossFromAb": False, "KillState": 1, "RollMode": 0, "Seed": 7, "SchemaVersion": 1}
@@ -232,9 +542,11 @@ def test_param_layers_merge_deterministically(tmp_path):
     engine2 = dict(reversed(list(ENGINE.items())))
     root2 = _layers(tmp_path / "b", engine2, dict(reversed(list(FASTTICK.items()))),
                     open={"KillState": 1, "Kappa": 0.25, "FastAfkStepMinutes": 120}, calibrated={"Kappa": 0.2468})
-    assert P.resolve(["defaults", "open", "calibrated"], {"Seed": 7.0}, root=root2).params_hash == r.params_hash
-    assert P.resolve(["defaults", "open", "calibrated"], {"Seed": 8}, root=root).params_hash != r.params_hash
-    assert P.resolve(["defaults"], root=root).params_hash == P.resolve(["defaults"], root=root).params_hash
+    assert P.resolve(["defaults", "open", "calibrated"], {"Seed": 7.0}, root=root2,
+                     csharp=None).params_hash == r.params_hash
+    assert P.resolve(["defaults", "open", "calibrated"], {"Seed": 8}, root=root, csharp=None).params_hash != r.params_hash
+    assert P.resolve(["defaults"], root=root, csharp=None).params_hash == P.resolve(["defaults"], root=root,
+                                                                                    csharp=None).params_hash
 
 
 @pytest.mark.parametrize("layer, message", [
@@ -247,13 +559,13 @@ def test_param_layers_merge_deterministically(tmp_path):
 def test_param_layers_reject_bad_values(tmp_path, layer, message):
     root = _layers(tmp_path, ENGINE, FASTTICK, open=layer)
     with pytest.raises(P.ParamsError, match=message):
-        P.resolve(["defaults", "open"], root=root)
+        P.resolve(["defaults", "open"], root=root, csharp=None)
 
 
 def test_a_field_belongs_to_one_module(tmp_path):
     root = _layers(tmp_path, ENGINE, {**FASTTICK, "Seed": 2})
     with pytest.raises(P.ParamsError, match="defined by both"):
-        P.resolve(["defaults"], root=root)
+        P.resolve(["defaults"], root=root, csharp=None)
 
 
 CS_PARAMS = textwrap.dedent('''\
@@ -314,6 +626,72 @@ def test_enum_mapping_and_fields_checked_against_csharp(tmp_path):
     assert any(p.startswith("Extra: no such field") for p in problems)
     assert any(p.startswith("Seed: 1.5 does not fit int") for p in problems)
     assert any(p.startswith("Kappa: missing") for p in problems)
+
+
+def _cs(tmp_path) -> P.CsParams:
+    src = tmp_path / "Simulation" / "Rebuild"
+    src.mkdir(parents=True, exist_ok=True)
+    (src / "SimulationRebuildParams.cs").write_text(CS_PARAMS)
+    (src / "SimulationRebuildParams.FastTick.cs").write_text(CS_FASTTICK)
+    return P.read_csharp_params(tmp_path / "Simulation")
+
+
+def test_params_hash_does_not_depend_on_the_csharp_declarations(tmp_path, monkeypatch):
+    cs = _cs(tmp_path)
+    root = _layers(tmp_path / "a", ENGINE, FASTTICK, open={"FastAfkStepMinutes": 120, "Kappa": 0.25, "Seed": 3.0})
+    without, with_cs = (P.resolve(["defaults", "open"], root=root, csharp=c) for c in (None, cs))
+    assert without.params == with_cs.params and without.params_hash == with_cs.params_hash
+    assert with_cs.params["FastAfkStepMinutes"] == 120.0 and isinstance(with_cs.params["Seed"], int)
+    # a float field spelled as an integer in the defaults (or the reverse) is refused once the C# class is known
+    root2 = _layers(tmp_path / "b", {**ENGINE, "FastAfkStepMinutes": 120}, FASTTICK, open={"FastAfkStepMinutes": 0.5})
+    with pytest.raises(P.ParamsError, match="write 120 as 120.0"):
+        P.resolve(["defaults"], root=root2, csharp=cs)
+    with pytest.raises(P.ParamsError, match="must be an integer .*decimal point"):
+        P.resolve(["defaults", "open"], root=root2, csharp=None)
+    root3 = _layers(tmp_path / "c", {**ENGINE, "Seed": 1.0}, FASTTICK)
+    with pytest.raises(P.ParamsError, match="write 1.0 as an integer"):
+        P.resolve(["defaults"], root=root3, csharp=cs)
+    # by default resolve reads this worktree's C# class
+    monkeypatch.setattr(P, "read_csharp_params", lambda *a, **kw: cs)
+    with pytest.raises(P.ParamsError, match="write 120 as 120.0"):
+        P.resolve(["defaults"], root=root2)
+    assert P.resolve(["defaults", "open"], root=root).params_hash == with_cs.params_hash
+
+
+def test_the_first_layer_must_be_the_defaults(tmp_path):
+    root = _layers(tmp_path, ENGINE, FASTTICK, open={"Kappa": 0.5})
+    for layers in (["open"], [{"Kappa": 0.5}], ["open", "defaults"]):
+        with pytest.raises(P.ParamsError, match="first layer must be the defaults"):
+            P.resolve(layers, root=root, csharp=None)
+
+
+def test_parameter_enums_are_found_in_the_whole_assembly(tmp_path, monkeypatch):
+    assembly = tmp_path / "Assembly-CSharp"
+    sim = assembly / "CodeBase" / "Simulation"
+    (sim / "Rebuild").mkdir(parents=True)
+    (sim / "Rebuild" / "SimulationRebuildParams.cs").write_text(textwrap.dedent('''\
+        namespace Codebase.Simulation.Rebuild
+        {
+        	public partial class SimulationRebuildParams
+        	{
+        		public AutoBalanceMode Balance = AutoBalanceMode.Days;
+        		public Clash Clash = Clash.A;
+        	}
+        }
+    '''))
+    (assembly / "CodeBase" / "Balance").mkdir(parents=True)
+    (assembly / "CodeBase" / "Balance" / "Modes.cs").write_text(
+        "namespace Codebase.Balance { public enum AutoBalanceMode { Off, Minutes, Days } public enum Clash { A, B } }")
+    (assembly / "Other").mkdir()
+    (assembly / "Other" / "Clash.cs").write_text("namespace Other { public enum Clash { B, A } }")
+    monkeypatch.setattr(P, "ASSEMBLY_SCRIPTS", assembly)
+    monkeypatch.setattr(P, "SIMULATION_SCRIPTS", sim)
+    cs = P.read_csharp_params(sim)
+    assert cs.enums["AutoBalanceMode"] == {"Off": 0, "Minutes": 1, "Days": 2} and cs.ambiguous == {"Clash"}
+    assert P.check_against_csharp({"Balance": 2}, cs, complete=False) == []
+    assert P.check_against_csharp({"Clash": 0}, cs, complete=False) == [
+        "Clash: enum Clash is declared with different members in several places"]
+    assert "AutoBalanceMode" not in P.read_csharp_params(sim, enum_roots=[]).enums
 
 
 def test_csharp_parameter_class_of_this_worktree():
@@ -378,6 +756,26 @@ def test_batched_simplex_minimises_in_batches():
     assert np.allclose(boxed.x, [2.0, 0.0], atol=1e-3)
 
 
+@pytest.mark.parametrize("table, step, best", [
+    ({2.0: -1.0, 3.0: -2.0}, "expand", 3.0),
+    ({2.0: -1.0, 3.0: 0.0}, "reflect", 2.0),
+    ({2.0: 5.0, 1.5: 4.0}, "outside", 1.0),
+    ({2.0: 5.0, 1.5: 6.0, 0.5: 7.0}, "shrink", 1.0),   # outside point worse than the reflection
+    ({2.0: 20.0, 0.5: 5.0}, "inside", 1.0),
+    ({2.0: 20.0, 0.5: 11.0}, "shrink", 1.0),           # inside point not better than the worst
+])
+def test_simplex_step_rules(table, step, best):
+    """One iteration on [0, 1] with f(1) = 0 (best), f(0) = 10 (worst): centroid 1, reflection 2, expansion 3,
+    outside contraction 1.5, inside contraction 0.5 (coefficients 1, 2, 1/2, 1/2)."""
+    values = {0.0: 10.0, 1.0: 0.0, **table}
+    nm = fit.BatchedNelderMead([0.0], 1.0)
+    r = nm.run(lambda pts: [values.get(float(p[0]), 100.0) for p in pts], max_iter=1, xatol=0.0, fatol=0.0)
+    assert r.history[0][0] == step and r.x[0] == best
+    assert sorted(float(p[0]) for p in nm.simplex) == sorted({"expand": [1.0, 3.0], "reflect": [1.0, 2.0],
+                                                              "outside": [1.0, 1.5], "inside": [0.5, 1.0],
+                                                              "shrink": [0.5, 1.0]}[step])
+
+
 def test_least_squares():
     rng = np.random.default_rng(3)
     f = rng.uniform(10, 100, 50)
@@ -410,6 +808,10 @@ def test_block_bootstrap():
     assert mixed.width > 0
     with pytest.raises(ValueError):
         fit.block_bootstrap([[], []], len)
+    # a mapping is read in key order, not insertion order
+    shuffled = {tc: blocks[tc] for tc in reversed(list(blocks))}
+    assert np.array_equal(fit.block_bootstrap(shuffled, lambda xs: float(np.mean(xs[:7])), n_boot=50, seed=1).samples,
+                          fit.block_bootstrap(blocks, lambda xs: float(np.mean(xs[:7])), n_boot=50, seed=1).samples)
 
 
 def test_aic():
@@ -435,10 +837,10 @@ REPORT_SCRIPT = textwrap.dedent('''\
     out, layers = Path(sys.argv[1]), Path(sys.argv[2])
     con = T.connect_ro(sys.argv[3])
     tg = T.build(con, slot_schedule=T.load_slot_schedule())
-    db = simio.ingest(M.write_shipped_job(out / "job" / "shipped", slot_schedule=tg.slot_schedule))
+    db = simio.ingest(M.write_shipped_job(out / "job" / "shipped"))
     tol = M.load_tolerances()
     evs = [M.evaluate_run(db, tg, mode, tol) for mode in ("open", "closed")]
-    resolved = P.resolve(["defaults", "open"], root=layers)
+    resolved = P.resolve(["defaults", "open"], root=layers, csharp=None)
     hyp = [{"stage": "open", "family": "KillState", "rank": 2, "hypothesis": "AfterPass", "score_train": 6.0},
            {"stage": "open", "family": "KillState", "rank": 1, "hypothesis": "StartOfDay", "score_train": 4.0,
             "post_hoc": True}]
@@ -491,12 +893,16 @@ TEMPLATE = req.make_request([req.empty_job("template")], sandbox={"expected_read
 
 class FakeBackend:
     """Writes what the launcher and the editor would: request.json, launcher.json and one manifest per job,
-    in order, stopping at the first failing job (the editor ends a request there)."""
+    in order, stopping at the first failing job (the editor ends a request there). ``crash``: Unity dies
+    (killed on a stall) while that job runs, before its manifest; ``guard``: the next N runs have a guard
+    problem."""
 
     name = "fake"
 
-    def __init__(self, root: Path, fail: dict[str, int] | None = None, refuse: int = 0):
+    def __init__(self, root: Path, fail: dict[str, int] | None = None, refuse: int = 0,
+                 crash: dict[str, int] | None = None, guard: int = 0):
         self.root, self.fail, self.refuse = root, dict(fail or {}), refuse
+        self.crash, self.guard = dict(crash or {}), guard
         self.requests: list[list[str]] = []
 
     def identity(self):
@@ -512,18 +918,26 @@ class FakeBackend:
         run_dir = self.root / "runs" / key
         run_dir.mkdir(parents=True, exist_ok=True)
         (run_dir / "request.json").write_text(req.dumps(request))
-        code = 0
+        code, reason = 0, None
         for job in request["jobs"]:
             jid = job["job_id"]
+            (run_dir / jid).mkdir(exist_ok=True)
+            if self.crash.get(jid, 0) > 0:
+                self.crash[jid] -= 1
+                code, reason = launcher.EXIT_TIMEOUT, "heartbeat progress stalled for 120 s at 1"
+                break
             code = 1 if self.fail.get(jid, 0) > 0 else 0
             if code:
                 self.fail[jid] -= 1
-            (run_dir / jid).mkdir(exist_ok=True)
             (run_dir / jid / "manifest.json").write_text(json.dumps({"job_id": jid, "exit_code": code,
                                                                      "params_hash": job.get("params_hash")}))
             if code:
                 break
-        report = {"exit_code": code, "guard_problems": [], "reason": None}
+        problems = []
+        if self.guard:
+            self.guard -= 1
+            problems, code = ["real save file changed: game_data.bin"], launcher.EXIT_GUARD
+        report = {"exit_code": code, "guard_problems": problems, "reason": reason}
         (run_dir / "launcher.json").write_text(json.dumps(report))
         return launcher.RunResult(run_dir, code, request, report)
 
@@ -559,6 +973,7 @@ def test_job_key_is_the_launchers_run_key_of_the_job_alone(tmp_path):
     assert RC.job_key(job, TEMPLATE, other) != RC.job_key(job, TEMPLATE, IDENTITY)
     slow = copy.deepcopy(TEMPLATE)
     slow["unity"]["simulation_speed"] = 9  # speed-only: same key
+    assert RC.single_job_request(job, slow)["unity"] == slow["unity"]  # a job run alone keeps the template's
     assert RC.job_key(job, slow, IDENTITY) == RC.job_key(job, TEMPLATE, IDENTITY)
     # a single-job run of the launcher is a hit without an index entry
     FakeBackend(tmp_path).submit(alone)
@@ -586,6 +1001,45 @@ def test_driver_retries_a_failed_job_once_alone(tmp_path):
     assert backend2.requests == [["j0", "j1", "j2"], ["j1"], ["j2"]]
     assert [r.status for r in out2] == ["ok", "failed", "ok"] and out2[1].attempts == 2
     assert RC.RunCache(tmp_path / "b").lookup(out2[1].job_key) is None
+
+
+@pytest.mark.parametrize("crash, requests, attempts", [
+    ("j2", [["j0", "j1", "j2", "j3", "j4", "j5"], ["j2"], ["j3", "j4", "j5"]], [1, 1, 2, 1, 1, 1]),
+    ("j0", [["j0", "j1", "j2", "j3", "j4", "j5"], ["j0"], ["j1", "j2", "j3", "j4", "j5"]], [2, 1, 1, 1, 1, 1]),
+])
+def test_driver_after_a_crash_keeps_finished_jobs_and_retries_only_the_crashed_one(tmp_path, crash, requests,
+                                                                                   attempts):
+    backend = FakeBackend(tmp_path, crash={crash: 1})
+    out = D.Driver(backend, cache=RC.RunCache(tmp_path), template=TEMPLATE, log=lambda *_: None).run(_jobs(6))
+    assert backend.requests == requests
+    assert [r.status for r in out] == ["ok"] * 6 and [r.attempts for r in out] == attempts
+    first = out[0].run_dirs[0]
+    assert json.loads((first / "launcher.json").read_text())["reason"]
+    finished = [r for r in out if r.run_dirs[0] == first and r.attempts == 1 and r.job_dir.parent == first]
+    assert [r.job_id for r in finished] == [f"j{i}" for i in range(int(crash[1:]))]  # cached from the crashed run
+    assert all(RC.RunCache(tmp_path).lookup(r.job_key) is not None for r in out)
+
+
+def test_driver_crash_twice_fails_that_job_only(tmp_path):
+    backend = FakeBackend(tmp_path, crash={"j1": 5})
+    out = D.Driver(backend, cache=RC.RunCache(tmp_path), template=TEMPLATE, log=lambda *_: None).run(_jobs(3))
+    assert backend.requests == [["j0", "j1", "j2"], ["j1"], ["j2"]]
+    assert [(r.status, r.attempts) for r in out] == [("ok", 1), ("failed", 2), ("ok", 1)]
+    assert out[1].exit_code == launcher.EXIT_TIMEOUT
+
+
+@pytest.mark.parametrize("guard, statuses", [(1, [("ok", 2)] * 3), (2, [("failed", 2)] * 3)])
+def test_driver_discards_a_batch_with_a_guard_problem(tmp_path, guard, statuses):
+    backend = FakeBackend(tmp_path, guard=guard)
+    out = D.Driver(backend, cache=RC.RunCache(tmp_path), template=TEMPLATE, log=lambda *_: None).run(_jobs(3))
+    assert backend.requests == [["j0", "j1", "j2"], ["j0", "j1", "j2"]]
+    assert [(r.status, r.attempts) for r in out] == statuses
+    run_dir = out[0].run_dirs[-1]  # the same request twice: the launcher reuses its run directory
+    assert RC.run_ok(run_dir) is (guard == 1)
+    assert all((RC.RunCache(tmp_path).lookup(r.job_key) is None) is (guard == 2) for r in out)
+    if guard == 2:
+        with pytest.raises(ValueError):
+            RC.RunCache(tmp_path).store("k", run_dir / "j0", run_dir, "j0")
 
 
 def test_driver_retries_each_job_of_a_refused_batch_alone(tmp_path):
@@ -676,6 +1130,22 @@ def fake_run_tree(tmp_path, monkeypatch):
     backend = D.BatchBackend(opts=opts, worktree=tree, run_tree=tree, out_root=tmp_path / "out", paths=paths,
                              log=lambda *_: None)
     return {"backend": backend, "out": tmp_path / "out", "log": tmp_path / "launches.log"}
+
+
+def test_job_key_with_the_auto_readiness_table_is_the_launchers_run_key(fake_run_tree):
+    """sandbox.expected_ready_spawners = "auto" (the production default): the key resolves the table name the
+    way the launcher does before its run_key."""
+    if not launcher.balance_db().exists():
+        pytest.skip("no extracted database")
+    ft = fake_run_tree
+    template = req.make_request([req.empty_job("t")], sandbox={"identity": "TufuSimFakeTest"})
+    assert template["sandbox"]["expected_ready_spawners"] == req.EXPECTED_READY_AUTO
+    job = _jobs(1)[0]
+    out = D.Driver(ft["backend"], cache=RC.RunCache(ft["out"]), template=template, log=lambda *_: None).run([job])
+    assert out[0].status == "ok" and out[0].run_dirs[-1].name == out[0].job_key
+    request = json.loads((out[0].run_dirs[-1] / "request.json").read_text())
+    assert request["sandbox"]["expected_ready_spawners"] == launcher.expected_ready_table("A")[0]
+    assert RC.job_key(job, template, ft["backend"].identity(), resolve=lambda r: r) != out[0].job_key
 
 
 def test_driver_over_the_launcher_with_a_fake_editor(fake_run_tree, monkeypatch):

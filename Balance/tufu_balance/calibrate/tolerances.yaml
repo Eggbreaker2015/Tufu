@@ -3,13 +3,15 @@
 # Per target:
 #   cells / cells_open / cells_closed: per-group cell criterion (mode-specific entries win):
 #     exact: residual == 0          abs_max: |residual| <= x       rel_max: relative residual <= x
+#     g20: x (G20's test, |sim-ref| <= x*max(1, |ref|), simcalc.gpm_matches)
 #     abs_or_rel: [a, r]            rel_or_bound: r  (|sim-ref| <= max(r*|ref|, the cell's bound))
 #     bound: true (|sim-ref| <= the cell's bound)                  window: [lo, hi] on the residual
 #     ranges: {island: [lo, hi]}, slack: s (the run's unlock interval within the range, or <= s away)
 #   open / closed: "n/a" (the design's "—"), or per group:
 #     all_ok, frac_ok_min, median_rel_max, rel_max_all, max_failing_units (null: frozen at the first run),
 #     report: true (verdicts are listed, the status is "report"), pending: <why> (set by a later unit).
-#   A group missing from a mode entry is reported only.
+#   A group missing from a mode entry is reported only. Cells of an "n/a" mode, and of a group the run has no
+#   values for (status unavailable), get no verdict (ok empty).
 # Closed-loop tolerances that the design freezes after a first run (T05, T07 count, T15) are "pending" or null
 # here; K1/K3 set them (design 5.1 general rule: never stricter than the open-loop value).
 schema: tufu.calib.tolerances/1
@@ -41,7 +43,7 @@ targets:
       rows: {abs_max: 3}
       last_row_tc: {exact: true}
       fast_days_only_in_day_list: {exact: true}
-      cadence: {exact: true}            # residual = interval(P_prev) - dP when positive (forced rows skipped)
+      cadence: {exact: true}            # residual = interval(P_prev) - dP, or dP - max(interval(P_prev), interval(P)) - 2 min, when positive (forced rows skipped; intervals = the run's P06)
       forced_day_snapshot: {exact: true}
     open: n/a
     closed:
@@ -76,6 +78,8 @@ targets:
       multi_day: {abs_or_rel: [0.5, 2.0e-5]}
     open:
       daily: {all_ok: true}
+      # design: an interval explained by a spawner's first-kill day +-1 passes; not implemented (needs kill days
+      # from events.jsonl or C5's spawner_days), so every failing interval counts as unexplained for now
       multi_day: {max_failing_units: null, note: unexplained intervals registered; count frozen at the first run}
     closed:
       daily: {pending: from C5's DPS sensitivity curve}
@@ -113,8 +117,8 @@ targets:
     title: 天快照 CurrentGpm
     split: validation
     cells_open:
-      nonzero: {rel_max: 1.0e-4}        # G20's match criterion
-      zero: {exact: true}
+      nonzero: {g20: 1.0e-4}            # G20's match criterion, |sim-ref| <= 1e-4*max(1, |ref|)
+      zero: {g20: 1.0e-4}
     cells_closed:
       nonzero: {rel_max: 0.01}
     open:
@@ -141,12 +145,17 @@ targets:
   T12:
     title: 每个物品刷怪点每天的份数（稀有度 × 阶段）
     split: post-hoc structure (Chain, Swapped, late plateau)
+    # Design: training <= 5%, holdout <= 7%, late plateau <= 2% (copies per charge). Mapping here: a phase
+    # wholly before TC104 is training (5%); a phase reaching past TC104 (57-154, 154-405) takes the holdout 7%
+    # (never stricter than the design for its holdout days). The 2% plateau is per charge and needs charge
+    # counts (events/spawner_days, C5); it is not checked yet. Cells are per (kind, rarity): design 7.3 K-units
+    # name weapon and armor separately.
     cells:
       daily: {rel_max: 0.05}
       phase_4_19: {rel_max: 0.05}
       phase_19_57: {rel_max: 0.05}
       phase_57_154: {rel_max: 0.07}
-      phase_154_405: {rel_max: 0.02}
+      phase_154_405: {rel_max: 0.07}
     open:
       daily: {all_ok: true}
       phase_4_19: {all_ok: true}

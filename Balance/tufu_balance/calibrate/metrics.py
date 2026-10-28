@@ -29,6 +29,7 @@ from ..model.f32 import f32
 from ..model.snapshots import MAIN_INTERPOLATION_STATS, DIRECT_INTERPOLATION_STATS
 from ..model.enums import StatType
 from ..model import timeaxis as TA
+from ..model.simcalc import gpm_matches
 from . import targets as T
 
 TOLERANCES = Path(__file__).with_name("tolerances.yaml")
@@ -40,6 +41,10 @@ HOLDOUT_TC = 104  # design 5.1: training TC < 104, holdout TC >= 104
 T12_PHASES = ((4, 19), (19, 57), (57, 154), (154, 405))
 T16_MAIN = ("Health", "HealthRegen", "MovementSpeed")
 SLOT_ARMOR_FROM_TC = 9
+EARLY_INTERVALS = ((0.0, 20.0), (1.0, 5.0))  # P06 defaults: (EarlySnapshotIntervalStarts, EarlySnapshotIntervals)
+# A snapshot is taken at the first tick past its due time; one slow-phase action (fight + move) is assumed
+# shorter than this many minutes (the shipped early list overshoots by at most 1.19).
+EARLY_MAX_OVERSHOOT = 2.0
 
 
 @dataclass
@@ -135,7 +140,20 @@ def _forced_rows(early: Sequence[T.Snapshot], days: Sequence[T.Snapshot]) -> set
     return {i for i, s in enumerate(early) if (s.playtime, s.total_playtime) in pt}
 
 
-def t03(sim: T.Series, tg: T.Targets, interval_starts=(0.0, 20.0), intervals=(1.0, 5.0)) -> list[Cell]:
+def early_intervals(series: T.Series) -> tuple[tuple[float, ...], tuple[float, ...]]:
+    """P06 of the run (its job's parameter object), else the defaults."""
+    p = series.params or {}
+    starts = p.get("EarlySnapshotIntervalStarts", EARLY_INTERVALS[0])
+    steps = p.get("EarlySnapshotIntervals", EARLY_INTERVALS[1])
+    if len(starts) != len(steps) or not starts:
+        raise ValueError(f"EarlySnapshotIntervalStarts {starts} and EarlySnapshotIntervals {steps} do not pair up")
+    return tuple(float(x) for x in starts), tuple(float(x) for x in steps)
+
+
+def t03(sim: T.Series, tg: T.Targets, interval_starts: Sequence[float] | None = None,
+        intervals: Sequence[float] | None = None) -> list[Cell]:
+    if interval_starts is None or intervals is None:
+        interval_starts, intervals = early_intervals(sim)
     ref = tg.shipped.early
     out = [Cell("T03", "rows", "rows", len(sim.early), len(ref), len(sim.early) - len(ref), split="structure")]
     if sim.early:
@@ -152,11 +170,12 @@ def t03(sim: T.Series, tg: T.Targets, interval_starts=(0.0, 20.0), intervals=(1.
         if j in forced:
             continue
         p0, p1 = float(sim.early[j - 1].playtime), float(sim.early[j].playtime)
-        step = intervals[bisect.bisect_right(interval_starts, p0) - 1]
+        step = intervals[max(0, bisect.bisect_right(interval_starts, p0) - 1)]
+        late = max(step, intervals[max(0, bisect.bisect_right(interval_starts, p1) - 1)]) + EARLY_MAX_OVERSHOOT
         gap = p1 - p0
         out.append(Cell("T03", "cadence", f"Snapshots[{sim.early[j].index:02d}]", gap, step,
-                        max(0.0, step - gap - 1e-3), tc=sim.early[j].tc, split="structure",
-                        note="dP >= interval(P_prev)"))
+                        max(0.0, step - gap - 1e-3, gap - late), tc=sim.early[j].tc, split="structure",
+                        note=f"interval(P_prev) <= dP <= max(interval(P_prev), interval(P)) + {EARLY_MAX_OVERSHOOT:g}"))
     pt = {(s.playtime, s.total_playtime) for s in sim.early}
     for d in sim.tc:
         if 1 <= d.tc < FAST_FROM_TC:
@@ -287,16 +306,22 @@ def t10(sim: T.Series, tg: T.Targets) -> list[Cell]:
     return out
 
 
-def _evolution(series: T.Series, tc: int, x: Mapping) -> tuple[bool, int]:
-    """(evolved, evolution level) of a snapshot item: the run's own record when it exported one, else the
-    survey's reading (Level != Copies means evolved, and then Level is the evolution level)."""
+def _evolution(series: T.Series, tc: int, x: Mapping, info: T.ItemInfo | None = None) -> tuple[bool, int, str]:
+    """(evolved, evolution level, how) of a snapshot item: the run's own record when it exported one
+    (``run``), else the survey's reading (``heuristic``: Level != Copies means evolved, and then Level is the
+    evolution level). A reading whose level is outside ``1..len(info.shards)`` cannot be an evolution level:
+    it is ``invalid`` and counts as not evolved, so a perturbed copy count never invents levels."""
     rec = (series.items_evolved or {}).get((tc, x["Key"]))
     if rec is not None and rec[0] is not None:
         evolved = bool(rec[0])
         level = rec[1] if rec[1] is not None else (x["Level"] if evolved else 0)
-        return evolved, int(level) if evolved else 0
-    evolved = x["Level"] != x["Copies"]
-    return evolved, int(x["Level"]) if evolved else 0
+        return evolved, int(level) if evolved else 0, "run"
+    if x["Level"] == x["Copies"]:
+        return False, 0, "heuristic"
+    level = int(x["Level"])
+    if info is not None and not 1 <= level <= len(info.shards):
+        return False, 0, "invalid"
+    return True, level, "heuristic"
 
 
 def _position(days: Sequence[int], tc: int | None) -> int | None:
@@ -333,18 +358,27 @@ def _acquired(info: T.ItemInfo, evolved: bool, level: int, copies: int) -> int:
     return copies + (sum(info.shards[:level]) if evolved else 0)
 
 
-def _gains(series: T.Series, tg: T.Targets, a_tc: int, b_tc: int) -> dict[tuple[str, str], int] | None:
+def _gains(series: T.Series, tg: T.Targets, a_tc: int, b_tc: int,
+           invalid: list | None = None) -> dict[tuple[str, str], int] | None:
+    """Copies acquired between two day snapshots per (kind, rarity); ``invalid`` collects the items whose
+    evolution reading was rejected."""
     a, b = series.day(a_tc), series.day(b_tc)
     if a is None or b is None:
         return None
-    before = {x["Key"]: _acquired(tg.items[x["Key"]], *_evolution(series, a_tc, x), x["Copies"])
-              for x in a.items if x["Key"] in tg.items}
+
+    def acquired(tc: int, x: Mapping, info: T.ItemInfo) -> int:
+        evolved, level, how = _evolution(series, tc, x, info)
+        if how == "invalid" and invalid is not None:
+            invalid.append((tc, x["Key"]))
+        return _acquired(info, evolved, level, x["Copies"])
+
+    before = {x["Key"]: acquired(a_tc, x, tg.items[x["Key"]]) for x in a.items if x["Key"] in tg.items}
     out: dict[tuple[str, str], int] = {}
     for x in b.items:
         info = tg.items.get(x["Key"])
         if info is None:
             continue
-        gain = _acquired(info, *_evolution(series, b_tc, x), x["Copies"]) - before.get(x["Key"], 0)
+        gain = acquired(b_tc, x, info) - before.get(x["Key"], 0)
         key = ("armor" if info.is_armor else "weapon", info.rarity)
         out[key] = out.get(key, 0) + gain
     return out
@@ -358,20 +392,24 @@ def t12(sim: T.Series, tg: T.Targets) -> list[Cell]:
     out = []
     for a, b, group in segments:
         ref = _gains(tg.shipped, tg, a, b) or {}
-        got = _gains(sim, tg, a, b)
+        invalid: list = []
+        got = _gains(sim, tg, a, b, invalid)
+        note = f"{len(invalid)} item readings rejected (Level outside the evolution table)" if invalid else ""
         for key in sorted(set(ref) | set(got or {})):
             r = ref.get(key, 0)
             s = None if got is None else got.get(key, 0)
             out.append(Cell("T12", group, f"{a:03d}->{b:03d}|{key[0]}|{key[1]}", s, r, _diff(s, r), _rel(s, r),
-                            tc=b, split=_split(a)))
+                            tc=b, split="holdout" if b > HOLDOUT_TC else "train", note=note))
     return out
 
 
-def evolution_first_reached(series: T.Series) -> dict[tuple[str, int], int]:
+def evolution_first_reached(series: T.Series, items: Mapping[str, T.ItemInfo] | None = None
+                            ) -> dict[tuple[str, int], int]:
+    """(item, level) -> first day snapshot at that evolution level or above."""
     out: dict[tuple[str, int], int] = {}
     for s in series.tc:
         for x in s.items:
-            evolved, level = _evolution(series, s.tc, x)
+            evolved, level, _ = _evolution(series, s.tc, x, (items or {}).get(x["Key"]))
             for k in range(1, level + 1):
                 out.setdefault((x["Key"], k), s.tc)
     return out
@@ -379,7 +417,7 @@ def evolution_first_reached(series: T.Series) -> dict[tuple[str, int], int]:
 
 def t13(sim: T.Series, tg: T.Targets) -> list[Cell]:
     days = tg.shipped.tc_days
-    a, b = evolution_first_reached(sim), evolution_first_reached(tg.shipped)
+    a, b = evolution_first_reached(sim, tg.items), evolution_first_reached(tg.shipped, tg.items)
     out = []
     for item, k in sorted(set(a) | set(b)):
         info = tg.items[item]
@@ -426,6 +464,10 @@ def t16(sim: T.Series, tg: T.Targets) -> list[Cell]:
 
 
 def t17(sim: T.Series, tg: T.Targets) -> list[Cell]:
+    """Weapon slots against the fitted fixture (report), and no armor slot before TC9 (design 5.1). The
+    fixture itself has armor 1 at TC0-8, where no armor item exists yet (unidentifiable); the armor rule
+    compares with the design's 0, not with the fixture. The shipped Simulation Data carries no slots, so
+    the shipped run has no values here."""
     if tg.slot_schedule is None:
         return []
     out = []
@@ -502,6 +544,8 @@ def _cell_ok(cell: Cell, crit: Mapping[str, Any]) -> bool | None:
         ok &= abs(r) <= crit["abs_max"]
     if "rel_max" in crit:
         ok &= cell.rel is not None and cell.rel <= crit["rel_max"]
+    if "g20" in crit:  # G20's cell test: |sim - ref| <= x * max(1, |ref|) (simcalc.gpm_matches)
+        ok &= not _nan(cell.sim) and not _nan(cell.ref) and gpm_matches(cell.ref, cell.sim, crit["g20"])
     if "abs_or_rel" in crit:
         a, rel = crit["abs_or_rel"]
         ok &= abs(r) <= a or (cell.rel is not None and cell.rel <= rel)
@@ -599,24 +643,31 @@ def _group_status(tid: str, group: str, cells: list[Cell], rule: Any) -> GroupRe
     return GroupResult(tid, group, "pass" if ok else "fail", len(cells), n_ok, _rule_text(rule), "; ".join(details))
 
 
+def _group_rule(spec: Mapping[str, Any], mode: str, group: str) -> Any:
+    mode_spec = spec[mode]
+    return mode_spec if isinstance(mode_spec, str) else (mode_spec or {}).get(group, "report")
+
+
 def evaluate(cells: Sequence[Cell], tolerances: Mapping[str, Any], mode: str) -> Evaluation:
     if mode not in MODES:
         raise ValueError(f"mode must be one of {MODES}")
     out_cells = []
     by_group: dict[tuple[str, str], list[Cell]] = {}
     specs = tolerances["targets"]
+    missing = {(c.target, c.group) for c in cells}
+    missing -= {(c.target, c.group) for c in cells if c.residual is not None}
     for c in cells:
         spec = specs[c.target]
         crit = (spec.get(f"cells_{mode}") or {}).get(c.group) or (spec.get("cells") or {}).get(c.group) or {}
+        if _group_rule(spec, mode, c.group) == "n/a" or (c.target, c.group) in missing:
+            crit = {}  # no verdict: a mode the design leaves empty ("—"), or a group the run has no values for
         c = replace(c, ok=_cell_ok(c, crit))
         out_cells.append(c)
         by_group.setdefault((c.target, c.group), []).append(c)
     groups = []
     status: dict[str, list[str]] = {}
     for (tid, group), members in sorted(by_group.items()):
-        mode_spec = specs[tid][mode]
-        rule = mode_spec if isinstance(mode_spec, str) else (mode_spec or {}).get(group, "report")
-        g = _group_status(tid, group, members, rule)
+        g = _group_status(tid, group, members, _group_rule(specs[tid], mode, group))
         groups.append(g)
         status.setdefault(tid, []).append(g.status)
     targets = {}
@@ -644,9 +695,10 @@ def evaluate_run(sim_db: str | Path, tg: T.Targets, mode: str, tolerances: Mappi
 def write_shipped_job(job_dir: str | Path, *, slot_schedule: Mapping[int, tuple[int, int]] | None = None,
                       asset: str | Path | None = None) -> Path:
     """A job directory holding the shipped ``Simulation Data`` the way a run exports it (C1's
-    ``simulation_data.json`` read from the asset's YAML, a manifest with the export digests, and a
-    ``snapshots_ext.csv`` whose slots are the T17 reference: fitted weapon slots, no armor slot before TC9).
-    ``simio.ingest`` turns it into the shipped ``sim.sqlite``: the reference run of the metrics."""
+    ``simulation_data.json`` read from the asset's YAML and a manifest with the export digests).
+    ``simio.ingest`` turns it into the shipped ``sim.sqlite``: the reference run of the metrics. The shipped
+    data has no slot counts, so T17 has no values for it; ``slot_schedule`` writes the given slots verbatim
+    into a ``snapshots_ext.csv`` (tests of T17 only)."""
     import hashlib
     import json
 
@@ -665,8 +717,6 @@ def write_shipped_job(job_dir: str | Path, *, slot_schedule: Mapping[int, tuple[
         for i, s in enumerate(data["TimeChunkSnapshots"]):
             tc = int(s["TimeChunkIndex"])
             weapon, armor = slot_schedule.get(tc, (None, None))
-            if armor is not None and tc < SLOT_ARMOR_FROM_TC:
-                armor = 0
             cells = ["TimeChunkSnapshots", i, i, tc, repr(float(s["Playtime"])), repr(float(s["TotalPlaytime"])),
                      int(s["Location"]), "" if weapon is None else weapon, "" if armor is None else armor, ""]
             lines.append(",".join(str(c) for c in cells))

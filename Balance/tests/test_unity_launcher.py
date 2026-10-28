@@ -3,7 +3,8 @@
 The fake editor (written to a temp dir) reads -projectPath/-logFile/-tufuSimRequest like the real one
 and behaves according to FAKE_UNITY_MODE: ok, stall, nobeat, exit:N, touch_dev, touch_real, dirty. With
 -tufuSimServe it plays the resident editor: writes sandbox.json, serves the queue (each request's jobs get
-a manifest with exit FAKE_SERVE_EXIT; touch_real/touch_project fire while a request runs) until the stop file.
+a manifest with exit FAKE_SERVE_JOB_EXIT, default FAKE_SERVE_EXIT, the request's exit; touch_real/touch_project
+fire while a request runs) until the stop file.
 """
 
 from __future__ import annotations
@@ -57,12 +58,13 @@ FAKE_UNITY = textwrap.dedent('''\
             inbox[0].rename(running)
             r = json.loads(running.read_text())
             code = int(os.environ.get("FAKE_SERVE_EXIT", "0"))
+            job_code = int(os.environ.get("FAKE_SERVE_JOB_EXIT", code))
             jobs = []
             for job in r["jobs"]:
                 d = Path(r["out_dir"]) / job["job_id"]
                 d.mkdir(parents=True, exist_ok=True)
-                (d / "manifest.json").write_text(json.dumps({"job_id": job["job_id"], "exit_code": code}))
-                jobs.append({"job_id": job["job_id"], "exit_code": code})
+                (d / "manifest.json").write_text(json.dumps({"job_id": job["job_id"], "exit_code": job_code}))
+                jobs.append({"job_id": job["job_id"], "exit_code": job_code})
             if "touch_real" in modes:
                 Path(os.environ["FAKE_REAL_SAVE"]).write_text("changed")
             if "touch_project" in modes:
@@ -535,6 +537,7 @@ def test_fake_serve_real_save_written_by_main_editor_is_attributed(serve_tree, m
     ("touch_real", True, lambda n: n > 1, {}, None),                              # editor appeared after start
     ("touch_real", True, lambda n: n == 1, {}, None),                             # editor gone by the submit
     ("touch_real", True, lambda n: True, {"FAKE_SERVE_EXIT": "1"}, None),         # the job did not finish cleanly
+    ("touch_real", True, lambda n: True, {"FAKE_SERVE_JOB_EXIT": "1"}, None),     # request exit 0, a job exit 1
     ("touch_real+touch_project", True, lambda n: True, {}, "project file changed on disk"),
 ])
 def test_fake_serve_real_save_change_without_attribution_fails(serve_tree, monkeypatch, mode, sandbox, present, env,
@@ -551,6 +554,23 @@ def test_fake_serve_real_save_change_without_attribution_fails(serve_tree, monke
     assert "real_changed_by_main_editor" not in out and out["guard_problems"]
     if not out["restored"]:
         assert (Path(state["serve_dir"]) / "_real_backup" / "save_dir" / "game_data.bin").read_text() == "original"
+
+
+def test_fake_serve_other_unity_on_the_run_worktree_blocks_attribution(serve_tree, monkeypatch):
+    """Another Unity with the run worktree open could have written the real save: no attribution."""
+    _main_editor(monkeypatch)
+    state = _serve_start(serve_tree, monkeypatch, "touch_real")
+    intruder = [(565656, f"Unity -projectPath {state['project']}")]
+    monkeypatch.setattr(launcher, "_other_unity", lambda project, pid: list(intruder))
+    result = _serve_submit(serve_tree)
+    assert result.exit_code == launcher.EXIT_GUARD and "real_changed_by_main_editor" not in result.report
+    assert result.report["others_seen"] == intruder
+    assert result.report["guard_problems"] == ["real save file changed: game_data.bin"]
+    free = launcher.wait_for_project_free
+    monkeypatch.setattr(launcher, "wait_for_project_free", lambda project, wait_s: free(project, wait_s) + intruder)
+    out = _serve_stop(serve_tree)
+    assert "real_changed_by_main_editor" not in out and out["guard_problems"]
+    assert (Path(state["serve_dir"]) / "_real_backup" / "save_dir" / "game_data.bin").read_text() == "original"
 
 
 # ---------------------------------------------------------------- sandbox hooks in game code
