@@ -612,6 +612,29 @@ namespace Codebase.Simulation.EditorTools
                 Put("remedy_by_initialize_now", byInit);
                 Put("remedy_only_with_later_clock", byInitLater);
                 Put("remedy_ms", sw.Elapsed.TotalMilliseconds);
+
+                // An emptied spawner in the state HandleDeath leaves (SavedCount = 0, LastSpawnTime = now):
+                // neither call refills it at the same `now`; one small cooldown later ProcessSpawn does.
+                PropertyInfo savedCount = typeof(EnemySpawner).GetProperty("SavedCount", flags);
+                MethodInfo updateNext = typeof(EnemySpawner).GetMethod("UpdateNextProcessTime", flags);
+                EnemySpawner victim = model.Spawners.FirstOrDefault(x => x.AnyoneAlive && !x.Config.IsEvent && !x.Config.IsVip && !x.Config.IsDummy && x.BaseCooldown >= 1f);
+                if (victim != null)
+                {
+                    foreach (EnemyUnit unit in victim.Units.ToList()) victim.ProcessEventDespawn(unit);
+                    savedCount.SetValue(victim, 0, null);
+                    lastSpawn.SetValue(victim, now, null);
+                    updateNext.Invoke(victim, new object[] { now });
+                    victim.ProcessSpawn(now, cooldownVersion, itemVersion);
+                    int same = victim.CurrentCount;
+                    initNow.Invoke(victim, new object[] { now });
+                    int init = victim.CurrentCount;
+                    int small = (int)Math.Ceiling(victim.BaseCooldown);
+                    victim.ProcessSpawn(now + small, cooldownVersion, itemVersion);
+                    Put("frozen_demo_spawner", victim.Config.Key + " small=" + small + " max=" + victim.MaxCount);
+                    Put("frozen_demo_after_process_spawn_same_now", same);
+                    Put("frozen_demo_after_initialize_now_same_now", init);
+                    Put("frozen_demo_after_process_spawn_now_plus_small", victim.CurrentCount);
+                }
                 DumpSpawners("spawners_after_remedy.csv", "after_remedy");
             }
 
