@@ -1,5 +1,23 @@
 {
  "expectations": {
+  "csharp.shipped_probe_rows": {
+   "kind": "exact",
+   "note": "snapshots_ext and items_ext rows of the shipped lists",
+   "source": "design 7.3 C1",
+   "value": [
+    109,
+    1591
+   ]
+  },
+  "csharp.shipped_probe_sha256": {
+   "kind": "exact",
+   "note": "the side-file writers' bytes on the shipped lists",
+   "source": "design 7.3 C1",
+   "value": [
+    "7bfb5477cc853cb496835b51110bc4e440aeab834e06f02c827edd31326928e1",
+    "9001bd191be5db375fafb0e230d45e2e1e44f2e338c1f6b144b2702d4b0dd5ac"
+   ]
+  },
   "csharp.shipped_sha256": {
    "kind": "exact",
    "note": "the exporter's bytes for the shipped asset",
