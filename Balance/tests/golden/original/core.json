@@ -1,0 +1,477 @@
+{
+ "expectations": {
+  "G11.default.k2": {
+   "kind": "exact",
+   "note": "interpolation_default.json rounding",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.default.k3": {
+   "kind": "exact",
+   "note": "interpolation_default.json rounding",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.default.mismatching_columns": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 0
+  },
+  "G11.default.pm": {
+   "kind": "exact",
+   "note": "interpolation_default.json rounding",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.default.sff": {
+   "kind": "exact",
+   "note": "interpolation_default.json rounding",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.default.tf": {
+   "kind": "exact",
+   "note": "interpolation_default.json rounding",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.default.tv": {
+   "kind": "exact",
+   "note": "interpolation_default.json rounding",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_all.failing_snapshots": {
+   "kind": "set",
+   "note": "",
+   "source": "G11",
+   "value": []
+  },
+  "G11.double_all.k2": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.double_all.k3": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.double_all.other_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 2289
+  },
+  "G11.double_all.pm": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_all.sff": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_all.tf": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_all.tv": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_tail.failing_snapshots": {
+   "kind": "set",
+   "note": "",
+   "source": "G11",
+   "value": []
+  },
+  "G11.double_tail.k2": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.double_tail.k3": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.double_tail.other_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 2289
+  },
+  "G11.double_tail.pm": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_tail.sff": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_tail.tf": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.double_tail.tv": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.fma.failing_snapshots": {
+   "kind": "set",
+   "note": "",
+   "source": "G11",
+   "value": []
+  },
+  "G11.fma.k2": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.fma.k3": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 109
+  },
+  "G11.fma.other_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 2289
+  },
+  "G11.fma.pm": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.fma.sff": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.fma.tf": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.fma.tv": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 981
+  },
+  "G11.grid_diff.double_tail.double_all": {
+   "kind": "exact",
+   "note": "of 60800 grid points",
+   "source": "G11",
+   "value": 140
+  },
+  "G11.grid_diff.fma.double_all": {
+   "kind": "exact",
+   "note": "of 60800 grid points",
+   "source": "G11",
+   "value": 263
+  },
+  "G11.grid_diff.fma.double_tail": {
+   "kind": "exact",
+   "note": "of 60800 grid points",
+   "source": "G11",
+   "value": 123
+  },
+  "G11.grid_diff.stepwise.double_all": {
+   "kind": "exact",
+   "note": "of 60800 grid points",
+   "source": "G11",
+   "value": 1015
+  },
+  "G11.grid_diff.stepwise.double_tail": {
+   "kind": "exact",
+   "note": "of 60800 grid points",
+   "source": "G11",
+   "value": 875
+  },
+  "G11.grid_diff.stepwise.fma": {
+   "kind": "exact",
+   "note": "of 60800 grid points",
+   "source": "G11",
+   "value": 842
+  },
+  "G11.grid_max_ulp_between_roundings": {
+   "kind": "exact",
+   "note": "measured on first run",
+   "source": "G11",
+   "value": 2
+  },
+  "G11.k2_405": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11/P2",
+   "value": 3.000000238418579
+  },
+  "G11.k3_405": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11/P2",
+   "value": 4.907519817352295
+  },
+  "G11.stat_cells": {
+   "kind": "exact",
+   "note": "981 main + 2289 other",
+   "source": "G11",
+   "value": 3270
+  },
+  "G11.stepwise.failing_snapshots": {
+   "kind": "set",
+   "note": "",
+   "source": "G11",
+   "value": [
+    [
+     "time_chunk_snapshots",
+     20
+    ],
+    [
+     "time_chunk_snapshots",
+     30
+    ],
+    [
+     "time_chunk_snapshots",
+     31
+    ],
+    [
+     "time_chunk_snapshots",
+     32
+    ],
+    [
+     "time_chunk_snapshots",
+     35
+    ]
+   ]
+  },
+  "G11.stepwise.k2": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 108
+  },
+  "G11.stepwise.k3": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 105
+  },
+  "G11.stepwise.mismatching_columns": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 75
+  },
+  "G11.stepwise.other_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 2289
+  },
+  "G11.stepwise.pm": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 945
+  },
+  "G11.stepwise.sff": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 972
+  },
+  "G11.stepwise.tf": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 972
+  },
+  "G11.stepwise.tv": {
+   "kind": "exact",
+   "note": "",
+   "source": "G11",
+   "value": 960
+  },
+  "G14.day_list_tc_floor": {
+   "kind": "exact",
+   "note": "",
+   "source": "G14",
+   "value": 46
+  },
+  "G14.early_list_tc_floor": {
+   "kind": "exact",
+   "note": "",
+   "source": "G14",
+   "value": 63
+  },
+  "G14.early_offline_max_residual": {
+   "kind": "max",
+   "note": "design: 0.0032",
+   "source": "G14",
+   "value": 0.005
+  },
+  "G14.early_offline_multiple": {
+   "kind": "exact",
+   "note": "|T-P-230k| <= 0.005 min",
+   "source": "G14",
+   "value": 63
+  },
+  "G19.day_gpm_monotone_steps": {
+   "kind": "exact",
+   "note": "of 45 x 30 day-to-day steps",
+   "source": "G19",
+   "value": 1350
+  },
+  "G19.day_gpm_values": {
+   "kind": "exact",
+   "note": "",
+   "source": "G19",
+   "value": 1380
+  },
+  "G19.early_gpm_matches": {
+   "kind": "exact",
+   "note": "relative error <= 1e-5",
+   "source": "G19",
+   "value": 1800
+  },
+  "G19.early_gpm_nan": {
+   "kind": "exact",
+   "note": "dP = 0 rows",
+   "source": "G19",
+   "value": 60
+  },
+  "G19.early_gpm_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G19",
+   "value": 1800
+  },
+  "G19.trimmed_days_count": {
+   "kind": "exact",
+   "note": "",
+   "source": "G19",
+   "value": 46
+  },
+  "G19.trimmed_days_equal": {
+   "kind": "exact",
+   "note": "",
+   "source": "G19",
+   "value": true
+  },
+  "G22.ablation_violating_rows": {
+   "kind": "set",
+   "note": "period_end += 10",
+   "source": "G22",
+   "value": [
+    49,
+    52,
+    58,
+    60,
+    62
+   ]
+  },
+  "G22.offline_intervals_nonempty": {
+   "kind": "exact",
+   "note": "",
+   "source": "G22",
+   "value": 24
+  },
+  "G22.pinned_offlines": {
+   "kind": "exact",
+   "note": "",
+   "source": "G22",
+   "value": {
+    "12": 124.3761,
+    "18": 185.9833,
+    "24": 248.1339,
+    "6": 63.2775
+   }
+  },
+  "G22.rule_chain_feasible": {
+   "kind": "exact",
+   "note": "",
+   "source": "G22",
+   "value": true
+  },
+  "G22.rule_feasible_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G22",
+   "value": 63
+  },
+  "G23.early_rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "G23",
+   "value": 63
+  },
+  "G23.forced_rows_in_both_lists": {
+   "kind": "exact",
+   "note": "",
+   "source": "G23",
+   "value": [
+    25,
+    37,
+    50
+   ]
+  },
+  "G23.last_row": {
+   "kind": "exact",
+   "note": "index, TC, P, T, offlines before it",
+   "source": "G23",
+   "value": [
+    62,
+    3,
+    248.1339,
+    5538.132,
+    23
+   ]
+  },
+  "G23.nan_gpm_rows": {
+   "kind": "exact",
+   "note": "copies right after the day-crossing offline",
+   "source": "G23",
+   "value": [
+    25,
+    50
+   ]
+  },
+  "G23.tc4_forced_only_in_day_list": {
+   "kind": "exact",
+   "note": "",
+   "source": "G23",
+   "value": true
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "core"
+}
