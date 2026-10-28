@@ -559,8 +559,7 @@ namespace Codebase.Simulation.EditorTools
                 }
             }
 
-            private static int SpawnerDataCount(SimulationSystem system) =>
-                ((System.Collections.ICollection)typeof(SimulationSystem).GetField("spawnerData", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(system)).Count;
+            private static int SpawnerDataCount(SimulationSystem system) => system.spawnerData.Count;
 
             // Q36: which call brings units back under a fixed `now`, before any IsRunning.
             private static void RemedyProbe()
