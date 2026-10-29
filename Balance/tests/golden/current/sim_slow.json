@@ -169,21 +169,21 @@
   },
   "island3_gate.first_loss_per_h": {
    "kind": "exact",
-   "note": "closed loop, islands 2-3 open, test-only CMove=2; shipped TC3 state 4.163",
+   "note": "default-clock closed loop, no grants or forced unlocks; shipped TC3 state 4.163",
    "source": "design 4.5",
-   "value": 1.217
+   "value": 1.527
   },
   "island3_gate.first_p": {
    "kind": "exact",
    "note": "",
    "source": "design 4.5",
-   "value": 240.174
+   "value": 240.011
   },
   "island3_gate.none_gate_deaths": {
    "kind": "exact",
    "note": "",
    "source": "design 4.5 P15",
-   "value": 1
+   "value": 2
   },
   "killseq.clear_time.0=1": {
    "kind": "exact",

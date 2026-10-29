@@ -111,7 +111,6 @@ def test_refresh_uses_private_extracted_db_and_pins_unity_rev(tmp_path, monkeypa
     assert len(private_tmp.name) <= 14 and not private_tmp.is_relative_to(dest)
 
 
-
 def test_refresh_removes_private_tmp_when_execute_raises(tmp_path, monkeypatch):
     monkeypatch.setattr(R, "BALANCE", tmp_path)
     seen = []
@@ -124,6 +123,7 @@ def test_refresh_removes_private_tmp_when_execute_raises(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError, match="interrupted refresh"):
         R.main(["--out", str(tmp_path / "out/interrupted")])
     assert len(seen) == 1 and not seen[0].exists()
+
 
 def test_outside_out_is_rejected():
     with pytest.raises(SystemExit):

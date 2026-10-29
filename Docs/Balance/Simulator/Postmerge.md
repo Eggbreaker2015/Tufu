@@ -1,5 +1,83 @@
 # Postmerge 集成验收
 
+## Round 3：默认时钟门禁验收与 refresh 临时目录清理
+
+实现提交 `a623092`（后续仅黄金接受、排版和验收记录）。C7 门禁测试改用现有 `slow-default` / `slow-current-health` / `slow-none`，删除单独的 grant、强制开岛和时钟夹具。保留非空事件、两个精确谓词、day=3 且 P≥240、None 选择并死亡、respawns≥死亡数、不开岛 4 的全部性质。拒绝策略不能在岛 3 门禁开战；断言按岛 3 过滤，正常闭环早先打过其它门禁不算违规。默认参数和生产策略没有改变；撤回 Round 2 及 `97c986f` 对额外夹具时钟必要性的解释，不存在要交 Z1 回填的 Q34 偏离。
+
+默认闭环证据（`out/postmerge/round3/default-gate-evidence.json`）：
+
+| 作业 / 门槛 | 岛 3 首次 day / P | loss/H | 选择 / 岛 3 门禁死亡 | 岛 4 |
+|---|---|---|---|---|
+| slow-default / SameAsFast | 3 / 240.010956 | 1.5270167 | 不选 / 0 | 不开 |
+| slow-current-health / CurrentHealth | 3 / 241.550415 | 1.4719318 | 不选 / 0 | 不开 |
+| slow-none / None | 3 / 240.056076 | 2.3326004 | 选择 / 2 | 不开 |
+
+P1 接受记录 `tests/golden/accepted/sim_slow.jsonl:6`（测量 HEAD `a623092`），只改变本轮三个 CURRENT 键：
+
+| 键 | Round 2 CURRENT → Round 3 CURRENT | 登记 |
+|---|---|---|
+| island3_gate.first_loss_per_h | 1.217 → 1.527 | record 6 / loosen |
+| island3_gate.first_p | 240.174 → 240.011 | record 6 / loosen |
+| island3_gate.none_gate_deaths | 1 → 2 | record 6 / loosen；复用默认 None 轨迹必然改变此精确计数 |
+
+接受理由明确 C6 合入后默认时钟已能覆盖门禁。三个键的原版基线、数值比较方式和容差均未改；record 5 保留为历史审计记录，当前值由 record 6 更正。接受前模块 **60 passed、1 expected golden failure、1 perf skip，6.80 秒**：所有硬性质先通过，唯一失败逐项列出这三个键。
+
+P13 `refresh.main` 为短 socket 路径创建的 `rt-*` 目录现在在 `execute()` 的 `finally` 中递归删除，正常结束、子步骤非零退出、异常退出均覆盖。`tests/test_refresh.py` **28 passed，3.13 秒**；原有两个遗留目录已删除。K2 的清怪 / Tick / P 时钟交接和 Z1 的优先级推论更正在下方交接条目中列明。
+
+### 本轮验收环境
+
+命令在本工作树 `Balance/` 下，解释器 `/Users/joyfort/MyProjects/Tufu-stage5/Balance/.venv/bin/python`；`TUFU_BALANCE_DB=/Users/joyfort/MyProjects/Tufu-stage5/Balance/out/balance.sqlite`，pytest `TMPDIR=$PWD/out/postmerge/tmp`。Unity 固定 `TUFU_UNITY_REV=97c986f`，refresh 显式 `--rev 97c986f`：`git diff 97c986f HEAD -- Recovery/StudyProject` 为空，整个 Unity 工程字节未变。成功作业可复用该提交的 launcher 缓存；确定性强制重启、自检、失败型作业和参数导入照常执行。
+
+
+### 最终验收
+
+所有命令退出 0。完整 Unity 的三个 skip 都是机器负载下的 perf 测试，没有主编辑器存档写入豁免、失败或错误。报告与日志在 `Balance/out/postmerge/round3/`。
+
+| 验收项 | 结果 | 命令、计数与耗时 |
+|---|---|---|
+| C7 默认时钟门禁 | PASS | `python -m pytest -q --unity tests/unity/test_slow_policy.py --junitxml=out/postmerge/round3/slow-final.xml`：**61 passed、1 perf skip，7.99 秒**；三门槛硬性质全部保留，门禁数值见上表 |
+| K2 / Z1 交接 | PASS | 明确记录慢阶段 clears / ticks / 顺路 clears 增加、TC3 时钟、门禁优先级反例；删除多余夹具时钟偏离的交接要求，见下节 |
+| P13 临时目录 | PASS | `python -m pytest -q tests/test_refresh.py`：**28 passed，3.13 秒**；正常 / 非零 / 异常退出均清理；实际 refresh 后 `rt-*` **0** 个，`tmp-cleanup.json` |
+| 完整 Unity | PASS | `python -m pytest -q --unity tests/unity --junitxml=out/postmerge/round3/unity-final.xml --durations=25`：**287 passed、3 perf skipped、0 failures / errors，444.25 秒** |
+| refresh L1 | PASS | `python -m tufu_balance.refresh --level 1 --rev 97c986f --out out/postmerge/round3/refresh`：**13/13 步 exit 0，73.07 秒，CURRENT unchanged=true**；`refresh/summary.md` |
+| 全仓 Python | PASS | `python -m pytest -q --junitxml=out/postmerge/round3/pytest-final.xml --durations=15`：**969 passed、297 skipped、0 failures / errors，201.60 秒**；跳过包含未启用 Unity 和繁忙机器的 perf 测试 |
+| digest-enabled golden-405 | PASS | `PYTHONPATH=$PWD python out/postmerge/round3/recheck-golden405.py`：launcher 复用 `97c986f` 的 guarded 运行 `b67cdb88f367…`、exit 0；重新 ingest 并逐项执行 X1–X7，**349103 项、0 mismatch**，共 **15.62 秒**（交叉检查 **14.30 秒**） |
+| C6 inventory-free / X2 | PASS | 完整 Unity 的 inventory 模块 **14 passed，24.89 秒**；`test_inventory_free_crosscheck_includes_slow_item_grants` 重新执行 **12.68 秒**：**127** 次正慢物品发放、X2 **6340** 项 / **56** 个 slow-tick 快照、0 mismatch。X1 / X3 / X5 / X6 / X7 也通过；无 bake report 的 X4 明确 vacuous |
+| W0 fixture | PASS | `python tests/golden/fixtures/generate.py --check`：**identical**；仅已有 provenance 提示，`fixtures.log` |
+| cscheck | PASS | `python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-Postmerge`：**2.5 秒**；带 / 不带 UNITY_EDITOR 均 0 errors、签名 0 violations、禁用 API 0 uses；已有 warnings 3707 / 8。refresh 内再跑同样通过 |
+| 黄金守卫 | PASS | `python -m tufu_balance.golden guard`：**20 suites、0 violations**；本轮三个键均为 record 6，无其它 CURRENT 变化 |
+
+完整 Unity 各模块计数 / 耗时来自 `unity-by-module.json`（秒数包含各用例 setup / call / teardown）：
+
+| 模块 | passed | skipped | failures / errors | 秒 |
+|---|---:|---:|---:|---:|
+| bake_tool | 6 | 0 | 0 / 0 | 1.00 |
+| determinism | 4 | 0 | 0 / 0 | 26.43 |
+| diff_e2e | 3 | 0 | 0 / 0 | 61.13 |
+| differential | 14 | 0 | 0 / 0 | 2.62 |
+| engine | 21 | 1 | 0 / 0 | 65.67 |
+| export_roundtrip | 7 | 0 | 0 / 0 | 0.55 |
+| fasttick | 18 | 1 | 0 / 0 | 15.12 |
+| headless_smoke | 6 | 0 | 0 / 0 | 56.73 |
+| inventory | 14 | 0 | 0 / 0 | 24.89 |
+| params | 15 | 0 | 0 / 0 | 34.78 |
+| patcher_parity | 73 | 0 | 0 / 0 | 12.44 |
+| run_crosscheck | 6 | 0 | 0 / 0 | 6.98 |
+| sandbox | 19 | 0 | 0 / 0 | 100.15 |
+| slow_policy | 61 | 1 | 0 / 0 | 6.48 |
+| state_override | 18 | 0 | 0 / 0 | 12.97 |
+| x2_cache_basis | 2 | 0 | 0 / 0 | 15.73 |
+
+Golden-405 的 X1–X7 项数分别为 **55920 / 6340 / 12180 / 717 / 405 / 261361 / 12180**，各 0 mismatch；X2 forecast_order 和 X3 / X7 的 missing_health、running_max、armor_tie_selection 没有区分样本，仍在报告中标为 vacuous。C7 argmax 对每个候选的奖励和倍率独立重算，但普通候选的成本来自 trace；没有声称逐候选成本均已独立核对。
+
+ORIGINAL、冻结 fixtures、默认参数、数值容差、Design.md 和 Unity 工程未变。共享 DB SHA256 仍为 `a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098`，mode **444**。最终 launcher status：运行工作树 **clean=true、lock=null、unity_processes=[]、serve.running=false**。无未完成的本单元工作或新的集成阻塞；校准缺口保留下节交接，没有用测试改默认行为来消除。交付提交后本单元 git status 干净；没有 push、修改其它开发分支、删除工作树或接触用户编辑器。
+
+### 交接
+
+- **C4 / C7**：上轮 15 项已逐项处理；生产行为没有强制门禁优先、禁止进化或延后解锁之类的改动。
+- **Z1**：修订设计 4.5 / 7.3 C7 的“门禁奖励 1e6 → 总被选中”：门禁按优先级竞争，1e6 并不保证必胜；普通物品目标约便宜 200 倍时仍可能胜出（实际阈值还受 Count / PriorityMultiplier 影响）。`slow-bydist` 第 2 天 P=125.751366：门禁成本 93.7493−10.6106+18.4229=101.5615 秒，优先级 1e6×10/101.5615=98462.48；岛 1 Cut 物品点成本 11.00607−10.61064=0.395428 秒，优先级 1e4×5/0.395428=126445.35。奖励和倍率来自只读 DB，成本来自 C# trace；argmax 不等于所有候选成本均经独立预言机核对，逐场时间模型由 `slow_fight` 测试独立检查。另记录 C4 空战斗策略仍允许 Timed 进化。
+- **K2**：岛 3 第 2 天对随包第 1 天仍是校准交接，不能用测试修复消除；T04 / Q25 等既有未解项未变。C6 物品掉落后默认慢阶段 clears 403→854、ticks 237→557，顺路 clears 175→311；第 3 天结束 P≈255.5（`daily.csv`，随包 TC3≈248.1）。需在合并代码上重查 killseq、T16 / T03 时间模型和慢阶段时钟。
+
 ## Round 2 历史记录：C4 / C7 集成修复（门禁夹具由 Round 3 更正）
 
 结论：**本轮验收全部通过，没有未完成的 Postmerge 阻塞项**。完整 Unity 最终确认 **287 passed、3 perf skipped、0 failures / errors**，523.88 秒；全仓 Python **969 passed**，refresh L1 **13/13** 步通过。
@@ -107,9 +185,7 @@
 
 ### 交接
 
-- **C4 / C7**：上轮 15 项已逐项处理；生产行为没有强制门禁优先、禁止进化或延后解锁之类的改动。
-- **Z1**：修订设计 4.5 / 7.3 C7 的“门禁奖励 1e6 → 总被选中”：门禁按优先级竞争，1e6 并不保证必胜；普通物品目标约便宜 200 倍时仍可能胜出（实际阈值还受 Count / PriorityMultiplier 影响）。`slow-bydist` 第 2 天 P=125.751366：门禁成本 93.7493−10.6106+18.4229=101.5615 秒，优先级 1e6×10/101.5615=98462.48；岛 1 Cut 物品点成本 11.00607−10.61064=0.395428 秒，优先级 1e4×5/0.395428=126445.35。奖励和倍率来自只读 DB，成本来自 C# trace；argmax 不等于所有候选成本均经独立预言机核对，逐场时间模型由 `slow_fight` 测试独立检查。另记录 C4 空战斗策略仍允许 Timed 进化。
-- **K2**：岛 3 第 2 天对随包第 1 天仍是校准交接，不能用测试修复消除；T04 / Q25 等既有未解项未变。C6 物品掉落后默认慢阶段 clears 403→854、ticks 237→557，顺路 clears 175→311；第 3 天结束 P≈255.5（`daily.csv`，随包 TC3≈248.1）。需在合并代码上重查 killseq、T16 / T03 时间模型和慢阶段时钟。
+当前交接见 Round 3（K2 的闭环校准、Z1 的优先级推论 / Timed 进化）；不再要求记录额外门禁夹具时钟。
 
 ## Round 1 历史归档（以下不是本轮最终状态）
 
