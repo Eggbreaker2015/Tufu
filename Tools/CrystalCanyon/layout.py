@@ -65,6 +65,8 @@ ROADS = {
     'SouthEastPath': ([(-3, -42), (4, -40), (12.5, -38)], 5.0),
     'CampPath': ([(-4, -33), (-11, -32), (-17, -31)], 4.5),
 }
+PROP_RADIUS = {'tent': 4.5, 'tent_small': 3.5, 'cart': 3.0, 'rubble': 3.8, 'ruin_wall': 4.5, 'ruin_tall': 4.2, 'ruin_arch': 4.0,
+               'planks': 5.0, 'dock': 3.8, 'table': 2.0, 'fence': 3.4, 'lamp': 1.2, 'signpost': 1.5, 'brazier': 1.0, 'crate': 1.3}
 GATES = {'SouthGate': (0.0, -58.5, 0.0), 'NorthGate': (-2.0, 58.5, 180.0)}  # x, z, yaw
 
 
@@ -116,7 +118,7 @@ def build(seed=7):
         'MesaCentre': (blob(1, 15, 6.5, 6, 7, rng, rot=0.2), 3.0),
         'PlateauSouthEast': (blob(28, -36, 9, 10, 8, rng, rot=0.4), 3.0),
     }
-    pool = blob(23, -7, 8.5, 6.5, 10, rng, wob=0.12)
+    pool = blob(23, -7, 8.5, 6.5, 18, rng, wob=0.06)
     camp = [(-36, -48), (-9, -48), (-9, -21), (-36, -21)]
 
     def blocked(x, z, pad=1.5, road_pad=1.0, camp_too=True):
@@ -129,6 +131,9 @@ def build(seed=7):
             return True
         for gx, gz, _ in GATES.values():
             if abs(x - gx) < 10 and abs(z - gz) < 7:
+                return True
+        for key, px, pz, kw in props:
+            if key != 'gate' and math.hypot(x - px, z - pz) < PROP_RADIUS.get(key, 1.5) + pad:
                 return True
         return dist_to_roads(x, z, sampled) < road_pad
 
@@ -185,6 +190,71 @@ def build(seed=7):
         column(mb, x, z, r, h, rng)
     out['Spires'] = mb
 
+    # ---------------------------------------------------------------- props from the original game
+    # gates
+    for gx, gz, yaw in GATES.values():
+        prop('gate', gx, gz, yaw=yaw)
+        for sx in (-1, 1):
+            prop('brazier', gx + sx * 7.5, gz + (6 if gz < 0 else -6))
+    # mining camp west of the road
+    prop('planks', -21, -32, along=0)
+    prop('tent', -27, -26, yaw=90)
+    prop('tent_small', -30, -40, yaw=30)
+    prop('table', -20, -33, along=90)
+    prop('barrel_wood', -17.5, -34.5, yaw=10)
+    prop('barrel_wood', -22.5, -35.5, yaw=200)
+    prop('brazier', -15, -27)
+    for (x, z, yaw) in [(-14, -41, 0), (-12, -40.5, 25), (-13, -38.8, 60)]:
+        prop('crate', x, z, yaw=yaw)
+    prop('crate', -13.4, -40.4, yaw=40, lift=2.3)
+    prop('barrel', -22, -43, yaw=0)
+    prop('barrel', -20, -44.2, yaw=0)
+    prop('barrel', -24, -44, yaw=0)
+    prop('cart', -12, -25, along=0)
+    prop('cart', -31, -33, along=90)
+    prop('rubble', -31, -44, yaw=0)
+    prop('rock_decal', -26, -36, yaw=0)
+    prop('rock_decal', -15, -30, yaw=70)
+    for z in (-46.5, -40, -33.5, -27, -21.5):        # fence along the west side of the camp
+        prop('fence', -36, z, along=0)
+    for x in (-30, -23.5, -17):                       # and the south side
+        prop('fence', x, -48, along=90)
+    prop('lamp', -9, -28, yaw=0)
+    prop('lamp', -9, -36, yaw=0)
+    for (x, z, yaw) in [(-38, 30, 20), (37, -6, 80), (-24, 54, 140), (24, 52, 40), (-40, -14, 100), (38, -50, 10), (8, -24, 60)]:
+        prop('rock_decal', x, z, yaw=yaw, scale=1.3)
+    # crossroads
+    prop('signpost', -0.5, -7.5, yaw=30)
+    prop('lamp', -10.5, -7, yaw=90)
+    prop('lamp', 1.5, -1, yaw=0)
+    # lamps along the main road, alternating sides
+    for (x, z, yaw) in [(5, -50, 0), (3, -28, 0), (-15, 20, 0), (-3.5, 30, 0), (-8, 44, 0), (4, 50, 0)]:
+        prop('lamp', x, z, yaw=yaw)
+    # pool: a small dock
+    prop('dock', 16.0, -3.5, along=20, scale=0.5, y=FLOOR_Y + 0.18)
+    # west lookout
+    prop('crate', -30, -1, yaw=10, y=4.0)
+    prop('crate', -32, 0.5, yaw=50, y=4.0)
+    prop('lamp', -21.5, 4, yaw=0, y=4.0)
+    # north-east ruins and the shrine
+    prop('ruin_wall', 33, 29, yaw=20, y=4.0)
+    prop('ruin_tall', 18, 37, yaw=-30, y=4.0)
+    prop('rubble', 15.5, 31, yaw=60, y=4.0)
+    prop('brazier', 27.5, 38.5, y=8.0)
+    prop('brazier', 34.5, 38.5, y=8.0)
+    # dig site on the south-east plateau
+    prop('rubble', 27, -40, yaw=0, y=3.0)
+    prop('cart', 31, -31, along=30, y=3.0)
+    prop('crate', 22.5, -33, yaw=15, y=3.0)
+    prop('crate', 23.5, -31, yaw=60, y=3.0)
+    prop('tent_small', 33, -37, yaw=200, y=3.0)
+    # old ruins by the north gate
+    prop('ruin_arch', -16, 41, yaw=0)
+    prop('ruin_wall', 8, 46, yaw=-60)
+    prop('ruin_tall', 15, 51, yaw=120)
+    prop('rubble', -22, 50, yaw=30)
+
+
     # ---------------------------------------------------------------- crystals: landmarks first, then rhythm along the walls
     cr = MeshBuilder(1)
     rk = MeshBuilder(1)
@@ -201,7 +271,7 @@ def build(seed=7):
             rock(rk, px, pz, size * f, rng, sw=ROCK_DARK if k == 0 else ROCK, y0=y)
         for k in range(2):
             a = rng.uniform(0, math.tau)
-            tuft(gr, x + math.cos(a) * size * 1.6, y, z + math.sin(a) * size * 1.6, rng.uniform(0.6, 1.0), rng)
+            tuft(gr, x + math.cos(a) * size * 1.6, y, z + math.sin(a) * size * 1.6, rng.uniform(1.0, 1.5), rng)
 
     # hero crystals (visible from far away)
     cluster(cr, 1.0, 3.0, 15.0, 10.0, rng, BIG, count=9, spread=4.0)            # central mesa
@@ -269,7 +339,7 @@ def build(seed=7):
             off = w / 2 + rng.uniform(0.6, 1.8)
             x, z = pts[i][0] - dz / l * off * side, pts[i][1] + dx / l * off * side
             if not blocked(x, z, pad=0.6, road_pad=0.4, camp_too=False):
-                tuft(gr, x, FLOOR_Y, z, rng.uniform(0.6, 1.0), rng)
+                tuft(gr, x, FLOOR_Y, z, rng.uniform(1.0, 1.5), rng)
     for name in ('PlateauWest', 'PlateauNorthEast', 'PlateauSouthEast'):
         pts = tops[name]
         h = plateaus[name][1]
@@ -277,73 +347,13 @@ def build(seed=7):
             x = rng.uniform(min(p[0] for p in pts), max(p[0] for p in pts))
             z = rng.uniform(min(p[1] for p in pts), max(p[1] for p in pts))
             if point_in_poly((x, z), offset_poly(pts, -1.5)):
-                tuft(gr, x, h, z, rng.uniform(0.6, 1.0), rng)
+                tuft(gr, x, h, z, rng.uniform(1.0, 1.5), rng)
 
-    # ---------------------------------------------------------------- props from the original game
-    # gates
-    for gx, gz, yaw in GATES.values():
-        prop('gate', gx, gz, yaw=yaw)
-        for sx in (-1, 1):
-            prop('brazier', gx + sx * 7.5, gz + (6 if gz < 0 else -6))
-    # mining camp west of the road
-    prop('planks', -21, -32, along=0)
-    prop('tent', -27, -26, yaw=90)
-    prop('tent_small', -30, -40, yaw=30)
-    prop('table', -20, -33, along=90)
-    prop('barrel_wood', -17.5, -34.5, yaw=10)
-    prop('barrel_wood', -22.5, -35.5, yaw=200)
-    prop('brazier', -15, -27)
-    for (x, z, yaw) in [(-14, -41, 0), (-12, -40.5, 25), (-13, -38.8, 60)]:
-        prop('crate', x, z, yaw=yaw)
-    prop('crate', -13.4, -40.4, yaw=40, lift=2.3)
-    prop('barrel', -22, -43, yaw=0)
-    prop('barrel', -20, -44.2, yaw=0)
-    prop('barrel', -24, -44, yaw=0)
-    prop('cart', -12, -25, along=0)
-    prop('cart', -31, -33, along=90)
-    prop('rubble', -31, -44, yaw=0)
-    prop('rock_decal', -26, -36, yaw=0)
-    prop('rock_decal', -15, -30, yaw=70)
-    for z in (-46.5, -40, -33.5, -27, -21.5):        # fence along the west side of the camp
-        prop('fence', -36, z, along=90)
-    for x in (-30, -23.5, -17):                       # and the south side
-        prop('fence', x, -48, along=0)
-    prop('lamp', -9, -28, yaw=0)
-    prop('lamp', -9, -36, yaw=0)
-    cluster(cr, -12, 2.4, -25, 2.4, rng, BIG, count=5, spread=1.0)        # carts loaded with crystals
-    cluster(cr, -31, 2.4, -33, 2.4, rng, ROSE, count=5, spread=1.0)
+    # crystals that belong to the props above
+    cluster(cr, -15.5, FLOOR_Y, -23.5, 2.2, rng, BIG, count=5, spread=1.0)    # crystal ore unloaded next to the carts
+    cluster(cr, -31, FLOOR_Y, -29.5, 2.2, rng, ROSE, count=5, spread=1.0)
     cluster(cr, -31, FLOOR_Y + 1.0, -44, 3.5, rng, DUSK, count=6, spread=1.8)  # ore pile in the rubble
-    # crossroads
-    prop('signpost', -0.5, -7.5, yaw=30)
-    prop('lamp', -10.5, -7, yaw=90)
-    prop('lamp', 0, 3, yaw=0)
-    # lamps along the main road, alternating sides
-    for (x, z, yaw) in [(5, -50, 0), (3, -28, 0), (-15, 20, 0), (-3.5, 30, 0), (-8, 44, 0), (4, 50, 0)]:
-        prop('lamp', x, z, yaw=yaw)
-    # pool: a small dock
-    prop('dock', 16.0, -3.5, along=20, scale=0.5, y=FLOOR_Y + 0.18)
-    # west lookout
-    prop('crate', -30, -1, yaw=10, y=4.0)
-    prop('crate', -32, 0.5, yaw=50, y=4.0)
-    prop('lamp', -21.5, 4, yaw=0, y=4.0)
-    # north-east ruins and the shrine
-    prop('ruin_wall', 33, 29, yaw=20, y=4.0)
-    prop('ruin_tall', 18, 37, yaw=-30, y=4.0)
-    prop('rubble', 26, 26, yaw=60, y=4.0)
-    prop('brazier', 27.5, 38.5, y=8.0)
-    prop('brazier', 34.5, 38.5, y=8.0)
-    # dig site on the south-east plateau
-    prop('rubble', 27, -40, yaw=0, y=3.0)
-    prop('cart', 31, -31, along=30, y=3.0)
-    prop('crate', 22.5, -33, yaw=15, y=3.0)
-    prop('crate', 23.5, -31, yaw=60, y=3.0)
-    prop('tent_small', 33, -37, yaw=200, y=3.0)
-    cluster(cr, 31, 5.4, -31, 2.2, rng, ROSE, count=4, spread=0.8)
-    # old ruins by the north gate
-    prop('ruin_arch', -16, 41, yaw=0)
-    prop('ruin_wall', 8, 46, yaw=-60)
-    prop('ruin_tall', 15, 51, yaw=120)
-    prop('rubble', -22, 50, yaw=30)
+    cluster(cr, 34, 3.0, -29, 2.2, rng, ROSE, count=4, spread=0.8)
     cluster(cr, -18.5, FLOOR_Y, 45, 3.5, rng, DUSK, count=5, spread=1.5)
     cluster(cr, 11, FLOOR_Y, 49.5, 3.0, rng, BIG, count=4, spread=1.2)
 

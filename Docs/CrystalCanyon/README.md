@@ -83,7 +83,27 @@
 - **GUID**：存在 `guids.json` 里，重新生成时保持不变，场景里的引用不会断。
 - **检查**：`python3 Tools/CrystalCanyon/ascii.py` 会打印一张俯视的文字地图，用来检查布局，其中路显示为 `.`。
 
-## 4. 没做或要注意的
+## 4. 预览图（仅用于检查）
+
+在 Blender 里重建整个场景，再按游戏的相机角度渲染出来，用来检查效果，渲染出的图不会进游戏。
+
+```bash
+python3 Tools/CrystalCanyon/preview_export.py
+/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup -P Tools/CrystalCanyon/preview_render.py -- Tools/CrystalCanyon/.preview/scene.json <输出目录> [视角 ...]
+```
+
+- **导出**：`preview_export.py` 读取生成的场景，把所有网格解码成世界坐标，包括原作道具。材质参数和光照也一起导出。
+- **渲染**：`preview_render.py` 用 Eevee 模拟游戏里的三种着色：
+  - 卡通着色：贴图乘底色，再在阴影色和高光色之间做硬切换。
+  - 地面：按世界坐标取遮罩，在两种颜色之间混合。
+  - 路：按世界坐标平铺贴图，两侧边缘渐隐。
+- **视角**：
+  - `overview`：正交俯视图。
+  - `wide_south`、`wide_north`、`wide_west`：远景，看整体构图。
+  - 按区域的游戏视角（60° 俯角、35 米距离、竖屏）：`south_gate`、`camp`、`crossroads`、`pool`、`mesa`、`ruins`、`dig_site`、`north_gate`。
+- **局限**：光照和 Unity 不完全一样，适合检查布局、比例、配色和穿插，最终效果还是以 Unity 为准。
+
+## 5. 没做或要注意的
 
 - 道具的朝向是按原作实例换算的，栅栏会顺着给定方向摆。还要在 Unity 里确认帐篷、矿车、门的朝向是否自然。
 - 颜色、比例和水晶亮度都可能要再调。

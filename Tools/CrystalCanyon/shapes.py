@@ -5,7 +5,7 @@ from meshlib import MeshBuilder, norm, sub, add, mul, cross, dot, offset_poly
 # Palette atlas swatches (TextureMain 2_1): (u, v_dark, v_light)
 ROCK = (0.36, 0.26, 0.49)        # periwinkle gradient
 ROCK_DARK = (0.094, 0.26, 0.49)  # slate gradient
-STEP = (0.44, 0.30, 0.45)        # pale lavender
+STEP = (0.36, 0.40, 0.49)        # light end of the periwinkle gradient
 CYAN = (0.484, 0.78, 0.99)       # teal -> cyan -> white
 TEAL = (0.918, 0.33, 0.49)       # deep teal -> cyan
 PINK = (0.891, 0.55, 0.74)
@@ -210,13 +210,13 @@ def cluster(mb, cx, cy, cz, size, rng, palette, count=None, spread=None, s=0):
 
 
 def tuft(mb, cx, cy, cz, size, rng, s=0):
-    """Dry grass tuft: a few thin three-sided blades."""
-    for k in range(rng.randint(4, 7)):
+    """Dry grass tuft: a fan of thin three-sided blades."""
+    for k in range(rng.randint(7, 10)):
         a = rng.uniform(0, math.tau)
         lean = rng.uniform(0.2, 0.6)
         length = size * rng.uniform(0.6, 1.0)
         shard(mb, (cx + math.cos(a) * 0.15, cy, cz + math.sin(a) * 0.15), (math.cos(a) * lean, 1, math.sin(a) * lean),
-              size * 0.05, length, GOLD, rng, s, sides=3)
+              size * 0.07, length, GOLD, rng, s, sides=3)
 
 
 def road(mb, pts, width, y, s=0):

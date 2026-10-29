@@ -97,4 +97,5 @@ game_data_backup.bin
 
 # Level generators (Python) that write meshes, materials and scenes into the Unity project.
 !/Tools/
+/Tools/**/.preview/
 __pycache__/

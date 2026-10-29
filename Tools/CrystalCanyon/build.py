@@ -71,7 +71,7 @@ def material(name, template, colors, floats=None, textures=None):
 
 MAT = {}
 MAT['rock'] = material('CC_Rock', 'ArmyCampCliffs1',
-                       {'_BaseColor': col('#dccaff'), '_SColor': col('#7058b0'), '_HColor': col('#ffffff')}, textures={'_BaseMap': TEX_ATLAS})
+                       {'_BaseColor': col('#c9a8b8'), '_SColor': col('#8a78b0'), '_HColor': col('#ffffff')}, textures={'_BaseMap': TEX_ATLAS})
 MAT['crystal'] = material('CC_Crystal', 'VolcanicCrystal',
                           {'_BaseColor': col('#ffffff'), '_SColor': col('#b4c2ff'), '_HColor': col('#ffffff'), '_EmissionColor': col('#123a52')},
                           textures={'_BaseMap': TEX_ATLAS})
@@ -224,11 +224,14 @@ def long_axis_angle(d):
     return best[1]
 
 
-def mats_of(d):
+STONE_PROPS = ('ruin_wall', 'ruin_arch', 'ruin_tall', 'rubble', 'rock_decal')  # stone props take the canyon rock colour
+
+
+def mats_of(d, key=''):
     out = []
     for m in d['mats']:
         g = re.search(r'guid: (\w+)', m).group(1)
-        out.append(MAT['props'] if g == ARMYCAMP_SIDE else g)
+        out.append((MAT['rock'] if key in STONE_PROPS else MAT['props']) if g == ARMYCAMP_SIDE else g)
     return out
 
 
@@ -242,7 +245,7 @@ def place(key, x, z, kw, parent, name=None):
     sink = 0.0 if key == 'dock' else max(-2.5, min(0.0, bottom - 0.05))
     ground = kw.get('y', 0.05)
     y = ground + sink * k - d['wmin_y'] * k + kw.get('lift', 0.0)
-    return mesh_object(name or key, d['mesh'], mats_of(d), parent, pos=(x - c[0], y, z - c[2]), rot=q, scale=[v * k for v in d['scale']])
+    return mesh_object(name or key, d['mesh'], mats_of(d, key), parent, pos=(x - c[0], y, z - c[2]), rot=q, scale=[v * k for v in d['scale']])
 
 
 def place_gate(gx, gz, yaw, parent):
