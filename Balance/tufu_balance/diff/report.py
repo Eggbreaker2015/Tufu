@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import Counter
 import json
 from pathlib import Path
+import statistics
 
 from . import impact, tables
 
@@ -42,6 +43,30 @@ def write(comp, out_dir, *, timings=None):
               "delta": r.get("new_" + stat, 0) - r["stored_" + stat] if "new_" + stat in r else None}
              for r in comp.static.base.tables["bake"] for stat in ("health", "damage")]
     tables.write(out / "model_floor.csv", floor, ("spawner", "is_days", "field", "stored", "model", "delta"))
+    ot = {r["spawner"]: r for r in comp.static.base.tables["optimum_time"]}
+    baked_a = {r["spawner"]: r for r in comp.bake_base}
+    bake_summary = []
+    for island in sorted({r["location"] for r in ot.values()}):
+        for stat in ("health", "damage"):
+            ratios, moved, exceptions = [], 0, 0
+            for r in comp.bake_head:
+                sid = r["spawner"]
+                if sid not in ot or ot[sid]["location"] != island:
+                    continue
+                a, b = baked_a.get(sid, {}).get("new_" + stat), r.get("new_" + stat)
+                if a is not None and b is not None and not tables.same(a, b):
+                    moved += 1
+                    exceptions += bool(ot[sid]["exception"])
+                    if a:
+                        ratios.append(b / a)
+            if not moved:
+                continue
+            bake_summary.append({"island": island, "stat": stat, "changed_spawners": moved,
+                                 "ot_exceptions": exceptions, "ratio_min": min(ratios) if ratios else None,
+                                 "ratio_median": statistics.median(ratios) if ratios else None,
+                                 "ratio_max": max(ratios) if ratios else None})
+    tables.write(out / "bake/island_summary.csv", bake_summary,
+                 ("island", "stat", "changed_spawners", "ot_exceptions", "ratio_min", "ratio_median", "ratio_max"))
     json_file(out / "manifest.json", comp.manifest)
     json_file(out / "patch_report.json", comp.static.report.to_json())
     json_file(out / "validation.json", {"consistency": comp.consistency, "warnings": comp.warnings,
@@ -83,6 +108,7 @@ def write(comp, out_dir, *, timings=None):
     by_id = {r["spawner"]: r for r in comp.static.base.tables["optimum_time"]}
     islands = Counter(by_id.get(r["key"][0], {}).get("location", "?") for r in bake)
     lines += [f"变化单元格 {len(bake)}；按岛统计 {dict(sorted(islands.items(), key=lambda p: str(p[0])))}。",
+              "各岛 HP/Damage 变化点数及比值的最小值、中位数、最大值见 bake/island_summary.csv。",
               "", *_preview(bake, top)]
     lines += ["", "## 5. 模拟", ""]
     if comp.manifest["skip_sim"]:

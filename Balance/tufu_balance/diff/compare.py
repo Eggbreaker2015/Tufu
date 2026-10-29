@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 import hashlib
 import json
 from pathlib import Path
@@ -66,6 +66,7 @@ def run(cfg, patch, *, skip_sim=False, driver=None, rev=None, out_root=None):
                       {"schema": "tufu.diff/1", "patch_sha256": hashlib.sha256(
                           json.dumps(canonical, sort_keys=True, ensure_ascii=False).encode()).hexdigest(),
                        "code_rev": git("rev-parse", rev or "HEAD").strip(),
+                       "db_sha256": sha(C.source_path(cfg)) if C.source_path(cfg) else None,
                        "skip_sim": skip_sim or not (patch.simulate or {}).get("enabled", True),
                        "run_keys": [], "params_hash": None,
                        "timings": "timings.json (wall-clock measurements excluded from deterministic report)"},
@@ -74,6 +75,16 @@ def run(cfg, patch, *, skip_sim=False, driver=None, rev=None, out_root=None):
         exceptions = [r["spawner"] for r in result.base.tables["optimum_time"] if r["exception"]]
         comp.warnings.append({"code": "ot_exceptions_preserved", "message": "OT 例外保留原值；仅窗口发生变化的普通点重算",
                               "spawners": exceptions})
+    calibrated_rules = sorted({r["id"] for r in formulas if "Calibrated" in r["provenance"] or "fit" in r["provenance"]})
+    if calibrated_rules:
+        comp.warnings.append({"code": "calibrated_inputs", "message": "改动触及拟合或校准规则的输入", "formulas": calibrated_rules})
+    if any(o.node == "SimulationConfig.TimeChunkDurationMinutes" for o in patch.overrides):
+        comp.warnings.append({"code": "no_simulation_effect", "message": "TimeChunkDurationMinutes 不影响模拟（Q15）；依赖图仍列出其它读取方"})
+    cached_nodes = sorted({o.node for o in patch.overrides if o.node in (
+        "EnemySpawnerConfig.ItemReward", "EnemySpawnerConfig.Cooldown", "EnemySpawnerConfig.ChargesBeforeBigRespawn")
+        or o.node.startswith("ABTestDataConfig.spawnerCooldowns")})
+    if cached_nodes:
+        comp.warnings.append({"code": "initialization_cache", "message": "C9 在场景初始化后应用补丁；ItemReward/HasItemReward、ChargesTotal/BaseCooldown 的初始化缓存可能仍是旧值，不能假定模拟已响应", "nodes": cached_nodes})
     if (patch.simulate or {}).get("stop_day", 405) > 405:
         comp.warnings.append({"code": "extrapolation", "message": "超过第 405 天，属于外推"})
     if not comp.manifest["skip_sim"]:
@@ -97,7 +108,10 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
     resolved = params.resolve(("defaults",), overrides={**resolved.params,
                               "AutoBalanceMode": 1 if comp.patch.regen("sim_autobalance") == "regenerate" else 0})
     comp.manifest.update(params_hash=resolved.params_hash, simulation_label="calibrated" if calibrated else "uncalibrated",
-                         bake_iterations=options.get("bake_iterations", 1))
+                         bake_iterations=options.get("bake_iterations", 1),
+                         kill_loss_multiplier=resolved.params["KillLossMultiplier"])
+    if resolved.params.get("KillLossFromAb"):
+        comp.warnings.append({"code": "policy_extrapolation", "message": "KillLossFromAb 已开启：策略外推"})
     driver = driver or D.Driver(D.BatchBackend(rev=rev, out_root=out_root), cache=runcache.RunCache(out_root))
     smap = patcher.spawner_map(cfg.source, out_root / "inputs")
     configs = [cfg, comp.static.config]
@@ -128,8 +142,19 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
             checks = run_checks(res.job_dir, con, checks=("X1", "X2", "X3", "X4", "X5", "X6", "X7"),
                                 out_dir=out_root / "diff_checks" / res.job_key)
             bad = [k for k, c in checks.items() if c.status == "fail"]
+            # P11 documents that early snapshots are post-fight but their DPS cache is pre-fight.
+            # Keep this known observation gap visible; every other failure remains fatal.
+            x2_failed = [r for r in tables.read_csv(out_root / "diff_checks" / res.job_key / "X2.csv") if r.get("ok") == 0]
+            slow_tick_gap = not calibrated and x2_failed and len(x2_failed) == checks["X2"].mismatches and all(
+                r.get("case") == "slow_tick" for r in x2_failed)
+            fatal = [k for k in bad if not (k == "X2" and slow_tick_gap)]
+            if fatal:
+                raise ValueError(f"crosscheck failed ({res.job_key}): {fatal}")
             if bad:
-                raise ValueError(f"crosscheck failed ({res.job_key}): {bad}")
+                comp.warnings.append({"code": "uncalibrated_crosscheck", "message": "uncalibrated 重建的交叉检查失败，按诊断保留；不能视为已验证的预测",
+                                      "side": i, "iteration": iteration + 1,
+                                      "checks": {k: {"items": checks[k].items, "mismatches": checks[k].mismatches,
+                                                      "examples": checks[k].examples[:3]} for k in bad}})
             comp.simulation.setdefault("crosschecks", []).append({"side": i, "iteration": iteration + 1,
                 "checks": {k: {"status": c.status, "items": c.items, "mismatches": c.mismatches,
                                "vacuous": c.vacuous} for k, c in checks.items()}})
@@ -187,8 +212,8 @@ def _rebake_overrides(cfg, rows):
 def _sim_tables(comp, base, head):
     from ..crosscheck import load_run
     from ..unity.fasttick import read_spawner_days
-    from dataclasses import asdict
     datasets = []
+    threshold = comp.manifest.get("kill_loss_multiplier", 1.0)
     key_days = (comp.patch.report or {}).get("key_days", [5, 10, 20, 46, 104, 206, 405])
     for directory in (base, head):
         run = load_run(directory)
@@ -224,7 +249,7 @@ def _sim_tables(comp, base, head):
                for snap in run.full for st in snap.snapshot.stats]
         spawner_days = read_spawner_days((directory / "spawner_days.csv.gz").read_bytes())
         boundary = [{"day": r.day, "round": r.round, "spawner": r.spawner, "loss_over_h": r.loss_over_h,
-                     "killable": r.killable} for r in spawner_days if r.max_health > 0 and abs(r.loss_over_h - 1.0) <= 0.03]
+                     "killable": r.killable} for r in spawner_days if r.max_health > 0 and abs(r.loss_over_h - threshold) <= 0.03 * abs(threshold)]
         datasets.append({"timechunk_stats": (stats, ("day", "stat")), "combat": (combat, ("day", "kind", "type")),
                          "items": (items, ("day", "item")), "daily": (daily, ("day",)),
                          "island_arrival": ([{"island": k, "day": v} for k, v in arrival.items()], ("island",)),
@@ -242,7 +267,7 @@ def _sim_tables(comp, base, head):
     if late:
         comp.warnings.append({"code": "arrival_extrapolation", "message": "到岛日超过目标 2 天或超过第 17 岛", "rows": late})
     if comp.comparisons["sim/boundary.csv"]:
-        comp.warnings.append({"code": "kill_boundary_changed", "message": "loss/H 在 L=1 的 ±3% 范围内的集合或数值变化；详见 sim/boundary.csv"})
+        comp.warnings.append({"code": "kill_boundary_changed", "message": f"loss/H 在 L={threshold!r} 的 ±3% 范围内的集合或数值变化；详见 sim/boundary.csv"})
 
 
 def asset_patch(cfg, *, base="HEAD", worktree=REPO, scratch=None):

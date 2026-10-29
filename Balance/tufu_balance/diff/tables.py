@@ -21,8 +21,18 @@ def write(path: Path, rows: list[dict], columns):
     with path.open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(columns), lineterminator="\n", extrasaction="raise")
         w.writeheader()
-        for row in sorted(rows, key=lambda r: tuple(text(r.get(c)) for c in columns)):
+        for row in sorted(rows, key=lambda r: tuple(_sort(r.get(c)) for c in columns)):
             w.writerow({c: text(row.get(c)) for c in columns})
+
+
+def _sort(value):
+    if value is None:
+        return (0, "")
+    if isinstance(value, (list, tuple)):
+        return (1, tuple(_sort(x) for x in value))
+    if type(value) in (int, float):
+        return (2, value if not math.isnan(value) else float("inf"))
+    return (3, text(value))
 
 
 CHANGE_COLUMNS = ("key", "field", "base", "patched", "delta", "ratio")

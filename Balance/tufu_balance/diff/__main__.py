@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import argparse
 import os
+import json
 from pathlib import Path
+import subprocess
 import sys
 import time
+import yaml
 
 from ..model.config import load_game_config
 from . import compare, patchfile, report, tables
@@ -39,7 +42,6 @@ def main(argv=None):
                 raise ValueError("choose patch mode or asset-version mode")
             base = args.base
             if base == "cached":
-                import json
                 if not cache.exists():
                     raise ValueError("no asset baseline cache; run diff --cache-base on the clean baseline first")
                 saved = json.loads(cache.read_text())
@@ -64,6 +66,9 @@ def main(argv=None):
         # Avoid mixing stale files from a previous simulated report with a skip-sim report.
         if out.exists() and any(out.iterdir()):
             import shutil
+            previous = out / "manifest.json"
+            if not previous.exists() or json.loads(previous.read_text()).get("schema") != "tufu.diff/1":
+                raise ValueError(f"output directory is not an existing diff report: {out}")
             for p in list(out.iterdir()):
                 if p.name in ("sim", "static", "bake") and p.is_dir():
                     shutil.rmtree(p)
@@ -71,7 +76,7 @@ def main(argv=None):
         print(f"{path}\n{'有变化' if comp.changed or metadata and metadata['raw_diff'] else '无变化'}；"
               f"{time.perf_counter() - t0:.3f} s")
         return 0
-    except (ValueError, OSError) as e:
+    except (ValueError, OSError, yaml.YAMLError, subprocess.CalledProcessError) as e:
         print(f"diff: {e}", file=sys.stderr)
         return 1
 

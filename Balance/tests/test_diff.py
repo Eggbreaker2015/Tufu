@@ -1,8 +1,5 @@
 """P12 designer workflow: locality, repeatability, validation and read-only asset expansion."""
 
-from dataclasses import replace
-import csv
-import json
 from pathlib import Path
 import time
 
@@ -164,6 +161,18 @@ def test_cli_failure_is_nonzero(tmp_path, db_path):
     p = tmp_path / "bad.yaml"
     p.write_text("name: fail\noverrides: [{node: NoSuchConfig.Bad, set: 3}]\n")
     assert main([str(p), "--skip-sim", "--db", str(db_path), "--out", str(tmp_path / "report")]) == 1
+
+
+def test_malformed_yaml_and_unowned_output_are_rejected(tmp_path, db_path):
+    p = tmp_path / "broken.yaml"
+    p.write_text("name: [\n")
+    assert main([str(p), "--skip-sim", "--db", str(db_path)]) == 1
+    out = tmp_path / "existing"
+    out.mkdir()
+    keep = out / "keep.txt"
+    keep.write_text("preserve")
+    assert main(["--skip-sim", "--db", str(db_path), "--out", str(out)]) == 1
+    assert keep.read_text() == "preserve"
 
 
 def test_simulation_disabled_does_not_construct_driver(cfg, monkeypatch):

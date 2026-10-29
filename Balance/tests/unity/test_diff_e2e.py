@@ -9,7 +9,6 @@ from tufu_balance.calibrate.driver import BatchBackend, Driver
 from tufu_balance.calibrate.runcache import RunCache
 from tufu_balance.diff import load, patchfile, report, run
 from tufu_balance.model.config import load_game_config
-from tufu_balance.unity import launcher
 
 pytestmark = pytest.mark.unity
 EXAMPLES = Path(__file__).resolve().parents[2] / "patches/examples"
@@ -33,7 +32,11 @@ def test_patch_a_csharp_leaves_and_crosschecks(comparison):
     assert first.manifest["simulation_label"] == "uncalibrated"
     for record in first.simulation["crosschecks"]:
         assert record["checks"]["X4"]["items"] > 0
-        assert all(c["status"] != "fail" for c in record["checks"].values())
+        assert record["checks"]["X4"]["status"] == "pass"
+        assert record["checks"]["X1"]["status"] == "pass"
+        bad = [k for k, c in record["checks"].items() if c["status"] == "fail"]
+        if bad:
+            assert any(w["code"] == "uncalibrated_crosscheck" and w["side"] == record["side"] for w in first.warnings)
 
 
 def test_baseline_cache_and_identical_reports(comparison, tmp_path):

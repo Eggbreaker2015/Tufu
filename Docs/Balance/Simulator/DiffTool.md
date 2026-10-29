@@ -72,7 +72,9 @@ overrides:
 5. **模拟**：逐日 Value、TotalValue、Gpm、DPS/防御、到岛日、物品首次出现与进化、活跃分钟、首杀见 `sim/`。`rpm.csv` 使用快照里的 CurrentGpm，等同导出所用的 RPM 缓存口径，不代表重新拟合。`baseline/` 与 `patched/` 保存两侧完整表。到岛日超 ITD 两天、loss/H 在 1 的 ±3% 附近发生变化会警告。
 6. **警告**：未建模字段会列出直接读取它的公式；没有公式的字段明确写「目录里没有公式读取这个字段」。静态表没变化不等于游戏没有影响，例如 `SimulationConfig.TimeChunkDurationMinutes` 不影响机器人模拟，但其它运行逻辑会读取它。
 
-旁路文件 `patch_report.json` 保留展开操作；`operations.csv` 是逐条操作的命中统计，`overrides.csv` 是逐叶子的旧值/新值与 C# 校验状态；`validation.json` 记录 X1–X7 检查结果及 vacuous 部分。交叉检查发现失败会停止。
+旁路文件 `patch_report.json` 保留展开操作；`operations.csv` 是逐条操作的命中统计，`overrides.csv` 是逐叶子的旧值/新值与 C# 校验状态；`validation.json` 记录 X1–X7 检查结果及 vacuous 部分。检查失败会停止，唯一例外是未校准阶段 X2 的全部不符都属于 `slow_tick`：P11 已记录慢阶段快照拍在战斗后、DPS 缓存在 Tick 开头，导出没有前置状态，不能以战斗后状态验证该缓存。这种观察缺口保留为显式诊断，不能当成通过；当前 405 天两侧各 75 项，其余 X1、X3–X7 全部通过。calibrated 层不享有该例外，后续需由 P11/C7 补足前置状态或限定比较范围。
+
+C9 在初始化后应用补丁：改 ItemReward、刷怪点冷却/充能或 AB 冷却来源时，场景自举已经算出的 ItemReward/HasItemReward、ChargesTotal/BaseCooldown 可能还是旧值。工具给出初始化缓存警告；两侧补丁叶子一致不等于缓存已经更新。这是 C9 的现有交接限制。
 
 ## 直接修改资产后比较
 
