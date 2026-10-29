@@ -57,6 +57,16 @@ def test_load_document_keeps_keydata_text():
     assert extract.load_document(plain) == plain.load()
 
 
+def test_rebuild_scripts_are_not_game_data():
+    """The simulator's own ScriptableObject (C3c's params asset) must not become a config table."""
+    rebuild = "Scripts/Assembly-CSharp/CodeBase/Simulation/Rebuild/SimulationRebuildParamsAsset.cs"
+    assert extract.is_rebuild_script(rebuild)
+    assert extract.is_rebuild_script("Scripts/Assembly-CSharp/CodeBase/Simulation/Harness/SimulationHarness.cs")
+    assert not extract.is_rebuild_script("Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs")
+    assert not extract.is_rebuild_script("Scripts/Assembly-CSharp/CodeBase/Simulation/RebuildX/A.cs")
+    assert not extract.is_rebuild_script(None)
+
+
 def test_ab_asset_keydata_decodes():
     if not AB_ASSET.exists():
         pytest.skip(f"{AB_ASSET} missing")

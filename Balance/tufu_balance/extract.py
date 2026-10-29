@@ -32,6 +32,11 @@ REBUILD_SCRIPT_DIRS = ["Assembly-CSharp/CodeBase/Simulation/Harness", "Assembly-
 SPAWNER_CLASS = "EnemySpawner"
 
 
+def is_rebuild_script(script_path):
+    """True for a script (path relative to Assets) under one of REBUILD_SCRIPT_DIRS."""
+    return bool(script_path) and any(script_path.startswith(f"Scripts/{d}/") for d in REBUILD_SCRIPT_DIRS)
+
+
 class Tables:
     """Row store: table -> list of dicts, written with the union of keys as columns."""
 
@@ -175,6 +180,8 @@ def extract_assets(tables, index, types, unresolved):
         rel = path.relative_to(ASSETS).as_posix()
         for doc in iter_documents(path):
             if doc.class_id != CLASS_MONO_BEHAVIOUR or not index.is_game_script(doc.script_guid()):
+                continue
+            if is_rebuild_script(index.path(doc.script_guid())):
                 continue
             class_name = index.script_class(doc.script_guid())
             raw = load_document(doc)
