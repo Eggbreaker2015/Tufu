@@ -1,0 +1,764 @@
+{
+ "expectations": {
+  "counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C7",
+   "value": {
+    "slow-bydist": {
+     "clears": 419,
+     "idle_steps": 8,
+     "slow_deaths": 3,
+     "slow_en_route_clears": 174,
+     "slow_fights": 419,
+     "slow_ticks": 256,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-current-health": {
+     "clears": 403,
+     "idle_steps": 8,
+     "slow_deaths": 2,
+     "slow_en_route_clears": 176,
+     "slow_fights": 403,
+     "slow_ticks": 237,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-decomposed": {
+     "clears": 403,
+     "idle_steps": 7,
+     "slow_deaths": 2,
+     "slow_en_route_clears": 175,
+     "slow_fights": 403,
+     "slow_ticks": 237,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-default": {
+     "clears": 403,
+     "idle_steps": 7,
+     "slow_deaths": 2,
+     "slow_en_route_clears": 175,
+     "slow_fights": 403,
+     "slow_ticks": 237,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-marginal": {
+     "clears": 447,
+     "idle_steps": 6,
+     "slow_deaths": 3,
+     "slow_en_route_clears": 191,
+     "slow_fights": 447,
+     "slow_ticks": 265,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-none": {
+     "clears": 368,
+     "idle_steps": 6,
+     "slow_deaths": 55,
+     "slow_en_route_clears": 185,
+     "slow_fights": 368,
+     "slow_ticks": 244,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-none-retry": {
+     "clears": 41,
+     "idle_steps": 2,
+     "slow_deaths": 548,
+     "slow_en_route_clears": 34,
+     "slow_fights": 41,
+     "slow_ticks": 557,
+     "stat_benefit_evals": 24,
+     "unlocks": 0
+    },
+    "slow-nosmart": {
+     "clears": 301,
+     "idle_steps": 4,
+     "slow_deaths": 3,
+     "slow_en_route_clears": 0,
+     "slow_fights": 301,
+     "slow_ticks": 308,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-static": {
+     "clears": 403,
+     "idle_steps": 7,
+     "slow_deaths": 2,
+     "slow_en_route_clears": 175,
+     "slow_fights": 403,
+     "slow_ticks": 237,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    }
+   }
+  },
+  "deaths.by_gate": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5 P15",
+   "value": {
+    "slow-current-health": 2,
+    "slow-default": 2,
+    "slow-none": 55
+   }
+  },
+  "deaths.slow-clear-then-respawn": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5 P15",
+   "value": 41
+  },
+  "deaths.slow-none": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5 P15",
+   "value": 55
+  },
+  "deaths.slow-none-retry": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5 P15",
+   "value": 548
+  },
+  "first_clears.slow-bydist.minutes": {
+   "kind": "exact",
+   "note": "shipped: 1.1656 (first early snapshot)",
+   "source": "design 7.3 C7",
+   "value": 2.5801
+  },
+  "first_clears.slow-default.minutes": {
+   "kind": "exact",
+   "note": "shipped: 1.1656 (first early snapshot)",
+   "source": "design 7.3 C7",
+   "value": 3.3356
+  },
+  "island3_gate.first_loss_per_h": {
+   "kind": "exact",
+   "note": "closed loop, islands 2-3 open; shipped TC3 state 4.163",
+   "source": "design 4.5",
+   "value": 4.501
+  },
+  "island3_gate.first_p": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5",
+   "value": 240.072
+  },
+  "island3_gate.none_gate_deaths": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5 P15",
+   "value": 1
+  },
+  "killseq.clear_time.0=1": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 14.34,
+    "farmed_s": 14.69,
+    "intervals": 16,
+    "kills": 20,
+    "members": 1,
+    "ratio": 0.9759,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.0=2": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 13.17,
+    "farmed_s": 31.06,
+    "intervals": 12,
+    "kills": 14,
+    "members": 1,
+    "ratio": 0.4241,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.0=5": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 9.91,
+    "farmed_s": 32.4,
+    "intervals": 6,
+    "kills": 6,
+    "members": 1,
+    "ratio": 0.3057,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.12=1": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 16.67,
+    "farmed_s": 18.41,
+    "intervals": 4,
+    "kills": 15,
+    "members": 6,
+    "ratio": 0.9051,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.12=2": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 14.5,
+    "farmed_s": 22.65,
+    "intervals": 5,
+    "kills": 9,
+    "members": 3,
+    "ratio": 0.6401,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.12=3": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 20.44,
+    "farmed_s": 22.88,
+    "intervals": 15,
+    "kills": 44,
+    "members": 2,
+    "ratio": 0.8935,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.12=80": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 6.41,
+    "farmed_s": 71.82,
+    "intervals": 2,
+    "kills": 2,
+    "members": 1,
+    "ratio": 0.0892,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=10": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 16.33,
+    "farmed_s": 16.84,
+    "intervals": 11,
+    "kills": 17,
+    "members": 1,
+    "ratio": 0.9697,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=12": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 18.55,
+    "farmed_s": 26.28,
+    "intervals": 14,
+    "kills": 17,
+    "members": 1,
+    "ratio": 0.7057,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=15": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 19.07,
+    "farmed_s": 14.27,
+    "intervals": 10,
+    "kills": 10,
+    "members": 1,
+    "ratio": 1.3363,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=18": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 13.67,
+    "farmed_s": 23.46,
+    "intervals": 12,
+    "kills": 17,
+    "members": 1,
+    "ratio": 0.5825,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=2": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 35.57,
+    "farmed_s": 20.02,
+    "intervals": 5,
+    "kills": 5,
+    "members": 1,
+    "ratio": 1.7769,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=20": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 12.89,
+    "farmed_s": 19.67,
+    "intervals": 11,
+    "kills": 27,
+    "members": 1,
+    "ratio": 0.6552,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=3": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 16.18,
+    "farmed_s": 39.68,
+    "intervals": 5,
+    "kills": 5,
+    "members": 1,
+    "ratio": 0.4078,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=30": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 15.8,
+    "farmed_s": 22.13,
+    "intervals": 12,
+    "kills": 26,
+    "members": 1,
+    "ratio": 0.7141,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=300": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 12.19,
+    "farmed_s": 66.39,
+    "intervals": 14,
+    "kills": 16,
+    "members": 1,
+    "ratio": 0.1836,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=5": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 16.57,
+    "farmed_s": 21.15,
+    "intervals": 3,
+    "kills": 3,
+    "members": 2,
+    "ratio": 0.7833,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=500": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 7.64,
+    "farmed_s": 32.05,
+    "intervals": 6,
+    "kills": 6,
+    "members": 1,
+    "ratio": 0.2385,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.1=60": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 17.74,
+    "farmed_s": 29.68,
+    "intervals": 10,
+    "kills": 14,
+    "members": 1,
+    "ratio": 0.5979,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.2=1": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 10.76,
+    "farmed_s": 13.98,
+    "intervals": 16,
+    "kills": 60,
+    "members": 3,
+    "ratio": 0.77,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.2=2": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 21.29,
+    "farmed_s": 13.25,
+    "intervals": 23,
+    "kills": 43,
+    "members": 1,
+    "ratio": 1.6064,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.2=25": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 18.02,
+    "farmed_s": 63.39,
+    "intervals": 4,
+    "kills": 4,
+    "members": 1,
+    "ratio": 0.2842,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.6=1": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 14.83,
+    "farmed_s": 14.98,
+    "intervals": 16,
+    "kills": 58,
+    "members": 4,
+    "ratio": 0.9895,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.6=2": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 12.77,
+    "farmed_s": 12.51,
+    "intervals": 15,
+    "kills": 36,
+    "members": 2,
+    "ratio": 1.0208,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.8=1": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 19.74,
+    "farmed_s": 16.13,
+    "intervals": 17,
+    "kills": 26,
+    "members": 3,
+    "ratio": 1.2235,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.8=2": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 15.66,
+    "farmed_s": 17.64,
+    "intervals": 18,
+    "kills": 29,
+    "members": 1,
+    "ratio": 0.888,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.8=4": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 20.51,
+    "farmed_s": 17.12,
+    "intervals": 15,
+    "kills": 24,
+    "members": 1,
+    "ratio": 1.1976,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=fork": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 29.69,
+    "farmed_s": 22.7,
+    "intervals": 20,
+    "kills": 20,
+    "members": 1,
+    "ratio": 1.3082,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=hammer": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 23.84,
+    "farmed_s": 81.43,
+    "intervals": 4,
+    "kills": 4,
+    "members": 1,
+    "ratio": 0.2928,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=knife": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 28.51,
+    "farmed_s": 16.98,
+    "intervals": 24,
+    "kills": 24,
+    "members": 1,
+    "ratio": 1.6793,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=mailbox": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 31.34,
+    "farmed_s": 42.77,
+    "intervals": 13,
+    "kills": 13,
+    "members": 1,
+    "ratio": 0.7328,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=minisaw": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 33.09,
+    "farmed_s": 16.82,
+    "intervals": 23,
+    "kills": 23,
+    "members": 1,
+    "ratio": 1.9677,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=paddle": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 30.52,
+    "farmed_s": 23.08,
+    "intervals": 13,
+    "kills": 13,
+    "members": 1,
+    "ratio": 1.3223,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=pick": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 19.72,
+    "farmed_s": 37.9,
+    "intervals": 12,
+    "kills": 12,
+    "members": 1,
+    "ratio": 0.5203,
+    "upper_bound": false
+   }
+  },
+  "killseq.clear_time.|item=pike": {
+   "kind": "exact",
+   "note": "mean active seconds per clear against mean farmedTime",
+   "source": "design 7.3 C7",
+   "value": {
+    "clear_s": 41.17,
+    "farmed_s": 19.36,
+    "intervals": 21,
+    "kills": 21,
+    "members": 1,
+    "ratio": 2.126,
+    "upper_bound": false
+   }
+  },
+  "killseq.first.active_s": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C7",
+   "value": 69.937
+  },
+  "killseq.first.farmed_s": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C7",
+   "value": 232.088
+  },
+  "killseq.first.fight_s": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C7",
+   "value": 39.897
+  },
+  "killseq.first.parts_s": {
+   "kind": "exact",
+   "note": "sums over the six first kills: start-state move/regen, end-state fight/regen",
+   "source": "design 7.3 C7",
+   "value": {
+    "fight_end": 31.983,
+    "move": 91.304,
+    "regen": 60.99,
+    "regen_end": 42.515
+   }
+  },
+  "killseq.fit": {
+   "kind": "exact",
+   "note": "dP = a*fight + b*move + c*regen over intervals ending on a fight",
+   "source": "design 4.5",
+   "value": {
+    "fight": 1.3657,
+    "intervals": 50,
+    "kappa": 0.8811,
+    "move": 0.6444,
+    "regen": 0.0,
+    "rms_s": 168.4
+   }
+  },
+  "killseq.inexact_intervals": {
+   "kind": "max",
+   "note": "",
+   "source": "design 7.3 C7",
+   "value": 0
+  },
+  "killseq.intervals": {
+   "kind": "exact",
+   "note": "early pairs of days 0-3 with dP > 0",
+   "source": "design 7.3 C7",
+   "value": 60
+  },
+  "killseq.kills": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C7",
+   "value": 683
+  },
+  "killseq.residual_clears": {
+   "kind": "max",
+   "note": "",
+   "source": "design 7.3 C7",
+   "value": 0
+  },
+  "smart_path.en_route_clears": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5",
+   "value": 175
+  },
+  "target_refused_after_en_route": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5",
+   "value": {
+    "slow-current-health": 1,
+    "slow-default": 0
+   }
+  },
+  "unlock_days.slow-bydist": {
+   "kind": "exact",
+   "note": "shipped: island 2 on day 0, island 3 on day 1",
+   "source": "design 7.3 C7",
+   "value": {
+    "2": 1
+   }
+  },
+  "unlock_days.slow-current-health": {
+   "kind": "exact",
+   "note": "shipped: island 2 on day 0, island 3 on day 1",
+   "source": "design 7.3 C7",
+   "value": {
+    "2": 1
+   }
+  },
+  "unlock_days.slow-default": {
+   "kind": "exact",
+   "note": "shipped: island 2 on day 0, island 3 on day 1",
+   "source": "design 7.3 C7",
+   "value": {
+    "2": 1
+   }
+  },
+  "unlock_days.slow-nosmart": {
+   "kind": "exact",
+   "note": "shipped: island 2 on day 0, island 3 on day 1",
+   "source": "design 7.3 C7",
+   "value": {
+    "2": 1
+   }
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "sim_slow"
+}

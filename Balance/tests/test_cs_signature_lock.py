@@ -4,10 +4,10 @@
   private/internal: the partial hooks of 7.4 (C3a) and the engine members of C3b.
 * Every empty method of 6af011f moved (declaration verbatim) into its module's partial file; the recovered
   bodies stay in SimulationSystem.cs, which is the 6af011f text minus the moved methods plus ``partial``.
-  Only the methods C3b filled (``FILLED``) have new bodies. SimulationConfig gains ``partial``, annotations
+  Only the methods C3b and C7 filled (``FILLED``) have new bodies. SimulationConfig gains ``partial``, annotations
   and the bodies of Tick and GetTrimmedTimeChunkSnapshots.
 * Every empty method of 6af011f carries one ``[SimulationRebuild]``: ``FILLED`` gives the provenance of the
-  methods C3b filled; the rest stay ``Provenance.Null | Provenance.DebugOnly`` until their unit fills them.
+  methods C3b and C7 filled; the rest stay ``Provenance.Null | Provenance.DebugOnly`` until their unit fills them.
 * The hooks are declared in .Rebuild.cs; the cross-module call sites of 7.4 are in place (C3b).
 
 Source structure is read with Roslyn (tools/csmembers, syntax only); semantics with cscheck.
@@ -96,6 +96,10 @@ NEW_MEMBERS = {
     "property:RebuildLastTickWasFast": "internal",
     # C3c: the harness flushes the open day of the trace at the job's end
     "method:RebuildTraceFlush()": "internal",
+    # C7: what SpawnerData's priorities read from the system
+    "method:RebuildPriorityFamily()": "internal",
+    "method:RebuildStaticRewardValue(Codebase.Enemy.EnemySpawner)": "internal",
+    "method:RebuildIsCurrentBoss(Codebase.Enemy.EnemySpawner)": "internal",
 }
 # Design 4.1: provenance of the empty methods C3b filled (SimulationSystem and SimulationConfig).
 FILLED = {
@@ -111,9 +115,14 @@ FILLED = {
     # null modules: fail the job when switched on (design 4.5)
     "ResetAmuletAutoBalance": "Null", "ProcessAmuletAutoBalanceTargets": "Null", "ProcessCrystalSimulationChunk": "Null",
     "UpgradeCrystalsGreedy": "Null",
-    # skeletons handed to C5 (.FastTick.cs) and C7 (.Fight.cs)
+    # skeletons handed to C5 (.FastTick.cs)
     "FastTick": "Null", "FlushFastTickChunkRewards": "Null", "SimulateFightWithSpawnerFast": "Null",
-    "SimulateFightWithSpawner": "Null",
+    # C7: the slow policy (.Targeting.cs, .Fight.cs); GetFightEfficiency, GetTotalDPS, GetTotalArmor,
+    # CalculateFarmPotencial, ModifyFromItem and DrawSquare stay empty (unused by the rebuilt policy)
+    "FindBestSpawner": "Calibrated", "CalculateStatBenefit": "Calibrated", "CalculateSpawnerPaths": "Calibrated",
+    "GetBestSpawnerForInfo": "DebugOnly", "TryGetSpawnerPriority": "DebugOnly",
+    "SimulateFightWithSpawner": "Calibrated", "ProcessDeath": "Calibrated", "CalcDifficultSpawner": "DebugOnly",
+    "LogSpawnerClear": "DebugOnly", "GetUnlockTimingLogData": "DebugOnly",
 }
 FILLED_CONFIG = {"Tick": "Inferred", "GetTrimmedTimeChunkSnapshots": "Inferred"}
 # Design 7.4: every cross-module call site (caller -> callee), placed by C3b.
@@ -459,6 +468,9 @@ def test_new_files_have_unique_meta():
            # C3c
            *(SIM_DIR / "Rebuild" / f for f in ("SimulationRandom.cs", "SimulationTrace.cs", "SimulationRebuildParamsAsset.cs")),
            SIM_DIR / "Harness" / "SimulationRunRequest.Params.cs",
+           # C7
+           *(SIM_DIR / "Rebuild" / f for f in ("SimulationRebuildParams.SlowPolicy.cs", "SimulationSlowPolicyState.cs")),
+           SIM_DIR / "Harness" / "SimulationRunRequest.SlowPolicy.cs",
            PROJECT / "Assets" / "Editor" / "Simulation" / "SimulationParamsImporter.cs",
            PROJECT / "Assets" / "Simulation"]
     tracked = subprocess.run(["git", "-C", str(WORKTREE), "ls-files", "-z", "--", "*.meta"],

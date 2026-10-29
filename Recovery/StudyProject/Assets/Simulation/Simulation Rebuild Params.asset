@@ -13,6 +13,16 @@ MonoBehaviour:
   m_Name: Simulation Rebuild Params
   m_EditorClassIdentifier: 
   Params:
+    PriorityFamily: 1
+    SmartPath: 1
+    SmartPathRadius: 5
+    TimeModel: 0
+    CMove: 1
+    CRegen: 1
+    SlowLethalityGate: 0
+    DeathPolicy: 0
+    StatBenefitModel: 0
+    StatBenefitCandidates: 5
     SchemaVersion: 1
     RollMode: 0
     Seed: 1

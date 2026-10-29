@@ -51,8 +51,9 @@ def clone_sources(dest):
 
 def pre_split_layout(root):
     """Put the 6af011f layout of SimulationSystem/SimulationConfig back into a clone (undoing the C3a partial
-    split), so that the injected edits below apply to the original single-file sources."""
-    for rel in (SS, SC):
+    split) and SpawnerData's 6af011f stubs (filled by C7), so that the injected edits below apply to the
+    original sources."""
+    for rel in (SS, SC, SD):
         proc = subprocess.run(["git", "-C", str(cscheck.WORKTREE), "show", f"{cscheck.SIGNATURE_REV}:{PROJECT}/{rel}"],
                               capture_output=True, check=True)
         (root / PROJECT / rel).write_bytes(proc.stdout)

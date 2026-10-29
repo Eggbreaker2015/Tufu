@@ -1,0 +1,12 @@
+{
+ "PriorityFamily": 1,
+ "SmartPath": true,
+ "SmartPathRadius": 5.0,
+ "TimeModel": 0,
+ "CMove": 1.0,
+ "CRegen": 1.0,
+ "SlowLethalityGate": 0,
+ "DeathPolicy": 0,
+ "StatBenefitModel": 0,
+ "StatBenefitCandidates": 5
+}

@@ -257,7 +257,7 @@ def test_effective_hash_equals_p10_params_hash_for_the_defaults(runtime):
     assert r["ok"] and r["missing"] == [] and r["valid"] is None
     assert r["effective"] == resolved.canonical()
     assert r["hash"] == r["clone_hash"] == resolved.params_hash == paramsio.effective_hash(resolved.params)
-    assert r["fields"] == sorted(P.read_csharp_params().fields) == sorted(engine.engine_defaults())
+    assert r["fields"] == sorted(P.read_csharp_params().fields) == sorted(P.load_defaults().values)
 
 
 @each_runtime
