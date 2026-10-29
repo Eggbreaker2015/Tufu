@@ -193,7 +193,7 @@ namespace Codebase.Simulation.Systems
 				// GetItemEmissionCoefficient; both are C6's (zero until filled).
 				float timing = GetBalanceTimingMinutes();
 				float chain = GetSimulationInterpolationCoefficient(timing, BalanceInterpolationType.ItemChainProbability);
-				double copies = GetChainedItemBaseCount(fightsCount * def.Count, chain) * GetItemEmissionCoefficient(timing, def.ItemReward);
+				double copies = RebuildItemBaseCount(fightsCount * def.Count, chain) * GetItemEmissionCoefficient(timing, def.ItemReward);
 				if (copies != 0.0)
 				{
 					fastTickChunkItemRewards.TryGetValue(def.ItemReward, out double sum);
@@ -229,6 +229,7 @@ namespace Codebase.Simulation.Systems
 				return;
 			}
 #endif
+			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.ItemsThenStats) RebuildFlushInventoryItems();
 			foreach (var pair in fastTickChunkStatRewards.OrderBy(p => (int)p.Key))
 			{
 				FastTickChunkStatReward reward = pair.Value;
@@ -236,14 +237,7 @@ namespace Codebase.Simulation.Systems
 					(float)reward.Value);
 				if (recorder != null) recorder.FlushStatModifiers++;
 			}
-			foreach (var pair in fastTickChunkItemRewards.OrderBy(p => p.Key.Key, StringComparer.Ordinal))
-			{
-				int copies = RollFractionalCount(pair.Value);
-				if (copies <= 0) continue;
-				RebuildPendingItemCopies.TryGetValue(pair.Key, out int pending);
-				RebuildPendingItemCopies[pair.Key] = pending + copies;
-			}
-			if (fastTickChunkItemRewards.Count > 0) ProcessInventory();
+			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.StatsThenItems) RebuildFlushInventoryItems();
 			foreach (var pair in fastTickChunkSoulRewards)
 			{
 				RebuildSoulRewards.TryGetValue(pair.Key, out double souls);
@@ -266,6 +260,7 @@ namespace Codebase.Simulation.Systems
 		// give the same state digests as the default flush. Engine counters, logs and events are not part of it.
 		private void RebuildReferenceFlush()
 		{
+			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.ItemsThenStats) RebuildFlushInventoryItems();
 			foreach (var pair in fastTickChunkStatRewards.OrderBy(p => (int)p.Key))
 			{
 				FastTickChunkStatReward reward = pair.Value;
@@ -277,14 +272,7 @@ namespace Codebase.Simulation.Systems
 					|| reward.ModifierType == ModifierType.PreAdditivePostMultiplicative || reward.ModifierType == ModifierType.PostFormulaMultiplicative;
 				if (!percent && reward.StatType == StatType.Health) playerModel.Unit.CurrentHealth += value;
 			}
-			foreach (var pair in fastTickChunkItemRewards.OrderBy(p => p.Key.Key, StringComparer.Ordinal))
-			{
-				int copies = RollFractionalCount(pair.Value);
-				if (copies <= 0) continue;
-				RebuildPendingItemCopies.TryGetValue(pair.Key, out int pending);
-				RebuildPendingItemCopies[pair.Key] = pending + copies;
-			}
-			if (fastTickChunkItemRewards.Count > 0) ProcessInventory();
+			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.StatsThenItems) RebuildFlushInventoryItems();
 			foreach (var pair in fastTickChunkSoulRewards)
 			{
 				RebuildSoulRewards.TryGetValue(pair.Key, out double souls);

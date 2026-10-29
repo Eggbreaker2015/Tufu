@@ -81,6 +81,7 @@ HOOKS = {
     "RebuildResetForJob(ref bool)": None,
 }
 NEW_MEMBERS = {
+    "method:RebuildFinishInventory(bool)": "internal",
     "method:RebuildApplyDayOverride(int)": "private",
     "method:RebuildApplyReplayCaches()": "private",
     "method:RebuildOnTickCompleted()": "private",
@@ -105,6 +106,11 @@ NEW_MEMBERS = {
 }
 # Design 4.1: provenance of the empty methods C3b filled (SimulationSystem and SimulationConfig).
 FILLED = {
+    "ProcessInventory": "Calibrated", "GetSpawnerItemRewardCopies": "Inferred",
+    "GetItemEmissionCoefficient": "Calibrated", "IsPreferredItemEmissionType": "Calibrated",
+    "RollFractionalCount": "Inferred", "GetChainedItemBaseCount": "Calibrated",
+    "UnlockSimulationWeaponSlot": "Calibrated", "TryApplyArmorBaseAutoBalance": "Inferred",
+    "ApplyAutoBalanceForEvolution": "Calibrated",
     "PrepareSimulationRun": "Inferred", "ExecuteTick": "Inferred", "Tick": "Inferred",
     "CheckSimulationStopConditions": "Inferred", "UpdateSpawnerChargesChunk": "Inferred", "ResetCooldowns": "Inferred",
     "RecalculateChunkRpmValues": "Inferred", "GetSpawnerChargesPerClear": "Inferred",
@@ -137,7 +143,7 @@ CALL_SITES = [
     ("SimulateFightWithSpawnerFast", "RebuildApplyClear"), ("RebuildApplyClear", "GetSpawnerItemRewardCopies"),
     ("RebuildApplyClear", "ProcessInventory"), ("RebuildApplyClear", "AccumulateFastTickSpawnerRewards"),
     ("RebuildUnlockLocation", "UnlockSimulationWeaponSlot"), ("RebuildAdvanceFastDay", "FlushFastTickChunkRewards"),
-    ("FlushFastTickChunkRewards", "RollFractionalCount"), ("FlushFastTickChunkRewards", "ProcessInventory"),
+    ("RebuildFlushInventoryItems", "RollFractionalCount"), ("RebuildFlushInventoryItems", "ProcessInventory"),
     ("ExecuteTick", "RebuildOnTickCompleted"), ("RebuildOnTickCompleted", "OnTickCompleted"),
     ("FastTick", "RebuildAdvanceFastDay"), ("ExecuteTick", "FastTick"), ("ExecuteTick", "Tick"),
     ("UpdateSpawnerChargesChunk", "RecalculateChunkRpmValues"), ("UpdateSpawnerChargesChunk", "UpdateInterpolationStatModifier"),
@@ -346,7 +352,7 @@ def test_partial_files_hold_only_methods():
     others = [m for m in doc["members"] if m["kind"] != "MethodDeclaration"]
     assert {m["kind"] for m in others} <= {"FieldDeclaration", "PropertyDeclaration"}
     for m in others:
-        assert m["file"] == "SimulationSystem.Rebuild.cs", m["key"]
+        assert m["file"] in ("SimulationSystem.Rebuild.cs", "SimulationSystem.Inventory.cs"), m["key"]
         assert all(name.strip().startswith("Rebuild") for name in m["name"].split(",")), m["key"]
     assert len(doc["types"]) == len(PARTIAL_FILES)
     for t in doc["types"]:

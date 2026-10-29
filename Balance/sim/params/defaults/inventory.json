@@ -1,0 +1,11 @@
+{
+  "EmissionModel": 0,
+  "PreferredMapping": 0,
+  "EvolutionTrigger": 0,
+  "WeaponSlotUnlockLocations": [
+    4,
+    8
+  ],
+  "DayChangeInventoryOrder": 0,
+  "SlotRpmOrder": 0
+}

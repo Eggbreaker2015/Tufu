@@ -25,6 +25,14 @@ MonoBehaviour:
     DiagnosticDisableKillPredicate: 0
     DiagnosticPlayerDpsScale: 1
     DiagnosticDefenseScale: 1
+    EmissionModel: 0
+    PreferredMapping: 0
+    EvolutionTrigger: 0
+    WeaponSlotUnlockLocations:
+    - 4
+    - 8
+    DayChangeInventoryOrder: 0
+    SlotRpmOrder: 0
     PriorityFamily: 1
     SmartPath: 1
     SmartPathRadius: 5
