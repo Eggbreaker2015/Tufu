@@ -96,6 +96,18 @@ def plateau(spec, rng):
     h, base = spec['h'], spec['base']
     P = resample(pts, 1.8)
     N = normals2d(P)
+    # stair notches: cliff points in front of (or just behind) a staircase's top end are moved onto one flat plane
+    # there and get no noise, strata or chamfer, so the top tread meets a clean straight edge
+    flat = [False] * len(P)
+    for nt in spec.get('notches', []):
+        d = Vector((nt['dx'], nt['dz'])).normalized()
+        side = Vector((d.y, -d.x))
+        o = Vector((nt['x0'], nt['z0']))
+        for i, p in enumerate(P):
+            s, lat = (p - o).dot(d), (p - o).dot(side)
+            if abs(lat) < nt['width'] / 2 + 1.0 and s < nt['run'] + 4.0:
+                P[i] = p + d * (nt['run'] - s)
+                flat[i] = True
     seed = Vector((rng.uniform(0, 100), rng.uniform(0, 100), rng.uniform(0, 100)))
     levels = [base, 0.0]
     z = 1.1
@@ -108,8 +120,10 @@ def plateau(spec, rng):
     rings = []
     for li, z in enumerate(levels):
         ring = []
-        for p, nrm in zip(P, N):
-            if li == len(levels) - 1:
+        for pi, (p, nrm) in enumerate(zip(P, N)):
+            if flat[pi]:
+                off = 0.0
+            elif li == len(levels) - 1:
                 off = -0.85                      # chamfered rim of the flat top
             elif li == len(levels) - 2:
                 off = -0.3
@@ -119,7 +133,7 @@ def plateau(spec, rng):
                 off = 0.75 * n - 0.18 * band + (0.35 if li == 0 else 0.0)
             q = p + nrm * off
             v = bm.verts.new((q.x, q.y, z))
-            v[dl][0] = 0.0 if li >= len(levels) - 2 else 1.0
+            v[dl][0] = 0.0 if (li >= len(levels) - 2 or flat[pi]) else 1.0
             ring.append(v)
         rings.append(ring)
     n = len(P)

@@ -45,6 +45,7 @@ ensure_dir(ROOT + '/Materials')
 TEX_ATLAS = '05b8422524684bf48942175e1b71c8e5'   # TextureMain 2_1
 TEX_GROUND1 = 'fbaf0525c25cb1c4e9a48ab98774cf20'  # Ground_1 (cracked stone with pebbles)
 TEX_SAND = '0e246413af85dfd4298b3a9ea9b0654e'     # sandHandpaint (soft ripples)
+TEX_GRASS = '7d82777ff106c6043bd76b1dbaaf6fb4'    # RGB_Grass (soft mottling, the first level's floor; no slab outlines)
 
 
 def col(h, a=1.0):
@@ -76,8 +77,8 @@ MAT['crystal'] = material('CC_Crystal', 'VolcanicCrystal',
                           {'_BaseColor': col('#ffffff'), '_SColor': col('#b4c2ff'), '_HColor': col('#ffffff'), '_EmissionColor': col('#123a52')},
                           textures={'_BaseMap': TEX_ATLAS})
 MAT['props'] = material('CC_Props', 'ArmyCampSide', {'_BaseColor': col('#ffffff'), '_SColor': col('#9a86c4')}, textures={'_BaseMap': TEX_ATLAS})
-MAT['floor'] = material('CC_Floor', 'Grass', {'_MaskColor1': col('#7c6cb0'), '_MaskColor2': col('#d9cdf2')}, {'_UVTile': 0.09},
-                        textures={'_Texture0': TEX_GROUND1})
+MAT['floor'] = material('CC_Floor', 'Grass', {'_MaskColor1': col('#a496d4'), '_MaskColor2': col('#e4dbf8')}, {'_UVTile': 0.05},
+                        textures={'_Texture0': TEX_GRASS})
 MAT['top'] = material('CC_Top', 'Grass', {'_MaskColor1': col('#8a80c4'), '_MaskColor2': col('#e9e2ff')}, {'_UVTile': -0.06},
                       textures={'_Texture0': TEX_SAND})
 ROAD_MAT = '61dc6b7219c41bc4ea5cdf40fa78acd3'  # original Volcano_Road 1: violet cobblestones

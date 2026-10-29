@@ -67,6 +67,14 @@ ROADS = {
 }
 PROP_RADIUS = {'tent': 4.5, 'tent_small': 3.5, 'cart': 3.0, 'rubble': 3.8, 'ruin_wall': 4.5, 'ruin_tall': 4.2, 'ruin_arch': 4.0,
                'planks': 5.0, 'dock': 3.8, 'table': 2.0, 'fence': 3.4, 'lamp': 1.2, 'signpost': 1.5, 'brazier': 1.0, 'crate': 1.3}
+# Stairs: (x0, z0) at the foot, climbing along (dx, dz); width, rise, horizontal run, base height, plateau they climb onto.
+# The plateau gets a flat notch in its cliff exactly where the top step ends, so the stairs meet it cleanly.
+STAIRS = [
+    (-11.0, -1.5, -1, 0, 6.5, 4.0, 8.0, 0.0, 'PlateauWest'),           # west lookout, from the crossroads
+    (22.0, 13.0, 0, 1, 6.5, 4.0, 9.0, 0.0, 'PlateauNorthEast'),        # north-east ruins, from the east path
+    (31.0, 30.5, 0, 1, 4.5, 4.0, 6.5, 4.0, 'PlateauNorthEastHigh'),    # ruins -> crystal shrine on the high terrace
+    (12.0, -38.0, 1, 0, 6.0, 3.0, 6.5, 0.0, 'PlateauSouthEast'),       # south-east dig site
+]
 GATES = {'SouthGate': (0.0, -58.5, 0.0), 'NorthGate': (-2.0, 58.5, 180.0)}  # x, z, yaw
 
 
@@ -140,14 +148,13 @@ def build(seed=7):
     mb = MeshBuilder(2)
     tops = {}
     for name, (pts, h) in plateaus.items():
-        tops[name] = mesa(mb, pts, h, rng, base=-1.0, sw=ROCK, bevel=0.8, jitter=0.9, rows=3)
+        notches = [dict(x0=s[0], z0=s[1], dx=s[2], dz=s[3], width=s[4], run=s[6]) for s in STAIRS if s[8] == name]
+        tops[name] = mesa(mb, pts, h, rng, base=-1.0, sw=ROCK, bevel=0.8, jitter=0.9, rows=3, notches=notches)
     out['Plateaus'] = mb
 
     mb = MeshBuilder(1)
-    stairs(mb, -11.0, -1.5, -1, 0, 6.5, 4.0, 8.0, rng)        # West lookout, from the crossroads
-    stairs(mb, 22.0, 13.0, 0, 1, 6.5, 4.0, 9.0, rng)          # North-east ruins, from the east path
-    stairs(mb, 31.0, 30.5, 0, 1, 4.5, 4.0, 6.5, rng, y0=4.0)  # ruins -> crystal shrine on the high terrace
-    stairs(mb, 12.0, -38.0, 1, 0, 6.0, 3.0, 6.5, rng)         # South-east dig site
+    for x0, z0, dx, dz, w, h, run, y0, target in STAIRS:
+        stairs(mb, x0, z0, dx, dz, w, h, run, rng, y0=y0)
     out['Stairs'] = mb
 
     mb = MeshBuilder(1)
@@ -237,7 +244,6 @@ def build(seed=7):
     prop('crate', -32, 0.5, yaw=50, y=4.0)
     prop('lamp', -21.5, 4, yaw=0, y=4.0)
     # north-east ruins and the shrine
-    prop('ruin_wall', 33, 29, yaw=20, y=4.0)
     prop('ruin_tall', 18, 37, yaw=-30, y=4.0)
     prop('rubble', 15.5, 31, yaw=60, y=4.0)
     prop('brazier', 27.5, 38.5, y=8.0)

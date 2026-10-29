@@ -51,10 +51,10 @@ def centroid(pts):
     return (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
 
 
-def mesa(mb, pts, h, rng, base=-1.0, sw=ROCK, bevel=0.7, jitter=0.6, rows=2, top_sub=TOP, cap=True):
+def mesa(mb, pts, h, rng, base=-1.0, sw=ROCK, bevel=0.7, jitter=0.6, rows=2, top_sub=TOP, cap=True, notches=()):
     """Faceted cliff block from a footprint polygon (x,z): rough sides, bevelled rim, flat top at y=h."""
     if BLENDER is not None and cap:
-        record(mb, 'plateau', rng, pts=[list(p) for p in pts], h=h, base=base, sw=SWATCH_NAME[sw])
+        record(mb, 'plateau', rng, pts=[list(p) for p in pts], h=h, base=base, sw=SWATCH_NAME[sw], notches=list(notches))
         return offset_poly(pts, -0.85)
     c = centroid(pts)
     rings = [ring(pts, base)]
@@ -100,7 +100,8 @@ def stairs(mb, x0, z0, dx, dz, width, h, run, rng, sw=ROCK, top_sw=STEP, y0=0.0)
     depth = run / steps
     for i in range(steps):
         y1 = y0 + h * (i + 1) / steps
-        s0 = depth * i; s1 = run + 3.0  # each step block reaches under the plateau
+        s0 = depth * i
+        s1 = run if i == steps - 1 else run + 0.05  # the top tread ends flush with the plateau's notch; lower blocks tuck behind it
         corners = []
         for (s, w) in ((s0, -width / 2), (s1, -width / 2), (s1, width / 2), (s0, width / 2)):
             corners.append((x0 + d[0] * s + side[0] * w, z0 + d[2] * s + side[2] * w))
@@ -112,7 +113,7 @@ def stairs(mb, x0, z0, dx, dz, width, h, run, rng, sw=ROCK, top_sw=STEP, y0=0.0)
     # low rails on both sides
     for sgn in (-1, 1):
         rail = []
-        for (s, w) in ((-0.3, sgn * (width / 2 + 0.1)), (run + 3.0, sgn * (width / 2 + 0.1)), (run + 3.0, sgn * (width / 2 + 0.9)), (-0.3, sgn * (width / 2 + 0.9))):
+        for (s, w) in ((-0.3, sgn * (width / 2 + 0.1)), (run, sgn * (width / 2 + 0.1)), (run, sgn * (width / 2 + 0.9)), (-0.3, sgn * (width / 2 + 0.9))):
             rail.append((x0 + d[0] * s + side[0] * w, z0 + d[2] * s + side[2] * w))
         # sloped rail: build as a wedge
         a0 = (rail[0][0], y0 - 0.5, rail[0][1]); a1 = (rail[1][0], y0 - 0.5, rail[1][1]); a2 = (rail[2][0], y0 - 0.5, rail[2][1]); a3 = (rail[3][0], y0 - 0.5, rail[3][1])

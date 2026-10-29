@@ -10,9 +10,11 @@ from mathutils import Vector
 
 WIDE = {  # name: (target x, z, distance, pitch deg, yaw deg) for distant composition shots
     'wide_south': (0, -20, 95, 45, 0), 'wide_north': (0, 20, 95, 45, 180), 'wide_west': (-5, 0, 95, 40, 90),
+    'stairs_west': (-17, -1.5, 24, 32, -90), 'stairs_ne': (22, 19, 24, 32, 0), 'stairs_shrine': (31, 35, 20, 35, 0),
+    'stairs_se': (16, -38, 22, 32, 90),
 }
 VIEWS = {  # name: Unity ground target (x, z) the game camera looks at
-    'south_gate': (0, -50), 'camp': (-14, -34), 'crossroads': (-3, -4), 'pool': (17, -4),
+    'entrance': (0, -38), 'south_gate': (0, -50), 'camp': (-14, -34), 'crossroads': (-3, -4), 'pool': (17, -4),
     'mesa': (-6, 16), 'ruins': (24, 34), 'dig_site': (24, -36), 'north_gate': (-4, 48),
 }
 
