@@ -135,7 +135,7 @@ namespace Codebase.Services.Damage
 			double weaponDamage = data.Weapon.Damage;
 			// Pet mode: a pet hits with its own attack (a scaled share of the weapon damage); the player attack comes in through
 			// its Damage and typed flat stats, which PetStatsSyncSystem scales by the attack ratio.
-			if (PetConfig.Enabled && data.Source is PetUnit petSource) weaponDamage = PetStats.GetOwnAttack(weaponDamage, petSource.Definition);
+			if (PetConfig.Enabled && data.Source is PetUnit petSource) weaponDamage = PetStats.GetOwnAttack(weaponDamage, petSource.Definition, petSource.Item != null ? PetStats.GetLevelProgress(petSource.Item) : 1);
 			double flatDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypeFlat);
 			double percentDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypePercent);
 			double universalDefense = data.Target.GetStatValue(StatType.UniversalDefencePercent);

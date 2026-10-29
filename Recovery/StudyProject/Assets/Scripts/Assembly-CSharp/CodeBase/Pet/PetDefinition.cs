@@ -30,7 +30,7 @@ namespace Codebase.Pet
 		// In combat only; following the player uses PetConfig.FollowSpeedMultiplier.
 		public float MoveSpeedRatio = 1f;
 
-		// Own attack = weapon damage * PetConfig.OwnAttackScale * OwnAttackMultiplier.
+		// Own attack multiplier, before the pet level adjustment.
 		public float OwnAttackMultiplier = 1f;
 
 		// Child paths under the copied Visual to deactivate, besides the always hidden Chains and Signs_root.

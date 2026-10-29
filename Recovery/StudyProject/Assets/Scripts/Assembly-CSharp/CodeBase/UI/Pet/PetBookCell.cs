@@ -75,7 +75,7 @@ namespace Codebase.UI.Pets
 			if (Level != null)
 			{
 				Level.gameObject.SetActive(owned);
-				if (owned) PetStatsText.SetText(Level, "Lv." + PetStats.GetLevel(item));
+				if (owned) PetStatsText.SetText(Level, PetStatsText.LevelText(item));
 			}
 
 			bool mythical = Config.Rarity == Rarity.Mythical;

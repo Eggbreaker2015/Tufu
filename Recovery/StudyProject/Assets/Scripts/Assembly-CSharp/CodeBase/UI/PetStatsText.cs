@@ -87,23 +87,33 @@ namespace Codebase.UI
 			Application.quitting += ReleaseFonts;
 		}
 
-		// Pet attack (own + player share, without the typed percent stat) at another weapon damage, 'levelsRemoved' pet levels lower.
-		public static double AttackAt(PetStatsInfo info, double weaponDamage, int levelsRemoved)
+		// Pet attack at the earlier progress and weapon damage.
+		public static double AttackAt(PetStatsInfo info, double weaponDamage, int copiesRemoved)
 		{
-			PetStatRatios ratios = PetStats.GetRatios(info.Definition, info.Item.Rarity, info.Level - levelsRemoved);
-			return PetStats.GetOwnAttack(weaponDamage, info.Definition) + info.PlayerAttack * ratios.Attack;
+			int progress = Math.Max(1, PetStats.GetLevelProgress(info.Item) - copiesRemoved);
+			PetStatRatios ratios = PetStats.GetRatios(info.Definition, info.Item.Rarity, PetStats.LevelFromProgress(progress));
+			return PetStats.GetOwnAttack(weaponDamage, info.Definition, progress) + info.PlayerAttack * ratios.Attack;
 		}
 
-		// Pet attack one copy adds; every copy, evolved or not, is one pet level (PetStats.GetLevel).
+		// Pet attack gained by the next copy, including any level-up.
 		public static double AttackPerCopy(PetStatsInfo info)
 		{
-			return PetStats.GetOwnAttack(info.Item.StatPerCopy, info.Definition) + info.PlayerAttack * (info.NextRatios.Attack - info.Ratios.Attack);
+			int progress = PetStats.GetLevelProgress(info.Item) + 1;
+			PetStatRatios ratios = PetStats.GetRatios(info.Definition, info.Item.Rarity, PetStats.LevelFromProgress(progress));
+			return PetStats.GetOwnAttack(info.Item.Damage + info.Item.StatPerCopy, info.Definition, progress) + info.PlayerAttack * ratios.Attack - info.Attack;
 		}
 
 		// Pet attack the last 'copies' copies added.
 		public static double AttackGain(PetStatsInfo info, int copies)
 		{
 			return info.Attack - AttackAt(info, info.Item.Damage - info.Item.StatPerCopy * copies, copies);
+		}
+
+		public static string LevelText(ItemModel item)
+		{
+			int progress = PetStats.GetLevelProgress(item);
+			int level = PetStats.LevelFromProgress(progress);
+			return "Lv." + level + " (" + PetStats.ProgressInLevel(progress, level) + "/" + level + ")";
 		}
 
 		// Same terms as the original weapon DPS of InventoryStatView, with the pet's attack, its inherited percent stat and its attack rate.
@@ -133,6 +143,7 @@ namespace Codebase.UI
 			builder.Clear();
 			string name = to.Definition != null ? to.Definition.DisplayName : null;
 			if (includeName && !string.IsNullOrEmpty(name)) builder.Append(NameColor).Append(name).Append("</color>\n");
+			builder.Append(LevelText(from.Item)).Append('\n');
 			builder.Append("生命 ").Append(Ratio(from.Ratios.Health)).Append(" (").Append(from.Health.Format()).Append(')');
 			if (Changed(from.Health, to.Health)) builder.Append(Arrow).Append(NextColor).Append(Ratio(to.Ratios.Health)).Append(" (").Append(to.Health.Format()).Append(")</color>");
 			builder.Append("\n攻击 ").Append(from.Attack.Format()).Append(" (自身 ").Append(from.OwnAttack.Format()).Append(" + 玩家 ").Append(from.PlayerAttack.Format())

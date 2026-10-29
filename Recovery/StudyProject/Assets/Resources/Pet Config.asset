@@ -23,6 +23,8 @@ MonoBehaviour:
   OwnAttackScale: 0.6
   HealthScale: 0.5
   LevelRatioGrowth: 0.02
+  LevelGrowthScale: 0.002
+  LevelGrowthExponent: 2.5
   RarityRatioFactor:
   - 1
   - 1.1

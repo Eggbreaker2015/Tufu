@@ -317,7 +317,7 @@ namespace Codebase.Skills
 					if (item == null)
 						item = pet.Item;
 					if (item != null)
-						attack += PetStats.GetOwnAttack(item.Damage, pet.Definition);
+						attack += PetStats.GetOwnAttack(item, pet.Definition);
 				}
 				else if (attacker is PlayerUnit && item != null && !item.IsArmor)
 					attack += item.Damage;

@@ -36,7 +36,7 @@ namespace Codebase.Pet
 
 		public PetStatRatios Ratios;
 
-		// Ratios after the next level-up (one more copy, or the next evolution level).
+		// Ratios after the next pet level-up.
 		public PetStatRatios NextRatios;
 
 		// Pet level the ratios use (PetStats.GetLevel).
@@ -86,7 +86,11 @@ namespace Codebase.Pet
 
 		private const float DefaultOwnAttackScale = 0.6f;
 
-		private const float DefaultLevelRatioGrowth = 0.02f;
+		private const float OldLevelRatioGrowth = 0.02f;
+
+		private const float DefaultLevelGrowthScale = 0.002f;
+
+		private const float DefaultLevelGrowthExponent = 2.5f;
 
 		private const int StatTypeCount = 36;
 
@@ -115,13 +119,12 @@ namespace Codebase.Pet
 			consumedCopiesConfig = null;
 		}
 
-		// ratio = species ratio * rarity factor * (1 + growth * (level - 1)); combat move speed uses the species ratio alone.
+		// Combat move speed uses the species ratio alone.
 		public static PetStatRatios GetRatios(PetDefinition definition, Rarity rarity, int effectiveLevel)
 		{
 			PetConfig config = PetConfig.Instance;
 			float rarityFactor = config != null ? config.GetRarityRatioFactor(rarity) : 1f;
-			float growth = config != null ? config.LevelRatioGrowth : DefaultLevelRatioGrowth;
-			float scale = rarityFactor * (1f + growth * (Math.Max(1, effectiveLevel) - 1));
+			float scale = rarityFactor * (float)GetLevelScale(effectiveLevel);
 			return new PetStatRatios
 			{
 				Health = (definition != null ? definition.HealthRatio : 1f) * scale * (config != null ? config.HealthScale : 0.5f),
@@ -137,24 +140,51 @@ namespace Codebase.Pet
 			return GetRatios(definition, item.Rarity, GetLevel(item));
 		}
 
-		// One level up: one more copy, or the next evolution (which also adds one, see GetLevel).
+		// Ratios at the next pet level.
 		public static PetStatRatios GetNextRatios(ItemModel item, PetDefinition definition)
 		{
 			return GetRatios(definition, item.Rarity, GetLevel(item) + 1);
 		}
 
-		// Pet level: every copy collected, so evolving (which consumes copies and resets EffectiveLevel to
-		// the evolution level) keeps the level and gains the Divine factor; each evolution level adds one more.
-		public static int GetLevel(ItemModel item)
+		// Progress preserves copies consumed by evolution and adds each evolution level.
+		public static int GetLevelProgress(ItemModel item)
 		{
 			if (!item.Evolved)
 				return item.Copies;
 			return GetConsumedCopies(item.IsArmor, item.Config.Rarity, item.Level) + item.Copies + item.Level;
 		}
 
+		public static int LevelFromProgress(int progress)
+		{
+			long value = Math.Max(1, progress) - 1L;
+			int level = (int)((1.0 + Math.Sqrt(1.0 + 8.0 * value)) / 2.0);
+			while ((long)level * (level - 1) / 2 > value) level--;
+			while ((long)level * (level + 1) / 2 <= value) level++;
+			return level;
+		}
+
+		public static int GetLevel(ItemModel item) => LevelFromProgress(GetLevelProgress(item));
+
+		public static int ProgressInLevel(int progress, int level)
+		{
+			return (int)(Math.Max(1, progress) - 1L - (long)level * (level - 1) / 2);
+		}
+
+		public static int CopiesToNextLevel(int progress, int level)
+		{
+			return level - ProgressInLevel(progress, level);
+		}
+
+		private static double GetLevelScale(int level)
+		{
+			PetConfig config = PetConfig.Instance;
+			double growth = config != null ? config.LevelGrowthScale : DefaultLevelGrowthScale;
+			double exponent = config != null ? config.LevelGrowthExponent : DefaultLevelGrowthExponent;
+			return 1.0 + growth * Math.Pow(Math.Max(1, level) - 1, exponent);
+		}
+
 		// Phase3Spec section 2: 1 + floor((item.Level - 1) / 3), evolved +2, capped at 10. item.Level is the
-		// evolution level (1 before the first evolution, then 1..MaxEvolutionLevel), not GetLevel, which counts
-		// every copy and would reach the cap at about 28 copies. Unevolved pets stay at 1; evolution levels
+		// evolution level (1 before the first evolution, then 1..MaxEvolutionLevel). Unevolved pets stay at 1; evolution levels
 		// 1-3/4-6/7-9/10-12/13-15 give 3/4/5/6/7.
 		public static int GetSkillLevel(ItemModel item)
 		{
@@ -187,16 +217,20 @@ namespace Codebase.Pet
 			return consumed;
 		}
 
-		public static double GetOwnAttack(double weaponDamage, PetDefinition definition)
+		public static double GetOwnAttack(double weaponDamage, PetDefinition definition, int progress)
 		{
 			PetConfig config = PetConfig.Instance;
 			float scale = config != null ? config.OwnAttackScale : DefaultOwnAttackScale;
-			return weaponDamage * scale * (definition != null ? definition.OwnAttackMultiplier : 1f);
+			int value = Math.Max(1, progress);
+			double adjustment = GetLevelScale(LevelFromProgress(value)) / (1.0 + OldLevelRatioGrowth * (value - 1.0));
+			adjustment = Math.Max(0.5, Math.Min(1.2, adjustment));
+			return weaponDamage * scale * (definition != null ? definition.OwnAttackMultiplier : 1f) * adjustment;
 		}
+
 
 		public static double GetOwnAttack(ItemModel item, PetDefinition definition)
 		{
-			return GetOwnAttack(item.Damage, definition);
+			return GetOwnAttack(item.Damage, definition, GetLevelProgress(item));
 		}
 
 		// The weapon's ability attack-speed multipliers (PetAttackSystem adds the target-dependent weak-enemy factor).
@@ -233,8 +267,10 @@ namespace Codebase.Pet
 			info.Ratios = GetRatios(item, definition);
 			info.NextRatios = GetNextRatios(item, definition);
 			info.Level = GetLevel(item);
-			info.OwnAttack = GetOwnAttack(item.Damage, definition);
-			info.NextOwnAttack = GetOwnAttack(item.NextLevelDamage, definition);
+			int progress = GetLevelProgress(item);
+			int needed = CopiesToNextLevel(progress, info.Level);
+			info.OwnAttack = GetOwnAttack(item.Damage, definition, progress);
+			info.NextOwnAttack = GetOwnAttack(item.Damage + item.StatPerCopy * needed, definition, progress + needed);
 			info.PlayerHealth = GetInheritedValue(stats, StatType.Health, inheritance);
 			info.PlayerAttack = GetInheritedValue(stats, StatType.Damage, inheritance) + GetInheritedValue(stats, config.DamageStatTypeFlat, inheritance);
 			info.AttackPercent = GetInheritedValue(stats, config.DamageStatTypePercent, inheritance);

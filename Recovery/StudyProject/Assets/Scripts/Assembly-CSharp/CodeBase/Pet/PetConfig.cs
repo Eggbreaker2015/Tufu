@@ -59,8 +59,13 @@ namespace Codebase.Pet
 		// Global scale for pet health, regen, and flat lifesteal.
 		public float HealthScale = 0.5f;
 
-		// Ratio growth per effective level above 1.
+		// Obsolete: retained for serialized configs; the level curve no longer uses it.
 		public float LevelRatioGrowth = 0.02f;
+
+		// Power curve for pet level growth.
+		public float LevelGrowthScale = 0.002f;
+
+		public float LevelGrowthExponent = 2.5f;
 
 		// Ratio factor per item rarity, indexed by Rarity (Common..Mythical).
 		public float[] RarityRatioFactor = { 1f, 1.1f, 1.2f, 1.35f, 1.5f, 1.7f, 1.7f };
