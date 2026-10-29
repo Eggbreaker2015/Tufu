@@ -36,6 +36,7 @@ namespace Codebase.Enemy.Systems
 		{
 			var unit = (EnemyUnit)unitStash.Get(entity).Core;
 			unit.SetupHealthBar(unit.healthBarPrefab);
+			if (unit.HealthBar != null) unit.HealthBar.BindSkillStatus();
 			return new HealthBarSystemStateComponent
 			{
 				Unit = unit
@@ -44,6 +45,7 @@ namespace Codebase.Enemy.Systems
 
 		private void RemoveHealthBarForUnit(ref HealthBarSystemStateComponent state)
 		{
+			if (state.Unit.HealthBar != null) state.Unit.HealthBar.UnbindSkillStatus(state.Unit);
 			state.Unit.Dispose();
 		}
 	}

@@ -14,6 +14,7 @@ namespace Codebase.Skills
 
 		// Flat/additive values add up per stack, multiplicative ones multiply.
 		// MovementSpeed x PercentMultiplicative is the felt speed factor on every unit (see SkillService.GetStatValue).
+		// On the hero and pets enemy debuffs only keep MovementSpeed, GlobalDefence and AttackCooldown (x PercentMultiplicative, read where used).
 		public float ValuePerStack;
 	}
 
@@ -21,6 +22,9 @@ namespace Codebase.Skills
 	public class BuffDef
 	{
 		public string Key;
+
+		// Ability icon key (Resources/AbilityIcons/<key>); empty = classified from the buff's contents.
+		public string IconKey;
 
 		public float Duration;
 
@@ -33,7 +37,7 @@ namespace Codebase.Skills
 
 		public List<BuffStatMod> StatMods = new List<BuffStatMod>();
 
-		// Enemies only in phase 1.
+		// All units. An enemy stun on the hero lasts at most 1.5 s; death, revive and teleports end friendly stuns.
 		public bool Stun;
 
 		// Blocks skill casting (not basic attacks).

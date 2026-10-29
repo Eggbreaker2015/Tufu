@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Codebase.Skills
 {
-	// Runtime ground circle: the outer disc shows the full radius at once, the inner disc grows to it over the cast point.
+	// Runtime ground shapes: the inner shape grows to the outer boundary over the cast point.
 	// Pooled; at most MaxActive on screen, extra requests draw nothing.
 	public class SkillTelegraphView : MonoBehaviour
 	{
@@ -21,6 +21,8 @@ namespace Codebase.Skills
 		private static int activeCount;
 
 		private static Mesh quadMesh;
+
+		private static Mesh lineMesh;
 
 		private static Material sharedMaterial;
 
@@ -44,11 +46,28 @@ namespace Codebase.Skills
 
 		private float radius;
 
+		private TelegraphShape shape;
+
+		private float width;
+
+		private float angle;
+
+		private Vector3 direction;
+
+		private Mesh fanMesh;
+
+		private float fanAngle;
+
 		private bool active;
 
 		public static SkillTelegraphView Spawn(Vector3 center, float radius, Transform follow = null)
 		{
-			if (radius <= 0f || activeCount >= MaxActive || !EnsureShared())
+			return Spawn(TelegraphShape.Circle, center, Vector3.forward, radius, 90f, 1f, follow);
+		}
+
+		public static SkillTelegraphView Spawn(TelegraphShape shape, Vector3 origin, Vector3 direction, float radius, float angle, float width, Transform follow = null)
+		{
+			if (shape == TelegraphShape.None || radius <= 0f || activeCount >= MaxActive || !EnsureShared())
 				return null;
 			SkillTelegraphView view = null;
 			while (Pool.Count > 0 && view == null)
@@ -58,10 +77,22 @@ namespace Codebase.Skills
 			view.active = true;
 			activeCount++;
 			view.radius = radius;
+			view.shape = shape;
+			view.width = width > 0f ? width : 1f;
+			view.angle = Mathf.Clamp(angle > 0f ? angle : 90f, 0.01f, 360f);
+			direction.y = 0f;
+			view.direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.forward;
 			view.follow = follow;
 			view.gameObject.SetActive(true);
-			view.transform.position = center + Vector3.up * GroundOffset;
-			view.outer.localScale = Vector3.one * (radius * 2f);
+			view.transform.position = origin + Vector3.up * GroundOffset;
+			view.transform.rotation = shape == TelegraphShape.Circle ? Quaternion.identity : Quaternion.LookRotation(view.direction);
+			Mesh mesh = shape == TelegraphShape.Circle ? quadMesh : shape == TelegraphShape.Line ? lineMesh : view.GetFan();
+			Quaternion rotation = shape == TelegraphShape.Circle ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
+			view.outer.GetComponent<MeshFilter>().sharedMesh = mesh;
+			view.inner.GetComponent<MeshFilter>().sharedMesh = mesh;
+			view.outer.localRotation = rotation;
+			view.inner.localRotation = rotation;
+			view.outer.localScale = view.GetScale(1f);
 			view.SetColors(DefaultColor);
 			view.SetProgress(0f);
 			return view;
@@ -76,7 +107,7 @@ namespace Codebase.Skills
 				Vector3 position = follow.position;
 				transform.position = position + Vector3.up * GroundOffset;
 			}
-			inner.localScale = Vector3.one * (radius * 2f * Mathf.Clamp01(progress));
+			inner.localScale = GetScale(Mathf.Clamp01(progress));
 		}
 
 		public void Despawn()
@@ -92,18 +123,62 @@ namespace Codebase.Skills
 			Pool.Push(this);
 		}
 
+		private Vector3 GetScale(float progress)
+		{
+			if (shape == TelegraphShape.Line)
+				return new Vector3(width, 1f, radius * progress);
+			if (shape == TelegraphShape.Cone)
+				return new Vector3(radius * progress, 1f, radius * progress);
+			return Vector3.one * (radius * 2f * progress);
+		}
+
+		private Mesh GetFan()
+		{
+			if (fanMesh != null && Mathf.Abs(fanAngle - angle) <= 0.01f)
+				return fanMesh;
+			if (fanMesh == null)
+				fanMesh = new Mesh { name = "Skill Telegraph Fan" };
+			fanMesh.Clear();
+			fanAngle = angle;
+			int segments = Mathf.Clamp(Mathf.CeilToInt(angle / 6f), 4, 64);
+			var vertices = new Vector3[segments + 2];
+			var normals = new Vector3[vertices.Length];
+			var uv = new Vector2[vertices.Length];
+			var triangles = new int[segments * 3];
+			normals[0] = Vector3.up;
+			uv[0] = new Vector2(0.5f, 0.5f);
+			for (int i = 0; i <= segments; i++)
+			{
+				float a = Mathf.Lerp(-angle * 0.5f, angle * 0.5f, (float)i / segments) * Mathf.Deg2Rad;
+				vertices[i + 1] = new Vector3(Mathf.Sin(a), 0f, Mathf.Cos(a));
+				normals[i + 1] = Vector3.up;
+				uv[i + 1] = new Vector2(vertices[i + 1].x * 0.5f + 0.5f, vertices[i + 1].z * 0.5f + 0.5f);
+				if (i == segments)
+					continue;
+				triangles[i * 3] = 0;
+				triangles[i * 3 + 1] = i + 1;
+				triangles[i * 3 + 2] = i + 2;
+			}
+			fanMesh.vertices = vertices;
+			fanMesh.normals = normals;
+			fanMesh.uv = uv;
+			fanMesh.triangles = triangles;
+			fanMesh.RecalculateBounds();
+			return fanMesh;
+		}
+
 		private void SetColors(Color color)
 		{
-			SetBlock(outerRenderer, new Color(color.r, color.g, color.b, 0.22f));
-			SetBlock(innerRenderer, new Color(color.r, color.g, color.b, 0.45f));
+			Texture texture = shape == TelegraphShape.Circle ? sharedMaterial.mainTexture : Texture2D.whiteTexture;
+			SetBlock(outerRenderer, new Color(color.r, color.g, color.b, 0.22f), texture);
+			SetBlock(innerRenderer, new Color(color.r, color.g, color.b, 0.45f), texture);
 		}
 
 		// Sprites/Default reads _MainTex per renderer, so the texture goes into the block too.
-		private static void SetBlock(MeshRenderer meshRenderer, Color color)
+		private static void SetBlock(MeshRenderer meshRenderer, Color color, Texture texture)
 		{
 			block.Clear();
 			block.SetColor(ColorId, color);
-			Texture texture = sharedMaterial.mainTexture;
 			if (texture != null)
 				block.SetTexture(MainTexId, texture);
 			meshRenderer.SetPropertyBlock(block);
@@ -153,6 +228,8 @@ namespace Codebase.Skills
 			}
 			if (quadMesh == null)
 				quadMesh = CreateQuad();
+			if (lineMesh == null)
+				lineMesh = CreateLine();
 			if (block == null)
 				block = new MaterialPropertyBlock();
 			return true;
@@ -170,8 +247,21 @@ namespace Codebase.Skills
 			return mesh;
 		}
 
+		private static Mesh CreateLine()
+		{
+			var mesh = new Mesh { name = "Skill Telegraph Line" };
+			mesh.vertices = new[] { new Vector3(-0.5f, 0f, 0f), new Vector3(0.5f, 0f, 0f), new Vector3(-0.5f, 0f, 1f), new Vector3(0.5f, 0f, 1f) };
+			mesh.uv = new[] { new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(1f, 1f) };
+			mesh.triangles = new[] { 0, 2, 1, 2, 3, 1 };
+			mesh.RecalculateNormals();
+			mesh.RecalculateBounds();
+			return mesh;
+		}
+
 		private void OnDestroy()
 		{
+			if (fanMesh != null)
+				Destroy(fanMesh);
 			if (active)
 			{
 				active = false;
@@ -185,6 +275,7 @@ namespace Codebase.Skills
 			Pool.Clear();
 			activeCount = 0;
 			quadMesh = null;
+			lineMesh = null;
 			sharedMaterial = null;
 			container = null;
 			block = null;

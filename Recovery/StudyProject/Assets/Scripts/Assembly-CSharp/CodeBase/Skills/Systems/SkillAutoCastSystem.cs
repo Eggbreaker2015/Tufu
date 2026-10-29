@@ -58,6 +58,7 @@ namespace Codebase.Skills.Systems
 		public override void OnUpdate(float deltaTime)
 		{
 			skillService.TickMissiles(deltaTime);
+			skillService.TickSummons();
 			UpdateCasts(deltaTime);
 			float now = Time.time;
 			foreach (Entity entity in casterFilter)
@@ -161,6 +162,11 @@ namespace Codebase.Skills.Systems
 					return SkillTargetQuery.LowestHealthFraction(unit, SkillTargetFilter.Ally | SkillTargetFilter.Self | SkillTargetFilter.Alive, range);
 				case SkillPick.DensestHostile:
 					return SkillTargetQuery.Densest(unit, def.Telegraph != null && def.Telegraph.Radius > 0f ? def.Telegraph.Radius : DefaultDensityRadius, range);
+				case SkillPick.Hero:
+					PlayerUnit hero = playerModel.Unit;
+					if (SkillTargetQuery.IsAlive(hero) && !hero.IsDying && SkillTargetQuery.IsHostile(unit, hero) && SkillTargetQuery.FlatDistance(unit, hero) <= range)
+						return hero;
+					return GetCurrentTarget(unit);
 				default:
 					return GetCurrentTarget(unit);
 			}
@@ -191,11 +197,18 @@ namespace Codebase.Skills.Systems
 		{
 			SkillDef def = slot.Def;
 			slot.Cooldown = def.Cooldown;
+			Vector3 direction = SkillTargetQuery.GetFlatDirection(unit, target);
+			if (target != null && target != unit)
+			{
+				if (unit is EnemyUnit turningEnemy && turningEnemy.Agent != null && turningEnemy.Agent.enabled && turningEnemy.Agent.isOnNavMesh)
+					turningEnemy.Agent.updateRotation = false;
+				unit.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+			}
 			Vector3 point = GetPoint(unit, def, target);
 			float duration = Mathf.Max(0f, def.CastPoint) + Mathf.Max(0f, def.Backswing);
 			if (duration <= 0f)
 			{
-				Fire(unit, slot, target, point);
+				Fire(unit, slot, target, point, direction);
 				return;
 			}
 			if (unit is EnemyUnit enemy)
@@ -211,16 +224,28 @@ namespace Codebase.Skills.Systems
 				});
 			}
 			SkillTelegraphView telegraph = null;
-			bool anchored = def.Telegraph != null && def.Telegraph.AnchorOnTarget && target != null;
-			// Hostile skills only; friendly skills are not drawn. Cone/Line shapes are phase 2.
-			if (def.CastPoint > 0f && unit is EnemyUnit && def.Telegraph != null && def.Telegraph.Shape == TelegraphShape.Circle)
-				telegraph = SkillTelegraphView.Spawn(point, def.Telegraph.Radius, anchored ? null : unit.transform);
-			castingStash.Set(entity, new SkillCastingComponent { Caster = unit, Slot = slot, Target = target, Point = point, Elapsed = 0f, Fired = false, Telegraph = telegraph });
+			bool anchored = target != null && (def.TargetType == SkillTargetType.Point || def.Telegraph != null && def.Telegraph.AnchorOnTarget);
+			// Hostile skills only; friendly skills are not drawn.
+			if (def.CastPoint > 0f && unit is EnemyUnit && def.Telegraph != null)
+			{
+				TelegraphDef warning = def.Telegraph;
+				switch (warning.Shape)
+				{
+					case TelegraphShape.Circle:
+						telegraph = SkillTelegraphView.Spawn(point, warning.Radius, anchored ? null : unit.transform);
+						break;
+					case TelegraphShape.Line:
+					case TelegraphShape.Cone:
+						telegraph = SkillTelegraphView.Spawn(warning.Shape, unit.transform.position, direction, warning.Radius, warning.Angle > 0f ? warning.Angle : 90f, warning.Width > 0f ? warning.Width : 1f, unit.transform);
+						break;
+				}
+			}
+			castingStash.Set(entity, new SkillCastingComponent { Caster = unit, Slot = slot, Target = target, Point = point, Direction = direction, Elapsed = 0f, Fired = false, Telegraph = telegraph });
 			if (def.CastPoint <= 0f)
 			{
 				ref SkillCastingComponent cast = ref castingStash.Get(entity);
 				cast.Fired = true;
-				Fire(unit, slot, target, point);
+				Fire(unit, slot, target, point, direction);
 			}
 		}
 
@@ -259,10 +284,11 @@ namespace Codebase.Skills.Systems
 					}
 					SkillSlot slot = cast.Slot;
 					UnitCore target = SkillTargetQuery.IsAlive(cast.Target) ? cast.Target : null;
-					bool anchored = def.Telegraph != null && def.Telegraph.AnchorOnTarget;
+					bool anchored = def.TargetType == SkillTargetType.Point || def.Telegraph != null && def.Telegraph.AnchorOnTarget;
 					Vector3 point = anchored ? cast.Point : GetPoint(unit, def, target);
 					float total = def.CastPoint + def.Backswing;
-					Fire(unit, slot, target, point);
+					Vector3 direction = cast.Direction;
+					Fire(unit, slot, target, point, direction);
 					// Effects may add components elsewhere; re-read before touching this entity again.
 					if (castingStash.Has(entity) && castingStash.Get(entity).Elapsed >= total)
 						castingStash.Remove(entity);
@@ -273,9 +299,10 @@ namespace Codebase.Skills.Systems
 			}
 		}
 
-		private void Fire(UnitCore unit, SkillSlot slot, UnitCore target, Vector3 point)
+		private void Fire(UnitCore unit, SkillSlot slot, UnitCore target, Vector3 point, Vector3 direction)
 		{
 			SkillCastContext context = skillService.CreateContext(unit, slot.Def, slot.Level, 1f, target, point, null);
+			context.Direction = direction;
 			SkillService.Execute(slot.Def.Effects, context);
 		}
 	}

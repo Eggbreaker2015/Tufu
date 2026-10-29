@@ -9,6 +9,9 @@ namespace Codebase.Skills
 	{
 		public string Key;
 
+		// Ability icon key (Resources/AbilityIcons/<key>); empty = classified from the effects.
+		public string IconKey;
+
 		public SkillTargetType TargetType;
 
 		public float Range;

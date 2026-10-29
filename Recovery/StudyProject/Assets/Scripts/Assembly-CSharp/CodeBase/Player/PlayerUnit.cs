@@ -395,7 +395,7 @@ namespace Codebase.Player
 			// Native ELF VA 0x1445358. Walking reflects input, with the original 0.15 audio scale.
 			if (!IsDying)
 			{
-				float input = GameContext.Get<PlayerModel>().CanMove ? GameContext.Get<Joystick>().GetInput().magnitude : 0f;
+				float input = GameContext.Get<PlayerModel>().CanMove && !global::Codebase.Skills.FriendlyDebuffs.IsStunned(this) ? GameContext.Get<Joystick>().GetInput().magnitude : 0f;
 				animator.SetBool(IsWalking, input > 0f);
 				animator.speed = 1f;
 				audioSource.volume = input * 0.15f;

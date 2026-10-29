@@ -367,6 +367,7 @@ namespace Codebase.Player
 				foreach (var ability in item.AbilityStates)
 					multiplier *= ability.GetWeaponStatMultiplier((Codebase.Abilities.Effects.WeaponBuffType)1);
 				multiplier *= item.AbilityAttackSpeedMultiplier;
+				multiplier /= global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(player.Unit);
 				float castPoint = PlayerAttackSystem.GetAnimationCastPoint(item);
 				float attackStart = castPoint * item.Config.AttackCooldown;
 				float remaining = item.Config.AttackCooldown - attackStart;
@@ -374,7 +375,7 @@ namespace Codebase.Player
 				float speed = remaining <= multiplier * LongHandCastThreshold ? multiplier * hitPoint / remaining : (item.Cooldown <= multiplier * HandCastFastHalfDuration + attackStart ? hitPoint / LongHandCastThreshold : multiplier * hitPoint * .5f / (remaining - multiplier * HandCastFastHalfDuration));
 				if (item.Cooldown <= item.Config.AttackCooldown * item.Config.AnimationBackPoint)
 					speed = multiplier * attackEndSpeed;
-				animator.SetFloat(handSpeedKey, Mathf.Min(speed, 4));
+				animator.SetFloat(handSpeedKey, global::Codebase.Skills.FriendlyDebuffs.IsStunned(player.Unit) ? 0f : Mathf.Min(speed, 4));
 			}
 
 			if ((missing || changed) && !deferViewCreation)

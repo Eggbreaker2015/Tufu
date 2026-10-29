@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   Skills:
   - Key: slam
+    IconKey:
     TargetType: 0
     Range: 3.5
     CastPoint: 1.2
@@ -27,6 +28,7 @@ MonoBehaviour:
       Radius: 3.5
       Angle: 0
       AnchorOnTarget: 0
+      Width: 0
     AutoCast:
       Priority: 10
       Pick: 0
@@ -38,6 +40,7 @@ MonoBehaviour:
     - rid: 1013
     - rid: 1014
   - Key: bone_volley
+    IconKey:
     TargetType: 1
     Range: 9
     CastPoint: 0.6
@@ -47,10 +50,11 @@ MonoBehaviour:
     AnimationBool:
     AnimationTrigger:
     Telegraph:
-      Shape: 3
+      Shape: 0
       Radius: 9
       Angle: 0
       AnchorOnTarget: 0
+      Width: 0
     AutoCast:
       Priority: 5
       Pick: 0
@@ -60,6 +64,7 @@ MonoBehaviour:
     Effects:
     - rid: 1022
   - Key: enrage
+    IconKey:
     TargetType: 0
     Range: 0
     CastPoint: 0.8
@@ -73,6 +78,7 @@ MonoBehaviour:
       Radius: 0
       Angle: 0
       AnchorOnTarget: 0
+      Width: 0
     AutoCast:
       Priority: 20
       Pick: 3
@@ -83,6 +89,7 @@ MonoBehaviour:
     Effects:
     - rid: 1033
   - Key: heal_aura
+    IconKey:
     TargetType: 3
     Range: 0
     CastPoint: 0
@@ -96,6 +103,7 @@ MonoBehaviour:
       Radius: 0
       Angle: 0
       AnchorOnTarget: 0
+      Width: 0
     AutoCast:
       Priority: 0
       Pick: 3
@@ -103,8 +111,159 @@ MonoBehaviour:
     LevelScale: []
     Effects:
     - rid: 1041
+  - Key: bone_spear
+    IconKey:
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.9
+    Backswing: 0.3
+    Cooldown: 7
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 10
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1.2
+    AutoCast:
+      Priority: 6
+      Pick: 0
+      UseWhen:
+      - rid: 1061
+    LevelScale: []
+    Effects:
+    - rid: 1062
+  - Key: bone_rain
+    IconKey:
+    TargetType: 2
+    Range: 10
+    CastPoint: 1.4
+    Backswing: 0.4
+    Cooldown: 8
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 2.5
+      Angle: 0
+      AnchorOnTarget: 1
+      Width: 0
+    AutoCast:
+      Priority: 10
+      Pick: 5
+      UseWhen:
+      - rid: 1071
+    LevelScale: []
+    Effects:
+    - rid: 1072
+    - rid: 1073
+  - Key: raise_dead
+    IconKey:
+    TargetType: 0
+    Range: 12
+    CastPoint: 1
+    Backswing: 0.4
+    Cooldown: 18
+    InitialCooldown: 6
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 15
+      Pick: 0
+      UseWhen:
+      - rid: 1081
+    LevelScale: []
+    Effects:
+    - rid: 1082
+  - Key: cleave
+    IconKey:
+    TargetType: 0
+    Range: 4
+    CastPoint: 1
+    Backswing: 0.4
+    Cooldown: 8
+    InitialCooldown: 5
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 2
+      Radius: 4
+      Angle: 120
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 1091
+    LevelScale: []
+    Effects:
+    - rid: 1092
+    - rid: 1093
+    - rid: 1094
+  - Key: stomp
+    IconKey:
+    TargetType: 0
+    Range: 3
+    CastPoint: 1.3
+    Backswing: 0.5
+    Cooldown: 14
+    InitialCooldown: 9
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 3
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 15
+      Pick: 0
+      UseWhen:
+      - rid: 1101
+    LevelScale: []
+    Effects:
+    - rid: 1102
+    - rid: 1103
+    - rid: 1104
+  - Key: curse_bolt
+    IconKey:
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.6
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 5
+      Pick: 0
+      UseWhen:
+      - rid: 1111
+      - rid: 1112
+    LevelScale: []
+    Effects:
+    - rid: 1113
   Buffs:
   - Key: slow_30
+    IconKey:
     Duration: 2
     IsDebuff: 1
     Stack: 0
@@ -118,6 +277,7 @@ MonoBehaviour:
     TickInterval: 0
     OnTick: []
   - Key: enrage
+    IconKey: rage
     Duration: 8
     IsDebuff: 0
     Stack: 0
@@ -134,6 +294,7 @@ MonoBehaviour:
     TickInterval: 0
     OnTick: []
   - Key: aura_regen
+    IconKey:
     Duration: 1
     IsDebuff: 0
     Stack: 0
@@ -144,6 +305,45 @@ MonoBehaviour:
     TickInterval: 1
     OnTick:
     - rid: 1051
+  - Key: armor_break
+    IconKey:
+    Duration: 5
+    IsDebuff: 1
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 31
+      ModifierType: 2
+      ValuePerStack: 0.7
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: weakness
+    IconKey:
+    Duration: 4
+    IsDebuff: 1
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 5
+      ModifierType: 2
+      ValuePerStack: 1.3
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: stomp_stun
+    IconKey:
+    Duration: 1
+    IsDebuff: 1
+    Stack: 0
+    MaxStacks: 0
+    StatMods: []
+    Stun: 1
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
   Loadouts:
   - OwnerKind: 0
     Key: Zombie_Medium+
@@ -156,6 +356,10 @@ MonoBehaviour:
     - SkillKey: slam
       Level: 1
     - SkillKey: enrage
+      Level: 1
+    - SkillKey: cleave
+      Level: 1
+    - SkillKey: stomp
       Level: 1
   - OwnerKind: 0
     Key: Skeleton_Medium
@@ -182,6 +386,75 @@ MonoBehaviour:
       Level: 1
     - SkillKey: heal_aura
       Level: 1
+    - SkillKey: bone_rain
+      Level: 1
+    - SkillKey: raise_dead
+      Level: 1
+    RangedAttack:
+      Enabled: 1
+      AttackRange: 8
+      AggroRange: 10
+      MinRange: 0
+      KiteDistance: 3
+      KiteCooldown: 4
+      ProjectileVfxKey: bone_bolt_heavy
+      ProjectileSpeed: 12
+      ImpactVfxKey: bone_arrow
+      ImpactVfxScale: 0.9
+      DamageMultiplier: 1.3
+      RequireLineOfFire: 1
+  - OwnerKind: 0
+    Key: Skeleton_Easy
+    Skills: []
+    RangedAttack:
+      Enabled: 1
+      AttackRange: 6.5
+      AggroRange: 8
+      MinRange: 2
+      KiteDistance: 2.5
+      KiteCooldown: 5
+      ProjectileVfxKey: bone_bolt
+      ProjectileSpeed: 14
+      ImpactVfxKey: bone_arrow
+      ImpactVfxScale: 0.6
+      DamageMultiplier: 0.8
+      RequireLineOfFire: 1
+  - OwnerKind: 0
+    Key: Skeleton_Medium+
+    Skills:
+    - SkillKey: curse_bolt
+      Level: 1
+    RangedAttack:
+      Enabled: 1
+      AttackRange: 7.5
+      AggroRange: 10
+      MinRange: 2.5
+      KiteDistance: 3
+      KiteCooldown: 4
+      ProjectileVfxKey: bone_bolt
+      ProjectileSpeed: 14
+      ImpactVfxKey: bone_arrow
+      ImpactVfxScale: 0.6
+      DamageMultiplier: 1
+      RequireLineOfFire: 1
+  - OwnerKind: 0
+    Key: Skeleton_Elite
+    Skills:
+    - SkillKey: bone_spear
+      Level: 1
+    RangedAttack:
+      Enabled: 1
+      AttackRange: 7.5
+      AggroRange: 10
+      MinRange: 2.5
+      KiteDistance: 3
+      KiteCooldown: 4
+      ProjectileVfxKey: bone_bolt
+      ProjectileSpeed: 14
+      ImpactVfxKey: bone_arrow
+      ImpactVfxScale: 0.6
+      DamageMultiplier: 1
+      RequireLineOfFire: 1
   Vfx:
   - Key: slam_smash
     Prefab: {fileID: 198099118695303065, guid: 913affe3ff74f544296f22351f56d02f, type: 3}
@@ -202,6 +475,50 @@ MonoBehaviour:
     TrailTime: 0.2
     TrailWidth: 0.22
     TrailColor: {r: 0.75, g: 0.95, b: 1, a: 0.65}
+  - Key: stun_stars
+    Prefab: {fileID: 198884547391421755, guid: 010dc4f721a71fb43907b6d319f25b97, type: 3}
+    Lifetime: 0
+    Scale: 0.6
+  - Key: bone_spear
+    Prefab: {fileID: 0}
+    Lifetime: 3
+    Scale: 1
+    ProjectileTexture: {fileID: 2800000, guid: 0c7ed0cac8f84967ae30f2ec41d5a964, type: 3}
+    ProjectileLength: 2.2
+    ProjectileWidth: 0.6
+    ProjectileTint: {r: 1, g: 0.95, b: 0.88, a: 1}
+    TrailTime: 0.25
+    TrailWidth: 0.4
+    TrailColor: {r: 1, g: 0.9, b: 0.75, a: 0.6}
+  - Key: bone_bolt_heavy
+    Prefab: {fileID: 0}
+    Lifetime: 3
+    Scale: 1
+    ProjectileTexture: {fileID: 2800000, guid: 0c7ed0cac8f84967ae30f2ec41d5a964, type: 3}
+    ProjectileLength: 1.6
+    ProjectileWidth: 0.48
+    ProjectileTint: {r: 1, g: 1, b: 1, a: 1}
+    TrailTime: 0.22
+    TrailWidth: 0.3
+    TrailColor: {r: 0.75, g: 0.95, b: 1, a: 0.65}
+  - Key: curse_bolt
+    Prefab: {fileID: 0}
+    Lifetime: 3
+    Scale: 1
+    ProjectileTexture: {fileID: 2800000, guid: 0c7ed0cac8f84967ae30f2ec41d5a964, type: 3}
+    ProjectileLength: 1
+    ProjectileWidth: 0.34
+    ProjectileTint: {r: 0.8, g: 0.45, b: 1, a: 1}
+    TrailTime: 0.3
+    TrailWidth: 0.3
+    TrailColor: {r: 0.65, g: 0.25, b: 1, a: 0.75}
+  - Key: lich_blast
+    Prefab: {fileID: 198243736805655561, guid: 01b9d28c1901e3e41807db30bf89dc1b, type: 3}
+    Lifetime: 2
+    Scale: 2
+  Summons:
+  - Key: skeleton_easy
+    Prefab: {fileID: 1709254077376921, guid: a802012287f530c43a38d703d16e9047, type: 3}
   TelegraphTexture: {fileID: 2800000, guid: 800be693e225496499369c254e62c299, type: 3}
   references:
     version: 2
@@ -220,6 +537,8 @@ MonoBehaviour:
           Angle: 90
           Filter: 65
           MaxTargets: 0
+          Length: 0
+          Width: 1
         Power: 2.5
         OverrideDamageType: 0
         DamageType: 0
@@ -233,6 +552,8 @@ MonoBehaviour:
           Angle: 90
           Filter: 65
           MaxTargets: 0
+          Length: 0
+          Width: 1
         BuffKey: slow_30
     - rid: 1014
       type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
@@ -259,6 +580,8 @@ MonoBehaviour:
           Angle: 90
           Filter: 65
           MaxTargets: 3
+          Length: 0
+          Width: 1
         OnImpact:
         - rid: 1023
         - rid: 1024
@@ -271,6 +594,8 @@ MonoBehaviour:
           Angle: 90
           Filter: 65
           MaxTargets: 0
+          Length: 0
+          Width: 1
         Power: 0.8
         OverrideDamageType: 0
         DamageType: 0
@@ -301,11 +626,13 @@ MonoBehaviour:
           Angle: 90
           Filter: 68
           MaxTargets: 0
+          Length: 0
+          Width: 1
         BuffKey: enrage
     - rid: 1041
       type: {class: AuraEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
       data:
-        Radius: 5
+        Radius: 7
         Filter: 66
         BuffKey: aura_regen
         Interval: 0.5
@@ -318,4 +645,219 @@ MonoBehaviour:
           Angle: 90
           Filter: 68
           MaxTargets: 0
+          Length: 0
+          Width: 1
         PercentMaxHp: 0.02
+    - rid: 1061
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 9
+    - rid: 1062
+      type: {class: LinearMissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_spear
+        Speed: 9
+        Count: 1
+        SpreadAngle: 0
+        Range: 9.5
+        Radius: 0.2
+        Pierce: 1
+        Power: 2
+        OverrideDamageType: 0
+        DamageType: 0
+        Filter: 65
+        OnImpact:
+        - rid: 1063
+    - rid: 1063
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_arrow
+        Anchor: 1
+        Scale: 0.8
+        HeightOffset: 1.2
+    - rid: 1071
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 10
+    - rid: 1072
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 3
+          Radius: 2.5
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2.2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 1073
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: lich_blast
+        Anchor: 2
+        Scale: 1
+        HeightOffset: 0.1
+    - rid: 1081
+      type: {class: SummonsBelowCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        SummonKey: skeleton_easy
+        Count: 4
+    - rid: 1082
+      type: {class: SummonEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        SummonKey: skeleton_easy
+        Count: 3
+        Radius: 3
+        MaxAlive: 6
+        Lifetime: 20
+        HealthScale: 0.03
+        DamageScale: 0.2
+        VfxKey: lich_blast
+    - rid: 1091
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.8
+    - rid: 1092
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 4
+          Radius: 4
+          Angle: 120
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 1093
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 4
+          Radius: 4
+          Angle: 120
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: armor_break
+    - rid: 1094
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1.2
+        HeightOffset: 0.2
+    - rid: 1101
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 3
+        Min: 1
+    - rid: 1102
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 1103
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: stomp_stun
+    - rid: 1104
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1.8
+        HeightOffset: 0.2
+    - rid: 1111
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 9
+    - rid: 1112
+      type: {class: HasBuffCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Key: weakness
+        Invert: 1
+        OnTarget: 1
+    - rid: 1113
+      type: {class: MissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: curse_bolt
+        Speed: 10
+        Count: 1
+        Spread: 0
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        OnImpact:
+        - rid: 1114
+        - rid: 1115
+        - rid: 1116
+    - rid: 1114
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 0.6
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 1115
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: weakness
+    - rid: 1116
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_arrow
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 1.2

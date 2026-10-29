@@ -66,10 +66,13 @@ namespace Codebase.Player
 		private float GetHandSpeed(ItemModel item)
 		{
 			// Same curve as the weapon_1 hand in PlayerWeaponView.Update.
+			if (global::Codebase.Skills.FriendlyDebuffs.IsStunned(playerModel.Unit))
+				return 0f;
 			float multiplier = 1f;
 			foreach (var ability in item.AbilityStates)
 				multiplier *= ability.GetWeaponStatMultiplier(WeaponBuffType.AttackSpeed);
 			multiplier *= item.AbilityAttackSpeedMultiplier;
+			multiplier /= global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(playerModel.Unit);
 			float cooldown = item.Config.AttackCooldown;
 			float attackStart = PlayerAttackSystem.GetAnimationCastPoint(item) * cooldown;
 			float remaining = cooldown - attackStart;

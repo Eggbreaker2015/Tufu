@@ -33,6 +33,15 @@ namespace Codebase.Skills
 		public Color TrailColor = new Color(0.8f, 0.95f, 1f, 0.6f);
 	}
 
+	[Serializable]
+	public class SkillSummonEntry
+	{
+		public string Key;
+
+		// An enemy prefab with EnemyUnit, spawned through BossMinionService.
+		public GameObject Prefab;
+	}
+
 	// Hand-edited YAML assets under Resources/Skills; several files are merged (first key wins, duplicates warn).
 	[CreateAssetMenu(fileName = "Skill Library", menuName = "Codebase/Skill Library")]
 	public class SkillLibrary : ScriptableObject
@@ -47,6 +56,8 @@ namespace Codebase.Skills
 
 		public List<SkillVfxEntry> Vfx = new List<SkillVfxEntry>();
 
+		public List<SkillSummonEntry> Summons = new List<SkillSummonEntry>();
+
 		// Ground telegraph texture (soft filled circle); the first library that sets one wins.
 		public Texture2D TelegraphTexture;
 
@@ -57,6 +68,8 @@ namespace Codebase.Skills
 		private static readonly Dictionary<string, BuffDef> BuffsByKey = new Dictionary<string, BuffDef>();
 
 		private static readonly Dictionary<string, SkillVfxEntry> VfxByKey = new Dictionary<string, SkillVfxEntry>();
+
+		private static readonly Dictionary<string, SkillSummonEntry> SummonsByKey = new Dictionary<string, SkillSummonEntry>();
 
 		private static readonly Dictionary<string, UnitSkillLoadout>[] LoadoutsByKind = new Dictionary<string, UnitSkillLoadout>[4];
 
@@ -118,6 +131,17 @@ namespace Codebase.Skills
 			return null;
 		}
 
+		public static SkillSummonEntry FindSummon(string key)
+		{
+			EnsureLoaded();
+			if (string.IsNullOrEmpty(key))
+				return null;
+			if (SummonsByKey.TryGetValue(key, out SkillSummonEntry entry))
+				return entry;
+			WarnOnce("summon:" + key, "[Skills] Unknown summon '" + key + "'");
+			return null;
+		}
+
 		public static UnitSkillLoadout FindLoadout(SkillOwnerKind kind, string key)
 		{
 			EnsureLoaded();
@@ -161,6 +185,10 @@ namespace Codebase.Skills
 				foreach (SkillVfxEntry entry in library.Vfx)
 					if (entry != null && !string.IsNullOrEmpty(entry.Key) && !TryAdd(VfxByKey, entry.Key, entry))
 						Debug.LogWarning("[Skills] Duplicate vfx '" + entry.Key + "' in " + library.name);
+			if (library.Summons != null)
+				foreach (SkillSummonEntry entry in library.Summons)
+					if (entry != null && !string.IsNullOrEmpty(entry.Key) && !TryAdd(SummonsByKey, entry.Key, entry))
+						Debug.LogWarning("[Skills] Duplicate summon '" + entry.Key + "' in " + library.name);
 			if (library.Loadouts != null)
 				foreach (UnitSkillLoadout loadout in library.Loadouts)
 				{
@@ -203,6 +231,8 @@ namespace Codebase.Skills
 				foreach (ISkillEffect effect in def.Effects)
 					if (effect == null)
 						WarnOnce("null:" + def.Key, "[Skills] Skill '" + def.Key + "' has a missing effect (renamed class?)");
+					else if (effect is Effects.SummonEffect summon && !SummonsByKey.ContainsKey(summon.SummonKey ?? string.Empty))
+						WarnOnce("summon:" + summon.SummonKey, "[Skills] Skill '" + def.Key + "' references unknown summon '" + summon.SummonKey + "'");
 			}
 		}
 
@@ -213,6 +243,7 @@ namespace Codebase.Skills
 			SkillsByKey.Clear();
 			BuffsByKey.Clear();
 			VfxByKey.Clear();
+			SummonsByKey.Clear();
 			for (int i = 0; i < LoadoutsByKind.Length; i++)
 				LoadoutsByKind[i] = null;
 			Warned.Clear();

@@ -25,7 +25,7 @@ namespace Codebase.Skills.Components
 
 		public UnitCore Source;
 
-		// Hostile buff on the hero or a pet: phase 1 keeps only movement speed, no stun/silence.
+		// Hostile buff on the hero or a pet: slow, stun, defence/attack interval factors and ticks only (no silence, no other stats).
 		public bool Restricted;
 
 		public readonly List<AppliedStatMod> Applied = new List<AppliedStatMod>(2);

@@ -7,6 +7,7 @@ using Codebase.Player;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
 using Codebase.Skills.Components;
+using Codebase.Skills.Effects;
 using Codebase.Unit;
 using Codebase.Unit.Components;
 using Codebase.Unit.Events;
@@ -21,7 +22,7 @@ namespace Codebase.Skills
 	{
 		public const float ThinkInterval = 0.2f;
 
-		private const float MissileHeight = 1.2f;
+		internal const float MissileHeight = 1.2f;
 
 		// Stat.CalculateSpecificValue(MovementSpeed) is 4.6 * v^0.115 below 10000: the hero's felt speed.
 		private const double HeroSpeedExponent = 0.115;
@@ -57,6 +58,10 @@ namespace Codebase.Skills
 		}
 
 		private readonly List<PendingMissile> pendingMissiles = new List<PendingMissile>();
+
+		private readonly SkillLinearMissiles linearMissiles = new SkillLinearMissiles();
+
+		private readonly SkillSummons summons = new SkillSummons();
 
 		private int modifierCounter;
 
@@ -95,6 +100,7 @@ namespace Codebase.Skills
 		{
 			if (enemy == null)
 				return;
+			summons.DespawnOwnedBy(enemy);
 			enemy.ResetRangedState(null);
 			if (enemy.EntityProvider == null)
 				return;
@@ -116,6 +122,53 @@ namespace Codebase.Skills
 				return;
 			}
 			Install(enemy, entity, loadout);
+		}
+
+		public void Summon(in SkillCastContext context, SummonEffect def)
+		{
+			if (def == null || context.Caster == null)
+				return;
+			summons.Summon(this, context, def);
+		}
+
+		public bool IsSummon(UnitCore unit)
+		{
+			return summons.IsSummon(unit);
+		}
+
+		public int CountSummons(UnitCore owner, string key)
+		{
+			return summons.CountAlive(owner, key);
+		}
+
+		public void TickSummons()
+		{
+			summons.Tick(this);
+		}
+
+		public void RemoveSummonSkills(UnitCore unit)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return;
+			World current = CurrentWorld;
+			Entity entity = unit.EntityProvider.Entity;
+			if (current.IsDisposed(entity) || !casterStash.Has(entity))
+				return;
+			List<SkillSlot> slots = casterStash.Get(entity).Slots;
+			for (int i = slots.Count - 1; i >= 0; i--)
+			{
+				List<ISkillEffect> effects = slots[i].Def.Effects;
+				if (effects == null)
+					continue;
+				foreach (ISkillEffect effect in effects)
+					if (effect is SummonEffect)
+					{
+						slots.RemoveAt(i);
+						break;
+					}
+			}
+			if (slots.Count == 0)
+				casterStash.Remove(entity);
 		}
 
 		public void Install(UnitCore unit, Entity entity, UnitSkillLoadout loadout)
@@ -148,7 +201,8 @@ namespace Codebase.Skills
 			// The spawned prefab (event variants and boss minions differ from config.Prefab); pool clones carry "(Clone)".
 			if (loadout == null)
 				loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Enemy, StripClone(enemy.gameObject.name));
-			if (loadout == null && config != null && config.Prefab != null)
+			// Boss fight units match by boss key or their own prefab only (the lich's *_Summoned skeletons share a Skeleton_Easy config).
+			if (loadout == null && config != null && config.Prefab != null && !config.IsBossFightPart)
 				loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Enemy, config.Prefab.name);
 			return loadout;
 		}
@@ -192,6 +246,7 @@ namespace Codebase.Skills
 				return;
 			Vector3 point = target != null ? target.transform.position : caster.transform.position;
 			SkillCastContext context = CreateContext(caster, def, level, externalPower, target, point, sourceItem);
+			context.Direction = SkillTargetQuery.GetFlatDirection(caster, target);
 			Execute(def.Effects, context);
 		}
 
@@ -227,7 +282,7 @@ namespace Codebase.Skills
 		#region Damage and healing
 
 		// Friendly -> enemy: fixed damage through UnitDamageSystem's Weapon == null branch (no OnHit triggers).
-		// Enemy -> hero/pet: the caster's attack x power through the normal incoming path, like LavaCrabExplosionSystem.
+		// Enemy -> hero/pet: normal incoming damage; sleeping, dying or frozen heroes are skipped (pets still take damage).
 		public void DealDamage(in SkillCastContext context, UnitCore target, float power, WeaponType? damageType, bool undodgeable)
 		{
 			UnitCore attacker = context.Source;
@@ -258,6 +313,12 @@ namespace Codebase.Skills
 			}
 			if (!(attacker is EnemyUnit source))
 				return;
+			if (target is PlayerUnit playerUnit)
+			{
+				PlayerModel player = GameContext.Has<PlayerModel>() ? GameContext.Get<PlayerModel>() : null;
+				if (playerUnit.IsSleeping || playerUnit.IsDying || player != null && !player.CanMove)
+					return;
+			}
 			hitEvent.NextFrame(new WeaponHitEvent
 			{
 				Source = source, Target = target, DamageType = damageType ?? source.DamageType, Undodgeable = undodgeable, HasSpecialMultiplier = true, SpecialMultiplier = power
@@ -288,6 +349,9 @@ namespace Codebase.Skills
 
 		#region Buffs
 
+		// One enemy stun on the hero lasts at most this long.
+		private const float HeroStunCap = 1.5f;
+
 		public void ApplyBuff(UnitCore target, BuffDef def, UnitCore source, float power = 1f)
 		{
 			if (def == null || !SkillTargetQuery.IsAlive(target) || target.EntityProvider == null)
@@ -296,8 +360,12 @@ namespace Codebase.Skills
 			Entity entity = target.EntityProvider.Entity;
 			if (current.IsDisposed(entity))
 				return;
-			// Phase 1: hostile buffs on the hero and pets only slow (and tick); no stun, silence or other stat changes.
+			// Hostile buffs on the hero and pets: slow, stun, defence and attack interval factors and ticks; no silence or other stat changes.
 			bool restricted = source is EnemyUnit && !(target is EnemyUnit);
+			if (restricted && def.StatMods != null)
+				foreach (BuffStatMod mod in def.StatMods)
+					if (mod != null && mod.StatType != StatType.MovementSpeed && !IsRestrictedFactor(mod))
+						SkillLibrary.WarnOnce("friendly-stat:" + def.Key + ":" + mod.StatType + ":" + mod.ModifierType, "[Skills] Buff '" + def.Key + "': " + mod.StatType + " x " + mod.ModifierType + " is ignored on the hero and pets");
 			if (restricted && !HasRestrictedPayload(def))
 				return;
 			ref UnitBuffsComponent buffs = ref buffsStash.Get(entity, out bool exists);
@@ -340,13 +408,18 @@ namespace Codebase.Skills
 
 		private static bool HasRestrictedPayload(BuffDef def)
 		{
-			if (def.TickInterval > 0f && def.OnTick != null && def.OnTick.Count > 0)
+			if (def.Stun || def.TickInterval > 0f && def.OnTick != null && def.OnTick.Count > 0)
 				return true;
 			if (def.StatMods != null)
 				foreach (BuffStatMod mod in def.StatMods)
-					if (mod != null && mod.StatType == StatType.MovementSpeed)
+					if (mod != null && (mod.StatType == StatType.MovementSpeed || IsRestrictedFactor(mod)))
 						return true;
 			return false;
+		}
+
+		private static bool IsRestrictedFactor(BuffStatMod mod)
+		{
+			return mod.ModifierType == ModifierType.PercentMultiplicative && (mod.StatType == StatType.GlobalDefence || mod.StatType == StatType.AttackCooldown);
 		}
 
 		private static BuffInstance Find(List<BuffInstance> buffs, BuffDef def)
@@ -357,7 +430,7 @@ namespace Codebase.Skills
 			return null;
 		}
 
-		// Pets: their stats are rebuilt by PetStatsSyncSystem, so phase 1 only reads movement through GetMoveSpeedFactor.
+		// Pets: their stats are rebuilt by PetStatsSyncSystem, so skill factors are read where used.
 		private void ApplyMods(UnitCore target, BuffInstance instance)
 		{
 			if (target is PetUnit || instance.Def.StatMods == null)
@@ -401,12 +474,16 @@ namespace Codebase.Skills
 
 		private void ApplyStun(UnitCore target, Entity entity, BuffInstance instance)
 		{
-			if (!instance.Def.Stun || instance.Restricted || !(target is EnemyUnit enemy))
+			if (!instance.Def.Stun)
 				return;
+			float duration = instance.Remaining;
+			if (target is PlayerUnit && instance.Restricted)
+				duration = Mathf.Min(duration, HeroStunCap);
 			ref BuffStunComponent stun = ref stunStash.Get(entity, out bool exists);
-			if (!exists || stun.Duration < instance.Remaining)
-				stunStash.Set(entity, new BuffStunComponent { Duration = instance.Remaining });
-			enemy.ApplyStunAnimation(true);
+			if (!exists || stun.Duration < duration)
+				stunStash.Set(entity, new BuffStunComponent { Duration = duration });
+			if (target is EnemyUnit enemy)
+				enemy.ApplyStunAnimation(true);
 		}
 
 		public void RemoveBuffAt(List<BuffInstance> buffs, int index)
@@ -418,6 +495,12 @@ namespace Codebase.Skills
 		public void ClearBuffs(Entity entity)
 		{
 			World current = CurrentWorld;
+			if (current.IsDisposed(entity))
+				return;
+			UnitCore owner = buffsStash.Has(entity) ? buffsStash.Get(entity).Owner : null;
+			// Friendly stuns only: enemy stuns (item StunEffect, Viking rage, skill buffs) keep their UnitBuffSystem countdown.
+			if (!(owner is EnemyUnit))
+				ClearStun(entity, owner);
 			if (!buffsStash.Has(entity))
 				return;
 			List<BuffInstance> buffs = buffsStash.Get(entity).Buffs;
@@ -450,6 +533,67 @@ namespace Codebase.Skills
 				if (instance.Def.Silence && !instance.Restricted)
 					return true;
 			return false;
+		}
+
+		public bool IsStunned(UnitCore unit)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return false;
+			World current = CurrentWorld;
+			Entity entity = unit.EntityProvider.Entity;
+			return !current.IsDisposed(entity) && stunStash.Has(entity);
+		}
+
+		public void ClearStun(UnitCore unit)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return;
+			ClearStun(unit.EntityProvider.Entity, unit);
+		}
+
+		private void ClearStun(Entity entity, UnitCore unit)
+		{
+			World current = CurrentWorld;
+			if (current.IsDisposed(entity) || !stunStash.Has(entity))
+				return;
+			stunStash.Remove(entity);
+			if (unit is EnemyUnit enemy && enemy != null)
+				enemy.ApplyStunAnimation(false);
+		}
+
+		// Multiplies the hero's/pet's defence value in DamageCalculator (enemy debuffs only; friendly buffs on the hero are real stat modifiers).
+		public float GetDefenceFactor(UnitCore unit)
+		{
+			return Mathf.Clamp(GetRestrictedFactor(unit, StatType.GlobalDefence), 0f, 10f);
+		}
+
+		// 1.3 means 30% longer between attacks.
+		public float GetAttackIntervalFactor(UnitCore unit)
+		{
+			return Mathf.Clamp(GetRestrictedFactor(unit, StatType.AttackCooldown), 0.1f, 10f);
+		}
+
+		private float GetRestrictedFactor(UnitCore unit, StatType statType)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return 1f;
+			World current = CurrentWorld;
+			Entity entity = unit.EntityProvider.Entity;
+			if (current.IsDisposed(entity) || !buffsStash.Has(entity))
+				return 1f;
+			float factor = 1f;
+			List<BuffInstance> buffs = buffsStash.Get(entity).Buffs;
+			if (buffs == null)
+				return factor;
+			foreach (BuffInstance instance in buffs)
+			{
+				if (!instance.Restricted || instance.Def.StatMods == null)
+					continue;
+				foreach (BuffStatMod mod in instance.Def.StatMods)
+					if (mod != null && mod.StatType == statType && mod.ModifierType == ModifierType.PercentMultiplicative)
+						factor *= Mathf.Pow(mod.ValuePerStack, instance.Stacks);
+			}
+			return factor;
 		}
 
 		// Movement multiplier from skill buffs for units that do not read their own MovementSpeed stat (pets).
@@ -491,6 +635,13 @@ namespace Codebase.Skills
 		#endregion
 
 		#region Missiles and vfx
+
+		public void LaunchLinearMissiles(in SkillCastContext context, LinearMissileEffect def)
+		{
+			if (def == null || context.Caster == null)
+				return;
+			linearMissiles.Launch(this, context, def);
+		}
 
 		public void LaunchMissile(in SkillCastContext context, UnitCore target, string vfxKey, float speed, Vector3 startOffset, List<ISkillEffect> onImpact)
 		{
@@ -562,6 +713,7 @@ namespace Codebase.Skills
 				else
 					Impact(missile.Context, missile.Target, missile.OnImpact);
 			}
+			linearMissiles.Tick(this, deltaTime);
 		}
 
 		// Pooled units are never destroyed: a target that died or was despawned in flight is skipped, and so is a dead caster's hit.

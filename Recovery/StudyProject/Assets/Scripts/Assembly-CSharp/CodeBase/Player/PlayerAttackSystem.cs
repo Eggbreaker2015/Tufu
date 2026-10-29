@@ -98,7 +98,9 @@ namespace Codebase.Player
 			float range = (float)playerModel.GetStatValue(Codebase.Unit.StatType.AttackRange);
 			Vector3 position = PlayerUnit.transform.position;
 			float deltaTime = Time.deltaTime;
-			float speedTarget = GameContext.Get<Joystick>().GetInput().magnitude * (float)PlayerUnit.GetStatSpecificValue(Codebase.Unit.StatType.MovementSpeed) * 0.05f;
+			bool stunned = global::Codebase.Skills.FriendlyDebuffs.IsStunned(PlayerUnit);
+			float interval = global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(PlayerUnit);
+			float speedTarget = stunned ? 0f : GameContext.Get<Joystick>().GetInput().magnitude * (float)PlayerUnit.GetStatSpecificValue(Codebase.Unit.StatType.MovementSpeed) * 0.05f;
 			float coefficient = Mathf.Clamp01(1f - Mathf.Exp(-4f * deltaTime));
 			animationCastPointSpeedCoefficient += (speedTarget - animationCastPointSpeedCoefficient) * coefficient;
 			bool hasTarget;
@@ -128,10 +130,16 @@ namespace Codebase.Player
 			foreach (ItemModel weapon in GetAttackItems())
 			{
 			    weapon.JustStartedAttack = false;
+			    if (stunned)
+			    {
+			        weapon.WearingTime += deltaTime;
+			        continue;
+			    }
 			    float attackSpeed = 1f;
 			    foreach (var ability in weapon.AbilityStates) attackSpeed *= ability.GetWeaponStatMultiplier(WeaponBuffType.AttackSpeed);
 			    attackSpeed *= weapon.AbilityAttackSpeedMultiplier;
 			    if (IsAttackingWeakEnemy() || IsAttackingEventGolem()) attackSpeed *= 2.5f;
+			    attackSpeed /= interval;
 			    if (hasTarget) weapon.Cooldown -= attackSpeed * deltaTime;
 			    else if (weapon.Cooldown > GetHitCooldownThreshold(weapon, playerModel))
 			    {
@@ -156,13 +164,15 @@ namespace Codebase.Player
 			    }
 			}
 			if (PlayerUnit.IsDying) PlayerUnit.CurrentTarget = null;
-			else if (hasTarget) Attack();
+			else if (hasTarget && !stunned) Attack();
 		}
 
 		private void Attack()
 		{
 			// Native ELF VA 0x1441034: original cast crossing emits the actual Morpeh hit event.
 			if (PlayerUnit.IsDying || PlayerUnit.CurrentTarget == null || PlayerUnit.IsDead || PlayerUnit.IsSleeping || !playerModel.CanMove) return;
+			if (global::Codebase.Skills.FriendlyDebuffs.IsStunned(PlayerUnit)) return;
+			float interval = global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(PlayerUnit);
 			EnemyUnit target = PlayerUnit.CurrentTarget;
 			float baseRange = (float)playerModel.GetStatValue(Codebase.Unit.StatType.AttackRange);
 			// Pet mode: only the player's own attack item; its SlotIndex 0 keeps the weapon_1 base-range rule.
@@ -182,6 +192,7 @@ namespace Codebase.Player
 			    foreach (var ability in weapon.AbilityStates) attackSpeed *= ability.GetWeaponStatMultiplier(WeaponBuffType.AttackSpeed);
 			    attackSpeed *= weapon.AbilityAttackSpeedMultiplier;
 			    if (IsAttackingWeakEnemy() || IsAttackingEventGolem()) attackSpeed *= 2.5f;
+			    attackSpeed /= interval;
 			    if (!weapon.AttackInProgress || weapon.Cooldown > GetHitCooldownThreshold(weapon, playerModel) + attackSpeed * Time.deltaTime) continue;
 			    weapon.AttackInProgress = false;
 			    if (weapon.ResetCooldown)

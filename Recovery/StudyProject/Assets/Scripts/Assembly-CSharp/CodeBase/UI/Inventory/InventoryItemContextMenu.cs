@@ -4,7 +4,9 @@ using Codebase.Player;
 using System.Linq;
 using Codebase.Core;
 using Codebase.Core.UI;
+using Codebase.Localization;
 using Codebase.Pet;
+using Codebase.UI.Pets;
 using Codebase.Pet.Commands;
 using CodeBase.Audio;
 using Codebase.Player.Inventory;
@@ -130,6 +132,8 @@ namespace Codebase.UI.Inventory
 
 		private TMP_Text shardCountText;
 
+		private PetAbilitySummaryRow abilitySummary;
+
 		protected override void Awake()
 		{
 			// Native ELF VA 0x164df78; original split-code branch continues to all three button listeners.
@@ -182,8 +186,13 @@ namespace Codebase.UI.Inventory
 			ItemModel item = playerModel.SelectedItem;
 			if (item == null) return;
 			float height = defaultHeight;
-			abilitiesView.Setup(item, int.MaxValue, false);
-			if (item.HasUnlockableAbility) height += abilitiesView.GetHeight();
+			if (PetStats.TryGet(item, out _)) abilitiesView.gameObject.SetActive(false);
+			else
+			{
+				abilitiesView.gameObject.SetActive(true);
+				abilitiesView.Setup(item, int.MaxValue, false);
+				if (item.HasUnlockableAbility) height += abilitiesView.GetHeight();
+			}
 			if (item.HasStars) starsView.Setup(item);
 			else height -= ((RectTransform)starsView.transform).sizeDelta.y * 0.25f;
 			height += RenderPetStats(item);
@@ -252,26 +261,37 @@ namespace Codebase.UI.Inventory
 			        abilities.anchoredPosition = abilitiesPosition;
 			    }
 			    if (shardRow != null) shardRow.gameObject.SetActive(false);
+			    if (abilitySummary != null) abilitySummary.gameObject.SetActive(false);
 			    return 0f;
 			}
 			if (petStatsText == null)
 			{
 			    abilitiesPosition = abilities.anchoredPosition;
 			    petStatsText = PetStatsText.CreateBlock(mainStatText, RectTransform, "PetStats");
+			    LocalizationFontApplier.RegisterLike(petStatsText, mainStatText);
+			    petStatsText.textWrappingMode = TextWrappingModes.Normal;
 			    petStatsText.fontSizeMax = 40f;
 			    RectTransform block = petStatsText.rectTransform;
 			    block.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y + PetStatsOverlap);
 			    block.sizeDelta = new Vector2(abilities.sizeDelta.x - 2f * mainStatText.rectTransform.anchoredPosition.x, PetStatsHeight);
 			}
 			if (shardRow == null) CreateShardRow();
+			if (abilitySummary == null)
+			{
+				abilitySummary = PetAbilitySummaryRow.Create(RectTransform, "PetAbilitySummary", evolveButtonText, shardButtonImage.sprite);
+				RectTransform block = petStatsText.rectTransform;
+				PetUiBuilder.SetRect((RectTransform)abilitySummary.transform, block.anchorMin, block.anchorMax, new Vector2(0.5f, 1f), new Vector2(block.anchoredPosition.x, shardRow.anchoredPosition.y - ShardRowHeight), new Vector2(block.sizeDelta.x, PetAbilitySummaryRow.Height));
+			}
+			abilitySummary.gameObject.SetActive(true);
 			PetStatsText.SetText(petStatsText, BuildPetStats(pet, item));
 			petStatsText.gameObject.SetActive(true);
 			shardRow.gameObject.SetActive(true);
 			RenderShardRow(item);
+			if (abilitySummary != null) abilitySummary.Render(item);
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
 			float shift = PetStatsHeight - PetStatsOverlap + ShardRowHeight;
 			abilities.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y - shift);
-			return shift;
+			return shift + PetAbilitySummaryRow.Height;
 		}
 
 		// Live absolute values: the player's stats are not atoms the render reaction tracks.
@@ -281,6 +301,7 @@ namespace Codebase.UI.Inventory
 			if (!PetStats.TryGet(item, out PetStatsInfo pet)) return;
 			PetStatsText.SetText(petStatsText, BuildPetStats(pet, item));
 			RenderShardRow(item);
+			if (abilitySummary != null) abilitySummary.Render(item);
 			IconStyleConfig styles = GameContext.Get<IconStyleConfig>();
 			string iconName = styles.WeaponTypeStyles.First(style => style.WeaponType == item.Config.DamageType).Sprite.name;
 			itemPreviewDamage.text = "<sprite name=" + iconName + ">" + pet.Attack.Format();
@@ -327,6 +348,7 @@ namespace Codebase.UI.Inventory
 			shardButton.onClick.AddListener(UseShards);
 
 			shardButtonText = PetStatsText.CreateBlock(evolveButtonText, buttonRect, "Label");
+			LocalizationFontApplier.RegisterLike(shardButtonText, evolveButtonText);
 			RectTransform label = shardButtonText.rectTransform;
 			label.anchorMin = Vector2.zero;
 			label.anchorMax = Vector2.one;
@@ -338,6 +360,7 @@ namespace Codebase.UI.Inventory
 			shardButtonText.gameObject.SetActive(true);
 
 			shardCountText = PetStatsText.CreateBlock(mainStatText, shardRow, "ShardCount");
+			LocalizationFontApplier.RegisterLike(shardCountText, mainStatText);
 			RectTransform count = shardCountText.rectTransform;
 			count.anchorMin = new Vector2(0f, 0.5f);
 			count.anchorMax = new Vector2(1f, 0.5f);
@@ -368,6 +391,7 @@ namespace Codebase.UI.Inventory
 			GameContext.Get<IAudioPlayer>().PlaySoundOnce("tap");
 			App.ExecuteCommand(new UseUniversalShardCommand { Item = item, Amount = amount });
 			RenderShardRow(item);
+			if (abilitySummary != null) abilitySummary.Render(item);
 		}
 
 		public void SelectStat(string title, string value)

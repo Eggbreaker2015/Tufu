@@ -25,6 +25,9 @@ namespace Codebase.Pet.Systems
 		// Being stuck this close to the player (e.g. ring slot inside a wall) is not a path failure.
 		private const float StuckFollowDistanceSqr = (PetsModel.FollowRadius + 1.5f) * (PetsModel.FollowRadius + 1.5f);
 
+		// A hero jump this far in one frame is a warp (arena, revive, gate), not walking.
+		private const float OwnerWarpDistanceSqr = 4f * 4f;
+
 		[Inject]
 		private PlayerModel playerModel;
 
@@ -33,6 +36,10 @@ namespace Codebase.Pet.Systems
 
 		[Inject]
 		private global::Codebase.Skills.SkillService skillService;
+
+		private PlayerUnit lastOwner;
+
+		private Vector3 lastOwnerPosition;
 
 		public override void OnAwake()
 		{
@@ -56,6 +63,9 @@ namespace Codebase.Pet.Systems
 			float followSpeed = playerSpeed * config.FollowSpeedMultiplier;
 			Transform owner = player.transform;
 			Vector3 ownerPosition = owner.position;
+			bool ownerWarped = lastOwner == player && FlatSqrDistance(ownerPosition, lastOwnerPosition) > OwnerWarpDistanceSqr;
+			lastOwner = player;
+			lastOwnerPosition = ownerPosition;
 			float leashSqr = config.LeashRadius * config.LeashRadius;
 			float teleportSqr = config.TeleportDistance * config.TeleportDistance;
 			foreach (PetModel pet in petsModel.Pets)
@@ -68,6 +78,25 @@ namespace Codebase.Pet.Systems
 					continue;
 				Vector3 position = unit.transform.position;
 				float ownerDistanceSqr = FlatSqrDistance(position, ownerPosition);
+				if (skillService.IsStunned(unit))
+				{
+					// The hero warped away (arena, revive, gate): drop the stun and teleport as usual. Walking away does not.
+					if (ownerWarped && ownerDistanceSqr > teleportSqr)
+						skillService.ClearStun(unit);
+					else
+					{
+						// Stunned: no pathing, no walking, no path-fail teleport; the target is kept for afterwards.
+						if (agent.isOnNavMesh)
+						{
+							if (agent.hasPath)
+								agent.ResetPath();
+							agent.velocity = Vector3.zero;
+						}
+						pet.PathFailTimer = 0f;
+						unit.SetWalking(false);
+						continue;
+					}
+				}
 				if (!agent.isOnNavMesh || ownerDistanceSqr > teleportSqr || pet.PathFailTimer >= PathFailTeleportTime && unit.CurrentTarget == null)
 				{
 					unit.CurrentTarget = null;

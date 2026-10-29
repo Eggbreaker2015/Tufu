@@ -85,6 +85,8 @@ namespace Codebase.UI.World
 
 		private UnitCore unit;
 
+		private EnemySkillStatusView skillStatus;
+
 		private PlayerUnit playerUnit;
 
 		private double previousHealth;
@@ -113,6 +115,7 @@ namespace Codebase.UI.World
 		{
 			// Native ELF VA 0x1600b18; follow the original injection/entity sequence.
 			this.unit = unit;
+			if (skillStatus != null) skillStatus.Unbind();
 			if (playerUnit == null) playerUnit = playerModel.Unit;
 			isDummy = dummyStash.Has(unit.EntityProvider.Entity);
 			previousMarks = -1;
@@ -131,6 +134,19 @@ namespace Codebase.UI.World
 				player.OnDeathPhaseEnter += HandleDeathPhase;
 			}
 			UpdateSpawnVisibility(true);
+		}
+
+		// Enemy cast bar and buff icons (EnemyHealthBarSystem); built once per pooled bar.
+		public void BindSkillStatus()
+		{
+			if (!IsEnemy) return;
+			if (skillStatus == null) skillStatus = EnemySkillStatusView.Create(this, (RectTransform)transform, text);
+			skillStatus.Bind(unit);
+		}
+
+		public void UnbindSkillStatus(UnitCore owner)
+		{
+			if (skillStatus != null && skillStatus.IsBoundTo(owner)) skillStatus.Unbind();
 		}
 
 		private void OnDestroy()

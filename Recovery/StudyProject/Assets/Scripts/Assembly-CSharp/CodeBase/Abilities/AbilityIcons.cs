@@ -1,6 +1,10 @@
 using System.Collections.Generic;
+using System.Reflection;
 using Codebase.Abilities.Core;
 using Codebase.Abilities.Effects;
+using Codebase.Core;
+using Codebase.Skills;
+using Codebase.Skills.Effects;
 using Codebase.Unit;
 using UnityEngine;
 
@@ -36,6 +40,200 @@ namespace Codebase.Abilities
 		private static readonly Dictionary<AbilityDef, AbilityIconCategory> categoryCache = new Dictionary<AbilityDef, AbilityIconCategory>();
 
 		private static readonly Dictionary<AbilityIconCategory, Sprite> spriteCache = new Dictionary<AbilityIconCategory, Sprite>();
+
+		// Skill -> buff -> skill chains stop here, so a cycle in the data cannot recurse forever.
+		private const int MaxClassificationDepth = 4;
+
+		private static readonly Dictionary<string, Sprite> keyedSpriteCache = new Dictionary<string, Sprite>(System.StringComparer.Ordinal);
+
+		// -1 = no category (the caller falls back to Power).
+		private static readonly Dictionary<SkillDef, int> skillCategoryCache = new Dictionary<SkillDef, int>();
+
+		private static readonly Dictionary<BuffDef, int> buffCategoryCache = new Dictionary<BuffDef, int>();
+
+		private static readonly Dictionary<SkillDef, Sprite> skillSpriteCache = new Dictionary<SkillDef, Sprite>();
+
+		private static readonly Dictionary<BuffDef, Sprite> buffSpriteCache = new Dictionary<BuffDef, Sprite>();
+
+		// Skill and buff icons: a non-empty IconKey wins, otherwise the strongest category of the contents.
+		public static Sprite Get(SkillDef def)
+		{
+			if (def == null) return null;
+			if (!skillSpriteCache.TryGetValue(def, out Sprite sprite))
+			{
+				sprite = GetOverride(def.IconKey, def.Key);
+				if (sprite == null) sprite = Get(GetCategory(def));
+				skillSpriteCache[def] = sprite;
+			}
+			return sprite;
+		}
+
+		public static Sprite Get(BuffDef def)
+		{
+			if (def == null) return null;
+			if (!buffSpriteCache.TryGetValue(def, out Sprite sprite))
+			{
+				sprite = GetOverride(def.IconKey, def.Key);
+				if (sprite == null) sprite = Get(GetCategory(def));
+				buffSpriteCache[def] = sprite;
+			}
+			return sprite;
+		}
+
+		private static Sprite GetOverride(string iconKey, string defKey)
+		{
+			if (string.IsNullOrEmpty(iconKey)) return null;
+			Sprite sprite = GetByKey(iconKey);
+			if (sprite == null)
+				SkillLibrary.WarnOnce("icon:" + iconKey, "[Skills] Unknown icon key '" + iconKey + "' on skill/buff '" + defKey + "'");
+			return sprite;
+		}
+
+		public static bool TryGetCategory(string key, out AbilityIconCategory category)
+		{
+			for (int i = 0; i <= (int)AbilityIconCategory.Power; i++)
+			{
+				category = (AbilityIconCategory)i;
+				if (string.Equals(GetKey(category), key, System.StringComparison.Ordinal)) return true;
+			}
+			category = AbilityIconCategory.Power;
+			return false;
+		}
+
+		public static Sprite GetByKey(string key)
+		{
+			if (string.IsNullOrEmpty(key)) return null;
+			if (TryGetCategory(key, out AbilityIconCategory category)) return Get(category);
+			if (!keyedSpriteCache.TryGetValue(key, out Sprite sprite))
+			{
+				sprite = Resources.Load<Sprite>(ResourceFolder + key);
+				keyedSpriteCache[key] = sprite;
+			}
+			return sprite;
+		}
+
+		public static AbilityIconCategory GetCategory(SkillDef def)
+		{
+			return TrySkillCategory(def, out AbilityIconCategory category) ? category : AbilityIconCategory.Power;
+		}
+
+		public static AbilityIconCategory GetCategory(BuffDef def)
+		{
+			return TryBuffCategory(def, out AbilityIconCategory category) ? category : AbilityIconCategory.Power;
+		}
+
+		private static bool TrySkillCategory(SkillDef def, out AbilityIconCategory category)
+		{
+			int result = -1;
+			if (def != null && !skillCategoryCache.TryGetValue(def, out result))
+			{
+				result = Classify(def, 0);
+				skillCategoryCache[def] = result;
+			}
+			category = result >= 0 ? (AbilityIconCategory)result : AbilityIconCategory.Power;
+			return result >= 0;
+		}
+
+		private static bool TryBuffCategory(BuffDef def, out AbilityIconCategory category)
+		{
+			int result = -1;
+			if (def != null && !buffCategoryCache.TryGetValue(def, out result))
+			{
+				result = Classify(def, 0);
+				buffCategoryCache[def] = result;
+			}
+			category = result >= 0 ? (AbilityIconCategory)result : AbilityIconCategory.Power;
+			return result >= 0;
+		}
+
+		// Cache only complete root traversals; nested results depend on the remaining depth.
+		private static int Classify(SkillDef def, int depth)
+		{
+			if (def == null || depth > MaxClassificationDepth) return -1;
+			if (!string.IsNullOrEmpty(def.IconKey) && TryGetCategory(def.IconKey, out AbilityIconCategory category)) return (int)category;
+			return ClassifyEffects(def.Effects, false, depth);
+		}
+
+		private static int Classify(BuffDef def, int depth)
+		{
+			if (def == null || depth > MaxClassificationDepth) return -1;
+			if (!string.IsNullOrEmpty(def.IconKey) && TryGetCategory(def.IconKey, out AbilityIconCategory category)) return (int)category;
+			int best = def.Stun ? (int)AbilityIconCategory.Stun : -1;
+			if (def.StatMods != null)
+				for (int i = 0; i < def.StatMods.Count; i++)
+					if (def.StatMods[i] != null && TryFromStat(def.StatMods[i].StatType, out category))
+						best = Best(best, (int)category);
+			return Best(best, ClassifyEffects(def.OnTick, true, depth));
+		}
+
+		private static int Best(int best, int candidate)
+		{
+			return candidate >= 0 && (best < 0 || candidate < best) ? candidate : best;
+		}
+
+		private static int ClassifyEffects(List<ISkillEffect> effects, bool inBuff, int depth)
+		{
+			if (effects == null || depth > MaxClassificationDepth) return -1;
+			int best = -1;
+			for (int i = 0; i < effects.Count; i++)
+				best = Best(best, Classify(effects[i], inBuff, depth));
+			return best;
+		}
+
+		private static int Classify(ISkillEffect effect, bool inBuff, int depth)
+		{
+			if (depth > MaxClassificationDepth) return -1;
+			switch (effect)
+			{
+				case DamageEffect damage:
+					return (int)(inBuff || damage.Area == null || damage.Area.Mode == TargetSelectMode.Self || damage.Area.Mode == TargetSelectMode.Primary
+						? AbilityIconCategory.Damage : AbilityIconCategory.Splash);
+				case HealEffect _:
+					return (int)AbilityIconCategory.Heal;
+				case ApplyBuffEffect apply:
+					return Classify(SkillLibrary.FindBuff(apply.BuffKey), depth + 1);
+				case AuraEffect aura:
+					return Classify(SkillLibrary.FindBuff(aura.BuffKey), depth + 1);
+				case MissileEffect missile:
+					int best = ClassifyEffects(missile.OnImpact, inBuff, depth + 1);
+					return best >= 0 ? best : (int)AbilityIconCategory.Damage;
+				case SpawnVfxEffect _:
+				case null:
+					return -1;
+				default:
+					return ClassifyUnknown(effect, inBuff, depth);
+			}
+		}
+
+		// Effect types added to CB/Skills later (linear missiles, summons): read their public fields once per skill
+		// (results are cached): a positive Power reads as Damage, nested effect lists and a BuffKey are classified as above.
+		private static int ClassifyUnknown(ISkillEffect effect, bool inBuff, int depth)
+		{
+			int best = -1;
+			foreach (FieldInfo field in effect.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
+			{
+				object value = field.GetValue(effect);
+				if (value is List<ISkillEffect> nested)
+					best = Best(best, ClassifyEffects(nested, inBuff, depth + 1));
+				else if (field.Name == "BuffKey" && value is string buffKey)
+					best = Best(best, Classify(SkillLibrary.FindBuff(buffKey), depth + 1));
+				else if (field.Name == "Power" && value is float power && power > 0f)
+					best = Best(best, (int)AbilityIconCategory.Damage);
+			}
+			return best;
+		}
+
+		[StaticReset]
+		private static void ResetStaticState()
+		{
+			categoryCache.Clear();
+			spriteCache.Clear();
+			keyedSpriteCache.Clear();
+			skillCategoryCache.Clear();
+			buffCategoryCache.Clear();
+			skillSpriteCache.Clear();
+			buffSpriteCache.Clear();
+		}
 
 		public static Sprite Get(AbilityDef def)
 		{
@@ -161,6 +359,10 @@ namespace Codebase.Abilities
 					return TryFromStat(hitsTaken.StatType, out category);
 				case GrantRandomStatPerDistanceEffect _:
 					category = AbilityIconCategory.Speed; return true;
+				case CastSkillEffect cast:
+					return TrySkillCategory(SkillLibrary.FindSkill(cast.SkillKey), out category);
+				case ApplySkillBuffEffect apply:
+					return TryBuffCategory(SkillLibrary.FindBuff(apply.BuffKey), out category);
 				default:
 					// Ability boosts, cooldown resets and re-triggers fall back to the generic Power icon.
 					category = AbilityIconCategory.Power; return false;
@@ -178,7 +380,7 @@ namespace Codebase.Abilities
 			}
 		}
 
-		private static bool TryFromStat(StatType stat, out AbilityIconCategory category)
+		internal static bool TryFromStat(StatType stat, out AbilityIconCategory category)
 		{
 			switch (stat)
 			{

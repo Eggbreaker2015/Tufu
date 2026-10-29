@@ -3,7 +3,9 @@ using Codebase.Player;
 using System.Linq;
 using Codebase.Core;
 using Codebase.Core.UI;
+using Codebase.Localization;
 using Codebase.Pet;
+using Codebase.UI.Pets;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
 using TMPro;
@@ -62,6 +64,8 @@ namespace Codebase.UI.Inventory
 
 		private float petStatsRefreshTime;
 
+		private PetAbilitySummaryRow abilitySummary;
+
 		protected override void Awake()
 		{
 			// Native ELF VA 0x16553a4.
@@ -93,9 +97,17 @@ namespace Codebase.UI.Inventory
 		{
 			// Native ELF VA 0x165552c.
 			if (model == null) return;
-			abilitiesView.Setup(model,3,false); float height=defaultHeight+abilitiesView.GetHeight();
+			bool isPet = PetStats.TryGet(model, out PetStatsInfo pet);
+			float height = defaultHeight;
+			if (isPet) abilitiesView.gameObject.SetActive(false);
+			else
+			{
+				abilitiesView.gameObject.SetActive(true);
+				abilitiesView.Setup(model,3,false); height += abilitiesView.GetHeight();
+			}
 			if(model.HasStars) starsView.Setup(model); else height-=((RectTransform)starsView.transform).sizeDelta.y*.25f;
-			height += RenderPetStats(model);
+			height += RenderPetStats(model, isPet, pet);
+			if (isPet) height += PetAbilitySummaryRow.Height;
 			mainStatText.text=LocalizationStrings.Get(model.IsArmor ? "STAT_Armor" : "STAT_Damage");
 			starsView.gameObject.SetActive(model.HasStars); rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x,height);
 			RenderItemPreview(model);
@@ -119,22 +131,25 @@ namespace Codebase.UI.Inventory
 		}
 
 		// Returns the height the pet block adds to the popup; read-only popup, so no next-level values.
-		private float RenderPetStats(ItemModel item)
+		private float RenderPetStats(ItemModel item, bool isPet, PetStatsInfo pet)
 		{
 			RectTransform abilities = (RectTransform)abilitiesView.transform;
-			if (!PetStats.TryGet(item, out PetStatsInfo pet))
+			if (!isPet)
 			{
 			    if (petStatsText != null && petStatsText.gameObject.activeSelf)
 			    {
 			        petStatsText.gameObject.SetActive(false);
 			        abilities.anchoredPosition = abilitiesPosition;
 			    }
+			    if (abilitySummary != null) abilitySummary.gameObject.SetActive(false);
 			    return 0f;
 			}
 			if (petStatsText == null)
 			{
 			    abilitiesPosition = abilities.anchoredPosition;
 			    petStatsText = PetStatsText.CreateBlock(itemPreviewType, rectTransform, "PetStats");
+			    LocalizationFontApplier.RegisterLike(petStatsText, itemPreviewType);
+			    petStatsText.textWrappingMode = TextWrappingModes.Normal;
 			    petStatsText.fontSizeMax = 40f;
 			    petStatsText.enableVertexGradient = false;
 			    petStatsText.color = Color.white;
@@ -147,6 +162,13 @@ namespace Codebase.UI.Inventory
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
 			float shift = PetStatsHeight - PetStatsOverlap;
 			abilities.anchoredPosition = new Vector2(abilitiesPosition.x, abilitiesPosition.y - shift);
+			if (abilitySummary == null)
+			{
+				abilitySummary = PetAbilitySummaryRow.Create(rectTransform, "PetAbilitySummary", mainStatText, PetConfig.Instance?.ButtonSprite);
+				PetUiBuilder.SetRect((RectTransform)abilitySummary.transform, abilities.anchorMin, abilities.anchorMax, abilities.pivot, new Vector2(abilitiesPosition.x, abilitiesPosition.y - shift), new Vector2(abilities.sizeDelta.x - 62f, PetAbilitySummaryRow.Height));
+			}
+			abilitySummary.gameObject.SetActive(true);
+			abilitySummary.Render(item);
 			return shift;
 		}
 
@@ -154,7 +176,11 @@ namespace Codebase.UI.Inventory
 		private void RefreshPetStats()
 		{
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
-			if (PetStats.TryGet(model, out PetStatsInfo pet)) PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, false));
+			if (PetStats.TryGet(model, out PetStatsInfo pet))
+			{
+				PetStatsText.SetText(petStatsText, PetStatsText.Build(pet, false));
+				if (abilitySummary != null) abilitySummary.Render(model);
+			}
 		}
 	}
 }

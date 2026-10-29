@@ -30,7 +30,8 @@ namespace Codebase.Skills
 		Primary = 1,
 		CircleCaster = 2,
 		CirclePoint = 3,
-		Cone = 4
+		Cone = 4,
+		Line = 5
 	}
 
 	public enum SkillPick
@@ -39,7 +40,9 @@ namespace Codebase.Skills
 		NearestHostile = 1,
 		LowestHpAlly = 2,
 		Self = 3,
-		DensestHostile = 4
+		DensestHostile = 4,
+		// The hero when alive and in Range, else CurrentTarget.
+		Hero = 5
 	}
 
 	public enum TelegraphShape

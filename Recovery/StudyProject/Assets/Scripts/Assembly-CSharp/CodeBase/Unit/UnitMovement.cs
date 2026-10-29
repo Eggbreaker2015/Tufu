@@ -42,6 +42,8 @@ namespace Codebase.Unit
 			if (!isPlayer) return;
 			PlayerModel player = GameContext.Get<PlayerModel>();
 			if (player.Unit.IsDying) return;
+			// Stunned: no movement and no turning; CanMove is not used for stuns.
+			if (global::Codebase.Skills.FriendlyDebuffs.IsStunned(player.Unit)) return;
 			float speed = player.CanMove ? (float)player.Unit.GetStatSpecificValue(StatType.MovementSpeed) : 0f;
 			Vector2 input = GameContext.Get<Joystick>().GetInput();
 			float deltaTime = Time.deltaTime;

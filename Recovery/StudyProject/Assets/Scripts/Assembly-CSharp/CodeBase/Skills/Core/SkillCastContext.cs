@@ -19,6 +19,9 @@ namespace Codebase.Skills
 
 		public Vector3 Point;
 
+		// Flat unit vector locked at cast start; zero = aim at PrimaryTarget, else the caster's forward.
+		public Vector3 Direction;
+
 		public SkillDef Skill;
 
 		public BuffDef Buff;

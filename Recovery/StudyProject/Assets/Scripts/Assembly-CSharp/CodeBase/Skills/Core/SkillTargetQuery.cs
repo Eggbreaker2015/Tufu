@@ -95,6 +95,51 @@ namespace Codebase.Skills
 					result.Add(unit);
 		}
 
+		public static Vector3 GetFlatDirection(UnitCore caster, UnitCore target)
+		{
+			if (caster == null)
+				return Vector3.forward;
+			Vector3 direction = target != null && target != caster ? target.transform.position - caster.transform.position : Vector3.zero;
+			direction.y = 0f;
+			if (direction.sqrMagnitude > 0.0001f)
+				return direction.normalized;
+			direction = caster.transform.forward;
+			direction.y = 0f;
+			return direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.forward;
+		}
+
+		public static float FlatSqrDistanceToSegment(Vector3 point, Vector3 a, Vector3 b, out float t)
+		{
+			Vector3 segment = b - a;
+			segment.y = 0f;
+			Vector3 offset = point - a;
+			offset.y = 0f;
+			float lengthSqr = segment.sqrMagnitude;
+			t = lengthSqr > 0f ? Mathf.Clamp01(Vector3.Dot(offset, segment) / lengthSqr) : 0f;
+			return (offset - segment * t).sqrMagnitude;
+		}
+
+		public static float GetUnitRadius(UnitCore unit)
+		{
+			return Mathf.Clamp(unit != null && unit.Agent != null ? unit.Agent.radius * Mathf.Abs(unit.transform.lossyScale.x) : 0.5f, 0.2f, 1.5f);
+		}
+
+		public static void GatherInLine(UnitCore caster, Vector3 origin, Vector3 direction, float length, float width, SkillTargetFilter filter, List<UnitCore> result)
+		{
+			direction.y = 0f;
+			if (direction.sqrMagnitude <= 0f)
+				return;
+			direction.Normalize();
+			Vector3 side = Vector3.Cross(Vector3.up, direction);
+			foreach (UnitCore unit in GetCandidates(caster))
+			{
+				Vector3 offset = unit.transform.position - origin;
+				float along = Vector3.Dot(offset, direction);
+				if (along >= 0f && along <= length && Mathf.Abs(Vector3.Dot(offset, side)) <= width * 0.5f && Matches(caster, unit, filter))
+					result.Add(unit);
+			}
+		}
+
 		public static int CountInRadius(UnitCore caster, Vector3 center, float radius, SkillTargetFilter filter)
 		{
 			Scratch.Clear();

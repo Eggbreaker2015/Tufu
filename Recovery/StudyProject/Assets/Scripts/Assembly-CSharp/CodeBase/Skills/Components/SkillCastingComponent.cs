@@ -15,6 +15,8 @@ namespace Codebase.Skills.Components
 
 		public Vector3 Point;
 
+		public Vector3 Direction;
+
 		public float Elapsed;
 
 		public bool Fired;

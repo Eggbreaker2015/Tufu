@@ -89,6 +89,8 @@ namespace Codebase.Services.Damage
 			    double flatScale = fromSimulation ? simulationFlatDefenceMultiplier : 1.0;
 			    double defence = flatScale * (universalFlat + armor + typedFlat) * typedPercent;
 			    if (petTarget != null && petTarget.Item != null) defence *= PetStats.GetRatios(petTarget.Item, petTarget.Definition).Defence;
+			    // Skills: enemy defence debuffs on the hero and pets are read here, never in simulations.
+			    if (!fromSimulation) defence *= global::Codebase.Skills.FriendlyDebuffs.DefenceFactor(data.Target);
 			    double incoming = ApplyDamageDefense(attack, defence);
 			    incoming = Math.Max((1.0 - universalPercent) * incoming, 0.0);
 			    bool dodge = data.Target.GetStatSpecificValue(StatType.Evasion).Roll();

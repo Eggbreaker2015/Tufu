@@ -35,6 +35,9 @@ namespace Codebase.Pet.Systems
 		[Inject]
 		private PetsModel petsModel;
 
+		[Inject]
+		private global::Codebase.Skills.SkillService skillService;
+
 		private EnemiesModel enemiesModel;
 
 		private Event<WeaponHitEvent> weaponHitEvent;
@@ -68,6 +71,12 @@ namespace Codebase.Pet.Systems
 				if (!pet.IsAlive)
 					continue;
 				PetUnit unit = pet.Unit;
+				// Stunned: no attack, cooldown frozen, target kept.
+				if (skillService.IsStunned(unit))
+				{
+					unit.SetAttackAnimation(false, 1f);
+					continue;
+				}
 				if (paused)
 					SetTarget(pet, null);
 				else
@@ -162,6 +171,7 @@ namespace Codebase.Pet.Systems
 			// Weak enemies and event golems are judged on the pet's own target.
 			if (IsValid(target) && playerAttack != null && playerAttack.CanClassifyEnemies && (playerAttack.IsWeakEnemy(target) || playerAttack.IsEventGolem(target)))
 				attackSpeed *= WeakEnemyAttackSpeedMultiplier;
+			attackSpeed /= skillService.GetAttackIntervalFactor(pet.Unit);
 			return attackSpeed;
 		}
 

@@ -13,9 +13,12 @@ namespace Codebase.UI
 	{
 		public const int MaxIcons = 3;
 
-		private const float IconSize = 44f;
+		public const float DefaultIconSize = 44f;
 
 		private const float Spacing = 4f;
+
+		// Soft ring behind a marked (debuff) icon, relative to the icon size.
+		private const float HaloScale = 1.35f;
 
 		private static readonly Color SweepColor = new Color(0f, 0f, 0f, 0.6f);
 
@@ -23,6 +26,8 @@ namespace Codebase.UI
 		{
 			public GameObject Root;
 			public RectTransform Rect;
+			public RawImage Halo;
+			public Color DisplayedTint;
 			public Image Icon;
 			public Image Sweep;
 			public TMP_Text Stacks;
@@ -39,16 +44,23 @@ namespace Codebase.UI
 
 		private int shown = -1;
 
-		public static AbilityBuffIconsView Create(RectTransform parent, Vector2 anchoredPosition, TMP_Text fontSource, Color stacksColor)
+		private float iconSize = DefaultIconSize;
+
+		private Texture haloTexture;
+
+		// iconSize: hotbar slots use the default; haloTexture: optional ring drawn behind icons added with a tint.
+		public static AbilityBuffIconsView Create(RectTransform parent, Vector2 anchoredPosition, TMP_Text fontSource, Color stacksColor, float iconSize = DefaultIconSize, Texture haloTexture = null)
 		{
 			GameObject go = new GameObject("AbilityBuffIcons", typeof(RectTransform));
 			RectTransform rect = (RectTransform)go.transform;
 			rect.SetParent(parent, false);
 			rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-			rect.sizeDelta = new Vector2(MaxIcons * IconSize + (MaxIcons - 1) * Spacing, IconSize);
+			rect.sizeDelta = new Vector2(MaxIcons * iconSize + (MaxIcons - 1) * Spacing, iconSize);
 			rect.anchoredPosition = anchoredPosition;
 			rect.SetAsLastSibling();
 			AbilityBuffIconsView view = go.AddComponent<AbilityBuffIconsView>();
+			view.iconSize = iconSize;
+			view.haloTexture = haloTexture;
 			view.fontSource = fontSource;
 			view.stacksColor = stacksColor;
 			return view;
@@ -62,15 +74,30 @@ namespace Codebase.UI
 		// remaining01 < 0 means the buff has no timer (stacks only); stacks <= 0 hides the number.
 		public void Add(AbilityDef def, float remaining01, int stacks)
 		{
+			Add(AbilityIcons.Get(def), remaining01, stacks, Color.clear);
+		}
+
+		// tint.a > 0 marks debuffs with a soft halo, or tints the icon when no halo texture was given.
+		public void Add(Sprite sprite, float remaining01, int stacks, Color tint)
+		{
 			if (used >= MaxIcons)
 				return;
 			Entry entry = used < entries.Count ? entries[used] : CreateEntry();
 			used++;
-			Sprite sprite = AbilityIcons.Get(def);
 			if (entry.Icon.sprite != sprite)
 			{
 				entry.Icon.sprite = entry.Sweep.sprite = sprite;
 				entry.Icon.enabled = sprite != null;
+			}
+			bool halo = tint.a > 0f && haloTexture != null && sprite != null;
+			if (entry.Halo.enabled != halo) entry.Halo.enabled = halo;
+			if (entry.DisplayedTint != tint)
+			{
+				entry.DisplayedTint = tint;
+				entry.Halo.color = tint;
+				Color iconColor = tint.a > 0f && haloTexture == null ? Color.Lerp(Color.white, tint, 0.5f) : Color.white;
+				iconColor.a = 1f;
+				entry.Icon.color = iconColor;
 			}
 			bool timed = remaining01 >= 0f && sprite != null;
 			if (entry.Sweep.enabled != timed)
@@ -80,7 +107,8 @@ namespace Codebase.UI
 			if (entry.DisplayedStacks != stacks)
 			{
 				entry.DisplayedStacks = stacks;
-				entry.Stacks.text = stacks > 0 ? stacks.ToString() : string.Empty;
+				if (stacks > 0) entry.Stacks.SetText("{0}", stacks);
+				else entry.Stacks.text = string.Empty;
 			}
 		}
 
@@ -89,13 +117,13 @@ namespace Codebase.UI
 			if (shown == used)
 				return;
 			shown = used;
-			float total = used * IconSize + Mathf.Max(0, used - 1) * Spacing;
+			float total = used * iconSize + Mathf.Max(0, used - 1) * Spacing;
 			for (int i = 0; i < entries.Count; i++)
 			{
 				bool visible = i < used;
 				entries[i].Root.SetActive(visible);
 				if (visible)
-					entries[i].Rect.anchoredPosition = new Vector2(-total / 2f + IconSize / 2f + i * (IconSize + Spacing), 0f);
+					entries[i].Rect.anchoredPosition = new Vector2(-total / 2f + iconSize / 2f + i * (iconSize + Spacing), 0f);
 			}
 		}
 
@@ -112,7 +140,16 @@ namespace Codebase.UI
 			entry.Rect = (RectTransform)entry.Root.transform;
 			entry.Rect.SetParent(transform, false);
 			entry.Rect.anchorMin = entry.Rect.anchorMax = entry.Rect.pivot = new Vector2(0.5f, 0.5f);
-			entry.Rect.sizeDelta = new Vector2(IconSize, IconSize);
+			entry.Rect.sizeDelta = new Vector2(iconSize, iconSize);
+			GameObject halo = new GameObject("Halo", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+			RectTransform haloRect = (RectTransform)halo.transform;
+			haloRect.SetParent(entry.Rect, false);
+			haloRect.anchorMin = haloRect.anchorMax = haloRect.pivot = new Vector2(0.5f, 0.5f);
+			haloRect.sizeDelta = Vector2.one * (iconSize * HaloScale);
+			entry.Halo = halo.GetComponent<RawImage>();
+			entry.Halo.raycastTarget = false;
+			entry.Halo.texture = haloTexture;
+			entry.Halo.enabled = false;
 			entry.Icon = CreateImage(entry.Rect, "Icon");
 			entry.Icon.enabled = false;
 			entry.Sweep = CreateImage(entry.Rect, "Sweep");
@@ -148,8 +185,8 @@ namespace Codebase.UI
 			rect.SetParent(parent, false);
 			rect.anchorMin = Vector2.zero;
 			rect.anchorMax = Vector2.one;
-			rect.offsetMin = new Vector2(0f, -6f);
-			rect.offsetMax = new Vector2(6f, 0f);
+			rect.offsetMin = new Vector2(0f, -6f * iconSize / DefaultIconSize);
+			rect.offsetMax = new Vector2(6f * iconSize / DefaultIconSize, 0f);
 			TMP_Text text = go.GetComponent<TextMeshProUGUI>();
 			if (fontSource != null)
 			{
@@ -157,7 +194,7 @@ namespace Codebase.UI
 				text.fontSharedMaterial = fontSource.fontSharedMaterial;
 				LocalizationFontApplier.RegisterLike(text, fontSource);
 			}
-			text.fontSize = 24f;
+			text.fontSize = 24f * iconSize / DefaultIconSize;
 			text.alignment = TextAlignmentOptions.BottomRight;
 			text.textWrappingMode = TextWrappingModes.NoWrap;
 			text.overflowMode = TextOverflowModes.Overflow;

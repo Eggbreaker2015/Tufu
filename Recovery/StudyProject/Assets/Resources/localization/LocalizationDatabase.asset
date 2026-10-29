@@ -17952,6 +17952,141 @@ MonoBehaviour:
     - "Şurada açılır:\r\n<color=yellow>ADA {number}"
     - "Відкриється на\r\n<color=yellow>ОСТРОВІ {number}"
     - "解锁于\r\n<color=yellow>岛屿 {number}\r\n\r\n\r\n"
+  - key: SKILL_NAME_bone_rain
+    values:
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - Bone Rain
+    - 骨雨
+  - key: SKILL_NAME_bone_spear
+    values:
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - Bone Spear
+    - 骨矛
+  - key: SKILL_NAME_bone_volley
+    values:
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - Bone Volley
+    - 骨箭齐射
+  - key: SKILL_NAME_cleave
+    values:
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - Cleave
+    - 横扫
+  - key: SKILL_NAME_curse_bolt
+    values:
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - Curse Bolt
+    - 诅咒箭
+  - key: SKILL_NAME_enrage
+    values:
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - Enrage
+    - 狂暴
+  - key: SKILL_NAME_raise_dead
+    values:
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - Raise Dead
+    - 亡者复苏
+  - key: SKILL_NAME_slam
+    values:
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - Slam
+    - 砸地
+  - key: SKILL_NAME_stomp
+    values:
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - Stomp
+    - 践踏
   - key: SOUL_NAME_chaotic
     values:
     - Chaotic Soul

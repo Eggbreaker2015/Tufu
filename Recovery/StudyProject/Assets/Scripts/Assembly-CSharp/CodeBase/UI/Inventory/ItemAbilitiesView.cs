@@ -59,7 +59,7 @@ namespace Codebase.UI.Inventory
 		public float GetHeight()
 		{
 			// Native ELF VA 0x1653ac4; original returns -spacing for an empty list.
-			int count = (customIndices ?? GetVisibleAbilityIndices(model)).Count;
+			int count = (customIndices ?? GetVisibleAbilityIndices(model, maxCount)).Count;
 			return elementHeight * count + spacing * (count - 1);
 		}
 
@@ -74,10 +74,10 @@ namespace Codebase.UI.Inventory
 		private List<int> GetEffectiveIndices(ItemModel itemModel)
 		{
 			// Native ELF VA 0x1653b38.
-			return customIndices ?? GetVisibleAbilityIndices(itemModel);
+			return customIndices ?? GetVisibleAbilityIndices(itemModel, maxCount);
 		}
 
-		private List<int> GetVisibleAbilityIndices(ItemModel itemModel)
+		public static List<int> GetVisibleAbilityIndices(ItemModel itemModel, int maxCount = int.MaxValue)
 		{
 			// Native ELF VA 0x1654048; every unlocked ability plus the first locked ability, then cap count.
 			// The unlocked pet-only signature (appended last in AbilityDefs) keeps a reserved slot so the cap never cuts it.

@@ -493,3 +493,97 @@ Loadout 里的 prefab 名在 LFS 场景中，【未核实】。
 - 配置文件：`Recovery/StudyProject/Assets/Resources/Skills/Enemy Skills.asset`（技能、增益、装配、特效表都在这里）。
 - 调试入口：游戏内作弊面板已被剥离，用编辑器窗口 **F8 / Tools > 学习测试 > 快速测试**（`Assets/Editor/RecoveryTools/StudyQuickTestWindow.cs`），步骤同 9.4 第 1 条，传送目标选 15 或 16 号岛。
 
+
+## 10. 第二期实现记录（2026-10-29）
+
+规格见 [Phase2Spec.md](Phase2Spec.md)。两个程序集编译通过（`check_final.sh` 与 `check_final.sh editor` 都是 exit=0），**没有在 Play 模式里验证过**。第 9.3、9.5 节里"15 号岛其他骷髅仍是近战""`Skeleton_Boss` 没有改"已被本期 A6 取代。
+
+### 10.1 做了什么
+
+- **A1 锁定点、扇形、直线**：开始施法时锁定落点 `Point` 和方向 `Direction`，前摇期间不再跟随目标；施法者起手时朝目标转一次。`TargetSelectMode.Line`（矩形，从施法者出发），`Cone` 用锁定方向。预警新增直线矩形和运行时生成的扇面网格，内层沿长度/半径长满，和圆形共用同屏 6 个上限。`bone_volley` 的预警改回无（Shape 0）。
+- **A2 可躲直线飞弹**：`LinearMissileEffect` + 运行时 `CB/Skills/SkillLinearMissiles.cs`。每帧按"单位到本帧线段的水平距离 ≤ Radius + 单位半径"判定（有直线预警时不超过预警半宽），可穿透；撞墙（`NavMesh.Raycast`，射线起点每步重新贴回导航网格）或飞满 `Range` 消失。外观复用 `SkillProjectileView`。施法者死后飞弹照常飞完并照常结算伤害和 `OnImpact`；施法者被对象池复用复活时，旧飞弹作废。打主角时睡眠、濒死、`!CanMove` 不受伤。
+- **A3 召唤**：`SummonEffect` + `CB/Skills/SkillSummons.cs`，`SkillLibrary.Summons` 表。经 `BossMinionService.SpawnSummon` 刷出（借 Spawn 后去掉竞技场标记，并重置远距离剔除状态），补寻路代理和 `NavMeshAgentActiveMarker`，`AggroTimer = AggroDuration`。记录召唤者：施法者死亡/回收时一起消失，`MaxAlive`、`Lifetime` 生效。召唤物不给奖励、不触发 `OnKill`/`OnDevour`、不进吞噬，自身的召唤类技能被移除；竞技场单位不召唤。新增施放条件 `SummonsBelowCondition`。
+- **A4 友方眩晕和减益**：敌人的 buff 对主角和宠物可带眩晕、`GlobalDefence × PercentMultiplicative`（防御系数，在 `DamageCalculator` 相乘）、`AttackCooldown × PercentMultiplicative`（攻击间隔系数，主角/宠物冷却和动画速度都乘），减速和持续伤害照旧，其他属性只警告一次后忽略（`CB/Skills/FriendlyDebuffs.cs`）。眩晕复用 `BuffStunComponent`：主角不移动、不转向、不出手、冷却冻结，单次最长 1.5 秒；宠物停寻路、不出手、期间不传送。死亡、濒死、复活、自身瞬移超过 2 米时清除。主角或宠物被眩晕时头顶显示旋转星星（`stun_stars` → `StunnedCirclingStars.prefab`）。
+- **A5 内容 + A6 15 号岛骷髅远程化**：见 10.3。另加 9 条 `SKILL_NAME_*`（13 列，zh 为中文，其余英文）。
+- **B 让玩家看得懂**（`CB/UI/World/EnemySkillStatusView.cs`）：敌人血条下方的施法条（技能名 + 进度，`CastPoint ≥ 0.3` 才显示，结算即隐藏），下面一排最多 3 个 buff 图标（36 px，10 Hz 刷新，减益带红圈）。挂在池化血条根节点下，每次建血条重新绑定。`AbilityIcons` 给技能和 buff 自动分类，`IconKey` 非空时优先；物品技能里的 `CastSkillEffect` 按所施放的技能分类（石魔像砸地 → 溅射图标）。
+- **宠物详情改版**（方案 B）：宠物模式下详情卡片隐藏原技能列表，碎片行下加"技能摘要"行（最多 6 个图标，未解锁为灰，按钮"技能 N ›"），卡片高度固定约 1314；点击打开可滚动的技能弹窗 `PetAbilitiesView`（每行图标、名字、完整描述、星级行，未解锁灰色带锁和解锁条件，`[专属]`/`[主动]` 标签）。`ItemMiniView` 同样改成摘要行。属性块允许换行。文案逻辑抽成 `ItemAbilityView` 的静态方法，两边一致。非宠物模式不变。
+
+### 10.2 新增配置字段
+
+| 位置 | 字段 | 说明 |
+|---|---|---|
+| `SkillDef` / `BuffDef` | `IconKey` | 空 = 自动分类；分类键（如 `rage`）或 `Resources/AbilityIcons/<key>` |
+| `TelegraphDef` | `Width` | 直线预警全宽（米），`Radius` 是长度；0 = 1 米 |
+| `TargetSelector` | `Length`、`Width`；`Mode: 5`（Line） | 直线范围 |
+| `SkillAutoCast.Pick` | `5`（`Hero`） | 主角存活且在 `Range` 内时选主角，否则同 `CurrentTarget` |
+| `LinearMissileEffect` | `VfxKey, Speed(9), Count(1), SpreadAngle, Range(10), Radius(0.4), Pierce, Power, OverrideDamageType, DamageType, Filter, OnImpact` | 括号内为代码默认值 |
+| `SummonEffect` | `SummonKey, Count, Radius(2.5), MaxAlive, Lifetime, HealthScale, DamageScale, VfxKey` | 属性 = 施法者基础值 × 缩放，生命至少 1 |
+| `SummonsBelowCondition` | `SummonKey, Count` | 施法者存活的召唤物少于 Count 才施放 |
+| `SkillLibrary` | `Summons: [{Key, Prefab}]` | 召唤表，Prefab 需带 `EnemyUnit` |
+| 本地化 | `SKILL_NAME_<SkillDef.Key>` | 施法条显示名，缺键时不显示名字也不刷日志 |
+
+### 10.3 敌人与技能
+
+| 敌人 prefab | 地点 | 普攻 | 技能 |
+|---|---|---|---|
+| `Skeleton_Easy` | 15 号岛 `Spawner_15_easy` ×3 | 远程：射程 6.5，伤害 ×0.8，仇恨 8，近于 2 米后撤 | 无 |
+| `Skeleton_Medium` | 15 号岛 7 个 pierce 刷怪点 | 远程（第 9 节，不变） | bone_volley |
+| `Skeleton_Medium+`（骑士） | 15 号岛 `Spawner_15_knight (1)～(6)` | 远程：射程 7.5，×1.0 | curse_bolt |
+| `Skeleton_Elite` | 15 号岛 `Spawner_15_elite (1)～(3)` | 远程：射程 7.5，×1.0 | bone_spear |
+| `Skeleton_Boss` | 15 号岛 Boss（`Spawner_15_boss`） | 远程：射程 8，×1.3，不后撤，箭更粗（`bone_bolt_heavy`） | enrage、heal_aura（半径 7）、bone_rain、raise_dead |
+| `Zombie_Medium+` | 16 号岛，6 个刷怪点 | 近战（不变） | slam |
+| `Zombie_Boss` | 16 号岛 Boss | 近战（不变） | slam、enrage、cleave、stomp |
+
+| 技能 | 关键数值（起始值） |
+|---|---|
+| `bone_spear` | 直线预警 10×1.2 米，前摇 0.9 秒，冷却 7；穿透骨矛，速度 9，射程 9.5（从身前 0.5 米出发），Radius 0.2，Power 2 |
+| `bone_rain` | 锁定主角起手时的位置（`Pick: 5`），半径 2.5，前摇 1.4 秒，Power 2.2（不可闪避），冷却 8，10 米内 |
+| `raise_dead` | 召唤 3 只 `Skeleton_Easy`，生命 3%、伤害 20%（按 Boss 属性），存活 20 秒，同时最多 6 只，冷却 18；存活 ≥ 4 只时不施放 |
+| `cleave` | 扇形 120°、半径 4，前摇 1.0 秒，Power 2，附加 `armor_break`（防御 ×0.7，5 秒），冷却 8 |
+| `stomp` | 自身圆半径 3，前摇 1.3 秒，Power 1.2，`stomp_stun` 眩晕 1 秒，冷却 14；3 米内有人才施放 |
+| `curse_bolt` | 追踪弹，Power 0.6，附加 `weakness`（攻击间隔 ×1.3，4 秒），冷却 10；目标已有 `weakness` 时不施放 |
+
+**有意不改**：`skeleton dragon`（16、17 号岛共用，15 号岛的两个 legendary pierce 刷怪点也是它），远程化会连带改动另外两座岛；Boss 塔巫妖召唤的 `*_Summoned`（最多 30 只）远程化会变成弹幕。巫妖召唤配置的 `Prefab` 是 `Skeleton_Easy`，所以 `FindEnemyLoadout` 对 Boss 战单位不再回退到 `config.Prefab.name`，否则它们会拿到 `Skeleton_Easy` 的远程装配。`raise_dead` 召唤的 `Skeleton_Easy` 按 prefab 名装配，是远程，这是预期。
+
+### 10.4 与规格不同的地方
+
+- **`raise_dead` 生命 3%、伤害 20%（规格 30%/50%）。** 属性按施法者缩放，而 15 号岛 Boss 有约 3.56e9 血、3.6e7 伤害：30%/50% 时每只约 1.07e9 血，是普通 `Skeleton_Easy`（0.55～1.5e8）的 7～20 倍，6 只合计约 1.8 个 Boss 的血量。3%/20% 约为 1.07e8 血、7.2e6 伤害，落在普通 Easy 范围内。光环照常给召唤物回血（与其他骷髅一致）。
+- **`bone_rain` 用新的 `SkillPick.Hero`。** 原来的 `CurrentTarget` 在宠物模式下是仇恨目标，常常是冲在前面的宠物；现在锁主角，主角不在 10 米内时才退回仇恨目标。
+- **直线飞弹的命中半径不超过直线预警的半宽。** 规格写"Radius + 单位半径"，但主角单位半径 1.2（代理半径 1 × 缩放 1.2），骨矛会打中中心离线 1.4 米的主角，而预警半宽只有 0.6 米。现在主角中心在红框外就安全，和其他形状"按中心点判定"一致。
+- **施法者死后直线飞弹照常扣血。** 规格只要求不触发反伤这类逻辑；吸血对死亡的来源无效，反伤只会打到尸体上（仍会出反伤数字和特效，见 10.5）。
+- **预警"跟随时同步旋转"实现为朝向固定在锁定方向**：位置跟随施法者，判定用同一方向，画面和判定一致。
+- **`ClearBuffs` 只清友方的眩晕。** 规格写"ClearBuffs 同时清眩晕组件"；如果对敌人也清，带技能 buff 的敌人被物品眩晕后死亡会立刻播死亡动画，违反"没配新功能时行为不变"。友方的清除另由 `SkillBuffSystem` 在死亡、复活、瞬移时处理。
+- **宠物眩晕中只在主角真的传送（一帧位移 > 4 米且距离超过传送距离）时解除并传送**；主角走远不会提前解除，眩晕结束后照常传送。
+- **宠物被眩晕时不冻结动画**，只回待机姿态并显示星星（冻结的话死亡时可能来不及恢复动画速度）。
+- **施法条名字区域比条高**：TMP 的 Ellipsis 在一行高于文字框时会把整段截成空，22 号字在所有绑定字体里行高都是 26～32，所以名字框上下各伸出 12。
+- **宠物技能弹窗和摘要行列出全部未隐藏的技能**（含所有未解锁的，签名技放最后），不沿用原背包列表"只显示第一个未解锁"的规则；摘要图标仍最多 6 个。
+- **`Zombie_Boss` 同时保留 slam 和 stomp**（规格没说删 slam），靠初始冷却错开。
+
+### 10.5 已知问题
+
+- 全部没有在 Play 模式里看过：预警、施法条、图标、星星、宠物弹窗的大小和位置，以及所有数值手感。
+- 施法者死后骨矛命中带反伤的主角时，会出反伤数字和朝尸体的反伤特效（无实际伤害）。要彻底去掉需要改 `UnitDamageSystem`。
+- Boss 塔竞技场仆从（同样走 `BossMinionService.Spawn`，同样共享 `Skeleton_Easy` 对象池）仍可能拿到"远距离已剔除"的实例而隐身，这是原有问题；本期只在 `SpawnSummon` 里重置。
+- 主角没有眩晕免疫窗口，连续眩晕可以一直控住（每次最长 1.5 秒）；眩晕只挡普攻和摇杆移动，物品技能照常触发。
+- 同屏超过 6 个预警时，多出来的没有预警；导航网格边缘外侧的直线飞弹会在边界处当作撞墙消失。
+- `StunnedCirclingStars.prefab` 的 meta 带 assetBundleName，打包时可能有重复资源提示。
+- 宠物 UI 的"技能""专属""主动""›"是写死的中文，和其余宠物 UI 一致。
+- 数值模型和模拟器还不知道敌人技能。
+
+### 10.6 进 Play 要测的
+
+1. **进入**：进 Play，按 **F8**（**Tools > 学习测试 > 快速测试**），点「从正常进度建立测试副本并进入」；「地图与任务」页选「第 15 岛 · 诅咒之地」或「第 16 岛 · 夜森」（岛名随当前语言），点「传送并开放沿途入口」；「战斗」页只开「无敌」（不要用「一键战斗体验」「快速击杀」）。测宠物：确认 `Resources/Pet Config.asset` 的 `enabled: 1`，在「装备与资源」页的「宠物」区选宠物种类（如石魔像 `pet_golem`），等级 1、勾「发放后出战」，点「发放选中宠物」（这样发的宠物未进化）。
+2. **回归**：没配技能的敌人、Boss 塔（巫妖召唤的骷髅仍是近战）、16/17 号岛骨龙不射箭、主角和宠物行为不变，控制台没有 `[Skills]` 警告和新报错。
+3. **15 号岛远程**：四种骷髅都站桩射箭（Easy 约 6.5 米，骑士/Elite 约 7.5 米，Boss 约 8 米且不后撤）；Boss 身边 7 米内受伤的骷髅回血并显示回血图标。
+4. **bone_spear**（Elite）：出现 10×1.2 米红框，0.9 秒后射出骨矛；侧走出框能躲开，站在框外边缘不掉血；在骨矛飞行中击杀 Elite，骨矛仍会打中并扣血；在坡道或台阶上施放，骨矛不会中途凭空消失，撞墙时消失。
+5. **bone_rain**（Boss）：带宠物时红圈落在主角脚下（不是宠物），1.4 秒后结算，提前走出能躲开。
+6. **raise_dead**（Boss）：一次召唤 3 只远程 Easy，血量和普通 Easy 相当；20 秒后消失，同时最多 6 只，存活 4 只以上时不再召唤；Boss 死亡时召唤物一起消失；击杀召唤物没有掉落、不进吞噬。击杀一只普通 Easy 后立刻用传送离开再回来，之后召唤出的骷髅应可见、会攻击、有血条。
+7. **16 号岛 Zombie_Boss**：cleave 出现 120° 扇形，命中后主角/宠物受到的伤害变高（`armor_break` 防御 ×0.7，5 秒）；靠近 3 米内会 stomp，命中后眩晕 1 秒（主角最长 1.5 秒），头顶有星星、不能动不能打，期间仍会受伤。`Zombie_Medium+` 的 slam 照旧。
+8. **curse_bolt**（骑士骷髅）：命中后主角/宠物攻击变慢约 30%（4 秒），攻击动画同步变慢。
+9. **宠物眩晕**：宠物在 Zombie_Boss 身边被 stomp 眩晕时，主角往远处走，宠物不会提前解除眩晕或被传送；眩晕结束后才跟上或传送。主角进 Boss 塔等真正传送时，宠物立即解除眩晕并传送过去。
+10. **施法条**：slam、bone_spear、bone_rain 等前摇时血条下出现橙色进度条，中间显示技能名（英文和中文都要看，切语言后下一次施法生效）；结算或被打断时立即消失；`CastPoint < 0.3` 的技能不显示。
+11. **敌人 buff 图标**：被石魔像减速的敌人血条下有带红圈的速度图标；Boss 狂暴时显示狂暴图标。
+12. **敌人眩晕回归**：用带眩晕的锤/盾武器眩晕 Boss 身边的骷髅后击杀，尸体保持定格直到眩晕结束，和光环外的骷髅一样。
+13. **宠物详情**：背包里点未进化的石魔像，卡片高度固定、按钮不被快捷栏挡、属性换行；摘要行显示 4 个图标（两个未解锁为灰）和"技能 4 ›"；点开弹窗有 4 行，未解锁的两行灰色带锁并写明解锁条件，签名技带 `[专属]`、砸地带 `[主动]`。花万能碎片或进化后，图标解锁状态更新。
+14. **图鉴**：已拥有宠物的格子打开的小卡片同样是摘要行，按钮能打开弹窗。
+15. **非宠物模式**：关掉宠物模式后背包、物品信息的技能列表和高度与原来完全一致。

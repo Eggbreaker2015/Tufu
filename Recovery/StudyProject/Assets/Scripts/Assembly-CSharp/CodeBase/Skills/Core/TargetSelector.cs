@@ -12,13 +12,19 @@ namespace Codebase.Skills
 
 		public float Radius;
 
-		// Cone only: full angle in degrees, facing the primary target (or the caster's forward).
+		// Cone only: full angle in degrees, facing the locked cast direction.
 		public float Angle = 90f;
 
 		public SkillTargetFilter Filter = SkillTargetFilter.Enemy | SkillTargetFilter.Alive;
 
 		// 0 = unlimited; the nearest to the center are kept.
 		public int MaxTargets;
+
+		// Line only; 0 = use Radius.
+		public float Length;
+
+		// Line only; full width, <= 0 = 1 m.
+		public float Width = 1f;
 
 		public void Collect(in SkillCastContext context, List<UnitCore> result)
 		{
@@ -41,6 +47,10 @@ namespace Codebase.Skills
 				case TargetSelectMode.CirclePoint:
 					SkillTargetQuery.GatherInRadius(caster, context.Point, Radius, Filter, result);
 					break;
+				case TargetSelectMode.Line:
+					Vector3 dir = context.Direction.sqrMagnitude > 0.0001f ? context.Direction : SkillTargetQuery.GetFlatDirection(caster, context.PrimaryTarget);
+					SkillTargetQuery.GatherInLine(caster, caster.transform.position, dir, Length > 0f ? Length : Radius, Width > 0f ? Width : 1f, Filter, result);
+					break;
 				case TargetSelectMode.Cone:
 					GatherCone(context, result);
 					break;
@@ -58,7 +68,7 @@ namespace Codebase.Skills
 			UnitCore caster = context.Caster;
 			Vector3 origin = caster.transform.position;
 			SkillTargetQuery.GatherInRadius(caster, origin, Radius, Filter, result);
-			Vector3 forward = context.PrimaryTarget != null && context.PrimaryTarget != caster ? context.PrimaryTarget.transform.position - origin : caster.transform.forward;
+			Vector3 forward = context.Direction.sqrMagnitude > 0.0001f ? context.Direction : SkillTargetQuery.GetFlatDirection(caster, context.PrimaryTarget);
 			forward.y = 0f;
 			if (forward.sqrMagnitude < 0.0001f)
 				return;

@@ -3,6 +3,7 @@ using Codebase.Core;
 using Codebase.Core.UI;
 using Codebase.Pet;
 using Codebase.UI.Inventory;
+using Codebase.Player.Inventory;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,11 +40,14 @@ namespace Codebase.UI.Pets
 
 		private static PetCollectionView template;
 
+		private static PetAbilitiesView abilitiesTemplate;
+
 		[StaticReset]
 		private static void ResetStaticState()
 		{
 			holder = null;
 			template = null;
+			abilitiesTemplate = null;
 		}
 
 		public static T Find<T>() where T : class
@@ -66,17 +70,41 @@ namespace Codebase.UI.Pets
 			navigator.OpenTemplate(view, true);
 		}
 
-		// Built once under an inactive holder, so the template's Awake never runs; the navigator's pool clones it.
-		public static PetCollectionView GetTemplate()
+		public static void OpenAbilities(ItemModel item)
 		{
-			if (template != null && holder != null) return template;
-			if (holder != null) Object.Destroy(holder);
+			if (!PetConfig.Enabled || item == null) return;
+			UINavigator navigator = Find<UINavigator>();
+			PetAbilitiesView view = GetAbilitiesTemplate();
+			if (navigator == null || view == null) return;
+			PetAbilitiesView instance = navigator.OpenTemplate(view, true);
+			if (instance != null) instance.Setup(item);
+		}
+
+		// Built under one inactive holder; the navigator's pool clones the templates before Awake runs.
+		private static Transform GetHolder()
+		{
+			if (holder != null) return holder.transform;
 			holder = new GameObject("PetUiTemplates", typeof(RectTransform));
 			holder.SetActive(false);
 			UINavigator navigator = Find<UINavigator>();
 			if (navigator != null) holder.transform.SetParent(navigator.transform, false);
-			template = BuildCollectionView(holder.transform);
+			template = null;
+			abilitiesTemplate = null;
+			return holder.transform;
+		}
+
+		public static PetCollectionView GetTemplate()
+		{
+			Transform parent = GetHolder();
+			if (template == null) template = BuildCollectionView(parent);
 			return template;
+		}
+
+		public static PetAbilitiesView GetAbilitiesTemplate()
+		{
+			Transform parent = GetHolder();
+			if (abilitiesTemplate == null) abilitiesTemplate = BuildAbilitiesView(parent);
+			return abilitiesTemplate;
 		}
 
 		// The 图鉴 button left of the Stats panel header, mirroring its Info_Button.
@@ -191,6 +219,44 @@ namespace Codebase.UI.Pets
 			return view;
 		}
 
+		private static PetAbilitiesView BuildAbilitiesView(Transform parent)
+		{
+			PetConfig config = PetConfig.Instance;
+			GameObject root = new GameObject("PetAbilities", typeof(RectTransform), typeof(CanvasGroup));
+			root.transform.SetParent(parent, false);
+			RectTransform rootRect = (RectTransform)root.transform;
+			Stretch(rootRect, Vector2.zero, Vector2.zero);
+			PetAbilitiesView view = root.AddComponent<PetAbilitiesView>();
+			PetAbilitiesView.Layout layout = view.Elements;
+			Image panel = CreateImage(rootRect, "Panel", config != null ? config.PanelSprite : null, PanelColor);
+			layout.Panel = panel.rectTransform;
+			SetRect(layout.Panel, Center, Center, Center, Vector2.zero, new Vector2(PanelWidth, 1200f));
+			layout.Title = CreateText(layout.Panel, "Title", 60f, TextAlignmentOptions.Center);
+			SetRect(layout.Title.rectTransform, Top, Top, Top, new Vector2(0f, -36f), new Vector2(760f, 100f));
+
+			Image close = CreateImage(layout.Panel, "Close", config != null ? config.CloseButtonSprite : null, CloseColor);
+			SetRect(close.rectTransform, Vector2.one, Vector2.one, Vector2.one, new Vector2(-18f, -18f), new Vector2(170f, 110f));
+			layout.CloseButton = close.gameObject.AddComponent<Button>();
+			layout.CloseButton.targetGraphic = close;
+			if (config != null && config.CloseIconSprite != null)
+			{
+				Image icon = CreateImage(close.rectTransform, "Icon", config.CloseIconSprite, Color.white);
+				icon.raycastTarget = false;
+				icon.preserveAspect = true;
+				SetRect(icon.rectTransform, Center, Center, Center, new Vector2(0f, 8f), new Vector2(64f, 64f));
+			}
+			else
+			{
+				TMP_Text cross = CreateText(close.rectTransform, "Icon", 60f, TextAlignmentOptions.Center);
+				Stretch(cross.rectTransform, Vector2.zero, Vector2.zero);
+				cross.text = "X";
+			}
+			layout.Scroll = CreateScroll(layout.Panel, out layout.Content);
+			Stretch((RectTransform)layout.Scroll.transform, new Vector2(PageInset, 24f), new Vector2(-PageInset, -170f));
+			layout.Content.GetComponent<VerticalLayoutGroup>().spacing = 16f;
+			return view;
+		}
+
 		private static Button CreateTab(RectTransform parent, string name, Vector2 position, out Image image, out TMP_Text label)
 		{
 			image = CreateImage(parent, name, null, Color.gray);
@@ -202,7 +268,7 @@ namespace Codebase.UI.Pets
 			return button;
 		}
 
-		private static ScrollRect CreateScroll(RectTransform parent, out RectTransform content)
+		public static ScrollRect CreateScroll(RectTransform parent, out RectTransform content)
 		{
 			Image background = CreateImage(parent, "Scroll", null, new Color(0f, 0f, 0f, 0.25f));
 			ScrollRect scroll = background.gameObject.AddComponent<ScrollRect>();
