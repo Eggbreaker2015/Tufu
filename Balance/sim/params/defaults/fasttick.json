@@ -1,0 +1,14 @@
+{
+ "KillState": 0,
+ "KillLossMultiplier": 1.0,
+ "KillLossFromAb": false,
+ "ActiveMinutesModel": 0,
+ "Kappa": 0.245,
+ "TourA": 1.018,
+ "TourB": 0.78,
+ "Tours": 3,
+ "PlanNewIslandsSameDay": true,
+ "DiagnosticDisableKillPredicate": false,
+ "DiagnosticPlayerDpsScale": 1.0,
+ "DiagnosticDefenseScale": 1.0
+}

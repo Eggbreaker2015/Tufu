@@ -4,7 +4,7 @@
   private/internal: the partial hooks of 7.4 (C3a) and the engine members of C3b.
 * Every empty method of 6af011f moved (declaration verbatim) into its module's partial file; the recovered
   bodies stay in SimulationSystem.cs, which is the 6af011f text minus the moved methods plus ``partial``.
-  Only the methods C3b filled (``FILLED``) have new bodies. SimulationConfig gains ``partial``, annotations
+  Only the methods C3b (and C5, .FastTick.cs) filled (``FILLED``) have new bodies. SimulationConfig gains ``partial``, annotations
   and the bodies of Tick and GetTrimmedTimeChunkSnapshots.
 * Every empty method of 6af011f carries one ``[SimulationRebuild]``: ``FILLED`` gives the provenance of the
   methods C3b filled; the rest stay ``Provenance.Null | Provenance.DebugOnly`` until their unit fills them.
@@ -111,8 +111,11 @@ FILLED = {
     # null modules: fail the job when switched on (design 4.5)
     "ResetAmuletAutoBalance": "Null", "ProcessAmuletAutoBalanceTargets": "Null", "ProcessCrystalSimulationChunk": "Null",
     "UpgradeCrystalsGreedy": "Null",
-    # skeletons handed to C5 (.FastTick.cs) and C7 (.Fight.cs)
-    "FastTick": "Null", "FlushFastTickChunkRewards": "Null", "SimulateFightWithSpawnerFast": "Null",
+    # C5 (.FastTick.cs, design 4.1): planning rounds and active minutes calibrated, the kill gate, accumulation and
+    # flush inferred
+    "FastTick": "Calibrated", "FlushFastTickChunkRewards": "Inferred", "SimulateFightWithSpawnerFast": "Inferred",
+    "AccumulateFastTickSpawnerRewards": "Inferred",
+    # skeleton handed to C7 (.Fight.cs)
     "SimulateFightWithSpawner": "Null",
 }
 FILLED_CONFIG = {"Tick": "Inferred", "GetTrimmedTimeChunkSnapshots": "Inferred"}
@@ -460,6 +463,9 @@ def test_new_files_have_unique_meta():
            *(SIM_DIR / "Rebuild" / f for f in ("SimulationRandom.cs", "SimulationTrace.cs", "SimulationRebuildParamsAsset.cs")),
            SIM_DIR / "Harness" / "SimulationRunRequest.Params.cs",
            PROJECT / "Assets" / "Editor" / "Simulation" / "SimulationParamsImporter.cs",
+           # C5
+           SIM_DIR / "Rebuild" / "SimulationRebuildParams.FastTick.cs", SIM_DIR / "Harness" / "SimulationRunRequest.FastTick.cs",
+           SIM_DIR / "Harness" / "SimulationFastTickRecorder.cs",
            PROJECT / "Assets" / "Simulation"]
     tracked = subprocess.run(["git", "-C", str(WORKTREE), "ls-files", "-z", "--", "*.meta"],
                              capture_output=True, text=True, check=True).stdout.split("\0")
