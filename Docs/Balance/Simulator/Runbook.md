@@ -1272,6 +1272,9 @@ recomputed 缓存桥使用随包物品和闭式 P12（R2b 口径）：stored / r
 
 T12 日整数总量的 5% 检查不可行：copies-Chain-Swapped、Chain-Direct、Greedy、slots-3-8、selected-items 均为 **18/29** 格超限，绝对残差和 **25**。Uncommon 武器的逐日 pre-roll 期望为 **14.06–14.72**，随包却是 **15,14,15,12,12,14,14**。在 1–18 份的小总量上，一份就超过 5%；物品映射、进化、P12 不改变这些单元。保留旧 daily 整数单元及 5% verdict 作报告；正式逐日组改为 `daily_expected`：快阶段账本的取整前期望，与随包整数比较，允许 **5% + 每个活跃物品流 <1 份** 的整数观测误差（同一 carry 流区间两端累计余数相减，绝对值 <1）。逐流计数来自正期望的物品 key，不拟合系数，不按日手填 allowance；缺 trace 天给 missing/fail。阶段 5%/7% 与后期平台 2% 原样保留。此为明确放宽，登记在 calib_open，ORIGINAL 不重写。仍保留 68/62 的早期 Epic 阶段失败，不用噪声理由遮盖系统性的 +6。
 
+
+K2 补录 K1 round-2 评审口径：T12 的 <1 份/活跃物品流来自**模拟器自身的 Carry 取整（C3c）**，不是随包生成器的二项/泊松噪声模型，也没有证明随包使用纯 Carry。该逐日检查辨识力弱（day10 mace 多约 2 份仍可通过）；原阶段 5%/7% 和平台 2% 检查才是约束，不变。T09 1380 是 G20 `gpm_matches` 的 1e-4 单元通过数，不能称全格逐位一致。补充证据由 stage_open 的 `t09_precision` / `allowance_basis` 输出，反事实数字引自只读 `review_K1_r2.json`。
+
 mace 的独立定位：`Scenes/Main.unity:57815`，岛 4 `Spawner_1_epic_buck`，OT=10（天制）、Count=1、充能上限=2、非 DAFC。原版 6af011f CalculateSpawnerData(false) 只比较 `OT > timeChunkIndex`，没有额外 +3 天的相对窗口；就绪表 AnyoneAlive=IsEnabled=bootstrap_complete=1，Prepare 和换天把非 DAFC 冷却归零。原版的充能与岛门禁过滤、Python eligible_spawners 对随包 day 10/11/12 均判 eligible；day 9 因 OT 不合格。day10 fight=11.994738 秒，loss=49916.034、H=94929.157、loss/H=0.525824；day11 为 0.0208176，day12 为 0。C5 实际各日从 charges 0 清两次到 2，逐项吻合。默认 derived override 不打开岛，岛 4 由 day5 门禁打开；snapshot override 也不会把它延迟到 day13。θ=∞ / kill-none 仍 day10 首次掉 mace；θ=0.5 才晚到 day11，不能解释 day13。随包 TC13 尚无 mace、TC15 有4份，按每天2份相当于 day13 开始；多的 day10–12 ×2 就是 68−62 全部差值。**未发现 C5 与已恢复过滤或预言机不符，不修改 C5；明确交 K3 检查闭环成长/配置状态 A/B，使 day10 的可杀性不同或说明随包生成条件。不能据此调 θ 或增加 C6 参数。**
 
 P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept**；SlotRpmOrder 才是选择。KillState 和 P12 的留出分数各候选完全相同；到 TC25 P12 均已开放同样槽位，所以该持出段 **non-discriminating**，1.5× 仅作 sanity check，不算确认假设。Q25 若 day5 仍无解继续 unresolved。
@@ -1288,9 +1291,9 @@ P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept*
 
 | 项 | 最终结果 | 判定 |
 |---|---|---|
-| T09，day0 snapshot-items/stored/null_policy 导出 | **1380/1380**；均值相对误差 6.0578e−17 | PASS，直接导出，不是 Python G20 冒充 |
+| T09，day0 snapshot-items/stored/null_policy 导出 | **G20 的 1e-4 单元测试 1380/1380**；逐位相等 **1190/1380**，其余 190 格 ≤3 ulp；均值相对误差 6.0578e−17 | PASS（G20 口径），直接导出；不宣称全格 bit-exact |
 | P07 ModifierFirst / StaleTickCache | **1376 / 874**（各 1380 格）；均值相对误差 0.001059819 / 0.020090294 | PASS，RpmFirst 严格优于两者；ModifierFirst 恰为 G20 的四格 |
-| 非 TC 日 | **360 天、10800 格、0 格改变最大值** | PASS |
+| 非 TC 日 | **360 天、10800 格、0 格改变最大值** | 按构造成立：只在随包 TC 日更新 running max；反事实 all-days max 会抬高 5336 格，T09 仍为 G20 1380/1380；不作独立验证 |
 | T04 | 34 区间，中位 **1.085156%**、最大 **5.635268%** | PASS，保留原 2% / 8% |
 | T05 / T07 / 敏感性 | 7/7 逐日、37/41 总体、未解释上限1；岛5–17为12/13在区间内、全部在 slack 内，DPS 网格翻转0 | 与 round1 相同；结构规则 post-hoc |
 | T12 日整数原检查 | **18/29** 超5%，绝对残差和25；四种物品假设独立重数相同 | 不可行的原检查继续报告；未调 θ |
@@ -1337,3 +1340,18 @@ P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept*
 等待按首次失败启动时间 `2026-10-29 11:27:49 UTC` 起计，硬截止 `11:42:49 UTC`。只读监测约777.994秒，捕获147次变化，最后连续安静仅40.152秒，始终未达到90秒；截止后自动结束，没有再延长等待或碰用户编辑器。上述四项最终均记录 **not run: user editor active**（指未获得有效的启动器失败型验收），不把内层5/5/5/3冒充启动器通过。最终可运行的六模块命令保持78/3skip/4deselected；4个原断言仍严格要求启动器5/3，可在用户编辑器停止写存档后原样重跑。
 
 本轮所有权/口径偏离留给Z1合回设计：授权增加C3b/C4前置钩子；三个C4私有Rebuild字段留在Replay.cs（与既有Inventory状态例外同理）；stored replay的RPM只在观测TC上更新最大值；T09/P07使用无战斗的完整随包状态契约；item-recompute快照保留独立生成缓存；T12日整数检查改pre-roll加整数噪声、阶段限不变。没有新增可调参数、改θ、写C#默认值或参数资产。未完成的科学问题只有原T12 Epic阶段的+6份与既有Q25；各自已有精确K3/Z1交接。工程验收外部未跑项只有上述四个故意失败的启动器断言及已列跳过项。
+
+
+## 25. 慢阶段闭环校准（K2）
+
+### 25.1 预登记与计时预算
+
+先在本工作树运行 `python -m tufu_balance.calibrate.stage_slow --preflight-only`，再提交、启动 Unity。`out/calibration/slow-work/killseq_times.csv` 逐刷怪点列出所属奖励类别的平均分摊秒数、farmedTime 及组成；`killseq_intervals.csv` 保留逐区间分解。随包 60/60 区间精确、683 次清怪、35 类；快照没有路线/位置，类别分摊不是独立逐点观测，按距离模型只能先给零移动下界，不能假装测得路线。
+
+封闭 48 组合：PriorityFamily × SmartPath × 两种已恢复 TimeModel × 三种 SlowLethalityGate × {SkipSpawner, Retry}；CMove=CRegen=1，StatBenefitModel=Constant、半径5保持默认。先按 T20 硬筛，再按 TC1/2（第0/1天）的 T16 平均容差单位残差排序；每个属性的尺度为5%参考值或一次清怪奖励，零尺度且不相等为无穷。TC3/4（第2/3天）只留出，不用于排序；其它目标均独立报告、不能据此挑第二个候选。相同分数按预登记顺序保留默认。未预先增加连续系数，只有两种恢复模型都失败后才登记 Q34 后备。
+
+用 P10 Driver、RunCache、serve，12作业/批，reenter_play；依 K1 的短作业5.66–8.46秒估计48组合约5–7分钟，冷启动/关闭约7.5秒。每次尝试独立计时，禁止覆盖首次文件。只写 slow.json 参数层，不改默认参数/参数资产。所有模块真实执行，无 override、grant、null_policy 或拟合槽数输入。
+
+### 25.2 诊断所有权偏离
+
+为补齐 T20，跨 C3c 的 SimulationTrace / SimulationSystem.Trace 与 Python trace schema 添加 `daily.csv.countRespawn`（累计 ProcessDeath 调用数的逐日差，包括0；不受会话局部计数复位影响），每一天与 death 事件独立核对。修复 C7 的 slow_fight.boss 采样点：在 RebuildApplyClear 推进 currentBoss 之前记录。仅轨迹变更，无策略/成长/时钟改动；既有方法签名及原生方法不变，交 Z1 记所有权偏离。

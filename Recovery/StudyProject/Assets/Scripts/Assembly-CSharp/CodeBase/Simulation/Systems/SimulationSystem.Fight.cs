@@ -51,6 +51,7 @@ namespace Codebase.Simulation.Systems
 			foreach (SpawnerData data in fights)
 			{
 				bool target = data == bestSpawner;
+				bool boss = data.spawner == currentBoss;
 				if (!RebuildSlowAllowed(state, data))
 				{
 					if (!target) continue;
@@ -70,7 +71,7 @@ namespace Codebase.Simulation.Systems
 						RebuildCount("slow_en_route_clears");
 					}
 				}
-				RebuildSlowFightEvent(fight, data, from, target, cleared, target ? (object)priority : null, fights.Count - 1);
+				RebuildSlowFightEvent(fight, data, from, target, boss, cleared, target ? (object)priority : null, fights.Count - 1);
 				if (fight.Died)
 				{
 					ProcessDeath();
@@ -178,12 +179,12 @@ namespace Codebase.Simulation.Systems
 				("to_x", data.spawner.transform.position.x), ("to_z", data.spawner.transform.position.z));
 		}
 
-		private void RebuildSlowFightEvent(SimulationSlowFight r, SpawnerData data, Vector3 from, bool target, bool cleared, object priority, int enRoute)
+		private void RebuildSlowFightEvent(SimulationSlowFight r, SpawnerData data, Vector3 from, bool target, bool boss, bool cleared, object priority, int enRoute)
 		{
 			if (SimulationTrace.Current == null) return;
 			Vector3 to = data.spawner.transform.position;
 			RebuildTraceEvent("slow_fight", ("spawner", RebuildTraceId(data.spawner)), ("location", data.spawner.Config.LocationNumber),
-				("kind", target ? "target" : "en_route"), ("session", lifeCycleIndex), ("boss", data.spawner == currentBoss),
+				("kind", target ? "target" : "en_route"), ("session", lifeCycleIndex), ("boss", boss),
 				("p_before", r.PlaytimeBefore), ("t_before", r.TotalPlaytimeBefore),
 				("p_after", config.CurrentPlaytime), ("t_after", config.CurrentTotalPlaytime), ("seconds", r.Seconds),
 				("fight_time", data.fightTime), ("farmed_time", data.farmedTime), ("av_move_time", data.avMoveTime),

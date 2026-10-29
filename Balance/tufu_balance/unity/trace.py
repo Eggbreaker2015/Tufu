@@ -9,7 +9,8 @@ on request, ``digests.txt``. Written by the C# ``SimulationTrace`` for every non
   ``farmed_time_sum`` seconds reported by the fight modules (C5/C7); ``eligible_count``/``eligible_signature``
   the bot-filter set of the day's first planning (``-1``/empty when no planning ran, e.g. the minimal
   FastTick); ``location`` the island of the last fought spawner (else the engine's current location);
-  ``unlocked_location`` the highest open island.
+  ``unlocked_location`` the highest open island; ``countRespawn`` the daily delta of ProcessDeath calls
+  (including zero, and independent of session-local counter resets).
 * ``events.jsonl``: C1's event types, in the order they happen. ``first_kill`` once per spawner and run;
   ``slot_unlock.count`` the unlocked slots of that slot type after the unlock.
 * ``digests.csv``: per day, right after the day's forced snapshot and override, the sha256 of the state text
@@ -35,7 +36,7 @@ SCHEMA = "tufu.sim.trace/1"
 DAILY, EVENTS, DIGESTS, DIGEST_TEXT = "daily.csv", "events.jsonl", "digests.csv", "digests.txt"
 FILES = (DAILY, EVENTS, DIGESTS, DIGEST_TEXT)
 OUTPUT_DEFAULTS = {"daily": True, "events": True, "digests": True, "digest_text": False}
-DAILY_EXTRA = (("ticks", "int"), ("offline_steps", "int"), ("complete", "bool01"))
+DAILY_EXTRA = (("ticks", "int"), ("offline_steps", "int"), ("complete", "bool01"), ("countRespawn", "int"))
 TRACE_KEYS = {"schema": "str", "files": "object", "days": "int", "complete_days": "int", "digests": "int",
               "last_digest": "sha256?", "events": "object", "random": "object"}
 RANDOM_KEYS = {"mode": "int", "seed": "int", "streams": "int", "state_sha256": "sha256"}

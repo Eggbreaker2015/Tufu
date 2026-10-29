@@ -29,6 +29,7 @@ namespace Codebase.Simulation.Systems
 			t.DayStartPlaytime = config.CurrentPlaytime;
 			RebuildCounters.TryGetValue("kills", out t.DayStartKills);
 			RebuildCounters.TryGetValue("clears", out t.DayStartClears);
+			RebuildCounters.TryGetValue("respawns", out t.DayStartRespawns);
 			t.FightTimeSum = t.FarmedTimeSum = 0.0;
 			t.EligibleCount = -1;
 			t.EligibleSignature = "";
@@ -62,6 +63,7 @@ namespace Codebase.Simulation.Systems
 		{
 			RebuildCounters.TryGetValue("kills", out long kills);
 			RebuildCounters.TryGetValue("clears", out long clears);
+			RebuildCounters.TryGetValue("respawns", out long respawns);
 			return new SimulationTrace.Day
 			{
 				DayIndex = t.DayIndex,
@@ -72,6 +74,7 @@ namespace Codebase.Simulation.Systems
 				OfflineMinutes = RebuildDayOfflineMinutes,
 				Kills = kills - t.DayStartKills,
 				Clears = clears - t.DayStartClears,
+				Respawns = respawns - t.DayStartRespawns,
 				FightTimeSum = t.FightTimeSum,
 				FarmedTimeSum = t.FarmedTimeSum,
 				EligibleCount = t.EligibleCount,
