@@ -1372,6 +1372,31 @@ K1的open层以展开binary32十进制保存Kappa/TourA/TourB；C3c的effective 
 
 运行代码固定78e3f21（之后Unity工程无改动），报告 `Balance/out/calibration/slow/4f0cc72ff736884b/`，latest索引在slow-work。92个拟合作业=48恢复模型+25粗网格+19新增单纯形，另1个规范文本确认；全部P10 Driver/serve、RunCache、AB A、Frozen、reenter_play。92/92原请求与effective hash分别验证，确认作业10文件逐字节相同且matches_request=true。73/92候选过T20，所有候选每次day3死亡在day3_deaths.csv，countRespawn.csv包含逐日0值；没有按持出重选。
 
-首次Driver墙钟：initial 332.453秒、coarse181.245秒、19个新增simplex请求合计约158秒（精确逐次计时在归档），确认7.502秒；首次网格完整命令345.286秒，后备完整命令373.673秒。后续缓存验证每次另存attempt/step计时，不覆盖首次文件。报告有7个P10标准文件、逐候选残差、killseq逐点/区间、逐日复活/每次死亡、条件bootstrap、params hash和各资产守卫SHA256。
+首次Driver墙钟：initial 332.453秒、coarse181.245秒、19个新增simplex请求合计156.700秒（精确逐次计时在归档），确认7.502秒；首次网格完整命令345.286秒，后备完整命令373.673秒。后续缓存验证每次另存attempt/step计时，不覆盖首次文件。报告有7个P10标准文件、逐候选残差、killseq逐点/区间、逐日复活/每次死亡、条件bootstrap、params hash和各资产守卫SHA256。
 
 `calib_slow`首次接受16键、其中7项登记CURRENT偏离（P14 CMove、T03、T04、T07早期区间、T16失败数/最大误差、物品数）。新ORIGINAL对原设计数值均用显式original=声明：CMove=1、T03失败0、T04 .03、岛屿区间误差0、T16失败0/主属性.05、物品数4/7/8/8；其它首次观测以--seed-original建测量基线。未改任何已有ORIGINAL或冻结夹具，未修改通用tolerances.yaml。
+
+
+### 25.6 最终工程验收
+
+以下均在本工作树Balance中，解释器为 `/Users/joyfort/MyProjects/Tufu-stage5/Balance/.venv/bin/python`，只读DB由TUFU_BALANCE_DB指定；最终pytest用TMPDIR及--basetemp限定在本工作树out/calibration。Unity固定TUFU_UNITY_REV=78e3f21；`git diff 78e3f21 HEAD -- Recovery/StudyProject`为空。日志/机器可读汇总为out/calibration/verification.json，拟合报告100个受哈希保护文件已逐一核对。
+
+| 命令 / 项 | 结果 | 秒 |
+|---|---|---:|
+| `pytest -q --unity tests/test_stage_slow.py tests/unity/test_calib_slow.py` | **8 passed**；所有矩阵/确认均命中P10缓存 | 67.00 |
+| `pytest -q`（--basetemp及--junitxml见日志） | **983 passed、305 skipped、24既有warnings**，0 failures/errors | 217.33 |
+| `pytest -q --unity tests/unity/test_slow_policy.py tests/unity/test_params.py tests/unity/test_engine.py tests/unity/test_determinism.py -k ...` | **94 passed、2 perf skipped、7 deselected** | 354.34 |
+| `python -m tufu_balance.refresh --level 1 --rev 78e3f21 --out out/calibration/refresh` | **13/13 exit0，CURRENT unchanged=true**；抽取到私有out DB，未写共享DB | 107.40 |
+| `python tests/golden/fixtures/generate.py --check` | **identical**，只有既有provenance提示 | — |
+| `python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-K2` | 两种编译0 errors/0新warnings，签名0违规、禁用API0；已有warnings3707/8 | 3.3 |
+| `python -m tufu_balance.golden guard` | **22 suites、0 violations** | — |
+| `PYTHONPATH=$PWD python out/calibration/audit_behavior.py` | launcher在88b08e5重跑default，与78e3f21比：**8文件逐字节相同**；daily只多计数列；events只有2个成功门禁boss标志变化 | 17.1（Unity） |
+| `python -m tufu_balance.unity status` | **clean=true、lock=null、unity_processes=[]、serve.running=false** | — |
+
+相关Unity回归的7项deselect来自停用模块/停顿/未知参数/错误hash的非零退出用例及新编辑器参数资产导入；主编辑器仍在写真实存档，且本单元不执行资产写入。它们不是K2自己的测试，未声称跑过；没有等待或操作主编辑器。serve stop的editor_exit_code=0、guard_problems=[]、workers_left=[]；主编辑器自己的真实save改写由启动器记为real_changed_by_main_editor，未恢复用户数据。
+
+约束偏离记录：首轮定向pytest未显式设置TMPDIR/--basetemp，使用默认系统测试临时目录；此后最终验收全部固定到本工作树Balance/out。未尝试清理外部临时文件，避免再次越界。没有修改其它检出/分支或交互其编辑器。
+
+共享DB仍mode444、SHA256 `a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098`。未改Design.md、默认参数、参数资产、冻结夹具或任何已有ORIGINAL；无push、无其它分支操作、无工作树删除。
+
+交接K3/Z1：科学失败清单及Q34见Calibration.md；先验证完整闭环，若要重新拟合需新的结构登记。countRespawn新增列/旧归档None兼容、boss采样点、K1精度/Carry弱辨识修正及原版loss>H/2时RPS×.2的mace线索需Z1回填。K1完整矩阵本轮未重跑，小修正只更新文档与证据生成元数据；其反事实5336数字明确引用独立round-2评审。
