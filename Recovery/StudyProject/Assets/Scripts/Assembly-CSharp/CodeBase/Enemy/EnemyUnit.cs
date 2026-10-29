@@ -131,6 +131,8 @@ namespace Codebase.Enemy
 		// Pet mode: the unit (player or pet) this enemy is fighting; set by EnemyAttackSystem.
 		public UnitCore AggroTarget { get; set; }
 		public float RetreatTimer { get; set; }
+		public bool InCombat { get; set; }
+		public bool IsReturningHome { get; set; }
 		public float AttackCooldown { get; set; }
 		public double ReflectionDamage { get; set; }
 		public bool IsCasting { get; set; }
@@ -178,6 +180,8 @@ namespace Codebase.Enemy
 				Stats.Add(new Stat(lifetime, stat.BaseValue, stat.Type));
 			CurrentHealth = Stats.First(stat => stat.Type == StatType.Health).Value;
 			AggroTimer = 0f;
+			InCombat = false;
+			IsReturningHome = false;
 			AttackCooldown = 0f;
 			Agent.speed = (float)Stats.First(stat => stat.Type == StatType.MovementSpeed).BaseValue;
 			VisualRoot.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
@@ -215,6 +219,8 @@ namespace Codebase.Enemy
 
 		private void OnDisable()
 		{
+			InCombat = false;
+			IsReturningHome = false;
 			if (World.Default != null && GameContext.Has<global::Codebase.Skills.SkillService>())
 			{
 				GameContext.Get<global::Codebase.Skills.SkillService>().ClearForcedMovement(this);
@@ -344,6 +350,11 @@ namespace Codebase.Enemy
 
 		public void SetDeathState(bool isDead)
 		{
+			if (isDead)
+			{
+				InCombat = false;
+				IsReturningHome = false;
+			}
 			if (!hasAnimator)
 				return;
 			if (Agent != null && Agent.enabled && Agent.isOnNavMesh && !Agent.isStopped)

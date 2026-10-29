@@ -21,9 +21,10 @@ namespace Codebase.Enemy.Systems
 			foreach (Entity entity in filter)
 			{
 				var unit = unitStash.Get(entity).Core;
+				var enemy = unit as EnemyUnit;
 				double maxHealth = unit.GetStatValue(Codebase.Unit.StatType.Health);
 				double regen = unit.GetStatValue(Codebase.Unit.StatType.HealthRegen);
-				double idleRegen = unit.LastDamageGet + NO_DAMAGE_TIME_TO_HEAL <= UnityEngine.Time.time ? maxHealth * HEAL_PER_SECOND : 0.0;
+				double idleRegen = (enemy == null || !enemy.IsReturningHome) && unit.LastDamageGet + NO_DAMAGE_TIME_TO_HEAL <= UnityEngine.Time.time ? maxHealth * HEAL_PER_SECOND : 0.0;
 				unit.CurrentHealth = System.Math.Min(unit.CurrentHealth + (regen + idleRegen) * deltaTime, maxHealth);
 			}
 		}

@@ -132,6 +132,11 @@ namespace Codebase.Enemy
 			bool retreat = (distanceSquared > enemy.AggroRange * enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
 			if (retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
+				if (enemy.InCombat)
+				{
+					enemy.IsReturningHome = !bossArenaUnitStash.Has(entity);
+					enemy.InCombat = false;
+				}
 				ClearAggroTarget(enemy);
 				enemy.RangedHolding = false;
 				enemy.RangedKiteTimer = 0f;
@@ -154,11 +159,14 @@ namespace Codebase.Enemy
 				{
 					enemy.Agent.updateRotation = false;
 					enemy.Agent.isStopped = true;
+					enemy.IsReturningHome = false;
 				}
 
 				return;
 			}
 
+			enemy.InCombat = true;
+			enemy.IsReturningHome = false;
 			enemy.AggroTimer -= deltaTime;
 			if (distanceSquared < enemy.AggroRange * enemy.AggroRange)
 				enemy.AggroTimer = enemy.AggroDuration;
@@ -321,11 +329,18 @@ namespace Codebase.Enemy
 			Vector3 target;
 			if (retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
+				if (enemy.InCombat)
+				{
+					enemy.IsReturningHome = !bossArenaUnitStash.Has(entity);
+					enemy.InCombat = false;
+				}
 				ClearAggroTarget(enemy);
 				target = enemy.CurrentSpawnerPatrolPoint;
 			}
 			else
 			{
+				enemy.InCombat = true;
+				enemy.IsReturningHome = false;
 				enemy.AggroTimer -= deltaTime;
 				if (distance < enemy.AggroRange)
 					enemy.AggroTimer = enemy.AggroDuration;
@@ -344,6 +359,8 @@ namespace Codebase.Enemy
 					enemy.transform.rotation = Quaternion.RotateTowards(enemy.transform.rotation, Quaternion.LookRotation(direction), 360f * deltaTime);
 			}
 
+			if (enemy.IsReturningHome && Vector3.Distance(enemy.transform.position, target) <= 0.1f)
+				enemy.IsReturningHome = false;
 			enemy.LastDestination = target;
 			if (distance < attackRange)
 				Attack(enemy);
