@@ -1,0 +1,82 @@
+Level-up VFX — original generated assets
+
+Generation: built-in image_gen tool, five separate generation requests. No third-party
+game assets, SVG, procedural drawings, or external image API were used.
+Postprocessing: resize generated pixels to 512x512; remove near-black pixels (RGB max
+<= 4); use brightness as alpha and unpremultiply RGB for SrcAlpha / One blending.
+Import: RGBA, alphaIsTransparency, Clamp on U/V/W, trilinear mipmaps, uncompressed.
+
+Prefab: Assets/Resources/Vfx/LevelUpVfx.prefab
+Runtime API: Codebase.Vfx.LevelUpVfx.Play(target, radius: -1f, visualRoot: null)
+Positive radius is a world-space override; otherwise visible model renderer bounds
+determine radius and height. Only mesh/skinned renderers are included. The effect
+follows target position in world space, stays upright, and destroys itself after
+all child particles/trails finish (default about 2s).
+LevelUpVfxPrefabBuilder creates an emission-disabled root ParticleSystem and eight
+child ParticleSystems: outer column, bright core, shockwave, runes, ground glow,
+spiral stars with trails, ascending motes, and opening flash. All parameters and
+material references live in the prefab. No geometry or particles are built at runtime.
+The builder auto-migrates the old prefab once when there are no child particle
+systems. Later Inspector edits are preserved; manual Tools > 学习测试 >
+重建升级特效预制体 restores defaults and overwrites those edits, keeping the asset GUID.
+Authored dimensions assume character radius 1 and height 2. Runtime root scale is
+(radius, height / 2, radius), using world renderer bounds; a positive radius override
+also scales the measured height proportionally. All systems use Hierarchy scaling
+and Local simulation. Scene instances keep their authored transform and play on awake.
+
+Shader: built-in Particles/Standard Unlit (built-in fileID 211), same shader as this
+project's *_ADD_0 and JMO particle materials. Additive mode 4, SrcAlpha / One,
+ZWrite Off, Cull Off, no depth-texture-dependent soft particles or camera fading.
+Existing materials and graphics settings are untouched.
+
+Timing (scaled game time): flash 0–0.22s; beam rises in 0.1s and narrows/fades through
+1.95s; shockwave expands/fades over 0.7s; runes rotate/fade until 2s; 165 particles/s
+emit for 0.95s with 0.65–0.9s lifetimes, orbital upward velocity, size flicker and trails.
+
+Integration: LevelUpVfxPlayer bootstraps before scene load, subscribes to the existing
+Morpeh RageLevelUpEvent, and locates the living player via PlayerTag + UnitComponent.
+AddRageEffect emits this event after RageModel.TryAddRage crosses a threshold; it is
+the existing in-world player power-up, unlike inventory item evolution analytics.
+Nonempty positive-level event batches play once. Existing rage gameplay, sound,
+and visual effects are preserved. Subscriptions release on disable/world changes.
+
+Manual checks in the user's already open Editor:
+1. Allow asset import/compilation, then enter Play and load a scene with the player.
+2. Focus Game and press L (Editor or Development Build only).
+3. Alternatively use Tools > 学习测试 > 播放升级特效 during Play.
+4. Increase rage normally through combat to verify automatic playback.
+5. Try small/large player models, movement/turning, and repeated playback. Confirm
+   the effect follows, stays upright, and its root disappears after two game seconds.
+6. Switch back to the Editor and wait for compilation/import. The old prefab is
+   automatically rebuilt; look for the 升级特效 log. If necessary use the rebuild menu.
+7. Open the prefab, select its root and use Scene > Particle Effect > Play/Restart.
+   Expand child systems and tune their modules directly in the Inspector.
+8. To preview in Play mode, place the prefab in a scene; scale 1 represents radius 1,
+   height 2. It plays on awake and disappears when its child systems finish.
+
+Verification performed without starting Unity: offline Roslyn compilation against
+the installed Unity 6000.6.3f1 and actual project references, with Editor,
+Development Build and release defines, plus separate Editor menu compilation;
+asset GUID/reference checks and PNG/import-setting inspection. Visual rendering
+and interactions with existing rage effects still require the manual checks above.
+The two camera-facing vertical billboards approximate the previous three rotating
+mesh columns; actual brightness and billboard scaling require visual review.
+Ground layers are horizontal at measured feet height; uneven/sloped terrain is not
+projected. Pausing Time.timeScale pauses the effect and its two-second lifetime.
+
+Exact generation prompts (black backgrounds were requested, then converted to alpha):
+
+Halo:
+A single soft radial glow sprite for Unity additive particle VFX, square canvas. Perfectly centered warm-white luminous core transitioning smoothly through pale gold to pure black, with a broad diffuse halo. No hard boundary, no ring, no flare rays, no scene, no objects, no text, no watermark. All four edges and corners pure black with generous margin. Grayscale-white dominant brightness so runtime gold tint can work. Original self-made game texture.
+
+Ring:
+A single thin luminous circular shockwave ring texture for Unity additive particle VFX, square canvas, orthographic straight overhead view, exact circle centered. Warm-white narrow ring with subtle soft golden glow, hollow entirely pure-black center and pure-black background. Diameter about 75% of image, ring thickness about 1.5% image width, soft falloff. No perspective, no additional rings, no symbols, no text, no watermark. All edges black. Original self-made game texture.
+
+Beam:
+A single vertical light-column gradient strip texture for a Unity additive VFX plane, square canvas. One tall straight rectangular soft luminous veil centered, width 50% image and height 85%, pale warm-white center with subtle vertical wisps, feathered left and right edges and smoothly faded top and bottom to absolute pure black. Brightness strongest near lower middle, extends vertically upward, no ground, no perspective, no objects, no stars, no symbols, no lettering, no watermark, no scene. Pure-black generous border. Original self-made game texture.
+
+Star:
+A single four-point magical sparkle sprite for Unity additive particle VFX, square canvas, precisely centered. Four sharp tapered rays at up down left right, very bright warm-white tiny core, gold soft glow and soft radial halo, ray tips vanish into pure-black background, generously padded pure black edges. One isolated star only, no surrounding particles, no scene, no text, no watermark. Original self-made game texture.
+
+Runes:
+A single luminous fantasy ritual rune circle texture for Unity additive VFX ground plane, square canvas, orthographic exact overhead view, perfectly circular and centered with generous black border. Two delicate concentric warm-white golden rings enclosing evenly spaced ORIGINAL abstract angular magical glyph shapes, tiny diamonds and decorative radial ticks. The glyphs are fictional nonlinguistic geometric ornaments, not letters. Black hollow central area and pure-black background, subtle gold glow, crisp fine details readable at 512 pixels. Diameter 80% image. No pentagram, no known game symbols, no copyrighted designs, no perspective, no words, no watermark. Entirely original self-made texture.
