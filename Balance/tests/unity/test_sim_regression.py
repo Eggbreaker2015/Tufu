@@ -13,7 +13,7 @@ pytestmark = pytest.mark.unity
 @pytest.fixture(scope="module")
 def calibrated_run(unity_run):
     p = params.resolve(['defaults', 'calibrated'])
-    job = request.make_job('calibrated-405', params=p.params, outputs={'inventory': True, 'bake_report': True})
+    job = request.make_job('calibrated-405', params=p.params, outputs={'inventory': True, 'bake_report': True, 'spawner_days': True})
     run = unity_run(request.make_request([job]))
     assert run.exit_code == 0, run.describe()
     root = run.job_dir('calibrated-405')
@@ -119,4 +119,25 @@ def test_checkpoint_failures(unity_run, db):
         worst = max(c.rel for c in ev.cells if c.target == target and c.group == group)
         checks[f'checkpoint.{target}.{group}.max_rel'] = at_most(worst, original=threshold,
             source='checkpoint design tolerance and free-run ratchet; Calibration.md K3')
+    check('sim_regression', checks)
+
+
+def test_measured_ratchets(calibrated_run, db):
+    from tufu_balance.calibrate import metrics, targets
+    from tufu_balance.calibrate.stage_open import read_series, t05_evidence
+    from tufu_balance.model import data
+    from tufu_balance.golden import at_least, at_most
+    root, _ = calibrated_run
+    tg = targets.build(db, slot_schedule=targets.load_slot_schedule())
+    cells = metrics.compute(read_series(root), tg, ['T07', 'T15'])
+    spec = metrics.load_tolerances()['targets']['T07']['cells']['islands_5_17']['ranges']
+    in_range = sum(metrics._interval_distance(c.sim, spec[int(c.key[-2:])]) == 0
+                   for c in cells if c.target == 'T07' and c.group == 'islands_5_17')
+    t05 = t05_evidence(db, root, data.load_simulation_data(db).time_chunk_snapshots)
+    checks = {'ratchet.T05.exact': at_least(t05['exact'], source='first calibrated free run'),
+              'ratchet.T05.unexplained': at_most(len(t05['unexplained']), source='first calibrated free run'),
+              'ratchet.T07.in_range': at_least(in_range, source='first calibrated free run')}
+    for group in ('late_dps', 'late_defense'):
+        checks['ratchet.T15.'+group] = at_most(max(c.rel for c in cells if c.group == group),
+                                              source='first calibrated free run')
     check('sim_regression', checks)
