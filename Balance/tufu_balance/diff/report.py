@@ -94,7 +94,7 @@ def write(comp, out_dir, *, timings=None):
     coverage = {name: sum(name in r["coverage"] for r in unique.values())
                 for name in ("Python", "C# 重建", "C# 原生")}
     lines += [f"触及 {len(unique)} 条公式；状态 {dict(sorted(counts.items()))}；实现覆盖 {coverage}；未建模 {missing} 条。",
-              "实现类别可重叠。C# 原生表示目录中已有恢复源码（含 reconstructed），不表示本次运行覆盖了该分支。", ""]
+              "实现类别可重叠。C# 原生只按 recovered_native（及属性原始值合成）计数，不表示本次运行覆盖了该分支；没有登记实现者的 reconstructed 仍计为未建模。", ""]
     for scope, _, _ in impact.SCOPES:
         lines += [f"### {scope}", ""]
         lines += [f"- `{r['id']}`：{r['name']}（{', '.join(r['provenance']) or '未建模'}）"

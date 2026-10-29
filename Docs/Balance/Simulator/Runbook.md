@@ -601,6 +601,12 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 - **停用模块**：`AutoGambling`、`CrystalSimulation`、`AutoBalanceAmulet`、`GraphSimulation` 任一打开，作业以 "not supported" 失败（退出码 5）。
 - **交给后续单元的约定**：`.FastTick.cs` 交给 C5，其中 `SimulateFightWithSpawnerFast` 与 `FlushFastTickChunkRewards` 是按 4.5 契约写的骨架（`Provenance.Null`），由 C5 定稿；`.Fight.cs` 交给 C7，`SimulateFightWithSpawner` 只放了 `RebuildApplyClear(…, 1, false)`；C6 的 `ProcessInventory` 消费并清空 `RebuildPendingItemCopies`（写入点与冲刷都只往里放份数）。
 
+### 16.2a Enginefix：早期快照缓存刷新
+
+非强制早期快照到期时，Tick 在 `SimulateFightWithSpawner` / `RebuildIdle` 之后调用 `CalculateSimulationData()`，记录全部 `GetForecastStatValue` 为 `SlowTickBasis`，再调用 `RebuildApplyReplayCaches()`、`MakeSnapshot()`，随后立即清空静态 basis。replay + stored 继续保留覆盖缓存。非到期 Tick 不增加刷新；换天强制快照仍按 RpmFirst。
+
+依据独立评审 `review_X2fix.json` 与 `review_X2fix/dps0.py`：随包日 0 的快照 0–13，Cutting DPS 等于每张快照自身的 `c·(CutDamageFlat + 12·knifeLevel)`；第 3、11 次转移只有一次属性奖励且超过到期时刻，缓存若来自 Tick 开头分别应为 11.538462、38.461540，实际为 12.307693、40.000001。这排除了 Tick 开头缓存。`tests/test_crosscheck.py::test_shipped_day_zero_dps_uses_the_recorded_postfight_stats` 还验证全部 25 张日 0 快照逐位重算；`tests/unity/test_slow_policy.py::test_early_snapshot_caches_include_own_postfight_state` 对重建慢 Tick 的自身状态逐位重算。
+
 ### 16.3 每 Tick 耗时（空策略）与预算
 
 运行工作树、有图形、`SimulationSpeed = 500`。整个第 0–30 天的空策略作业 91 个 Tick 在一帧里跑完，约 0.06 秒。
@@ -650,6 +656,8 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 | 交接：`Provenance` 的整数值固定 | 0–4 固定（C# 源码、Python 常量、manifest 三处一致）| `tests/test_engine_static.py::test_provenance_enum_values_are_pinned`、`test_manifest_engine_block` |
 
 ### 16.6 与设计稿不同的地方
+
+- Enginefix 按随包证据修正 4.4 伪代码：非强制早期快照到期时在战斗/空闲后刷新缓存，再拍照（见 16.2a）。此前仅 Tick 开头刷新，与原数据矛盾。此次跨 C3b、C1、P11、P12 所有权修改由 Enginefix 工作单明确授权；Design.md 留给 Z1 汇总。
 
 - 快照的属性是 `Unit.Stats` 的 30 项，不是 36 项（36 是 `UnitCore` 查找表的大小）。
 - `TotalValue` 按数据的顺序 `(Value·(1+K2))·K3` 计算，没有直接取 `GetStatValue`：`StatBase.CalculateValue` 的顺序是 `(K3·(1+K2))·Value`，末位可能不同，而 G11 的 981/981 是按前一种顺序成立的。这个选择**只**以 G11（随包数据）为依据：评审第二轮测得引擎的四个作业里 TotalValue ≠ TotalFlatValue 的格子每个作业只有 52 个，换成游戏顺序一个也不变，测试分不出两种顺序。

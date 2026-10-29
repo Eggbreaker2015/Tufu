@@ -242,6 +242,7 @@ class Snap:
     snapshot: SimulationSnapshot
     ext: dict | None  # snapshots_ext.csv row
     items_ext: list[dict]  # items_ext.csv rows in item order
+    slow_tick_basis: dict[int, float] | None = None
 
     @property
     def tc(self) -> int:
@@ -374,11 +375,19 @@ def load_run(job_dir: str | Path) -> RunData:
     for r in _ext_rows(job_dir, "items_ext.csv"):
         items.setdefault((r["list"], r["index"]), []).append(r)
 
+    basis: dict[tuple, dict[int, float]] = {}
+    for r in _ext_rows(job_dir, "slow_tick_basis.csv"):
+        key = (r["list"], r["index"])
+        values = basis.setdefault(key, {})
+        if r["stat"] in values:
+            raise simio.SimioError(f"slow_tick_basis.csv: duplicate {key}, stat {r['stat']}")
+        values[r["stat"]] = struct.unpack(">d", bytes.fromhex(r["value_hex"]))[0]
+
     def snaps(lst: str, rows: list) -> list[Snap]:
         out = []
         for i, s in enumerate(rows):
             its = sorted(items.get((lst, i), []), key=lambda r: r["item_index"])
-            out.append(Snap(lst, i, snapshot_from_json(s, i), ext.get((lst, i)), its))
+            out.append(Snap(lst, i, snapshot_from_json(s, i), ext.get((lst, i)), its, basis.get((lst, i))))
         return out
 
     trace = None

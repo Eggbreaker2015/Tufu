@@ -1,12 +1,13 @@
 """X6 (design 3.5): trajectory invariants of a run.
 
-* ``values``: every snapshot's Value = base (``Player Config``) + test grants (``engine_probe.grant_flat``) + the
+* ``values``: Value = base (``Player Config``) + test grants (``engine_probe.grant_flat``) + the
   rewards of the clears so far, equipment modifiers excluded (the snapshot Value already leaves them out). Without
-  clears it is exact on every snapshot. With clears the rewards come from the day digests (``digest_text`` output):
-  day e's usage at its close (``charges_closed``, in units, ``Count`` per clear) gives ``ceil(usage / Count)`` clears
-  (the write point caps the last one at the limit), each worth ``StatReward.Value * Count``; on the forced snapshot
-  of day d, Value plus the fast-phase rewards not flushed yet (``fast.stat``) equals base + grants + the rewards of
-  days < d, to 1e-6 relative (the engine adds one float32 modifier per write call, the sum here is per day).
+  clears every snapshot is checked. With clears, day snapshots are checked against closed charge usage.
+  Slow days replay each cleared slow_fight event in order (including en-route fights), checking the counts
+  against the digest. Fast days make one float32 reward write per stat at the flush. Each write rounds both
+  the reward and the merged modifier to float32, as StatBase.AddModifier does. BaseValue is double and
+  __probeGrant is a separate modifier: neither belongs in the merged Devoured accumulator. Values are
+  bit-exact on both phases; pending fast rewards are compared on both sides without committing a write.
 * ``charges``: no usage (``charges``, ``charges_closed`` in the digests) above ``GetSpawnerChargesLimit``.
 * ``clock``: P and T never decrease along each list and ``daily.csv``; the day list's T strictly increases.
 * ``time_chunk``: TC = floor((float)(T / SpawnerChargesChunkMinutes)) on every snapshot (the editor's double
@@ -24,6 +25,7 @@ A part with nothing to check (no clears, no digest text, no DAFC clear, no unloc
 
 from __future__ import annotations
 
+from collections import Counter
 import math
 import struct
 from pathlib import Path
@@ -95,26 +97,46 @@ def _values(c: Check, run: RunData, env: Env) -> None:
         c.vacuous_part("values", f"{clears} clears but no digest text (output digest_text): rewards cannot be reconstructed")
         return
     cumulative: dict[int, float] = {}
+    by_id = {env.runtime_id(sp.spawner_id): sp for sp in env.ctx.spawners}
+    job = run.manifest.get("job") or {}
+    switches = job.get("config_overrides") or {}
+    fast_start = switches.get("FastTickStartChunkOffset", env.ctx.time_axis.fast_tick_start_chunk_offset)
+    use_fast = switches.get("UseFastTick", env.ctx.time_axis.use_fast_tick)
+    events = run.trace.events if run.trace else []
     for s in run.full:
         d = s.tc
         fields = run.digests.get(d)
         if fields is None:
             c.count("values_days_without_digest")
             continue
-        closed_day, rewards, _ = closed_rewards(env, fields)
+        closed_day, rewards, day_clears = closed_rewards(env, fields)
         if d > 0 and closed_day != d - 1:
             c.item(False, invariant="values", where=f"day {d}", csharp=str(closed_day), oracle=str(d - 1),
                    detail="charges_closed.day is not the previous day")
             continue
-        for k, v in rewards.items():
-            cumulative[k] = cumulative.get(k, 0.0) + v
+        slow = closed_day is not None and (not use_fast or closed_day < fast_start)
+        if slow:
+            fights = [e for e in events if e["type"] == "slow_fight" and e["day"] == closed_day and e["cleared"]]
+            if not fights and day_clears:
+                c.vacuous_part("values", "slow-phase clears need slow_fight events to replay float32 writes; "
+                                        "later accumulators cannot be reconstructed exactly")
+                return
+            observed = dict(Counter(e["spawner"] for e in fights))
+            c.item(observed == day_clears, invariant="values", where=f"day {d} slow writes",
+                   csharp=str(observed), oracle=str(day_clears), detail="cleared events match closed charges")
+            writes = [(r.stat_type, float(r.value) * by_id[e["spawner"]].d.count)
+                      for e in fights for r in by_id[e["spawner"]].stat_rewards]
+        else:
+            writes = list(rewards.items())
+        for k, v in writes:
+            cumulative[k] = float(f32(cumulative.get(k, 0.0) + float(f32(v))))
         pending = {int(k.split(".")[2]): _float_bits(v.split(",")[3]) for k, v in fields.items() if k.startswith("fast.stat.")}
         for st in s.snapshot.stats:
             got = st.value + pending.get(st.key, 0.0)
-            want = base.get(st.key, 0.0) + extra.get(st.key, 0.0) + cumulative.get(st.key, 0.0)
-            rd = rel_diff(got, want)
-            c.item(rd <= VALUE_REL_TOL, invariant="values", where=f"day {d} {stat_name(st.key)}", csharp=num(got),
-                   oracle=num(want), detail=f"rel {rd:.3g}")
+            want = base.get(st.key, 0.0) + (extra.get(st.key, 0.0) + cumulative.get(st.key, 0.0)) + pending.get(st.key, 0.0)
+            c.item(same(got, want), invariant="values", where=f"day {d} {stat_name(st.key)}", csharp=num(got),
+                   oracle=num(want), detail="bit-exact float32 modifier writes; double base + grants")
+            c.count("values_exact_cells")
 
 
 def _charges(c: Check, run: RunData, env: Env) -> None:

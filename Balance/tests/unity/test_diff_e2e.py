@@ -35,8 +35,7 @@ def test_patch_a_csharp_leaves_and_crosschecks(comparison):
         assert record["checks"]["X4"]["status"] == "pass"
         assert record["checks"]["X1"]["status"] == "pass"
         bad = [k for k, c in record["checks"].items() if c["status"] == "fail"]
-        if bad:
-            assert any(w["code"] == "uncalibrated_crosscheck" and w["side"] == record["side"] for w in first.warnings)
+        assert not bad, (record["side"], bad)
 
 
 def test_baseline_cache_and_identical_reports(comparison, tmp_path):

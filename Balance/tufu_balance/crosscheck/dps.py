@@ -7,9 +7,9 @@ day d). Which modifiers the stats carry depends on when the caches were last com
 
 * day snapshots and their early copies (the forced snapshot of a slow day): at the day change, before the modifier
   moves (``RpmFirst``), so K2/K3(d-1);
-* other early snapshots: at the start of their slow tick (``CalculateSimulationData``), so K2/K3(d). A fight in the
-  same tick changes Values and items after that, and the export does not carry the tick's starting state: once a
-  policy fights (C7) these comparisons need it (a handoff); on a run without clears they are exact.
+* other early snapshots: after the fight/idle and before MakeSnapshot, so their own stats/items/slots at
+  K2/K3(d). slow_tick_basis.csv independently records GetForecastStatValue at that refresh point; it must
+  equal the snapshot-derived stats and is never used as the recomputation input.
 
 Bit for bit (not R2's approximation: slots and evolved flags are exported). ``k2_lag_discriminating`` counts the
 day snapshots whose caches differ between K2(d-1) and K2(d): when it is 0 (no flat damage/defence stat yet, as on
@@ -45,12 +45,12 @@ def item_entries(s: Snap, env: Env, c: Check | None = None) -> list:
     return out
 
 
-def recompute(s: Snap, env: Env, k_day: int, c: Check | None = None) -> tuple[list, list]:
+def recompute(s: Snap, env: Env, k_day: int, c: Check | None = None, *, stats=None) -> tuple[list, list]:
     """(DpsData, DefenseData) of snapshot ``s`` with the stats at K(k_day) and the coefficient at its day."""
     weapons, armors = s.slots
     if weapons is None or armors is None:
         raise ValueError(f"{s.list}[{s.index}]: snapshots_ext has no slot counts")
-    stats = forecast_stats(s.snapshot, env, k_day)
+    stats = forecast_stats(s.snapshot, env, k_day) if stats is None else stats
     items = item_entries(s, env, c)
     return (sc.calculate_dps_data(env.ctx, stats, items, int(weapons), s.tc),
             sc.calculate_defense_data(env.ctx, stats, items, int(armors), s.tc))
@@ -95,6 +95,21 @@ def check_x2(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
                      (st.value * (1.0 + k2 if st.key in MAIN_INTERPOLATION_STATS else 1.0))
                      * (k3 if st.key in DIRECT_INTERPOLATION_STATS else 1.0))
             for st in s.snapshot.stats))
+        basis = None if is_forced else s.slow_tick_basis
+        requires_basis = "slow_tick_basis.csv" in ((run.manifest.get("export") or {}).get("files") or {}) or (clears or 0) > 0
+        if not is_forced and requires_basis:
+            expected_keys = {st.key for st in s.snapshot.stats}
+            if basis is None or set(basis) != expected_keys:
+                c.item(False, list=s.list, index=s.index, time_chunk_index=s.tc, case=case, k_day=k_day,
+                       kind="cache_basis", weapon_type="", csharp=str(sorted(basis or {})),
+                       oracle=str(sorted(expected_keys)), rel_diff="")
+                continue
+        if basis is not None:
+            own = forecast_stats(s.snapshot, env, k_day)
+            for key in sorted(own):
+                c.item(same(basis[key], own[key]), list=s.list, index=s.index, time_chunk_index=s.tc,
+                       case=case, k_day=k_day, kind="cache_basis", weapon_type=str(key),
+                       csharp=num(basis[key]), oracle=num(own[key]), rel_diff=num(rel_diff(basis[key], own[key])))
         dps, defense = recompute(s, env, k_day, c)
         ok = _compare(c, run, s, case, k_day, dps, list(s.snapshot.dps_data), "DpsData")
         ok &= _compare(c, run, s, case, k_day, defense, list(s.snapshot.defense_data), "DefenseData")

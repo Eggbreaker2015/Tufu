@@ -93,3 +93,7 @@ python -m tufu_balance.unity spawner-map [--out CSV]     # scene,file_id,path,ke
 - `rebuild_coverage.json` 不在本单元范围内（没有写）。
 - 改了 C0b 的文件（7.4 的交接，由 Z1 记进设计稿）：`launcher.py`、`request.py`（`"auto"` 就绪表，C0b 遗留 a）、`SimulationJson.cs`（JSON 数值带 `.0`，遗留 b）、`SimulationHarness.cs`（manifest 的 `expected_table.path` 按请求写的名字记录；`StartJob` 里调 `SimulationExport.ResetRecorder()`）、`__main__.py`（`ingest`、`spawner-map` 两个命令）、`tests/test_unity_launcher.py`（假运行不受主检出上打开的编辑器影响）、`tests/unity/test_sandbox.py`（`test_ab_groups_fixed_to_the_request` 现在期望 `expected_table` 为 checked、716 个比较、0 个不符；`test_request_round_trip_through_csharp` 按类型严格比较）、Runbook 第 10、14 节。
 - `selftest` 现在也需要抽取好的数据库（见 Runbook 第 10 节）。
+
+## 9. X2fix 慢 Tick 缓存输入
+
+新增加法旁路文件 `slow_tick_basis.csv`（沿用 export/1），随 `simulation_data` + `snapshots_ext` 开关写出，表头 `list,index,stat,value_hex`。仅为早期列表的非强制快照记录 战斗/空闲后、快照到期刷新缓存时全部 `GetForecastStatValue` 的 double 位值；强制快照与随包探针没有此记录。`value_hex` 为小写 16 位 IEEE binary64 十六进制，manifest 校验文件 SHA256、字节和行数；Python 严格校验 hex 后保留字符串落入 `sim_slow_tick_basis`，X2 按位解码并与快照自身重算的 forecast 属性额外比较。每作业清空 recorder 和当前 basis；Tick 的 MakeSnapshot 后立即清空 basis，避免探针路径复用过期数据。记录点及随包开局与引擎顺序的差异见 [CrossCheck.md](CrossCheck.md) 第 9 节。现有快照/CSV 结构及请求不变。
