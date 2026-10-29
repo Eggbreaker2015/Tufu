@@ -118,3 +118,25 @@ Unity 运行：提交 `b9884ae`（C# 与最终提交相同，之后只改 Python
 ### 9.2 范围及验证
 
 本集成修复按任务授权改 C1 的导出/schema、P11 的输入/比较器及 C3b 的 `.Run.cs`/`.Snapshot.cs` 记录点，跨所有权原因就是原导出缺少缓存输入，交 Z1 补入 7.4。不改 Design.md，不新增 SimulationSystem 成员、参数或请求字段。故障测试分别把 basis 换成前一 Tick、战后属性、前一张快照、缺失记录、不完整记录以及单独错误的防御属性，必须失败；另测 IEEE 值（含负零）导入、重复键及非法 hex。原有 P11 测试与黄金基线保持不变。
+
+### 9.3 X2fix 验收记录
+
+运行 C# 提交 `dc7d0024e0a962e8eb925aba4c9ee19322b58159`，之后只改本节和新 Unity 测试的检查范围。命令均在本单元 `Balance/` 下，用集成工作树的 `.venv/bin/python`，`TUFU_BALANCE_DB=/Users/joyfort/MyProjects/Tufu-stage5/Balance/out/balance.sqlite`（只读）。
+
+| 项 | 结果与命令 |
+|---|---|
+| refresh level 1 的等价链路 | `python -m tufu_balance.unity run --preset smoke-11` 后跑 `python -m tufu_balance.crosscheck JOB_DIR`，两者退出 0。运行 key `909e17a2321df94b5b58f261d528d357840350c57c26b53ed208ff36ea6dc40c`，Unity 38.40 秒；X2 690 项、0 不符 |
+| 当前完整策略 405 天 | `python -m tufu_balance.unity run --preset golden-405`，key `376877171e977642dabc4603f8e33517f026485d0d02b9c911f27bb2748e940c`，Unity 22.40 秒；两个预设目录一起跑 crosscheck CLI 退出 0，X2 4630 项、0 不符。X2 都仅有原来的 `forecast_order` vacuous |
+| 引擎行为及其它检查不变 | 启动器在基线 `6dbd753` 跑两个相同默认作业，key `ac1139c114721f74140ab4b4f171828224b9e4043f4338c1c165346c40456ff0`，33.36 秒。每个作业的 `simulation_data.json`、`timechunk_full.json`、`snapshots_ext.csv`、`items_ext.csv`、`daily.csv`、`events.jsonl`、`digests.csv`、`ready_spawners.csv` **8 个旧文件逐字节相同**；X1/X3–X7/DP8 的完整检查摘要相同。原版 X2 75 不符 → 新 X2 0，vacuous 完全相同。复核脚本及 JSON 在 `out/x2fix/compare_before.py`、`before_after.json` |
+| basis 导出、导入及埋错 | `TUFU_UNITY_REV=dc7d002 pytest --unity -q tests/unity/test_x2_cache_basis.py`：2 通过（缓存复用，总 24.56 秒）；每个完整策略作业有 53 张慢 Tick 快照、1590 行 basis，`sim_slow_tick_basis` 行数相同。替换为战后属性报 75 项，移到同日上一张慢 Tick 记录报 170 项；前一 Tick/缺失/不完整/防御独立埋错另由非 Unity 测试覆盖。运行 key `3108d7999d26957c997f345c22aba9fe451c6cb131022d8c1f16dc5b1c82190f`，Unity 27.15 秒，两个作业 0.230/6.605 秒 |
+| P11 原有 Unity 测试及黄金 | `pytest --unity -q tests/unity/test_run_crosscheck.py`：6 通过，70.05 秒（Unity 49.48 秒）；key `79d3ab396bd7f3b53fa1de1ccca3cc96dfd463472f17ce6fb05632cd9decbcda`。空策略 smoke/golden X2 800/4740 项；DP8 仍 328626 字段逐位相同。所有黄金文件未改、未重新接受 |
+| 全仓 | `pytest -q`：862 通过、278 跳过，216.53 秒（Unity 默认跳过，perf 可因负载跳过）；`pytest -q tests/test_crosscheck.py tests/test_simio.py --disable-warnings`：56 通过，5.43 秒；另有 request round-trip 的聚焦回归通过 |
+| C#、夹具、守卫 | `python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-X2fix`：两种编译 0 错误、无新 no-editor 警告、签名 0、禁用 API 0，2.3 秒；`python tests/golden/fixtures/generate.py --check`：identical；`python -m tufu_balance.golden guard`：19 套件、0 违规 |
+
+五次 Unity 启动均退出 0，`guard_problems = []`，各作业都有 `asset_guard.json`；没有改真实场景/资产，没有新 Unity 编译错误。运行工作树的干净状态由启动器结束检查确认。
+
+### 9.4 额外发现：X6 的摘要奖励总量
+
+为更广地检查，用 `digest_text = true, bake_report = true` 跑同样的完整策略（上表 `3108d799…`）。X1–X5、X7 都通过；X4 为 717/717；X2 仍 690/4630 项全同。**golden-405 的 X6 有 47 个晚期 Value 奖励累加项超出其相对 1e-6 容差**，最早是 day 359 Health：记录值 `77020244.0`，按摘要累加的预言机值 `77020322.0`，相对差约 1.01e-6。这次完整检查 CLI 因 X6 退出 1，不能称为整套通过。
+
+此问题独立于 X2fix：额外输出开关不改变 `simulation_data.json`、`timechunk_full.json`、`daily.csv`、`digests.csv`（与默认预设逐字节相同），这些文件又与 `6dbd753` 基线相同；X6 代码未改。默认预设没有摘要文本，仍按原规则把 `values/charges` 等部分记为 vacuous，因此其完整 crosscheck CLI 退出 0；这些 vacuous 与修复前完全相同，X2fix 没有增加任何跳过。新增 Unity 测试专门检查 X2，不把这个独立 X6 缺陷误当成本单元回归。交 **P11/Z1** 调查奖励累加的实际 float 存储路径；本单元没有放宽 X6 容差或改任何黄金值。带更多输出的 smoke-11 全套仍通过。

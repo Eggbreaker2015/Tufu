@@ -26,7 +26,7 @@ def test_full_policy_x2_cache_basis_and_planted_faults(full_policy_run, db, job)
     job_dir = full_policy_run.run_dir / job
     run = X.load_run(job_dir)
     assert not run.null_policy and run.trace and sum(int(r["clears"]) for r in run.trace.daily) > 0
-    rs = X.run_checks(job_dir, db)
+    rs = X.run_checks(job_dir, db, checks=("X2",))
     assert all(r.status != "fail" for r in rs.values()), {k: r.examples for k, r in rs.items()}
     r = rs["X2"]
     assert r.status == "pass" and r.mismatches == 0
