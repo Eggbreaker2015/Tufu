@@ -54,16 +54,18 @@ def plan(level: int, out: Path, *, rev="HEAD", python=sys.executable):
 
 
 def shard_nodes(nodes, workers):
-    """Keep expensive module fixtures together; split the two fake-editor wait-heavy modules."""
+    """Keep compile fixtures together; split long formula and fake-editor modules."""
     modules = defaultdict(list)
     for node in nodes:
         modules[node.split("::", 1)[0]].append(node)
     batches = []
     for module, tests in modules.items():
-        count = min(2, workers) if Path(module).stem in ("test_unity_launcher", "test_params_import") else 1
+        count = min(2, workers) if Path(module).stem in (
+            "test_unity_launcher", "test_params_import", "test_params_hash", "test_pipeline") else 1
         batches.extend(tests[i::count] for i in range(count) if tests[i::count])
     # Start external-process waits and the second extraction early instead of leaving a long tail.
-    early = ("test_unity_launcher", "test_params_import", "test_extract_keydata", "test_cscheck")
+    early = ("test_pipeline", "test_unity_launcher", "test_params_import", "test_params_hash",
+             "test_extract_keydata", "test_cscheck")
     def priority(tests):
         module = Path(tests[0].split("::", 1)[0]).stem
         return (early.index(module) if module in early else len(early), -len(tests), tests[0])
@@ -231,7 +233,8 @@ def baseline(out, name):
     root = BALANCE / "tests/golden/current/sim_run"
     per_preset = any((root / preset).is_dir() for preset in ("smoke-11", "golden-405"))
     source = root / name if per_preset else root
-    files = sorted(source.rglob("*.csv")) if source.exists() else []
+    # Design 3.2's flat layout contains the full 405-day run, not an 11-day baseline.
+    files = sorted(source.rglob("*.csv")) if source.exists() and (per_preset or name == "golden-405") else []
     differences = []
     for f in files:
         rel = f.relative_to(source)

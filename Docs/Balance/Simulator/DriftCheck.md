@@ -56,7 +56,35 @@ python -m tufu_balance.refresh --level 2 --rev HEAD
 
 1. 6.8 的抽取、graph 和 render_catalog 产物写入刷新私有目录，不覆盖 `out/balance.sqlite`，也不改 Z1 所有的文档。后续检查通过 `TUFU_BALANCE_DB` 使用刚抽取的私有库，共享只读库不打开为可写。LFS 场景通过 `git lfs smudge` 从本工作树的对象生成到私有 assets 覆盖层，其余文件只读链接；不读运行工作树的资产，不依赖运行车道当前检出哪个并行单元。
 2. 2.8 的 cscheck 在 6.8 的步骤表中遗漏，已纳入 L0。验收按 7.3 更严格的 60 秒预算记录（2.8 表为 90 秒）。
-3. 当前没有 K3 的 `tests/golden/current/sim_run/*.csv`；刷新明确报告 0 个模拟 CSV 基线，而非声称已比较。已有静态与 differential 套件仍严格比较 CURRENT。K3/Z1 提供 CSV 后自动逐字节检查；支持 `sim_run/<preset>/`，也兼容 3.2 的平铺布局。
+3. 当前没有 K3 的 `tests/golden/current/sim_run/*.csv`；刷新明确报告 0 个模拟 CSV 基线，而非声称已比较。已有静态与 differential 套件仍严格比较 CURRENT。K3/Z1 提供 CSV 后自动逐字节检查；支持 `sim_run/<preset>/`，golden-405 也兼容 3.2 的平铺布局（405 天基线不能当作 11 天基线）。
 4. `unity probe` 尚无独立 CLI 子命令；使用 C2 已有的 `pytest --unity tests/unity/test_differential.py -m unity`，会通过 launcher 真正运行编辑和 Play 探针并严格比较当前基线，避免重复启动。未新增该命令或跨单元修改 unity/__main__.py。
 5. L2 的全部 Unity 测试包含故意失败的守卫测试；若主检出的用户编辑器正在改真实存档，按 Runbook 的归属规则可能失败，P13 不操作该编辑器。P13 只要求实际验收 L1；L2 的计划及失败传播有单元测试，未声称已实际通过 L2。
-6. 原样串行运行完整静态 pytest，实测 162 秒，整次 L0 为 178 秒（888 通过、5 个 perf 跳过）。因此 L0 先用 `pytest --collect-only -m 'not unity'` 收集完整节点，再按模块分批交给最多六个独立 pytest 进程；每个节点恰好执行一次，不排除 slow 测试。耗时的模块夹具集中在同一进程，只有两个等待假编辑器的测试模块拆成两批，以免重复 C# 编译夹具。各进程使用隔离临时目录，共用一个 `TUFU_GOLDEN_RUN`，P1 的文件锁负责同套件结果合并。无需 xdist 或新增环境依赖。该实现是对原设计单进程命令的性能调整，不缩减检查集合；最终仍另跑完整串行 `pytest -q`。
+6. 原样串行运行完整静态 pytest，实测 162 秒，整次 L0 为 178 秒（888 通过、5 个 perf 跳过）。因此 L0 先用 `pytest --collect-only -m 'not unity'` 收集完整节点，再按模块分批交给最多六个独立 pytest 进程；每个节点恰好执行一次，不排除 slow 测试。C# 编译夹具集中在同一进程，等待假编辑器的两个模块、参数加载及静态流水线模块各拆成两批。各进程使用隔离临时目录，共用一个 `TUFU_GOLDEN_RUN`，P1 的文件锁负责同套件结果合并。无需 xdist 或新增环境依赖。该实现是对原设计单进程命令的性能调整，不缩减检查集合；最终仍另跑完整串行 `pytest -q`。
+
+## 验收记录
+
+命令均在本单元 `Balance/` 下，用 `/Users/joyfort/MyProjects/Tufu-stage5/Balance/.venv/bin/python`，常规回归的 `TUFU_BALANCE_DB` 指向共享只读库；refresh 自行生成并使用私有库。Unity 验收提交为 `aa29634`，后续仅调整 Python 的测试调度、CSV 基线选择和本说明，C# 及配置资产与此提交相同。
+
+| 验收项 | 结果与证据 |
+|---|---|
+| 临时 git 历史的文件/行段命中、../ 与无法解析引用 | PASS：`pytest tests/test_drift.py tests/test_refresh.py` 对应 32 个测试全部在完整回归里运行；含插入边界、删除、重命名、暂存/未暂存/未跟踪文件、逗号区间 |
+| 宠物分支计数 | PASS：`drift --repo /Users/joyfort/MyProjects/Tufu-stage5 --head 72d5640 --out out/drift/pets-design` 为 105/41；`--head feature/pet-system --out out/drift/pets-tip` 为 132/48；两个签名锁均 0 违规 |
+| 签名改动检测 | PASS：临时 C# 副本注入公开成员 `P13SignatureViolation`，实际调用 P0 CLI 返回 1，检出访问级别和命名前缀两项违规；正式工作树 0 违规 |
+| L0 dry-run | PASS：`refresh --level 0 --dry-run` 列出 8 步；单元测试确认各级完整计划以及不创建目录 |
+| L0 实际 ≤60秒 | PASS：`refresh --level 0 --out out/refresh/accept-l0-final` 退出 0，59.646 秒；抽取 10.21 秒、pytest 45.27 秒（含收集/调度）、cscheck 2.27 秒、drift 1.62 秒；897 个非 Unity 节点全部分配一次，892 通过、5 个 perf 跳过 |
+| L1 实际跑通 | FAIL（集成问题）：`refresh --level 1 --rev aa29634 --out out/refresh/accept-l1` 实际执行，137.114 秒后在 X2 返回 1；编辑/Play 差分探针 14 通过（30.40 秒 pytest / 30.84 秒步骤），smoke-11 Unity 退出 0（16.31 秒步骤），导入退出 0 |
+| 失败传播、CURRENT 不变 | PASS：进程失败、缺失可执行文件和 CURRENT 意外改动的故障注入均非零；上述实际 L0/L1 的 `summary.json` 均记 `current_unchanged = true`；无 accept/rebaseline/write-back 命令 |
+| 完整 cscheck | PASS：双编译 0 错误；警告 3707/8（既有基线）；无 UNITY_EDITOR 编译 0 新错误；签名 0、禁用 API 0，工具耗时 2.2 秒 |
+| 黄金守卫 | PASS：`python -m tufu_balance.golden guard`，19 个套件、0 违规 |
+| 最终完整串行回归 | PASS：`python -m pytest -q --durations=10 --basetemp out/pytest-final`，891 通过、276 跳过（270 个 Unity、6 个 perf），169.80 秒；无失败 |
+| 冻结夹具与共享库 | PASS：`python tests/golden/fixtures/generate.py --check` 输出 `identical`（另有既有的 provenance 提示）；共享库仍为 444，SHA-256 `a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098` |
+
+### L1 的明确阻塞及后续交接
+
+真实 smoke-11 作业位于 `out/sim/runs/eb20666bfdbec38df0870df3e95e63898ae2971519efb3f584d404adf0ff0539/smoke-11/`，诊断为其中的 `crosscheck/X2.csv` 与 `crosscheck/summary.json`。X1 8280 项、X3/X7 各 360 项、X5 11 项、X6 152 项，均 0 不符；X4 因此预设未打开 bake_report 而明确 vacuous。X2 690 项里有 75 项不符，全部是 `Snapshots` 的 `slow_tick` 的 `DpsData`，涉及 15 个快照、每个五种伤害类型；没有天快照或 DefenseData 不符，也没有导出文本摘要缺陷。
+
+例如 `Snapshots[1]` 的 Cutting DPS：C# `9.23076956935184`，由同一快照属性重算为 `10.000000366797828`。现有 `Tick` 的顺序是 `CalculateSimulationData` → 战斗/奖励 → `MakeSnapshot`，且此集成点的 `ProcessInventory` 仍为空；这个模式与战前缓存、战后属性一起入快照的解释一致，但应由 C3b/C6/K3/P11 核对缓存的预期语义，不能仅凭此断言 C6 一定修复。P13 未修改引擎或交叉检查，未把完整策略换成 null_policy，未放宽 X2，也未接受新基线。
+
+启动器的两个成功运行都通过沙箱/资产守卫。smoke 作业 `after_job.ok = true`、`not_restored = []`、`changed_on_disk = []`；通过 `unity status` 确认运行工作树 `clean = true`，锁为空，无 Unity 进程或常驻服务。本轮失败是 Python X2 检查，不是用户主编辑器活动导致的真实存档守卫失败。
+
+Z1 应把上述性能实现差异、宠物分支移动及 L1 阻塞折回设计；K3 提供按预设分目录的模拟 CSV 基线（或平铺 golden-405 基线）后，再运行 L1/L2。L2 仅做了计划/失败传播测试，本单元没有实际验收 L2。
