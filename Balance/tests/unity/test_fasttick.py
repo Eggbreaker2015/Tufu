@@ -295,7 +295,18 @@ def test_flush_adds_one_merged_modifier_per_stat_per_day(run, shipped):
     for job in ("fast-405", "free-405"):
         for d in _days(run, job):
             assert d.flush_stat_modifiers == len(d.stats), (job, d.day)
-    last = {s["Key"]: s["Value"] for s in _full(run, "fast-405")[-1]["Stats"]}
+    # The free path exposes actual post-flush Values without teacher forcing.
+    free = {s["TimeChunkIndex"]: {st["Key"]: st["Value"] for st in s["Stats"]}
+            for s in _full(run, "free-405")}
+    for d in _days(run, "free-405"):
+        for k, value in free[d.day].items():
+            assert free[d.day+1][k] == pytest.approx(value + float(np.float32(d.stats.get(k, 0))),
+                                                    rel=1e-12, abs=1e-8), (d.day, k)
+    # Stored replay now overrides before the forced snapshot; reconstruct the actual last
+    # flush from its reward ledger instead of checking the injected TC405 reference state.
+    before = next(r for r in ov.read_days(run.file("fast-405", ov.DAYS_FILE).decode()) if r.day == LAST-1)
+    reward = _days(run, "fast-405")[-1]
+    last = {k: value + float(np.float32(reward.stats.get(k, 0))) for k, (value, _, _) in before.stats.items()}
     ref = {st.key: st.value for st in shipped[-1].stats}
     assert _full(run, "fast-405")[-1]["TimeChunkIndex"] == shipped[-1].time_chunk_index == LAST
     rel = {StatType(k).name: abs(last[k] - v) / abs(v) for k, v in ref.items() if v}
