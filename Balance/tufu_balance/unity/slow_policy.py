@@ -59,7 +59,7 @@ PRIORITY_FAMILY = {"Static": 0, "Dynamic": 1}
 TIME_MODEL = {"FarmedTime": 0, "FarmedTimeMoveByDistance": 1, "Decomposed": 2, "DecomposedMoveByDistance": 3}
 SLOW_LETHALITY_GATE = {"SameAsFast": 0, "CurrentHealth": 1, "None": 2}
 DEATH_POLICY = {"SkipSpawner": 0, "Retry": 1, "ClearThenRespawn": 2}
-STAT_BENEFIT_MODEL = {"Constant": 0, "MarginalKillTime": 1}
+STAT_BENEFIT_MODEL = {"Constant": 0, "MarginalKillTime": 1, "RpmNormalized": 2}
 ENUMS = {"PriorityFamily": PRIORITY_FAMILY, "TimeModel": TIME_MODEL, "SlowLethalityGate": SLOW_LETHALITY_GATE,
          "DeathPolicy": DEATH_POLICY, "StatBenefitModel": STAT_BENEFIT_MODEL}
 
