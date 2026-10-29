@@ -1,0 +1,26 @@
+{
+  "ActiveMinutesModel": "NnTour",
+  "CMove": 1.0,
+  "CRegen": 1.0,
+  "DayChangeInventoryOrder": "StatsThenItems",
+  "DeathPolicy": "SkipSpawner",
+  "DpsCacheProvenance": "RpmFirst",
+  "EmissionModel": "Chain",
+  "EvolutionTrigger": "Timed",
+  "Kappa": 0.2564409673213959,
+  "KillState": "StartOfDay",
+  "PreferredMapping": "Swapped",
+  "PriorityFamily": "Dynamic",
+  "SlotRpmOrder": "SlotBeforeRpm",
+  "SlowLethalityGate": "SameAsFast",
+  "SmartPath": true,
+  "TimeModel": "FarmedTimeMoveByDistance",
+  "TourA": 1.0133730173110962,
+  "TourB": 0.7881690859794617,
+  "Tours": 3,
+  "WeaponSlotUnlockLocations": [
+    4,
+    8
+  ],
+  "_stage": "K3 full validation; baseline selected, see Calibration.md"
+}
