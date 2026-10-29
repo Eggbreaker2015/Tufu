@@ -72,7 +72,8 @@ def test_job_outputs_ingest_and_validate(export_run):
     schema.validate_manifest(m)
     export = m["export"]
     assert set(export["files"]) == {"simulation_data.json", "timechunk_full.json", "snapshots_ext.csv", "items_ext.csv",
-                                    SHIPPED, *SHIPPED_SIDE}
+                                    SHIPPED, *SHIPPED_SIDE, "slow_tick_basis.csv"}
+    assert export["files"]["slow_tick_basis.csv"]["rows"] == 0
     assert export["snapshots"] == 0 and export["time_chunk_snapshots_full"] == 0 and export["problems"] == []
     assert export["trim_simulation_data"] is False
     assert export["time_chunk_trim"] == "GetTrimmedTimeChunkSnapshots"  # filled by C3b (an empty list here)

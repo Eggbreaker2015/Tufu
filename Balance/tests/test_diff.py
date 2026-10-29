@@ -387,3 +387,21 @@ def test_readiness_request_is_independent_of_output_location(cached_sim, cfg, tm
     first = dict(cached_sim.driver.template["sandbox"])
     run(cfg, cached_sim.patch, driver=cached_sim.driver, out_root=tmp_path / "different-checkout" / "sim")
     assert cached_sim.driver.template["sandbox"] == first
+
+
+@pytest.mark.parametrize("kind", ["batch", "serve"])
+def test_supplied_driver_forwards_config_readiness_db(cached_sim, cfg, monkeypatch, kind):
+    from tufu_balance.calibrate import driver as D
+    from tufu_balance.unity import launcher
+
+    calls = []
+    monkeypatch.delenv("TUFU_BALANCE_DB", raising=False)
+    monkeypatch.setattr(launcher, "run", lambda request, **kw: calls.append(kw))
+    monkeypatch.setattr(launcher, "serve_submit", lambda request, **kw: calls.append(kw))
+    monkeypatch.setattr(launcher, "serve_status", lambda **kw: {"running": True, "code_rev": "test"})
+    backend = D.BatchBackend() if kind == "batch" else D.ServeBackend()
+    cached_sim.driver.backend = backend
+    cached_sim.run()
+    assert backend.readiness_db == C.source_path(cfg)
+    backend.submit(cached_sim.driver.template)
+    assert calls[0]["readiness_db"] == C.source_path(cfg)

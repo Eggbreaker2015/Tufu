@@ -30,7 +30,7 @@ def jobs(db):
     def job(name, params=None, day=405, mode="replay", override=base, **kw):
         return ft.fast_job(name, mode, override=override if mode != "free" else None,
                            params=params, day=day, max_wall_seconds=600.0,
-                           outputs={"inventory": True}, **kw)
+                           outputs={"inventory": True, "digest_text": name == "inventory-free"}, **kw)
     return [
         job("chain-swapped", spawner_days=True),
         job("chain-direct", {"PreferredMapping": "Direct"}),
@@ -354,3 +354,15 @@ def test_comparisons_use_only_discriminating_days_and_late_plateau(run, series, 
     errors = [abs(count / charges - expected[group]) / expected[group] for group, (count, charges) in plateau.items()]
     freeze("t12.late_per_charge", measured, "T12 post-hoc TC206-404, nonpreferred/preferred by legendary")
     _frozen["t12.late_plateau_rel"] = at_most(max(errors), source="T12 post-hoc 2.50/4.30 and 2.80/4.60", original=.02)
+
+
+def test_inventory_free_crosscheck_includes_slow_item_grants(run, db):
+    from tufu_balance import crosscheck as X
+
+    rewards = inv(run, "inventory-free")["rewards"]
+    assert any(r["phase"] == "slow" and r["copies"] > 0 for r in rewards)
+    results = X.run_checks(run.job_dir("inventory-free"), db,
+                           checks=("X1", "X2", "X3", "X4", "X5", "X6", "X7"))
+    assert results["X2"].status == "pass" and results["X2"].items > 0
+    assert results["X2"].counts["snapshots_slow_tick"] > 0
+    assert all(r.status != "fail" for r in results.values()), {k: r.examples for k, r in results.items()}

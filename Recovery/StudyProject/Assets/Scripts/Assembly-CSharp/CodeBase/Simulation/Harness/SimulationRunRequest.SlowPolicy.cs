@@ -15,6 +15,7 @@ namespace Codebase.Simulation.Harness
 		{
 			// At the run's first FindBestSpawner: the selection on the live spawnerData with equal priorities, with
 			// nothing allowed and with nothing eligible (event slow_policy_probe); the run continues unchanged.
+			// Also emit candidate costs on every eligible-boss tick (slow_selection).
 			[JsonProperty("selection")] public bool Selection;
 		}
 	}

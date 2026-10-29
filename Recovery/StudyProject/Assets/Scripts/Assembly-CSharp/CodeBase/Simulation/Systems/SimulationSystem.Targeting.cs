@@ -7,6 +7,8 @@ using Codebase.Player.Inventory;
 using Codebase.Simulation.Harness;
 using Codebase.Simulation.Rebuild;
 using Codebase.Unit;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Codebase.Simulation.Systems
@@ -224,6 +226,19 @@ namespace Codebase.Simulation.Systems
 			if (currentBoss == null || !spawnerData.TryGetValue(currentBoss, out SpawnerData boss)) return;
 			bool allowed = RebuildSlowAllowed(state, boss);
 			RebuildCount(!allowed ? "slow_boss_refused" : best == boss ? "slow_boss_chosen" : "slow_boss_allowed_not_chosen");
+			if (SimulationHarness.CurrentJob?.SlowPolicy?.Selection == true)
+			{
+				var candidates = new JArray();
+				foreach (SpawnerData data in spawnerData.Values)
+					candidates.Add(new JObject { ["spawner"] = RebuildTraceId(data.spawner),
+						["farmed_time"] = data.farmedTime, ["av_move_time"] = data.avMoveTime,
+						["distance_time"] = data.GetMoveTime(currentPosition), ["loss"] = -data.healthDelta,
+						["skipped"] = RebuildSlowSkipped(state).Contains(data.spawner) });
+				RebuildTraceEvent("slow_selection", ("boss", RebuildTraceId(currentBoss)), ("best", RebuildTraceId(best?.spawner)),
+					("max_health", GetForecastStatValue(StatType.Health)), ("current_health", playerModel.Unit.CurrentHealth),
+					("kill_loss_multiplier", SimulationSlowPolicyState.KillLossMultiplier(RebuildParams)),
+					("candidates", candidates.ToString(Formatting.None)));
+			}
 			if (state.GateEventSession == lifeCycleIndex && state.GateEventBoss == currentBoss) return;
 			state.GateEventSession = lifeCycleIndex;
 			state.GateEventBoss = currentBoss;

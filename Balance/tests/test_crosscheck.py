@@ -507,3 +507,22 @@ def test_x6_rounds_each_modifier_write_and_keeps_double_base(env, shipped):
     days[2].snapshot.stats[days[2].snapshot.stats.index(next(x for x in days[2].snapshot.stats if x.key == 8))] = st
     run.trace.events.pop()
     assert check().status == "fail"
+
+
+@pytest.mark.parametrize("pending", [0.0, 1.0, 1e-300])
+@pytest.mark.parametrize("clears", [0, 1])
+def test_x6_rejects_pending_fast_rewards_at_forced_snapshots(env, shipped, pending, clears):
+    base = invariants.base_values(env)
+    snap = shipped.time_chunk_snapshots[0]
+    snap = replace(snap, stats=[replace(st, value=base.get(st.key, 0.0)) for st in snap.stats])
+    run = _run([], _snaps("TimeChunkSnapshots", [snap]))
+    run.manifest["engine"]["counters"]["clears"] = clears
+    run.digests = {0: {"fast.stat.8": "Devoured,0,0," + probes.dhex(pending)}}
+    c = X.Check("X6", "values", invariants.COLUMNS)
+    invariants._values(c, run, env)
+    result = c.result()
+    assert result.mismatches == int(pending != 0.0)
+    assert result.status == ("fail" if pending else "pass")
+    if pending:
+        assert result.examples[0]["where"] == "day 0 fast.stat.8"
+        assert result.examples[0]["detail"] == "forced snapshot follows fast reward flush"

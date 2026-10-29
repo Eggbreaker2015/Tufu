@@ -1,7 +1,7 @@
 """The fast phase in Unity (design 4.4, 4.5, 5.1 T04/T05/T07/T08, 5.2 P01/P04, 7.3 C5).
 
 Open loop: ``replay`` + ``stored`` from day 4 to 405 with the survey's initial parameters (the slow phase runs the
-policy the tree holds; until C7 that farms nothing, so islands 2 and 3 open on day 4 through their gates). Expected
+merged slow policy; island 2 opens before the fast phase). Expected
 values come from the shipped data, the frozen fixture ``forensics_killdays.json`` and the Python oracle
 (``model.simcalc``); the per-day records are ``fasttick_days.jsonl`` and ``spawner_days.csv.gz``.
 """
@@ -98,6 +98,14 @@ def _rows(result, job):
 
 def _events(result, job):
     return trace.read(result.job_dir(job)).events
+
+
+def _unlock_phases(result, job):
+    start = result.manifest(job)["job"].get("config_overrides", {}).get("FastTickStartChunkOffset", 4)
+    unlocks = S.unlock_days(_events(result, job))
+    fast = {n: d for n, d in unlocks.items() if d >= start}
+    slow = {n: d for n, d in unlocks.items() if d < start}
+    return fast, slow
 
 
 def _results(result, job, shipped):
@@ -208,7 +216,8 @@ def test_same_day_new_island_planning(run, shipped, fixture):
     assert len(nxt) > same
     nd = _days(run, "fast-405-nextday")
     assert all(not d.round_unlocks and len(d.rounds) == 1 for d in nd)
-    assert sum(len(d.flush_unlocks) for d in nd) == 16
+    fast, _ = _unlock_phases(run, "fast-405-nextday")
+    assert {n for d in nd for n in d.flush_unlocks} == set(fast)
     check(SUITE, {"t05.next_day_bad": exact(len(nxt), source="design 4.5 same-day planning", note="survey ~14/41"),
                   "t05.next_day_bad_spans": exact([[r.a, r.b] for r in nxt], source="design 4.5")})
 
@@ -245,17 +254,21 @@ def test_diagnostic_switches(run, shipped, fixture):
 
 def test_accumulation_writes_all_five_fields(run, ident):
     """AccumulateFastTickSpawnerRewards writes the stat, item, soul, gate and kill fields; the flush reads and empties
-    them. Items: the expected copies are C6's (zero until filled), so the item path is counted, not stored."""
+    them. C6 supplies positive expected copies, which must reach the accumulated item field."""
     days = _days(run, "fast-405")
     assert all(d.stats for d in days) and any(d.souls for d in days)
     assert all(d.kill_count == d.kills for d in days)
     nd = _days(run, "fast-405-nextday")
-    assert any(d.gate_spawners for d in nd) and sum(len(d.flush_unlocks) for d in nd) == 16
+    assert any(d.gate_spawners for d in nd)
+    fast, _ = _unlock_phases(run, "fast-405-nextday")
+    assert {n for d in nd for n in d.flush_unlocks} == set(fast)
     rows = _rows(run, "fast-405")
     _, defs = ident
     item_clears = sum(1 for r in rows if r.fights and defs[r.spawner].item_reward)
     counters = run.manifest("fast-405")["engine"]["counters"]
-    assert item_clears > 0 and counters.get("fast_item_rewards_zero", 0) == item_clears
+    assert item_clears > 0 and counters.get("fast_item_rewards_zero", 0) == 0
+    assert any(d.items for d in days)
+    assert all(copies > 0 for d in days for copies in d.items.values())
     assert "fast_stat_reward_mixed" not in counters
     assert counters["fast_kills_flushed"] == sum(d.kills for d in days)
     assert counters["accumulate_calls"] == sum(1 for r in rows if r.fights)
@@ -263,13 +276,15 @@ def test_accumulation_writes_all_five_fields(run, ident):
 
 
 def test_gates_unlock_once_per_island_through_the_two_flushes(run):
-    """Islands open only through RebuildFlushFastTickGates (between rounds) or FlushFastTickChunkRewards, each once."""
+    """Fast-phase islands open through the two flushes; slow-phase islands and the total remain counted once."""
     for job in ("fast-405", "fast-405-nextday"):
         days = _days(run, job)
         unlocks = S.unlock_days(_events(run, job))
         assert sorted(unlocks) == list(range(2, 18)), job
         by_flush = {n: d.day for d in days for n in d.round_unlocks + d.flush_unlocks}
-        assert by_flush == unlocks, job
+        fast, slow = _unlock_phases(run, job)
+        assert by_flush == fast, job
+        assert all(d < 4 for d in slow.values()), job
         counters = run.manifest(job)["engine"]["counters"]
         assert counters["unlocks"] == 16 and "repeat_unlocks" not in counters, job
 

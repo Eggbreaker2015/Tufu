@@ -22,6 +22,7 @@ import dataclasses
 import json
 import re
 import shutil
+import struct
 import subprocess
 import time
 from pathlib import Path
@@ -128,7 +129,7 @@ def asset_script_guid(script: str | Path | None = None) -> str:
     return m.group(1)
 
 
-def _yaml_scalar(value: Any, base: str, cs: cparams.CsParams) -> str:
+def _yaml_scalar(value: Any, base: str, cs: cparams.CsParams, unity_saved: bool = False) -> str:
     if value is None:
         return ""
     if base == "bool":
@@ -138,12 +139,18 @@ def _yaml_scalar(value: Any, base: str, cs: cparams.CsParams) -> str:
         return text[:-2] if text.endswith(".0") else text
     if base == "string":
         return "'" + str(value).replace("'", "''") + "'" if value != "" else "''"
-    return str(int(value)) if base in ("int", "long") or base in cs.enums else repr(float(value))
+    if base in ("int", "long") or base in cs.enums:
+        return str(int(value))
+    text = repr(float(value))
+    return text[:-2] if unity_saved and text.endswith(".0") else text
 
 
-def asset_text(params: Mapping[str, Any], cs: cparams.CsParams | None = None, script_guid: str | None = None) -> str:
-    """The parameter asset as Unity 6000.6 writes the ScriptableObject (fields in declaration order); the
-    importer's output for the same values is this text byte for byte (tests/unity/test_params.py)."""
+def asset_text(params: Mapping[str, Any], cs: cparams.CsParams | None = None, script_guid: str | None = None,
+               *, unity_saved: bool = False) -> str:
+    """Parameter YAML in declaration order; preserve the repo's readable list form by default.
+
+    ``unity_saved`` matches Unity 6000.6's saved form: packed int arrays and integral doubles without .0.
+    """
     cs = _csharp(cs)
     guid = script_guid or asset_script_guid()
     lines = ["%YAML 1.1", "%TAG !u! tag:unity3d.com,2011:", "--- !u!114 &11400000", "MonoBehaviour:",
@@ -159,11 +166,14 @@ def asset_text(params: Mapping[str, Any], cs: cparams.CsParams | None = None, sc
         if ctype.endswith("[]"):
             if not value:
                 lines.append(f"    {name}: []")
+            elif unity_saved and ctype == "int[]":
+                packed = struct.pack("<" + "i" * len(value), *value).hex() + "i"
+                lines.append(f"    {name}: {packed}")
             else:
                 lines.append(f"    {name}:")
-                lines += [f"    - {_yaml_scalar(v, base, cs)}" for v in value]
+                lines += [f"    - {_yaml_scalar(v, base, cs, unity_saved)}" for v in value]
         else:
-            scalar = _yaml_scalar(value, base, cs)
+            scalar = _yaml_scalar(value, base, cs, unity_saved)
             lines.append(f"    {name}: {scalar}" if scalar else f"    {name}:")
     return "\n".join(lines) + "\n"
 
@@ -173,6 +183,11 @@ def _typed(raw: Any, ctype: str, cs: cparams.CsParams, name: str) -> Any:
     if ctype.endswith("[]"):
         if raw in (None, ""):
             return []
+        if base == "int" and isinstance(raw, str):
+            packed = raw.removesuffix("i")
+            if not re.fullmatch(r"[0-9a-fA-F]+", packed) or len(packed) % 8:
+                raise ParamsIoError(f"asset Params.{name}: invalid packed int array {raw!r}")
+            return list(struct.unpack("<" + "i" * (len(packed) // 8), bytes.fromhex(packed)))
         if not isinstance(raw, list):
             raise ParamsIoError(f"asset Params.{name}: expected a list")
         return [_typed(v, base, cs, name) for v in raw]

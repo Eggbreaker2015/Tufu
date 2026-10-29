@@ -3,6 +3,7 @@
 * ``job.slow_policy_probe`` (C# ``SimulationRunRequest.SlowPolicy.cs``): ``{"selection": true}`` runs the
   selection checks at the run's first ``FindBestSpawner`` (equal priorities, nothing allowed, nothing eligible)
   and records event ``slow_policy_probe``; tests only, null in real runs.
+  It also records ``slow_selection`` candidate costs at every tick with an eligible boss.
 * events (``events.jsonl``): ``slow_fight`` per slow fight (en-route fights of SmartPath included),
   ``slow_gate`` the first boss decision of each session, ``slow_target_refused`` when the en-route fights left
   the target refused by the gate (the tick ends before it), ``stat_benefit`` per ``CalculateStatBenefit``
@@ -41,6 +42,9 @@ schema.register_event("slow_gate", {
     "spawner": "str", "location": "int", "session": "int", "loss": "float", "max_health": "float",
     "current_health": "float", "fight_time": "float", "kill_loss_multiplier": "float",
     "refused_same_as_fast": "bool", "refused_current_health": "bool", "skipped": "bool", "chosen": "bool"})
+schema.register_event("slow_selection", {
+    "boss": "str", "best": "str", "max_health": "float", "current_health": "float",
+    "kill_loss_multiplier": "float", "candidates": "str"})
 schema.register_event("stat_benefit", {"session": "int", "model": "int", "candidates": "int", "benefits": "str"})
 schema.register_event("slow_policy_probe", {
     "eligible": "str", "sorted_eligible": "str", "tie": "str", "tie_first_last": "str",

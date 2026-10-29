@@ -129,6 +129,8 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
         driver = D.Driver(D.BatchBackend(rev=rev, out_root=out_root, readiness_db=C.source_path(cfg)), cache=runcache.RunCache(out_root), template=template)
     else:
         driver.template = template
+        if isinstance(getattr(driver, "backend", None), (D.BatchBackend, D.ServeBackend)):
+            driver.backend.readiness_db = C.source_path(cfg)
     smap = patcher.spawner_map(cfg.source, out_root / "inputs")
     configs = [cfg, comp.static.config]
     overrides = [[], comp.static.report.expanded]

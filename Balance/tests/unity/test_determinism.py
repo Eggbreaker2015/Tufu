@@ -19,6 +19,7 @@ import copy
 import datetime
 import difflib
 import json
+import math
 import shutil
 from pathlib import Path
 
@@ -37,7 +38,7 @@ TIME_SKIP_SECONDS = 259200.0
 # Speed variants: (job id, unity overrides). The harness always paces (design 2.4: a frame over the budget scales
 # the speed down, one under half the budget doubles it, up to 16x the request), and frame_budget_ms must be > 0.
 # A budget of 1e-6 ms holds speed 1 at one tick per frame; speed 9 keeps the default budget, so it runs 9 ticks
-# on its first frames and then doubles; speed 500 finishes days 0-6 in one frame. The paced one starts at 8 ticks
+# on its first frames and then doubles; speed 500 runs up to 500 ticks in each frame. The paced one starts at 8 ticks
 # per frame with a 2 ms budget, so the frame times drive the speed up and down while the job runs.
 SPEEDS = {
     "speed-1": {"simulation_speed": 1, "frame_budget_ms": 1e-6},
@@ -187,7 +188,9 @@ def test_digests_do_not_depend_on_the_simulation_speed(first, speeds):
     for t in ("speed-1", "speed-500"):
         assert timings[t]["simulation_speed_min"] == timings[t]["simulation_speed_max"] == SPEEDS[t]["simulation_speed"], \
             (t, timings[t])
-    assert timings["speed-9"]["simulation_speed_min"] == 9 and timings["speed-500"]["job_frames"] == 1
+    assert timings["speed-9"]["simulation_speed_min"] == 9
+    ticks = speeds["speed-500"].manifest("speed-500")["counts"]["ticks"]
+    assert timings["speed-500"]["job_frames"] == math.ceil(ticks / SPEEDS["speed-500"]["simulation_speed"])
     assert timings["speed-1"]["job_frames"] >= speeds["speed-1"].manifest("speed-1")["counts"]["ticks"]
     mismatched, files_off = [], []
     for job_id, result in speeds.items():
