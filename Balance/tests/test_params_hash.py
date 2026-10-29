@@ -8,7 +8,7 @@
   float32 value changes the effective hash exactly as ``paramsio.effective`` predicts.
 * Unknown fields are errors, partial objects report their missing fields, complete objects are required by the
   importer path.
-* The committed parameter asset holds the defaults; only the importer calls asset-writing editor APIs.
+* The committed parameter asset holds the calibrated layer; only the importer calls asset-writing editor APIs.
 """
 
 from __future__ import annotations
@@ -375,11 +375,11 @@ def test_python_effective_model():
 
 # ---------------------------------------------------------------- the asset
 
-def test_committed_asset_holds_the_defaults():
-    defaults = P.resolve(["defaults"]).params
+def test_committed_asset_holds_the_calibrated_layer():
+    calibrated = P.resolve(["defaults", "calibrated"]).params
     path = paramsio.asset_path()
-    assert paramsio.read_asset(path) == paramsio.effective(defaults) == P.csharp_defaults(P.read_csharp_params())
-    assert path.read_text(encoding="utf-8") == paramsio.asset_text(defaults)
+    assert paramsio.read_asset(path) == paramsio.effective(calibrated) == calibrated
+    assert path.read_text(encoding="utf-8") == paramsio.asset_text(calibrated, unity_saved=True)
     script_meta = (SIM / "Rebuild" / "SimulationRebuildParamsAsset.cs.meta").read_text()
     guid = re.search(r"^guid: (\w+)$", script_meta, re.M).group(1)
     assert f"m_Script: {{fileID: 11500000, guid: {guid}, type: 3}}" in path.read_text()
