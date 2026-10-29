@@ -96,8 +96,20 @@ def test_run_report_is_the_original_bake_on_this_runs_snapshots(bake_run, db):
     assert differ > 0
 
 
-def test_run_report_ingests_as_sim_bake_report(bake_run):
+def test_exported_snapshot_text_against_the_bake_inputs(bake_run):
+    """C1's simulation_data.json/timechunk_full.json against the exact bits the bake read (a diagnostic: the
+    editor's Mono checks its "R" text with its own parser, see BakeTool.md)."""
     job = bake_run.job_dir("bake-run")
+    res = BR.export_text_check(job, BR.read_report(job))
+    check("bake_cs", {
+        "run.export_text.values": exact(res["values"], source="C1"),
+        "run.export_text.differ": exact(res["differ"], source="C1", better="lower"),
+        "run.export_text.ulps": exact(res["ulps"], source="C1"),
+    })
+
+
+def test_shipped_report_ingests_as_sim_bake_report(bake_run):
+    job = bake_run.job_dir("bake-shipped")
     db_path = simio.ingest(job, job / "sim_bake_test.sqlite")
     try:
         con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)

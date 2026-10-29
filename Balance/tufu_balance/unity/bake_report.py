@@ -153,38 +153,67 @@ def read_report(job_dir: str | Path) -> dict:
     return report
 
 
-def _snapshot(d: Mapping[str, Any], index: int):
+def _hex_snapshot(d: Mapping[str, Any], index: int):
+    from . import probes as P
     from ..model.f32 import f32
     from ..model.snapshots import SimulationItem, SimulationSnapshot, SimulationStat
     return SimulationSnapshot(
-        playtime=f32(d["Playtime"]), total_playtime=f32(d["TotalPlaytime"]), location=int(d["Location"]),
-        time_chunk_index=int(d["TimeChunkIndex"]),
-        stats=[SimulationStat(key=int(s["Key"]), value=float(s["Value"]), stats_from_features_flat=float(s["StatsFromFeaturesFlat"]),
-                              percent_multiplier=float(s["PercentMultiplier"]), total_flat_value=float(s["TotalFlatValue"]),
-                              total_value=float(s["TotalValue"]), current_gpm=float(s["CurrentGpm"])) for s in d["Stats"]],
-        items=[SimulationItem(str(i["Key"]), int(i["Level"]), int(i["Copies"])) for i in d["Items"]],
-        dps_data=[(int(v["WeaponType"]), float(v["Value"])) for v in d["DpsData"]],
-        defense_data=[(int(v["WeaponType"]), float(v["Value"])) for v in d["DefenseData"]],
-        source_index=index)
+        playtime=f32(P.floats(d["p"])[0]), total_playtime=f32(P.floats(d["tp"])[0]), location=int(d["loc"]),
+        time_chunk_index=int(d["tci"]),
+        stats=[SimulationStat(key=k, value=v, stats_from_features_flat=sff, percent_multiplier=pm, total_flat_value=tf,
+                              total_value=tv, current_gpm=gpm) for k, v, sff, pm, tf, tv, gpm in P._decode_stats(d["stats"])],
+        items=[SimulationItem(str(k), int(lv), int(c)) for k, lv, c in d["items"]],
+        dps_data=P._decode_pairs(d["dps"]), defense_data=P._decode_pairs(d["def"]), source_index=index)
 
 
-def run_simulation_data(job_dir: str | Path):
-    """What the C# bake read: this run's ``Snapshots`` (``simulation_data.json``) and untrimmed day list
-    (``timechunk_full.json``), both checked bit for bit against the exporter's digests."""
-    from . import simio
-    job_dir = Path(job_dir)
-    manifest = json.loads((job_dir / "manifest.json").read_text(encoding="utf-8"))
-    files = (manifest.get("export") or {}).get("files") or {}
-    for name in ("simulation_data.json", "timechunk_full.json"):
-        if name not in files:
-            raise BakeToolError(f"{job_dir}: {name} was not exported; the X4 check needs it")
-    snaps = simio.read_snapshot_file(job_dir / "simulation_data.json", ("Snapshots", "TimeChunkSnapshots"),
-                                     files["simulation_data.json"])["Snapshots"]
-    full = simio.read_snapshot_file(job_dir / "timechunk_full.json", ("TimeChunkSnapshots",),
-                                    files["timechunk_full.json"])["TimeChunkSnapshots"]
+def run_simulation_data(report: Mapping[str, Any]):
+    """What the C# bake read for ``snapshots = "run"``: this run's ``Snapshots`` and untrimmed day list, from the
+    report's ``inputs`` (IEEE hex, so independent of the text round trip of the exported snapshot files)."""
     from ..model.snapshots import SimulationData
-    return SimulationData(snapshots=[_snapshot(s, i) for i, s in enumerate(snaps)],
-                          time_chunk_snapshots=[_snapshot(s, i) for i, s in enumerate(full)])
+    inputs = report.get("inputs")
+    if not inputs:
+        raise BakeToolError("the report has no inputs (snapshots shipped?)")
+    return SimulationData(snapshots=[_hex_snapshot(s, i) for i, s in enumerate(inputs["Snapshots"])],
+                          time_chunk_snapshots=[_hex_snapshot(s, i) for i, s in enumerate(inputs["TimeChunkSnapshots"])])
+
+
+def export_text_check(job_dir: str | Path, report: Mapping[str, Any]) -> dict:
+    """The report's exact inputs against C1's exported text (``simulation_data.json`` Snapshots and
+    ``timechunk_full.json``): numbers whose text does not parse back to the C# bits, per field, with the
+    difference in ulps (a diagnostic of the exporter, not part of X4)."""
+    import struct
+    job_dir = Path(job_dir)
+    sd = run_simulation_data(report)
+    files = {"Snapshots": ("simulation_data.json", sd.snapshots), "TimeChunkSnapshots": ("timechunk_full.json", sd.time_chunk_snapshots)}
+    res: dict[str, Any] = {"values": 0, "differ": 0, "by_field": {}, "ulps": {}, "examples": []}
+
+    def bits(v: float) -> int:
+        return struct.unpack("<q", struct.pack("<d", v))[0]
+
+    for name, (file, snaps) in files.items():
+        text = json.loads((job_dir / file).read_text(encoding="utf-8"))[name]
+        if len(text) != len(snaps):
+            raise BakeToolError(f"{file}: {len(text)} {name}, the bake read {len(snaps)}")
+        for i, (t, s) in enumerate(zip(text, snaps)):
+            pairs = []
+            for ts, st in zip(t["Stats"], s.stats):
+                for field, attr in (("Value", "value"), ("StatsFromFeaturesFlat", "stats_from_features_flat"),
+                                    ("PercentMultiplier", "percent_multiplier"), ("TotalFlatValue", "total_flat_value"),
+                                    ("TotalValue", "total_value"), ("CurrentGpm", "current_gpm")):
+                    pairs.append((f"Stats.{field}", float(ts[field]), getattr(st, attr)))
+            for key, lst in (("DpsData", s.dps_data), ("DefenseData", s.defense_data)):
+                pairs += [(key, float(tv["Value"]), v) for tv, (_, v) in zip(t[key], lst)]
+            for field, a, b in pairs:
+                res["values"] += 1
+                if a == b or (math.isnan(a) and math.isnan(b)):
+                    continue
+                res["differ"] += 1
+                res["by_field"][field] = res["by_field"].get(field, 0) + 1
+                u = str(bits(a) - bits(b))
+                res["ulps"][u] = res["ulps"].get(u, 0) + 1
+                if len(res["examples"]) < 10:
+                    res["examples"].append({"list": name, "index": i, "field": field, "text": repr(a), "csharp": repr(b)})
+    return res
 
 
 def bake_context(job_dir: str | Path, con: sqlite3.Connection, report: Mapping[str, Any] | None = None,
@@ -194,7 +223,7 @@ def bake_context(job_dir: str | Path, con: sqlite3.Connection, report: Mapping[s
     report = report if report is not None else read_report(job_dir)
     if report["snapshots"] == "shipped":
         return MD.load_bake_context(con, rounding=rounding)
-    sd = run_simulation_data(job_dir)
+    sd = run_simulation_data(report)
     if len(sd.snapshots) != report["run_snapshots"] or len(sd.time_chunk_snapshots) != report["run_time_chunk_snapshots"]:
         raise BakeToolError(f"{job_dir}: exported snapshot counts differ from the ones the bake read")
     ctx = MD.load_bake_context(con, simulation_data=sd, rounding=rounding)

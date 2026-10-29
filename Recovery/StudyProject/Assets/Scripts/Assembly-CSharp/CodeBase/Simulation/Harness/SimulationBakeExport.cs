@@ -118,6 +118,34 @@ namespace Codebase.Simulation.Harness
 
 		// ---- serialization ----
 
+		// A snapshot as the IEEE hex of every field (DP4's encoding, without the source tags): the exact inputs of
+		// the bake, independent of the text round trip of simulation_data.json/timechunk_full.json.
+		public static JObject SnapshotJson(SimulationSnapshot s)
+		{
+			Func<double, string> d = SimulationRuntimeProbes.D;
+			var stats = new StringBuilder();
+			foreach (SimulationStatData st in s.Stats)
+				stats.Append(SimulationRuntimeProbes.I((int)st.Key)).Append(d(st.Value)).Append(d(st.StatsFromFeaturesFlat)).Append(d(st.PercentMultiplier))
+					.Append(d(st.TotalFlatValue)).Append(d(st.TotalValue)).Append(d(st.CurrentGpm));
+			var dps = new StringBuilder();
+			foreach (SimulationDpsData v in s.DpsData) dps.Append(SimulationRuntimeProbes.I((int)v.WeaponType)).Append(d(v.Value));
+			var def = new StringBuilder();
+			foreach (SimulationDpsData v in s.DefenseData) def.Append(SimulationRuntimeProbes.I((int)v.WeaponType)).Append(d(v.Value));
+			var items = new JArray();
+			foreach (SimulationItemData it in s.Items ?? new List<SimulationItemData>()) items.Add(new JArray { it.Key, it.Level, it.Copies });
+			return new JObject
+			{
+				["p"] = SimulationRuntimeProbes.F(s.Playtime),
+				["tp"] = SimulationRuntimeProbes.F(s.TotalPlaytime),
+				["loc"] = s.Location,
+				["tci"] = s.TimeChunkIndex,
+				["stats"] = stats.ToString(),
+				["dps"] = dps.ToString(),
+				["def"] = def.ToString(),
+				["items"] = items,
+			};
+		}
+
 		public static JObject ReportJson(SpawnerBakeReportData r, string source)
 		{
 			Func<double, string> d = SimulationRuntimeProbes.D;
@@ -264,6 +292,13 @@ namespace Codebase.Simulation.Harness
 				block["error"] = problem;
 				return block;
 			}
+			JObject inputs = null;
+			if (snapshots == SimulationRunRequest.BakeOptions.SnapshotsRun)
+				inputs = new JObject
+				{
+					["Snapshots"] = new JArray(config.Snapshots.Select(SnapshotJson).Cast<object>().ToArray()),
+					["TimeChunkSnapshots"] = new JArray(config.TimeChunkSnapshots.Select(SnapshotJson).Cast<object>().ToArray()),
+				};
 			var sw = Stopwatch.StartNew();
 			List<EnemySpawner> spawners = LoadedSceneSpawners();
 			var registered = new HashSet<EnemySpawner>(GameContext.Get<EnemiesModel>().Spawners);
@@ -282,6 +317,7 @@ namespace Codebase.Simulation.Harness
 				["run_time_chunk_snapshots"] = runDays,
 				["spawners"] = new JArray(rows.Select(RowJson).Cast<object>().ToArray()),
 			};
+			if (inputs != null) json["inputs"] = inputs;
 			string jsonText = json.ToString(Newtonsoft.Json.Formatting.None) + "\n";
 			string csvText = CsvText(rows);
 			SimulationJson.WriteText(Path.Combine(jobDir, JsonFile), jsonText);
