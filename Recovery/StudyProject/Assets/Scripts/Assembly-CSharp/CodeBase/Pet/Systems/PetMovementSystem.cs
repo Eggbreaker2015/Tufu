@@ -97,6 +97,23 @@ namespace Codebase.Pet.Systems
 						continue;
 					}
 				}
+				if (skillService.IsCasting(unit))
+				{
+					if (ownerWarped && ownerDistanceSqr > teleportSqr)
+						skillService.CancelCast(unit);
+					else
+					{
+						if (agent.isOnNavMesh)
+						{
+							if (agent.hasPath)
+								agent.ResetPath();
+							agent.velocity = Vector3.zero;
+						}
+						pet.PathFailTimer = 0f;
+						unit.SetWalking(false);
+						continue;
+					}
+				}
 				if (!agent.isOnNavMesh || ownerDistanceSqr > teleportSqr || pet.PathFailTimer >= PathFailTeleportTime && unit.CurrentTarget == null)
 				{
 					unit.CurrentTarget = null;

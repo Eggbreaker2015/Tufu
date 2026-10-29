@@ -77,6 +77,11 @@ namespace Codebase.Pet.Systems
 					unit.SetAttackAnimation(false, 1f);
 					continue;
 				}
+				if (skillService.IsCasting(unit))
+				{
+					unit.SetAttackAnimation(skillService.IsInCastPoint(unit), 1f);
+					continue;
+				}
 				if (paused)
 					SetTarget(pet, null);
 				else

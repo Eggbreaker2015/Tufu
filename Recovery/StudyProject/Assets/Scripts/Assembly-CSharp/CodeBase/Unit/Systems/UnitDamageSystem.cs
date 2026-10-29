@@ -20,6 +20,7 @@ using Codebase.Player;
 using Codebase.Player.Models;
 using Codebase.Services.Cheats;
 using Codebase.Services.Damage;
+using Codebase.Skills;
 using Codebase.UI.Damage;
 using Codebase.UI.World;
 using Codebase.Unit.Components;
@@ -369,7 +370,7 @@ namespace Codebase.Unit.Systems
 			playerDamageEventsViewSystem.Create(data, result);
 		}
 
-		// Skill damage: FixedDamage x (1 - typed resist) x (1 - universal defence %). No OnPreHit/OnHit/crit/lifesteal/reflection,
+		// Skill damage: FixedDamage x outgoing skill factor x (1 - typed resist) x (1 - universal defence %) / enemy skill defence factor. No OnPreHit/OnHit/crit/lifesteal/reflection,
 		// so item abilities cannot recurse through skills; death still goes through ProcessEnemyDeath (OnDied, spawner OnKill).
 		private void ApplySkillDamageToEnemy(WeaponHitEvent data)
 		{
@@ -387,7 +388,7 @@ namespace Codebase.Unit.Systems
 						resist = armor.Resist;
 						break;
 					}
-			double damage = data.FixedDamage * (1.0 - resist) * Math.Max(0.0, 1.0 - enemy.GetStatValue(StatType.UniversalDefencePercent));
+			double damage = data.FixedDamage * FriendlyDebuffs.OutgoingDamageFactor(data.Source) * (1.0 - resist) * Math.Max(0.0, 1.0 - enemy.GetStatValue(StatType.UniversalDefencePercent)) / FriendlyDebuffs.EnemyDefenceFactor(enemy);
 			if (cheatsModel.OneHitMode) damage = enemy.GetStatValue(StatType.Health) * 0.9;
 			if (cheatsModel.OneDamageMode) damage = 1.0;
 			damage = Math.Round(Math.Max(0.0, damage));

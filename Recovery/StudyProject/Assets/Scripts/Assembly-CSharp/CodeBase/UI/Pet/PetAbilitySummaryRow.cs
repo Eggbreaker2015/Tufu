@@ -54,16 +54,25 @@ namespace Codebase.UI.Pets
 		{
 			this.item = item;
 			var indices = item != null ? PetAbilitiesView.GetAbilityIndices(item) : null;
-			int count = indices != null ? indices.Count : 0;
+			var skills = PetAbilitiesView.GetSpeciesSkills(item);
+			int count = skills.Count + (indices != null ? indices.Count : 0);
 			for (int i = 0; i < icons.Length; i++)
 			{
 				Image icon = icons[i];
 				icon.gameObject.SetActive(i < count);
 				if (i >= count) continue;
-				var def = item.Config.AbilityDefs[indices[i]];
-				icon.sprite = AbilityIcons.Get(def);
+				if (i < skills.Count)
+				{
+					icon.sprite = AbilityIcons.Get(skills[i]);
+					icon.color = Color.white;
+				}
+				else
+				{
+					var def = item.Config.AbilityDefs[indices[i - skills.Count]];
+					icon.sprite = AbilityIcons.Get(def);
+					icon.color = item.IsAbilityUnlocked(def) ? Color.white : ItemAbilityView.LockedIconTint;
+				}
 				icon.enabled = icon.sprite != null;
-				icon.color = item.IsAbilityUnlocked(def) ? Color.white : ItemAbilityView.LockedIconTint;
 			}
 			PetStatsText.SetText(label, "技能 " + count + " ›");
 			button.interactable = count > 0;

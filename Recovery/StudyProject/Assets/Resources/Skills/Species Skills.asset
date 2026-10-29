@@ -1,0 +1,2342 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd6a91af1da48d4a0b61e418e84517c, type: 3}
+  m_Name: Species Skills
+  m_EditorClassIdentifier:
+  Skills:
+  - Key: sp_paddle
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 14
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 18
+      Pick: 3
+      UseWhen:
+      - rid: 2011
+    LevelScale: []
+    Effects:
+    - rid: 2012
+  - Key: sp_mailbox
+    IconKey:
+    TargetType: 1
+    Range: 3.5
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 10
+      Pick: 0
+      UseWhen:
+      - rid: 2021
+    LevelScale: []
+    Effects:
+    - rid: 2022
+    - rid: 2023
+    - rid: 2024
+  - Key: sp_hammer
+    IconKey:
+    TargetType: 0
+    Range: 3
+    CastPoint: 1.0
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 3
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2031
+    LevelScale: []
+    Effects:
+    - rid: 2032
+    - rid: 2033
+  - Key: sp_mace
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 16
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 14
+      Pick: 3
+      UseWhen:
+      - rid: 2041
+      - rid: 2042
+    LevelScale: []
+    Effects:
+    - rid: 2043
+  - Key: sp_coolHammer
+    IconKey:
+    TargetType: 0
+    Range: 8
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 20
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 18
+      Pick: 3
+      UseWhen:
+      - rid: 2051
+    LevelScale: []
+    Effects:
+    - rid: 2052
+    - rid: 2053
+  - Key: sp_knife
+    IconKey:
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 8
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 10
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1
+    AutoCast:
+      Priority: 8
+      Pick: 0
+      UseWhen:
+      - rid: 2061
+    LevelScale: []
+    Effects:
+    - rid: 2062
+  - Key: sp_minisaw
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 14
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 14
+      Pick: 3
+      UseWhen:
+      - rid: 2071
+      - rid: 2072
+    LevelScale: []
+    Effects:
+    - rid: 2073
+  - Key: sp_katana
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 16
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 14
+      Pick: 3
+      UseWhen:
+      - rid: 2081
+      - rid: 2082
+    LevelScale: []
+    Effects:
+    - rid: 2083
+    - rid: 2084
+  - Key: sp_doubleaxe
+    IconKey:
+    TargetType: 0
+    Range: 4
+    CastPoint: 1.1
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 2
+      Radius: 4
+      Angle: 120
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2091
+    LevelScale: []
+    Effects:
+    - rid: 2092
+    - rid: 2093
+  - Key: sp_chainsaw
+    IconKey:
+    TargetType: 1
+    Range: 8
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 8
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1.5
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2101
+    LevelScale: []
+    Effects:
+    - rid: 2102
+    - rid: 2103
+  - Key: sp_pike
+    IconKey:
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 8
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 10
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1
+    AutoCast:
+      Priority: 8
+      Pick: 0
+      UseWhen:
+      - rid: 2111
+    LevelScale: []
+    Effects:
+    - rid: 2112
+  - Key: sp_fork
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 14
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 14
+      Pick: 3
+      UseWhen:
+      - rid: 2121
+      - rid: 2122
+    LevelScale: []
+    Effects:
+    - rid: 2123
+  - Key: sp_pick
+    IconKey:
+    TargetType: 1
+    Range: 3.5
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 10
+      Pick: 0
+      UseWhen:
+      - rid: 2131
+    LevelScale: []
+    Effects:
+    - rid: 2132
+    - rid: 2133
+    - rid: 2134
+  - Key: sp_coolpike
+    IconKey:
+    TargetType: 1
+    Range: 6
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 6
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 2
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2141
+    LevelScale: []
+    Effects:
+    - rid: 2142
+    - rid: 2143
+  - Key: sp_chainsawpike
+    IconKey:
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 9
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1.2
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2151
+    LevelScale: []
+    Effects:
+    - rid: 2152
+    - rid: 2153
+  - Key: sp_skeleton_guard
+    IconKey:
+    TargetType: 1
+    Range: 3.5
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 10
+      Pick: 0
+      UseWhen:
+      - rid: 2171
+    LevelScale: []
+    Effects:
+    - rid: 2172
+    - rid: 2173
+    - rid: 2174
+  - Key: sp_cultist
+    IconKey:
+    TargetType: 2
+    Range: 8
+    CastPoint: 1.2
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 2.5
+      Angle: 0
+      AnchorOnTarget: 1
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2191
+    LevelScale: []
+    Effects:
+    - rid: 2192
+    - rid: 2193
+  - Key: sp_skeleton_king
+    IconKey:
+    TargetType: 0
+    Range: 8
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 20
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 18
+      Pick: 3
+      UseWhen:
+      - rid: 2201
+    LevelScale: []
+    Effects:
+    - rid: 2202
+    - rid: 2203
+  - Key: sp_vampire_thrall
+    IconKey:
+    TargetType: 1
+    Range: 3.5
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 10
+      Pick: 0
+      UseWhen:
+      - rid: 2211
+    LevelScale: []
+    Effects:
+    - rid: 2212
+    - rid: 2213
+    - rid: 2214
+  - Key: sp_vampire_blade
+    IconKey:
+    TargetType: 0
+    Range: 3
+    CastPoint: 1.0
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 3
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2221
+    LevelScale: []
+    Effects:
+    - rid: 2222
+    - rid: 2223
+    - rid: 2224
+  - Key: sp_bear
+    IconKey:
+    TargetType: 0
+    Range: 3
+    CastPoint: 1.1
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 2
+      Radius: 3
+      Angle: 90
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2231
+    LevelScale: []
+    Effects:
+    - rid: 2232
+    - rid: 2233
+    - rid: 2234
+  - Key: sp_ghost
+    IconKey:
+    TargetType: 1
+    Range: 3.5
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 10
+      Pick: 0
+      UseWhen:
+      - rid: 2241
+    LevelScale: []
+    Effects:
+    - rid: 2242
+    - rid: 2243
+  - Key: sp_abyss_reaver
+    IconKey:
+    TargetType: 0
+    Range: 4
+    CastPoint: 1.0
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 4
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2251
+    LevelScale: []
+    Effects:
+    - rid: 2252
+    - rid: 2253
+    - rid: 2254
+  - Key: sp_zombie
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 20
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 18
+      Pick: 3
+      UseWhen:
+      - rid: 2261
+    LevelScale: []
+    Effects:
+    - rid: 2262
+  - Key: sp_zombie_brute
+    IconKey:
+    TargetType: 1
+    Range: 3.5
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 10
+      Pick: 0
+      UseWhen:
+      - rid: 2271
+    LevelScale: []
+    Effects:
+    - rid: 2272
+    - rid: 2273
+    - rid: 2274
+  - Key: sp_treant
+    IconKey:
+    TargetType: 0
+    Range: 8
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 16
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 18
+      Pick: 3
+      UseWhen:
+      - rid: 2281
+    LevelScale: []
+    Effects:
+    - rid: 2282
+  - Key: sp_mage
+    IconKey:
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 8
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 10
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1
+    AutoCast:
+      Priority: 8
+      Pick: 0
+      UseWhen:
+      - rid: 2291
+    LevelScale: []
+    Effects:
+    - rid: 2292
+  - Key: sp_dark_treant
+    IconKey:
+    TargetType: 2
+    Range: 8
+    CastPoint: 1.2
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 3
+      Angle: 0
+      AnchorOnTarget: 1
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2301
+    LevelScale: []
+    Effects:
+    - rid: 2302
+    - rid: 2303
+    - rid: 2304
+  - Key: sp_boss_crab
+    IconKey:
+    TargetType: 0
+    Range: 4
+    CastPoint: 1.0
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 4
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2311
+    LevelScale: []
+    Effects:
+    - rid: 2312
+    - rid: 2313
+  - Key: sp_boss_vampire_king
+    IconKey:
+    TargetType: 0
+    Range: 8
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 20
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 18
+      Pick: 3
+      UseWhen:
+      - rid: 2321
+    LevelScale: []
+    Effects:
+    - rid: 2322
+    - rid: 2323
+  - Key: sp_boss_hydra
+    IconKey:
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.8
+    Backswing: 0.3
+    Cooldown: 10
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 10
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1
+    AutoCast:
+      Priority: 8
+      Pick: 0
+      UseWhen:
+      - rid: 2331
+    LevelScale: []
+    Effects:
+    - rid: 2332
+  - Key: sp_boss_lich
+    IconKey:
+    TargetType: 2
+    Range: 8
+    CastPoint: 1.2
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 3.5
+      Angle: 0
+      AnchorOnTarget: 1
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2341
+    LevelScale: []
+    Effects:
+    - rid: 2342
+    - rid: 2343
+  - Key: sp_boss_viking_king
+    IconKey:
+    TargetType: 0
+    Range: 5
+    CastPoint: 1.1
+    Backswing: 0.3
+    Cooldown: 12
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 2
+      Radius: 5
+      Angle: 150
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 12
+      Pick: 0
+      UseWhen:
+      - rid: 2351
+    LevelScale: []
+    Effects:
+    - rid: 2352
+    - rid: 2353
+    - rid: 2354
+  - Key: sp_boss_berserker
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.4
+    Backswing: 0.3
+    Cooldown: 20
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 14
+      Pick: 3
+      UseWhen:
+      - rid: 2361
+      - rid: 2362
+    LevelScale: []
+    Effects:
+    - rid: 2363
+  Buffs:
+  - Key: stun_08
+    IconKey:
+    Duration: 0.8
+    IsDebuff: 1
+    Stack: 0
+    MaxStacks: 0
+    StatMods: []
+    Stun: 1
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: slow_50
+    IconKey:
+    Duration: 3
+    IsDebuff: 1
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 0
+      ModifierType: 2
+      ValuePerStack: 0.5
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_mace_fury
+    IconKey:
+    Duration: 6
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 3
+      ModifierType: 2
+      ValuePerStack: 1.4
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_fork_focus
+    IconKey:
+    Duration: 5
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 3
+      ModifierType: 2
+      ValuePerStack: 1.3
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_minisaw_haste
+    IconKey:
+    Duration: 5
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 5
+      ModifierType: 2
+      ValuePerStack: 0.75
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_katana_guard
+    IconKey:
+    Duration: 6
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 31
+      ModifierType: 2
+      ValuePerStack: 1.5
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_coolHammer_command
+    IconKey:
+    Duration: 5
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 3
+      ModifierType: 2
+      ValuePerStack: 1.2
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_skeleton_king_command
+    IconKey:
+    Duration: 6
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 31
+      ModifierType: 2
+      ValuePerStack: 1.3
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_boss_vampire_king_feast
+    IconKey:
+    Duration: 6
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 3
+      ModifierType: 2
+      ValuePerStack: 1.3
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: sp_boss_berserker_frenzy
+    IconKey:
+    Duration: 8
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 3
+      ModifierType: 2
+      ValuePerStack: 1.6
+    - StatType: 5
+      ModifierType: 2
+      ValuePerStack: 0.7
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  Loadouts:
+  - OwnerKind: 2
+    Key: paddle
+    Skills:
+    - SkillKey: sp_paddle
+      Level: 1
+  - OwnerKind: 2
+    Key: mailbox
+    Skills:
+    - SkillKey: sp_mailbox
+      Level: 1
+  - OwnerKind: 2
+    Key: hammer
+    Skills:
+    - SkillKey: sp_hammer
+      Level: 1
+  - OwnerKind: 2
+    Key: mace
+    Skills:
+    - SkillKey: sp_mace
+      Level: 1
+  - OwnerKind: 2
+    Key: coolHammer
+    Skills:
+    - SkillKey: sp_coolHammer
+      Level: 1
+  - OwnerKind: 2
+    Key: knife
+    Skills:
+    - SkillKey: sp_knife
+      Level: 1
+  - OwnerKind: 2
+    Key: minisaw
+    Skills:
+    - SkillKey: sp_minisaw
+      Level: 1
+  - OwnerKind: 2
+    Key: katana
+    Skills:
+    - SkillKey: sp_katana
+      Level: 1
+  - OwnerKind: 2
+    Key: doubleaxe
+    Skills:
+    - SkillKey: sp_doubleaxe
+      Level: 1
+  - OwnerKind: 2
+    Key: chainsaw
+    Skills:
+    - SkillKey: sp_chainsaw
+      Level: 1
+  - OwnerKind: 2
+    Key: pike
+    Skills:
+    - SkillKey: sp_pike
+      Level: 1
+  - OwnerKind: 2
+    Key: fork
+    Skills:
+    - SkillKey: sp_fork
+      Level: 1
+  - OwnerKind: 2
+    Key: pick
+    Skills:
+    - SkillKey: sp_pick
+      Level: 1
+  - OwnerKind: 2
+    Key: coolpike
+    Skills:
+    - SkillKey: sp_coolpike
+      Level: 1
+  - OwnerKind: 2
+    Key: chainsawpike
+    Skills:
+    - SkillKey: sp_chainsawpike
+      Level: 1
+  - OwnerKind: 2
+    Key: skeleton
+    Skills:
+    - SkillKey: bone_volley
+      Level: 1
+  - OwnerKind: 2
+    Key: skeleton_guard
+    Skills:
+    - SkillKey: sp_skeleton_guard
+      Level: 1
+  - OwnerKind: 2
+    Key: golem
+    Skills:
+    - SkillKey: slam
+      Level: 1
+  - OwnerKind: 2
+    Key: cultist
+    Skills:
+    - SkillKey: sp_cultist
+      Level: 1
+  - OwnerKind: 2
+    Key: skeleton_king
+    Skills:
+    - SkillKey: sp_skeleton_king
+      Level: 1
+  - OwnerKind: 2
+    Key: vampire_thrall
+    Skills:
+    - SkillKey: sp_vampire_thrall
+      Level: 1
+  - OwnerKind: 2
+    Key: vampire_blade
+    Skills:
+    - SkillKey: sp_vampire_blade
+      Level: 1
+  - OwnerKind: 2
+    Key: bear
+    Skills:
+    - SkillKey: sp_bear
+      Level: 1
+  - OwnerKind: 2
+    Key: ghost
+    Skills:
+    - SkillKey: sp_ghost
+      Level: 1
+  - OwnerKind: 2
+    Key: abyss_reaver
+    Skills:
+    - SkillKey: sp_abyss_reaver
+      Level: 1
+  - OwnerKind: 2
+    Key: zombie
+    Skills:
+    - SkillKey: sp_zombie
+      Level: 1
+  - OwnerKind: 2
+    Key: zombie_brute
+    Skills:
+    - SkillKey: sp_zombie_brute
+      Level: 1
+  - OwnerKind: 2
+    Key: treant
+    Skills:
+    - SkillKey: sp_treant
+      Level: 1
+  - OwnerKind: 2
+    Key: mage
+    Skills:
+    - SkillKey: sp_mage
+      Level: 1
+  - OwnerKind: 2
+    Key: dark_treant
+    Skills:
+    - SkillKey: sp_dark_treant
+      Level: 1
+  - OwnerKind: 2
+    Key: boss_crab
+    Skills:
+    - SkillKey: sp_boss_crab
+      Level: 1
+  - OwnerKind: 2
+    Key: boss_vampire_king
+    Skills:
+    - SkillKey: sp_boss_vampire_king
+      Level: 1
+  - OwnerKind: 2
+    Key: boss_hydra
+    Skills:
+    - SkillKey: sp_boss_hydra
+      Level: 1
+  - OwnerKind: 2
+    Key: boss_lich
+    Skills:
+    - SkillKey: sp_boss_lich
+      Level: 1
+  - OwnerKind: 2
+    Key: boss_viking_king
+    Skills:
+    - SkillKey: sp_boss_viking_king
+      Level: 1
+  - OwnerKind: 2
+    Key: boss_berserker
+    Skills:
+    - SkillKey: sp_boss_berserker
+      Level: 1
+  - OwnerKind: 0
+    Key: buck_buck_medium
+    Skills:
+    - SkillKey: sp_paddle
+      Level: 1
+  - OwnerKind: 0
+    Key: cut_buck_medium
+    Skills:
+    - SkillKey: sp_mailbox
+      Level: 1
+  - OwnerKind: 0
+    Key: buck_buck_boss
+    Skills:
+    - SkillKey: sp_hammer
+      Level: 1
+  - OwnerKind: 0
+    Key: cut_buck_knight
+    Skills:
+    - SkillKey: sp_mace
+      Level: 1
+  - OwnerKind: 0
+    Key: all_buck_knight
+    Skills:
+    - SkillKey: sp_coolHammer
+      Level: 1
+  - OwnerKind: 0
+    Key: cut_cut_easy
+    Skills:
+    - SkillKey: sp_knife
+      Level: 1
+  - OwnerKind: 0
+    Key: cut_cut_medium
+    Skills:
+    - SkillKey: sp_minisaw
+      Level: 1
+  - OwnerKind: 0
+    Key: pier_cut_medium upg
+    Skills:
+    - SkillKey: sp_katana
+      Level: 1
+  - OwnerKind: 0
+    Key: cut_cut_boss
+    Skills:
+    - SkillKey: sp_doubleaxe
+      Level: 1
+  - OwnerKind: 0
+    Key: cut_cut_knight
+    Skills:
+    - SkillKey: sp_chainsaw
+      Level: 1
+  - OwnerKind: 0
+    Key: pier_pier_easy
+    Skills:
+    - SkillKey: sp_pike
+      Level: 1
+  - OwnerKind: 0
+    Key: pier_pier_medium
+    Skills:
+    - SkillKey: sp_fork
+      Level: 1
+  - OwnerKind: 0
+    Key: buck_pier_boss
+    Skills:
+    - SkillKey: sp_pick
+      Level: 1
+  - OwnerKind: 0
+    Key: pier_pier_boss
+    Skills:
+    - SkillKey: sp_coolpike
+      Level: 1
+  - OwnerKind: 0
+    Key: pier_pier_knight
+    Skills:
+    - SkillKey: sp_chainsawpike
+      Level: 1
+  - OwnerKind: 0
+    Key: elite_buck
+    Skills:
+    - SkillKey: slam
+      Level: 1
+  - OwnerKind: 0
+    Key: vip enemy
+    Skills:
+    - SkillKey: sp_cultist
+      Level: 1
+  - OwnerKind: 0
+    Key: Vampire_Easy
+    Skills:
+    - SkillKey: sp_vampire_thrall
+      Level: 1
+  - OwnerKind: 0
+    Key: Vampire_Medium+
+    Skills:
+    - SkillKey: sp_vampire_blade
+      Level: 1
+  - OwnerKind: 0
+    Key: elite_pier
+    Skills:
+    - SkillKey: sp_bear
+      Level: 1
+  - OwnerKind: 0
+    Key: ghost
+    Skills:
+    - SkillKey: sp_ghost
+      Level: 1
+  - OwnerKind: 0
+    Key: undead_pierce_cut_elite
+    Skills:
+    - SkillKey: sp_abyss_reaver
+      Level: 1
+  - OwnerKind: 0
+    Key: Zombie_Easy
+    Skills:
+    - SkillKey: sp_zombie
+      Level: 1
+  - OwnerKind: 0
+    Key: elite_cut green
+    Skills:
+    - SkillKey: sp_treant
+      Level: 1
+  - OwnerKind: 0
+    Key: mage
+    Skills:
+    - SkillKey: sp_mage
+      Level: 1
+  - OwnerKind: 0
+    Key: undead_cut_buck_elite
+    Skills:
+    - SkillKey: sp_dark_treant
+      Level: 1
+  Vfx: []
+  Summons: []
+  TelegraphTexture: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 2011
+      type: {class: SelfHealthBelowCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Percent: 0.6
+    - rid: 2012
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.2
+    - rid: 2021
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.5
+    - rid: 2022
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 2023
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: stun_08
+    - rid: 2024
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 0.2
+    - rid: 2031
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 3
+        Min: 1
+    - rid: 2032
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.8
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2033
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1.714
+        HeightOffset: 0.2
+    - rid: 2041
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 6
+        Min: 1
+    - rid: 2042
+      type: {class: HasBuffCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Key: sp_mace_fury
+        Invert: 1
+        OnTarget: 0
+    - rid: 2043
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_mace_fury
+    - rid: 2051
+      type: {class: AlliesHurtInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 8
+        Percent: 0.7
+        Min: 1
+        IncludeSelf: 1
+    - rid: 2052
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 8
+          Angle: 90
+          Filter: 70
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.1
+    - rid: 2053
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 8
+          Angle: 90
+          Filter: 70
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_coolHammer_command
+    - rid: 2061
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 9
+    - rid: 2062
+      type: {class: LinearMissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_bolt
+        Speed: 12
+        Count: 1
+        SpreadAngle: 0
+        Range: 10
+        Radius: 0.35
+        Pierce: 0
+        Power: 1.4
+        OverrideDamageType: 0
+        DamageType: 0
+        Filter: 65
+        OnImpact:
+        - rid: 2063
+    - rid: 2063
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_arrow
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 1.2
+    - rid: 2071
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 6
+        Min: 1
+    - rid: 2072
+      type: {class: HasBuffCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Key: sp_minisaw_haste
+        Invert: 1
+        OnTarget: 0
+    - rid: 2073
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_minisaw_haste
+    - rid: 2081
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 6
+        Min: 1
+    - rid: 2082
+      type: {class: HasBuffCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Key: sp_katana_guard
+        Invert: 1
+        OnTarget: 0
+    - rid: 2083
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_katana_guard
+    - rid: 2084
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.08
+    - rid: 2091
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.8
+    - rid: 2092
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 4
+          Radius: 4
+          Angle: 120
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2093
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 2.286
+        HeightOffset: 0.2
+    - rid: 2101
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 8
+    - rid: 2102
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 5
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 8
+          Width: 1.5
+        Power: 1.8
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2103
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1
+        HeightOffset: 0.2
+    - rid: 2111
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 9
+    - rid: 2112
+      type: {class: LinearMissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_spear
+        Speed: 9
+        Count: 1
+        SpreadAngle: 0
+        Range: 10
+        Radius: 0.35
+        Pierce: 1
+        Power: 1.2
+        OverrideDamageType: 0
+        DamageType: 0
+        Filter: 65
+        OnImpact:
+        - rid: 2113
+    - rid: 2113
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_arrow
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 1.2
+    - rid: 2121
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 6
+        Min: 1
+    - rid: 2122
+      type: {class: HasBuffCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Key: sp_fork_focus
+        Invert: 1
+        OnTarget: 0
+    - rid: 2123
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_fork_focus
+    - rid: 2131
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.5
+    - rid: 2132
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.6
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 2133
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: armor_break
+    - rid: 2134
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 0.2
+    - rid: 2141
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 6
+    - rid: 2142
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 5
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 6
+          Width: 2
+        Power: 2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2143
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1
+        HeightOffset: 0.2
+    - rid: 2151
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 9
+    - rid: 2152
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 5
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 9
+          Width: 1.2
+        Power: 2.4
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2153
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1
+        HeightOffset: 0.2
+    - rid: 2171
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.5
+    - rid: 2172
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 2173
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: stomp_stun
+    - rid: 2174
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 0.2
+    - rid: 2191
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 8
+    - rid: 2192
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 3
+          Radius: 2.5
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2193
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: lich_blast
+        Anchor: 2
+        Scale: 1.0
+        HeightOffset: 0.2
+    - rid: 2201
+      type: {class: AlliesHurtInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 8
+        Percent: 0.7
+        Min: 1
+        IncludeSelf: 1
+    - rid: 2202
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 8
+          Angle: 90
+          Filter: 70
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.12
+    - rid: 2203
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 8
+          Angle: 90
+          Filter: 70
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_skeleton_king_command
+    - rid: 2211
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.5
+    - rid: 2212
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.3
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 2213
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.08
+    - rid: 2214
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 0.2
+    - rid: 2221
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 3
+        Min: 1
+    - rid: 2222
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2223
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.1
+    - rid: 2224
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1.714
+        HeightOffset: 0.2
+    - rid: 2231
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 2.8
+    - rid: 2232
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 4
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.8
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2233
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 4
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: stomp_stun
+    - rid: 2234
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1.714
+        HeightOffset: 0.2
+    - rid: 2241
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.5
+    - rid: 2242
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 2243
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 0.2
+    - rid: 2251
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 4
+        Min: 1
+    - rid: 2252
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 4
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2.2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2253
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 4
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: slow_30
+    - rid: 2254
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 2.286
+        HeightOffset: 0.2
+    - rid: 2261
+      type: {class: SelfHealthBelowCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Percent: 0.5
+    - rid: 2262
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.25
+    - rid: 2271
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 3.5
+    - rid: 2272
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 2273
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: stomp_stun
+    - rid: 2274
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 0.2
+    - rid: 2281
+      type: {class: AlliesHurtInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 8
+        Percent: 0.7
+        Min: 1
+        IncludeSelf: 1
+    - rid: 2282
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 8
+          Angle: 90
+          Filter: 70
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.15
+    - rid: 2291
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 9
+    - rid: 2292
+      type: {class: LinearMissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: curse_bolt
+        Speed: 11
+        Count: 1
+        SpreadAngle: 0
+        Range: 10
+        Radius: 0.35
+        Pierce: 0
+        Power: 1.8
+        OverrideDamageType: 0
+        DamageType: 0
+        Filter: 65
+        OnImpact:
+        - rid: 2293
+    - rid: 2293
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_arrow
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 1.2
+    - rid: 2301
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 8
+    - rid: 2302
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 3
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 1.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2303
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 3
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: slow_50
+    - rid: 2304
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: lich_blast
+        Anchor: 2
+        Scale: 1.2
+        HeightOffset: 0.2
+    - rid: 2311
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 4
+        Min: 1
+    - rid: 2312
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 4
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2313
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 2.286
+        HeightOffset: 0.2
+    - rid: 2321
+      type: {class: AlliesHurtInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 8
+        Percent: 0.7
+        Min: 1
+        IncludeSelf: 1
+    - rid: 2322
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 8
+          Angle: 90
+          Filter: 70
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        PercentMaxHp: 0.2
+    - rid: 2323
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 8
+          Angle: 90
+          Filter: 70
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_boss_vampire_king_feast
+    - rid: 2331
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 9
+    - rid: 2332
+      type: {class: LinearMissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_bolt_heavy
+        Speed: 12
+        Count: 3
+        SpreadAngle: 30
+        Range: 10
+        Radius: 0.35
+        Pierce: 0
+        Power: 1.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Filter: 65
+        OnImpact:
+        - rid: 2333
+    - rid: 2333
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_arrow
+        Anchor: 1
+        Scale: 0.6
+        HeightOffset: 1.2
+    - rid: 2341
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 8
+    - rid: 2342
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 3
+          Radius: 3.5
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 3
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2343
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: lich_blast
+        Anchor: 2
+        Scale: 1.4
+        HeightOffset: 0.2
+    - rid: 2351
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 0
+        Max: 4.8
+    - rid: 2352
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 4
+          Radius: 5
+          Angle: 150
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Power: 2.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 2353
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 4
+          Radius: 5
+          Angle: 150
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: slow_30
+    - rid: 2354
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 2.857
+        HeightOffset: 0.2
+    - rid: 2361
+      type: {class: SelfHealthBelowCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Percent: 0.7
+    - rid: 2362
+      type: {class: HasBuffCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Key: sp_boss_berserker_frenzy
+        Invert: 1
+        OnTarget: 0
+    - rid: 2363
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: sp_boss_berserker_frenzy

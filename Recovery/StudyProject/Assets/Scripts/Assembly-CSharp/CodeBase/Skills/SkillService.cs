@@ -360,21 +360,28 @@ namespace Codebase.Skills
 			Entity entity = target.EntityProvider.Entity;
 			if (current.IsDisposed(entity))
 				return;
-			// Hostile buffs on the hero and pets: slow, stun, defence and attack interval factors and ticks; no silence or other stat changes.
+			bool friendlyTarget = target is PlayerUnit || target is PetUnit;
 			bool restricted = source is EnemyUnit && !(target is EnemyUnit);
-			if (restricted && def.StatMods != null)
-				foreach (BuffStatMod mod in def.StatMods)
-					if (mod != null && mod.StatType != StatType.MovementSpeed && !IsRestrictedFactor(mod))
-						SkillLibrary.WarnOnce("friendly-stat:" + def.Key + ":" + mod.StatType + ":" + mod.ModifierType, "[Skills] Buff '" + def.Key + "': " + mod.StatType + " x " + mod.ModifierType + " is ignored on the hero and pets");
-			if (restricted && !HasRestrictedPayload(def))
-				return;
+			if (friendlyTarget || restricted)
+			{
+				if (def.StatMods != null)
+					foreach (BuffStatMod mod in def.StatMods)
+						if (mod != null && !IsAllowedFriendlyMod(mod, restricted))
+							WarnIgnoredPayload(def, mod.StatType.ToString(), mod.ModifierType.ToString());
+				if (def.Stun && !restricted)
+					WarnIgnoredPayload(def, "Stun", "none");
+				if (def.Silence)
+					WarnIgnoredPayload(def, "Silence", "none");
+				if (!HasFriendlyPayload(def, restricted))
+					return;
+			}
 			ref UnitBuffsComponent buffs = ref buffsStash.Get(entity, out bool exists);
 			if (!exists)
 			{
 				buffsStash.Set(entity, new UnitBuffsComponent { Owner = target, Buffs = new List<BuffInstance>(2) });
 				buffs = ref buffsStash.Get(entity);
 			}
-			BuffInstance instance = def.Stack == BuffStackMode.Independent ? null : Find(buffs.Buffs, def);
+			BuffInstance instance = def.Stack == BuffStackMode.Independent ? null : Find(buffs.Buffs, def, restricted, friendlyTarget);
 			if (instance != null)
 			{
 				instance.Source = source;
@@ -400,44 +407,57 @@ namespace Codebase.Skills
 				ApplyStun(target, entity, instance);
 				return;
 			}
-			instance = new BuffInstance { Def = def, Remaining = def.Duration, Stacks = 1, Power = power, Source = source, Restricted = restricted };
+			instance = new BuffInstance { Def = def, Remaining = def.Duration, Stacks = 1, Power = power, Source = source, Restricted = restricted, FriendlyTarget = friendlyTarget };
 			buffs.Buffs.Add(instance);
 			ApplyMods(target, instance);
 			ApplyStun(target, entity, instance);
 		}
 
-		private static bool HasRestrictedPayload(BuffDef def)
+		private static void WarnIgnoredPayload(BuffDef def, string payload, string modifier)
 		{
-			if (def.Stun || def.TickInterval > 0f && def.OnTick != null && def.OnTick.Count > 0)
+			SkillLibrary.WarnOnce("friendly-stat:" + def.Key + ":" + payload + ":" + modifier, "[Skills] Buff '" + def.Key + "': " + payload + " x " + modifier + " is ignored on the hero and pets for this source");
+		}
+
+		private static bool HasFriendlyPayload(BuffDef def, bool restricted)
+		{
+			if (def.Stun && restricted || def.TickInterval > 0f && def.OnTick != null && def.OnTick.Count > 0)
 				return true;
 			if (def.StatMods != null)
 				foreach (BuffStatMod mod in def.StatMods)
-					if (mod != null && (mod.StatType == StatType.MovementSpeed || IsRestrictedFactor(mod)))
+					if (mod != null && IsAllowedFriendlyMod(mod, restricted))
 						return true;
 			return false;
 		}
 
-		private static bool IsRestrictedFactor(BuffStatMod mod)
+		private static bool IsAllowedFriendlyMod(BuffStatMod mod, bool restricted)
 		{
-			return mod.ModifierType == ModifierType.PercentMultiplicative && (mod.StatType == StatType.GlobalDefence || mod.StatType == StatType.AttackCooldown);
+			// Hostile MovementSpeed keeps the phase-2 modifier types; friendly payloads only allow multiplicative factors.
+			if (restricted && mod.StatType == StatType.MovementSpeed)
+				return true;
+			return mod.ModifierType == ModifierType.PercentMultiplicative && (mod.StatType == StatType.GlobalDefence || mod.StatType == StatType.AttackCooldown ||
+				!restricted && (mod.StatType == StatType.Damage || mod.StatType == StatType.MovementSpeed));
 		}
 
-		private static BuffInstance Find(List<BuffInstance> buffs, BuffDef def)
+		private static BuffInstance Find(List<BuffInstance> buffs, BuffDef def, bool restricted, bool friendlyTarget)
 		{
 			foreach (BuffInstance instance in buffs)
-				if (instance.Def == def)
+				// Different source whitelists must not share stacks or refresh a filtered payload into an allowed one.
+				if (instance.Def == def && (!friendlyTarget || instance.Restricted == restricted))
 					return instance;
 			return null;
 		}
 
-		// Pets: their stats are rebuilt by PetStatsSyncSystem, so skill factors are read where used.
+		// Friendly stats are read as factors; only the hero's MovementSpeed stays a real modifier.
 		private void ApplyMods(UnitCore target, BuffInstance instance)
 		{
 			if (target is PetUnit || instance.Def.StatMods == null)
 				return;
 			foreach (BuffStatMod mod in instance.Def.StatMods)
 			{
-				if (mod == null || instance.Restricted && mod.StatType != StatType.MovementSpeed)
+				if (mod == null || (instance.FriendlyTarget || instance.Restricted) && (mod.StatType != StatType.MovementSpeed || !IsAllowedFriendlyMod(mod, instance.Restricted)))
+					continue;
+				// Enemy defence buffs are read as a damage-taken factor (GetEnemyDefenceFactor), never as a real stat.
+				if (target is EnemyUnit && IsEnemyDefenceMod(mod))
 					continue;
 				if (!target.TryGetStat(mod.StatType, out Stat stat))
 					continue;
@@ -474,7 +494,7 @@ namespace Codebase.Skills
 
 		private void ApplyStun(UnitCore target, Entity entity, BuffInstance instance)
 		{
-			if (!instance.Def.Stun)
+			if (!instance.Def.Stun || instance.FriendlyTarget && !instance.Restricted)
 				return;
 			float duration = instance.Remaining;
 			if (target is PlayerUnit && instance.Restricted)
@@ -530,7 +550,7 @@ namespace Codebase.Skills
 			if (current.IsDisposed(entity) || !buffsStash.Has(entity))
 				return false;
 			foreach (BuffInstance instance in buffsStash.Get(entity).Buffs)
-				if (instance.Def.Silence && !instance.Restricted)
+				if (instance.Def.Silence && !instance.Restricted && !instance.FriendlyTarget)
 					return true;
 			return false;
 		}
@@ -561,21 +581,26 @@ namespace Codebase.Skills
 				enemy.ApplyStunAnimation(false);
 		}
 
-		// Multiplies the hero's/pet's defence value in DamageCalculator (enemy debuffs only; friendly buffs on the hero are real stat modifiers).
+		// Both hostile and friendly skill payloads act at read time on the hero and pets.
 		public float GetDefenceFactor(UnitCore unit)
 		{
-			return Mathf.Clamp(GetRestrictedFactor(unit, StatType.GlobalDefence), 0f, 10f);
+			return Mathf.Clamp(GetFriendlyFactor(unit, StatType.GlobalDefence), 0f, 10f);
 		}
 
 		// 1.3 means 30% longer between attacks.
 		public float GetAttackIntervalFactor(UnitCore unit)
 		{
-			return Mathf.Clamp(GetRestrictedFactor(unit, StatType.AttackCooldown), 0.1f, 10f);
+			return Mathf.Clamp(GetFriendlyFactor(unit, StatType.AttackCooldown), 0.1f, 10f);
 		}
 
-		private float GetRestrictedFactor(UnitCore unit, StatType statType)
+		public float GetOutgoingDamageFactor(UnitCore unit)
 		{
-			if (unit == null || unit.EntityProvider == null)
+			return Mathf.Clamp(GetFriendlyFactor(unit, StatType.Damage), 0f, 10f);
+		}
+
+		private float GetFriendlyFactor(UnitCore unit, StatType statType)
+		{
+			if (unit == null || !(unit is PlayerUnit) && !(unit is PetUnit) || unit.EntityProvider == null)
 				return 1f;
 			World current = CurrentWorld;
 			Entity entity = unit.EntityProvider.Entity;
@@ -587,39 +612,116 @@ namespace Codebase.Skills
 				return factor;
 			foreach (BuffInstance instance in buffs)
 			{
-				if (!instance.Restricted || instance.Def.StatMods == null)
+				if (!instance.FriendlyTarget || instance.Def.StatMods == null)
 					continue;
 				foreach (BuffStatMod mod in instance.Def.StatMods)
-					if (mod != null && mod.StatType == statType && mod.ModifierType == ModifierType.PercentMultiplicative)
+					if (mod != null && mod.StatType == statType && mod.ModifierType == ModifierType.PercentMultiplicative && IsAllowedFriendlyMod(mod, instance.Restricted))
 						factor *= Mathf.Pow(mod.ValuePerStack, instance.Stacks);
 			}
 			return factor;
 		}
 
-		// Movement multiplier from skill buffs for units that do not read their own MovementSpeed stat (pets).
+		// Enemies have no defence stat: GlobalDefence x PercentMultiplicative buffs from any source divide the damage they take.
+		// 0.7 (armor_break) means ~1.43x damage taken, 1.5 means ~0.67x. Neutral 1 without such buffs.
+		public float GetEnemyDefenceFactor(UnitCore unit)
+		{
+			if (!(unit is EnemyUnit) || unit.EntityProvider == null)
+				return 1f;
+			Entity entity = unit.EntityProvider.Entity;
+			if (CurrentWorld.IsDisposed(entity) || !buffsStash.Has(entity))
+				return 1f;
+			List<BuffInstance> buffs = buffsStash.Get(entity).Buffs;
+			if (buffs == null)
+				return 1f;
+			float factor = 1f;
+			foreach (BuffInstance instance in buffs)
+			{
+				if (instance.Def == null || instance.Def.StatMods == null)
+					continue;
+				foreach (BuffStatMod mod in instance.Def.StatMods)
+					if (mod != null && IsEnemyDefenceMod(mod))
+						factor *= Mathf.Pow(mod.ValuePerStack, instance.Stacks);
+			}
+			return Mathf.Clamp(factor, 0.1f, 10f);
+		}
+
+		private static bool IsEnemyDefenceMod(BuffStatMod mod)
+		{
+			return mod.StatType == StatType.GlobalDefence && mod.ModifierType == ModifierType.PercentMultiplicative;
+		}
+
+		// Pets read their own factor; their follow speed divides out the hero's real MovementSpeed modifier.
 		public float GetMoveSpeedFactor(UnitCore unit)
 		{
+			return GetFriendlyFactor(unit, StatType.MovementSpeed);
+		}
+
+		public void ClearPetSourceBuffs(UnitCore unit)
+		{
 			if (unit == null || unit.EntityProvider == null)
-				return 1f;
+				return;
 			World current = CurrentWorld;
 			Entity entity = unit.EntityProvider.Entity;
 			if (current.IsDisposed(entity) || !buffsStash.Has(entity))
-				return 1f;
-			float factor = 1f;
-			foreach (BuffInstance instance in buffsStash.Get(entity).Buffs)
-			{
-				if (instance.Def.StatMods == null)
-					continue;
-				foreach (BuffStatMod mod in instance.Def.StatMods)
-					if (mod != null && mod.StatType == StatType.MovementSpeed && mod.ModifierType == ModifierType.PercentMultiplicative)
-						factor *= Mathf.Pow(mod.ValuePerStack, instance.Stacks);
-			}
-			return factor;
+				return;
+			List<BuffInstance> buffs = buffsStash.Get(entity).Buffs;
+			if (buffs == null)
+				return;
+			for (int i = buffs.Count - 1; i >= 0; i--)
+				if (buffs[i].Source is PetUnit)
+					RemoveBuffAt(buffs, i);
+			if (buffs.Count == 0)
+				buffsStash.Remove(entity);
 		}
 
 		#endregion
 
 		#region Casting
+
+		public bool IsCasting(UnitCore unit)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return false;
+			World current = CurrentWorld;
+			Entity entity = unit.EntityProvider.Entity;
+			return !current.IsDisposed(entity) && castingStash.Has(entity);
+		}
+
+		public bool IsInCastPoint(UnitCore unit)
+		{
+			return IsCasting(unit) && !castingStash.Get(unit.EntityProvider.Entity).Fired;
+		}
+
+		public void ResetCaster(UnitCore unit)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return;
+			World current = CurrentWorld;
+			Entity entity = unit.EntityProvider.Entity;
+			if (current.IsDisposed(entity))
+				return;
+			CancelCast(entity);
+			if (!casterStash.Has(entity))
+				return;
+			ref SkillCasterComponent caster = ref casterStash.Get(entity);
+			foreach (SkillSlot slot in caster.Slots)
+			{
+				slot.Cooldown = slot.Def.InitialCooldown;
+				slot.AuraTimer = UnityEngine.Random.Range(0f, GetAuraInterval(slot.Def));
+			}
+			caster.Engaged = false;
+			caster.NextThinkTime = Time.time + UnityEngine.Random.Range(0f, ThinkInterval);
+		}
+
+		public void CancelCast(UnitCore unit)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return;
+			World current = CurrentWorld;
+			Entity entity = unit.EntityProvider.Entity;
+			if (!current.IsDisposed(entity))
+				CancelCast(entity);
+		}
 
 		public void CancelCast(Entity entity)
 		{

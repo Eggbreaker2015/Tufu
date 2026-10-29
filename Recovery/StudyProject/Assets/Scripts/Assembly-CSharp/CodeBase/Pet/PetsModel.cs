@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Player.Inventory;
+using Codebase.Skills;
 using Codebase.Unit;
 using Codebase.Unit.Components;
 using Scellecs.Morpeh;
@@ -203,6 +204,9 @@ namespace Codebase.Pet
 			PetUnit unit = pet.Unit;
 			if (unit == null || pet.State == PetState.Alive)
 				return;
+			ClearSkillBuffs(unit);
+			if (GameContext.Has<SkillService>())
+				GameContext.Get<SkillService>().ResetCaster(unit);
 			pet.State = PetState.Alive;
 			pet.ReviveAt = 0f;
 			pet.TargetOutOfRangeTimer = 0f;
@@ -258,12 +262,21 @@ namespace Codebase.Pet
 					continue;
 				}
 
+				ClearSkillBuffs(unit);
+				if (GameContext.Has<SkillService>())
+					GameContext.Get<SkillService>().CancelCast(unit);
 				if (restoreHealth)
 					unit.CurrentHealth = unit.GetStatValue(StatType.Health);
 				unit.CurrentTarget = null;
 				pet.TargetOutOfRangeTimer = 0f;
 				Warp(pet, center, yaw);
 			}
+		}
+
+		private static void ClearSkillBuffs(PetUnit unit)
+		{
+			if (unit.EntityProvider != null && GameContext.Has<SkillService>())
+				GameContext.Get<SkillService>().ClearBuffs(unit.EntityProvider.Entity);
 		}
 
 		private static void ResetAttackState(ItemModel item)

@@ -25,8 +25,10 @@ namespace Codebase.Skills.Components
 
 		public UnitCore Source;
 
-		// Hostile buff on the hero or a pet: slow, stun, defence/attack interval factors and ticks only (no silence, no other stats).
+		// Captured source whitelist, so ignored payloads cannot be read back as factors.
 		public bool Restricted;
+
+		public bool FriendlyTarget;
 
 		public readonly List<AppliedStatMod> Applied = new List<AppliedStatMod>(2);
 	}

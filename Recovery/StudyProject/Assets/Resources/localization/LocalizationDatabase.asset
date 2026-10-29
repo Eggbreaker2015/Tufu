@@ -17952,6 +17952,546 @@ MonoBehaviour:
     - "Şurada açılır:\r\n<color=yellow>ADA {number}"
     - "Відкриється на\r\n<color=yellow>ОСТРОВІ {number}"
     - "解锁于\r\n<color=yellow>岛屿 {number}\r\n\r\n\r\n"
+  - key: SKILL_DESC_bone_volley
+    values:
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - Fires 3 bone bolts at up to 3 enemies, each dealing 0.8x damage.
+    - 向最多 3 个敌人发射 3 支骨箭，每支造成 0.8 倍伤害。
+  - key: SKILL_DESC_slam
+    values:
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage to enemies within 3.5 m and slows movement by 30% for 2 seconds.
+    - 对自身周围 3.5 米内敌人造成 2.5 倍伤害，并减速 30%，持续 2 秒。
+  - key: SKILL_DESC_sp_abyss_reaver
+    values:
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - Deals 2.2x damage to enemies within 4 m and slows movement by 30% for 2 seconds.
+    - 对自身周围 4 米内敌人造成 2.2 倍伤害，并减速 30%，持续 2 秒。
+  - key: SKILL_DESC_sp_bear
+    values:
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - Deals 1.8x damage in a 90-degree cone reaching 3 m and stuns for 1 second.
+    - 对半径 3 米、90 度扇形内敌人造成 1.8 倍伤害并眩晕 1 秒。
+  - key: SKILL_DESC_sp_boss_berserker
+    values:
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - Below 70% health, increases own damage to 1.6x and reduces attack interval to 0.7x for 8 seconds.
+    - 生命低于 70% 时，自身伤害变为 1.6 倍、攻击间隔变为 0.7 倍，持续 8 秒。
+  - key: SKILL_DESC_sp_boss_crab
+    values:
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - After 1 second, deals 2.5x damage to enemies within 4 m.
+    - 前摇 1 秒后，对自身周围 4 米内敌人造成 2.5 倍伤害。
+  - key: SKILL_DESC_sp_boss_hydra
+    values:
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - Fires 3 missiles in a 30-degree fan, each dealing 1.5x damage.
+    - 以 30 度散射发射 3 支飞弹，每支造成 1.5 倍伤害。
+  - key: SKILL_DESC_sp_boss_lich
+    values:
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - After 1.2 seconds, deals 3x damage within 3.5 m of the target point.
+    - 前摇 1.2 秒后，对目标点周围 3.5 米内敌人造成 3 倍伤害。
+  - key: SKILL_DESC_sp_boss_vampire_king
+    values:
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - Restores 20% health to allies within 8 m and increases their damage to 1.3x for 6 seconds.
+    - 为自身及 8 米内友方回复 20% 生命，伤害变为 1.3 倍，持续 6 秒。
+  - key: SKILL_DESC_sp_boss_viking_king
+    values:
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - Deals 2.5x damage in a 150-degree cone reaching 5 m and slows movement by 30% for 2 seconds.
+    - 对半径 5 米、150 度扇形内敌人造成 2.5 倍伤害，并减速 30%，持续 2 秒。
+  - key: SKILL_DESC_sp_chainsaw
+    values:
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - Deals 1.8x damage in a line 8 m long and 1.5 m wide.
+    - 对长 8 米、宽 1.5 米直线内敌人造成 1.8 倍伤害。
+  - key: SKILL_DESC_sp_chainsawpike
+    values:
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - Deals 2.4x damage in a line 9 m long and 1.2 m wide.
+    - 对长 9 米、宽 1.2 米直线内敌人造成 2.4 倍伤害。
+  - key: SKILL_DESC_sp_coolHammer
+    values:
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - Restores 10% health to allies within 8 m and increases their damage to 1.2x for 5 seconds.
+    - 为自身及 8 米内友方回复 10% 生命，伤害变为 1.2 倍，持续 5 秒。
+  - key: SKILL_DESC_sp_coolpike
+    values:
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - Deals 2x damage in a line 6 m long and 2 m wide.
+    - 对长 6 米、宽 2 米直线内敌人造成 2 倍伤害。
+  - key: SKILL_DESC_sp_cultist
+    values:
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - After 1.2 seconds, deals 2x damage within 2.5 m of the target point.
+    - 前摇 1.2 秒后，对目标点周围 2.5 米内敌人造成 2 倍伤害。
+  - key: SKILL_DESC_sp_dark_treant
+    values:
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - Deals 1.5x damage within 3 m of the target point and slows movement by 50% for 3 seconds.
+    - 对目标点周围 3 米内敌人造成 1.5 倍伤害，并减速 50%，持续 3 秒。
+  - key: SKILL_DESC_sp_doubleaxe
+    values:
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - Deals 2x damage in a 120-degree cone reaching 4 m.
+    - 对半径 4 米、120 度扇形内敌人造成 2 倍伤害。
+  - key: SKILL_DESC_sp_fork
+    values:
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - Increases own damage to 1.3x for 5 seconds.
+    - 自身伤害变为 1.3 倍，持续 5 秒。
+  - key: SKILL_DESC_sp_ghost
+    values:
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - After 0.4 seconds, deals 2.5x damage to one enemy.
+    - 前摇 0.4 秒后，对单个敌人造成 2.5 倍伤害。
+  - key: SKILL_DESC_sp_hammer
+    values:
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - Deals 1.8x damage to enemies within 3 m.
+    - 对自身周围 3 米内敌人造成 1.8 倍伤害。
+  - key: SKILL_DESC_sp_katana
+    values:
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - Increases own defence to 1.5x for 6 seconds and restores 8% health.
+    - 自身防御变为 1.5 倍，持续 6 秒，并回复 8% 生命。
+  - key: SKILL_DESC_sp_knife
+    values:
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - Throws a missile at 12 m/s that deals 1.4x damage.
+    - 以每秒 12 米投出飞斧，造成 1.4 倍伤害。
+  - key: SKILL_DESC_sp_mace
+    values:
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - Increases own damage to 1.4x for 6 seconds.
+    - 自身伤害变为 1.4 倍，持续 6 秒。
+  - key: SKILL_DESC_sp_mage
+    values:
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - Fires a missile at 11 m/s that deals 1.8x damage.
+    - 以每秒 11 米发射奥术飞弹，造成 1.8 倍伤害。
+  - key: SKILL_DESC_sp_mailbox
+    values:
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - Deals 1.5x damage to one enemy and stuns for 0.8 seconds.
+    - 对单个敌人造成 1.5 倍伤害并眩晕 0.8 秒。
+  - key: SKILL_DESC_sp_minisaw
+    values:
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - Reduces own attack interval to 0.75x for 5 seconds.
+    - 自身攻击间隔变为 0.75 倍，持续 5 秒。
+  - key: SKILL_DESC_sp_paddle
+    values:
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - Restores 20% of own health. Used below 60% health.
+    - 回复自身 20% 生命。生命低于 60% 时使用。
+  - key: SKILL_DESC_sp_pick
+    values:
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - Deals 1.6x damage to one enemy and reduces its defence to 0.7x for 5 seconds.
+    - 对单个敌人造成 1.6 倍伤害，目标防御变为 0.7 倍，持续 5 秒。
+  - key: SKILL_DESC_sp_pike
+    values:
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - Throws a piercing missile that deals 1.2x damage.
+    - 投出穿透长矛，造成 1.2 倍伤害。
+  - key: SKILL_DESC_sp_skeleton_guard
+    values:
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - Deals 1.2x damage to one enemy and stuns for 1 second.
+    - 对单个敌人造成 1.2 倍伤害并眩晕 1 秒。
+  - key: SKILL_DESC_sp_skeleton_king
+    values:
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - Restores 12% health to allies within 8 m and increases their defence to 1.3x for 6 seconds.
+    - 为自身及 8 米内友方回复 12% 生命，防御变为 1.3 倍，持续 6 秒。
+  - key: SKILL_DESC_sp_treant
+    values:
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - Restores 15% health to self and allies within 8 m.
+    - 为自身及 8 米内友方回复 15% 生命。
+  - key: SKILL_DESC_sp_vampire_blade
+    values:
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - Deals 1.5x damage to enemies within 3 m and restores 10% of own health.
+    - 对自身周围 3 米内敌人造成 1.5 倍伤害，并回复自身 10% 生命。
+  - key: SKILL_DESC_sp_vampire_thrall
+    values:
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - Deals 1.3x damage to one enemy and restores 8% of own health.
+    - 对单个敌人造成 1.3 倍伤害，并回复自身 8% 生命。
+  - key: SKILL_DESC_sp_zombie
+    values:
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - Restores 25% of own health. Used below 50% health.
+    - 回复自身 25% 生命。生命低于 50% 时使用。
+  - key: SKILL_DESC_sp_zombie_brute
+    values:
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - Deals 2x damage to one enemy and stuns for 1 second.
+    - 对单个敌人造成 2 倍伤害并眩晕 1 秒。
   - key: SKILL_NAME_bone_rain
     values:
     - Bone Rain
@@ -18072,6 +18612,516 @@ MonoBehaviour:
     - Slam
     - Slam
     - 砸地
+  - key: SKILL_NAME_sp_abyss_reaver
+    values:
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - Abyss Reap
+    - 深渊收割
+  - key: SKILL_NAME_sp_bear
+    values:
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - Bear Slam
+    - 熊掌重拍
+  - key: SKILL_NAME_sp_boss_berserker
+    values:
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - Demonic Frenzy
+    - 恶魔狂暴
+  - key: SKILL_NAME_sp_boss_crab
+    values:
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - Lava Burst
+    - 熔岩爆裂
+  - key: SKILL_NAME_sp_boss_hydra
+    values:
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - Storm Breath
+    - 风暴吐息
+  - key: SKILL_NAME_sp_boss_lich
+    values:
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - Death Nova
+    - 死亡新星
+  - key: SKILL_NAME_sp_boss_vampire_king
+    values:
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - Crimson Feast
+    - 猩红盛宴
+  - key: SKILL_NAME_sp_boss_viking_king
+    values:
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - Spectral Sweep
+    - 亡魂横扫
+  - key: SKILL_NAME_sp_chainsaw
+    values:
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - Knight Charge
+    - 骑士冲锋
+  - key: SKILL_NAME_sp_chainsawpike
+    values:
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - Lance Thrust
+    - 骑枪突刺
+  - key: SKILL_NAME_sp_coolHammer
+    values:
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - Lord Command
+    - 领主号令
+  - key: SKILL_NAME_sp_coolpike
+    values:
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - Halberd Sweep
+    - 长戟横扫
+  - key: SKILL_NAME_sp_cultist
+    values:
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - Forbidden Lightning
+    - 禁忌电光
+  - key: SKILL_NAME_sp_dark_treant
+    values:
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - Entangling Roots
+    - 根须缠绕
+  - key: SKILL_NAME_sp_doubleaxe
+    values:
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - Greatsword Sweep
+    - 巨剑横扫
+  - key: SKILL_NAME_sp_fork
+    values:
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - Keen Eye
+    - 锐目
+  - key: SKILL_NAME_sp_ghost
+    values:
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - Shadow Strike
+    - 幽影突袭
+  - key: SKILL_NAME_sp_hammer
+    values:
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - Ground Quake
+    - 震地
+  - key: SKILL_NAME_sp_katana
+    values:
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - Guardian Resolve
+    - 卫士意志
+  - key: SKILL_NAME_sp_knife
+    values:
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - Axe Throw
+    - 掷斧
+  - key: SKILL_NAME_sp_mace
+    values:
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - Knight Rage
+    - 骑士之怒
+  - key: SKILL_NAME_sp_mage
+    values:
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - Arcane Missile
+    - 奥术飞弹
+  - key: SKILL_NAME_sp_mailbox
+    values:
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - Head Crack
+    - 当头一棒
+  - key: SKILL_NAME_sp_minisaw
+    values:
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - Gale Strikes
+    - 疾风连斩
+  - key: SKILL_NAME_sp_paddle
+    values:
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - Gluttony
+    - 暴食
+  - key: SKILL_NAME_sp_pick
+    values:
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - Armour Pierce
+    - 破甲刺
+  - key: SKILL_NAME_sp_pike
+    values:
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - Spear Throw
+    - 投矛
+  - key: SKILL_NAME_sp_skeleton_guard
+    values:
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - Shield Bash
+    - 盾击
+  - key: SKILL_NAME_sp_skeleton_king
+    values:
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - Royal Command
+    - 王者号令
+  - key: SKILL_NAME_sp_treant
+    values:
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - Nature Gift
+    - 自然馈赠
+  - key: SKILL_NAME_sp_vampire_blade
+    values:
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - Bloodblade Whirl
+    - 血刃回旋
+  - key: SKILL_NAME_sp_vampire_thrall
+    values:
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - Vampiric Bite
+    - 吸血撕咬
+  - key: SKILL_NAME_sp_zombie
+    values:
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - Undying Flesh
+    - 不死之躯
+  - key: SKILL_NAME_sp_zombie_brute
+    values:
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - Brutal Smash
+    - 蛮力猛击
   - key: SKILL_NAME_stomp
     values:
     - Stomp

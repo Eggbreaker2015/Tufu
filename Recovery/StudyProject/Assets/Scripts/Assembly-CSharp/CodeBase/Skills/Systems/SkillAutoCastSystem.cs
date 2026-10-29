@@ -45,6 +45,13 @@ namespace Codebase.Skills.Systems
 		[Inject]
 		private Stash<UnitWaitingAttackMarker> waitingStash;
 
+		[Inject]
+		private Stash<UnitDeadMarker> deadStash;
+
+		private PlayerUnit installedHero;
+
+		private bool heroWasDown;
+
 		private Filter casterFilter;
 
 		private Filter castingFilter;
@@ -57,6 +64,27 @@ namespace Codebase.Skills.Systems
 
 		public override void OnUpdate(float deltaTime)
 		{
+			PlayerUnit hero = playerModel.Unit;
+			if (hero != null && hero.EntityProvider != null && !World.IsDisposed(hero.EntityProvider.Entity))
+			{
+				if (hero != installedHero)
+				{
+					UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Hero, "hero");
+					Entity entity = hero.EntityProvider.Entity;
+					if (loadout != null)
+						skillService.Install(hero, entity, loadout);
+					else if (casterStash.Has(entity))
+						casterStash.Remove(entity);
+					installedHero = hero;
+					heroWasDown = false;
+				}
+				bool down = hero.IsDying || hero.IsDead;
+				if (down)
+					skillService.CancelCast(hero);
+				else if (heroWasDown)
+					skillService.ResetCaster(hero);
+				heroWasDown = down;
+			}
 			skillService.TickMissiles(deltaTime);
 			skillService.TickSummons();
 			UpdateCasts(deltaTime);
@@ -66,6 +94,8 @@ namespace Codebase.Skills.Systems
 				ref SkillCasterComponent caster = ref casterStash.Get(entity);
 				UnitCore unit = caster.Owner;
 				if (unit == null || unit.IsDead || unit.IsFar || !unit.gameObject.activeInHierarchy)
+					continue;
+				if (unit is PetUnit && (!PetConfig.Enabled || deadStash.Has(entity)))
 					continue;
 				bool engaged = IsEngaged(unit);
 				if (engaged && !caster.Engaged)
@@ -118,7 +148,16 @@ namespace Codebase.Skills.Systems
 				if (player == null || player.IsDying || player.IsSleeping || !playerModel.CanMove)
 					return false;
 			}
+			if (unit is PetUnit)
+				return !deadStash.Has(entity) && CanFriendlyAct(playerModel.Unit);
+			if (unit is PlayerUnit hero)
+				return CanFriendlyAct(hero);
 			return true;
+		}
+
+		private bool CanFriendlyAct(PlayerUnit hero)
+		{
+			return hero != null && playerModel.CanMove && !hero.IsDying && !hero.IsDead && !hero.IsSleeping;
 		}
 
 		private void Think(Entity entity, in SkillCasterComponent caster, UnitCore unit)
@@ -164,6 +203,8 @@ namespace Codebase.Skills.Systems
 					return SkillTargetQuery.Densest(unit, def.Telegraph != null && def.Telegraph.Radius > 0f ? def.Telegraph.Radius : DefaultDensityRadius, range);
 				case SkillPick.Hero:
 					PlayerUnit hero = playerModel.Unit;
+					if (!(unit is EnemyUnit))
+						return SkillTargetQuery.IsAlive(hero) && !hero.IsDying && SkillTargetQuery.FlatDistance(unit, hero) <= range ? hero : null;
 					if (SkillTargetQuery.IsAlive(hero) && !hero.IsDying && SkillTargetQuery.IsHostile(unit, hero) && SkillTargetQuery.FlatDistance(unit, hero) <= range)
 						return hero;
 					return GetCurrentTarget(unit);
@@ -198,7 +239,7 @@ namespace Codebase.Skills.Systems
 			SkillDef def = slot.Def;
 			slot.Cooldown = def.Cooldown;
 			Vector3 direction = SkillTargetQuery.GetFlatDirection(unit, target);
-			if (target != null && target != unit)
+			if (target != null && target != unit && !(unit is PlayerUnit))
 			{
 				if (unit is EnemyUnit turningEnemy && turningEnemy.Agent != null && turningEnemy.Agent.enabled && turningEnemy.Agent.isOnNavMesh)
 					turningEnemy.Agent.updateRotation = false;
@@ -256,6 +297,16 @@ namespace Codebase.Skills.Systems
 				ref SkillCastingComponent cast = ref castingStash.Get(entity);
 				UnitCore unit = cast.Caster;
 				if (unit == null || unit.IsDead || !unit.gameObject.activeInHierarchy || cast.Slot == null)
+				{
+					skillService.CancelCast(entity);
+					continue;
+				}
+				if (unit is PetUnit && (!PetConfig.Enabled || deadStash.Has(entity)))
+				{
+					skillService.CancelCast(entity);
+					continue;
+				}
+				if (!cast.Fired && (unit is PetUnit && !CanFriendlyAct(playerModel.Unit) || unit is PlayerUnit hero && !CanFriendlyAct(hero)))
 				{
 					skillService.CancelCast(entity);
 					continue;

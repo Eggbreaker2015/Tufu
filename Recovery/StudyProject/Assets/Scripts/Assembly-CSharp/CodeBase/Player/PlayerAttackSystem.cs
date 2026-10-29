@@ -99,6 +99,7 @@ namespace Codebase.Player
 			Vector3 position = PlayerUnit.transform.position;
 			float deltaTime = Time.deltaTime;
 			bool stunned = global::Codebase.Skills.FriendlyDebuffs.IsStunned(PlayerUnit);
+			bool casting = global::Codebase.Skills.FriendlyDebuffs.IsCasting(PlayerUnit);
 			float interval = global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(PlayerUnit);
 			float speedTarget = stunned ? 0f : GameContext.Get<Joystick>().GetInput().magnitude * (float)PlayerUnit.GetStatSpecificValue(Codebase.Unit.StatType.MovementSpeed) * 0.05f;
 			float coefficient = Mathf.Clamp01(1f - Mathf.Exp(-4f * deltaTime));
@@ -130,7 +131,7 @@ namespace Codebase.Player
 			foreach (ItemModel weapon in GetAttackItems())
 			{
 			    weapon.JustStartedAttack = false;
-			    if (stunned)
+			    if (stunned || casting)
 			    {
 			        weapon.WearingTime += deltaTime;
 			        continue;
@@ -164,14 +165,14 @@ namespace Codebase.Player
 			    }
 			}
 			if (PlayerUnit.IsDying) PlayerUnit.CurrentTarget = null;
-			else if (hasTarget && !stunned) Attack();
+			else if (hasTarget && !stunned && !casting) Attack();
 		}
 
 		private void Attack()
 		{
 			// Native ELF VA 0x1441034: original cast crossing emits the actual Morpeh hit event.
 			if (PlayerUnit.IsDying || PlayerUnit.CurrentTarget == null || PlayerUnit.IsDead || PlayerUnit.IsSleeping || !playerModel.CanMove) return;
-			if (global::Codebase.Skills.FriendlyDebuffs.IsStunned(PlayerUnit)) return;
+			if (global::Codebase.Skills.FriendlyDebuffs.IsStunned(PlayerUnit) || global::Codebase.Skills.FriendlyDebuffs.IsCasting(PlayerUnit)) return;
 			float interval = global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(PlayerUnit);
 			EnemyUnit target = PlayerUnit.CurrentTarget;
 			float baseRange = (float)playerModel.GetStatValue(Codebase.Unit.StatType.AttackRange);

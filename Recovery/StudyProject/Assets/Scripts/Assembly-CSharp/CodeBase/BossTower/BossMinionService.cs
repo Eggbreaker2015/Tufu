@@ -82,6 +82,8 @@ namespace Codebase.BossTower
 			CleanupStaleState(instance);
 			instance.Initialize(Lifetime.Eternal, config, position, stats);
 			Register(unitGuid, instance, countInHpBar, hasDeathAnim);
+			// Arena minions and skill summons alike: IgnoreFarMarker (set by Register) stops EnemyVisibilitySystem from undoing a stale cull.
+			ResetFarState(instance, instance.EntityProvider.Entity);
 			return instance;
 		}
 
@@ -90,7 +92,6 @@ namespace Codebase.BossTower
 		{
 			EnemyUnit unit = Spawn(Guid.NewGuid().ToString(), prefab, position, rotation, config, false, null, false);
 			Entity entity = unit.EntityProvider.Entity;
-			ResetFarState(unit, entity);
 			arenaUnitStash.Remove(entity);
 			minionMarkerStash.Remove(entity);
 			unitHasDeathAnimStash.Set(entity);

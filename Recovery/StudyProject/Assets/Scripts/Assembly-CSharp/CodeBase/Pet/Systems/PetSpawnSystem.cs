@@ -3,6 +3,7 @@ using Codebase.Core;
 using Codebase.Player;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
+using Codebase.Skills;
 using Codebase.Unit;
 using Codebase.Unit.Components;
 using Scellecs.Morpeh;
@@ -44,6 +45,9 @@ namespace Codebase.Pet.Systems
 			{
 				if (petsModel.Pets.Count > 0)
 					DespawnAll();
+				// Pet mode off: no pet-sourced buff stays on the hero (also from pets unequipped before the switch).
+				if (GameContext.Has<SkillService>())
+					GameContext.Get<SkillService>().ClearPetSourceBuffs(playerModel.Unit);
 				return;
 			}
 
@@ -98,6 +102,9 @@ namespace Codebase.Pet.Systems
 			unit.BuildStatLookup();
 			petTagStash.Set(unit.EntityProvider.Entity);
 			Injector.InjectInto(unit);
+			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, item.Key);
+			if (loadout != null && GameContext.Has<SkillService>())
+				GameContext.Get<SkillService>().Install(unit, unit.EntityProvider.Entity, loadout);
 			pet.Unit = unit;
 			petsModel.Pets.Add(pet);
 			petsModel.RestoreDeath(pet);
@@ -120,7 +127,14 @@ namespace Codebase.Pet.Systems
 			// keeps reading the destroyed NavMeshAgent (MissingReferenceException every frame).
 			Entity entity = unit.EntityProvider.Entity;
 			if (!World.IsDisposed(entity))
+			{
+				if (GameContext.Has<SkillService>())
+				{
+					GameContext.Get<SkillService>().ClearBuffs(entity);
+					GameContext.Get<SkillService>().CancelCast(entity);
+				}
 				World.RemoveEntity(entity);
+			}
 			Object.Destroy(unit.gameObject);
 		}
 

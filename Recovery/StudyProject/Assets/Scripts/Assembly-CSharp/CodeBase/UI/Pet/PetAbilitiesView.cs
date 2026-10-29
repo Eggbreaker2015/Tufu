@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Codebase.Abilities;
 using Codebase.Core;
 using Codebase.Core.UI;
 using Codebase.Localization;
 using Codebase.Pet;
 using Codebase.Player.Inventory;
+using Codebase.Skills;
 using Codebase.UI.Inventory;
 using Codebase.Utilities;
 using TMPro;
@@ -42,6 +44,8 @@ namespace Codebase.UI.Pets
 
 		private const float HeaderHeight = 170f;
 		private const float BottomInset = 24f;
+		private static readonly Dictionary<string, IReadOnlyList<SkillDef>> speciesSkills = new Dictionary<string, IReadOnlyList<SkillDef>>(StringComparer.Ordinal);
+		private static HashSet<string> skillLocalizationKeys;
 
 		[SerializeField]
 		private Layout layout = new Layout();
@@ -51,6 +55,46 @@ namespace Codebase.UI.Pets
 		private int visibleCount = -1;
 
 		internal Layout Elements => layout;
+
+		public static IReadOnlyList<SkillDef> GetSpeciesSkills(ItemModel item)
+		{
+			if (item == null || !PetConfig.Enabled || string.IsNullOrEmpty(item.Config?.Key)) return Array.Empty<SkillDef>();
+			string key = item.Config.Key;
+			if (speciesSkills.TryGetValue(key, out IReadOnlyList<SkillDef> cached)) return cached;
+			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, key);
+			List<SkillDef> resolved = null;
+			if (loadout?.Skills != null)
+				foreach (SkillSlotDef slot in loadout.Skills)
+				{
+					if (slot == null || string.IsNullOrEmpty(slot.SkillKey)) continue;
+					SkillDef def = SkillLibrary.FindSkill(slot.SkillKey);
+					if (def == null) continue;
+					if (resolved == null) resolved = new List<SkillDef>();
+					resolved.Add(def);
+				}
+			cached = resolved != null ? (IReadOnlyList<SkillDef>)resolved : Array.Empty<SkillDef>();
+			speciesSkills[key] = cached;
+			return cached;
+		}
+
+		private static string GetSkillText(string key, string fallback)
+		{
+			if (skillLocalizationKeys == null)
+			{
+				skillLocalizationKeys = new HashSet<string>(LocalizationService.GetKeysWithPrefix("SKILL_NAME_"), StringComparer.Ordinal);
+				skillLocalizationKeys.UnionWith(LocalizationService.GetKeysWithPrefix("SKILL_DESC_"));
+			}
+			if (!skillLocalizationKeys.Contains(key)) return fallback;
+			string text = LocalizationStrings.Get(key);
+			return string.IsNullOrEmpty(text) || text == key ? fallback : text;
+		}
+
+		[StaticReset]
+		private static void ResetStaticState()
+		{
+			speciesSkills.Clear();
+			skillLocalizationKeys = null;
+		}
 
 		// Every non-hidden ability, locked ones included (the inventory list keeps only the first locked one); the unlocked signature goes last.
 		public static List<int> GetAbilityIndices(ItemModel item)
@@ -122,22 +166,42 @@ namespace Codebase.UI.Pets
 			if (string.IsNullOrEmpty(name)) name = LocalizationStrings.Get("ITEM_NAME_" + item.Config.Key);
 			PetStatsText.SetText(layout.Title, name + " 技能");
 			List<int> indices = GetAbilityIndices(item);
-			bool changed = visibleCount != indices.Count;
-			while (rows.Count < indices.Count) rows.Add(CreateRow());
+			IReadOnlyList<SkillDef> skills = GetSpeciesSkills(item);
+			int count = skills.Count + indices.Count;
+			bool changed = visibleCount != count;
+			while (rows.Count < count) rows.Add(CreateRow());
 			for (int i = 0; i < rows.Count; i++)
 			{
 				Row row = rows[i];
-				bool active = i < indices.Count;
+				bool active = i < count;
 				if (row.Background.gameObject.activeSelf != active) changed = true;
 				row.Background.gameObject.SetActive(active);
 				if (!active) continue;
-				AbilityDef def = item.Config.AbilityDefs[indices[i]];
-				bool unlocked = item.IsAbilityUnlocked(def);
-				string title = ItemAbilityView.GetTitle(def);
-				if (ItemAbilityView.IsPetSignature(def)) title += "  <size=72%><color=#FFD54A>[专属]</color></size>";
-				if (ItemAbilityView.HasCastSkill(def)) title += "  <size=72%><color=#7CE3FF>[主动]</color></size>";
-				string description = ItemAbilityView.GetDescription(item, def, false, false);
-				string stars = ItemAbilityView.GetStarsLine(item, def);
+				bool unlocked;
+				string title;
+				string description;
+				string stars;
+				Sprite icon;
+				if (i < skills.Count)
+				{
+					SkillDef skill = skills[i];
+					unlocked = true;
+					title = GetSkillText("SKILL_NAME_" + skill.Key, skill.Key);
+					description = GetSkillText("SKILL_DESC_" + skill.Key, string.Empty);
+					stars = "<color=#7CE3FF>主动 · 冷却 " + skill.Cooldown.ToString("0.#", CultureInfo.InvariantCulture) + " 秒</color>";
+					icon = AbilityIcons.Get(skill);
+				}
+				else
+				{
+					AbilityDef def = item.Config.AbilityDefs[indices[i - skills.Count]];
+					unlocked = item.IsAbilityUnlocked(def);
+					title = ItemAbilityView.GetTitle(def);
+					if (ItemAbilityView.IsPetSignature(def)) title += "  <size=72%><color=#FFD54A>[专属]</color></size>";
+					if (ItemAbilityView.HasCastSkill(def)) title += "  <size=72%><color=#7CE3FF>[主动]</color></size>";
+					description = ItemAbilityView.GetDescription(item, def, false, false);
+					stars = ItemAbilityView.GetStarsLine(item, def);
+					icon = AbilityIcons.Get(def);
+				}
 				Sprite lockSprite = PetConfig.Instance != null ? PetConfig.Instance.LockSprite : null;
 				bool showLock = !unlocked && lockSprite != null;
 				if (row.NameValue != title || row.DescriptionValue != description || row.StarsValue != stars || row.Unlocked != unlocked || row.Lock.gameObject.activeSelf != showLock) changed = true;
@@ -152,14 +216,14 @@ namespace Codebase.UI.Pets
 				Color tint = unlocked ? Color.white : new Color(0.62f, 0.62f, 0.62f, 1f);
 				row.Name.color = tint;
 				row.Description.color = tint;
-				row.Icon.sprite = AbilityIcons.Get(def);
+				row.Icon.sprite = icon;
 				row.Icon.enabled = row.Icon.sprite != null;
 				row.Icon.color = unlocked ? Color.white : ItemAbilityView.LockedIconTint;
 				row.Lock.sprite = lockSprite;
 				row.Lock.gameObject.SetActive(showLock);
 				row.Background.color = new Color(0f, 0f, 0f, unlocked ? 0.3f : 0.18f);
 			}
-			visibleCount = indices.Count;
+			visibleCount = count;
 			if (!changed) return;
 			LayoutRebuilder.ForceRebuildLayoutImmediate(layout.Content);
 			float contentHeight = LayoutUtility.GetPreferredHeight(layout.Content);

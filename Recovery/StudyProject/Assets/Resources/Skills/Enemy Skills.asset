@@ -350,6 +350,8 @@ MonoBehaviour:
     Skills:
     - SkillKey: slam
       Level: 1
+    - SkillKey: sp_zombie_brute
+      Level: 1
   - OwnerKind: 0
     Key: Zombie_Boss
     Skills:
@@ -405,7 +407,9 @@ MonoBehaviour:
       RequireLineOfFire: 1
   - OwnerKind: 0
     Key: Skeleton_Easy
-    Skills: []
+    Skills:
+    - SkillKey: bone_volley
+      Level: 1
     RangedAttack:
       Enabled: 1
       AttackRange: 6.5

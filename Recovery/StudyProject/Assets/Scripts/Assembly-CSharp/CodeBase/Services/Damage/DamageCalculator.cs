@@ -89,7 +89,7 @@ namespace Codebase.Services.Damage
 			    double flatScale = fromSimulation ? simulationFlatDefenceMultiplier : 1.0;
 			    double defence = flatScale * (universalFlat + armor + typedFlat) * typedPercent;
 			    if (petTarget != null && petTarget.Item != null) defence *= PetStats.GetRatios(petTarget.Item, petTarget.Definition).Defence;
-			    // Skills: enemy defence debuffs on the hero and pets are read here, never in simulations.
+			    // Skills: defence buffs and debuffs on the hero and pets are read here, never in simulations.
 			    if (!fromSimulation) defence *= global::Codebase.Skills.FriendlyDebuffs.DefenceFactor(data.Target);
 			    double incoming = ApplyDamageDefense(attack, defence);
 			    incoming = Math.Max((1.0 - universalPercent) * incoming, 0.0);
@@ -204,6 +204,9 @@ namespace Codebase.Services.Damage
 			{
 			    if (evasion.Roll() && !data.Undodgeable) { damage = 0.0; result.HasDodged = true; }
 			    damage *= GetEventGolemDamageMultiplier(enemy, metaStats);
+			    // Scale the resolved hit once, before rounding; simulation never reads live skill factors.
+			    damage *= global::Codebase.Skills.FriendlyDebuffs.OutgoingDamageFactor(data.Source);
+			    damage /= global::Codebase.Skills.FriendlyDebuffs.EnemyDefenceFactor(data.Target);
 			    result.Damage = Math.Round(damage);
 			    if (result.IsSuperCrit) owner.BlockSuperCritChanceBonus = 0f;
 			    owner.NextHitSuperCritChanceBonus = 0f;

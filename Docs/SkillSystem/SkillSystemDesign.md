@@ -587,3 +587,89 @@ Loadout 里的 prefab 名在 LFS 场景中，【未核实】。
 13. **宠物详情**：背包里点未进化的石魔像，卡片高度固定、按钮不被快捷栏挡、属性换行；摘要行显示 4 个图标（两个未解锁为灰）和"技能 4 ›"；点开弹窗有 4 行，未解锁的两行灰色带锁并写明解锁条件，签名技带 `[专属]`、砸地带 `[主动]`。花万能碎片或进化后，图标解锁状态更新。
 14. **图鉴**：已拥有宠物的格子打开的小卡片同样是摘要行，按钮能打开弹窗。
 15. **非宠物模式**：关掉宠物模式后背包、物品信息的技能列表和高度与原来完全一致。
+
+## 11. C 期实现记录（2026-10-29）
+
+规格见 [PhaseCSpec.md](PhaseCSpec.md)。两个程序集编译通过（`check_final.sh` 与 `check_final.sh editor` 都是 exit=0），两个技能库的跨文件 YAML 检查通过，**没有在 Play 模式里验证过**。第 10.5 节"竞技场仆从可能隐身"一条已被 X1 取代。
+
+### 11.1 做了什么
+
+- **X1 竞技场小兵**：`BossMinionService.Spawn` 在 `Register` 之后统一调用 `ResetFarState`（`SpawnSummon` 里原来那次删掉），竞技场小兵、巫妖骷髅、技能召唤物都走这一步。
+- **X2 友方增益**：主角和宠物身上的 Buff 一律读取时乘系数，不再加属性修正（主角移速例外，见 11.4）。来源过滤：
+  - 敌人施加的：仍按第二期，只认眩晕、`OnTick`、减速、降防、降攻速。
+  - 友方或无来源施加的：认 `OnTick`（回血）和 `PercentMultiplicative` 的 `Damage`、`AttackCooldown`、`GlobalDefence`、`MovementSpeed`，增减都可以。
+  - 其余 `WarnOnce` 后忽略；过滤后什么都不剩就不加这个 Buff。`BuffInstance` 新增 `FriendlyTarget`。
+  - 新增输出伤害系数 `GetOutgoingDamageFactor` / `FriendlyDebuffs.OutgoingDamageFactor`（0～10），每次命中只乘一次：普攻在 `DamageCalculator` 敌人分支（非模拟），技能伤害在 `UnitDamageSystem.ApplySkillDamageToEnemy`。
+  - 清理：宠物死亡（`SkillBuffSystem`）、复活（`PetsModel.Revive/ReviveAll`）、回收（`PetSpawnSystem.Despawn`）；宠物模式关闭时每帧 `ClearPetSourceBuffs(hero)`。
+- **敌人防御 Buff（审查后补）**：敌人没有防御属性，原来 `armor_break`（宠物 `sp_pick`）和敌人 `sp_katana_guard` 落在敌人身上不起作用。新增 `SkillService.GetEnemyDefenceFactor` / `FriendlyDebuffs.EnemyDefenceFactor`：敌人身上所有 `GlobalDefence × PercentMultiplicative` 按层数相乘（0.1～10），敌人受到的伤害 **÷ 系数**，在 `DamageCalculator` 敌人分支（非模拟）和 `ApplySkillDamageToEnemy` 各乘一次；`ApplyMods` 对敌人跳过这类修正，避免重复。
+- **X3 自动施法**：
+  - 宠物：`PetSpawnSystem` 生成时按 `FindLoadout(Pet, item.Key)` 装技能，回收前取消施法；复活时冷却重置。宠物死亡、宠物模式关闭、主角暂停（不能移动、倒下、睡眠）时不思考，正在前摇的被取消。施法期间停步、不普攻、普攻冷却暂停、保留目标；前摇播攻击动画（`isAttacking`），后摇停。主角瞬移走远时取消施法。不画预警圈（原来就只给敌人画）。
+  - 主角：换主角单位时按 `FindLoadout(Hero, "hero")` 装，没有配置就不装（与宠物模式无关）。倒下取消施法，起身冷却重置；施法期间可以移动、不普攻、不被转向目标。
+  - 新接口：`SkillService.IsCasting`、`IsInCastPoint`、`ResetCaster`、`CancelCast(UnitCore)`，`FriendlyDebuffs.IsCasting`。友方的 `Pick: 5`（Hero）= 活着且在射程内的主角；宠物的 `CurrentTarget` = `pet.CurrentTarget`。
+- **Y 内容**：新建 `A/Resources/Skills/Species Skills.asset`（34 个 `sp_*` 技能、10 个新 Buff、36 个宠物 Loadout、26 个敌人 Loadout）；`Enemy Skills.asset` 只追加两处（见 11.3）；删掉 `pet_golem.asset` 的 `pet_skill_golem_slam`；本地化加 70 行。
+- **Z 宠物界面**：`PetAbilitiesView.GetSpeciesSkills(ItemModel)`（宠物模式关闭、没有 Loadout 时返回空，按物品 Key 缓存，`[StaticReset]` 清）。技能弹窗第一行是种类技能（图标、名字、描述、"主动 · 冷却 N 秒"，总是解锁样式），摘要行把它算进图标和数量。本地化键先收成集合再查，缺键不刷日志。`ItemMiniView` 没改，自动生效。
+
+### 11.2 配置约定
+
+| 位置 | 约定 |
+|---|---|
+| `SkillLibrary.Loadouts` | `OwnerKind: 2`（Pet）+ `Key` = 物品 Key；`OwnerKind: 3`（Hero）+ `Key: hero`，默认没有；敌人仍是 `OwnerKind: 0` + prefab 名 |
+| `Species Skills.asset` | 和 `Enemy Skills.asset` 一起被 `Resources.LoadAll` 合并；技能、Buff、Vfx、Loadout 的 Key 只能在一个文件里出现（重复会警告），引用可以跨文件 |
+| 技能 Key | 种类技能 `sp_<物品Key>`；骷髅兵、石魔像直接共用 `bone_volley`、`slam` |
+| 本地化 | `SKILL_NAME_<技能Key>`（施法条和宠物弹窗）、`SKILL_DESC_<技能Key>`（宠物弹窗，缺键时描述为空），13 列，zh 中文、其余英文 |
+| 友方 Buff | 落在主角或宠物身上只认 11.1 的允许列表；想让宠物给友方加别的属性需要先扩列表 |
+| 敌人 Buff | 防御只认 `GlobalDefence × PercentMultiplicative`（受伤 ÷ 系数）；其他属性仍按真实属性修正（敌人有这个属性才生效） |
+
+### 11.3 种类技能和敌人侧
+
+数值见 PhaseCSpec 第 2 节表格（11.4 列出偏差）。宠物侧 36 个种类全部有技能；敌人侧装配如下：
+
+| 物品 Key → 敌人 prefab（技能） |
+|---|
+| paddle → `buck_buck_medium`；mailbox → `cut_buck_medium`；hammer → `buck_buck_boss`；mace → `cut_buck_knight`；coolHammer → `all_buck_knight` |
+| knife → `cut_cut_easy`；minisaw → `cut_cut_medium`；katana → `pier_cut_medium upg`；doubleaxe → `cut_cut_boss`；chainsaw → `cut_cut_knight` |
+| pike → `pier_pier_easy`；fork → `pier_pier_medium`；pick → `buck_pier_boss`；coolpike → `pier_pier_boss`；chainsawpike → `pier_pier_knight` |
+| golem → `elite_buck`（slam）；cultist → `vip enemy`；bear → `elite_pier`；treant → `elite_cut green`；mage → `mage`；ghost → `ghost` |
+| vampire_thrall → `Vampire_Easy`；vampire_blade → `Vampire_Medium+`；abyss_reaver → `undead_pierce_cut_elite`；dark_treant → `undead_cut_buck_elite`；zombie → `Zombie_Easy` |
+| 在 `Enemy Skills.asset` 追加：skeleton → `Skeleton_Easy`（bone_volley，远程普攻不变）；zombie_brute → `Zombie_Medium+`（slam 之后加 sp_zombie_brute） |
+
+**排除（只有宠物侧）**：skeleton_guard（`Skeleton_Medium+_Summoned`）、skeleton_king（`Skeleton_Boss_Summoned`）、boss_crab、boss_vampire_king、boss_hydra、boss_lich、boss_viking_king、boss_berserker（`Boss_*`）。
+
+新 Buff：`stun_08`、`slow_50`、`sp_mace_fury`、`sp_fork_focus`、`sp_minisaw_haste`、`sp_katana_guard`、`sp_coolHammer_command`、`sp_skeleton_king_command`、`sp_boss_vampire_king_feast`、`sp_boss_berserker_frenzy`；复用 `slow_30`、`armor_break`、`stomp_stun`。除 `stun_08` 外都只用 `Damage`、`AttackCooldown`、`GlobalDefence`、`MovementSpeed` 的 `PercentMultiplicative`，落在友方身上不会被丢掉。
+
+### 11.4 与规格不同的地方
+
+- **主角移速仍是真实属性修正**（规格"一律乘系数"）：第二期主角移速就是修正，宠物跟随速度依赖它。
+- **同一个 Buff 在主角或宠物身上，敌人施加的和友方施加的各算一份**，不合并叠层，免得两套允许列表混用。友方施加的眩晕被忽略（规格没写）。
+- **宠物模式关闭时每帧清主角身上来自宠物的 Buff**；`DespawnAll` 仍只在 `Pets.Count > 0` 时执行，免得每帧清掉待复活记录。
+- **主角整个施法（前摇 + 后摇）都不普攻**（规格只写前摇），和宠物一致；后摇只有 0.2～0.4 秒。
+- **宠物前摇期间持续播攻击动画**（只用 `isAttacking`，不读技能自己配的动画参数），规格是"前摇开始时播一次"。
+- **敌人防御 Buff 的生效方式是"受伤 ÷ 系数"**：`armor_break` ×0.7 ≈ 受伤 ×1.43，`sp_katana_guard` ×1.5 ≈ 受伤 ×0.67。主角和宠物仍是"防御值 × 系数"后进伤害公式，两边手感不同。
+- **`sp_pick` 复用 `armor_break`，持续 5 秒**（规格 6 秒，规格同时要求复用）。
+- **近战单体技能射程 3.5**（规格 3）：自动施法要求目标在 `Range` 内，3.5 和 `TargetDistance` 条件一致，手长的敌人也能放。近战命中特效高度 0.2（不是 1.2）。
+- **共用技能不用 `Pick: 5`**，宠物不会把技能对准主角。
+- **一个宠物 Loadout 有多个技能时弹窗每个一行**（规格按每种一个写）。
+
+### 11.5 已知问题
+
+- 全部没有在 Play 模式里看过：宠物施法动作、增益数字、弹窗布局、数值手感。
+- 26 种战役普通敌人现在会放技能（治疗、增益、眩晕），战役难度需要重新调。
+- `Skeleton_Easy` 也是 `raise_dead` 的召唤 prefab，所以 15 号岛 Boss 召唤的骷髅也会放 `bone_volley`。
+- 主角施法时普攻冷却暂停，但武器挥动动画还在播，可能卡在半途或不同步。
+- 走同一条命中流程的物品技能伤害也会乘输出伤害系数和敌人防御系数。
+- 宠物弹窗的冷却是 `SkillDef.Cooldown` 原值，不带等级缩放；运行中改技能资产要等域重载或静态重置才显示。
+- 数值模型和模拟器（`fromSimulation`）不读宠物技能、友方增益和敌人防御系数。
+- `Main.unity` 当前没有改动，之前的冲突已经不在。
+
+### 11.6 进 Play 要测的
+
+1. **进入**：同 10.6 第 1 步（F8 → 快速测试 → 建测试副本 → 传送；「战斗」页只开「无敌」）。确认 `Resources/Pet Config.asset` 的 `enabled: 1`，在「装备与资源」页「宠物」区选种类、等级 1、勾「发放后出战」，点「发放选中宠物」。建议依次发：石魔像 `pet_golem`、锤骑士 `mace`、重甲矛兵 `pick`、战锤领主 `coolHammer`、阔剑卫士 `katana`。
+2. **宠物施法**：遇敌后按冷却放技能，没有预警圈；前摇时停下播攻击动画、不普攻，后摇结束恢复追击和普攻。石魔像通过自动施法砸地，旧的 `pet_skill_golem_slam` 不再出现。
+3. **友方增益**：`mace` 放技能后 6 秒内宠物普攻和技能伤害数字约 ×1.4，到期恢复；`minisaw` 攻击变快、动画同步；`katana` 期间宠物受伤变少；`coolHammer` 给 8 米内的主角和宠物回血并加伤害。主角属性面板（除移速外）不出现技能修正。
+4. **破甲**：`pick` 的 `sp_pick` 命中后，敌人血条下出现减益图标，5 秒内主角和宠物打它的伤害约 ×1.43，之后恢复。
+5. **敌人侧**：`buck_buck_medium`、`cut_cut_easy`、`pier_pier_easy` 等普通敌人带预警圈放各自的种类技能；`pier_cut_medium upg` 放 `sp_katana` 后 6 秒内受伤约 ×0.67 并回血；`Zombie_Medium+` 同时有 slam 和 sp_zombie_brute。
+6. **打断与清理**：宠物前摇时被眩晕，技能取消且冷却已扣；宠物死亡后不施法，复活后冷却重置；卸下再装上重新装技能；主角对话、睡眠、倒下时前摇被取消。
+7. **Boss 塔**：第二次进塔或波次复用时，竞技场小兵都看得见。
+8. **宠物界面**：弹窗第一行是种类技能（图标、名字、描述、"主动 · 冷却 N 秒"），摘要行图标多一个、数量加一；背包小卡和图鉴同样；控制台没有缺键日志。
+9. **关闭宠物模式**：没有任何宠物技能和种类技能行；主角身上来自宠物的 Buff 立即消失；主角技能配置为空时主角行为和以前一样。
+10. **回归**：敌人施法、预警圈、施法条和第二期一样；加载时没有 `[Skills] Duplicate`/`Unknown` 警告。
