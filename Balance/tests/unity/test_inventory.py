@@ -216,12 +216,12 @@ def test_t13_free_checkpoint_and_headroom(run, series, targets):
 
 
 def test_t17_slots_export_and_fixture_contradiction(series, targets):
-    for name in ("inventory-free", "inventory-checkpoint"):
-        slots = series[name].slots
-        assert all(slots[d][0] == 2 for d in range(1, 6))
-        assert all(w == 3 for d, (w, a) in slots.items() if 6 <= d <= 21)
-        assert all(w == 4 for d, (w, a) in slots.items() if d >= 24)
-        assert all(a == 0 for d, (w, a) in slots.items() if d < 9)
+    assert series["inventory-checkpoint"].slots[1] == (2, 0)
+    slots = series["inventory-free"].slots
+    assert all(slots[d][0] == 2 for d in range(1, 6))
+    assert all(w == 3 for d, (w, a) in slots.items() if 6 <= d <= 21)
+    assert all(w == 4 for d, (w, a) in slots.items() if d >= 24)
+    assert all(a == 0 for d, (w, a) in slots.items() if d < 9)
     s = series["chain-swapped"]
     assert s.slots is not None
     assert s.slots[6][0] == 3 and s.slots[24][0] == 4
@@ -286,12 +286,14 @@ def test_unobserved_rarities_chain_curve_and_x6(run, db):
     x6 = probe["x6"]
     assert x6["before"] == x6["with_equipment"] and x6["total_before"] != x6["total_after"]
     itd = load_island_target_days(db)
+    assert len(probe["island_days"]) == 2 * len(itd) + 1
+    # Float text uses G9; reconstruct binary32 and compare every bit after double_all evaluation.
     for island, day in probe["island_days"]:
         n = math.floor(island)
         fraction = float(np.float32(island - n))
         previous = 0.0 if n == 1 else float(itd[n - 2])
         expected = np.float32(previous if fraction == 0 else previous + fraction * (float(itd[n - 1]) - previous))
-        assert day == float(expected), (island, day, float(expected))
+        assert np.float32(day).tobytes() == expected.tobytes(), (island, day, float(expected))
 
 
 def test_comparisons_use_only_discriminating_days_and_late_plateau(run, series, targets, db):

@@ -7301,7 +7301,7 @@
      "key": "knife",
      "level": 9,
      "shards": 11000,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 11008,
@@ -7311,7 +7311,7 @@
      "key": "pike",
      "level": 9,
      "shards": 11000,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 547,
@@ -7321,7 +7321,7 @@
      "key": "paddle",
      "level": 9,
      "shards": 11000,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 638,
@@ -7331,7 +7331,7 @@
      "key": "doubleaxe",
      "level": 5,
      "shards": 2200,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 2299,
@@ -7341,7 +7341,7 @@
      "key": "coolpike",
      "level": 5,
      "shards": 2200,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 2113,
@@ -7351,7 +7351,7 @@
      "key": "scarlet_edge",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 711,
@@ -7361,7 +7361,7 @@
      "key": "mace",
      "level": 5,
      "shards": 2200,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 2075,
@@ -7371,7 +7371,7 @@
      "key": "dragon_spikes",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 1708,
@@ -7381,7 +7381,7 @@
      "key": "spiked_dome",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 1654,
@@ -7391,7 +7391,7 @@
      "key": "iron_studs",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 5572,
@@ -7401,7 +7401,7 @@
      "key": "steel_guard",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 5580,
@@ -7411,7 +7411,7 @@
      "key": "stone_disk",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 8940,
@@ -7541,7 +7541,7 @@
      "key": "graveeye_visor",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 700,
@@ -7551,7 +7551,7 @@
      "key": "graveeye_aegis",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 561,
@@ -7561,7 +7561,7 @@
      "key": "prismcore_drillmask",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 539,
@@ -7571,7 +7571,7 @@
      "key": "prismcore_ward",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 1602,
@@ -7581,7 +7581,7 @@
      "key": "sunwheel_crown",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 1595,
@@ -7591,7 +7591,7 @@
      "key": "sunwheel_deflector",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 6505,
@@ -11446,7 +11446,7 @@
      "key": "knife",
      "level": 9,
      "shards": 11000,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 10838,
@@ -11456,7 +11456,7 @@
      "key": "pike",
      "level": 9,
      "shards": 11000,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 499,
@@ -11466,7 +11466,7 @@
      "key": "paddle",
      "level": 9,
      "shards": 11000,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 651,
@@ -11476,7 +11476,7 @@
      "key": "doubleaxe",
      "level": 5,
      "shards": 2200,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 2368,
@@ -11486,7 +11486,7 @@
      "key": "coolpike",
      "level": 5,
      "shards": 2200,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 709,
@@ -11496,7 +11496,7 @@
      "key": "mace",
      "level": 5,
      "shards": 2200,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 2064,
@@ -11506,7 +11506,7 @@
      "key": "scarlet_edge",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 2066,
@@ -11516,7 +11516,7 @@
      "key": "dragon_spikes",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 1728,
@@ -11526,7 +11526,7 @@
      "key": "spiked_dome",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 1668,
@@ -11536,7 +11536,7 @@
      "key": "iron_studs",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 5587,
@@ -11546,7 +11546,7 @@
      "key": "steel_guard",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 5590,
@@ -11556,7 +11556,7 @@
      "key": "stone_disk",
      "level": 7,
      "shards": 5500,
-     "target": 298.3333
+     "target": 298.333313
     },
     {
      "copies": 8972,
@@ -11686,7 +11686,7 @@
      "key": "graveeye_visor",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 698,
@@ -11696,7 +11696,7 @@
      "key": "graveeye_aegis",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 562,
@@ -11706,7 +11706,7 @@
      "key": "prismcore_drillmask",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 548,
@@ -11716,7 +11716,7 @@
      "key": "prismcore_ward",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 1589,
@@ -11726,7 +11726,7 @@
      "key": "sunwheel_crown",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 1594,
@@ -11736,7 +11736,7 @@
      "key": "sunwheel_deflector",
      "level": 4,
      "shards": 1600,
-     "target": 335.8333
+     "target": 335.833313
     },
     {
      "copies": 6541,

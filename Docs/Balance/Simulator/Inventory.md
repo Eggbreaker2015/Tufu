@@ -62,7 +62,7 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 | P12 | PASS。TC1–24 的 85 个 DPS 单元选中 (4,8)：平均 3.058871%；(4,7) 为 7.734179%，(3,8) 为 9.233272%。TC≥25 单列 140 格：平均 1.449333%、最大 12.484544%，未用于选规则；没有拿槽数夹具验证规则。 |
 | T11 | PASS。15 个类型/稀有度中 14 个同快照；Uncommon 武器重放为 TC2，随包为 TC1，恰为下一个快照。 |
 | T13 | PASS。free 为 253/254 = 99.606299%；checkpoint 为 253/255 = 99.215686%。free 的 C/U/R 为 196/196、E/L 为 57/58；checkpoint 为 196/197、57/58。两种模式各导出 285 行余量表。超带项目：free 的 doubleaxe L5；checkpoint 的 doubleaxe L5、paddle L9。 |
-| T17（只对照） | PASS（free/checkpoint）；DEVIATION（replay）。free 与 checkpoint 在 TC1 均为 (2,0)、Location=2，符合武器 TC1–5=2、TC6–21=3、TC24 起=4。只有 day-0 override 的派生解锁重放在 TC1 为 (1,0)、Location=1，TC2 才到岛 2；同样解释 T11 的 Uncommon 武器晚一快照。weapon_2 由岛 1 pier boss 的 SlotReward 开启，归 C4/C7 重放初始化交接，不是 C6 的槽 3/4 规则或 K2 一般慢门禁偏迟；原版 UnlockSimulationWeaponSlot 本来是空壳。护甲 TC9 前实际为 0；拟合夹具在 TC0–8 为 1，TC13 也只有 1 而实际为 2。夹具不是独立验证。 |
+| T17（只对照） | PASS（free 的设计槽数与 checkpoint 的 TC1）；DEVIATION（replay）。free 与 checkpoint 在 TC1 均为 (2,0)、Location=2。free 符合武器 TC1–5=2、TC6–21=3、TC24 起=4。只有 day-0 override 的派生解锁重放在 TC1 为 (1,0)、Location=1，TC2 才到岛 2；同样解释 T11 的 Uncommon 武器晚一快照。weapon_2 由岛 1 pier boss 的 SlotReward 开启，归 C4/C7 重放初始化交接，不是 C6 的槽 3/4 规则或 K2 一般慢门禁偏迟；原版 UnlockSimulationWeaponSlot 本来是空壳。replay/free 的护甲 TC9 前实际为 0；拟合夹具在 TC0–8 为 1，checkpoint 从第 4 天覆盖后会继承该夹具（TC5 已有 1 个护甲槽），不据此检验自然开槽。TC13 夹具也只有 1 而 replay 实际为 2。夹具不是独立验证。 |
 | 慢阶段、Carry/Seeded | PASS。默认重放共 16,429 次取整、45 条物品流；四个组合的最大累计差分别 0.994036/0.984797/0.967610/0.974276，均 <1。慢阶段逐次期望等于 E(d)，两种模式的所有整数逐次匹配独立 Python SimulationRandom。 |
 | X6 | PASS。同一快照统计函数在加入 Item 来源 +37 修饰器前后 Value 相同，而活的 FastValue 改变。 |
 | Frozen/Regenerate | PASS。三个 JSON sha256 与完整资产守卫共同验证；Regenerate 运行中摘要确实改变、结束后恢复，且退出 Play 的守卫没有看到 Combat Balance Config 改变。请求校验和引擎都限制为 reenter_play 批处理。 |
@@ -98,3 +98,21 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 inventory.json 改经 SimulationJson.WriteFile/Write 的 JsonDouble 路径序列化，包括嵌套 JObject/JArray；.NET 与编辑器同版 Mono 的离线回归核对易受影响的 double 位。ConvertIslandTimingToDays 的 199 个样本改按 double_all（binary64 表达式、float 返回时舍入）逐位核对；不再用 stepwise 预言机加 rtol=1e-7，岛 3.5 可区分两者。
 
 - C6 → X2fix/C1/P11：本轮不修改 X2/items 行为，等待引擎决策。C6 的慢阶段清怪会在 Tick 内立即合并份数和自动装备，晚于 Tick 开始的 DPS 缓存；X2fix dc7d002 仅保存属性 basis，按快照末尾物品重算仍可能不一致。评审在旧版 inventory-free 上看到 day 0–3 正奖励数 15/28/40/44，X2 有 78 个 DpsData 未命中、涉及 26 个早期快照；旧版属性/物品混杂，尚不能证明合并后的结果。合并 X2fix 后须跑 smoke-11 与 free inventory 的 X2；若仍失配，由引擎/C1 捕获缓存时的 copies、level、evolved 和 equipped set。此项仅交接，不宣称已修复或已验证合并结果。
+
+### 修正后的实测（C# e02fa37）
+
+只重新启动一次 13 作业批处理，运行键 `44f495f2f04dfa78c4027032a581c876b9158d8db7de632c743c3e2ddea4e8a3`，Unity/启动器均退出 0，192.935 秒；13/13 资产守卫通过，guard_problems 为空，13 个 Play 入口、SDK/error_like 均为 0。每行生成前的两个字段均为 -1；清空整系列后，G07 仍为武器和护甲各 225/225，Value/CopyValue 同时匹配 P5 与随包表。没有重新调整生成器参数。重放的 mace 首次清怪日为 10，2 次清怪，loss/H=0.5258240516092347，Count=1、充能上限 2；TC19 为 mace/coolpike/doubleaxe=18/24/26，与上述归因相符。
+
+`SimulationJson` 的 float G9 输出使 free/checkpoint 各 18 行 headroom.target 的文本从 `298.3333`/`335.8333` 变为 `298.333313`/`335.833313`。逐行确认新旧文本还原后的 binary32 位完全相同，其余字段完全相同。经 `golden accept sim_inventory --keys g07.rows inventory-free.headroom inventory-checkpoint.headroom --loosen --reason ...` 重新接受；记录理由明确写明整系列清空和 no-op 埋错。G07 数值不变，工具只将两个发生文本变化的 CURRENT 键列入 changes，并为这两个精确表新增序列化放宽登记；所有 ORIGINAL 与设计阈值均保持不变。T12 的既有登记理由已补入逐物品归因与 K1/C5 交接。
+
+以下在本工作树 Balance 中使用共享解释器和只读 `TUFU_BALANCE_DB`：
+
+- `TUFU_UNITY_REV=e02fa37 python -m pytest -q --unity tests/unity/test_inventory.py`：13 passed，12.29 秒（重用上述唯一的新 Unity 批处理）；包含 free 的完整 T17 槽数对照、checkpoint 的 TC1=(2,0)、199/199 岛时间 binary32 位比较。checkpoint 从第 4 天起主动覆盖拟合槽数，不能用它检验自然护甲开槽。
+- `python -m pytest -q tests/test_inventory_probe.py tests/test_export_double_roundtrip.py`：5 passed，2.64 秒；包括三种 G07 埋错和 .NET/Mono 嵌套 JObject 的精确 double 输出。
+- `python -m pytest -q`（本轮修正与重新接受后）：863 passed、290 skipped、24 warnings，156.03 秒；此前同轮为 864 passed、289 skipped、171.21 秒，差别为负载触发的 perf 跳过。
+- `python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-C6`：OK，2.4 秒；带/不带 UNITY_EDITOR 均 0 错误、0 新警告，签名 0、禁用 API 0。
+- `python tests/golden/fixtures/generate.py --check`：identical（既有 provenance 提示不影响内容）。
+- `python -m tufu_balance.golden guard`：20 suites、0 violations；本轮没有改动 ORIGINAL 文件。
+- `python -m tufu_balance.unity status`：运行工作树 clean=true，锁为空，无运行工作树 Unity 进程。
+
+新批处理默认重放 FastTick 的 p50/均值/p95/最大为 44.3902/49.0619/71.4368/81.8719 ms（401 次，中位数 ≤50 ms）；free 为 17.6695/19.7178/42.3140/49.6111 ms。慢 Tick 中位数分别为 1.2359/0.7847 ms。仍是与全仓测试并行的繁忙机器测量。
