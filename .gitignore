@@ -94,4 +94,7 @@ game_data_backup.bin
 !/Balance/
 /Balance/.venv/
 /Balance/out/
+
+# Level generators (Python) that write meshes, materials and scenes into the Unity project.
+!/Tools/
 __pycache__/
