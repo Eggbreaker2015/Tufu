@@ -11,6 +11,9 @@
 * manifest ``override`` (``SimulationStateOverride``): options, calls/applied/first/last day, counters.
 * ``override_days.jsonl`` (output ``override_days``, on by default): one line per applied day, the state the
   engine holds after the override; doubles/floats as hex bits (:func:`read_days` decodes them).
+* Stored replay loads state/caches before day RPM under K(d-1), then K(d) and the forced snapshot.
+  Planning TotalValue is restored afterwards; rpm_after_override is effectively skip on this path.
+  Only shipped observation days update the RPM maximum; free/checkpoint/recomputed paths are unchanged.
 * :func:`expected_day` is the independent oracle of what a day's override must set (``model.snapshots``).
 """
 

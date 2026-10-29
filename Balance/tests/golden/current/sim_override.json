@@ -51,7 +51,7 @@
    "note": "",
    "source": "design 4.6",
    "value": {
-    "cache_applications": 5,
+    "cache_applications": 10,
     "items_added": 20,
     "slots_opened": 4,
     "total_value_corrections": 18,
@@ -127,7 +127,7 @@
    "note": "",
    "source": "design 7.3 C4",
    "value": {
-    "cache_applications": 402,
+    "cache_applications": 804,
     "items_added": 44,
     "slots_opened": 5,
     "total_value_corrections": 2840,
@@ -136,9 +136,9 @@
   },
   "replay405.day_change_gpm_carried": {
    "kind": "exact",
-   "note": "cells where day d+1's CurrentGpm is day d's override RPM, above the day change's own",
-   "source": "design 4.6",
-   "value": 730
+   "note": "nonzero cells whose observed-grid maximum equals the preceding day's maximum",
+   "source": "K1 round2 stored replay order",
+   "value": 1522
   },
   "replay405.day_change_gpm_cells": {
    "kind": "exact",
@@ -154,15 +154,15 @@
   },
   "replay405.forced_dps_differs_from_stored": {
    "kind": "exact",
-   "note": "days d whose day d+1 forced-snapshot DpsData (day change recompute) differs from day d's stored one",
-   "source": "design 4.6",
-   "value": 401
+   "note": "forced day d caches vs stored day d, no one-day lag",
+   "source": "K1 round2 C4 before-RPM stored replay",
+   "value": 0
   },
   "replay405.rpm_cells_equal_fresh": {
    "kind": "exact",
-   "note": "RPMCalculatedValue after the override == model.simcalc on the recorded state (others are kept maxima)",
+   "note": "diagnostic equality with planning K(d); the before-RPM oracle validates the actual observed-grid maximum",
    "source": "design 4.6",
-   "value": 14464
+   "value": 13752
   },
   "replay405.state_mismatch_days": {
    "kind": "exact",
@@ -208,16 +208,16 @@
   },
   "rpm_skip.day_change_gpm_carried": {
    "kind": "exact",
-   "note": "rpm_after_override = skip, days 5..30: the game's own max",
-   "source": "design 4.6",
-   "value": 0
+   "note": "",
+   "source": "K1 round2 stored replay order",
+   "value": 74
   },
   "slots_down.counters": {
    "kind": "exact",
    "note": "",
    "source": "design 4.6",
    "value": {
-    "cache_applications": 4,
+    "cache_applications": 8,
     "items_added": 8,
     "slot_unequips": 4,
     "slots_closed": 6,
@@ -230,7 +230,7 @@
    "note": "",
    "source": "design 4.6",
    "value": {
-    "cache_applications": 27,
+    "cache_applications": 54,
     "gates_opened": 13,
     "items_added": 26,
     "slot_rewards_opened": 3,

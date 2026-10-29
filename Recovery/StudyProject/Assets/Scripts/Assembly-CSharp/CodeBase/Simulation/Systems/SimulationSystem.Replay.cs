@@ -15,19 +15,36 @@ namespace Codebase.Simulation.Systems
 {
 	public partial class SimulationSystem
 	{
-		// Replay/checkpoint override of day `day` (design 4.6; unit C4), right after the day's forced snapshot and
-		// before its first planning round. Teacher forcing for calibration, not game behaviour: free jobs and
-		// interactive runs have no SimulationStateOverride and pass through. Order: unlock (unlock = snapshot), slots,
-		// items, stat Values (base value = snapshot Value, every modifier but the two __simulation* ones and
-		// equipment's removed, so TotalValue composes from Value and the day's K2/K3), TotalValue (total_value =
-		// snapshot: corrected to the snapshot's own), full health, then the caches and (rpm_after_override =
-		// recompute) the day's RPM under the new state (C3b's day change computed them before the override; RPM keeps
-		// its maximum, so this value carries into the next day's forced snapshot).
+		private SimulationStateOverride.DayState RebuildReplayRpmDay;
+		private int RebuildReplayLocationBefore, RebuildReplayRemoved;
+
+		// Stored replay loads day d before RPM, with K(d-1) still live. The post-snapshot hook
+		// restores the requested planning TotalValue at K(d), without feeding it into the RPM maximum.
+		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.state_override")]
+		partial void RebuildApplyDayOverrideBeforeRpm(int day)
+		{
+			SimulationStateOverride state = SimulationStateOverride.For(SimulationHarness.CurrentJob);
+			if (state == null || state.Mode != "replay" || !state.StoredCaches || RebuildStopped) return;
+			RebuildReplayApplyState(state, day, true);
+		}
+
 		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.state_override")]
 		partial void RebuildApplyDayOverride(int day)
 		{
 			SimulationStateOverride state = SimulationStateOverride.For(SimulationHarness.CurrentJob);
 			if (state == null || RebuildStopped) return;
+			if (state.Mode == "replay" && state.StoredCaches)
+			{
+				if (RebuildReplayRpmDay == null) return;
+				RebuildReplayFinish(state, RebuildReplayRpmDay, RebuildReplayLocationBefore, RebuildReplayRemoved, false);
+				RebuildReplayRpmDay = null;
+				return;
+			}
+			RebuildReplayApplyState(state, day, false);
+		}
+
+		private void RebuildReplayApplyState(SimulationStateOverride state, int day, bool beforeRpm)
+		{
 			try
 			{
 				if (state.Error != null)
@@ -42,26 +59,39 @@ namespace Codebase.Simulation.Systems
 				if (s.Slots != null && !RebuildReplaySetSlots(state, s.Slots.Weapon, s.Slots.Armor)) return;
 				if (s.SetItems) RebuildReplaySetItems(state, s.Items);
 				int removed = RebuildReplaySetStats(state, s.Snapshot.Stats);
-				if (state.TotalValueFromSnapshot) RebuildReplaySetTotalValues(state, s.Snapshot.Stats);
-				playerModel.Unit.CurrentHealth = GetForecastStatValue(StatType.Health);
 				state.Applied(s);
-				CalculateSimulationData();
-				RebuildApplyReplayCaches();
-				if (state.RecomputeRpm)
+				if (beforeRpm)
 				{
-					CalculateSoulRPMValues();
-					foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+					RebuildReplayRpmDay = s;
+					RebuildReplayLocationBefore = locationBefore;
+					RebuildReplayRemoved = removed;
+					return;
 				}
-				RebuildCount("day_overrides");
-				JObject record = RebuildReplayRecord(state, s, locationBefore, removed);
-				RebuildCrosscheckDay(record);
-				state.Record(record);
+				RebuildReplayFinish(state, s, locationBefore, removed, state.RecomputeRpm);
 			}
 			catch (Exception e)
 			{
 				UnityEngine.Debug.LogException(e);
 				RebuildFail(SimulationHarness.ExitException, "RebuildApplyDayOverride(" + day + "): " + e.GetType().Name + ": " + e.Message);
 			}
+		}
+
+		private void RebuildReplayFinish(SimulationStateOverride state, SimulationStateOverride.DayState s,
+			int locationBefore, int removed, bool recomputeRpm)
+		{
+			if (state.TotalValueFromSnapshot) RebuildReplaySetTotalValues(state, s.Snapshot.Stats);
+			playerModel.Unit.CurrentHealth = GetForecastStatValue(StatType.Health);
+			CalculateSimulationData();
+			RebuildApplyReplayCaches();
+			if (recomputeRpm)
+			{
+				CalculateSoulRPMValues();
+				foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+			}
+			RebuildCount("day_overrides");
+			JObject record = RebuildReplayRecord(state, s, locationBefore, removed);
+			RebuildCrosscheckDay(record);
+			state.Record(record);
 		}
 
 		// After CalculateSimulationData (Tick, FastTick planning rounds, the override): the stored DpsData/DefenseData

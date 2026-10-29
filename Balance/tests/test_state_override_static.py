@@ -141,12 +141,18 @@ def test_expected_day_takes_the_item_side_of_get_by_time_chunk_index(db):
 
 def test_engine_marks_the_day_applied_before_it_reads_the_stored_caches():
     text = CS_REPLAY.read_text(encoding="utf-8")
-    body = text[text.index("partial void RebuildApplyDayOverride(int day)"):text.index("partial void RebuildApplyReplayCaches()")]
-    order = [body.index(s) for s in ("state.Resolve(day)", "RebuildReplaySetSlots", "RebuildReplaySetItems(",
-                                     "RebuildReplaySetStats(", "RebuildReplaySetTotalValues(", "state.Applied(s)", "CalculateSimulationData();",
-                                     "RebuildApplyReplayCaches();", "if (state.RecomputeRpm)", "CalculateRPMValueTimeChunk(type)",
-                                     "state.Record(")]
+    before = text[text.index("partial void RebuildApplyDayOverrideBeforeRpm"):text.index("partial void RebuildApplyDayOverride(int")]
+    assert 'state.Mode != "replay" || !state.StoredCaches' in before
+    assert "RebuildReplayApplyState(state, day, true)" in before
+    body = text[text.index("private void RebuildReplayApplyState"):text.index("// After CalculateSimulationData")]
+    order = [body.index(x) for x in ("state.Resolve(day)", "RebuildReplaySetSlots", "RebuildReplaySetItems(",
+             "RebuildReplaySetStats(", "state.Applied(s)", "RebuildReplayRpmDay = s", "private void RebuildReplayFinish",
+             "RebuildReplaySetTotalValues(", "CalculateSimulationData();", "RebuildApplyReplayCaches();", "if (recomputeRpm)", "state.Record(")]
     assert order == sorted(order)
+    run = CS_REPLAY.with_name("SimulationSystem.Run.cs").read_text()
+    change = run[run.index("private void UpdateSpawnerChargesChunk()"):run.index("private void RecalculateChunkRpmValues()")]
+    assert change.index("RebuildApplyDayOverrideBeforeRpm(day)") < change.index("RecalculateChunkRpmValues()") < change.index("MakeSnapshot(true)")
+    assert "RebuildReplayRpmDay.Snapshot.TimeChunkIndex != timeChunkIndex" in run
 
 
 def test_snapshot_items_carry_the_effective_level():

@@ -590,7 +590,7 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 ### 16.2 实现要点
 
 - **时钟**：P、T 都是 float32，每一步写成 `(float)(x + m)`。慢阶段没有目标时空闲到下一个早期快照的到期时刻，最多 `TimeStep/60`（5 分钟）；到期规则写成 `P ≥ last + interval(P)`（`interval` 取 P06 的分段，P < 20 时 1 分钟，之后 5 分钟），与"`P − last ≥ interval`"数学上等价，但不会因舍入出现零步长。会话：`P ≥ lifeCyclePeriodEnd` 时离线 230 分钟，`lifeCyclePeriodEnd = P + 10`（G22）。快阶段：`RebuildAdvanceFastDay` 冲刷、加活跃分钟，然后每步 120 分钟离线直到天序号变化。
-- **换天**只在 `UpdateSpawnerChargesChunk`：天序号是 `Mathf.Floor((float)(T / 1440))`；用量清零、冷却清零（`+∞` 除外）、`RpmFirst`（`RecalculateChunkRpmValues` → `UpdateInterpolationStatModifier` → 停用模块 → 强制快照 → `RebuildApplyDayOverride`）。覆盖在强制快照之后，与第 0 天相同（见 16.6）；覆盖之后 `RPMCalculatedValue` 不会重算，C4 的覆盖如果要让当天的 RPM 反映覆盖后的状态，要在覆盖里自己调用 `CalculateRPMValueTimeChunk`（每个 Tick 开头的 `CalculateSimulationData` 已经会重建战斗数据）。`ModifierFirst` 先换修饰器；`StaleTickCache` 不重算 DpsData/DefenseData，只用 GPM 模式重建 `spawnerData` 再算 RPM（最小 FastTick 下 DpsData 停在最后一个慢阶段 Tick 的值）。
+- **换天**（K1 round 2 后，stored replay 的例外见 19.2）：只在 `UpdateSpawnerChargesChunk`：天序号是 `Mathf.Floor((float)(T / 1440))`；用量清零、冷却清零（`+∞` 除外）、`RpmFirst`（`RecalculateChunkRpmValues` → `UpdateInterpolationStatModifier` → 停用模块 → 强制快照 → `RebuildApplyDayOverride`）。覆盖在强制快照之后，与第 0 天相同（见 16.6）；覆盖之后 `RPMCalculatedValue` 不会重算，C4 的覆盖如果要让当天的 RPM 反映覆盖后的状态，要在覆盖里自己调用 `CalculateRPMValueTimeChunk`（每个 Tick 开头的 `CalculateSimulationData` 已经会重建战斗数据）。`ModifierFirst` 先换修饰器；`StaleTickCache` 不重算 DpsData/DefenseData，只用 GPM 模式重建 `spawnerData` 再算 RPM（最小 FastTick 下 DpsData 停在最后一个慢阶段 Tick 的值）。
 - **快照**：`Value` 是去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器后按 `StatBase.CalculateValue` 原顺序重算的值；SFF/PM 是修饰器当时的 K2/K3；`TotalFlatValue = Value·(1+K2)`，直接属性 `TotalValue = TotalFlatValue·K3`（G11 的顺序，见 16.6）。早期列表的 CurrentGpm 是对上一个早期快照的 ΔValue/ΔP（ΔP = 0 为 NaN，第一个为 0），天列表是 `RPMCalculatedValue`。每个快照追加后调用 `SimulationExport.RecordSnapshot`（槽数、当前血量、物品的 `Evolved` 与 `EvolutionLevel`；未进化时 `EvolutionLevel` 记 0），`PrepareSimulationRun` 调用 `ResetRecorder`。导出按 `GetTrimmedTimeChunkSnapshots` 裁剪（第 0 天起 `max(i+1, ceil((float)(1.1f·i)))`）。
 - **写入点** `RebuildApplyClear(spawner, clears, accumulate)`：次数先截到剩余充能允许的次数——与机器人过滤一致，只要 `用量 < 上限` 就还能清一次（最后一次可以越过上限），即 `ceil((上限 − 用量)/Count)`，多出来的记 `charge_clamped`，截成 0 时什么也不做；然后用量 `+= Count·clears`（不超过上限），冷却 `= BaseCooldown`，DAFC 次数截成 1、冷却 `+∞`；立即模式发属性（`(float)(Value·Count·clears)`，经 `Stat.AddModifier`，平坦 Health 同时加当前血量）、物品（`GetSpawnerItemRewardCopies` 的份数记进 `RebuildPendingItemCopies`，然后 `ProcessInventory`）、灵魂与货币（只记录）、门禁；累积模式只调用 `AccumulateFastTickSpawnerRewards`。
 - **门禁与解锁**：刷怪点的每个 Gate 只开一次（`GatesModel`），开出的岛去重后逐个处理：岛号不大于已解锁岛的（回头门：岛 4→1、11→8、12→7、13→2，或指向已开岛的前进门）记 `back_gate_noops`，不做事；其余调用 `RebuildUnlockLocation`。`SlotReward` 在同一处打开对应槽位。`RebuildUnlockLocation(n)`：`UnlockLocation`、`AdvanceBossProgressLocation`、`currentBoss = RebuildFindBoss(n)`、`UnlockSimulationWeaponSlot(n)`；n 不大于已解锁岛（`UnlockLocation` 取最大值，所以就是"已开放"）时记 `repeat_unlocks`、不做事。门禁不会走到这一支，只有直接调用（C4 的 unlock 覆盖、探针）会。
@@ -871,7 +871,7 @@ C4 填了 `Systems/SimulationSystem.Replay.cs` 的两个钩子 `RebuildApplyDayO
 | `replay_items` | `snapshot`（默认）、`recompute` | `snapshot`：每次覆盖都设物品；`recompute`：只在第一次覆盖时设，之后由物品模块（C6）按击杀累积 |
 | `unlock` | `derived`（默认）、`snapshot` | `derived`：岛只由门禁的可杀性解锁（策略）；`snapshot`：解锁到快照的 `Location`（诊断用）|
 | `total_value` | `snapshot`、`compose` 或 null（`replay` 取 `snapshot`，`checkpoint` 取 `compose`）| `snapshot`：属性的 TotalValue（`Stat.FastValue`）等于快照自己的 TotalValue（插值日是插值值）；`compose`：由 Value 与当天 K2/K3 修饰器合成（与强制快照的写法相同）。`checkpoint` 给 `snapshot` 时请求被拒：校正修饰器会留到闭环的后几天（K2/K3 已经变了，C9 的 K 补丁也会被拉回随包值）|
-| `rpm_after_override` | `recompute`（默认）、`skip` | `recompute`：覆盖之后在新状态上再算一遍当天的 RPM（19.2 第 6 步）；`skip`：不算，`RPMCalculatedValue` 只有换天时算的值 |
+| `rpm_after_override` | `recompute`（默认）、`skip` | stored replay 均等效 skip，RPM 在覆盖后、K(d−1) 下算且在观测日更新；其余模式 recompute 仍覆盖后重算、skip 保留换天值（19.2）|
 | `items_evolved` | `{"<TC>": {"<Key>": true/false/null}}` 或 null | 物品是否已进化，按随包天快照的 TimeChunkIndex 给。缺这一天、缺这件物品或值为 null 时按 `Level != Copies` 判定，并计数（`items_evolved_fallback` 等）|
 | `slots` | `{"<TC>": {"weapon": n, "armor": m}}` 或 null | 武器槽、护甲（头盔+盾）槽的个数；null 表示不动槽位。超出玩家已有槽位数（武器 5、护甲 2）时作业以 5 失败 |
 
@@ -888,7 +888,7 @@ request = req.make_request([job])
 
 ### 19.2 每天做什么
 
-覆盖在第 d 天的强制快照**之后**生效（C3b 的顺序，16.6），第 0 天在快照 0 之后。哪些天：
+K1 round 2 修正：`replay + econ_caches=stored` 从 `from_day` 起在 RPM **之前**加载第 d 天状态（包括第 0 天），当时 K2/K3(d−1) 仍在；随后 RPM → K(d) → 强制快照。最后的覆盖钩子只恢复当天规划用的 TotalValue、满血与缓存、写记录，不重算 RPM。`checkpoint` 与 `replay + recomputed` 仍在强制快照之后覆盖；free 无覆盖。哪些天：
 
 - `replay`：每个 d ≥ `from_day`。状态取 `config.SimulationData.GetByTimeChunkIndex(d)`（已恢复代码，随包资产的 46 个天快照）。
 - `checkpoint`：只在随包天快照所在的 d（≥ `from_day`），状态就是那个快照本身；两次之间闭环照跑。
@@ -899,17 +899,19 @@ request = req.make_request([job])
 2. 槽位：按 `slots` 把武器槽、护甲槽的解锁个数设成给定值（非 VIP 优先、按配置顺序；关槽前先卸下装备）。计数 `slots_opened`、`slots_closed`、`slot_unequips`；记录里的 `slot_states` 给出每个槽位。
 3. 物品：玩家物品变成快照的物品，**顺序也相同**（`CalculateDpsData` 的平局按列表顺序）：已有的 ItemModel 原地改，新的经 `AddItem(…, applySilently: true)` 加入，多余的卸下后去掉（经反射设 `PlayerModel.Items`，`RemoveItem` 是空方法）。已进化：`Evolved = true`、`Level = 快照 Level`；未进化：`Level = 1`、`Copies = 快照 Copies`（快照的 Level 是有效等级）。
    - **提供物品的那一侧**：`GetByTimeChunkIndex` 不插值物品，返回 `left.Items`。所以插值日取左侧快照的物品；恰好落在随包天快照 k（不是第一个或最后一个）时，t = 1，属性是 k 的，物品却是前一个快照的；d ≥ 405 取最后一个。记录里的 `items_time_chunk` 就是这个快照。
-4. 属性：每项属性去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器以外的全部修饰器（以及上一次覆盖的 TotalValue 校正），基础值设为快照的 `Value`，于是快照 Value 逐位等于它；当天的 K2/K3 修饰器（换天时已换成 K(d)）保留，TotalValue 先由 Value 与 K(d) 合成。
+4. 属性：每项属性去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器以外的全部修饰器（以及上一次覆盖的 TotalValue 校正），基础值设为快照的 `Value`，于是快照 Value 逐位等于它；现有 K2/K3 修饰器保留；stored replay 算 RPM 时仍是 K(d−1)，规划前才变 K(d)。
    - `total_value = snapshot`（默认）：再把 `Stat.FastValue` 校正到快照自己的 TotalValue。插值日的 TotalValue 是线性插值的，K2/K3 不是，合成值与它最多差 1.98%（Health；风险 18 说可杀性边界 ±3% 内有 30 多个刷怪点/天）。校正用两个 `Item` 来源的 `PreAdditivePostMultiplicative` 修饰器（名字 `__rebuildReplayTotalValue1/2`）：`Item` 修饰器不进快照 Value，Value 仍逐位；`StatModifier.Value` 是 float，两个 float 在 double 里相加，第二个在相邻 float 里挑误差最小的，结果最多差 1 ulp。计数 `total_value_corrections`、`total_value_corrections_inexact`（差 1 ulp 的格子）。当天之后装备一变（`ApplyEquippedItemsToUnit` 去掉全部 `Item` 修饰器）校正就没了。
 5. 血量回满（`CurrentHealth = Health`）。
-6. 缓存与 RPM：`CalculateSimulationData()` → `RebuildApplyReplayCaches()`；`rpm_after_override = recompute`（默认）时再 `CalculateSoulRPMValues()` 与每项属性的 `CalculateRPMValueTimeChunk`。换天时的 RPM 是覆盖之前、按上一天状态算的（C3b 的换天不在覆盖之后重算），所以覆盖自己再算一遍，当天的 `RPMCalculatedValue` 对应覆盖后的状态（K(d)，`stored` 时在存储的缓存上算）。已恢复的 `CalculateRPMValueTimeChunk` 保留最大值（`Math.Max(value, RPMCalculatedValue[t])`），所以这个值会**带到下一天**：第 d+1 天换天算出的 RPM 与它取大，第 d+1 天强制快照的 `CurrentGpm` = max(第 d 天覆盖后的 RPM, 换天自己的重算值)。`replay-405` 里 1604 个非零格子有 750 个严格取了覆盖的值；`checkpoint` 检查点的下一天 179 个格子里 0 个（`skip` 时 0 个）。`checkpoint` 的闭环因此以检查点那天 K(d) 下的 RPM 为下限，直到更大的值出现（属于本单元的偏离，19.5）。
+6. 缓存与 RPM：stored replay 先 `state.Applied(s)`，`CalculateSimulationData()` 后马上 `RebuildApplyReplayCaches()`，再在存储的 DpsData(d)/DefenseData(d) 上算 RPM（P07 ModifierFirst 先换 K；StaleTickCache 保留前一 Tick 缓存作消融）。只在随包 46 个观测天更新 `RPMCalculatedValue`；非 TC 日的插值状态不向观测网格的 running max 添加峰值。强制快照后才施加 `total_value=snapshot` 的校正，恢复规划时的 K(d) 状态；`rpm_after_override` 对 stored replay 一律等效 skip（仍原样回显请求）。其他覆盖模式仍按该选项选择是否覆盖后重算，原有 checkpoint 行为保留。
 
 `RebuildApplyReplayCaches`（`econ_caches = stored` 且当天有存储的缓存时）：用快照的 DpsData/DefenseData 替换 `currentDpsData`/`currentDefenseData`，再 `UpdateDpsDataCache`、`RebuildPerFrameCaches`（防御缓存与战斗乘数）、`CalculateSpawnerData(true)`。它在 `Tick` 与（C5 的）FastTick 规划轮每次 `CalculateSimulationData` 之后被调用；`replay` 每天都有存储的缓存，`checkpoint` 只在重置的那一天有。
 
 注意：
 
-- 第 d 天的强制快照在覆盖之前拍，记录的是上一天覆盖之后的状态（空策略下就是第 d−1 天的插值状态）。它的 DpsData/DefenseData **总是**换天时重算的值：C3b 的换天（`RecalculateChunkRpmValues` → `CalculateSimulationData`）不调用 `RebuildApplyReplayCaches`，而且那时天已经换了，存储的缓存只对覆盖的那一天有效。重算用的是第 d−1 天覆盖后的属性（RpmFirst：K2/K3(d−1) 加校正，即 `override_days.jsonl` 里那天的 `GetForecastStatValue`）、物品、槽位，时刻 d；402 天里 401 天与第 d−1 天的存储值不同（黄金 `replay405.forced_dps_differs_from_stored`）。换天的 RPM 也是在这些重算的缓存上算的，但它与前一天覆盖后的 RPM 取大（第 6 步），所以 `CurrentGpm` 不是单纯的换天重算值；`rpm_after_override = skip` 时才只剩游戏自己的取大。要看覆盖后的状态读 `override_days.jsonl`。
-- 交互运行（没有批处理作业）与 `free` 作业里两个钩子直接返回。
+- stored replay 第 d 天强制快照的 Value / Items 已是第 d 天被覆盖的状态；snapshot items 路径的 DpsData 也是第 d 天 stored，recompute items 路径则保留覆盖 stored 之前独立重算的 DpsData/DefenseData 作物品拟合观测；RPM 仍一律使用 stored，规划前恢复 stored。不能用注入的缓存给 P18 打分，否则四组合都成零残差；`override_days.jsonl` 是之后恢复规划 TotalValue 的记录，RPM 与同日强制快照相同。`replay_items=recompute` 仍只在首次覆盖设物品，之后真实掉落、进化继续；只覆盖属性并不倒退或冻结物品。
+- T09 / P07 使用从日 0 开始、snapshot items、stored caches、`unlock=snapshot`、`rpm_after_override=skip`、**null_policy** 的重放。空战斗策略防止真实门禁把 Location 推到随包状态之前（完整规划会在 day 26 打开岛 9，而随包 TC27 仍是岛 8）；它不注入 CurrentGpm。46 个强制快照的 1380 格逐格对随包值；非 TC 日逐格断言 running max 不变。
+- 旧版可复现诊断为 `exported(d)=max(X(d−1), G(pre-override state d))`，X 为 `override_days.jsonl` 的 RPM。评审在 TC≥5 核对 1230/1230、其中 1070 格等于 X 单独值。下面 19.4–19.5 的旧计数是修正前历史；新结果见 24.7。不得再用旧顺序解释当前 stored replay。
+- 交互与 free 两个钩子直接返回。checkpoint 的两个采样点之间仍按原有进化转移继续闭环。
 
 ### 19.3 输出
 
@@ -966,8 +968,8 @@ request = req.make_request([job])
 Postmerge Round 2 已补验 C6 合入后的语义：`engine_probe.null_policy` 只停战斗 / 快阶段规划，快日冲刷仍处理到期进化。覆盖记录本身必须逐位符合请求；下一个强制快照及 checkpoint 之间的物品，则按随包目标时间、碎片表和原版 `EvolveItemCommandRunner` 转移核对，不能假定份数和有效等级不变。C4 的跨日测试现在独立重算这些转移及其 DPS / DefenseData，没有冻结物品模块。
 
 - P11（DP8）：46 个随包天快照状态用 `checkpoint` 作业设好（`override_days.jsonl` 的记录是覆盖之后、RPM 重算之后的状态）。**必须**给 `unlock: "snapshot"`：默认的 `derived` 不动 Location，空策略下玩家一直在岛 1，`spawnerData` 与 RPM 就不是随包状态的；槽数用夹具（`default_override` 的默认）或 `slots_p12`。注意 DP8 按 `RpmFirst` 口径要 K2/K3(d−1) 下的 RPM，而覆盖后重算的 RPM 用的是 K(d)，且与之前的 RPM 取大；需要滞后口径时给 `rpm_after_override: "skip"`，在 P11 自己的探针里调用 `CalculateRPMValueTimeChunk`。
-- P11、K 单元（T09"重放精确 1380/1380"）：`replay` 作业导出的强制快照的 DpsData/DefenseData 是按物品**重算**的（19.2 的注意），拿不到 stored 口径；换天 RPM 与 `CurrentGpm` 在重算的缓存上算，再与前一天覆盖后的 RPM（K(d)、stored 缓存）取大，`replay-405` 的 1604 个非零格子里 750 个是后者。要 stored 口径：要么由 Z1/C3b 在换天的 `CalculateSimulationData` 之后也接一个用前一天存储缓存的钩子（`TryStoredCaches` 现在按当天匹配，那时天已经换了），要么直接用 `override_days.jsonl`（覆盖后、stored 缓存上的状态与 RPM）或自己的探针。
-- C5：FastTick 每个规划轮在 `CalculateSimulationData()` 之后调用 `RebuildApplyReplayCaches()`（设计稿 4.4），`replay` + `stored` 才会在存储的缓存上规划。换天的 `RecalculateChunkRpmValues` 不调用它。接上之后请补一个测试：`checkpoint` 下非检查点那天的规划轮不得用到存储的缓存（`TryStoredCaches` 的按天判断现在测不到）：断言 `stored_caches_other_day` > 0，且 `cache_applications` 只出现在检查点那天。
+- P11、K 单元（T09）：采用 19.2 的 day-0 stored 空策略重放，不能用重生成物品或 day-4 起步的运行冒充 G20。P07 三作业共用同一契约。正常完整 FastTick 的解锁与奖励另测，不能为了评分禁止它清门禁。
+- C5：规划轮继续每次 CalculateSimulationData 后调用 RebuildApplyReplayCaches；K1 修正另在 stored replay 的换天 RPM 前接同一缓存钩子。checkpoint 只在重置当天使用 stored，非重置日仍重算；相应测试保持。
 - C6：`replay_items = recompute` 时物品只在第一次覆盖时设，之后靠 `ProcessInventory`；覆盖用 `AddItem(…, applySilently: true)` 加新物品，会自动装备到空槽。快照 `Items` 的 Level 现在是有效等级。装备变化（`ApplyEquippedItemsToUnit`）会去掉 TotalValue 校正，当天剩下的时间回到 K(d) 合成值。`items_removed`（玩家有、快照没有的物品被去掉）与 `items_reordered` 要等 C6 让玩家得到快照外的物品后才测得到。注意：去掉物品是卸下后经反射重设 `PlayerModel.Items`，`AddItem` 建的存档条目 `Data.Items` 不删、顺序也不改；若之后从存档重建（`LoadItems`），去掉的物品会回来、顺序会变回去。C6 测去掉与重排时要连同存档条目一起测，或在去掉时删掉绑定的条目。
 - C9：`checkpoint` 加 K 补丁时 TotalValue 应是补丁后的 K 合成值（`total_value` 解析为 `compose`）；请在 C9 的补丁钩子接上后补这个 Unity 测试。
 - C7：覆盖后 `CurrentHealth` 回满；`unlock = snapshot` 会打开门禁（`GatesModel`），被打开的门禁刷怪点不会再触发解锁。
@@ -1156,3 +1158,182 @@ python -m tufu_balance.golden guard
 `TUFU_UNITY_REV=b572459 python -m pytest -q --unity tests/unity/test_inventory.py`：13 passed；全仓 pytest：861 passed、289 skipped（160.20 秒）；fixture identical；cscheck 无编译错误/新警告/签名或禁用 API 违规；golden guard 20 suites、0 violations。C1 的 R/G17 文本缺陷同时修复，完整摘要确认见 Inventory.md。
 
 未达到原目标：T12 早期 Epic 武器 68 对 62（+9.677%，原阈值 5%，保留 ORIGINAL、登记放宽）；T17 实际 TC1 武器槽为 1；拟合夹具 TC9 前护甲为 1，但实际运行是 0。T13 free/checkpoint 分别为 99.61%/99.22%；P18 尚未解释 TC5。refresh 模块仍不存在，level 1 留给 P13 合并后补跑。
+
+
+## 24. 开环校准（K1）
+
+### 24.1 运行前预算（2026-10-29，尚未开始拟合）
+
+按第 4 / 15 节的实测 B=5.2 秒、X=0.12 秒、守卫约 0.14 秒，固定开销取 5.46 秒/作业；冷启动 E=2.7 秒，关闭 4.8 秒。第 16.3 节空策略 0.32–3.6 ms/tick 仅作下界，不拿它估完整策略。C7 第 21 节完整慢 tick p50=0.53/3.27 ms；C5 第 22 节完整 replay FastTick 均值 37.16 ms，401 天约 14.90 秒；C6 Inventory.md 的 13 作业批处理 192.935 秒（含短 P18 作业），约 14.84 秒/作业；Postmerge Round 1 冷 C6 批 206.24 秒、完整策略 golden-405 27.8–32.2 秒。保守按完整长作业模拟 15–27 秒，短作业 0.2–3 秒计。
+
+| 阶段 | 作业数 | 单作业预算（B+模拟+X+guard）| 常驻合计 |
+|---|---|---|---|
+| K1 | 约 32 长作业 + 4 短 P18（含 θ、DPS、P07、进化、P12、确认与重算桥）| 长 20.36–32.46 秒；短 5.66–8.46 秒 | 11.2–17.9 分钟；分析/导入另留 5 分钟 |
+| K2 | 最多 48 个慢阶段作业 | 6–10 秒（C7 慢阶段 236 ticks，集成后保守放大）| 4.8–8 分钟 |
+| K3 | 4–6 个完整作业 | 20.36–32.46 秒 | 1.4–3.3 分钟 |
+
+常驻启动/关闭另加约 7.5 秒；全部阶段含分析约 23–35 分钟，低于 3 小时，无需 S1。采用 P10 Driver、每批最多 12、serve、逐作业缓存，实际墙钟另记。假设清单在 stage_open.py 封闭；P18 预先切 TC4–7 训练、TC8–11 留出，只有 DPS 进入评分。活动模型按设计以留出 AIC 比较；同时明确该段参与模型选择，因此不是额外独立外部验证。其余离散候选只按训练排名；持出失败保留为失败，不追加候选或改原版阈值。
+
+### 24.2 实验与归档
+
+C# / 资产代码固定为本分支的 `5ec5ee1ede9c63890c11fe18b71eb001b664f2eb`；后续提交只改 Python、参数层、测试和文档，Unity 项目树与它相同。先执行 `python -m tufu_balance.unity serve start --rev 5ec5ee1 --idle-timeout 1800`，再用 P10 Driver（batch_size=12、逐作业 RunCache）运行 `python -m tufu_balance.calibrate.stage_open --rev 5ec5ee1 --write-layer`。初始 30 个作业分 12/12/6，确认与缓存桥再跑 3 个；全部为 `replay`、`reenter_play`、AB A、Frozen，默认 `stored`。物品候选从日 0 开始 `replay_items=recompute`，不注入拟合槽数夹具；可杀性轨迹从日 4 覆盖、物品取随包输入、槽数由闭式 P12 给出。P18 只到日 12，其余到 405。θ 和 DPS 缩放是诊断，不进入参数选择。
+
+初始批运行键：`f3bc8298a06b9a5b12cc4ee65039733f48885205ffab2d26ea612288e79e40c6`、`e812706cb8ed3533311d75a27b437dd665ea0ff9bc6c0f9aa9cbcd38d7a4b2be`、`46c77c71356d…`；确认批 `3a0268d3e949eff6c04f7037f8796d18a517cae96c95fba750a273e083aab4b6`。启动器墙钟分别 **242.830 / 235.016 / 75.581 秒**（合计 **553.428 秒**），确认批 Driver **71.970 秒**。初始 Driver 计时被一次缓存重跑覆盖，已从原始 launcher.json 的 wall_s 恢复合计，明确不含 Driver 开销；原始 launcher 保留。全部 33 个作业 manifest / editor / launcher 退出 0、资产守卫通过，无真实资产写回。完整 stage 命令从缓存加载初始矩阵、拟合、确认、导出用 **101.754 秒**。冷启动与关闭单列；不是把缓存耗时宣称成 Unity 计算耗时。
+
+最终归档为 `Balance/out/calibration/open/f20ca48427bbdfb8/`，`Balance/out/calibration/open-work/latest.json` 指向它。P10 的七个标准文件（targets / residuals / params / hypotheses / sensitivity / evolution_margin / manifest）齐全，另有每个候选逐单元 CSV、evidence.json、open.json、逐作业缓存索引及计时；manifest 的 evidence_files 为新增证据登记 SHA256。运行原始目录也保留。只写 `Balance/sim/params/open.json`，没有改 C# 初值或参数资产。
+
+T04 / T05 用 fasttick_days 的活跃分钟与实际奖励账本，不能用每天覆盖后的 P / Value 快照差值。T12 / T13 用从日 0 重新生成物品的真实导出；T07 / T08 用事件与逐刷怪点轨迹。T09 的**原始导出路径**和**随包状态上的独立 G20 预言机**分开登记，不能用后者冒充前者通过。
+
+### 24.3 选择、第二名与持出
+
+下表残差为平均相对误差；进化是平均到达区间位置绝对误差。所有候选在运行前封闭；连续系数只用训练段。结构性的 Chain / Swapped / 掉落系数是 post-hoc，只作报告。活动模型按设计在持出段以 AIC 选择，因此该段参与了模型选择，不是独立外部验证。
+
+| 参数 / 数据段 | 首选，训练 / 持出残差 | 第二名，训练 / 持出残差 | 出处与判定 |
+|---|---|---|---|
+| KillState，T05 TC4–103 / TC104–404 | StartOfDay，0.00180920 / 0.000234316 | AfterPass，0.00222072 / 0.000234316 | stage-5 fit；持出/训练 0.130，通过 |
+| 活跃分钟，T04 TC11–103 / TC104–404 | NnTour，0.0192254 / 0.00807080，持出 AIC −16.6152 | FarmedTime，0.0237216 / 0.0250031，AIC 9.01712 | stage-5 fit；NnTour 比值 0.420，通过 |
+| 份数，TC4–11 按稀有度 | Chain × Swapped，0.104892（后期全阶段 0.00832567） | E1 × Swapped，0.274661（0.0513132） | post-hoc；早期系数不能识别 K0/K7 形式 |
+| PreferredMapping，只取 K7>0 的完整区间 TC57–405 | Swapped，0.00486613 | Direct，0.0171879 | post-hoc；不宣称留出验证 |
+| EvolutionTrigger，C/U/R / E/L 的已观测到达 | Timed，0.0510204 / 0.0526316 | Greedy，0.0714286 / 0.140351（TimedLag 为 0.112245 / 0.0877193） | stage-5 fit；比值 1.032，通过 |
+| P12，随包物品上的 R2b，TC1–24 / TC≥25 DPS | 岛 4/8，0.0305887 / 0.0144933 | 岛 4/7，0.0773418 / 0.0144933（岛 3/8 为 0.0923327） | stage-5 fit；比值 0.474，通过；没有拿槽位夹具验证 |
+| P18，DPS TC4–7 / TC8–11 | StatsThenItems × SlotBeforeRpm，0.110491 / 0.0431415 | ItemsThenStats × SlotBeforeRpm，完全同分 | stage-5 fit；比值 0.390，通过；属性/物品顺序不可识别，按预设枚举序保留默认 |
+
+NnTour 从逐刷怪点轨迹和抽取坐标在 Python 重新求最近邻开放路径，起点为原点、不返回原点；与 C# 特征的最大相对差 **1.8782e−8**（坐标 float32 差异，守卫容差 2e−6）。训练最小二乘得到 `TourA=1.01337298094`、`TourB=0.788169056841`、Tours 固定 3；open.json 写入 float32 的 `1.0133730173110962 / 0.7881690859794617`。区间块 bootstrap（1000 次、seed=0）的 90% 区间分别 `[0.979642,1.053451]`、`[0.743317,0.826590]`，均未跨零。FarmedTime 的 κ=`ΣAF/ΣF²` 为 **0.256440958624**，float32 为 **0.2564409673213959**，90% 区间 `[0.253514,0.259145]`；作为第二模型的可复用拟合值保留在 open.json。
+
+进化评分的审计修正（74dfeae）：paddle L9 与 doubleaxe L5 只在模拟 TC405 出现，随包没有这一级的到达时间。初次实现给未观察到的参考到达强行填 46 个区间，错误制造了 0.284264 / 0.844828 和 2.97× 的失败。修正为只对存在参考到达的目标计到达误差；如果参考有到达而模拟未到达，则计到观测终点的误差下界；模拟独有的右删失行仍完整保留。没有改候选、参数、切分或 1.5 倍阈值。初次黄金 ORIGINAL 保留，CURRENT 的评分修正单独登记；不是重新拟合到持出数据。P10 的 T13 容差仍保留这两个未配对行，原始逐格计数为训练 196/197、持出 57/58，都超过 90%。
+
+### 24.4 消融、已知未命中与设计差异
+
+| θ（仅消融，L 固定 1）| 0.5 | 0.75 | 0.9 | 1.0 | 1.1 | ∞ / 关闭门槛 |
+|---|---|---|---|---|---|---|
+| T05 坏区间 | 28 | 20 | 14 | 4 | 7 | 16 |
+
+DPS 缩放 `{.95,.98,.99,1,1.01,1.02,1.05}` 的坏区间为 `{7,6,5,4,3,2,3}`；岛 5–17 的区间内判定在该网格中翻转数全部为 **0**。因此 e=2% 时闭环 T05 精确数下界为 **35/41**；其他 e 由曲线取包络，不直接沿用 35。关闭门槛实际是 **25/41** 精确，不是设计引用的 26/41；θ=1.1 实测 7 坏，不是引用的 6。导出 238456 个刷怪点行没有 `loss == H`，故 `<` 与 `≤` 在本轨迹上不改变 37/41。
+
+T05 逐日 7/7 精确，总体 37/41；坏区间仍为 17→19、24→27、37→41、140→154。除 24→27 外都能由首杀 ±1 日解释，首次冻结的**未解释上限为 1**（calib_open 的 t05.unexplained）。T07 岛 5–17 全部落区间或 ±1 日，12/13 在区间内；岛 9 是日 26，早 1 天；岛 4 由门禁推得日 5。T08 全部满足 ±1 日/区间诊断。
+
+| P07 C# 真实消融（原始导出路径）| RpmFirst | ModifierFirst | StaleTickCache |
+|---|---|---|---|
+| CurrentGpm 命中 / 1380 | 859 | 863 | 874 |
+| 非零格平均相对残差 | 0.0129761 | 0.0131437 | 0.0178910 |
+
+这张表不是选择换天顺序的依据。相同随包状态上的独立 G20 是 RpmFirst **1380/1380、空未命中集**，ModifierFirst **1376/1380**，四个未命中仍为 TC1 Health、TC30 CritDamagePercent、TC94 Health/StabDamageFlat。真实 harness 在强制快照后才做覆盖、还保留 RPM running max，因此“真实路径重放必得 G20”不成立。最终 selected-items 原始导出为 **889/1380**，T09 的全部开环容差**失败**；没有调整参数来掩盖该语义差别，没有改引擎/覆盖调用点。
+
+| P18 | Stats/Before | Items/Before | Stats/After | Items/After |
+|---|---|---|---|---|
+| TC4–11 平均 DPS 相对残差 | 0.0768160 | 0.0768160 | 0.206994 | 0.206994 |
+| TC5 残差 | 0.116989 | 0.116989 | 0.266141 | 0.266141 |
+
+**Q25 保持 unresolved**。四个组合都解释不了第 5 天，不能再添加参数凑它。
+
+T12 的早期 Chain / E1 逐稀有度平均残差（武器/护甲有观测的格）：Common **4.64% / 37.35%**，Uncommon **9.49% / 32.24%**，Rare **8.28% / 16.28%**，Epic **26.67% / 16.67%**；早期 Legendary 没有观测，不虚构验证。Chain 整体更近，Epic 单项 E1 较好不能作为另一个特例参数。原始整数份数的 TC4–11 **18/29** 格超 5%，另 TC4–19 Epic 武器 **68 vs 62（9.68%）**；后者仍全部来自 C6 已报告的 mace，首清日 10 对随包约 13。早期单份整数差就可超过 5%，没有把阈值偷偷换成取整容差。后期所有阶段容差通过；TC206–404 每充能平台为 2.5 / 4.30000019（普通非偏好/偏好）、2.79999995 / 4.59999990（传奇），最大相对差 4.44e−8，小于 2%。K0>0.1 段的 full / 去掉 K0/K6 系数消融平均相对残差为 **0.64248% / 39.5442%**，逐格见 coefficient.csv，后者只是同一清怪轨迹上的 post-hoc 诊断。
+
+T04 的 C# 确认有 **34** 个 TC≥11 区间，中位 **1.08516%**、最大 **5.63527%**，满足未经放宽的 2% / 8%。这限定了 C5“原阈值不可达”的结论：FarmedTime 训练拟合后中位 2.30477%、最大 7.84637%；**按 5.3 预先规定的两参数 NnTour 训练拟合可以达到原阈值**，没有新增模型或逐天修正。TC4–10 仍单列报告，不进入拟合。
+
+TC4–10 的 NnTour 确认（只报告、没有参与拟合）：
+
+| 日区间 | 4→5 | 5→6 | 6→7 | 7→8 | 8→9 | 9→10 | 10→11 |
+|---|---|---|---|---|---|---|---|
+| 活跃分钟（模拟 / 随包）| 13.792 / 10.853 | 20.550 / 16.617 | 19.745 / 16.752 | 16.846 / 13.525 | 25.536 / 21.937 | 25.623 / 22.260 | 24.510 / 20.927 |
+| 相对误差 | 27.09% | 23.67% | 17.87% | 24.55% | 16.41% | 15.11% | 17.12% |
+
+recomputed 缓存桥使用随包物品和闭式 P12（R2b 口径）：stored / recomputed 的 T05 坏区间 **4 / 17**，T04 TC≥11 平均相对残差 **1.46322% / 2.47260%**。这说明缓存从 A 转到重算状态不能视作已经校准好的闭环；交给 K2/K3，不以桥结果反调开环参数。
+
+### 24.5 交接与所有权
+
+- K2：使用 open 层的 NnTour、StartOfDay、Chain/Swapped、Timed、岛 4/8 槽位与默认 P18；仍须先验证 T20 再拟合慢策略。NnTour 只改快阶段活跃分钟，不能拿它弥补慢阶段时钟。岛 3 的闭环日 2 对随包日 1、C6 后慢清怪翻倍仍归 K2。
+- K3：T05 未解释 cap=1、T07 open 在区间内 12/13、DPS 网格翻转=0；闭环 T05/T07 的 pending_clause 需按实际闭环 DPS e 和曲线冻结，不在 K1 预先设闭环阈值。通用 P10 的 tolerances.yaml 仍按快照差值，不适用于 replay 的奖励增量解释；K1 的 trace_cells/evidence 与黄金 cap 是正式交接，不能只改 YAML 的 null 数字而漏掉解释语义。没有修改 P10 的通用代码或阈值测试。
+- K3/Z1：当前 K1 的**全开环容差验收未通过**，阻塞为 T09 原始路径和 T12 早期份数；Q25 仍未解决。T10 是 1740 个有限格 + 60 NaN 全通过，T17 TC9 前护甲 9/9 为 0，T18 3210/3210 精确；T15 的原始 DPS / DEF 逐格仍报告，并以 P12 的 R2b 独立残差作参照。T17 武器拟合夹具只作对照（45/46），不宣称验证。
+- 所有权偏离：新增离线 tests/test_stage_open.py 检查实验闭包、训练/持出不泄漏、开放 NN 路径、P12 不依赖拟合槽位夹具与 T13 删失规则；按工作单追加 Runbook。没有改 Design.md、任何 C#、默认参数文件、参数资产、共享 DB、随包夹具或其他分支。没有新增连续参数，选 NnTour 后连续参数为 2 个（κ 是非活跃备选）。
+
+### 24.6 最终验收（K1）
+
+| 设计 7.3 验收项 | 判定 | 命令 / 证据 |
+|---|---|---|
+| 开始前重算 5.4 | PASS | 24.1 随 5ec5ee1 在首个 Unity 作业前提交；依据 C0a/C0b/C3b/C5/C6/C7/Postmerge 实测 |
+| 5.3 第 1 阶段全矩阵与归档 | PASS | `python -m tufu_balance.calibrate.stage_open --rev 5ec5ee1 --write-layer`；30 初始 + 3 确认/桥；f20ca48427bbdfb8，32 个报告/证据文件（验收日志另追加）；33/33 guarded |
+| 全部选择、第二名、出处、识别段 | PASS / DEVIATION | 24.3、hypotheses.csv；P18 的 Stats/Items 同分且不可识别，保留预设顺序；活动模型按设计用持出 AIC 选择，明确不称外部验证 |
+| P07 / P18 与 Q25 | PASS | 24.4；两个 P07 C# 消融与四个 P18 全跑；Q25 unresolved |
+| stage-5 fit 持出 ≤1.5× | PASS | KillState / NnTour / Evolution / P12 / P18 的比值 0.130 / 0.420 / 1.032 / 0.474 / 0.390；74dfeae 修复删失评分，没有换参数或改阈值 |
+| 5.1 全部开环容差、真实导出 T09=1380/1380 | **FAIL** | T09 原始 selected-items 为 **889/1380**；T12 daily **11/29** 通过、TC4–19 **6/7** 通过。独立 G20=1380 只证明公式，不替代真实导出验收。其余指标见上文 |
+| 本单元离线 + Unity 回归 | PASS | `TUFU_UNITY_REV=5ec5ee1 pytest -q --unity tests/test_stage_open.py tests/unity/test_calib_open.py --junitxml=out/calibration/open-work/unit-final.xml`：**11 passed，27.98 秒**；33 作业全部命中缓存，报告重新计算 |
+| 全仓 pytest | PASS | `TUFU_BALANCE_DB=… pytest -q --basetemp=out/calibration/open-work/pytest-tmp --junitxml=out/calibration/open-work/pytest-final.xml`：**975 passed、302 skipped、24 warnings，201.50 秒**；跳过包含未启用的 Unity、繁忙机器 perf、LFS 条件项 |
+| W0 不变 | PASS | `python tests/golden/fixtures/generate.py --check`：**identical**；只提示已有 provenance-only 模块变化 |
+| 黄金守卫 | PASS | `python -m tufu_balance.golden guard`：**21 suites、0 violations**；新套件 16 键，首次 seed；删失评分修正的两条 CURRENT 登记保留原始 ORIGINAL，没有放宽设计阈值 |
+| 编辑器与运行树清理 | PASS | `python -m tufu_balance.unity serve stop`：editor exit **0**、guard_problems=[]、workers_left=[]；launcher 检查运行树干净。没有操作仍打开的主检出编辑器 |
+| cscheck / refresh L1 | N/A | 没有改 C# 或 Unity 项目文件；`git diff 5ec5ee1 -- Recovery/StudyProject` 为空，不额外启动 Unity |
+
+确认批 401 天 FastTick 的 p50：selected-kill **44.3701 ms**、selected-items **43.7327 ms**、selected-recomputed **37.8628 ms**，都在既有 50 ms 中位预算内；均值为 44.965 / 44.226 / 39.016 ms。未用最大值代替中位数。
+
+
+### 24.7 Round 2：评审修正、科学边界与验收
+
+本轮授权 K1 修 C3b/C4 的换天钩子；不改 Design.md、C# 默认参数或参数资产。旧版诊断恒等式与当前契约见 19.2。新 P07 三作业从 day 0 开始 stored/snapshot/null_policy，禁止插值日把无独立观测的 RPM 加进 running max；free/closed-loop 的二进制输出以 Enginefix 式审计逐文件核对。C5 的 TC405 检查改从 day404 override + 当天 float32 奖励账本重建覆盖前值，并逐日核对 free 的真实 Value 增量；不拿注入后的随包值给奖励写入判通过。
+
+T12 日整数总量的 5% 检查不可行：copies-Chain-Swapped、Chain-Direct、Greedy、slots-3-8、selected-items 均为 **18/29** 格超限，绝对残差和 **25**。Uncommon 武器的逐日 pre-roll 期望为 **14.06–14.72**，随包却是 **15,14,15,12,12,14,14**。在 1–18 份的小总量上，一份就超过 5%；物品映射、进化、P12 不改变这些单元。保留旧 daily 整数单元及 5% verdict 作报告；正式逐日组改为 `daily_expected`：快阶段账本的取整前期望，与随包整数比较，允许 **5% + 每个活跃物品流 <1 份** 的整数观测误差（同一 carry 流区间两端累计余数相减，绝对值 <1）。逐流计数来自正期望的物品 key，不拟合系数，不按日手填 allowance；缺 trace 天给 missing/fail。阶段 5%/7% 与后期平台 2% 原样保留。此为明确放宽，登记在 calib_open，ORIGINAL 不重写。仍保留 68/62 的早期 Epic 阶段失败，不用噪声理由遮盖系统性的 +6。
+
+mace 的独立定位：`Scenes/Main.unity:57815`，岛 4 `Spawner_1_epic_buck`，OT=10（天制）、Count=1、充能上限=2、非 DAFC。原版 6af011f CalculateSpawnerData(false) 只比较 `OT > timeChunkIndex`，没有额外 +3 天的相对窗口；就绪表 AnyoneAlive=IsEnabled=bootstrap_complete=1，Prepare 和换天把非 DAFC 冷却归零。原版的充能与岛门禁过滤、Python eligible_spawners 对随包 day 10/11/12 均判 eligible；day 9 因 OT 不合格。day10 fight=11.994738 秒，loss=49916.034、H=94929.157、loss/H=0.525824；day11 为 0.0208176，day12 为 0。C5 实际各日从 charges 0 清两次到 2，逐项吻合。默认 derived override 不打开岛，岛 4 由 day5 门禁打开；snapshot override 也不会把它延迟到 day13。θ=∞ / kill-none 仍 day10 首次掉 mace；θ=0.5 才晚到 day11，不能解释 day13。随包 TC13 尚无 mace、TC15 有4份，按每天2份相当于 day13 开始；多的 day10–12 ×2 就是 68−62 全部差值。**未发现 C5 与已恢复过滤或预言机不符，不修改 C5；明确交 K3 检查闭环成长/配置状态 A/B，使 day10 的可杀性不同或说明随包生成条件。不能据此调 θ 或增加 C6 参数。**
+
+P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept**；SlotRpmOrder 才是选择。KillState 和 P12 的留出分数各候选完全相同；到 TC25 P12 均已开放同样槽位，所以该持出段 **non-discriminating**，1.5× 仅作 sanity check，不算确认假设。Q25 若 day5 仍无解继续 unresolved。
+
+`measure()` 首次 timing 文件用排他创建，重跑写 attempt-2、attempt-3…，从不覆盖 initial.timing.json；归档自动纳入每个 attempt，不再手工重构计时。
+
+首轮诊断提交 7a296e2 和采样网格限制 81fb78c 的 full-policy P07 均为 1375/1380。随后逐日记录定位：剩余五格是完整规划 day26 已打开岛9，TC27 的实际 Location=9、随包仍=8；并非仅加采样网格限制就解决。改用无战斗的完整随包状态契约后 1380/1380。451b843 又修复 item-recompute 的可观测性：生成的 DpsData/DefenseData 不被 stored 注入遮盖，RPM 仍在 stored 上计算；全部矩阵在该提交重跑，前一轮试验只留诊断、不作为最终拟合或黄金依据。
+
+本轮最终数字、命令、用时与审计摘要补记于此节末。
+
+#### Round 2 最终矩阵（运行代码 fb2afc6）
+
+最终报告：`Balance/out/calibration/open/2b5862166339aee6/`；输入/计时在 `open-round2-final-work`。31 个初始候选（含三个完整 P07 作业）+3 个确认/桥接作业，Driver/serve 均为 reenter_play，**34/34 未命中缓存、守卫通过**。initial/selected 的 Driver 墙钟为 **518.790 / 69.472 秒**，完整分析归档命令 **620.251 秒**；Unity serve 四批为 **228.8 / 209.5 / 77.1 / 69.1 秒**。首次计时文件完整保留，后续测试重用缓存写独立 attempt 文件。
+
+| 项 | 最终结果 | 判定 |
+|---|---|---|
+| T09，day0 snapshot-items/stored/null_policy 导出 | **1380/1380**；均值相对误差 6.0578e−17 | PASS，直接导出，不是 Python G20 冒充 |
+| P07 ModifierFirst / StaleTickCache | **1376 / 874**（各 1380 格）；均值相对误差 0.001059819 / 0.020090294 | PASS，RpmFirst 严格优于两者；ModifierFirst 恰为 G20 的四格 |
+| 非 TC 日 | **360 天、10800 格、0 格改变最大值** | PASS |
+| T04 | 34 区间，中位 **1.085156%**、最大 **5.635268%** | PASS，保留原 2% / 8% |
+| T05 / T07 / 敏感性 | 7/7 逐日、37/41 总体、未解释上限1；岛5–17为12/13在区间内、全部在 slack 内，DPS 网格翻转0 | 与 round1 相同；结构规则 post-hoc |
+| T12 日整数原检查 | **18/29** 超5%，绝对残差和25；四种物品假设独立重数相同 | 不可行的原检查继续报告；未调 θ |
+| T12 pre-roll + 整数观测噪声 | **29/29** | DEVIATION/PASS；放宽有单独黄金登记，阶段限不变 |
+| T12 Epic，TC4–19 | **68/62，+9.6774%**，全部是 mace 多6份 | 原5%仍 FAIL；C5/预言机一致，按本轮授权精确交 K3 |
+| 参数、份数/进化/P12/P18及桥接 | 20个非 P07 报告 CSV 与 round1 逐字节相同，open.json 选择和系数也相同 | PASS；hypotheses 只改说明，residuals/targets 加新 T09/T12 口径 |
+
+| P18 | TC4–7 训练 | TC8–11 持出 | day5 |
+|---|---:|---:|---:|
+| StatsThenItems × SlotBeforeRpm | 0.110490540 | 0.043141471 | 0.116988765 |
+| ItemsThenStats × SlotBeforeRpm | 0.110490540 | 0.043141471 | 0.116988765 |
+| StatsThenItems × SlotAfterRpm | 0.254215840 | 0.159772799 | 0.266141218 |
+| ItemsThenStats × SlotAfterRpm | 0.254215840 | 0.159772799 | 0.266141218 |
+
+所以 DayChangeInventoryOrder 为 tie / not identified / default kept；SlotBeforeRpm 为实际选择，Q25 **unresolved**。所有阶段5拟合的 1.5× sanity check 仍过，数值与24.3相同；KillState/P12 的持出仍无辨识力。生成缓存的保留恢复了原 P18 表，明确排除了上一轮诊断中注入 stored 导致的四组合伪零残差。
+
+`engine.audit.json` 在归档内，核对 9526e88 与 fb2afc6 的空策略/完整策略 free 405天：**9+10=19 个确定性输出文件逐字节相同**（两快照JSON、两旁路CSV、DPS basis、逐日/事件/摘要与就绪表，完整策略另含 fasttick_days）。不比较含提交/进程/耗时的 manifest、asset_guard、timings。`before.diagnosis.txt` 独立复跑评审脚本，确认旧恒等式1230/1230、其中1070格单独等于X(d−1)。这两份证据由归档器纳入SHA256，不手工修改manifest。
+
+额外反证：Enginefix 审计中的完整 `audit-free`（无 override）也在 day10 首次掉 mace；同一文件已纳入归档哈希。K3 应检查随包生成的状态 A/B 或未恢复策略，不能只假定移除 replay 或重新选 KillState 就自然延迟三天。
+
+奖励写入的独立检查另外按原版 `StatBase.AddModifier` 的 float 字段合并顺序：`BaseValue + f32(previous Devoured.Value + f32(day reward))`，不是在 double 的快照 Value 上直接加奖励。完整 free 的 **12030 个**快日属性转移吻合；未加宽比较阈值。若忽略这次字段存储，day130 Health 会算16989475而实际16989476。重建覆盖前 TC405 的最大相对残差仍为 **3.0596812e−8**，与既有 sim_fasttick 黄金逐键相同。
+
+#### Round 2 工程验收
+
+命令均在本工作树 Balance 下，用共享 `.venv/bin/python` 与只读 `TUFU_BALANCE_DB`；Unity 运行代码固定为 `fb2afc6`，后续提交只更新测试、黄金与文档，Unity 工程树与它逐字节相同。
+
+| 命令 / 项 | 结果 | 用时 |
+|---|---|---:|
+| `python -m pytest -q` | **978 passed，302 skipped** | **220.20 秒** |
+| `TUFU_UNITY_REV=fb2afc6 python -m pytest -q --unity tests/unity/test_state_override.py tests/unity/test_run_crosscheck.py tests/unity/test_calib_open.py tests/unity/test_fasttick.py tests/unity/test_inventory.py tests/unity/test_engine.py -k 'not disabled_modules_fail_the_job and not heartbeat_follows_ticks_in_the_job_phase'` | **78 passed，3 skipped，4 deselected**；两项 perf 因负载跳过，另一次 bad-slots 因用户编辑器改真实存档跳过 | **136.81 秒** |
+| `python -m tufu_balance.refresh --level 1 --rev fb2afc6 --out out/k1-round2/refresh` | **13/13，退出0，CURRENT未被refresh改写**；静态984个节点逐一分配，979 passed / 5 skipped / 0失败；编辑/Play探针与smoke-11的X1–X7均绿 | **158.71 秒** |
+| `python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-K1` | 两种编译均0错误、0新警告、签名0违规、禁用API0；原有警告3707+8 | **7.3 秒**（与其他检查并行） |
+| `python tests/golden/fixtures/generate.py --check` | **identical**；只有既有provenance提示 | — |
+| `python -m tufu_balance.golden guard` | **21 suites，0 violations** | — |
+
+只重接受 `calib_open` 的7个变化/新增键与 `sim_override` 的8个变化键，每键的接受/放宽记录均点名 C3b/C4 换天修正及相应口径。C4 四个 cache_applications 计数加倍、强制缓存错位日数401→0、fresh-planning相等格数14464→13752、相同统计范围内carry格数730→1522及skip的0→74；非零格子总数1604不变。Checkpoint/recomputed/free、全部sim_inventory与sim_engine、既有sim_fasttick数字无需重接受。
+
+所有已有 ORIGINAL 项保持原样（calib_open原16项逐项相同），只有四个新键首次建立 ORIGINAL（日契约声明旧口径，另外三项按首次测量）；T12日契约的新键把旧“整数总量5%”声明为原口径并登记放宽，未把新口径写回已有原版基线。40个归档产物的SHA256全部核对，八份initial/selected计时（首次+三次缓存验证）均保留，首次initial仍为518.790387209秒。
+
+受保护共享DB仍为mode444、SHA256 `a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098`。最终启动器状态 clean=true、lock=null、unity_processes=[]、serve.running=false。检查日志独立保存于 `Balance/out/k1-round2/`，不再把check文件手工加入已写好的归档manifest。
+
+四项故意失败的引擎断言（AutoGambling、CrystalSimulation、AutoBalanceAmulet、frames-only心跳）内层Unity退出码分别5/5/5/3；四份sandbox.json的进程与路径/PlayerPrefs探针均独立验证，唯一守卫问题是主检出编辑器在改真实存档，所以启动器退出2。原断言未被放宽。`engine-guard-evidence.json`保存原运行路径与判断；只读 `quiet_watch.py` 从首次失败启动时起设15分钟硬截止，5秒采样，要求90秒连续安静；最终等待结论见下。
+
+等待按首次失败启动时间 `2026-10-29 11:27:49 UTC` 起计，硬截止 `11:42:49 UTC`。只读监测约777.994秒，捕获147次变化，最后连续安静仅40.152秒，始终未达到90秒；截止后自动结束，没有再延长等待或碰用户编辑器。上述四项最终均记录 **not run: user editor active**（指未获得有效的启动器失败型验收），不把内层5/5/5/3冒充启动器通过。最终可运行的六模块命令保持78/3skip/4deselected；4个原断言仍严格要求启动器5/3，可在用户编辑器停止写存档后原样重跑。
+
+本轮所有权/口径偏离留给Z1合回设计：授权增加C3b/C4前置钩子；三个C4私有Rebuild字段留在Replay.cs（与既有Inventory状态例外同理）；stored replay的RPM只在观测TC上更新最大值；T09/P07使用无战斗的完整随包状态契约；item-recompute快照保留独立生成缓存；T12日整数检查改pre-roll加整数噪声、阶段限不变。没有新增可调参数、改θ、写C#默认值或参数资产。未完成的科学问题只有原T12 Epic阶段的+6份与既有Q25；各自已有精确K3/Z1交接。工程验收外部未跑项只有上述四个故意失败的启动器断言及已列跳过项。

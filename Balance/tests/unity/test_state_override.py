@@ -9,6 +9,7 @@ bosses); ``override_days.jsonl`` holds the state the engine has right after each
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 import math
 import struct
 
@@ -351,13 +352,14 @@ def test_replay_once_per_day_with_the_interpolated_state(run, shipped, interp, c
             bad[r.day] = diff
         totals.add(r, e.snapshot)
     print("TotalValue (total_value = snapshot):", totals)
-    rpm_bad, rpm_equal, rpm_cells = _rpm_check(ctx, recs)
-    print(f"RPM: {rpm_equal}/{rpm_cells} cells equal to the fresh simcalc value, {len(rpm_bad)} violations")
+    _stored_replay_rpm(ctx, run, "replay-405", shipped, evolved)
+    _, rpm_equal, rpm_cells = _rpm_check(ctx, recs)
+    print(f"RPM diagnostic: {rpm_equal}/{rpm_cells} equal the fresh planning-state value; before-RPM oracle checked separately")
     assert bad == {}
     assert totals.k_mismatch_days == []
     assert totals.snapshot_ulps <= 1.0 and totals.shipped_ulps == 0.0
     assert "total_value_uncorrected" not in o["counters"]
-    assert rpm_bad == [] and rpm_equal > 0
+    assert rpm_equal > 0
     check("sim_override", {
         "replay405.days": exact(len(recs), source="design 7.3 C4", original=402, note="one override per day 4..405"),
         "replay405.state_mismatch_days": exact(len(bad), source="design 7.3 C4", original=0,
@@ -367,8 +369,7 @@ def test_replay_once_per_day_with_the_interpolated_state(run, shipped, interp, c
                                                              "interpolated snapshot's TotalValue"),
         "replay405.total_value_snapshot_cells_off": exact(totals.snapshot_off, source="design 7.3 C4"),
         "replay405.rpm_cells_equal_fresh": exact(rpm_equal, source="design 4.6",
-                                                 note="RPMCalculatedValue after the override == model.simcalc on "
-                                                      "the recorded state (others are kept maxima)"),
+                                                 note="diagnostic equality with planning K(d); the before-RPM oracle validates the actual observed-grid maximum"),
         "replay405.counters": exact(o["counters"], source="design 7.3 C4"),
     })
 
@@ -408,32 +409,44 @@ def test_replay_compose_total_value(run, shipped, interp, evolved, slots):
     })
 
 
-def test_replay_state_carries_to_the_next_forced_snapshot(run, shipped, ctx, evolved, evolution):
-    """Empty policy: day d+1's forced snapshot (taken before its override) shows day d's override: the Values and
-    items after the day's allowed timed evolutions. Its DpsData/DefenseData are what the day change recomputes from
-    the record's forecast stats (K2/K3(d) and the correction, RpmFirst), evolved items and slots at timing d+1 -- not the
-    stored ones: nothing applies the stored caches at the day change."""
-    recs = {r.day: r for r in _days(run, "replay-405")}
+def _stored_replay_rpm(ctx, run, job, shipped, evolved):
+    """Independent G20 on the actual stored state, with maxima only on shipped TC days."""
+    full = {s["TimeChunkIndex"]: s for s in _full(run, job)}
+    observed = {x.time_chunk_index for x in shipped.time_chunk_snapshots}
+    bad, cells, carried = [], 0, 0
+    recs = _days(run, job)
+    for r in recs:
+        e = ov.expected_day(shipped, "replay", r.day, evolved)
+        state = sc.snapshot_state(e.snapshot, ctx, day=r.day, unlocked_location=r.raw["location"])
+        state = replace(state, dps_data=dict(r.dps_cache), defense_data=dict(r.defense_cache))
+        prev = {st["Key"]: st["CurrentGpm"] for st in full[max(0, r.day-1)]["Stats"]} if r.day else sc.initial_rpm()
+        want = sc.calculate_rpm_value_time_chunk(ctx, state, rpm=prev)[0] if r.day in observed else prev
+        for st in full[r.day]["Stats"]:
+            k, got = st["Key"], st["CurrentGpm"]
+            if not math.isclose(got, want.get(k, 0), rel_tol=1e-12, abs_tol=1e-10):
+                bad.append((r.day, k, got, want.get(k, 0)))
+            assert r.rpm.get(k, 0) == got, (r.day, k, "post-override recompute leaked")
+            if r.day > recs[0].day:  # retain the original after-first-override reporting range
+                cells += got != 0
+                carried += got != 0 and got == prev.get(k, 0)
+    assert bad == [], bad[:10]
+    return cells, carried
+
+
+def test_stored_replay_forced_snapshot_uses_day_d_state(run, shipped, ctx, evolved):
     full = {s["TimeChunkIndex"]: s for s in _full(run, "replay-405")}
-    bad, differs, changed = [], 0, 0
-    for d in range(4, LAST):
-        s, r = full[d + 1], recs[d]
-        items = _timed_items(_items(r), d, evolution)
-        changed += items != _items(r)
-        if not _same([st["Value"] for st in s["Stats"]], [r.stats[st["Key"]][0] for st in s["Stats"]]) \
-                or _snapshot_items(s) != [(k, lv, c) for k, lv, c, _ in items]:
-            bad.append((d, "state"))
-        dps, defense = _recomputed_dps(ctx, _forecast(r), items, r.raw["weapon_slots"], r.raw["armor_slots"], d + 1)
-        if not _pairs_same([(x["WeaponType"], x["Value"]) for x in s["DpsData"]], dps) \
-                or not _pairs_same([(x["WeaponType"], x["Value"]) for x in s["DefenseData"]], defense):
-            bad.append((d, "dps"))
-        differs += not _pairs_same(dps, ov.expected_day(shipped, "replay", d, evolved).snapshot.dps_data)
-    assert bad == [] and changed > 0, bad
-    check("sim_override", {
-        "replay405.forced_dps_differs_from_stored": exact(differs, source="design 4.6",
-                                                          note="days d whose day d+1 forced-snapshot DpsData (day "
-                                                               "change recompute) differs from day d's stored one"),
-    })
+    differs = 0
+    for r in _days(run, "replay-405"):
+        s = full[r.day]
+        e = ov.expected_day(shipped, "replay", r.day, evolved)
+        assert _same([st["Value"] for st in s["Stats"]], [st.value for st in e.snapshot.stats])
+        assert _snapshot_items(s) == [(k, lv, c) for k, lv, c, ev in e.items]
+        assert _pairs_same([(x["WeaponType"], x["Value"]) for x in s["DpsData"]], e.snapshot.dps_data)
+        assert _pairs_same([(x["WeaponType"], x["Value"]) for x in s["DefenseData"]], e.snapshot.defense_data)
+        differs += not _pairs_same([(x["WeaponType"], x["Value"]) for x in s["DpsData"]], e.snapshot.dps_data)
+    _stored_replay_rpm(ctx, run, "replay-405", shipped, evolved)
+    check("sim_override", {"replay405.forced_dps_differs_from_stored": exact(differs,
+          source="K1 round2 C4 before-RPM stored replay", note="forced day d caches vs stored day d, no one-day lag")})
 
 
 def test_replay_405_runs_in_under_two_minutes(run):
@@ -444,37 +457,23 @@ def test_replay_405_runs_in_under_two_minutes(run):
 
 # ---------------------------------------------------------------- RPM after the override
 
-def test_day_change_rpm_keeps_the_override_rpm(run, ctx):
-    """rpm_after_override = recompute (default): the override's RPM (K(d), stored caches) stays in RPMCalculatedValue,
-    so day d+1's forced-snapshot CurrentGpm is max(that, the day change's own recompute); skip: the override leaves
-    RPM alone (the record equals day d's forced CurrentGpm) and only the game's own maximum carries."""
+def test_day_change_rpm_uses_stored_day_and_never_post_override_max(run, ctx, shipped, evolved):
     numbers = {}
-    for job, label in (("replay-405", "replay405"), ("replay-rpm-skip", "rpm_skip"), ("checkpoint-405", "checkpoint405")):
-        recs = _days(run, job)
-        full = {s["TimeChunkIndex"]: s for s in _full(run, job)}
-        bad, cells, carried = _day_change_rpm(ctx, recs, full)
-        print(f"{job}: day-change CurrentGpm {len(bad)} mismatches; {carried}/{cells} nonzero cells carry the record's RPM")
-        assert bad == [] and cells > 0, (job, bad[:5])
-        numbers[label] = (cells, carried)
-    skip = _days(run, "replay-rpm-skip")
-    o = run.manifest("replay-rpm-skip")["override"]
-    assert o["rpm_after_override"] == "skip" and [r.day for r in skip] == list(range(4, SHORT + 1))
-    full = {s["TimeChunkIndex"]: s for s in _full(run, "replay-rpm-skip")}
-    assert all(_same([r.rpm.get(st["Key"], 0.0) for st in full[r.day]["Stats"]],
-                     [st["CurrentGpm"] for st in full[r.day]["Stats"]]) for r in skip)
+    for job, label in (("replay-405", "replay405"), ("replay-rpm-skip", "rpm_skip")):
+        numbers[label] = _stored_replay_rpm(ctx, run, job, shipped, evolved)
+    recs = _days(run, "checkpoint-405")
+    full = {s["TimeChunkIndex"]: s for s in _full(run, "checkpoint-405")}
+    bad, cells, carried = _day_change_rpm(ctx, recs, full)
+    assert bad == [] and cells > 0
+    numbers["checkpoint405"] = (cells, carried)
     plain = {r.day: r for r in _days(run, "replay-405")}
-    raised = sum(1 for r in skip if any(plain[r.day].rpm[k] > v for k, v in r.rpm.items()))
-    assert raised > 0 and numbers["replay405"][1] > 0  # the recompute raises RPM, and that carries
+    assert all(r.rpm == plain[r.day].rpm for r in _days(run, "replay-rpm-skip"))
     check("sim_override", {
-        "replay405.day_change_gpm_cells": exact(numbers["replay405"][0], source="design 4.6",
-                                                note="nonzero CurrentGpm cells of forced snapshots 5..405"),
-        "replay405.day_change_gpm_carried": exact(numbers["replay405"][1], source="design 4.6",
-                                                  note="cells where day d+1's CurrentGpm is day d's override RPM, "
-                                                       "above the day change's own"),
-        "rpm_skip.day_change_gpm_carried": exact(numbers["rpm_skip"][1], source="design 4.6",
-                                                 note="rpm_after_override = skip, days 5..30: the game's own max"),
-        "checkpoint405.day_change_gpm_carried": exact(numbers["checkpoint405"][1], source="design 4.6",
-                                                      note="day after each checkpoint"),
+        "replay405.day_change_gpm_cells": exact(numbers["replay405"][0], source="K1 round2 stored replay order"),
+        "replay405.day_change_gpm_carried": exact(numbers["replay405"][1], source="K1 round2 stored replay order",
+            note="nonzero cells whose observed-grid maximum equals the preceding day's maximum"),
+        "rpm_skip.day_change_gpm_carried": exact(numbers["rpm_skip"][1], source="K1 round2 stored replay order"),
+        "checkpoint405.day_change_gpm_carried": exact(numbers["checkpoint405"][1], source="design 4.6"),
     })
 
 
@@ -508,9 +507,8 @@ def test_evolved_flags_come_from_the_request(run, shipped, evolved, slots, evolu
             bad[r.day] = diff
     assert bad == {} and seen == {int(tc) for tc in FLIPS}
     full = {s["TimeChunkIndex"]: s for s in _full(run, "replay-evolved-flip")}
-    for r in recs[:-1]:
-        items = _timed_items(_items(r), r.day, evolution)
-        assert _snapshot_items(full[r.day + 1]) == [(k, lv, c) for k, lv, c, _ in items]
+    for r in recs:
+        assert _snapshot_items(full[r.day]) == [(k, lv, c) for k, lv, c, ev in _items(r)]
     unevolved_ne = sum(1 for r in recs for tc in [ov.expected_day(shipped, "replay", r.day, flags).items_time_chunk]
                        for it in by_tc[tc].items if it.level != it.copies and flags[str(tc)].get(it.key) is False)
     assert unevolved_ne > 0 and o["counters"].get("unevolved_level_ne_copies") == unevolved_ne
@@ -526,8 +524,7 @@ def test_evolved_flags_come_from_the_request(run, shipped, evolved, slots, evolu
 # ---------------------------------------------------------------- reward modifiers
 
 def test_override_removes_reward_modifiers(run, shipped, interp, evolved):
-    """C3b's grant_flat adds Reward flat modifiers before day 0's forced snapshot; day 0's override removes them
-    (base value = snapshot Value), so the Values equal snapshot 0's and day 1's forced snapshot no longer has them."""
+    """Stored day-0 replay removes grant_flat before the forced snapshot and RPM calculation."""
     recs = _days(run, "replay-grant")
     o = run.manifest("replay-grant")["override"]
     assert [r.day for r in recs] == [0, 1, 2]
@@ -540,10 +537,11 @@ def test_override_removes_reward_modifiers(run, shipped, interp, evolved):
     assert totals.snapshot_ulps <= 1.0
     granted = {s["TimeChunkIndex"]: _values(s) for s in _full(run, "replay-grant")}
     plain = {s["TimeChunkIndex"]: _values(s) for s in _full(run, "replay-slow")}
-    for key, amount in GRANT.items():
-        assert granted[0][key] == plain[0][key] + amount and plain[0][key] + amount != recs[0].stats[key][0]
-    assert all(granted[0][k] == plain[0][k] for k in plain[0] if k not in GRANT)
-    assert _same([granted[1][k] for k in sorted(granted[1])], [recs[0].stats[k][0] for k in sorted(granted[1])])
+    # Day-0 stored forcing removes grants before the forced snapshot and RPM.
+    assert granted == {d: plain[d] for d in granted}
+    for d in granted:
+        expected = ov.expected_day(shipped, "replay", d, evolved).snapshot
+        assert _same([granted[d][st.key] for st in expected.stats], [st.value for st in expected.stats])
 
 
 def test_checkpoint_from_day_after_a_closed_loop_start(run, shipped, evolved, slots):

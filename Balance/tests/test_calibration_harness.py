@@ -198,6 +198,7 @@ def test_unlock_interval_uses_the_untrimmed_day_list(tg):
 
 def test_tolerances_name_every_group(tg, shipped_db, tolerances):
     cells = M.compute(_series(shipped_db), tg)
+    cells += M.t12_expected({}, tg)  # side-trace metric is unavailable from sim.sqlite alone
     groups: dict[str, set] = {}
     for c in cells:
         groups.setdefault(c.target, set()).add(c.group)
@@ -265,13 +266,13 @@ DESIGN_5_1 = {
             "open": {"gpm": ALL, "nan": ALL}, "closed": {"gpm": ALL, "nan": ALL}},
     "T11": {"cells": {"first_appearance": {"window": [-1, 1]}},
             "open": {"first_appearance": {"report": True}}, "closed": {"first_appearance": {"report": True}}},
-    "T12": {"cells": {"daily": {"rel_max": 0.05}, "phase_4_19": {"rel_max": 0.05}, "phase_19_57": {"rel_max": 0.05},
+    "T12": {"cells": {"daily": {"rel_max": 0.05}, "daily_expected": {"bound": True}, "phase_4_19": {"rel_max": 0.05}, "phase_19_57": {"rel_max": 0.05},
                       "phase_57_104": {"rel_max": 0.05}, "phase_104_154": {"rel_max": 0.07},
                       "phase_154_405": {"rel_max": 0.07}},
-            "open": {g: ALL for g in ("daily", "phase_4_19", "phase_19_57", "phase_57_104", "phase_104_154",
-                                      "phase_154_405")},
-            "closed": {g: ALL for g in ("daily", "phase_4_19", "phase_19_57", "phase_57_104", "phase_104_154",
-                                        "phase_154_405")}},
+            "open": {g: ALL for g in ("daily_expected", "phase_4_19", "phase_19_57", "phase_57_104", "phase_104_154",
+                                      "phase_154_405") } | {"daily": {"report": True, "note": "integer-noise diagnostic; see Runbook 24.7 and calib_open loosening"}},
+            "closed": {g: ALL for g in ("daily_expected", "phase_4_19", "phase_19_57", "phase_57_104", "phase_104_154",
+                                        "phase_154_405")} | {"daily": {"report": True, "note": "integer-noise diagnostic; see Runbook 24.7 and calib_open loosening"}}},
     "T13": {"cells": {"train": {"window": [-1, 1]}, "holdout": {"window": [-1, 1]}},
             "open": {"train": {"frac_ok_min": 0.9}, "holdout": {"frac_ok_min": 0.9}},
             "closed": {"train": {"frac_ok_min": 0.9}, "holdout": {"frac_ok_min": 0.9}}},

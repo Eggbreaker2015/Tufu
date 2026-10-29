@@ -109,8 +109,10 @@ namespace Codebase.Simulation.Systems
 				RebuildApplyProbeGrants();
 				currentBoss = RebuildFindBoss(playerModel.LastUnlockedLocation.Number);
 				UpdateInterpolationStatModifier();
+				RebuildApplyDayOverrideBeforeRpm(0);
 				playerModel.Unit.CurrentHealth = GetForecastStatValue(StatType.Health);
-				CalculateRPMValueTimeChunk();
+				if (RebuildReplayRpmDay != null) RecalculateChunkRpmValues();
+				else CalculateRPMValueTimeChunk();
 				MakeSnapshot(true);
 				RebuildApplyDayOverride(0);
 				RebuildTraceDayStart();
@@ -241,7 +243,8 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// The only place a day changes (design 4.3). Order RpmFirst (G20): RPM and DpsData under the old
-		// K2/K3(d-1) modifiers (K4/K5 already read d), then the K(d) modifiers, the forced snapshot, the override.
+		// K2/K3(d-1) modifiers (K4/K5 already read d), then K(d) and the forced snapshot.
+		// Stored replay loads day d before RPM; the post-snapshot hook restores planning TotalValue.
 		[SimulationRebuild(Provenance.Inferred, "pending:simulation.day_change_order")]
 		private void UpdateSpawnerChargesChunk()
 		{
@@ -255,6 +258,8 @@ namespace Codebase.Simulation.Systems
 			timeChunkIndex = day;
 			spawnerChargesUsage.Clear();
 			ResetCooldowns();
+			RebuildApplyDayOverrideBeforeRpm(day);
+			if (RebuildStopped) return;
 			if (RebuildParams.DpsCacheProvenance == DpsCacheProvenance.ModifierFirst)
 			{
 				UpdateInterpolationStatModifier();
@@ -269,8 +274,7 @@ namespace Codebase.Simulation.Systems
 			ProcessAmuletAutoBalanceTargets(day);
 			ProcessCrystalSimulationChunk();
 			MakeSnapshot(true);
-			// After the forced snapshot, as on day 0, so day d's snapshot keeps the closed-loop state (design 4.6;
-			// the 4.4 pseudo-code has it before the snapshot).
+			// Stored replay only restores planning values here; other modes apply the state now.
 			RebuildApplyDayOverride(day);
 			RebuildTraceDayStart();
 			RebuildCount("day_changes");
@@ -280,11 +284,36 @@ namespace Codebase.Simulation.Systems
 		[SimulationRebuild(Provenance.Inferred, "pending:simulation.day_change_order")]
 		private void RecalculateChunkRpmValues()
 		{
+			if (RebuildReplayRpmDay != null && RebuildParams.DpsCacheProvenance != DpsCacheProvenance.StaleTickCache)
+			{
+				CalculateSimulationData();
+				bool generatedItems = !SimulationStateOverride.For(SimulationHarness.CurrentJob).ItemsEveryDay;
+				var generatedDps = generatedItems ? currentDpsData.ToList() : null;
+				var generatedDefense = generatedItems ? currentDefenseData.ToList() : null;
+				RebuildApplyReplayCaches();
+				// Only observed shipped samples enter the G20 running maximum.
+				if (RebuildReplayRpmDay.Snapshot.TimeChunkIndex == timeChunkIndex)
+				{
+					CalculateSoulRPMValues();
+					foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+				}
+				// Item fitting must observe its generated caches, never the injected reference caches.
+				// The post-snapshot hook restores stored caches before any planning round.
+				if (generatedItems)
+				{
+					currentDpsData.Clear();
+					currentDpsData.AddRange(generatedDps);
+					currentDefenseData.Clear();
+					currentDefenseData.AddRange(generatedDefense);
+				}
+				return;
+			}
 			if (RebuildParams.DpsCacheProvenance != DpsCacheProvenance.StaleTickCache)
 			{
 				CalculateRPMValueTimeChunk();
 				return;
 			}
+			if (RebuildReplayRpmDay != null && RebuildReplayRpmDay.Snapshot.TimeChunkIndex != timeChunkIndex) return;
 			RebuildPerFrameCaches();
 			CalculateSpawnerData(true);
 			CalculateSoulRPMValues();
