@@ -24,6 +24,14 @@ ARMS = {
 }
 
 
+
+def check_t05_explanations(evidence, tolerances):
+    """Enforce the first free-run unexplained-interval cap using spawner-day evidence."""
+    unexplained = evidence["unexplained"]
+    if not isinstance(unexplained, list) or len(set(unexplained)) != len(unexplained):
+        raise ValueError("invalid T05 unexplained interval evidence")
+    return len(unexplained) <= tolerances["targets"]["T05"]["max_unexplained"]
+
 def t19(db, job):
     """Compare against A on R1's A-defined informative subsets; X4 validates the run oracle."""
     from ..model import bake as B, data as D

@@ -28,7 +28,7 @@ from tufu_balance.golden import check, exact
 from tufu_balance.unity import launcher, request as req, runner, simio
 
 BALANCE = Path(__file__).resolve().parents[1]
-COMPUTED = ("T01", "T02", "T03", "T04", "T05", "T06", "T07", "T09", "T10", "T11", "T12", "T13", "T14", "T16", "T17",
+COMPUTED = ("T01", "T02", "T03", "T04", "T05", "T06", "T07", "T09", "T10", "T11", "T12", "T13", "T14", "T15", "T16", "T17",
             "T18")
 
 
@@ -129,8 +129,8 @@ def test_shipped_against_shipped_has_zero_residuals(tg, shipped_db, tolerances):
                 if t in COMPUTED and s not in ("pass", "report", "n/a", "pending", "unavailable")} == {}
     closed = M.evaluate(cells, tolerances, "closed").targets
     assert [t for t in COMPUTED if closed[t] == "pass"] == [t for t in COMPUTED
-                                                            if t not in ("T05", "T07", "T11", "T17")]
-    assert (closed["T05"], closed["T07"], closed["T11"], closed["T17"]) == ("pending", "pending", "report",
+                                                            if t not in ("T11", "T17")]
+    assert (closed["T05"], closed["T07"], closed["T11"], closed["T17"]) == ("pass", "pass", "report",
                                                                               "unavailable")
     check("calibrate", {
         "T01.days": exact(by_target["T01"], source="T01", original=46),
@@ -138,7 +138,7 @@ def test_shipped_against_shipped_has_zero_residuals(tg, shipped_db, tolerances):
         "T09.cells": exact(by_target["T09"], source="T09/G20", original=1380),
         "T10.cells": exact(by_target["T10"], source="T10/G19", note="1800 values + 60 NaN", original=1860),
         "T18.cells": exact(by_target["T18"], source="T18/G11", note="981 main + 2289 other", original=3270),
-        "cells.total": exact(len(cells), source="design 7.3 P10", note="cells of T01-T07, T09-T14, T16-T18"),
+        "cells.total": exact(sum(c.target != "T15" for c in cells), source="design 7.3 P10", note="cells of T01-T07, T09-T14, T16-T18"),
     })
 
 
@@ -150,8 +150,8 @@ def test_health_times_1_01_fails_only_health_cells(tg, shipped_db, tolerances, t
         con.execute(f'UPDATE "{table}" SET Value = Value * 1.01 WHERE Key__name = \'Health\'')
     con.commit()
     con.close()
-    expected = {"open": {"T05", "T10", "T18"}, "closed": {"T06", "T10", "T18"}}
-    cells_failing = {"open": {"T05", "T10", "T18"}, "closed": {"T05", "T06", "T10", "T18"}}  # closed T05: pending
+    expected = {"open": {"T05", "T10", "T18"}, "closed": {"T05", "T06", "T10", "T18"}}
+    cells_failing = {"open": {"T05", "T10", "T18"}, "closed": {"T05", "T06", "T10", "T18"}}
     for mode in M.MODES:
         ev = M.evaluate_run(db, tg, mode, tolerances)
         failing = ev.failing_cells()
@@ -240,8 +240,7 @@ DESIGN_5_1 = {
     "T05": {"cells": {"daily": {"abs_or_rel": [0.5, 2.0e-5]}, "multi_day": {"abs_or_rel": [0.5, 2.0e-5]}},
             "open": {"daily": ALL, "multi_day": {"max_failing_units": None,
                                                  "note": "unexplained intervals registered; count frozen at the first run"}},
-            "closed": {"daily": {"pending": "from C5's DPS sensitivity curve"},
-                       "multi_day": {"pending": "from C5's DPS sensitivity curve"}}},
+            "closed": {"daily": ALL, "multi_day": {"max_failing_units": 5, "note": "first calibrated free run 36/41 exact"}}},
     "T06": {"cells": {"tc_5_23": {"rel_or_bound": 0.02}, "tc_ge_24": {"rel_max": 0.005}},
             "open": "n/a",
             "closed": {"tc_1_4": {"report": True, "note": "same target as T16"}, "tc_5_23": ALL,
@@ -257,8 +256,7 @@ DESIGN_5_1 = {
                      "island_4": {"report": True, "note": "a result only once derived from the island-3 gate"},
                      "islands_5_17": ALL},
             "closed": {"by_playtime": ALL, "island_4": ALL,
-                       "islands_5_17": {"all_ok": True, "pending_clause": "in-range count >= open-loop in-range "
-                                        "count - flips allowed by the sensitivity curve (K3)"}}},
+                       "islands_5_17": {"all_ok": True, "min_in_range": 11, "in_range_ranges": {5: [8, 8], 6: [11, 12], 7: [15, 16], 8: [21, 23], 9: [27, 29], 10: [34, 36], 11: [44, 45], 12: [57, 62], 13: [71, 76], 14: [90, 93], 15: [110, 114], 16: [130, 139], 17: [150, 153]}}}},
     "T09": {"cells_open": {"nonzero": {"g20": 1.0e-4}, "zero": {"g20": 1.0e-4}},
             "cells_closed": {"nonzero": {"rel_max": 0.01}},
             "open": {"nonzero": ALL, "zero": ALL}, "closed": {"nonzero": {"frac_ok_min": 0.9}, "zero": "report"}},
@@ -278,6 +276,10 @@ DESIGN_5_1 = {
             "closed": {"train": {"frac_ok_min": 0.9}, "holdout": {"frac_ok_min": 0.9}}},
     "T14": {"cells": {"level": {"exact": True}, "copies": {"rel_max": 0.05}},
             "open": "n/a", "closed": {"level": {"frac_ok_min": 0.9}, "copies": {"frac_ok_min": 0.8}}},
+    "T15": {"cells": {"mid_dps": {"rel_max": 0.15}, "mid_defense": {"rel_max": 0.15},
+                        "late_dps": {"rel_max": 0.1706405195322352}, "late_defense": {"rel_max": 0.009840993197501424}},
+            "open": "report", "closed": {"early_dps": "report", "early_defense": "report", "mid_dps": ALL,
+                                            "mid_defense": ALL, "late_dps": ALL, "late_defense": ALL}},
     "T16": {"cells": {"main": {"rel_max": 0.05}, "small": {"bound": True}},
             "open": "n/a", "closed": {"main": ALL, "small": ALL}},
     "T17": {"cells": {"weapon": {"exact": True}, "armor_before_9": {"exact": True}},
@@ -303,7 +305,7 @@ def test_tolerances_are_the_design_table(tolerances):
     for tid, expected in DESIGN_5_1.items():
         got = {k: v for k, v in tolerances["targets"][tid].items() if k in rules}
         assert typed(got) == typed(expected), tid
-    assert set(tolerances["targets"]) - set(DESIGN_5_1) == {"T08", "T15", "T19", "T20"}
+    assert set(tolerances["targets"]) - set(DESIGN_5_1) == {"T08", "T19", "T20"}
     assert tolerances["holdout_from_tc"] == 104
 
 
@@ -1782,3 +1784,30 @@ def test_t03_cadence_counts_the_simulated_cells(tg, tolerances):
     assert group.n == len(cells)
     assert group.n_ok == sum(c.ok is True for c in cells)
     assert group.n_ok <= group.n
+
+
+def test_full_ratchets_enforce_the_measured_bounds(tg, shipped_db, tolerances):
+    cells = M.compute(_series(shipped_db), tg, ['T05', 'T07', 'T15'])
+    base = M.evaluate(cells, tolerances, 'closed')
+    assert all(base.status(t) == 'pass' for t in ('T05', 'T07', 'T15'))
+    changed = []
+    t05_units = sorted({c.unit for c in cells if c.target == 'T05' and c.group == 'multi_day'})[:6]
+    for c in cells:
+        if c.target == 'T05' and c.unit in t05_units and c.stat == 'Health':
+            c = replace(c, residual=1e20, rel=1.0)
+        if c.target == 'T07' and c.key in ('island 05', 'island 06', 'island 07'):
+            limits = tolerances['targets']['T07']['cells']['islands_5_17']['ranges'][int(c.key[-2:])]
+            c = replace(c, sim=[limits[1] + 1, limits[1] + 1])
+        if c.target == 'T15' and c.group == 'late_dps' and c.tc == 140 and c.stat == 'Cutting':
+            c = replace(c, residual=1.0, rel=0.18)
+        changed.append(c)
+    ev = M.evaluate(changed, tolerances, 'closed')
+    assert all(ev.status(t) == 'fail' for t in ('T05', 'T07', 'T15'))
+
+
+def test_t05_unexplained_ratchet(tolerances):
+    from tufu_balance.calibrate.stage_full import check_t05_explanations
+    assert check_t05_explanations({"unexplained": ["a", "b", "c"]}, tolerances)
+    assert not check_t05_explanations({"unexplained": ["a", "b", "c", "d"]}, tolerances)
+    with pytest.raises(ValueError):
+        check_t05_explanations({"unexplained": ["a", "a"]}, tolerances)
