@@ -113,7 +113,13 @@ def _run_files(result: launcher.RunResult) -> dict[str, bytes]:
 
 
 def _job_files(result: launcher.RunResult, job_id: str) -> dict[str, bytes]:
-    return _files(result.job_dir(job_id), JOB_VOLATILE)
+    """The files of one job, for comparison with a job of another id: asset_guard.json names its job."""
+    files = _files(result.job_dir(job_id), JOB_VOLATILE)
+    if "asset_guard.json" in files:
+        guard = json.loads(files["asset_guard.json"])
+        assert guard.pop("job_id") == job_id
+        files["asset_guard.json"] = json.dumps(guard, sort_keys=True).encode()
+    return files
 
 
 def _digests(result: launcher.RunResult, job_id: str) -> dict[int, str]:
