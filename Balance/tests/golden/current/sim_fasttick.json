@@ -1,0 +1,379 @@
+{
+ "expectations": {
+  "diag.closed_loop_exact_min_e2": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 5.1 T05 closed",
+   "value": 35
+  },
+  "diag.dps_curve": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 5.1 T05",
+   "value": {
+    "0.95": 7,
+    "0.98": 6,
+    "0.99": 5,
+    "1.0": 4,
+    "1.01": 3,
+    "1.02": 2,
+    "1.05": 3
+   }
+  },
+  "diag.no_kill_gate_exact": {
+   "kind": "exact",
+   "note": "survey ~26/41",
+   "source": "design 4.5 diagnostics",
+   "value": 25
+  },
+  "diag.theta_bad": {
+   "kind": "exact",
+   "note": "survey 0.9/1.0/1.1 -> 14/4/6",
+   "source": "P01 ablation",
+   "value": {
+    "0.9": 14,
+    "1.0": 4,
+    "1.1": 7
+   }
+  },
+  "t04.kappa_0245": {
+   "kind": "exact",
+   "note": "design: median <= 0.02, max <= 0.08",
+   "source": "T04",
+   "value": {
+    "max": 0.08590000122785568,
+    "median": 0.042899999767541885,
+    "n": 34
+   }
+  },
+  "t04.kappa_refit": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 5.3 kappa = sum AF / sum F^2, TC 11-103",
+   "value": 0.2563999891281128
+  },
+  "t04.kappa_refit_summary": {
+   "kind": "exact",
+   "note": "",
+   "source": "T04",
+   "value": {
+    "max": 0.07850000262260437,
+    "median": 0.023000000044703484,
+    "n": 34
+   }
+  },
+  "t04.nntour": {
+   "kind": "exact",
+   "note": "",
+   "source": "T04 NnTour (a 1.018, b 0.78, 3 tours)",
+   "value": {
+    "max": 0.05310000106692314,
+    "median": 0.010200000368058681,
+    "n": 34
+   }
+  },
+  "t04.tc_4_10": {
+   "kind": "exact",
+   "note": "",
+   "source": "T04 report",
+   "value": {
+    "10->11": 0.11389999836683273,
+    "4->5": 0.3806999921798706,
+    "5->6": 0.19580000638961792,
+    "6->7": 0.19760000705718994,
+    "7->8": 0.289900004863739,
+    "8->9": 0.13429999351501465,
+    "9->10": 0.10159999877214432
+   }
+  },
+  "t05.afterpass_bad": {
+   "kind": "exact",
+   "note": "",
+   "source": "P02 KillState AfterPass (report)",
+   "value": 6
+  },
+  "t05.bad_spans": {
+   "better": "subset",
+   "kind": "set",
+   "note": "",
+   "source": "T05",
+   "value": [
+    [
+     140,
+     154
+    ],
+    [
+     17,
+     19
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     37,
+     41
+    ]
+   ]
+  },
+  "t05.daily_exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "T05",
+   "value": 7
+  },
+  "t05.exact_intervals": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "report only; the survey's 37/41 under theta = 1",
+   "source": "T05",
+   "value": 37
+  },
+  "t05.explanations": {
+   "kind": "exact",
+   "note": "",
+   "source": "T05",
+   "value": {
+    "017->019": {
+     "day": 18,
+     "shift": -1,
+     "spawners": [
+      "Main:Factories/EnemyFactory/island (7)/spawners/Spawner_elite cut|Spawner_elite cut_3bb4617c1b65bdf4080bbbacce72af23"
+     ]
+    },
+    "024->027": null,
+    "037->041": {
+     "day": 38,
+     "shift": -1,
+     "spawners": [
+      "Main:Factories/EnemyFactory/island (10)/spawners/Spawner_elite pierce|Spawner_elite pierce_e2799eda5ed1d294ea2908171e611179"
+     ]
+    },
+    "140->154": {
+     "day": 151,
+     "shift": -1,
+     "spawners": [
+      "Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_boss|Spawner_16_boss_363f4c1b3ec9c0940b186ed4c9748835",
+      "Main:Factories/EnemyFactory/island (17)/resources/tree_17 (1)|tree_17 (1)_5e1eaa0a50018844eb77eb0f0868962a",
+      "Main:Factories/EnemyFactory/island (17)/resources/tree_17 (11)|tree_17 (11)_13edc592e8d45174a97afc7968510c91",
+      "Main:Factories/EnemyFactory/island (17)/resources/tree_17 (13)|tree_17 (13)_782850567c75fad40a83df7dd8fbba76",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (3)|Spawner_17_easy (3)_1acbed3f60245d744b6fbd5fafe0832c",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_elite (3)|Spawner_17_elite (3)_2aaff8158661bb348b8ce0e99c4b58c0",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_common_helm (3)|Spawner_17_medium_cut_common_helm (3)_6ae429f836d033e4c96bf10970aabf04",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_common_shield (1)|Spawner_17_medium_cut_common_shield (1)_ec73427c7e9250042b1a0bdf6cd85a11"
+     ]
+    }
+   }
+  },
+  "t05.next_day_bad": {
+   "kind": "exact",
+   "note": "survey ~14/41",
+   "source": "design 4.5 same-day planning",
+   "value": 17
+  },
+  "t05.next_day_bad_spans": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5",
+   "value": [
+    [
+     4,
+     5
+    ],
+    [
+     5,
+     6
+    ],
+    [
+     6,
+     7
+    ],
+    [
+     8,
+     9
+    ],
+    [
+     11,
+     13
+    ],
+    [
+     15,
+     17
+    ],
+    [
+     17,
+     19
+    ],
+    [
+     21,
+     24
+    ],
+    [
+     24,
+     27
+    ],
+    [
+     33,
+     37
+    ],
+    [
+     37,
+     41
+    ],
+    [
+     41,
+     46
+    ],
+    [
+     57,
+     63
+    ],
+    [
+     70,
+     77
+    ],
+    [
+     104,
+     115
+    ],
+    [
+     127,
+     140
+    ],
+    [
+     140,
+     154
+    ]
+   ]
+  },
+  "t05.residuals": {
+   "kind": "exact",
+   "note": "",
+   "source": "T05",
+   "value": {
+    "017->019": {
+     "CutDamageFlat": 500.0
+    },
+    "024->027": {
+     "Health": -24000.0,
+     "HealthRegen": -21.0
+    },
+    "037->041": {
+     "StabDamageFlat": 600.0
+    },
+    "140->154": {
+     "CutDefenceFlat": 330.0,
+     "Health": 1350.0,
+     "HealthRegen": 69.0,
+     "LifestealFlat": 600.0
+    }
+   }
+  },
+  "t05.unexplained": {
+   "better": "subset",
+   "kind": "set",
+   "note": "",
+   "source": "T05",
+   "value": [
+    "024->027"
+   ]
+  },
+  "t05.unexplained_count": {
+   "kind": "max",
+   "note": "cap frozen at the first run",
+   "source": "T05",
+   "value": 1
+  },
+  "t07.in_range_5_17": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "survey 12/13",
+   "source": "T07",
+   "value": 12
+  },
+  "t07.island_4": {
+   "kind": "exact",
+   "note": "shipped: day 5",
+   "source": "T07",
+   "value": 5
+  },
+  "t07.unlock_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "T07",
+   "value": {
+    "10": 35,
+    "11": 44,
+    "12": 57,
+    "13": 71,
+    "14": 90,
+    "15": 110,
+    "16": 131,
+    "17": 151,
+    "2": 4,
+    "3": 4,
+    "4": 5,
+    "5": 8,
+    "6": 11,
+    "7": 15,
+    "8": 21,
+    "9": 26
+   }
+  },
+  "t08.first_kill_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "T08",
+   "value": {
+    "Spawner_1 (19)@5": 10,
+    "Spawner_17_death@17": 202,
+    "Spawner_1_elite health@8": 26,
+    "Spawner_elite health@4": 7,
+    "Spawner_elite_regen@5": 10,
+    "dragon@4": 8,
+    "ice pike blocker (16)@10": 40,
+    "ice pike blocker (17)@10": 40,
+    "ice pike blocker (18)@10": 40,
+    "ice pike blocker (19)@10": 40
+   }
+  },
+  "tc405.value_rel": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C5",
+   "value": {
+    "AttackRange": 0.0,
+    "BlockAmount": 1.981e-09,
+    "BlockChance": 1.994e-09,
+    "BuckshotDamageFlat": 1.888e-09,
+    "BuckshotDamagePercent": 0.0,
+    "BuckshotDefenceFlat": 1.977e-09,
+    "BuckshotDefencePercent": 0.0,
+    "CritChance": 1.924e-09,
+    "CritDamagePercent": 1.926e-09,
+    "CutDamageFlat": 1.983e-09,
+    "CutDamagePercent": 0.0,
+    "CutDefenceFlat": 2.11e-09,
+    "CutDefencePercent": 0.0,
+    "Evasion": 2.046e-09,
+    "Health": 3.06e-08,
+    "HealthRegen": 1.816e-09,
+    "LifestealFlat": 1.932e-09,
+    "MovementSpeed": 1.995e-09,
+    "StabDamageFlat": 2.024e-09,
+    "StabDamagePercent": 0.0,
+    "StabDefenceFlat": 1.879e-09,
+    "StabDefencePercent": 0.0,
+    "SuperCritDamagePercent": 0.0
+   }
+  },
+  "tc405.value_rel_max": {
+   "kind": "max",
+   "note": "",
+   "source": "design 7.3 C5",
+   "value": 3.059681159747655e-08
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "sim_fasttick"
+}

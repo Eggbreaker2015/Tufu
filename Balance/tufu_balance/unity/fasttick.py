@@ -159,6 +159,10 @@ class SpawnerDay:
     farmed_time: float
     loss: float
     max_health: float
+    count: int | None = None
+    charge_limit: int | None = None
+    charges_before: int | None = None
+    charges_after: int | None = None
 
     @property
     def loss_over_h(self) -> float:
@@ -166,21 +170,22 @@ class SpawnerDay:
 
 
 SPAWNER_DAYS_COLUMNS = ("day", "round", "spawner", "location", "dafc", "killable", "fights", "fight_time", "farmed_time",
-                        "loss", "max_health")
+                        "loss", "max_health", "count", "charge_limit", "charges_before", "charges_after")
 
 
 def read_spawner_days(data: bytes) -> list[SpawnerDay]:
     """``spawner_days.csv.gz`` (one gzip member per day, one header)."""
     text = gzip.decompress(data).decode("utf-8")
     rows = list(csv.reader(io.StringIO(text)))
-    if not rows or tuple(rows[0]) != SPAWNER_DAYS_COLUMNS:
+    # Keep readers of the resumed C5 runs working (before the explicit charge columns).
+    if not rows or tuple(rows[0]) not in (SPAWNER_DAYS_COLUMNS, SPAWNER_DAYS_COLUMNS[:11]):
         raise schema.SchemaError(f"{SPAWNER_DAYS_FILE}: header {rows[0] if rows else None} != {SPAWNER_DAYS_COLUMNS}")
     out = []
     for i, r in enumerate(rows[1:], 2):
-        if len(r) != len(SPAWNER_DAYS_COLUMNS) or r[4] not in ("0", "1") or r[5] not in ("0", "1"):
+        if len(r) != len(rows[0]) or r[4] not in ("0", "1") or r[5] not in ("0", "1"):
             raise schema.SchemaError(f"{SPAWNER_DAYS_FILE}:{i}: malformed row {r}")
         out.append(SpawnerDay(int(r[0]), int(r[1]), r[2], int(r[3]), r[4] == "1", r[5] == "1", int(r[6]), float(r[7]),
-                              float(r[8]), float(r[9]), float(r[10])))
+                              float(r[8]), float(r[9]), float(r[10]), *(int(v) for v in r[11:])))
     return out
 
 
@@ -199,4 +204,17 @@ def charge_counts(rows: list[SpawnerDay]) -> dict[tuple[int, str], int]:
     for r in rows:
         if r.fights > 0:
             out[(r.day, r.spawner)] = out.get((r.day, r.spawner), 0) + r.fights
+    return out
+
+
+def charge_usage(rows: list[SpawnerDay]) -> dict[tuple[int, str], int]:
+    """Consumed charge units per (day, spawner), measured at the engine's write point. Unlike
+    :func:`charge_counts` (clears), this already includes Count and any cap at the write point."""
+    out: dict[tuple[int, str], int] = {}
+    for r in rows:
+        if r.charges_before is None or r.charges_after is None:
+            raise schema.SchemaError("charge_usage needs the explicit charge columns (C5 resumed runs only record clears)")
+        if r.fights > 0:
+            key = (r.day, r.spawner)
+            out[key] = out.get(key, 0) + r.charges_after - r.charges_before
     return out

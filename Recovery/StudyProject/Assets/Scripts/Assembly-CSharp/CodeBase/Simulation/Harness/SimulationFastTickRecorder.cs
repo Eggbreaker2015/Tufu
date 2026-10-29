@@ -24,7 +24,7 @@ namespace Codebase.Simulation.Harness
 		public const string DaysOutput = "fasttick_days";
 		public const string SpawnerDaysFile = "spawner_days.csv.gz";
 		public const string SpawnerDaysOutput = "spawner_days";
-		public const string SpawnerDaysHeader = "day,round,spawner,location,dafc,killable,fights,fight_time,farmed_time,loss,max_health";
+		public const string SpawnerDaysHeader = "day,round,spawner,location,dafc,killable,fights,fight_time,farmed_time,loss,max_health,count,charge_limit,charges_before,charges_after";
 
 		private static SimulationFastTickRecorder current;
 
@@ -99,13 +99,14 @@ namespace Codebase.Simulation.Harness
 		}
 
 		internal void AddSpawnerRow(int day, int round, string spawner, int location, bool dafc, bool killable, int fights, double fightTime,
-			double farmedTime, double loss, double maxHealth)
+			double farmedTime, double loss, double maxHealth, int count, int chargeLimit, int chargesBefore, int chargesAfter)
 		{
 			if (spawnerDaysPath == null) return;
 			rows.Append(day).Append(',').Append(round).Append(',').Append(Csv(spawner)).Append(',').Append(location).Append(',')
 				.Append(dafc ? '1' : '0').Append(',').Append(killable ? '1' : '0').Append(',').Append(fights).Append(',')
 				.Append(SimulationJson.FormatDouble(fightTime)).Append(',').Append(SimulationJson.FormatDouble(farmedTime)).Append(',')
-				.Append(SimulationJson.FormatDouble(loss)).Append(',').Append(SimulationJson.FormatDouble(maxHealth)).Append('\n');
+				.Append(SimulationJson.FormatDouble(loss)).Append(',').Append(SimulationJson.FormatDouble(maxHealth)).Append(',')
+				.Append(count).Append(',').Append(chargeLimit).Append(',').Append(chargesBefore).Append(',').Append(chargesAfter).Append('\n');
 		}
 
 		private static string Csv(string text) =>

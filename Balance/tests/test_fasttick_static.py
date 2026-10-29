@@ -199,12 +199,18 @@ def test_readers_round_trip():
     [day] = ft.read_days(json.dumps(line) + "\n")
     assert day.day == 4 and day.stats == {1: 1365.0} and day.rounds[0].farmed_seconds == 9.0 and day.round_unlocks == [2]
     header = ",".join(ft.SPAWNER_DAYS_COLUMNS) + "\n"
-    data = gzip.compress((header + "4,1,Main:a|k,1,0,1,3,1.5,9,0,100\n").encode()) + \
-        gzip.compress(b"5,1,Main:a|k,1,0,1,3,1.5,9,50,100\n5,2,Main:b|j,2,1,0,0,2,9,300,100\n")
+    data = gzip.compress((header + "4,1,Main:a|k,1,0,1,3,1.5,9,0,100,4,12,0,12\n").encode()) + \
+        gzip.compress(b"5,1,Main:a|k,1,0,1,3,1.5,9,50,100,4,12,0,12\n5,2,Main:b|j,2,1,0,0,2,9,300,100,1,1,0,0\n")
     rows = ft.read_spawner_days(data)
     assert [r.day for r in rows] == [4, 5, 5] and rows[2].dafc and not rows[2].killable
     assert rows[1].loss_over_h == 0.5 and ft.kill_days(rows) == {"Main:a|k": 4}
     assert ft.charge_counts(rows) == {(4, "Main:a|k"): 3, (5, "Main:a|k"): 3}
+    assert ft.charge_usage(rows) == {(4, "Main:a|k"): 12, (5, "Main:a|k"): 12}
+    legacy = ft.read_spawner_days(gzip.compress((",".join(ft.SPAWNER_DAYS_COLUMNS[:11]) +
+                                                "\n4,1,Main:a|k,1,0,1,3,1.5,9,0,100\n").encode()))
+    assert ft.charge_counts(legacy) == {(4, "Main:a|k"): 3}
+    with pytest.raises(schema.SchemaError, match="explicit charge columns"):
+        ft.charge_usage(legacy)
     with pytest.raises(schema.SchemaError):
         ft.read_spawner_days(gzip.compress(b"day\n"))
     assert math.isinf(S.T08[("Spawner_1_elite health", 8)][1])

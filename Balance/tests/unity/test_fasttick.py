@@ -356,6 +356,41 @@ def test_eligible_sets_equal_simcalc(run, ctx, ident):
     assert mismatched == 0 and checked >= LAST - 4
 
 
+def test_farmed_time_and_charge_usage_equal_oracle(run, ctx, ident):
+    """Audit T04's inputs independently: the recovered farmedTime formula and the charge cap, with no
+    fitted multiplier. Charge units are exported separately from clears for P10's T05/T12."""
+    to_rt, defs = ident
+    by_rt = {to_rt[s.spawner_id]: s for s in ctx.spawners if s.spawner_id in to_rt}
+    overrides = {r.day: r for r in ov.read_days(run.file("fast-405", ov.DAYS_FILE).decode())}
+    rows = _rows(run, "fast-405")
+    farmed = {}
+    for r in rows:
+        d = defs[r.spawner]
+        assert r.count == d.count and r.charge_limit == ctx.charges_limit(by_rt[r.spawner])
+        assert 0 <= r.charges_before <= r.charges_after <= r.charge_limit
+        assert r.charges_after - r.charges_before == r.fights * r.count
+        if r.fights:
+            want = 1 if r.dafc else (r.charge_limit - r.charges_before) // r.count
+            assert r.fights == want
+        farmed[r.day] = farmed.get(r.day, 0.0) + r.fights * r.farmed_time
+        if r.day not in (4, 11, 30, 104, 206, 404):
+            continue
+        o = overrides[r.day]
+        state = sc.PlayerState(stats={k: g for k, (_, _, g) in o.stats.items()},
+                               dps_data=dict(o.dps_cache), defense_data=dict(o.defense_cache),
+                               unlocked_location=17, day=r.day, current_health=o.current_health)
+        expected = sc.spawner_data(ctx, state, by_rt[r.spawner])
+        # C2: Mono's float intermediates differ from stepwise Python by up to 1 ulp.
+        assert r.fight_time == pytest.approx(expected.fight_time, rel=2e-6, abs=1e-9)
+        assert r.farmed_time == pytest.approx(expected.farmed_time, rel=2e-6, abs=1e-9)
+    for d in _days(run, "fast-405"):
+        assert d.farmed_seconds == pytest.approx(farmed[d.day], rel=1e-12)
+    usage = ft.charge_usage(rows)
+    clears = ft.charge_counts(rows)
+    assert usage.keys() == clears.keys()
+    assert all(n == clears[key] * defs[key[1]].count for key, n in usage.items())
+
+
 # ---------------------------------------------------------------- T07, T08, T04
 
 
@@ -400,6 +435,10 @@ def test_t04_active_minutes(run, shipped):
     nn = S.t04_summary(S.t04(shipped, {d.day: d.active_minutes for d in _days(run, "fast-405-nntour")}))
     check(SUITE, {
         "t04.kappa_0245": exact({k: round(v, 4) for k, v in summary.items()}, source="T04", note="design: median <= 0.02, max <= 0.08"),
+        "t04.median_rel_cap": at_most(summary["median"], source="T04", original=0.02,
+                                      note="design limit missed; registered C5 deviation, see FastTick.md"),
+        "t04.max_rel_cap": at_most(summary["max"], source="T04", original=0.08,
+                                   note="design limit missed; registered C5 deviation, see FastTick.md"),
         "t04.tc_4_10": exact({f"{c.a}->{c.b}": round(c.sim / c.ref - 1, 4) for c in cells if c.a < 11}, source="T04 report"),
         "t04.kappa_refit": exact(round(kappa, 4), source="design 5.3 kappa = sum AF / sum F^2, TC 11-103"),
         "t04.kappa_refit_summary": exact({k: round(v, 4) for k, v in refit.items()}, source="T04"),

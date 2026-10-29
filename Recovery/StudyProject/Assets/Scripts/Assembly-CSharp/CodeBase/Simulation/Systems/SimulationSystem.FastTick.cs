@@ -55,16 +55,20 @@ namespace Codebase.Simulation.Systems
 				{
 					EnemySpawner spawner = data.spawner;
 					EnemySpawnerConfig def = spawner.Config;
+					string id = RebuildTraceId(spawner);
+					spawnerChargesUsage.TryGetValue(spawner, out int chargesBefore);
 					int fights = RebuildFastFights(spawner);
 					bool killed = fights > 0 && SimulateFightWithSpawnerFast(data, fights);
-					recorder?.AddSpawnerRow(day, round, RebuildTraceId(spawner), def.LocationNumber, def.DisableAfterFirstClear, killed || RebuildFastKillable(data),
-						killed ? fights : 0, data.fightTime, data.farmedTime, -data.healthDelta, health);
+					spawnerChargesUsage.TryGetValue(spawner, out int chargesAfter);
+					recorder?.AddSpawnerRow(day, round, id, def.LocationNumber, def.DisableAfterFirstClear, killed || RebuildFastKillable(data),
+						killed ? fights : 0, data.fightTime, data.farmedTime, -data.healthDelta, health,
+						def.Count, GetSpawnerChargesLimit(spawner), chargesBefore, chargesAfter);
 					if (!killed)
 					{
 						if (fights > 0) rejected++;
 						continue;
 					}
-					eligible.Add(RebuildTraceId(spawner));
+					eligible.Add(id);
 					roundClears += fights;
 					roundKills += (long)fights * def.Count;
 					roundFight += fights * data.fightTime;
