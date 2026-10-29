@@ -217,7 +217,7 @@ def charges_limit(s: SpawnerDef, cooldowns: ab.SpawnerCooldownsData, meta: MetaL
 
 # ---------------------------------------------------------------- readiness (new save)
 
-@implements("pending:spawners.ready_alive_new_save", provenance=Provenance.INFERRED,
+@implements("spawners.ready_alive_new_save", provenance=Provenance.INFERRED,
             code_ref="CodeBase/Enemy/EnemySpawner.cs:746,860-863,922-925")
 def alive_on_new_save(s: SpawnerDef) -> bool:
     """Whether a registered spawner has units when the game is ready on a new save.
@@ -305,7 +305,7 @@ def write_expected_ready_spawners(path: str | Path, rows: Mapping[SpawnerId, Rea
 
 # ---------------------------------------------------------------- bosses
 
-@implements("pending:simulation.current_boss", provenance=Provenance.INFERRED)
+@implements("simulation.current_boss", provenance=Provenance.INFERRED)
 def boss_for_location(location: int, spawners: Iterable[SpawnerDef]) -> SpawnerDef | None:
     """``currentBoss`` while ``location`` is the last unlocked island (design P17, B11).
 

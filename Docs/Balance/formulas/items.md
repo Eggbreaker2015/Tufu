@@ -86,6 +86,8 @@ Each item's stat is a two-phase piecewise-linear function of copies. Before the 
 | [`items.equip_stat_modifiers`](#itemsequip_stat_modifiers) | Item stat modifiers applied on equip | 原生证据恢复 | `runtime_formula` |
 | [`items.auto_equip_and_starting_weapon`](#itemsauto_equip_and_starting_weapon) | Starting weapon and auto-equip policy | 原生证据恢复 | `runtime_formula` |
 | [`items.weapon_attack_timing_stub`](#itemsweapon_attack_timing_stub) | WeaponAttackTiming helper (windup/travel/hit ratios) | 空壳 | `runtime_formula` |
+| [`items.evolve_jump_ratio`](#itemsevolve_jump_ratio) | items.evolve jump ratio | 重建（无原生标注） | `rebuild_rule` |
+| [`items.infer_evolved`](#itemsinfer_evolved) | items.infer evolved | 重建（无原生标注） | `rebuild_rule` |
 
 ## 公式
 
@@ -1379,6 +1381,49 @@ Constants: windup = travel = return = 1/3, hitElapsedRatio = 2/3, hitCooldownRat
 **备注**：The live hit threshold is the native PlayerAttackSystem.GetHitCooldownThreshold = castPoint * AttackCooldown (0x1440f74), so this stub does not change gameplay numbers. It is listed so nobody wires it in by mistake.
 
 **依赖图节点**：输入 `config:ItemConfig.AttackCooldown`、`config:WeaponAttackAnimationSettings.<AnimationDurationCap>k__BackingField`、`config:WeaponAttackAnimationSettings.<WindupRatio>k__BackingField`、`config:WeaponAttackAnimationSettings.<TravelRatio>k__BackingField`、`config:WeaponAttackAnimationSettings.<ReturnRatio>k__BackingField`、`config:WeaponAttackAnimationSettings.<OvertravelRatio>k__BackingField`、`constant:WeaponAttackTiming.WindupDurationRatio`、`constant:WeaponAttackTiming.TravelDurationRatio`、`constant:WeaponAttackTiming.ReturnDurationRatio`、`constant:WeaponAttackTiming.HitElapsedRatio`、`constant:WeaponAttackTiming.HitCooldownRatio`；输出 `value:weapon.attack_animation_timing`
+
+### `items.evolve_jump_ratio`
+
+**items.evolve jump ratio**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Stat right before and right after evolution E = 1..MaxEvolutionLevel when evolving exactly at the
+threshold: before holds ``LevelsToEvolve`` copies, after holds 0 (design 3.3 G18).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `items.infer_evolved`
+
+**items.infer evolved**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Whether the item had evolved at each of its snapshot observations ``(Level, Copies)`` (time order).
+
+The snapshot stores ``Level = EffectiveLevel``, so ``Level != Copies`` means evolved. ``Level == Copies``
+fits both readings on its own (evolution level L with L copies left), so the item's whole history is
+used: the evolved flag switches once, at some change point ``k``; every ``k`` that passes
+:func:`_feasible` (copy conservation through the shards table) is kept, and an observation is decided
+when all kept ``k`` put it on the same side. Otherwise it is ``None`` with the reason.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
 
 ## 配置参数
 

@@ -270,7 +270,7 @@ def composition_mismatches(snapshot: SimulationSnapshot, interpolations, roundin
 
 
 # ----------------------------------------------------------------------------- early-list CurrentGpm (G19)
-@implements("pending:simulation.snapshot_current_gpm", provenance=Provenance.DATA)
+@implements("simulation.snapshot_current_gpm", provenance=Provenance.DATA)
 def early_current_gpm(prev: SimulationSnapshot, cur: SimulationSnapshot, key: int) -> float:
     """Early-list ``CurrentGpm`` = ΔValue / ΔPlaytime against the previous snapshot; NaN when ΔPlaytime = 0.
 

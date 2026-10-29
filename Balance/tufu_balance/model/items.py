@@ -351,7 +351,7 @@ def g18_items(items: Mapping[str, ItemDef]) -> list[ItemDef]:
             if it.rarity not in (Rarity.Divine, Rarity.Mythical)]
 
 
-@implements("pending:items.evolve_jump_ratio", provenance=Provenance.DATA)
+@implements("items.evolve_jump_ratio", provenance=Provenance.DATA)
 def evolve_jumps(items: Iterable[ItemDef], tables: ItemTables) -> list[EvolveJump]:
     """Stat right before and right after evolution E = 1..MaxEvolutionLevel when evolving exactly at the
     threshold: before holds ``LevelsToEvolve`` copies, after holds 0 (design 3.3 G18)."""
@@ -451,7 +451,7 @@ def _feasible(item: ItemDef, tables: ItemTables, obs: Sequence[tuple[int, int]],
     return True
 
 
-@implements("pending:items.infer_evolved", provenance=Provenance.INFERRED)
+@implements("items.infer_evolved", provenance=Provenance.INFERRED)
 def infer_evolved(item: ItemDef, tables: ItemTables, obs: Sequence[tuple[int, int]]) -> list[EvolvedInference]:
     """Whether the item had evolved at each of its snapshot observations ``(Level, Copies)`` (time order).
 

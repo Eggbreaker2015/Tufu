@@ -2,7 +2,7 @@
 
 核心战斗成长相关的全部公式、配置参数及其恢复状态。数据导出见 [Balance/README.md](../../Balance/README.md)，公式之间的依赖关系和改动影响查询见[数值依赖图](DependencyGraph.md)。
 
-共 281 条公式。7 个子系统梳理 agent 逐一读代码整理，对抗性核验 agent 对照代码检查表达式、状态和行号，完整性审查 agent 补漏；随后把跨子系统重复的条目合并为一条，把全部核验意见写入正文，再逐批复核。44 条由多条合并而来，109 条带核验记录。旧 id 到新 id 的对应见 JSON 的 `aliases`。
+共 350 条公式。7 个子系统梳理 agent 逐一读代码整理，对抗性核验 agent 对照代码检查表达式、状态和行号，完整性审查 agent 补漏；随后把跨子系统重复的条目合并为一条，把全部核验意见写入正文，再逐批复核。44 条由多条合并而来，109 条带核验记录。旧 id 到新 id 的对应见 JSON 的 `aliases`。
 
 结构化原始数据是 [formulas.json](../../Balance/catalog/formulas.json)，本页及子页由 `Balance/tufu_balance/render_catalog.py` 从它生成；修改请改 JSON 后重新生成。公式细节保留英文原文，以免翻译改动表达式和标识符。
 
@@ -24,13 +24,13 @@
 |---|---|---|---|---|---|---|
 | [属性系统](formulas/stats.md) | 10 | 10 | 0 | 0 | 1 | 21 |
 | [战斗结算](formulas/combat.md) | 30 | 11 | 2 | 0 | 1 | 44 |
-| [装备与进化](formulas/items.md) | 11 | 13 | 2 | 8 | 3 | 37 |
+| [装备与进化](formulas/items.md) | 11 | 15 | 2 | 8 | 3 | 39 |
 | [永久成长与奖励](formulas/meta.md) | 20 | 14 | 2 | 1 | 3 | 40 |
-| [刷怪点、岛屿与门](formulas/spawners.md) | 2 | 27 | 3 | 3 | 6 | 41 |
-| [原版模拟与烘焙管线](formulas/simulation.md) | 21 | 8 | 10 | 3 | 1 | 43 |
+| [刷怪点、岛屿与门](formulas/spawners.md) | 2 | 28 | 3 | 3 | 6 | 42 |
+| [原版模拟与烘焙管线](formulas/simulation.md) | 21 | 74 | 10 | 3 | 1 | 109 |
 | [护符、怒气与能力](formulas/powerups.md) | 40 | 8 | 3 | 2 | 0 | 53 |
 | [跨系统](formulas/cross.md) | 0 | 0 | 0 | 2 | 0 | 2 |
-| **合计** | **134** | **91** | **22** | **19** | **15** | **281** |
+| **合计** | **134** | **160** | **22** | **19** | **15** | **350** |
 
 ## 空壳：建模前必须补证据
 
@@ -115,10 +115,10 @@
 | `Unit/Systems/UnitDamageSystem.cs` | `combat.player_lifesteal_on_hit`、`combat.enemy_lifesteal_on_hit`、`combat.enemy_reflection`、`combat.first_vulnerability_multiplier`、`stats.damage_application`、`combat.lethal_damage_ignore`、`combat.block_to_supercrit_bonus` |
 | `Utilities/DoubleExtensions.cs` | `combat.dodge_block_rolls`、`meta.pretty_round` |
 | `Enemy/EnemySpawner.cs` | `spawners.event_plan_override`、`spawners.enemy_spawn_stats`、`spawners.zero_cooldown_collapse`、`spawners.effective_charges`、`spawners.base_cooldown`、`spawners.event_crystal_mob_bonus`、`meta.event_plan_stat_reward`、`spawners.charge_state_init`、`spawners.ab_spawner_override_predicate`、`spawners.respawn_tick`、`spawners.death_timer_reset`、`spawners.big_cooldown`、`spawners.charge_restore`、`spawners.event_miniboss_spawn_gate`、`spawners.event_spawner_init`、`spawners.time_skip`、`spawners.vip_spawner_gate`、`spawners.disable_after_first_clear`、`spawners.progress_markers`、`spawners.daily_yield`、`spawners.geode_kill_count`、`spawners.dummy_spawn_block`、`spawners.full_or_depleted_wake_schedule`、`spawners.item_copies_reward_multiplier_coupling` |
-| `Balance/CombatBalanceConfig.cs` | `items.evolution_level_clamp`、`balance.island_target_days_curve`、`balance.evolution_island_fill_rule`、`balance.evolution_target_timings_from_islands`、`balance.evolution_shards_capture`、`balance.evolution_value_autobalance`、`balance.copy_value_rule`、`balance.mythical_evolution_curve`、`balance.armor_base_reset`、`items.base_growth_tables`、`balance.shield_value_sync_by_leader`、`balance.evolution_autobalance_thresholds` |
+| `Balance/CombatBalanceConfig.cs` | `items.evolution_level_clamp`、`balance.island_target_days_curve`、`balance.evolution_island_fill_rule`、`balance.evolution_target_timings_from_islands`、`balance.evolution_shards_capture`、`balance.evolution_value_autobalance`、`balance.copy_value_rule`、`balance.mythical_evolution_curve`、`balance.armor_base_reset`、`items.base_growth_tables`、`balance.shield_value_sync_by_leader`、`balance.evolution_autobalance_thresholds`、`balance.armor_base`、`balance.evolution_fill_remaining`、`balance.evolution_generator`、`balance.evolution_targets`、`balance.evolution_value`、`balance.island_timing`、`balance.shards_capture` |
 | `Simulation/Forecast/ForecastSnapshots.cs` | `balance.island_timing_to_days`、`simulation.forecast_build_core`、`simulation.forecast_auto_balanced_enemy`、`simulation.forecast_damage_ramp_average`、`simulation.forecast_tune_boss_presets`、`simulation.forecast_reward`、`simulation.forecast_event_plan`、`simulation.forecast_current_player_fallback` |
 | `ABTests/ABTestService.cs` | `spawners.ab_cooldown_table`、`spawners.ab_charges_table`、`simulation.rpm_stat_class_ab_multiplier` |
-| `Simulation/SimulationConfig.cs` | `spawners.difficulty_semantics`、`spawners.optimum_time_semantics`、`simulation.snapshot_trim`、`simulation.bake_recalc_optimum_time`、`simulation.bake_spawner_health`、`simulation.bake_spawner_damage`、`simulation.bake_apply` |
+| `Simulation/SimulationConfig.cs` | `spawners.difficulty_semantics`、`spawners.optimum_time_semantics`、`simulation.snapshot_trim`、`simulation.bake_recalc_optimum_time`、`simulation.bake_spawner_health`、`simulation.bake_spawner_damage`、`simulation.bake_apply`、`simulation.hand_tick` |
 
 ## 完整性审查结论
 

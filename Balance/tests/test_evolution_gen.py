@@ -49,11 +49,11 @@ def _label(key) -> str:
 
 def test_formulas_registered():
     ids = {"balance.evolution_value_autobalance", "balance.copy_value_rule", "balance.mythical_evolution_curve",
-           "balance.evolution_shards_capture", "pending:balance.evolution_nice_rounding",
-           "pending:balance.evolution_reference_stat_percent", "pending:balance.evolution_fill_remaining",
-           "pending:balance.evolution_replay_stored_inputs", "pending:balance.evolution_data_identities",
-           "pending:balance.evolution_reference_stat_value", "pending:balance.evolution_reference_time_chunk",
-           "pending:balance.evolution_heuristic_fit", "pending:balance.evolution_fitted_h"}
+           "balance.evolution_shards_capture", "balance.evolution_nice_rounding",
+           "balance.evolution_reference_stat_percent", "balance.evolution_fill_remaining",
+           "balance.evolution_replay_stored_inputs", "balance.evolution_data_identities",
+           "balance.evolution_reference_stat_value", "balance.evolution_reference_time_chunk",
+           "balance.evolution_heuristic_fit", "balance.evolution_fitted_h"}
     for fid in ids:
         assert any(i.module == G.__name__ for i in REGISTRY.implementers(fid)), fid
 

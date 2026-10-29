@@ -69,7 +69,7 @@ namespace Codebase.Simulation.Systems
             };
         }
 
-        [SimulationRebuild(Provenance.Inferred, "pending:simulation.fractional_count")]
+        [SimulationRebuild(Provenance.Inferred, "simulation.fractional_count")]
         public int RollFractionalCount(double value)
         {
             if (string.IsNullOrEmpty(RebuildRollStream)) throw new InvalidOperationException("item roll requires a Key stream");
@@ -83,7 +83,7 @@ namespace Codebase.Simulation.Systems
             return count;
         }
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:simulation.item_chain")]
+        [SimulationRebuild(Provenance.Calibrated, "simulation.item_chain")]
         private static double GetChainedItemBaseCount(int baseItemsCount, float value)
         {
             if (baseItemsCount <= 0) return 0.0;
@@ -96,7 +96,7 @@ namespace Codebase.Simulation.Systems
             return RebuildParams.EmissionModel == EmissionModel.E1 ? count : GetChainedItemBaseCount(count, chain);
         }
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:simulation.weapon_slots")]
+        [SimulationRebuild(Provenance.Calibrated, "simulation.weapon_slots")]
         private void UnlockSimulationWeaponSlot(int locationNumber)
         {
             if (RebuildLastTickFast && RebuildParams.SlotRpmOrder == SlotRpmOrder.SlotAfterRpm && !RebuildInventoryAfterRpm)
@@ -137,7 +137,7 @@ namespace Codebase.Simulation.Systems
             ProcessInventory();
         }
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:simulation.process_inventory")]
+        [SimulationRebuild(Provenance.Calibrated, "simulation.process_inventory")]
         private void ProcessInventory()
         {
             if (RebuildLastTickFast && RebuildParams.SlotRpmOrder == SlotRpmOrder.SlotAfterRpm && !RebuildInventoryAfterRpm)
@@ -190,7 +190,7 @@ namespace Codebase.Simulation.Systems
             return timings[level - 1];
         }
 
-        [SimulationRebuild(Provenance.Inferred, "pending:simulation.armor_base_balance")]
+        [SimulationRebuild(Provenance.Inferred, "simulation.armor_base_balance")]
         private void TryApplyArmorBaseAutoBalance(ItemModel item)
         {
             if (RebuildParams.AutoBalanceMode != AutoBalanceMode.Regenerate || !item.IsArmor) return;
@@ -198,7 +198,7 @@ namespace Codebase.Simulation.Systems
                 global::Codebase.Services.Damage.DamageCalculator.WeaponTypeToDefence(item.Config.DamageType, false))));
         }
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:simulation.evolution_balance")]
+        [SimulationRebuild(Provenance.Calibrated, "simulation.evolution_balance")]
         private void ApplyAutoBalanceForEvolution(ItemModel item)
         {
             if (RebuildParams.AutoBalanceMode != AutoBalanceMode.Regenerate) return;
@@ -211,14 +211,14 @@ namespace Codebase.Simulation.Systems
             combatBalanceConfig.ApplyEvolutionAutoBalance(item.IsArmor, item.Config.DamageType, item.Config.Rarity, item.Evolved ? item.Level + 1 : 1, h, stat, timeChunkIndex);
         }
 
-        [SimulationRebuild(Provenance.Inferred, "pending:simulation.slow_item_reward")]
+        [SimulationRebuild(Provenance.Inferred, "simulation.slow_item_reward")]
         private int GetSpawnerItemRewardCopies(EnemySpawner spawner)
         {
             RebuildRollStream = spawner.Config.ItemReward.Key;
             return RollFractionalCount(GetItemEmissionCoefficient(GetBalanceTimingMinutes(), spawner.Config.ItemReward));
         }
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:simulation.item_emission")]
+        [SimulationRebuild(Provenance.Calibrated, "simulation.item_emission")]
         private float GetItemEmissionCoefficient(float timing, ItemConfig item)
         {
             BalanceInterpolationType type = item.Rarity == Rarity.Legendary ? BalanceInterpolationType.ItemLegendaryEmission : BalanceInterpolationType.ItemEmission;
@@ -226,7 +226,7 @@ namespace Codebase.Simulation.Systems
                 + (IsPreferredItemEmissionType(item) ? GetSimulationInterpolationCoefficient(timing, BalanceInterpolationType.ItemEmissionByType) : 0f);
         }
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:simulation.item_preferred")]
+        [SimulationRebuild(Provenance.Calibrated, "simulation.item_preferred")]
         private bool IsPreferredItemEmissionType(ItemConfig item)
         {
             var location = GetCachedLocation(playerModel.LastUnlockedLocation.Number);

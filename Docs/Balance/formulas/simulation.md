@@ -69,6 +69,72 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | [`simulation.bot_fight_resolution`](#simulationbot_fight_resolution) | Bot fight resolution, regen and death handling | 空壳 | `simulation` |
 | [`simulation.spawner_charges_chunk`](#simulationspawner_charges_chunk) | Simulated spawner charge budget per day chunk | 空壳 | `simulation` |
 | [`simulation.rpm_stat_class_ab_multiplier`](#simulationrpm_stat_class_ab_multiplier) | AB stat-class RPM multiplier and fast-RPM parameters | 重建（无原生标注） | `lookup_table` |
+| [`ab.enemy_hp_damage_multiplier`](#abenemy_hp_damage_multiplier) | ab.enemy hp damage multiplier | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.armor_base`](#balancearmor_base) | balance.armor base | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_armor_sync_by_leader`](#balanceevolution_armor_sync_by_leader) | balance.evolution armor sync by leader | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_data_identities`](#balanceevolution_data_identities) | balance.evolution data identities | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_fill_remaining`](#balanceevolution_fill_remaining) | balance.evolution fill remaining | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_fitted_h`](#balanceevolution_fitted_h) | balance.evolution fitted h | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_generator`](#balanceevolution_generator) | balance.evolution generator | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_heuristic_fit`](#balanceevolution_heuristic_fit) | balance.evolution heuristic fit | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_nice_rounding`](#balanceevolution_nice_rounding) | balance.evolution nice rounding | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_reference_stat_percent`](#balanceevolution_reference_stat_percent) | balance.evolution reference stat percent | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_reference_stat_value`](#balanceevolution_reference_stat_value) | balance.evolution reference stat value | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_reference_time_chunk`](#balanceevolution_reference_time_chunk) | balance.evolution reference time chunk | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_replay_stored_inputs`](#balanceevolution_replay_stored_inputs) | balance.evolution replay stored inputs | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_targets`](#balanceevolution_targets) | balance.evolution targets | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.evolution_value`](#balanceevolution_value) | balance.evolution value | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.island_timing`](#balanceisland_timing) | balance.island timing | 重建（无原生标注） | `rebuild_rule` |
+| [`balance.shards_capture`](#balanceshards_capture) | balance.shards capture | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.ads`](#simulationads) | simulation.ads | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.ads_reward_stat`](#simulationads_reward_stat) | simulation.ads reward stat | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.amulet_auto_balance`](#simulationamulet_auto_balance) | simulation.amulet auto balance | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.apply_clear`](#simulationapply_clear) | simulation.apply clear | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.armor_base_balance`](#simulationarmor_base_balance) | simulation.armor base balance | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.bake_day`](#simulationbake_day) | simulation.bake day | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.charges_per_clear`](#simulationcharges_per_clear) | simulation.charges per clear | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.crystal_simulation`](#simulationcrystal_simulation) | simulation.crystal simulation | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.current_boss`](#simulationcurrent_boss) | simulation.current boss | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.day_change`](#simulationday_change) | simulation.day change | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.day_change_order`](#simulationday_change_order) | simulation.day change order | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.eligible_spawners`](#simulationeligible_spawners) | simulation.eligible spawners | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.evolution_balance`](#simulationevolution_balance) | simulation.evolution balance | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.execute_tick`](#simulationexecute_tick) | simulation.execute tick | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.fast_accumulate`](#simulationfast_accumulate) | simulation.fast accumulate | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.fast_day_advance`](#simulationfast_day_advance) | simulation.fast day advance | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.fast_flush`](#simulationfast_flush) | simulation.fast flush | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.fast_kill_gate`](#simulationfast_kill_gate) | simulation.fast kill gate | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.fast_tick`](#simulationfast_tick) | simulation.fast tick | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.forecast_unlocked_location`](#simulationforecast_unlocked_location) | simulation.forecast unlocked location | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.fractional_count`](#simulationfractional_count) | simulation.fractional count | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.hand_tick`](#simulationhand_tick) | simulation.hand tick | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.idle_step`](#simulationidle_step) | simulation.idle step | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.item_chain`](#simulationitem_chain) | simulation.item chain | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.item_emission`](#simulationitem_emission) | simulation.item emission | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.item_preferred`](#simulationitem_preferred) | simulation.item preferred | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.make_snapshot`](#simulationmake_snapshot) | simulation.make snapshot | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.next_location_timing`](#simulationnext_location_timing) | simulation.next location timing | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.optimum_time_cap`](#simulationoptimum_time_cap) | simulation.optimum time cap | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.prepare_run`](#simulationprepare_run) | simulation.prepare run | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.process_inventory`](#simulationprocess_inventory) | simulation.process inventory | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.same_day_gates`](#simulationsame_day_gates) | simulation.same day gates | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.slow_death`](#simulationslow_death) | simulation.slow death | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.slow_fight`](#simulationslow_fight) | simulation.slow fight | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.slow_item_reward`](#simulationslow_item_reward) | simulation.slow item reward | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.slow_move_time`](#simulationslow_move_time) | simulation.slow move time | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.slow_priority`](#simulationslow_priority) | simulation.slow priority | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.slow_tick`](#simulationslow_tick) | simulation.slow tick | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.smart_path`](#simulationsmart_path) | simulation.smart path | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.snapshot_current_gpm`](#simulationsnapshot_current_gpm) | simulation.snapshot current gpm | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.stat_benefit`](#simulationstat_benefit) | simulation.stat benefit | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.state_override`](#simulationstate_override) | simulation.state override | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.stop`](#simulationstop) | simulation.stop | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.tick_heartbeat`](#simulationtick_heartbeat) | simulation.tick heartbeat | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.unlock_location`](#simulationunlock_location) | simulation.unlock location | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.weapon_slot_unlocks`](#simulationweapon_slot_unlocks) | simulation.weapon slot unlocks | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.weapon_slots`](#simulationweapon_slots) | simulation.weapon slots | 重建（无原生标注） | `rebuild_rule` |
+| [`timeline.days_to_island_timing`](#timelinedays_to_island_timing) | timeline.days to island timing | 重建（无原生标注） | `rebuild_rule` |
+| [`timeline.island_timing_to_days`](#timelineisland_timing_to_days) | timeline.island timing to days | 重建（无原生标注） | `rebuild_rule` |
 
 ## 公式
 
@@ -1535,6 +1601,1327 @@ rpm(stat) *= m(stat), where m = sustainMult for {Health, HealthRegen, LifestealF
 **备注**：The extractor must export ABTest Data Config.asset (all variants and per-location overrides). Scene and config values alone do not determine live RPM, enemy HP/damage, spawner cooldowns or charges.
 
 **依赖图节点**：输入 `state:ab_cohort`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.attackStatValueMultiplier`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.armorStatValueMultiplier`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.sustainStatValueMultiplier`；输出 `value:sim.rpm_stat_class_multiplier`
+
+### `ab.enemy_hp_damage_multiplier`
+
+**ab.enemy hp damage multiplier**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+``GetEnemyHpDamageMultiplier``: override for the location, else the default (float32).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.armor_base`
+
+**balance.armor base**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for balance.armor_base.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Balance/CombatBalanceConfig.cs:211](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L211)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_armor_sync_by_leader`
+
+**balance.evolution armor sync by leader**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+``SyncShieldValuesByLeader``: the other used types copy the leader's Value and CopyValue (the shards and
+H are already synced in the stored tables); ReferenceStatPercent follows each row's own stat value.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_data_identities`
+
+**balance.evolution data identities**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+G09 and G10 counts on the stored tables.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_fill_remaining`
+
+**balance.evolution fill remaining**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Levels 1..n of one (kind, type, rarity) series.
+
+``heuristics[L-1]`` is ``H`` of a simulated level or ``None`` for a level past the simulated horizon,
+which uses the last simulated ``Value`` (``FillRemainingEvolutionValues``). The recursion feeds its own
+output forward unless ``previous`` gives ``(Value, CopyValue)`` of levels ``0..n`` to feed in instead
+(one-step replay of stored rows: level ``L`` starts from ``previous[L-1]``; ``previous[0]`` is level 0).
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Balance/CombatBalanceConfig.cs:129](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L129)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_fitted_h`
+
+**balance.evolution fitted h**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Regenerate the 450 rows with the fitted ``H`` (sv = the stored ReferenceStatValue of each simulated
+row; filled rows use the last simulated Value). Not exact by construction (R4). ``previous`` as in
+:func:`replay_stored_inputs`; armor is generated per type (the sync leader is not known, G09).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_generator`
+
+**balance.evolution generator**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for balance.evolution_generator.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Balance/CombatBalanceConfig.cs:250](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L250)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_heuristic_fit`
+
+**balance.evolution heuristic fit**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Weapons: per series the minimum of ``H / (cd * sv)`` over simulated rows (the envelope row, always the
+last simulated level); ``k_t`` is the geometric mean over rarities of ``min / M_r``. Armor: median of
+``H / sv`` over on-time rows (R5) with ``T >= armor_min_timing`` (ItemGrowth.md 4.3).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_nice_rounding`
+
+**balance.evolution nice rounding**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Round to the 'nice' grid, computed exactly on the binary value of ``x``.
+
+``tie="even"`` is C# ``Math.Round`` (``MidpointRounding.ToEven``), the rule the data needs (6 midpoint
+targets in G07); ``"up"`` (half away from zero) and ``"down"`` (half toward zero) are ablations.
+Non-positive inputs give 0.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_reference_stat_percent`
+
+**balance.evolution reference stat percent**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+``Math.Round(100.0 * Value / ReferenceStatValue)`` in double (G08).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_reference_stat_value`
+
+**balance.evolution reference stat value**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+``ReferenceStatValue`` reads the player's ``<Type>DamageFlat`` (weapons) / ``<Type>DefenceFlat`` (armor)
+``TotalValue`` at ``ReferenceTimeChunkIndex``.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_reference_time_chunk`
+
+**balance.evolution reference time chunk**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+R5: ``ReferenceTimeChunkIndex == ceil(T)`` (the item evolved on the target day).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_replay_stored_inputs`
+
+**balance.evolution replay stored inputs**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+G07: regenerate the 450 Stabbing/Cutting/Buckshot x Common..Legendary rows from the stored ``H`` and
+shards. ``previous="generated"`` chains the recursion; ``"stored"`` feeds each level the stored previous
+row (stage 4's one-step replay; the design's ablation counts are one-step).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_targets`
+
+**balance.evolution targets**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for balance.evolution_targets.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Balance/CombatBalanceConfig.cs:303](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L303)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.evolution_value`
+
+**balance.evolution value**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for balance.evolution_value.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Balance/CombatBalanceConfig.cs:235](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L235)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.island_timing`
+
+**balance.island timing**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for balance.island_timing.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Balance/CombatBalanceConfig.cs:343](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L343)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `balance.shards_capture`
+
+**balance.shards capture**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for balance.shards_capture.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Balance/CombatBalanceConfig.cs:141](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L141)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.ads`
+
+**simulation.ads**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.ads.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Lifecycle.cs:12
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.ads_reward_stat`
+
+**simulation.ads reward stat**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.ads_reward_stat.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Lifecycle.cs:12
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.amulet_auto_balance`
+
+**simulation.amulet auto balance**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.amulet_auto_balance.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Amulet.cs:23
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.apply_clear`
+
+**simulation.apply clear**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.apply_clear.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:153
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.armor_base_balance`
+
+**simulation.armor base balance**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.armor_base_balance.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:193
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.bake_day`
+
+**simulation.bake day**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+``BuildSpawnerBakeReport``: ``day = isDays ? t : t / 60f``.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.charges_per_clear`
+
+**simulation.charges per clear**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.charges_per_clear.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:327
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.crystal_simulation`
+
+**simulation.crystal simulation**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.crystal_simulation.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Amulet.cs:11
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.current_boss`
+
+**simulation.current boss**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+``currentBoss`` while ``location`` is the last unlocked island (design P17, B11).
+
+The spawner on island ``location`` with a gate whose ``NextLocationNumber == location + 1``;
+None if there is none (island 17). Gates elsewhere can also lead to ``location + 1`` (islands
+11, 12, 13 carry back-gates to 8, 7, 2); those are not on the current island and are ignored.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:296
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.day_change`
+
+**simulation.day change**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.day_change.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:238
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.day_change_order`
+
+**simulation.day change order**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+The player at a day snapshot as ``RecalculateChunkRpmValues`` saw it (design 4.4).
+
+Stats are the stored ``TotalValue`` except Health, HealthRegen and LifestealFlat, which are recomposed
+from ``Value`` with K2/K3 of day ``d - offset`` (``order``; offset clamped at day 0). The cached
+DpsData/DefenseData are the snapshot's own. ``k4k5_offset`` lags the live K4/K5 too (ablation).
+``day`` overrides the snapshot's TimeChunkIndex (an interpolated snapshot carries a neighbour's).
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:251
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.eligible_spawners`
+
+**simulation.eligible spawners**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+The fast phase's eligible set (design 4.5): ``CalculateSpawnerData(false)`` (bot filter: alive,
+cooldown -- a cleared DAFC spawner's ``+inf`` excludes it --, charges, OT cap, unlocked island),
+``fightTime < 300``, and :func:`fast_killable`.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.evolution_balance`
+
+**simulation.evolution balance**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.evolution_balance.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:201
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.execute_tick`
+
+**simulation.execute tick**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.execute_tick.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:20
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.fast_accumulate`
+
+**simulation.fast accumulate**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.fast_accumulate.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.FastTick.cs:167
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.fast_day_advance`
+
+**simulation.fast day advance**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.fast_day_advance.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:196
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.fast_flush`
+
+**simulation.fast flush**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.fast_flush.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.FastTick.cs:221
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.fast_kill_gate`
+
+**simulation.fast kill gate**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Design 4.5: the fast phase farms a spawner only if :func:`rpm_survivable` with ``L = KillLossMultiplier``
+(default 1.0, not the AB value) -- the RPM predicate reused as the bot's kill gate (inferred).
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.FastTick.cs:151
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.fast_tick`
+
+**simulation.fast tick**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.fast_tick.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.FastTick.cs:24
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.forecast_unlocked_location`
+
+**simulation.forecast unlocked location**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.forecast_unlocked_location.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:333
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.fractional_count`
+
+**simulation.fractional count**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.fractional_count.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:72
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.hand_tick`
+
+**simulation.hand tick**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.hand_tick.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Simulation/SimulationConfig.cs:89](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L89)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.idle_step`
+
+**simulation.idle step**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.idle_step.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:174
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.item_chain`
+
+**simulation.item chain**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.item_chain.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:86
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.item_emission`
+
+**simulation.item emission**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.item_emission.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:221
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.item_preferred`
+
+**simulation.item preferred**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.item_preferred.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:229
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.make_snapshot`
+
+**simulation.make snapshot**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.make_snapshot.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Snapshot.cs:15
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.next_location_timing`
+
+**simulation.next location timing**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.next_location_timing.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:222
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.optimum_time_cap`
+
+**simulation.optimum time cap**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+``IsCapOptimumTime`` filter: True = the bot skips the spawner (OT > d for day mode, OT > P otherwise).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.prepare_run`
+
+**simulation.prepare run**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.prepare_run.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:51
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.process_inventory`
+
+**simulation.process inventory**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.process_inventory.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:140
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.same_day_gates`
+
+**simulation.same day gates**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.same_day_gates.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:285
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.slow_death`
+
+**simulation.slow death**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.slow_death.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Fight.cs:24
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.slow_fight`
+
+**simulation.slow fight**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.slow_fight.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Fight.cs:14
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.slow_item_reward`
+
+**simulation.slow item reward**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.slow_item_reward.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:214
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.slow_move_time`
+
+**simulation.slow move time**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.slow_move_time.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Simulation/Systems/SpawnerData.cs:48](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L48)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.slow_priority`
+
+**simulation.slow priority**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.slow_priority.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Targeting.cs:20；[Simulation/Systems/SpawnerData.cs:55](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L55)
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.slow_tick`
+
+**simulation.slow tick**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.slow_tick.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:144
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.smart_path`
+
+**simulation.smart path**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.smart_path.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Targeting.cs:30
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.snapshot_current_gpm`
+
+**simulation.snapshot current gpm**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Early-list ``CurrentGpm`` = ΔValue / ΔPlaytime against the previous snapshot; NaN when ΔPlaytime = 0.
+
+Data fact (G19, relative error <= 1e-5): ``MakeSnapshot`` is empty in the recovered code.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.stat_benefit`
+
+**simulation.stat benefit**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.stat_benefit.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Targeting.cs:77
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.state_override`
+
+**simulation.state override**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.state_override.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Replay.cs:23
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.stop`
+
+**simulation.stop**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.stop.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:130
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.tick_heartbeat`
+
+**simulation.tick heartbeat**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.tick_heartbeat.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:105
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.unlock_location`
+
+**simulation.unlock location**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.unlock_location.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:265
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.weapon_slot_unlocks`
+
+**simulation.weapon slot unlocks**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Weapon and armor slots unlocked at ``location`` under the closed-form rule (design P12): the default
+slot, slot rewards when their gate's next island is reached, weapon_3 at island 4, weapon_4 at island 8.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `simulation.weapon_slots`
+
+**simulation.weapon slots**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for simulation.weapon_slots.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Inventory.cs:99
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `timeline.days_to_island_timing`
+
+**timeline.days to island timing**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Inverse of :func:`convert_island_timing_to_days` (double): island ``k`` covers
+``[start(k), ITD[k-1])``; days ``<= 0`` map to 1, days past the table to ``len(itd) + 1``.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+
+### `timeline.island_timing_to_days`
+
+**timeline.island timing to days**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Reconstructed implementation in the cited C# member for timeline.island_timing_to_days.
+```
+
+**输出**：See implementation and tests.
+
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:231
+
+**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+
+**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
 
 ## 配置参数
 

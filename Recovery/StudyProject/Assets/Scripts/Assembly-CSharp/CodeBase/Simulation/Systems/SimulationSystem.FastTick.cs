@@ -21,7 +21,7 @@ namespace Codebase.Simulation.Systems
 		// SimulateFightWithSpawnerFast; a gate cleared in a round opens its island at once (RebuildFlushFastTickGates)
 		// and the day plans again, until a round opens nothing. Rewards wait in the five accumulated fields for
 		// RebuildAdvanceFastDay's flush; the active minutes (ActiveMinutesModel) are an output only (design 4.3).
-		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.fast_tick")]
+		[SimulationRebuild(Provenance.Calibrated, "simulation.fast_tick")]
 		private void FastTick()
 		{
 			SimulationFastTickRecorder recorder = SimulationFastTickRecorder.For(SimulationHarness.CurrentJob);
@@ -148,7 +148,7 @@ namespace Codebase.Simulation.Systems
 		// H = GetForecastStatValue(Health): the text of CalculateRPMValueTimeChunk's survivability test, used as the
 		// bot's kill gate (fitted on the data: 37/41 intervals against 26/41 without it). fightTime < 300 is already
 		// CalculateSpawnerData's. Not killable: false; else all the fights go through the write point (accumulate).
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.fast_kill_gate")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.fast_kill_gate")]
 		private bool SimulateFightWithSpawnerFast(SpawnerData bestSpawner, int fightsCount)
 		{
 			if (bestSpawner == null || fightsCount <= 0) return false;
@@ -164,7 +164,7 @@ namespace Codebase.Simulation.Systems
 		// Writes all five accumulated fields of the original (design 4.5): stats (one double per stat), the
 		// fractional item copies, souls, the gate spawners, the kill count. Nothing reaches the player before the
 		// flush. Currencies have no original field and are recorded at once, as the immediate path records them.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.fast_accumulate")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.fast_accumulate")]
 		private void AccumulateFastTickSpawnerRewards(EnemySpawner spawner, int fightsCount)
 		{
 			if (spawner == null || fightsCount <= 0) return;
@@ -218,7 +218,7 @@ namespace Codebase.Simulation.Systems
 		// Reads the five accumulated fields and empties them (design 4.5): one merged modifier per stat (StatType
 		// order), then the items (rolled, ProcessInventory), souls, the gates the planning rounds left. P18's
 		// ItemsThenStats is C6's.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.fast_flush")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.fast_flush")]
 		private void FlushFastTickChunkRewards()
 		{
 			SimulationFastTickRecorder recorder = SimulationFastTickRecorder.For(SimulationHarness.CurrentJob);

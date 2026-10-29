@@ -12,7 +12,7 @@ namespace Codebase.Simulation.Systems
 		// while !(UseFastTick && d >= FastTickStartChunkOffset). Day list (config.TimeChunkSnapshots): every forced
 		// snapshot. Fields per design 4.5: G11 composition from Value and the current K2/K3; CurrentGpm is
 		// dValue/dP on the early list (NaN when dP = 0, 0 for the first) and the RPM on the day list (G19).
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.make_snapshot")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.make_snapshot")]
 		private void MakeSnapshot(bool force = false)
 		{
 			float playtime = config.CurrentPlaytime;

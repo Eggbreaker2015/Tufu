@@ -75,7 +75,7 @@ def test_request_field_and_outputs():
 
 
 def test_kill_gate_annotation():
-    """Design 4.1, 4.5: the eligibility is Provenance.Inferred with formula id pending:simulation.fast_kill_gate; the
+    """Design 4.1, 4.5: the eligibility is Provenance.Inferred with formula id simulation.fast_kill_gate; the
     planning and active minutes are calibrated, accumulation and flush inferred."""
     found = {a.member: (a.provenance, a.formula_id) for a in registry.scan_csharp() if a.file.endswith(FAST_TICK.name)}
     assert found["SimulateFightWithSpawnerFast"] == ("Inferred", ft.KILL_GATE_FORMULA)

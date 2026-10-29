@@ -17,7 +17,7 @@ namespace Codebase.Simulation.Systems
 	{
 		// One tick: a whole day from FastTickStartChunkOffset on, else one slow step; the stop guard makes the
 		// result independent of SimulationSpeed (design 2.4, 4.4).
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.execute_tick")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.execute_tick")]
 		private void ExecuteTick()
 		{
 			if (RebuildStopped) return;
@@ -48,7 +48,7 @@ namespace Codebase.Simulation.Systems
 		// OnAwake values; PlayerModel, items, slots and GatesModel come from the fresh save of the Play session
 		// (reenter_play; in-session jobs need S1). Then day 0: K2/K3(0) modifiers, RPM, the forced snapshot 0 in
 		// both lists, the replay/checkpoint override.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.prepare_run")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.prepare_run")]
 		private void PrepareSimulationRun()
 		{
 			if (isSimulationPrepared) return;
@@ -127,7 +127,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// StopAtDay: the run ends right after the forced snapshot of TargetDay; StopAtLocation: after the unlock.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.stop")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.stop")]
 		private void CheckSimulationStopConditions()
 		{
 			if (RebuildStopped) return;
@@ -141,7 +141,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Slow phase: one fight or one idle step (design 4.4).
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.slow_tick")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.slow_tick")]
 		private void Tick()
 		{
 			CalculateSimulationData();
@@ -171,7 +171,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Idle until the next early snapshot is due, at most TimeStep: P and T together, regen, cooldowns.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.idle_step")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.idle_step")]
 		private void RebuildIdle(float minutes)
 		{
 			config.CurrentPlaytime = (float)(config.CurrentPlaytime + minutes);
@@ -193,7 +193,7 @@ namespace Codebase.Simulation.Systems
 
 		// The policy-independent part of a fast day (design 4.4): flush, active minutes, 120-minute offline steps
 		// until the day index changes, then the day change. The minimal FastTick passes 0 active minutes.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.fast_day_advance")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.fast_day_advance")]
 		private void RebuildAdvanceFastDay(float activeMinutes)
 		{
 			FlushFastTickChunkRewards();
@@ -219,7 +219,7 @@ namespace Codebase.Simulation.Systems
 			return (int)Mathf.Floor((float)(config.CurrentTotalPlaytime / config.SpawnerChargesChunkMinutes));
 		}
 
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.next_location_timing")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.next_location_timing")]
 		public float GetNextLocationInterpolationTiming(int locationNumber)
 		{
 			int next = locationNumber + 1;
@@ -228,14 +228,14 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// The body ForecastSnapshots inlines (original 0x157ad44).
-		[SimulationRebuild(Provenance.Inferred, "pending:timeline.island_timing_to_days")]
+		[SimulationRebuild(Provenance.Inferred, "timeline.island_timing_to_days")]
 		public float ConvertIslandTimingToDays(float islandTiming)
 		{
 			return ForecastSnapshots.ConvertIslandTimingToDays(combatBalanceConfig, islandTiming);
 		}
 
 		// Spawners other than a cleared DAFC (+inf) respawn at the day change.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.day_change")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.day_change")]
 		private void ResetCooldowns()
 		{
 			foreach (EnemySpawner spawner in enemiesModel.Spawners)
@@ -248,7 +248,7 @@ namespace Codebase.Simulation.Systems
 		// The only place a day changes (design 4.3). Order RpmFirst (G20): RPM and DpsData under the old
 		// K2/K3(d-1) modifiers (K4/K5 already read d), then K(d) and the forced snapshot.
 		// Stored replay loads day d before RPM; the post-snapshot hook restores planning TotalValue.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.day_change_order")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.day_change_order")]
 		private void UpdateSpawnerChargesChunk()
 		{
 			int day = RebuildDayIndex();
@@ -284,7 +284,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// RPM (and with it DpsData/DefenseData) for the new day; StaleTickCache keeps the last tick's caches.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.day_change_order")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.day_change_order")]
 		private void RecalculateChunkRpmValues()
 		{
 			if (RebuildReplayRpmDay != null && RebuildParams.DpsCacheProvenance != DpsCacheProvenance.StaleTickCache)
@@ -324,13 +324,13 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Charges count units: ChargesBeforeBigRespawn = 3 * Count.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.charges_per_clear")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.charges_per_clear")]
 		private int GetSpawnerChargesPerClear(EnemySpawner spawner)
 		{
 			return spawner.Config.Count;
 		}
 
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.forecast_unlocked_location")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.forecast_unlocked_location")]
 		public int GetForecastUnlockedLocationNumber()
 		{
 			return playerModel.LastUnlockedLocation.Number;

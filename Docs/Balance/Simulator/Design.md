@@ -370,7 +370,7 @@ Python：
 
 1. 读库一律只读（`mode=ro`）。测试的输入只有三种：`balance.sqlite`、`tests/golden/fixtures/*.json`、Unity 运行的输出目录。不读 `out/analysis/`，不 import `analysis/*.py`，不读会话 scratchpad。
 2. 预言机里每个移植函数写明 `CodeBase/<文件>:<行>` 和原生 VA，并用 `@implements("公式 id", provenance=...)` 登记。目录里还没有条目的规则用 `pending:<领域>.<名字>`，由 Z1 提升进目录。
-3. 数值类型按 C# 声明：float 逐步 `f32`。只有插值的 `Evaluate` 有舍入方式开关 `Rounding ∈ {stepwise, fma, double_tail, double_all}`，默认取 DP3 在编辑器里实测的那一种（DP3 之前暂用 `fma`）。其它 float 路径没有证据，一律逐步舍入，不加 `fmaf`。
+3. 编辑器 Mono 的 float 表达式在 binary64 中计算，仅在存储（字段、float 返回/参数及编译器保留的局部变量）时舍入到 float32；Python 比较须模拟这些存储边界。插值提供 `stepwise`、`fma`、`double_tail`、`double_all`，默认由 `model/interpolation_default.json` 指定为 `double_all`（DP3 109/109）。旧的 `evaluate` 等接口仍保持逐步舍入以兼容夹具；新路径用 `evaluate_rounded` / `total_coefficient`。
 4. 同一输入必须得到逐字节相同的输出。排序键要显式写出。
 5. 刷怪点身份用 `SpawnerId = (scene, file_id)`。C# 运行时拿不到 file_id，与 C# 对应时用"层级路径 + Key"。两者的映射表由 C1 生成，测试检查。
 6. 预言机不实现机器人策略，策略只在 C# 里有一份。
@@ -714,7 +714,7 @@ tests/golden/accepted/<suite>.jsonl    接受记录：每次 accept 的旧值 �
 | G16 | bake | 同组一致性（同模式、同烘焙时刻、同护甲类型时，比值在取整范围内一致）| 天制：非平凡组 90/92，多成员组 125/127；分钟制：13/13、18/18 | P7 |
 | G17 | spawners | 计数：AB 覆盖 569/717；DAFC 25；精英 33；活动 6；VIP 10；静态 362；天制 609；`Gates#count>0` 17 行；SlotReward 3 个（weapon_2 在岛 1 门禁、helmet_1 在 dragon、shield_1 在岛 5 门禁）；BossTower 的 Count 为 0 | 全部如左 | P6 |
 | G17b | spawners | 物品刷怪点 127 个，充能按稀有度：C 8（39 个，另有 1 个为 0）、U 6（30）、R 4（24）、E 2（21）、L 1（12）。AB keyData：非精英冷却在岛 1–13 为 4, 6, …, 28 分钟；精英在岛 1–4 为 60/90/120/150 分钟；`fastRPMParams` A 组 (10, 1)、B 组 (15, 5) | 全部如左 | P6 |
-| G18 | items | 进化瞬间的跳变比（恰在阈值处进化：进化后 c=0 对进化前 c=Shards），由配置重算 | 690 个组合：最小 1.022、中位 1.235、最大 8.4（paddle 第 1 级 2500→21000）| P4 |
+| G18 | items | 进化瞬间的跳变比（恰在阈值处进化：进化后 c=0 对进化前 c=Shards），由配置重算 | 675 个组合：最小 1.022、中位 1.235、最大 8.4（paddle 第 1 级 2500→21000）| P4 |
 | G18b | items | 表覆盖事实：39 个 `*_div` 配置没有表行；DamageType 为 Magic 的物品 0 件 | 39；0 | P4 |
 | G19 | core | 早期列表 `CurrentGpm = ΔValue/ΔPlaytime`（相对误差 1e-5），ΔP = 0 时为 NaN；天列表的 CurrentGpm 对全部属性单调不减；按裁剪规则重算的天快照序列 | 1800/1800；60 个 NaN；1380 个值单调；46 天完全一致 | P2 |
 | G20 | simcalc | 天列表 CurrentGpm 重放：用快照自身的状态（DpsData/DefenseData 作缓存、满血）、`forGPMBot = true`、AB A 组，跑 `CalculateSpawnerData` + `CalculateRPMValueTimeChunk` + 单调取大。**换天顺序取 `RpmFirst`**：Health、HealthRegen、LifestealFlat 三个直接属性用快照 Value 加**前一天**的 K2/K3（d−1）合成；K4/K5 由 `GetBalanceTimingMinutes` 实时读取，取当天 d | 精确 1380/1380，未命中集合为空。消融：K2/K3 取当天 → 1376/1380，未命中恰为 TC1 Health、TC30 CritDamagePercent、TC94 Health、TC94 StabDamageFlat（4 个都是存储值低于重放值，符合 Health 滞后的方向）；K4/K5 也滞后 → 1047/1380 | P8 |
@@ -751,7 +751,7 @@ G03 和 G13 冻结的是集合，不只是计数，防止"换了一批对的，�
 | DP4 | 快照查找 | `SimulationData.GetByTimeChunkIndex`、`GetByPlayTime` | 编辑 | 网格上逐位比较 `model.snapshots` | G19 的天快照序列 | 相等 | C2 |
 | DP5 | 烘焙（随包数据）| `SimulationConfig.BuildSpawnerBakeReport`，对 Main 场景的全部刷怪点 | 编辑（打开 Main）| NewHealth/NewDamage 逐位，中间量相对 1e-12 | G13：分钟制 HP/Damage 精确的 79 个刷怪点集合 | 全部相等；BossTower 的 Inf 单列 | C2 |
 | DP6 | 刷怪点运行时量 | `EnemySpawner.ChargesTotal`、`BaseCooldown`、`GetSpawnerChargesLimit` | Play | 与 `model.spawners` 比较 | G17b 的物品刷怪点充能计数与 AB 冷却表 | 全部注册刷怪点相等。另外作为每次运行的就绪门槛（2.3）| C2（门槛在 C0b）|
-| DP7 | 物品数值 | `ItemModel.Damage`、`Armor`、`DPS`，每个物品配置抽 (Level, Copies, Evolved) | Play | 与 `model.items` 逐位（float32）比较 | G18 的 690 个进化跳变比（最小 1.022、中位 1.235、最大 8.4）| 全部相等 | C2 |
+| DP7 | 物品数值 | `ItemModel.Damage`、`Armor`、`DPS`，每个物品配置抽 (Level, Copies, Evolved) | Play | 与 `model.items` 逐位（float32）比较 | G18 的 675 个进化跳变比（最小 1.022、中位 1.235、最大 8.4）| 全部相等 | C2 |
 | DP8 | 逐刷怪点经济学（状态级）| 用 C4 设好的 46 个随包天快照状态，跑 `CalculateSimulationData`、`CalculateRPMValueTimeChunk` | Play | `spawnerData` 各字段相对 1e-12；RPM 与 G20 同口径 | G20：按 `RpmFirst` 的滞后口径 1380/1380 | 与 `model.simcalc` 一致 | P11 |
 
 精度口径：
@@ -926,6 +926,7 @@ Tick():                                       # 慢阶段：一次战斗或一�
     best = FindBestSpawner()
     if best != null: SimulateFightWithSpawner(best)            # 方法体内决定时长与血量，并调用 RebuildApplyClear(…, false)
     else: RebuildIdle(min(TimeStep/60, 下一个快照到期 − P))    # P、T 同步推进；回血；冷却递减
+    CalculateSimulationData()                 # 慢战斗后刷新 DpsData/DefenseData；早期普通快照使用战后值
     MakeSnapshot()
     CheckLifeCycle()                           # P ≥ lifeCyclePeriodEnd 时 NextLifeCycle → ProcessAFK(230)
     ProcessSimulateAds()
@@ -952,11 +953,12 @@ RebuildAdvanceFastDay(activeMinutes):          # C3b，.Run.cs；与策略无关
 UpdateSpawnerChargesChunk():
     c = floor(T / SpawnerChargesChunkMinutes); if c == timeChunkIndex: return
     timeChunkIndex = c; spawnerChargesUsage.Clear(); ResetCooldowns()   # 跳过 Cooldown = +∞ 的 DAFC
+    [replay/checkpoint] RebuildApplyDayOverrideBeforeRpm(c) # 应用第 c 天覆盖，随后重算 RPM
     RecalculateChunkRpmValues()                # 先：用旧修饰器 K2/K3(c−1) 重算 DpsData、RPM；K4/K5 由 GetBalanceTimingMinutes 读到 c
     UpdateInterpolationStatModifier()          # 后：换成 K2/K3(c)
     ProcessAmuletAutoBalanceTargets(c); ProcessCrystalSimulationChunk()   # null
-    [replay/checkpoint] RebuildApplyDayOverride(c)
-    MakeSnapshot(force: true)                  # SFF/PM = K(c)，DpsData 与 Gpm 是 K(c−1) 下算的；天列表总写；
+    MakeSnapshot(force: true)
+    [replay/checkpoint] RebuildApplyDayOverride(c) # 其余覆盖在强制快照之后                  # SFF/PM = K(c)，DpsData 与 Gpm 是 K(c−1) 下算的；天列表总写；
                                                # 早期列表只在 !(UseFastTick && c >= FastTickStartChunkOffset) 时写
 ```
 
@@ -1070,7 +1072,7 @@ EnemySpawner RebuildFindBoss(int location)
   - 静态：`rewardValue·PriorityMultiplier / (farmedTime − avMoveTime + GetMoveTime(position))`；
   - 动态：形式相同，奖励值按 `statsBenefit` 加权，即 `CalculateSpawnerRewardValue` 带属性参数的版本。
 
-  `currentBoss` 的奖励值是 1e6，所以门禁一旦通过机器人过滤和致死门槛（见"战斗"）就会被选中。
+  `currentBoss` 的奖励值是 1e6；优先级为 reward × PM / cost，门禁仍与其他目标竞争，不保证被选中。
 - `CalculateStatBenefit`：基线是常数 1.0。这是 `OnAwake` 的初始化值，也是唯一已知的数值。备选是"该属性对下一批刷怪点（按 OT 顺序取 `statBenefitCandidates`）击杀时间的边际收益"。备选要对 36 项属性逐个重评候选刷怪点，所以只在会话开始或换天时算一次并缓存，不逐 Tick 重算（4.10 的预算）。
 - `IsSmartPath = 1`：备选做法是在去目标的路上，顺手清掉线段附近距离 δ 以内的刷怪点（`CalculateSpawnerPaths`、`countNeighbFight`）。线段扫描按合格集合签名缓存。
 - 快阶段照单全清，所以这个模块只影响第 0–3 天。诊断用 `calibrate/killseq.py`，它把早期快照的增量分解成"各奖励类别的击杀数"。
@@ -1083,7 +1085,7 @@ EnemySpawner RebuildFindBoss(int location)
   - `FarmedTimeMoveByDistance`：`Δt = farmedTime − avMoveTime + GetMoveTime(currentPosition)`，即把常数移动时间换成到目标的实际距离。
 
   P、T 各加 `Δt/60`。`CMove`、`CRegen` 固定为 1，不是参数。只有当两种已恢复形式在 T16/T03 上都失败时，才允许引入"分解形式" `Δt = CMove·move + c_f·fightTime + CRegen·regenTime` 去拟合，而且要在 `Calibration.md` 登记为结构改动。在任何网格搜索之前，K2 先用 `killseq` 从早期快照的增量直接求出每次清怪的平均时间，与 `farmedTime` 逐刷怪点比较。
-- **致死门槛**（`SlowLethalityGate`，P15 的一部分）：慢阶段没有已恢复的致死判断，但岛 4 的解锁日依赖它。岛 3 门禁（OT 240 分钟）在第 3 天 P ≥ 240 后通过机器人过滤；在 TC3 状态下 fightTime = 41.9 秒（< 300），loss/H = 4.16。它作为 `currentBoss` 奖励值是 1e6，`FindBestSpawner` 会选它，机器人会死。第 4 天 loss/H = 1.066，刚好高于快阶段的门槛；第 5 天 0.21。只有慢阶段也拒绝致死的战斗，才与"岛 4 在第 5 天解锁"一致（附录 B `l3gate.py`）。候选（封闭清单）：
+- **致死门槛**（`SlowLethalityGate`，P15 的一部分）：慢阶段没有已恢复的致死判断，但岛 4 的解锁日依赖它。岛 3 门禁（OT 240 分钟）在第 3 天 P ≥ 240 后通过机器人过滤；在 TC3 状态下 fightTime = 41.9 秒（< 300），loss/H = 4.16。它作为 `currentBoss` 奖励值是 1e6，但 `FindBestSpawner` 按 reward × PM / cost 竞争，不能据此断言一定选中。第 4 天 loss/H = 1.066，刚好高于快阶段的门槛；第 5 天 0.21。只有慢阶段也拒绝致死的战斗，才与"岛 4 在第 5 天解锁"一致（附录 B `l3gate.py`）。候选（封闭清单）：
   - `SameAsFast`（首选）：与快阶段同一谓词，`L·H < loss` 的刷怪点不选；
   - `CurrentHealth`：`loss ≥ CurrentHealth` 的不选；
   - `None`：不设门槛，死了按 `DeathPolicy` 处理（对照用）。
@@ -1246,7 +1248,7 @@ public class SimulationRebuildParamsAsset : ScriptableObject
 | T01 | 天快照的日序列 | [0..11, 13, 15, …, 368, 405]，共 46 个 | — | 完全一致 | 结构 |
 | T02 | 时间不变量 | TC = floor(T/1440)：109/109；慢阶段离线是 230 的整数倍；会话规则 `period_end = P + 10`（G22）；第 405 天 P/T = 0.032 | — | 全部成立（误差 ≤ 0.005 分钟）| 结构 |
 | T03 | 早期快照 | 63 行，最后一行 TC3、T = 5538.13；TC4 只在天列表；P < 20 时每 1 分钟，之后每 5 分钟；跨日强制快照（G23）| — | 构成与节奏规则全部成立；行数 ±3 | 结构 |
-| T04 | 每天活跃分钟 | 第 0–3 天 63.28/61.10/61.61/62.15；第 4–10 天 10.85、16.62、16.75、13.52、21.94、22.26、20.93；峰值 58.25（154–170）；40.06（368–405）；P(405) = 18,699.5 | TC ≥ 11：中位 ≤ 2%、最大 ≤ 8%；TC 4–10 只报告（两个模型都已知失败）| TC ≥ 11 每区间 ≤ 8%；TC 4–10 只报告；第 0–3 天 ≤ 3%；P(405) ≤ 3% | 训练 TC < 104，留出 TC ≥ 104 |
+| T04 | 每天活跃分钟 | 第 0–3 天 63.28/61.10/61.61/62.15；第 4–10 天 10.85、16.62、16.75、13.52、21.94、22.26、20.93；峰值 58.25（154–170）；40.06（368–405）；P(405) = 18,699.5 | TC ≥ 11：中位 ≤ 2%、最大 ≤ 8% 仅 NnTour 达成；FarmedTime 实测 4.29%/8.59%，登记失败；TC 4–10 只报告| TC ≥ 11 每区间 ≤ 8%；TC 4–10 只报告；第 0–3 天 ≤ 3%；P(405) ≤ 3% | 训练 TC < 104，留出 TC ≥ 104 |
 | T05 | 区间属性增量（15 项属性 × 自 TC4 起的 41 个区间）| 第 206 天起 Health 每天 +449,712 | TC4–11 的 7 个逐日区间全部精确（相对 2e-5 或绝对 0.5）；多日区间的残差能用某个刷怪点首杀日 ±1 天解释就算通过，解释不了的逐个登记，首次运行时把个数冻结为上限；全体 ≥ 37/41 精确只作报告值 | 由敏感性曲线推出：设闭环在 TC4–30 的 DPS 误差为 e，要求精确数 ≥ 41 − max(DPS 缩放在 [1−e, 1+e] 内的坏区间数)，且不高于开环；另报 `checkpoint`（from_day 4）下的值 | 可杀性规则及其未命中是调研在全部 41 个区间上定的（事后），只报告，不作留出 |
 | T06 | 累计 Value | TC4 Health 10,930；TC24 274,388；TC63 2.73984e6；TC154 2.59017e7；TC405 1.39493e8；TC405 StabDamageFlat 4.07551e6、CutDefenceFlat 5.9197e6、MovementSpeed 472,417 | — | TC1–4 见 T16；TC5–23 ≤ max(2%, 1 次清怪的奖励)；TC ≥ 24 时 ≥ 95% 的 (属性, TC) 单元 ≤ 0.5%，全部 ≤ 2% | 同上 |
 | T07 | 解锁岛的日子 | 岛 2：P 31.2–37.4；岛 3：110.2–115.3；岛 4：第 5 天；岛 5：8；6：11–12；7：15–16；8：21–23；9：27–29；10：34–36；11：44–45；12：57–62；13：71–76；14：90–93；15：110–114；16：130–139；17：150–153 | 只看岛 5–17：每个岛在区间内或偏差 ≤ 1 天（forensics 规则实测 12/13 在区间内，岛 9 第 26 天早 1 天）；岛 4 由岛 3 门禁推出后才算结果 | 岛 2–17 全部在区间内或偏差 ≤ 1 天；在区间内的个数 ≥ 开环个数 − 敏感性曲线允许的翻转数。岛 4 的结果同时依赖慢阶段的致死门槛，见 T20 | 岛 5–17 的规则是调研在全部数据上定的（事后），只报告，不作留出 |
@@ -1254,11 +1256,11 @@ public class SimulationRebuildParamsAsset : ScriptableObject
 | T09 | 天快照 CurrentGpm | Health 2.851（TC0）、1110（TC57）、7427（TC405）；MovementSpeed 25.98（TC405）| 重放精确 1380/1380，未命中集合为空（G20 的 `RpmFirst` 口径；消融 1376 及那 4 个）| 沿模拟路径 ≥ 90% 的非零单元 ≤ 1%（另有 X3、X7 保证与预言机逐位一致）| 验证 |
 | T10 | 早期 CurrentGpm 的含义 | 1800/1800 | 导出函数精确 | 导出函数精确 | 结构 |
 | T11 | 各稀有度首次出现 | 武器 Common 0、Uncommon 1、Rare 2、Epic 7、Legendary 19；护甲 Common 9（头盔；盾 13）、Uncommon 13、Rare 27、Epic 70、Legendary 140 | 同一快照或下一个 | 同左 | 报告（份数结构是事后的，见 T12）|
-| T12 | 每个物品刷怪点每天的份数（稀有度 × 阶段）| TC4–11 逐日：C 5–6、U 4.4–4.7、R 3.4–3.6、E 1.9–2.0、L 1；第 4–19 天 C 6.30、U 5.02、R 3.68、E 2.00、L 1.00；19–57 天 11.3/8.7/6.2/3.0/1.05；57–154 天 19.9/15.1/10.1/5.1/1.7；154–405 天 24.8/18.6/12.5/6.2/3.4；后期每次充能 2.50（非偏好）/4.30（偏好），传奇 2.8/4.6 | 训练 ≤ 5%；留出 ≤ 7%；后期平台 ≤ 2%；TC4–11 逐日按稀有度单独断言；`E1` 的残差按稀有度报告 | 同左；闭环下份数还受解锁日影响，超出时先查 T07 | 结构（`Chain`、`Swapped`）是事后的：`Swapped` 是在岛 14–17 上对武器和护甲一起找到的，后期平台 2.50/4.30 来自 TC154–405。只报告；能区分各假设的数据段见 5.5 |
+| T12 | 每个物品刷怪点每天的份数（稀有度 × 阶段）| TC4–11 逐日：C 5–6、U 4.4–4.7、R 3.4–3.6、E 1.9–2.0、L 1；第 4–19 天 C 6.30、U 5.02、R 3.68、E 2.00、L 1.00；19–57 天 11.3/8.7/6.2/3.0/1.05；57–154 天 19.9/15.1/10.1/5.1/1.7；154–405 天 24.8/18.6/12.5/6.2/3.4；后期每次充能 2.50（非偏好）/4.30（偏好），传奇 2.8/4.6 | 训练 ≤ 5%；留出 ≤ 7%；后期平台 ≤ 2%；TC4–11 逐日按稀有度比较掷骰前期望，容差 5% 加每流少于 1 份；整数逐日原契约仅 18/29，保留为 ORIGINAL；`E1` 的残差按稀有度报告 | 同左；闭环下份数还受解锁日影响，超出时先查 T07 | 结构（`Chain`、`Swapped`）是事后的：`Swapped` 是在岛 14–17 上对武器和护甲一起找到的，后期平台 2.50/4.30 来自 TC154–405。只报告；能区分各假设的数据段见 5.5 |
 | T13 | 进化到达时间 | 第 k 级落在含 `*EvolutionTargetTimings[k−1]` 的区间或下一个；例如 Common 武器 L1 (17, 21]、Uncommon L1 (24, 27]、Rare L1 (33, 37]、Epic L1 (46, 57]、Legendary L1 (63, 85] | ≥ 90% 的 (物品, 等级) 偏差 ≤ 1 个区间 | 同左，`free` 与 `checkpoint` 都报告；另报 T_L 时刻的份数/碎片余量 | 训练 C/U/R，留出 E/L |
 | T14 | 物品 Level/Copies | TC17 knife 117 份（未进化）；TC19 knife L1、86 份；TC405 pike L10、7052 份 | — | ≥ 90% 的 (物品, TC) Level 精确；≥ 80% 的 Copies 误差 ≤ 5%；`free` 与 `checkpoint` 都报告 | 验证 |
 | T15 | DpsData/DefenseData | TC405 DPS 9.302e8/6.66e8/7.256e8；DEF 2.245e8/2.999e8/2.437e8；DEF 到 TC8 为止都是 0 | 由 R2b（闭式槽数规则）界定，R2 只作参考 | TC ≥ 100：K3 首次运行后冻结为棘轮（不得低于 R2b 的值）；TC 25–99 ≤ 15%；TC < 25 只报告 | TC1–24 是 P12 的训练段；TC ≥ 25 验证 |
-| T16 | 慢阶段累计 Value（TC1–4）| Value 1465/4160/7515/10930；Health 日增 1365/2695/3355/3415（满充能上限 1425/3055/3415/3415）；BuckshotDamageFlat 0/0/12/75/325（TC0–4）| — | Health、HealthRegen、MovementSpeed 相对 ≤ 5%；其余属性的误差 ≤ 到那天为止奖励最大的刷怪点清一次的奖励（`Value × Count`）| 训练（慢阶段）|
+| T16 | 慢阶段累计 Value（TC1–4）| Value 1465/4160/7515/10930；Health 日增 1365/2695/3355/3415（满充能上限 1425/3055/3415/3415）；BuckshotDamageFlat 0/0/12/75/325（TC0–4）| — | Health、HealthRegen、MovementSpeed 相对 ≤ 5%（TC1 的离散清怪粒度可大于 5%，属设计问题）；其余属性的误差 ≤ 到那天为止奖励最大的刷怪点清一次的奖励（`Value × Count`）| 训练（慢阶段）|
 | T17 | 槽位 | 武器 1→2→3→4（TC0/1/6/24）；护甲在 TC9 前为 0 | 与夹具 `stage4_slot_schedule.json` 对照，只报告（夹具本身是拟合值）| 同左 | 训练（P12 的拟合目标），不是验证 |
 | T18 | 特征列 | SFF = K2(d)，PM = K3(d) | 精确（G11、X1）| 精确 | 结构 |
 | T19 | 下游烘焙 | 用随包数据 A，R1 有信息量子集上的 1%、5% 计数（全集参考：HP 163/470、Damage 177/401）；分钟制精确 HP 79 | — | 有信息量子集的 1% 与 5% 计数不低于 A 的 95%；分钟制只报告 | **外部验证**：调研从未用过天制烘焙，闭环的整体验证以它为准（5.5）|
@@ -1591,6 +1593,8 @@ Balance/out/diff/<name>/
 | P12-diff-tool | 改动对比工具 | 是（验收运行）| P9、P10、C8、C9 |
 | P13-drift-refresh | 代码漂移检查、一键刷新 | 是（验收运行）| P0、P1、C0b、P10、P11 |
 | Z1-docs-integration | 导出、文档、目录同步、待定 id 提升 | 是（最后一次 refresh）| K3、P12、P13 |
+
+**2026-10-29 状态**：W0、P0–P13、C0a/C0b、C1–C9（C3a–d）、K1–K3 已完成并合入；Z1 为最后的集成。S1 为可选项，未实施，不能标为已完成。科学目标失败不等同于单元实现未完成，见第 9 节。
 
 ### 7.2 依赖与执行顺序
 
@@ -1954,7 +1958,7 @@ Python 单元的进度只受 C0b、C1 的数据格式约束，不受 Unity 车�
 - 文件：`CB/Simulation/Systems/SimulationSystem.Targeting.cs`（由 C3a 交接）、`.Fight.cs`（由 C3b 交接）、`CB/Simulation/Systems/SpawnerData.cs`、`CB/Simulation/Rebuild/SimulationRebuildParams.SlowPolicy.cs`；`Balance/sim/params/defaults/slow_policy.json`；`tufu_balance/calibrate/killseq.py`；`tests/unity/test_slow_policy.py`；黄金套件 `sim_slow`。
 - 验收（单元级，闭环目标留给 K2）：
   - 从新档开局，每个 OT = 0 的刷怪点在 1.17 活跃分钟内各被杀一次（Health +15、Cut +3）；
-  - 门禁通过过滤和致死门槛时被选中（奖励值 1e6）；平局取 `sortedSpawners` 里的第一个；没有合格刷怪点时返回 null；
+  - 门禁通过过滤和致死门槛后按 reward × PM / cost 与其他目标竞争（奖励值 1e6）；平局取 `sortedSpawners` 里的第一个；没有合格刷怪点时返回 null；
   - 战斗：`TimeModel = FarmedTime` 时 P、T 恰好增加 `farmedTime/60`，`FarmedTimeMoveByDistance` 时恰好增加 `(farmedTime − avMoveTime + GetMoveTime(currentPosition))/60`；`CMove = CRegen = 1` 时分解形式与 `FarmedTime` 逐位相同；血量变化正确；
   - 致死门槛：在 TC3 状态下，`SameAsFast` 与 `CurrentHealth` 都不选岛 3 门禁（loss/H = 4.16），`None` 会选；`ProcessDeath` 计数进 `countRespawn`，并按 `DeathPolicy` 处理；
   - 清怪结果只经 `SimulateFightWithSpawner` 方法体里的 `RebuildApplyClear`；
@@ -2177,10 +2181,12 @@ Python 单元的进度只受 C0b、C1 的数据格式约束，不受 Unity 车�
 | Q22 | 多日区间的未命中，冻结为精确集合还是作为容差带 | 作为容差带（首杀日 ±1），敏感性曲线入库；只试有结构依据的假设。RPM 已无未命中 |
 | Q23 | 武器槽 3/4 的开启规则（到达岛 4、岛 8）| 作为校准规则：TC1–24 的 DpsData 训练、TC ≥ 25 验证；等原生的 `UnlockSimulationWeaponSlot` |
 | Q24 | 活跃分钟模型：`FarmedTime`（κ）还是 `NnTour` | 默认 `FarmedTime`；`NnTour` 只有在留出段按 AIC 胜出时才换 |
-| Q25 | 第 5 天 DpsData 的异常（隐含 K2 ≈ 0.26）：换天顺序已定为 `RpmFirst`，剩下的是 FastTick 内部的冲刷顺序 | P18 的 4 个组合只用 TC4–11 的 DpsData 打分；都解释不了就登记为未解决，不调参数 |
+| Q25 | 第 5 天 DpsData 异常（隐含 K2 ≈ 0.26）| 未解决：P18 四组合打平，不能辨识；不调参数 |
 | Q26 | 是否开第二个运行工作树（第二条 Unity 车道）| 先单车道；C# 已能离线编译并行写，C3d 合入后看运行车道的排队再决定 |
 | Q27 | AB `keyData` 的抽取缺陷：修抽取器，还是在 `model/ab.py` 里回退 | 先回退（P6）；修抽取器作为 P6 的可选部分 |
-| Q28 | 阶段 4 的分析脚本是否改用 `model`，以去掉重复实现 | 做，但不阻塞模拟器；放在 Z1 之后 |
+| Q28 | 阶段 4 的分析脚本是否改用 `model`，以去掉重复实现 | 开放：不阻塞模拟器，放在 Z1 之后 |
+| Q37 | T12 mace 领先：岛 4 Epic Spawner_1_epic_buck 在第 10–13 天已合格 | 开放；线索为原版 `SimulationSystem.cs:671` 在 loss > H/2 时使用 0.2× RPS，需核验 |
+| Q38 | X4 seed-1 的 Scenes/Main.unity:55596 新值 1 位不一致 | 开放：716/717；Carry、checkpoint、seed-2 为 717/717 |
 | Q29 | "在线经济"（元升级、护符经验与节点、VIP、广告、宝箱、岛屿奖牌）是否纳入阶段 5 | 不纳入，只留停用模块与协议 |
 | Q30 | 是否用重建的模拟器去找状态 B，例如换进化表、换槽位规则，看能否复现场景的天制烘焙值 | 列为阶段 5 之后的研究项 |
 | Q31 | R1/T19 的计数口径 | 用 by_mode（天制 n = 609） |
@@ -2293,3 +2299,17 @@ cd Balance && .venv/bin/python -m tufu_balance.graph impact <节点> [--runtime-
 15. **DAFC 只清一次**（第 3 版新增）：清过后 `Cooldown = +∞`，由已恢复的冷却过滤排除，X6 断言。
 16. **`currentBoss`**（第 3 版新增）：门禁 `NextLocationNumber` 等于当前岛 + 1 的刷怪点，没有就是 null。
 17. **慢阶段时间**（第 3 版新增）：首选零参数的已恢复形式 `farmedTime`（或把移动项换成按距离），`CMove = CRegen = 1`。
+
+
+## 9. 2026-10-29 偏差与修订记录
+
+本节记录实施后证据，遇到前文的历史计划或验收文字与本节冲突时以本节及各单元 Runbook、Calibration.md 为准。
+
+- **0、1.5、3.3（C2/P2）**：Mono 采用 binary64 表达式、存储时 float32；默认 double_all，109/109。DP4 796/816、DP7 136/7808 有至多 1 ulp 差异；DP5 四个中间量相对差 3.7e-8。K3(405)=4.90752f；插值缓存按对象身份，原地修改可能失效。G14 的声明容差为 0.005。Q03 不需要改游戏代码。
+- **3.3（P3/P4/P6/P7/P8）**：OT→rel 为 653/717；float64 为 676，s=100 返回 ITD[98]。G18 为 675；88 个物品配置、86 个 key，Level 为 EffectiveLevel；机器人并非立刻进化。boss 查找仅限本岛；变体按类默认值回退，Newtonsoft 原位合并；BossTower 走物品奖励路径。R1 为 at-least ratchet，Damage 使用偏好武器的 DefenseData，Dummy 用分钟制；G20 1155/1380 逐位，其余相对误差小于 1e-4（最差 7e-10）；R2 最后 DPS 0.0013227，K3(d−1) 拟合更好。
+- **2、7.3（W0/C0/C1/C3）**：fixture --check 不检查 provenance hash，--force 有保护；网络探测在代理后有盲区，manifest 中整数值 double 的类型可能丢失；零冷却就绪修复保留（698 个）。导出总调用 GetTrimmedTimeChunkSnapshots；StatBase.Modifiers 不序列化，守卫遍历托管字段并通过 UnloadAsset 恢复。快照是 30 个属性，不是 36；TotalValue 顺序为 (Value × (1+K2)) × K3。门只打开一次，回门独立计数；清怪次数上限取 ceil((limit−used)/Count)，超出计 charge_clamped。性能预算使用中位数；机器忙时 perf 在负载超过 CPU/4 跳过。
+- **4.4、4.6、7.4（Enginefix/K1）**：慢战斗后、普通早期快照前刷新 DpsData/DefenseData；X2 相应重算。replay 的 day-d 覆盖在 RecalculateChunkRpmValues 前，其他覆盖在强制快照后，后者不自动重算 RPM 或开槽。RPM running max 仅在随包 TC 日更新；所有日更新会抬高 5336 个单元。T09 为 1380/1380（1190 逐位，其余至多 3 ulp）。X6 按同名 float 修饰器累加。DP8 的钩子跨所有权边界，详见 CrossCheck.md 与 Enginefix.md。
+- **4.5、5.1、7.3（C5/C7/K1/K2）**：门禁奖励 1e6 仍须按 reward×PM/cost 竞争；例如第 2 天 98462 对物品点 126445。T04 原 2%/8% 只对 NnTour 可行（开环 1.085%/5.635%）；FarmedTime 4.29%/8.59%。T12 逐日整数原契约 18/29，改用掷骰前期望 5% 加每流少于 1 份；训练 TC57–104、留出 TC104–154。T16 的 5% 对 TC1 MovementSpeed 13 比一次清怪（约 15%）更细，保留为设计问题。C7 初次交付的 countRespawn 与 boss 标志缺口后来由 K2 补充逐日计数并改为清怪前取样；其他边界与优先级测试缺口见 Runbook 21。
+- **5、7.3（K3）**：以 TC4–103 的 T06 和 T20 硬筛选，基线 0.621%，H3 0.631%，选基线；TourA [0.9796,1.0535]、TourB [0.7433,0.8266]（seed 0，TC 区间块），CMove 不可辨识固定 1。T05 36/41、T07 11 个区间内且 1 次翻转、T15 后期 DPS 17.06% / defense 0.98% 的 ratchet 仅适用于 Carry；随机种子不满足部分 ratchet。自由运行 T03、T04、T06、T09、T12、T14、T16、T19 Health、岛 3 和早期物品失败，checkpoint 亦有失败，均已登记；闭环可信度未建立。T19 Health：Carry 138/383，seed-1 171/386，seed-2 120/386，A 为 162/469；分钟制 9/108 对 79/108；Damage 通过。X4 seed-1 为 716/717，其余 Carry/checkpoint/seed-2 为 717/717。
+- **补丁、导出与刷新（P9/P10/P11/P12/P13）**：143 个可补丁字段；add/mul 以 double 计算后转换，刷怪点键为 (scene,file_id)，新增 evolution_armor_sync；字典非 Python 可补丁节点透传并告警。缓存命中要求 asset_guard.json；X2 的 override 慢快照和 X5 override 有空检范围。diff 的资产版本模式限于安全的已有配置叶子，缓存索引由 diff --cache-base 建立；refresh L0 预算 60/90 秒原文冲突，实际 fail-fast。具体例外、测试缺口及测量见 Patch、CrossCheck、DiffTool、DriftCheck、Runbook 和 Calibration 文档。
+- **基线工具**：定义变化或序列化文本变化仍须通过现有 accept/loosen 流程登记；独立的无需 loosen 的纯重接受入口列为后续工作，不改变 ORIGINAL。

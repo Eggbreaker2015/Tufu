@@ -32,3 +32,9 @@ __all__ = [
     "SimulationSnapshot", "SimulationStat", "interpolate_snapshot", "calculate_specific_value",
     "clamp_specific_value", "specific_value_pipeline",
 ]
+
+# Expose the stage-5 modules without flattening their potentially overlapping names.
+from . import ab, config, data, evolution_gen, f32, items, patch, pipeline, registry, simcalc, spawners, timeaxis, timeline
+
+__all__ += ["ab", "config", "data", "evolution_gen", "f32", "items", "patch", "pipeline",
+            "registry", "simcalc", "spawners", "timeaxis", "timeline"]

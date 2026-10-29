@@ -302,7 +302,7 @@ class PlayerState:
         return self.balance_timing if self.ability_timing is None else float(f32(self.ability_timing))
 
 
-@implements("pending:simulation.day_change_order", provenance=Provenance.INFERRED,
+@implements("simulation.day_change_order", provenance=Provenance.INFERRED,
             code_ref=f"{SS}:183-191,588-590,894-896")
 def snapshot_state(snapshot: SimulationSnapshot, ctx: SimCalcContext, *, order: str = RPM_FIRST,
                    k4k5_offset: int = 0, unlocked_location: int | None = None, day: int | None = None,
@@ -769,14 +769,14 @@ def calculate_soul_rpm_values(ctx: SimCalcContext, state: PlayerState, data: Map
 # ---------------------------------------------------------------------------------------------- bot eligibility
 
 
-@implements("pending:simulation.fast_kill_gate", provenance=Provenance.INFERRED, code_ref=f"{SS}:438-439")
+@implements("simulation.fast_kill_gate", provenance=Provenance.INFERRED, code_ref=f"{SS}:438-439")
 def fast_killable(data: SpawnerData, health: float, kill_loss_multiplier: float = 1.0) -> bool:
     """Design 4.5: the fast phase farms a spawner only if :func:`rpm_survivable` with ``L = KillLossMultiplier``
     (default 1.0, not the AB value) -- the RPM predicate reused as the bot's kill gate (inferred)."""
     return rpm_survivable(data.loss, health, kill_loss_multiplier)
 
 
-@implements("pending:simulation.eligible_spawners", provenance=Provenance.INFERRED, code_ref=f"{SS}:623-674")
+@implements("simulation.eligible_spawners", provenance=Provenance.INFERRED, code_ref=f"{SS}:623-674")
 def eligible_spawners(ctx: SimCalcContext, state: PlayerState, bot: BotFilter | None = None,
                       kill_loss_multiplier: float = 1.0, *,
                       spawners: Iterable[SimSpawner] | None = None) -> dict[sp.SpawnerId, SpawnerData]:
@@ -819,7 +819,7 @@ def gpm_matches(stored: float, replayed: float, rel: float = 1e-4) -> bool:
     return abs(stored - replayed) <= rel * max(1.0, abs(stored))
 
 
-@implements("pending:simulation.weapon_slot_unlocks", provenance=Provenance.INFERRED)
+@implements("simulation.weapon_slot_unlocks", provenance=Provenance.INFERRED)
 def slots_p12(location: int, slot_unlock_locations: Mapping[str, int]) -> tuple[int, int]:
     """Weapon and armor slots unlocked at ``location`` under the closed-form rule (design P12): the default
     slot, slot rewards when their gate's next island is reached, weapon_3 at island 4, weapon_4 at island 8."""

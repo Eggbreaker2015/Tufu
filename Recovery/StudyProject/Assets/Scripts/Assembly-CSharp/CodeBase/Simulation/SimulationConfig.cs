@@ -86,7 +86,7 @@ namespace Codebase.Simulation
 		}
 
 		// Inspector button: one hand tick (SimulationSystem.OnUpdate consumes the flag).
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.hand_tick")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.hand_tick")]
 		public void Tick()
 		{
 			handTick = true;
