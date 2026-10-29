@@ -1365,3 +1365,13 @@ killseq 的第一个区间为69.9365秒/6次清怪；起点 farmedTime 合计232
 ### 25.4 参数哈希口径
 
 K1的open层以展开binary32十进制保存Kappa/TourA/TourB；C3c的effective hash却按float32最短十进制规范化。因此初始/后备92作业的request_hash_given=request_hash（P10原请求哈希），effective hash也逐作业等于paramsio.effective_hash，但matches_request=false。最初单元测试把后者误要求为true，已按C3c契约改为同时核对两种哈希。新增**一个**参数文本规范化的确认作业（非策略候选），用paramsio.effective生成请求，要求matches_request=true且10个确定性输出与最终候选逐字节一致；不重新拟合、不改变物理float值。K3导入/生成请求时应使用paramsio.round_float32或params build/import --float32，不能以原请求hash冒充effective hash。
+
+### 25.5 最终选择与证据
+
+科学结果逐项见 Calibration.md：本单元**未通过设计验收**（T03/T04/T16/岛3/物品数）。slow.json只冻结训练最优候选CMove=.953125、CRegen=1，不表示其全部验收合格。六个已测系数点训练同分，持出亦同分；含平局的1000次、2训练日条件bootstrap给CMove的90%区间[.9423828125,.95703125]、CRegen[1,1]，仅在已测候选内、未跨物品数/逐日死亡行为，不宣称原生参数已识别。
+
+运行代码固定78e3f21（之后Unity工程无改动），报告 `Balance/out/calibration/slow/4f0cc72ff736884b/`，latest索引在slow-work。92个拟合作业=48恢复模型+25粗网格+19新增单纯形，另1个规范文本确认；全部P10 Driver/serve、RunCache、AB A、Frozen、reenter_play。92/92原请求与effective hash分别验证，确认作业10文件逐字节相同且matches_request=true。73/92候选过T20，所有候选每次day3死亡在day3_deaths.csv，countRespawn.csv包含逐日0值；没有按持出重选。
+
+首次Driver墙钟：initial 332.453秒、coarse181.245秒、19个新增simplex请求合计约158秒（精确逐次计时在归档），确认7.502秒；首次网格完整命令345.286秒，后备完整命令373.673秒。后续缓存验证每次另存attempt/step计时，不覆盖首次文件。报告有7个P10标准文件、逐候选残差、killseq逐点/区间、逐日复活/每次死亡、条件bootstrap、params hash和各资产守卫SHA256。
+
+`calib_slow`首次接受16键、其中7项登记CURRENT偏离（P14 CMove、T03、T04、T07早期区间、T16失败数/最大误差、物品数）。新ORIGINAL对原设计数值均用显式original=声明：CMove=1、T03失败0、T04 .03、岛屿区间误差0、T16失败0/主属性.05、物品数4/7/8/8；其它首次观测以--seed-original建测量基线。未改任何已有ORIGINAL或冻结夹具，未修改通用tolerances.yaml。
