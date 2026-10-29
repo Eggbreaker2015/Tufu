@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="$(Rebuild)../Harness/SimulationJson.cs" Link="Harness/SimulationJson.cs" />
     <Compile Include="$(Rebuild)SimulationRandom.cs" Link="Rebuild/SimulationRandom.cs" />
     <Compile Include="$(Rebuild)SimulationRebuildParams*.cs" Exclude="$(Rebuild)SimulationRebuildParamsAsset.cs" LinkBase="Rebuild" />
     <Reference Include="Newtonsoft.Json">

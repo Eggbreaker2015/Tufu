@@ -56,6 +56,8 @@ namespace Codebase.Simulation.Harness
 		// The job of this Play session (null outside batch runs): the engine reads params and engine_probe from it.
 		internal static SimulationRunRequest.Job CurrentJob => instance != null ? instance.job : null;
 
+		internal static string RebuildResetMode => instance != null ? instance.request?.Unity.ResetMode : "reenter_play";
+
 		private static SimulationHarness instance;
 		private static readonly Stopwatch heartbeatClock = new Stopwatch();
 		private static string heartbeatPath;
@@ -772,6 +774,27 @@ namespace Codebase.Simulation.Harness
 			Error = error;
 			manifest["exit_code"] = code;
 			manifest["error"] = error;
+			if (SimulationSystem.Instance != null && job != null && job.Mode != "empty")
+			{
+                try
+                {
+				bool inventoryProbe = job.Outputs != null && job.Outputs.TryGetValue("inventory", out bool inventoryOn) && inventoryOn;
+				JObject inventory = SimulationSystem.Instance.RebuildFinishInventory(inventoryProbe);
+				if (request != null && inventoryProbe)
+				{
+					string inventoryDir = request.JobDir(job);
+					Directory.CreateDirectory(inventoryDir);
+					SimulationJson.WriteFile(Path.Combine(inventoryDir, "inventory.json"), inventory);
+				}
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    ExitCode = ExitException;
+                    manifest["exit_code"] = ExitException;
+                    manifest["error"] = Error = "inventory export: " + e.Message;
+                }
+			}
 			if (config != null && speedBeforeJob.HasValue) config.SimulationSpeed = speedBeforeJob.Value;
 			timings["log_errors"] = logErrors;
 			timings["log_exceptions"] = logExceptions;

@@ -56,6 +56,7 @@ namespace Codebase.Simulation.Systems
 			try
 			{
 				RebuildLoadRunOptions();
+				RebuildPrepareInventory();
 				if (RebuildStopped) return;
 				string unsupported = config.AutoGambling ? "AutoGambling" : config.CrystalSimulation ? "CrystalSimulation"
 					: config.AutoBalanceAmulet ? "AutoBalanceAmulet" : config.GraphSimulation ? "GraphSimulation" : null;
@@ -256,6 +257,7 @@ namespace Codebase.Simulation.Systems
 				RecalculateChunkRpmValues();
 				UpdateInterpolationStatModifier();
 			}
+			RebuildInventoryAfterDayRpm();
 			ProcessAmuletAutoBalanceTargets(day);
 			ProcessCrystalSimulationChunk();
 			MakeSnapshot(true);

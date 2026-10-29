@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Codebase.Simulation.Rebuild;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -83,7 +84,8 @@ namespace Codebase.Simulation.Harness
 		private const int NegativeZeroFloatBits = unchecked((int)0x80000000U);
 
 		// Shortest text that parses back to the same bits. Mono's "R" is not always round-trippable, so
-		// every value is parsed back and G17 is the fallback.
+		// every value is parsed exactly and G17 is the fallback. Mono's own parser can accept a
+        // shortened value one ulp away from the correctly rounded double.
 		public static string FormatDouble(double value)
 		{
 			if (double.IsNaN(value)) return "NaN";
@@ -124,7 +126,8 @@ namespace Codebase.Simulation.Harness
 
 		private static bool RoundTrips(string text, long bits)
 		{
-			return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double back) && BitConverter.DoubleToInt64Bits(back) == bits;
+			double back = (double)((JValue)SimulationCanonicalJson.ParseToken(WithDecimalPoint(text))).Value;
+            return BitConverter.DoubleToInt64Bits(back) == bits;
 		}
 
 		public static JObject ToJObject(object value)

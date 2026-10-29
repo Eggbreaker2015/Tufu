@@ -54,7 +54,7 @@ def mono_home() -> Path | None:
 def sources() -> list[Path]:
     linked = [REBUILD / "SimulationRandom.cs"] + sorted(p for p in REBUILD.glob("SimulationRebuildParams*.cs")
                                                         if p.name != "SimulationRebuildParamsAsset.cs")
-    return [TOOL_DIR / "rebuildcheck.csproj", TOOL_DIR / "Program.cs", *linked]
+    return [TOOL_DIR / "rebuildcheck.csproj", TOOL_DIR / "Program.cs", REBUILD.parent / "Harness" / "SimulationJson.cs", *linked]
 
 
 def ensure_built() -> Path:
