@@ -89,3 +89,5 @@ free 的主要失败及线索：T03 cadence 57/60，延续 K2 的慢阶段路径
 checkpoint 从 day4 设置随包状态：T03 57/60、T04 早期 3/4、T06 TC5–23 179/180、TC≥24 428/435 但最大 11.713%、T09 501/575、T14 Level 1124/1296、T16 主属性 8/12、T17 早期护甲 5/9；不可将 checkpoint 结果与 free 合并。T05/T07 仍 pending，T15 未计算；主要 free 失败、T19 Health、岛3和早期物品数已在 sim_regression 登记 loosening；checkpoint 特有失败及 T05/T07/T15 尚未完成登记，科学和流程验收均未完成。
 
 测试所有权偏离：发布 calibrated 层后，P12 的端到端测试原先硬编码 uncalibrated，改为断言 calibrated 且报告中不出现 uncalibrated；这只更新测试的预期，不改变 diff 产品行为。
+
+T15 的逐格初步观测已另存 `first-run-e8054e8/t15-observations.csv`（含两种运行，列出分母为零的无限误差）；它尚未冻结棘轮。free 的 TC25–99 DPS 最大误差 40.036%（TC70 Buckshot，对15%失败），TC≥100 DPS 最大 17.064%（TC140 Cutting）、DEF 最大 0.9841%；checkpoint 分别为 11.682%、16.614%、6.505%。R2b 的 TC≥100 最大 DPS/DEF 为 1.2137%/0.9709%；高 TC DPS 差异可能与 T12 份数及 T14 进化偏差有关，但仅是结构线索。free 的 TC4–30 DPS 逐格最大误差 25.825%；K1 的 DPS 网格只覆盖 ±5%，无法据现有采样证明覆盖该误差区间内的最坏翻转数。不能把 ±5% 的包络冒充完整 T05/T07 闭环敏感性曲线；须补足敏感性并对首杀日解释后才能冻结对应棘轮。
