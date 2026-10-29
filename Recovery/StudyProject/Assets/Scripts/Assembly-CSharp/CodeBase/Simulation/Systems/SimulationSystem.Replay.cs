@@ -19,8 +19,9 @@ namespace Codebase.Simulation.Systems
 		// before its first planning round. Teacher forcing for calibration, not game behaviour: free jobs and
 		// interactive runs have no SimulationStateOverride and pass through. Order: unlock (unlock = snapshot), slots,
 		// items, stat Values (base value = snapshot Value, every modifier but the two __simulation* ones and
-		// equipment's removed, so TotalValue composes from Value and the day's K2/K3), full health, then the caches
-		// and the day's RPM under the new state (C3b's day change computed them before the override).
+		// equipment's removed, so TotalValue composes from Value and the day's K2/K3), TotalValue (total_value =
+		// snapshot: corrected to the snapshot's own), full health, then the caches and the day's RPM under the new
+		// state (C3b's day change computed them before the override).
 		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.state_override")]
 		partial void RebuildApplyDayOverride(int day)
 		{
@@ -37,9 +38,10 @@ namespace Codebase.Simulation.Systems
 				if (s == null) return;
 				int locationBefore = playerModel.LastUnlockedLocation.Number;
 				if (s.UnlockTo.HasValue) RebuildReplayUnlock(state, s.UnlockTo.Value);
-				if (s.Slots != null && !RebuildReplaySetSlots(s.Slots.Weapon, s.Slots.Armor)) return;
+				if (s.Slots != null && !RebuildReplaySetSlots(state, s.Slots.Weapon, s.Slots.Armor)) return;
 				if (s.SetItems) RebuildReplaySetItems(state, s.Items);
 				int removed = RebuildReplaySetStats(state, s.Snapshot.Stats);
+				if (state.TotalValueFromSnapshot) RebuildReplaySetTotalValues(state, s.Snapshot.Stats);
 				playerModel.Unit.CurrentHealth = GetForecastStatValue(StatType.Health);
 				state.Applied(s);
 				CalculateSimulationData();
@@ -73,8 +75,9 @@ namespace Codebase.Simulation.Systems
 			state.Count("cache_applications");
 		}
 
-		// Islands up to `location`: the forward gates into each new island open (GatesModel) with their SlotReward
-		// slots, then RebuildUnlockLocation (C3b opens slots only when a gate spawner is cleared).
+		// Islands up to `location`: the forward gates into each new island (on an island already open, so not the
+		// back-gates of islands 11-13) open (GatesModel) with their SlotReward slots, then RebuildUnlockLocation (C3b
+		// opens slots only when a gate spawner is cleared).
 		private void RebuildReplayUnlock(SimulationStateOverride state, int location)
 		{
 			for (int n = playerModel.LastUnlockedLocation.Number + 1; n <= location; n++)
@@ -82,7 +85,7 @@ namespace Codebase.Simulation.Systems
 				foreach (EnemySpawner spawner in enemiesModel.Spawners)
 				{
 					EnemySpawnerConfig def = spawner.Config;
-					if (def.Gates == null || !def.Gates.Any(g => g != null && g.NextLocationNumber == n)) continue;
+					if (def.LocationNumber >= n || def.Gates == null || !def.Gates.Any(g => g != null && g.NextLocationNumber == n)) continue;
 					foreach (var gate in def.Gates)
 						if (gate != null && gate.NextLocationNumber == n && !gatesModel.IsGateUnlocked(gate.Key))
 						{
@@ -101,7 +104,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Exactly `weapons` weapon and `armors` helmet/shield slots unlocked: non-VIP slots first, config order.
-		private bool RebuildReplaySetSlots(int weapons, int armors)
+		private bool RebuildReplaySetSlots(SimulationStateOverride state, int weapons, int armors)
 		{
 			var weaponSlots = playerModel.ItemSlots.Where(x => x.SlotType == ItemSlotType.Weapon).OrderBy(x => x.IsVip).ToList();
 			var armorSlots = playerModel.ItemSlots.Where(x => x.SlotType == ItemSlotType.Helmet || x.SlotType == ItemSlotType.Shield)
@@ -112,19 +115,24 @@ namespace Codebase.Simulation.Systems
 					+ weaponSlots.Count + " weapon / " + armorSlots.Count + " armor slots");
 				return false;
 			}
-			RebuildReplaySetSlotsOpen(weaponSlots, weapons);
-			RebuildReplaySetSlotsOpen(armorSlots, armors);
+			RebuildReplaySetSlotsOpen(state, weaponSlots, weapons);
+			RebuildReplaySetSlotsOpen(state, armorSlots, armors);
 			return true;
 		}
 
-		private void RebuildReplaySetSlotsOpen(List<ItemSlotModel> slots, int n)
+		private void RebuildReplaySetSlotsOpen(SimulationStateOverride state, List<ItemSlotModel> slots, int n)
 		{
 			for (int i = 0; i < slots.Count; i++)
 			{
 				bool open = i < n;
 				if (slots[i].IsUnlocked == open) continue;
-				if (!open && slots[i].ItemModel != null) playerModel.UnequipItem(slots[i].ItemModel);
+				if (!open && slots[i].ItemModel != null)
+				{
+					playerModel.UnequipItem(slots[i].ItemModel);
+					state.Count("slot_unequips");
+				}
 				slots[i].IsUnlocked = open;
+				state.Count(open ? "slots_opened" : "slots_closed");
 			}
 		}
 
@@ -172,12 +180,15 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Base value = snapshot Value; modifiers other than the two __simulation* ones and equipment's are removed
-		// (on a bot they are rewards). Returns the number removed.
+		// (on a bot they are rewards), and so is the previous override's TotalValue correction. Returns the number
+		// removed (corrections not counted).
 		private int RebuildReplaySetStats(SimulationStateOverride state, List<SimulationStatData> values)
 		{
 			int removed = 0;
 			foreach (Stat stat in playerModel.Unit.Stats)
 			{
+				foreach (StatModifier modifier in stat.Modifiers.Where(m => m.Name != null && m.Name.StartsWith(SimulationStateOverride.TotalValueModifierName, StringComparison.Ordinal)).ToList())
+					stat.RemoveModifier(modifier);
 				int index = values.FindIndex(x => x.Key == stat.Type);
 				if (index < 0)
 				{
@@ -198,6 +209,70 @@ namespace Codebase.Simulation.Systems
 				stat.RemoveModifier(refresh);
 			}
 			return removed;
+		}
+
+		// total_value = snapshot: Stat.FastValue becomes the snapshot's TotalValue, which on interpolated days is not
+		// Value composed with K2/K3(d) (TotalValue is interpolated linearly, K2/K3 are not). The factor rides on two
+		// Item-source PreAdditivePostMultiplicative modifiers: Item modifiers stay out of the snapshot Value, and the
+		// two float values sum in double, so the factor holds to about an ulp; the second one is tuned over its float
+		// neighbours. Equipment changes later in the day (ApplyEquippedItemsToUnit) drop them.
+		private void RebuildReplaySetTotalValues(SimulationStateOverride state, List<SimulationStatData> values)
+		{
+			foreach (Stat stat in playerModel.Unit.Stats)
+			{
+				int index = values.FindIndex(x => x.Key == stat.Type);
+				if (index < 0) continue;
+				double want = values[index].TotalValue;
+				double have = stat.FastValue;
+				if (have == want) continue;
+				if (have == 0.0 || want == 0.0 || double.IsNaN(want) || double.IsInfinity(want) || double.IsNaN(have) || double.IsInfinity(have))
+				{
+					state.Count("total_value_uncorrected");
+					continue;
+				}
+				double factor = want / have - 1.0;
+				float coarse = (float)factor;
+				float fine = (float)(factor - coarse);
+				var first = new StatModifier { Name = SimulationStateOverride.TotalValueModifierName + "1", StatType = stat.Type, ModifierType = ModifierType.PreAdditivePostMultiplicative, Source = ModifierSource.Item, Value = coarse };
+				var second = new StatModifier { Name = SimulationStateOverride.TotalValueModifierName + "2", StatType = stat.Type, ModifierType = ModifierType.PreAdditivePostMultiplicative, Source = ModifierSource.Item, Value = fine };
+				stat.AddModifier(first);
+				stat.AddModifier(second);
+				float best = fine;
+				double bestError = Math.Abs(stat.FastValue - want);
+				for (int direction = -1; direction <= 1 && bestError > 0.0; direction += 2)
+				{
+					float candidate = fine;
+					for (int step = 0; step < 8 && bestError > 0.0; step++)
+					{
+						candidate = RebuildNextFloat(candidate, direction);
+						stat.RemoveModifier(second);
+						second.Value = candidate;
+						stat.AddModifier(second);
+						double error = Math.Abs(stat.FastValue - want);
+						if (error < bestError)
+						{
+							bestError = error;
+							best = candidate;
+						}
+					}
+				}
+				if (second.Value != best)
+				{
+					stat.RemoveModifier(second);
+					second.Value = best;
+					stat.AddModifier(second);
+				}
+				state.Count("total_value_corrections");
+				if (stat.FastValue != want) state.Count("total_value_corrections_inexact");
+			}
+		}
+
+		private static float RebuildNextFloat(float value, int direction)
+		{
+			if (value == 0f) return direction > 0 ? float.Epsilon : -float.Epsilon;
+			int bits = BitConverter.ToInt32(BitConverter.GetBytes(value), 0);
+			bits += (value > 0f) == (direction > 0) ? 1 : -1;
+			return BitConverter.ToSingle(BitConverter.GetBytes(bits), 0);
 		}
 
 		private JObject RebuildReplayRecord(SimulationStateOverride state, SimulationStateOverride.DayState s, int locationBefore, int removed)
@@ -228,6 +303,8 @@ namespace Codebase.Simulation.Systems
 				["current_boss"] = RebuildSpawnerId(currentBoss),
 				["weapon_slots"] = playerModel.UnlockedWeaponSlots,
 				["armor_slots"] = playerModel.UnlockedArmorSlots,
+				["slot_states"] = new JArray(playerModel.ItemSlots.Select(x => (object)new JArray(x.Key, (int)x.SlotType, x.IsVip, x.IsUnlocked,
+					x.ItemModel != null ? x.ItemModel.Config.Key : null)).ToArray()),
 				["removed_modifiers"] = removed,
 				["k2"] = SimulationRuntimeProbes.F(RebuildK2),
 				["k3"] = SimulationRuntimeProbes.F(RebuildK3),

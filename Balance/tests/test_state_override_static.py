@@ -28,13 +28,15 @@ def test_csharp_fields_and_values_match_python():
     assert _class_fields(text, "OverrideOptions") == set(ov.OVERRIDE_FIELDS)
     assert _class_fields(text, "SlotCounts") == {"weapon", "armor"}
     for cs_name, values in (("OverrideModes", ov.OVERRIDE_MODES), ("EconCachesValues", ov.ECON_CACHES),
-                            ("ReplayItemsValues", ov.REPLAY_ITEMS), ("UnlockValues", ov.UNLOCK)):
+                            ("ReplayItemsValues", ov.REPLAY_ITEMS), ("UnlockValues", ov.UNLOCK),
+                            ("TotalValueValues", ov.TOTAL_VALUE)):
         found = re.search(cs_name + r" = \{(.*?)\};", text).group(1)
         assert tuple(re.findall(r'"(\w+)"', found)) == values, cs_name
     defaults = dict(re.findall(r'public string (\w+) = "(\w+)";', text))
-    assert defaults == {"EconCaches": "stored", "ReplayItems": "snapshot", "Unlock": "derived"}
+    assert defaults == {"EconCaches": "stored", "ReplayItems": "snapshot", "Unlock": "derived", "TotalValue": "snapshot"}
     assert ov.override_options() == {"from_day": None, "econ_caches": "stored", "replay_items": "snapshot",
-                                     "unlock": "derived", "items_evolved": None, "slots": None}
+                                     "unlock": "derived", "total_value": "snapshot", "items_evolved": None,
+                                     "slots": None}
 
 
 def _job(**override):
@@ -49,6 +51,7 @@ def _job(**override):
     ({"econ_caches": "cached"}, "econ_caches"),
     ({"replay_items": "none"}, "replay_items"),
     ({"unlock": "always"}, "unlock"),
+    ({"total_value": "interpolated"}, "total_value"),
     ({"items_evolved": {"x": {}}}, "TimeChunkIndex"),
     ({"items_evolved": {"04": {}}}, "TimeChunkIndex"),
     ({"items_evolved": {"4": []}}, "must be an object"),
@@ -116,7 +119,7 @@ def test_engine_marks_the_day_applied_before_it_reads_the_stored_caches():
     text = CS_REPLAY.read_text(encoding="utf-8")
     body = text[text.index("partial void RebuildApplyDayOverride(int day)"):text.index("partial void RebuildApplyReplayCaches()")]
     order = [body.index(s) for s in ("state.Resolve(day)", "RebuildReplaySetSlots", "RebuildReplaySetItems(",
-                                     "RebuildReplaySetStats(", "state.Applied(s)", "CalculateSimulationData();",
+                                     "RebuildReplaySetStats(", "RebuildReplaySetTotalValues(", "state.Applied(s)", "CalculateSimulationData();",
                                      "RebuildApplyReplayCaches();", "CalculateRPMValueTimeChunk(type)", "state.Record(")]
     assert order == sorted(order)
 
@@ -125,3 +128,11 @@ def test_snapshot_items_carry_the_effective_level():
     """Design 4.5: snapshot Items are (Key, effective level, Copies); Level == Copies until evolved (shipped data)."""
     text = CS_SNAPSHOT.read_text(encoding="utf-8")
     assert "new SimulationItemData { Key = item.Config.Key, Level = item.EffectiveLevel, Copies = item.Copies }" in text
+
+
+def test_unlock_snapshot_opens_forward_gates_only():
+    """Back-gates (islands 11-13 into lower islands) open only when their spawner is cleared (C3b), never by the
+    snapshot unlock: the loop skips spawners not on an already open island."""
+    text = CS_REPLAY.read_text(encoding="utf-8")
+    body = text[text.index("private void RebuildReplayUnlock("):text.index("private bool RebuildReplaySetSlots(")]
+    assert "def.LocationNumber >= n ||" in body

@@ -2,7 +2,7 @@
 
 * ``job.override`` (C# ``SimulationRunRequest.Override.cs``), read by ``replay`` and ``checkpoint`` jobs:
   ``from_day`` (null = 0), ``econ_caches`` (``stored`` | ``recomputed``), ``replay_items`` (``snapshot`` |
-  ``recompute``), ``unlock`` (``derived`` | ``snapshot``), ``items_evolved`` (``{"<TC>": {"<Key>": bool|null}}``,
+  ``recompute``), ``unlock`` (``derived`` | ``snapshot``), ``total_value`` (``snapshot`` | ``compose``), ``items_evolved`` (``{"<TC>": {"<Key>": bool|null}}``,
   P4's :func:`tufu_balance.model.items.items_evolved_override`) and ``slots`` (``{"<TC>": {"weapon": n,
   "armor": m}}``, by default the stage-4 fixture; :func:`slots_p12` gives the closed-form P12 rule). Keys are
   shipped day-snapshot TimeChunkIndexes; a day takes the entry of the snapshot that provides its items.
@@ -32,9 +32,10 @@ OVERRIDE_MODES = ("replay", "checkpoint")
 ECON_CACHES = ("stored", "recomputed")
 REPLAY_ITEMS = ("snapshot", "recompute")
 UNLOCK = ("derived", "snapshot")
+TOTAL_VALUE = ("snapshot", "compose")
 
 OVERRIDE_FIELDS = {"from_day": (int, None), "econ_caches": (str,), "replay_items": (str,), "unlock": (str,),
-                   "items_evolved": (dict, None), "slots": (dict, None)}
+                   "total_value": (str,), "items_evolved": (dict, None), "slots": (dict, None)}
 
 req.register_fields("job", {"override": (dict, None)})
 req.register_fields("override", OVERRIDE_FIELDS)
@@ -56,7 +57,8 @@ def check_override(job: Mapping[str, Any], where: str = "job") -> None:
     req._check_object(o, "override", w)
     if o.get("from_day") is not None and o["from_day"] < 0:
         raise req.RequestError(f"{w}.from_day must be >= 0")
-    for name, allowed in (("econ_caches", ECON_CACHES), ("replay_items", REPLAY_ITEMS), ("unlock", UNLOCK)):
+    for name, allowed in (("econ_caches", ECON_CACHES), ("replay_items", REPLAY_ITEMS), ("unlock", UNLOCK),
+                          ("total_value", TOTAL_VALUE)):
         if name in o and o[name] not in allowed:
             raise req.RequestError(f"{w}.{name} must be one of {allowed}")
     for key, per in (o.get("items_evolved") or {}).items():
@@ -109,9 +111,10 @@ def slots_p12(con: sqlite3.Connection) -> dict[str, dict[str, int]]:
 
 
 def override_options(*, from_day: int | None = None, econ_caches: str = "stored", replay_items: str = "snapshot",
-                     unlock: str = "derived", items_evolved: Mapping | None = None,
+                     unlock: str = "derived", total_value: str = "snapshot", items_evolved: Mapping | None = None,
                      slots: Mapping | None = None) -> dict:
     o = {"from_day": from_day, "econ_caches": econ_caches, "replay_items": replay_items, "unlock": unlock,
+         "total_value": total_value,
          "items_evolved": None if items_evolved is None else {k: dict(v) for k, v in items_evolved.items()},
          "slots": None if slots is None else {k: dict(v) for k, v in slots.items()}}
     check_override({"override": o})

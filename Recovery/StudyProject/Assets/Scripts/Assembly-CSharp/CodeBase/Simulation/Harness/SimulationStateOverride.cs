@@ -22,6 +22,8 @@ namespace Codebase.Simulation.Harness
 		public const string Schema = "tufu.sim.override/1";
 		public const string DaysFile = "override_days.jsonl";
 		public const string OutputName = "override_days";
+		// Name prefix of the engine's TotalValue correction modifiers (total_value = snapshot).
+		public const string TotalValueModifierName = "__rebuildReplayTotalValue";
 
 		public sealed class ItemSpec
 		{
@@ -55,6 +57,7 @@ namespace Codebase.Simulation.Harness
 		public bool StoredCaches { get; private set; }
 		public bool ItemsEveryDay { get; private set; }
 		public bool UnlockFromSnapshot { get; private set; }
+		public bool TotalValueFromSnapshot { get; private set; }
 		// Set when the job cannot run its override (the engine fails the job with exit code 5 on day 0).
 		public string Error { get; private set; }
 
@@ -88,6 +91,7 @@ namespace Codebase.Simulation.Harness
 				StoredCaches = o.EconCaches == "stored",
 				ItemsEveryDay = o.ReplayItems == "snapshot",
 				UnlockFromSnapshot = o.Unlock == "snapshot",
+				TotalValueFromSnapshot = o.TotalValue == "snapshot",
 				options = o,
 				shipped = config != null ? config.SimulationData : null,
 			};
@@ -109,6 +113,7 @@ namespace Codebase.Simulation.Harness
 				["econ_caches"] = o.EconCaches,
 				["replay_items"] = o.ReplayItems,
 				["unlock"] = o.Unlock,
+				["total_value"] = o.TotalValue,
 				["items_evolved"] = o.ItemsEvolved != null ? "request" : "level_ne_copies",
 				["slots"] = o.Slots != null ? "request" : "unchanged",
 				["shipped_asset"] = state.shipped != null ? state.shipped.name : null,

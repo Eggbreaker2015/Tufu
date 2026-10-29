@@ -14,6 +14,7 @@ namespace Codebase.Simulation.Harness
 		public static readonly string[] EconCachesValues = { "stored", "recomputed" };
 		public static readonly string[] ReplayItemsValues = { "snapshot", "recompute" };
 		public static readonly string[] UnlockValues = { "derived", "snapshot" };
+		public static readonly string[] TotalValueValues = { "snapshot", "compose" };
 
 		public partial class Job
 		{
@@ -34,6 +35,9 @@ namespace Codebase.Simulation.Harness
 			// derived: islands open through the gates' killability (policy); snapshot: the snapshot's Location
 			// (diagnostic).
 			[JsonProperty("unlock")] public string Unlock = "derived";
+			// snapshot: Stat TotalValue = the (interpolated) snapshot's TotalValue; compose: Value composed with the
+			// day's K2/K3 modifiers (what the forced snapshots write).
+			[JsonProperty("total_value")] public string TotalValue = "snapshot";
 			// {"<shipped TimeChunkIndex>": {"<item Key>": true | false | null}} (tufu_balance.model.items
 			// .items_evolved_override). Null or a missing/null entry: evolved iff Level != Copies (counted).
 			[JsonProperty("items_evolved")] public Dictionary<string, Dictionary<string, bool?>> ItemsEvolved;
@@ -65,6 +69,7 @@ namespace Codebase.Simulation.Harness
 			else if (!EconCachesValues.Contains(o.EconCaches)) error = where + "econ_caches must be one of " + string.Join(", ", EconCachesValues);
 			else if (!ReplayItemsValues.Contains(o.ReplayItems)) error = where + "replay_items must be one of " + string.Join(", ", ReplayItemsValues);
 			else if (!UnlockValues.Contains(o.Unlock)) error = where + "unlock must be one of " + string.Join(", ", UnlockValues);
+			else if (!TotalValueValues.Contains(o.TotalValue)) error = where + "total_value must be one of " + string.Join(", ", TotalValueValues);
 			if (error != null) return;
 			if (o.ItemsEvolved != null)
 				foreach (var pair in o.ItemsEvolved)
