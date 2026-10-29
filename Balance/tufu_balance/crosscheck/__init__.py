@@ -18,11 +18,12 @@ does it from the command line.
 
 from __future__ import annotations
 
+import copy
 import csv
 import json
 import math
 import struct
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -84,6 +85,70 @@ def forecast_value(key: int, value: float, k2: float, k3: float) -> float:
     return 1.0 * multiplicative * additive * (float(value) + 0.0)
 
 
+# ---------------------------------------------------------------- the editor's float arithmetic
+
+def mono_best_armor_against_dps(s, caches):
+    """``GetBestArmorAgainstDps`` as the editor's Mono runs it (SimulationSystem.cs:640): ``(double)(1f - Resist)``
+    is evaluated in binary64 and never stored, so it is ``1.0 - Resist`` without the float rounding
+    ``model.simcalc`` applies (DifferentialProbes.md section 3)."""
+    import sys as _sys
+    best, selected = -_sys.float_info.max, None
+    for armor in s.armors:
+        data = caches.dps_cache.get(armor.type)
+        if data is not None:
+            value = data * (1.0 - float(armor.resist))
+            if value > best:
+                best, selected = value, armor
+    return selected if selected is not None else (s.armors[0] if s.armors else None)
+
+
+def mono_dps_against_spawner(s, caches):
+    """``GetDpsAgainstSpawner(spawner, true)`` (SimulationSystem.cs:611) under the editor's arithmetic."""
+    armor = mono_best_armor_against_dps(s, caches)
+    if armor is None:
+        raise LookupError(f"spawner {s.d.go_path}: ArmorConfig has no armors (NullReferenceException)")
+    value = caches.dps_cache.get(armor.type, 0.0)
+    return (caches.ability_dps_multiplier * caches.global_attack_multiplier * caches.crit_multiplier * value
+            * (1.0 - float(armor.resist)))
+
+
+def mono_arithmetic():
+    """Context manager: ``model.simcalc`` with the two ``(double)(1f - armor.Resist)`` sites as the editor computes
+    them. Every check runs under it; the plain oracle rounds ``1f - Resist`` to float first and differs by up to
+    a float32 ulp of that factor (3.7e-8 relative in playerDPS on the shipped states)."""
+    from contextlib import ExitStack
+    from unittest import mock
+    from ..model import simcalc
+    stack = ExitStack()
+    stack.enter_context(mock.patch.object(simcalc, "best_armor_against_dps", mono_best_armor_against_dps))
+    stack.enter_context(mock.patch.object(simcalc, "dps_against_spawner", mono_dps_against_spawner))
+    return stack
+
+
+def text_defect(got: float, want: float) -> bool:
+    """C1's known text defect (C8, BakeTool.md 6.1): ``SimulationJson.FormatDouble`` writes the 15-digit ``"R"``
+    text when Mono's own parser reads it back to the value, but Mono reads some 15-digit texts 1 ulp high, so a
+    correct parser gets the neighbour. ``got`` is such a reading of ``want`` when ``want``'s 15-digit text parses to
+    ``got`` and they are 1 ulp apart."""
+    got, want = float(got), float(want)
+    return math.isfinite(want) and abs(ulps(got, want) or 0) == 1 and float(format(want, ".15g")) == got
+
+
+def apply_repair(s: "Snap", path: tuple, value: float) -> None:
+    snap = s.snapshot
+    if path[0] == "Stats":
+        attr = STAT_ATTRS[path[2]]
+        snap.stats[path[1]] = replace(snap.stats[path[1]], **{attr: value})
+    else:
+        lst = snap.dps_data if path[0] == "DpsData" else snap.defense_data
+        lst[path[1]] = (lst[path[1]][0], value)
+
+
+STAT_ATTRS = {"Value": "value", "StatsFromFeaturesFlat": "stats_from_features_flat",
+              "PercentMultiplier": "percent_multiplier", "TotalFlatValue": "total_flat_value",
+              "TotalValue": "total_value", "CurrentGpm": "current_gpm"}
+
+
 # ---------------------------------------------------------------- results
 
 @dataclass
@@ -127,6 +192,15 @@ class Check:
                 self.examples.append({"table": table, **row})
         return ok
 
+    def same(self, run: "RunData", s: "Snap", path: tuple, got: float, want: float) -> bool:
+        """Bit-equal, or a repaired reading of C1's text defect (counted as ``text_repaired``)."""
+        if same(got, want):
+            return True
+        ok = run.resolve(s, path, got, want)
+        if ok:
+            self.count("text_repaired")
+        return ok
+
     def count(self, key: str, n: int = 1) -> None:
         self.counts[key] = self.counts.get(key, 0) + n
 
@@ -153,6 +227,7 @@ class Check:
 # ---------------------------------------------------------------- the run
 
 LIST_EARLY, LIST_DAY = "Snapshots", "TimeChunkSnapshots"
+SIM_FILE, FULL_FILE = "simulation_data.json", "timechunk_full.json"
 
 
 @dataclass
@@ -208,6 +283,10 @@ class RunData:
     trace: tr.Trace | None
     digests: dict[int, dict[str, str]]  # day -> digest fields (only with the digest_text output)
     override_days: list[dict]  # override_days.jsonl records (replay/checkpoint jobs)
+    raw: dict = field(default_factory=dict)  # snapshot file -> parsed JSON
+    expected: dict = field(default_factory=dict)  # snapshot file -> the manifest's export entry
+    text_exact: dict = field(default_factory=dict)  # snapshot file -> its numbers passed C1's bit digest
+    repairs: dict = field(default_factory=dict)  # (list, index, path) -> value read through the text defect
 
     @property
     def job_id(self) -> str:
@@ -225,6 +304,48 @@ class RunData:
     def null_policy(self) -> bool:
         return bool((self.manifest.get("engine") or {}).get("null_policy"))
 
+    def file_of(self, s: "Snap") -> str:
+        return FULL_FILE if s.list == LIST_DAY and FULL_FILE in self.raw else SIM_FILE
+
+    def resolve(self, s: "Snap", path: tuple, got: float, want: float) -> bool:
+        """Whether the exported ``got`` stands for ``want``: bit-equal, or (only in a file that failed C1's bit
+        digest) a 15-digit text of ``want`` that a correct parser reads 1 ulp off (:func:`text_defect`). Such a
+        value is recorded as a repair, applied to ``s`` and confirmed later against the exporter's digest."""
+        if same(got, want):
+            return True
+        if self.text_exact.get(self.file_of(s), True) or not text_defect(got, want):
+            return False
+        self.repairs[(s.list, s.index, path)] = float(want)
+        apply_repair(s, path, float(want))
+        return True
+
+    def confirm_repairs(self) -> dict:
+        """C1's bit digests recomputed with every repair (day-list repairs also go to the trimmed copy in
+        ``simulation_data.json``): ``confirmed`` when each file that failed the digest now matches it."""
+        data = {f: copy.deepcopy(d) for f, d in self.raw.items()}
+        for (lst, index, path), value in self.repairs.items():
+            targets = []
+            if lst == LIST_EARLY:
+                targets.append(data[SIM_FILE][LIST_EARLY][index])
+            else:
+                full = data.get(FULL_FILE, data[SIM_FILE])[LIST_DAY]
+                tc = full[index]["TimeChunkIndex"]
+                targets.append(full[index])
+                if FULL_FILE in data:
+                    targets += [x for x in data[SIM_FILE][LIST_DAY] if x["TimeChunkIndex"] == tc]
+            for t in targets:
+                if path[0] == "Stats":
+                    t["Stats"][path[1]][path[2]] = value
+                else:
+                    t[path[0]][path[1]]["Value"] = value
+        files = {}
+        for f, d in data.items():
+            if self.text_exact.get(f, True):
+                continue
+            digest = simio.bits_digest(d)
+            files[f] = all(digest[k] == self.expected[f].get(k) for k in schema.EXPORT_BITS_KEYS)
+        return {"repairs": len(self.repairs), "files": files, "confirmed": all(files.values())}
+
 
 def _ext_rows(job_dir: Path, name: str) -> list[dict]:
     path = job_dir / name
@@ -239,10 +360,12 @@ def load_run(job_dir: str | Path) -> RunData:
     schema.validate_manifest(manifest)
     files = (manifest.get("export") or {}).get("files") or {}
     simio.verify_export_files(job_dir, files)
-    data = simio.read_snapshot_file(job_dir / "simulation_data.json", expected=files.get("simulation_data.json"))
-    full_path = job_dir / "timechunk_full.json"
-    full_json = (simio.read_snapshot_file(full_path, ("TimeChunkSnapshots",), files.get("timechunk_full.json"))
-                 if full_path.exists() else {"TimeChunkSnapshots": data["TimeChunkSnapshots"]})
+    raw, text_exact = {}, {}
+    for name, lists in ((SIM_FILE, schema.SIMULATION_DATA_LISTS), (FULL_FILE, (LIST_DAY,))):
+        if (job_dir / name).exists():
+            raw[name], text_exact[name] = read_exported(job_dir / name, lists, files.get(name))
+    data = raw[SIM_FILE]
+    full_json = raw.get(FULL_FILE, {LIST_DAY: data[LIST_DAY]})
     ext = {(r["list"], r["index"]): r for r in _ext_rows(job_dir, "snapshots_ext.csv")}
     items: dict[tuple, list[dict]] = {}
     for r in _ext_rows(job_dir, "items_ext.csv"):
@@ -264,7 +387,19 @@ def load_run(job_dir: str | Path) -> RunData:
     override_days = ([json.loads(l) for l in days_path.read_text(encoding="utf-8").splitlines() if l.strip()]
                      if days_path.exists() else [])
     return RunData(job_dir, manifest, snaps(LIST_EARLY, data["Snapshots"]), snaps(LIST_DAY, full_json["TimeChunkSnapshots"]),
-                   [int(s["TimeChunkIndex"]) for s in data["TimeChunkSnapshots"]], trace, digests, override_days)
+                   [int(s["TimeChunkIndex"]) for s in data["TimeChunkSnapshots"]], trace, digests, override_days,
+                   raw, {k: v for k, v in files.items() if k in raw}, text_exact)
+
+
+def read_exported(path: Path, lists, expected) -> tuple[dict, bool]:
+    """A C1 snapshot file and whether its numbers passed the exporter's bit digest. The sha256 must match; a digest
+    mismatch is C1's text defect (:func:`text_defect`), which the checks repair and confirm against the digest."""
+    try:
+        return simio.read_snapshot_file(path, lists, expected), True
+    except simio.SimioError as e:
+        if "bits_sha256" not in str(e):
+            raise
+    return simio.read_snapshot_file(path, lists), False
 
 
 # ---------------------------------------------------------------- all checks
@@ -285,9 +420,20 @@ def run_checks(job_dir: str | Path, con, *, checks: Iterable[str] = CHECKS, out_
            "X3": lambda: rpm.check_x3(run, env, out), "X4": lambda: bake.check_x4(run, env, out),
            "X5": lambda: eligibility.check_x5(run, env, out), "X6": lambda: invariants.check_x6(run, env, out),
            "X7": lambda: rpm.check_x7(run, env, out), "DP8": lambda: rpm.check_dp8(run, env, out)}
-    results = {c: fns[c]() for c in checks}
+    with mono_arithmetic():
+        results = {c: fns[c]() for c in checks}
+    text = {"exact": dict(run.text_exact)}
+    if run.repairs:
+        text.update(run.confirm_repairs())
+        for r in results.values():
+            n = r.counts.get("text_repaired", 0)
+            if n and not text["confirmed"]:
+                r.status, r.mismatches = "fail", r.mismatches + n
+                r.examples.append({"text_repairs": n, "problem": "the repaired values do not reproduce C1's bit digest"})
+    for r in results.values():
+        r.counts["text_defect_files"] = sorted(f for f, ok in run.text_exact.items() if not ok)
     out.mkdir(parents=True, exist_ok=True)
-    (out / "summary.json").write_text(json.dumps({"job_id": run.job_id, "job_dir": str(run.job_dir),
+    (out / "summary.json").write_text(json.dumps({"job_id": run.job_id, "job_dir": str(run.job_dir), "export_text": text,
                                                   "checks": {c: r.summary() for c, r in results.items()}},
                                                  indent=1, sort_keys=True, allow_nan=True) + "\n", encoding="utf-8")
     return results

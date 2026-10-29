@@ -60,14 +60,14 @@ def forced_keys(run: RunData) -> set:
     return {(float(s.snapshot.playtime), float(s.snapshot.total_playtime), s.tc) for s in run.full}
 
 
-def _compare(c: Check, s: Snap, case: str, k_day: int, calc, stored, kind: str) -> bool:
+def _compare(c: Check, run: RunData, s: Snap, case: str, k_day: int, calc, stored, kind: str) -> bool:
     ok_all = [w for w, _ in calc] == [w for w, _ in stored]
     if not ok_all:
         c.item(False, list=s.list, index=s.index, time_chunk_index=s.tc, case=case, k_day=k_day, kind=kind,
                weapon_type="order", csharp=str([w for w, _ in stored]), oracle=str([w for w, _ in calc]), rel_diff="")
         return False
-    for (w, o), (_, v) in zip(calc, stored):
-        ok = same(v, o)
+    for pos, ((w, o), (_, v)) in enumerate(zip(calc, stored)):
+        ok = c.same(run, s, (kind, pos), v, o)
         ok_all &= ok
         c.item(ok, list=s.list, index=s.index, time_chunk_index=s.tc, case=case, k_day=k_day, kind=kind,
                weapon_type=WeaponType(w).name, csharp=num(v), oracle=num(o), rel_diff=num(rel_diff(v, o)))
@@ -86,8 +86,8 @@ def check_x2(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
             c.count("no_slot_record")
             continue
         dps, defense = recompute(s, env, k_day, c)
-        ok = _compare(c, s, case, k_day, dps, s.snapshot.dps_data, "DpsData")
-        ok &= _compare(c, s, case, k_day, defense, s.snapshot.defense_data, "DefenseData")
+        ok = _compare(c, run, s, case, k_day, dps, list(s.snapshot.dps_data), "DpsData")
+        ok &= _compare(c, run, s, case, k_day, defense, list(s.snapshot.defense_data), "DefenseData")
         c.count(f"snapshots_{case}")
         if is_forced and s.list == "TimeChunkSnapshots" and s.tc > 0:
             lag0 = recompute(s, env, s.tc)

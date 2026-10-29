@@ -68,11 +68,14 @@ def _no_override(run: RunData, c: Check) -> bool:
     return True
 
 
-def _cell(c: Check, d: int, key: int, got: float, want: float, table: str | None = None) -> None:
-    rd = rel_diff(got, want)
-    c.item(rd <= REL_TOL, table, time_chunk_index=d, stat=key, stat_name=stat_name(key), csharp=num(got),
-           oracle=num(want), rel_diff=num(rd), bit_equal=int(same(got, want)))
-    if same(got, want):
+def _cell(c: Check, run: RunData, s: Snap, pos: int, want: float) -> None:
+    st = s.snapshot.stats[pos]
+    got = st.current_gpm
+    exact = c.same(run, s, ("Stats", pos, "CurrentGpm"), got, want)
+    rd = 0.0 if exact else rel_diff(got, want)
+    c.item(rd <= REL_TOL, time_chunk_index=s.tc, stat=st.key, stat_name=stat_name(st.key), csharp=num(got),
+           oracle=num(want), rel_diff=num(rd), bit_equal=int(exact))
+    if exact:
         c.count("bit_equal")
 
 
@@ -82,8 +85,8 @@ def check_x3(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
         rpm = sc.initial_rpm()
         for s in run.full:
             rpm = _rpm(env, day_state(env, s, s.tc - 1), rpm)
-            for st in s.snapshot.stats:
-                _cell(c, s.tc, st.key, st.current_gpm, rpm.get(st.key, 0.0))
+            for pos, st in enumerate(s.snapshot.stats):
+                _cell(c, run, s, pos, rpm.get(st.key, 0.0))
         c.counts["days"] = len(run.full)
         c.counts["nonzero_cells"] = sum(1 for s in run.full for st in s.snapshot.stats if st.current_gpm != 0.0)
     return c.result(out_dir)
@@ -97,9 +100,9 @@ def check_x7(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
         for s in run.full:
             want = _rpm(env, day_state(env, s, s.tc - 1), previous)
             alt = _rpm(env, day_state(env, s, s.tc), previous)
-            for st in s.snapshot.stats:
-                _cell(c, s.tc, st.key, st.current_gpm, want.get(st.key, 0.0))
-                modifier_first_off += not same(st.current_gpm, alt.get(st.key, 0.0))
+            for pos, st in enumerate(s.snapshot.stats):
+                _cell(c, run, s, pos, want.get(st.key, 0.0))
+                modifier_first_off += not same(s.snapshot.stats[pos].current_gpm, alt.get(st.key, 0.0))
             previous = _with(previous, s.snapshot)
         c.counts["modifier_first_cells_off"] = modifier_first_off
         if modifier_first_off == 0:
@@ -153,7 +156,8 @@ def _compare_spawners(c: Check, env: Env, day: int, state_name: str, csharp, ora
         diffs = [rel_diff(a, b) for a, b in zip(values, o)]
         worst = max(range(len(diffs)), key=lambda j: diffs[j])
         bit_equal = sum(same(a, b) for a, b in zip(values, o))
-        c.count("fields")
+        c.count("spawner_rows")
+        c.count("fields", len(values))
         c.count("fields_bit_equal", bit_equal)
         c.counts["fields_max_rel_diff"] = max(c.counts.get("fields_max_rel_diff", 0.0), diffs[worst])
         c.item(diffs[worst] <= REL_TOL and len(values) == len(FIELDS), "DP8", day=day, state=state_name, spawner=rid,

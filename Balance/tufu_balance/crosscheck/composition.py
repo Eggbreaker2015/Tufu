@@ -32,9 +32,10 @@ def check_x1(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
     snaps = run.early + run.full
     for s in snaps:
         cs, os_ = probes.encode_snapshot(s.snapshot)["stats"], probes.encode_snapshot(composed(s.snapshot, env))["stats"]
-        for a, b in zip(cs, os_):
+        for pos, (a, b) in enumerate(zip(cs, os_)):
             for i, name in enumerate(FIELDS, start=2):
-                c.item(probes._same(a[i], b[i]), list=s.list, index=s.index, time_chunk_index=s.tc, stat=a[0],
+                ok = probes._same(a[i], b[i]) or c.same(run, s, ("Stats", pos, name), a[i], b[i])
+                c.item(ok, list=s.list, index=s.index, time_chunk_index=s.tc, stat=a[0],
                        stat_name=stat_name(a[0]), field=name, csharp=num(a[i]), oracle=num(b[i]), ulps=ulps(a[i], b[i]))
     c.counts.update(snapshots=len(snaps), early=len(run.early), day=len(run.full))
     if not snaps:
