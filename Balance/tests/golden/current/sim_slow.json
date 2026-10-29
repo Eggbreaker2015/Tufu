@@ -15,13 +15,23 @@
      "stat_benefit_evals": 24,
      "unlocks": 1
     },
+    "slow-clear-then-respawn": {
+     "clears": 355,
+     "idle_steps": 2,
+     "slow_deaths": 41,
+     "slow_en_route_clears": 167,
+     "slow_fights": 314,
+     "slow_ticks": 196,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
     "slow-current-health": {
-     "clears": 403,
+     "clears": 402,
      "idle_steps": 8,
-     "slow_deaths": 2,
-     "slow_en_route_clears": 176,
-     "slow_fights": 403,
-     "slow_ticks": 237,
+     "slow_deaths": 0,
+     "slow_en_route_clears": 177,
+     "slow_fights": 402,
+     "slow_ticks": 234,
      "stat_benefit_evals": 24,
      "unlocks": 1
     },
@@ -35,6 +45,16 @@
      "stat_benefit_evals": 24,
      "unlocks": 1
     },
+    "slow-decomposed-bydist": {
+     "clears": 419,
+     "idle_steps": 8,
+     "slow_deaths": 3,
+     "slow_en_route_clears": 174,
+     "slow_fights": 419,
+     "slow_ticks": 256,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
     "slow-default": {
      "clears": 403,
      "idle_steps": 7,
@@ -42,6 +62,16 @@
      "slow_en_route_clears": 175,
      "slow_fights": 403,
      "slow_ticks": 237,
+     "stat_benefit_evals": 24,
+     "unlocks": 1
+    },
+    "slow-factors": {
+     "clears": 414,
+     "idle_steps": 10,
+     "slow_deaths": 5,
+     "slow_en_route_clears": 172,
+     "slow_fights": 414,
+     "slow_ticks": 257,
      "stat_benefit_evals": 24,
      "unlocks": 1
     },
@@ -102,10 +132,16 @@
    "note": "",
    "source": "design 4.5 P15",
    "value": {
-    "slow-current-health": 2,
+    "slow-current-health": 0,
     "slow-default": 2,
     "slow-none": 55
    }
+  },
+  "deaths.slow-clear-then-respawn": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5 P15",
+   "value": 41
   },
   "deaths.slow-none": {
    "kind": "exact",
@@ -657,6 +693,17 @@
    "source": "design 7.3 C7",
    "value": 39.897
   },
+  "killseq.first.parts_s": {
+   "kind": "exact",
+   "note": "sums over the six first kills: start-state move/regen, end-state fight/regen",
+   "source": "design 7.3 C7",
+   "value": {
+    "fight_end": 31.983,
+    "move": 91.304,
+    "regen": 60.99,
+    "regen_end": 42.515
+   }
+  },
   "killseq.fit": {
    "kind": "exact",
    "note": "dP = a*fight + b*move + c*regen over intervals ending on a fight",
@@ -699,6 +746,15 @@
    "note": "",
    "source": "design 4.5",
    "value": 175
+  },
+  "target_refused_after_en_route": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5",
+   "value": {
+    "slow-current-health": 1,
+    "slow-default": 0
+   }
   },
   "unlock_days.slow-bydist": {
    "kind": "exact",

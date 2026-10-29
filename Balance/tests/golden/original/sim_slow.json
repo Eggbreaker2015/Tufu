@@ -107,6 +107,12 @@
     "slow-none": 55
    }
   },
+  "deaths.slow-clear-then-respawn": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5 P15",
+   "value": 41
+  },
   "deaths.slow-none": {
    "kind": "exact",
    "note": "",
@@ -657,6 +663,17 @@
    "source": "design 7.3 C7",
    "value": 39.897
   },
+  "killseq.first.parts_s": {
+   "kind": "exact",
+   "note": "sums over the six first kills: start-state move/regen, end-state fight/regen",
+   "source": "design 7.3 C7",
+   "value": {
+    "fight_end": 31.983,
+    "move": 91.304,
+    "regen": 60.99,
+    "regen_end": 42.515
+   }
+  },
   "killseq.fit": {
    "kind": "exact",
    "note": "dP = a*fight + b*move + c*regen over intervals ending on a fight",
@@ -699,6 +716,15 @@
    "note": "",
    "source": "design 4.5",
    "value": 175
+  },
+  "target_refused_after_en_route": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5",
+   "value": {
+    "slow-current-health": 1,
+    "slow-default": 0
+   }
   },
   "unlock_days.slow-bydist": {
    "kind": "exact",
