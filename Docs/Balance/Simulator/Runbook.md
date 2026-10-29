@@ -1344,6 +1344,8 @@ P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept*
 
 ## 25. 慢阶段闭环校准（K2）
 
+本节 §25.3–25.6 为第一轮历史记录，不再表示当前选择或最终验收。第二轮退回单位系数、拒绝未辨识的 Q34 系数，并完成封闭结构网格；当前结果与失败目标见 Calibration.md「K2 第二轮」。
+
 ### 25.1 预登记与计时预算
 
 先在本工作树运行 `python -m tufu_balance.calibrate.stage_slow --preflight-only`，再提交、启动 Unity。`out/calibration/slow-work/killseq_times.csv` 逐刷怪点列出所属奖励类别的平均分摊秒数、farmedTime 及组成；`killseq_intervals.csv` 保留逐区间分解。随包 60/60 区间精确、683 次清怪、35 类；快照没有路线/位置，类别分摊不是独立逐点观测，按距离模型只能先给零移动下界，不能假装测得路线。
