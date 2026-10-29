@@ -632,3 +632,15 @@ def test_process_command_lines_are_redacted():
     cmd = "Unity -projectpath /x/Recovery/StudyProject -useHub -hubSessionId abc -accessToken SECRET-1 -cloudEnvironment production"
     out = launcher.redact(cmd)
     assert "SECRET-1" not in out and "abc" not in out and "-projectpath /x/Recovery/StudyProject" in out
+
+
+_REAL_EDITOR_PROCESSES = launcher._editor_processes  # conftest replaces it per test
+
+
+def test_captured_process_lists_are_redacted(monkeypatch):
+    """Both capture paths (pgrep for one project, pgrep for every editor) go through redact()."""
+    line = "4242 Unity -projectpath /x/Recovery/StudyProject -accessToken SECRET-2 -hubSessionId=SECRET-3\n"
+    monkeypatch.setattr(launcher.subprocess, "run",
+                        lambda *a, **k: subprocess.CompletedProcess(a, 0, stdout=line, stderr=""))
+    found = launcher.unity_processes(Path("/x/Recovery/StudyProject")) + _REAL_EDITOR_PROCESSES()
+    assert len(found) == 2 and not any("SECRET" in cmd for _, cmd in found)

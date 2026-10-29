@@ -186,7 +186,7 @@ def _ere_escape(text: str) -> str:
     return re.sub(r"([.\[\]{}()*+?^$|\\])", r"\\\1", text)
 
 
-_SECRET_ARGS = re.compile(r"(-(?:accessToken|hubSessionId|licensingIpc|cloudEnvironment)\s+)\S+", re.I)
+_SECRET_ARGS = re.compile(r"(-(?:accessToken|hubSessionId|licensingIpc|cloudEnvironment)(?:\s+|=))\S+", re.I)
 
 
 def redact(cmd: str) -> str:
