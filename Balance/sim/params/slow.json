@@ -6,5 +6,5 @@
   "SlowLethalityGate": "SameAsFast",
   "SmartPath": true,
   "TimeModel": "FarmedTimeMoveByDistance",
-  "_stage": "K2; empirical candidate, acceptance status in Runbook section 25"
+  "_stage": "K2 round 2; see Calibration.md"
 }

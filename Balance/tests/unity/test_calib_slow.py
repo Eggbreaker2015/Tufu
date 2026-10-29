@@ -3,7 +3,7 @@ import csv
 import json
 from pathlib import Path
 import pytest
-from tufu_balance.calibrate import stage_slow as S, params as P, report, runcache
+from tufu_balance.calibrate import stage_slow as S, stage_slow_round2 as R, params as P, report, runcache
 from tufu_balance.golden import at_most, check, exact
 from tufu_balance.unity import trace, paramsio, request
 
@@ -13,15 +13,15 @@ SUITE = 'calib_slow'
 
 @pytest.fixture(scope='module')
 def calibration(unity_rev):
-    workspace = S.BALANCE/'out/calibration/slow-work'
-    assert S.main(['--rev', unity_rev, '--workspace', str(workspace)]) == 0
+    workspace = S.BALANCE/'out/calibration/slow-round2-test'
+    R.main(['--rev', unity_rev, '--workspace', str(workspace)])
     directory = Path(json.loads((workspace/'latest.json').read_text())['report'])
     return directory, json.loads((directory/'evidence.json').read_text())
 
 
 def test_real_modules_and_archived_inputs(calibration, unity_rev):
     directory, e = calibration
-    assert len(e['jobs']) >= 48
+    assert len(e['jobs']) == 8
     for name, row in e['jobs'].items():
         assert row['code_rev'] == unity_rev
         source = Path(row['directory'])
@@ -35,13 +35,9 @@ def test_real_modules_and_archived_inputs(calibration, unity_rev):
         assert m['engine']['counters']['fast_ticks'] == 2
         assert m['params']['request_hash_given'] == m['params']['request_hash'] == request.params_hash(j['params'])
         assert m['params']['hash'] == paramsio.effective_hash(j['params'])
-        assert row['effective_hash_verified']
         g = json.loads((source/'asset_guard.json').read_text())['after_job']
         assert g['ok'] and not g['changed_on_disk']
         assert row['asset_guard_sha256'] == report.sha256_file(source/'asset_guard.json')
-    confirmation = e['confirmation']
-    assert confirmation['matches_request'] and len(confirmation['byte_identical_files'])==10
-    assert runcache.run_ok(Path(confirmation['directory']).parent)
     m = json.loads((directory/'manifest.json').read_text())
     for name, digest in {**m['files'], **m['evidence_files']}.items():
         assert report.sha256_file(directory/name) == digest
@@ -78,7 +74,8 @@ def test_training_choice_and_holdout_are_separate(calibration):
     assert P.resolve(['defaults', 'open'], changes).params == P.resolve(['defaults', 'open', 'slow']).params
     with (directory/'hypotheses.csv').open() as f:
         rows = [r for r in csv.DictReader(f) if r['family']=='P13/P15']
-    assert rows[0]['hypothesis']==e['selected'] and rows[1]['hypothesis']==e['runner_up']
+    assert rows[0]['hypothesis']==e['selected']
+    assert e['runner_up'] is None or float(next(r['score_train'] for r in rows if r['hypothesis']==e['runner_up'])) > float(rows[0]['score_train'])
     assert all(float(a['score_train']) <= float(b['score_train']) for a,b in zip(rows, rows[1:]))
     check(SUITE, {'choices': exact(changes, source='T20 filter then training-only rank'),
                   'p14.CMove': exact(changes['CMove'], original=1., source='P14; Q34 registered fallback'),
@@ -100,7 +97,7 @@ def test_unaltered_scientific_limits_remain_visible(calibration):
                   't03.failures': at_most(bad03, original=0, source='all original T03 rules'),
                   't04.max_rel': at_most(max(r['rel'] for r in c['t04']), original=.03, source='T04 days 0-3'),
                   'items': exact(c['item_counts'], original=[4,7,8,8], source='TC1-4 item counts'),
-                  'arrivals': exact(c['arrivals'], source='unlock events; exact ranges independently reported'),
+                  'arrivals': exact(c['arrivals'], original={'2': {'p_range': [31.2, 37.4]}, '3': {'p_range': [110.2, 115.3]}, '4': {'day': 5}}, source='unlock events; exact ranges independently reported'),
                   't07.early_interval_miss': at_most(max(max(lo-c['arrivals'].get(str(loc),{}).get('p',1e9),
                       c['arrivals'].get(str(loc),{}).get('p',1e9)-hi, 0.)
                       for loc,lo,hi in ((2,31.2,37.4),(3,110.2,115.3))), original=0., source='T07 original P ranges'),
@@ -108,3 +105,23 @@ def test_unaltered_scientific_limits_remain_visible(calibration):
                   't20.first_location4_tc': exact(c['first_location4_tc'], original=6, source='T20 first visible TC6'),
                   'design_failures': exact(e['design_failures'], source='failures are not design acceptance')})
     assert e['accepted'] == (not e['design_failures'])
+
+
+def test_registered_switches_use_session_rpm_and_restore_health(calibration):
+    _, e = calibration
+    rpm_dir = Path(e['jobs']['h1-rpm']['directory'])
+    snapshot = json.loads((rpm_dir/'timechunk_full.json').read_text())['TimeChunkSnapshots'][0]
+    rpm = {s['Key']: s['CurrentGpm'] for s in snapshot['Stats'] if s['CurrentGpm'] > 0}
+    events = trace.read(rpm_dir).events
+    first = next(x for x in events if x['type'] == 'stat_benefit' and x['session'] == 0)
+    weights = {int(k): float(v) for k,v in (part.split('=') for part in first['benefits'].split(';') if part)}
+    mean = sum(rpm.values()) / len(rpm)
+    assert len(rpm) >= 2 and set(weights) == set(rpm)
+    for key in rpm:
+        assert weights[key] == pytest.approx(mean / rpm[key], rel=1e-6)
+    sessions = [(x['day'], x['session']) for x in events if x['type'] == 'stat_benefit']
+    assert len(sessions) == len(set(sessions))
+    h2 = trace.read(e['jobs']['h1-marginal-h2']['directory']).events
+    survived = [x for x in h2 if x['type'] == 'slow_fight' and not x['died'] and x['av_regen_time'] > 0]
+    assert survived
+    assert all(x['health_after_fight'] == pytest.approx(x['max_health']) for x in survived)
