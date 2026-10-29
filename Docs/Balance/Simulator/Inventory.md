@@ -47,3 +47,48 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 修复 C1 的 SimulationJson.RoundTrips：改用 C3c 已有的精确十进制解析器核对 R/G17 文本，不再信任 Mono 的 double.TryParse。仍保留原来的 R/G17 文本选择，不整体改写为另一种格式。新增离线测试用 .NET 和编辑器同版 Mono 运行真实 SimulationJson，再用 Python 的 IEEE 解析器核对 4,000 个随机 double 与边界、回归样本的位。工具所需的 SimulationJson 源码链接与 export-format 操作属于此次必要的跨单元修复。
 
 资产守卫会遍历 HashSet 的内部版本号；只做 Clear 仍会改变内存摘要。捕获集合在结束时换成全新的空集合，恢复完整状态，而不只是元素内容。验收还要求每个作业的 asset_guard.after_job.changed_in_memory **不含 Combat Balance Config**，不能只凭 JsonUtility 字符串相同就宣称内存恢复。
+
+## 验收结果（最终代码 b572459）
+
+最终运行键 `b5f85b65cc0c75e5846a913b951c71f849e7dd1b0022f2883243ab7a778cca21`，Unity 和启动器退出码均为 0；13 个作业、185.17 秒，guard_problems 为空，13 个 Play 入口，SDK/error_like 日志均为 0。所有作业的完整浮点摘要经 simio 导入核对；资产守卫均通过，changed_on_disk 为空，changed_in_memory 均不含 Combat Balance Config。
+
+| 验收项 | 判定与证据 |
+|---|---|
+| 四个份数组合、TC4–11 每日五稀有度 | PASS。35 个独立稀有度/日样本均在要求的 5% 带内；另用逐刷怪点轨迹重算全部实际快奖励。Common 日 4–7 为 5.695327，日 10 为 5.965106；Uncommon 为 4.685590–4.907539；Rare 为 3.439000–3.601900；Epic 为 1.900000–1.990000；Legendary 为 1。E1 的各稀有度残差入黄金；TC4–19 武器 C/U/R/E/L 为 +37.86%/+29.15%/+16.05%/+17.74%/0%，不能把设计的“约 25%”当作本次测量。 |
+| T12 武器 ≤5% | DEVIATION。按稀有度/阶段取最大值，TC4–19 Epic 为 68 对 62，即 +9.677419%；其它武器阶段 ≤3.67%。没有调参数消掉 6 份差异。ORIGINAL 保持 0.05，CURRENT 接受 0.0967741935483871，并有单独放宽登记；这不是原阈值通过。 |
+| T12 护甲 ≤7%、后期 ≤2% | PASS。护甲阶段最大 3.472222%；TC154–405 全部阶段单元最大 1.012430%。TC206–404 每充能平台为 2.5/4.3000001907，传奇 2.7999999523/4.5999999046，最大相对误差 4.4357e−8。均标 post-hoc。 |
+| 映射、掉落系数的辨识范围 | PASS。只在整个区间 K7>0 时比较映射；Chain Swapped 的武器/护甲加权残差 0.3296%/0.1506%，Direct 为 0.3576%/0.7008%。有/无 K0/K6 仅在整个区间 K0>0.1 时比较，逐单元值入黄金。 |
+| P18 四组合 | PASS（可选择与打分）。40 个 TC4–11 DPS 单元，SlotBeforeRpm 平均/最大 7.6816%/25.3182%，SlotAfterRpm 为 20.6994%/47.1887%。Frozen 下 StatsThenItems 与 ItemsThenStats 同分；默认保持 StatsThenItems × SlotBeforeRpm。四组合没有解释 TC5，Q25 仍交 K1，不能称为已解决。 |
+| P12 | PASS。TC1–24 的 85 个 DPS 单元选中 (4,8)：平均 3.058871%；(4,7) 为 7.734179%，(3,8) 为 9.233272%。TC≥25 单列 140 格：平均 1.449333%、最大 12.484544%，未用于选规则；没有拿槽数夹具验证规则。 |
+| T11 | PASS。15 个类型/稀有度中 14 个同快照；Uncommon 武器重放为 TC2，随包为 TC1，恰为下一个快照。 |
+| T13 | PASS。free 为 253/254 = 99.606299%；checkpoint 为 253/255 = 99.215686%。free 的 C/U/R 为 196/196、E/L 为 57/58；checkpoint 为 196/197、57/58。两种模式各导出 285 行余量表。超带项目：free 的 doubleaxe L5；checkpoint 的 doubleaxe L5、paddle L9。 |
+| T17（只对照） | DEVIATION/报告。实际 TC1 武器为 1，TC2–5 为 2，TC6–21 为 3，TC24 起为 4；weapon_2 仍受慢阶段门禁控制，C6 没有硬编码 TC1。护甲 TC9 前实际为 0；拟合夹具在 TC0–8 为 1，TC13 也只有 1 而实际为 2。夹具不是独立验证。 |
+| 慢阶段、Carry/Seeded | PASS。默认重放共 16,429 次取整、45 条物品流；四个组合的最大累计差分别 0.994036/0.984797/0.967610/0.974276，均 <1。慢阶段逐次期望等于 E(d)，两种模式的所有整数逐次匹配独立 Python SimulationRandom。 |
+| X6 | PASS。同一快照统计函数在加入 Item 来源 +37 修饰器前后 Value 相同，而活的 FastValue 改变。 |
+| Frozen/Regenerate | PASS。三个 JSON sha256 与完整资产守卫共同验证；Regenerate 运行中摘要确实改变、结束后恢复，且退出 Play 的守卫没有看到 Combat Balance Config 改变。请求校验和引擎都限制为 reenter_play 批处理。 |
+| G07 | PASS。武器、护甲各 225/225 的 Value 和 CopyValue 与 P5、随包表均逐位相同。生成器诊断在克隆上进行。 |
+| C5 正物品冲刷 | PASS。参考冲刷和默认冲刷的两个快照 JSON、两个旁路 CSV、digests.csv 逐字节相同；不再是零物品的空验收。 |
+
+`Balance/out/c6/verified/` 保存逐单元 residuals.csv、两模式各 285 行 headroom.csv 和 summary.json；相同测量已经进入版本控制的 sim_inventory 黄金键，忽略目录中的 CSV 不是唯一记录。
+
+### 命令与耗时
+
+以下命令在本工作树 Balance 下，解释器为 `/Users/joyfort/MyProjects/Tufu-stage5/Balance/.venv/bin/python`，环境变量 TUFU_BALANCE_DB 指向只读共享数据库。
+
+- `python -m pytest -q`：861 passed、289 skipped，160.20 秒；跳过包括未启用的 Unity、繁忙机器 perf、未 smudge 场景检查。
+- `TUFU_UNITY_REV=b572459 python -m pytest -q --unity tests/unity/test_inventory.py`：接受黄金后 13 passed，12.41 秒，复用已通过的最终运行，不再启动 Unity。
+- `python tests/golden/fixtures/generate.py --check`：identical，只有既有 provenance 提示。
+- `python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-C6`：2.8 秒，带/不带 UNITY_EDITOR 均 0 错误，0 新警告，签名 0、禁用 API 0。总旧警告为运行时 3707、编辑器 8。
+- `python -m tufu_balance.golden guard`：20 suites、0 violations。sim_inventory 30 个键首次接受，仅 t12.weapon_phase_max 有放宽登记，ORIGINAL 未被改写。
+- `python -m tufu_balance.refresh --level 1`：未运行，当前分支没有 tufu_balance.refresh 模块；交 P13 合并后补跑，不能宣称已通过 refresh。
+- `python -m tufu_balance.unity status`：最终运行后 clean=true，锁为空，无运行工作树 Unity 进程。
+
+完整默认重放的 401 个 FastTick：p50/均值/p95/最大 43.40/46.95/67.69/83.40 ms，按中位数 ≤50 ms 的预算通过；free 为 17.32/19.63/43.87/48.93 ms。默认重放慢 Tick 的中位数 1.19 ms，free 为 0.78 ms。测量与 full pytest 同时执行，perf 自动跳过，不声称是空闲机器成绩。
+
+## 后续交接
+
+- K1：四组合和辨识范围、P18 分数、P12 训练/验证分开记录在 sim_inventory。保留 TC5/Q25 未解决；T12 早期 Epic 的 6 份差异保留，不再增加参数。Direct 的后期拷贝累计误差小也会因碎片阈值导致更大的进化时间偏差。
+- K2：TC1 的 weapon_2 门禁时序仍偏迟；不要通过 C6 的 P12 槽 3/4 规则补偿。free 与 checkpoint 的进化超带项目、headroom 可定位阈值耦合。
+- P10：直接读取已有 sim_snapshots_ext 槽数；inventory.json 提供逐 Key 整数奖励和期望、碎片余量。checkpoint 的快照含重置，不能把跨重置差值当作奖励；用 rewards 账本。
+- C1/P11/Z1：C1 格式缺陷已在 b78aa49 修复，并有全文件摘要确认；后续 text_repairs 应降为 0。新增 Inventory、CBC 的 pending 公式 id 需 Z1 登记；固定 P5 启发值参数、所有权偏离和 T12/T17/Q25 差异需合回设计。
+- P13/Z1：合并 refresh 后补跑 level 1。没有修改设计稿、主检出、共享数据库或运行工作树的场景/平衡资产。

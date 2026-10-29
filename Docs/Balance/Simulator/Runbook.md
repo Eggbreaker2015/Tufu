@@ -1131,3 +1131,11 @@ python -m tufu_balance.golden guard
 - `refresh --level 1` 不能运行：本分支还没有 P13 的 `tufu_balance.refresh` 模块（命令报 `No module named tufu_balance.refresh`）。以上分项检查不等同于声称运行了 refresh。
 
 **T04 原阈值仍未通过**：实际中位误差 4.292634%、最大 8.585590%，登记黄金放宽仅冻结已知缺口。诊断数值与设计稿不同的原因、C6 的非零物品冲刷尚未覆盖的路径见 FastTick.md，交 Z1/K3/C6 后续处理。
+
+## 23. 物品与装备（C6）
+
+实现、参数、输出、逐项验收、所有权偏离与交接见 [Inventory.md](Inventory.md)。最终代码 b572459，13 作业运行键 b5f85b65cc0c75e5846a913b951c71f849e7dd1b0022f2883243ab7a778cca21，Unity/启动器均 0，185.17 秒；所有 IEEE 导入和资产守卫通过，Combat Balance Config 在作业后无内存变化。
+
+`TUFU_UNITY_REV=b572459 python -m pytest -q --unity tests/unity/test_inventory.py`：13 passed；全仓 pytest：861 passed、289 skipped（160.20 秒）；fixture identical；cscheck 无编译错误/新警告/签名或禁用 API 违规；golden guard 20 suites、0 violations。C1 的 R/G17 文本缺陷同时修复，完整摘要确认见 Inventory.md。
+
+未达到原目标：T12 早期 Epic 武器 68 对 62（+9.677%，原阈值 5%，保留 ORIGINAL、登记放宽）；T17 实际 TC1 武器槽为 1；拟合夹具 TC9 前护甲为 1，但实际运行是 0。T13 free/checkpoint 分别为 99.61%/99.22%；P18 尚未解释 TC5。refresh 模块仍不存在，level 1 留给 P13 合并后补跑。
