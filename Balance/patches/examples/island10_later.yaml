@@ -1,0 +1,21 @@
+name: island10_later
+description: 第 10 岛 ITD 晚 2 天，保留尾部、OT 例外和随包进化数值。
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 9
+    add: 2.0
+regenerate:
+  island_target_days_tail: false
+  optimum_time_from_relative: true
+  evolution_target_timings: true
+  interpolation_timing_points: true
+  evolution_tables: frozen
+  sim_autobalance: frozen
+  bake: true
+simulate:
+  enabled: true
+  params: calibrated
+  stop_day: 405
+  bake_iterations: 1
+report:
+  key_days: [5, 10, 20, 46, 104, 206, 405]

@@ -1,0 +1,6 @@
+name: spawner_fight_time
+description: 单个刷怪点战斗时间乘 1.2；可用 --skip-sim 快速查看烘焙变化。
+overrides:
+  - node: EnemySpawnerConfig.AverageFightTime
+    where: {scene: Scenes/Main.unity, file_id: 57651}
+    mul: 1.2
