@@ -237,7 +237,9 @@ namespace Codebase.Simulation.Systems
 
         private JObject RebuildInventoryGeneratorProbe()
         {
-            string before = JsonUtility.ToJson(combatBalanceConfig);
+            CombatBalanceConfig original = combatBalanceConfig;
+            CombatBalanceConfig diagnostic = UnityEngine.Object.Instantiate(original);
+            combatBalanceConfig = diagnostic;
             var rows = new JArray();
             try
             {
@@ -283,7 +285,11 @@ namespace Codebase.Simulation.Systems
                 finally { stat.RemoveModifier(equipment); }
                 return new JObject { ["rows"] = rows, ["chain_examples"] = examples, ["island_days"] = islandDays, ["x6"] = x6 };
             }
-            finally { JsonUtility.FromJsonOverwrite(before, combatBalanceConfig); }
+            finally
+            {
+                combatBalanceConfig = original;
+                UnityEngine.Object.Destroy(diagnostic);
+            }
         }
     }
 }

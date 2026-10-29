@@ -26,7 +26,7 @@ SUITE = "sim_inventory"
 
 
 def jobs(db):
-    base = ov.default_override(db, from_day=4, replay_items="recompute", slots=None)
+    base = ov.default_override(db, from_day=0, replay_items="recompute", slots=None)
     def job(name, params=None, day=405, mode="replay", override=base, **kw):
         return ft.fast_job(name, mode, override=override if mode != "free" else None,
                            params=params, day=day, max_wall_seconds=600.0,
@@ -94,7 +94,9 @@ def test_jobs_and_asset_guards(run):
         name = job["job_id"]
         m = run.manifest(name)
         assert m["exit_code"] == 0 and m["engine"]["stop_reason"] == "day", name
-        assert run.file(name, "asset_guard.json")
+        guard = json.loads(run.file(name, "asset_guard.json"))["after_job"]
+        assert guard["ok"] and not guard["changed_on_disk"]
+        assert "Combat Balance Config" not in guard["changed_in_memory"], (name, guard)
         d = inv(run, name)
         assert d["restored"], name
         assert d["balance_before_sha256"] == d["balance_restored_sha256"], name

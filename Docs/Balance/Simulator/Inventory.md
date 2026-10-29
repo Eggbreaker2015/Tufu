@@ -24,13 +24,13 @@ Regenerate 的 H 不是精确恢复：武器使用 P5 的渐近线 `type × rari
 
 - rewards：每次取整的 day、key、phase、expectation、copies；totals：每 Key 累计期望与整数份数。
 - headroom：目标日首次处理时的 key、level、target、day、current_level、copies、shards、headroom。day 可能迟于 target；这表示目标日尚未获得物品或先前未触发处理，不能称为目标日的精确观测。
-- generator：450 行存储输入生成器探针、35 个早期五稀有度 Chain/E1 样本、岛时间换算样本、X6 装备修饰器排除探针。诊断临时改表后立即恢复。
+- generator：450 行存储输入生成器探针、35 个早期五稀有度 Chain/E1 样本、岛时间换算样本、X6 装备修饰器排除探针。生成器诊断在克隆的 CombatBalanceConfig 上改表，随后销毁克隆，不改注入的实例。
 
 P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导入 `sim_snapshots_ext.unlocked_weapon_slots / unlocked_armor_slots`；C6 的验收通过实际运行的 sim.sqlite 读取这些列，不再造另一份槽数表。
 
 ## 验收方法
 
-`Balance/tests/unity/test_inventory.py` 一次启动运行 13 个 reenter_play 作业：四个份数组合、正物品奖励的参考冲刷、四个 P18 组合、free、checkpoint、Regenerate、Seeded。开环从第 4 天开始 replay_items=recompute，经济缓存 stored，槽数使用真实开槽规则。P18 只比较 TC4–11 的 DpsData；P12 用独立 P8 重算，在 `(3,8)/(4,8)/(4,7)` 候选中仅以 TC1–24 的 DPS 选规则，TC≥25 单列。
+`Balance/tests/unity/test_inventory.py` 一次启动运行 13 个 reenter_play 作业：四个份数组合、正物品奖励的参考冲刷、四个 P18 组合、free、checkpoint、Regenerate、Seeded。开环从第 0 天开始 replay_items=recompute（避免首次覆盖后的份数校正混入 TC4–19 增量），经济缓存 stored，槽数使用真实开槽规则。P18 只比较 TC4–11 的 DpsData；P12 用独立 P8 重算，在 `(3,8)/(4,8)/(4,7)` 候选中仅以 TC1–24 的 DPS 选规则，TC≥25 单列。
 
 逐刷怪点实际清怪次数和真实插值配置独立重算快阶段物品期望；逐次调用独立 Python SimulationRandom 核对所有 Carry/Seeded 整数。正物品参考冲刷与默认冲刷逐字节比较两种快照 JSON、两种旁路 CSV 和 digests.csv。G07 与 P5 和随包表双重比较。
 
@@ -45,3 +45,5 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 首轮 13 作业运行 `868af23b…` 中，默认开环 timechunk_full.json 有一个 CurrentGpm 被写为 `7.0236302039131`，但内存值是 `7.0236302039131004`（差 1 ulp）。逐个保留原始十进制词法文本，交给编辑器同版 Mono 的 double.Parse；只替换这一格后，完整文件的逐位摘要精确等于导出器记录的 `02a4ab5cea7e2542c7822fd1cdb020f5d30afbbf5ce9bb83a9be09ef66e89321`。没有绕过 simio 的检查，没有在测试里代入预言机值凑摘要。
 
 修复 C1 的 SimulationJson.RoundTrips：改用 C3c 已有的精确十进制解析器核对 R/G17 文本，不再信任 Mono 的 double.TryParse。仍保留原来的 R/G17 文本选择，不整体改写为另一种格式。新增离线测试用 .NET 和编辑器同版 Mono 运行真实 SimulationJson，再用 Python 的 IEEE 解析器核对 4,000 个随机 double 与边界、回归样本的位。工具所需的 SimulationJson 源码链接与 export-format 操作属于此次必要的跨单元修复。
+
+资产守卫会遍历 HashSet 的内部版本号；只做 Clear 仍会改变内存摘要。捕获集合在结束时换成全新的空集合，恢复完整状态，而不只是元素内容。验收还要求每个作业的 asset_guard.after_job.changed_in_memory **不含 Combat Balance Config**，不能只凭 JsonUtility 字符串相同就宣称内存恢复。

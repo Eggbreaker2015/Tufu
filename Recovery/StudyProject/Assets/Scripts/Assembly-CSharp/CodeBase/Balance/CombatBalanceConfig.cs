@@ -12,15 +12,15 @@ namespace Codebase.Balance
 	[CreateAssetMenu(menuName = "Balance/Combat Balance Config")]
 	public class CombatBalanceConfig : ScriptableObject
 	{
-		private readonly HashSet<string> RebuildCapturedShards = new HashSet<string>();
+		private HashSet<string> RebuildCapturedShards = new HashSet<string>();
 
-        private readonly HashSet<Rarity> RebuildBalancedArmor = new HashSet<Rarity>();
+        private HashSet<Rarity> RebuildBalancedArmor = new HashSet<Rarity>();
         private readonly Dictionary<string, int> RebuildGeneratedLevels = new Dictionary<string, int>();
 
         internal void RebuildClearCapture()
         {
-            RebuildCapturedShards.Clear();
-            RebuildBalancedArmor.Clear();
+            RebuildCapturedShards = new HashSet<string>();
+            RebuildBalancedArmor = new HashSet<Rarity>();
             RebuildGeneratedLevels.Clear();
         }
 
