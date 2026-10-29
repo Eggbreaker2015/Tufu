@@ -43,12 +43,14 @@ namespace Codebase.Simulation.Systems
 			SimulationSlowPolicyState state = RebuildSlowState();
 			Vector3 from = currentPosition;
 			double priority = bestSpawner.GetPriority(from, lastRewardStat);
+			// The move to the target at the speed the tick planned with (en-route rewards do not shorten it).
+			double targetMove = bestSpawner.GetMoveTime(from);
 			List<SpawnerData> fights = RebuildSlowFightSequence(state, bestSpawner);
 			foreach (SpawnerData data in fights)
 			{
 				bool target = data == bestSpawner;
 				if (!target && !RebuildSlowAllowed(state, data)) continue;
-				SimulationSlowFight fight = RebuildSlowFight(data, from, target);
+				SimulationSlowFight fight = RebuildSlowFight(data, target ? targetMove : 0.0, target);
 				currentSpawner = data.spawner;
 				bool cleared = !fight.Died || RebuildParams.DeathPolicy == DeathPolicy.ClearThenRespawn;
 				if (cleared)
@@ -132,7 +134,7 @@ namespace Codebase.Simulation.Systems
 			}
 		}
 
-		private SimulationSlowFight RebuildSlowFight(SpawnerData data, Vector3 from, bool target)
+		private SimulationSlowFight RebuildSlowFight(SpawnerData data, double distanceSeconds, bool target)
 		{
 			var r = new SimulationSlowFight
 			{
@@ -141,7 +143,7 @@ namespace Codebase.Simulation.Systems
 				Regen = GetRegen(),
 				PlaytimeBefore = config.CurrentPlaytime,
 				TotalPlaytimeBefore = config.CurrentTotalPlaytime,
-				DistanceSeconds = target ? data.GetMoveTime(from) : 0.0,
+				DistanceSeconds = distanceSeconds,
 			};
 			double loss = -data.healthDelta;
 			r.Died = r.HealthBefore + data.healthDelta <= 0.0;

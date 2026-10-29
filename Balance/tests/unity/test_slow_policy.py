@@ -66,6 +66,29 @@ def run(unity_run):
     return result
 
 
+GATES = {"gate-same-as-fast": "SameAsFast", "gate-current-health": "CurrentHealth", "gate-none": "None"}
+
+
+def _gate_jobs():
+    """Islands 2-3 open from the start (engine_probe.unlock_through, no slot rewards): currentBoss is the island-3
+    gate (OT 240), which passes the bot filter once P >= 240, late on day 3, as in the shipped run (TC3)."""
+    return [spol.slow_job(job_id, day=DAY, max_wall_seconds=600.0,
+                          params=_params({"SlowLethalityGate": spol.SLOW_LETHALITY_GATE[gate]}),
+                          engine_probe=engine.engine_probe(unlock_through=3)) for job_id, gate in GATES.items()]
+
+
+@pytest.fixture(scope="module")
+def gate_run(unity_run):
+    result = unity_run(req.make_request(_gate_jobs()))
+    assert result.exit_code == 0, result.describe()
+    return result
+
+
+@pytest.fixture(scope="module")
+def gate_traces(gate_run):
+    return {job["job_id"]: trace.read(gate_run.job_dir(job["job_id"])) for job in _gate_jobs()}
+
+
 @pytest.fixture(scope="module")
 def traces(run):
     return {job["job_id"]: trace.read(run.job_dir(job["job_id"])) for job in _jobs()}
@@ -150,12 +173,13 @@ def test_idle_only_when_nothing_is_allowed(run, job):
 @pytest.mark.parametrize("job", ["slow-default", "slow-bydist", "slow-nosmart", "slow-current-health"])
 def test_the_gate_is_chosen_whenever_it_is_allowed(run, traces, job):
     """currentBoss's reward value 1e6: whenever the gate passes the bot filter and the lethality gate, it is the
-    pick (counted every tick); gates unlock islands 2 and 3 in the slow phase."""
+    pick (counted every tick; until then the gate refuses it). The unlock days are closed-loop results for K2
+    (shipped: island 2 on day 0, island 3 on day 1)."""
     c = _counters(run, job)
     assert c.get("slow_boss_allowed_not_chosen", 0) == 0
-    assert c.get("slow_boss_chosen", 0) >= 2
+    assert c.get("slow_boss_chosen", 0) >= 1 and c.get("slow_boss_refused", 0) > 0
     unlocks = {e["location"]: e["day"] for e in _events(traces, job, "unlock")}
-    assert {2, 3} <= set(unlocks)
+    assert 2 in unlocks
     check("sim_slow", {f"unlock_days.{job}": exact({str(k): v for k, v in sorted(unlocks.items())}, source="design 7.3 C7",
                                                     note="shipped: island 2 on day 0, island 3 on day 1")})
 
@@ -169,8 +193,11 @@ def test_static_and_dynamic_agree_under_constant_benefits(run):
 # ---------------------------------------------------------------- time models
 
 def _p_t_step(f):
+    """P and T are float32 in the events (shortest round-trip decimals): widen the float32 value, add in double,
+    round once."""
     dt = f["seconds"] / 60.0
-    return f32(f["p_before"] + dt) == f32(f["p_after"]) and f32(f["t_before"] + dt) == f32(f["t_after"])
+    return (f32(float(f32(f["p_before"])) + dt) == f32(f["p_after"])
+            and f32(float(f32(f["t_before"])) + dt) == f32(f["t_after"]))
 
 
 def test_farmed_time_advances_p_and_t_by_farmed_time(traces):
@@ -244,29 +271,35 @@ def _island3_gate(events):
     return [e for e in events if e["location"] == 3]
 
 
-def test_lethality_gate_at_the_island3_gate(traces):
-    """At the day-3 state the island-3 gate (OT 240) passes the bot filter but is lethal (shipped TC3: loss/H 4.16):
-    SameAsFast and CurrentHealth refuse it, None picks it (and the player dies); the predicates are the design's."""
-    seen = {}
-    for job in ("slow-default", "slow-current-health", "slow-none"):
-        gates = _island3_gate(_events(traces, job, "slow_gate"))
+def test_lethality_gate_at_the_island3_gate(gate_run, gate_traces):
+    """On day 3 the island-3 gate (OT 240) passes the bot filter but is lethal (shipped TC3 state: loss/H 4.16):
+    SameAsFast and CurrentHealth never pick it, None does (and the player dies); the recorded predicates are the
+    design's. The state is the closed loop's with islands 2-3 open (the shipped TC3 state needs C4's replay)."""
+    first = {}
+    for job, gate in GATES.items():
+        gates = _island3_gate(_events(gate_traces, job, "slow_gate"))
         assert gates, f"{job}: the island-3 gate never passed the bot filter in the slow phase"
         for g in gates:
             assert g["refused_same_as_fast"] == (g["kill_loss_multiplier"] * g["max_health"] < g["loss"])
             assert g["refused_current_health"] == (g["loss"] >= g["current_health"])
-        g = gates[0]
-        seen[job] = g
-        assert g["day"] == 3 and g["loss"] / g["max_health"] > 1.0
-        assert g["refused_same_as_fast"] and g["refused_current_health"]
-    assert not any(g["chosen"] for g in _island3_gate(_events(traces, "slow-default", "slow_gate")))
-    assert not any(g["chosen"] for g in _island3_gate(_events(traces, "slow-current-health", "slow_gate")))
-    assert any(g["chosen"] for g in _island3_gate(_events(traces, "slow-none", "slow_gate")))
-    for job in ("slow-default", "slow-current-health"):
-        assert 4 not in {e["location"] for e in _events(traces, job, "unlock") if e["day"] < DAY}
-    g = seen["slow-default"]
-    check("sim_slow", {"island3_gate.first_loss_per_h": exact(round(g["loss"] / g["max_health"], 3), source="design 4.5",
-                                                              note=f"shipped TC3 state {ISLAND3_GATE_LOSS_PER_H}"),
-                       "island3_gate.first_p": exact(round(float(f32(g["playtime"])), 3), source="design 4.5")})
+            assert g["day"] == 3 and float(f32(g["playtime"])) >= 240.0
+        g = first[job] = gates[0]
+        assert g["loss"] / g["max_health"] > 1.0 and g["refused_same_as_fast"] and g["refused_current_health"]
+        chosen = any(x["chosen"] for x in gates)
+        assert chosen == (gate == "None"), job
+        if gate != "None":
+            assert _counters(gate_run, job).get("slow_boss_chosen", 0) == 0
+    gate_deaths = [f for f in _events(gate_traces, "gate-none", "slow_fight") if f["died"] and f["boss"] and f["location"] == 3]
+    assert gate_deaths and _counters(gate_run, "gate-none")["respawns"] >= len(gate_deaths)
+    for job in GATES:
+        assert 4 not in {e["location"] for e in _events(gate_traces, job, "unlock")}
+    g = first["gate-same-as-fast"]
+    check("sim_slow", {
+        "island3_gate.first_loss_per_h": exact(round(g["loss"] / g["max_health"], 3), source="design 4.5",
+                                               note=f"closed loop, islands 2-3 open; shipped TC3 state {ISLAND3_GATE_LOSS_PER_H}"),
+        "island3_gate.first_p": exact(round(float(f32(g["playtime"])), 3), source="design 4.5"),
+        "island3_gate.none_gate_deaths": exact(len(gate_deaths), source="design 4.5 P15"),
+    })
 
 
 @pytest.mark.parametrize("job,skip", [("slow-none", True), ("slow-none-retry", False)])
@@ -284,8 +317,12 @@ def test_deaths_count_respawns_by_death_policy(run, traces, job, skip):
 
 
 def test_death_policy_changes_the_run(run):
+    """None lets the bot pick lethal fights; SameAsFast still loses fights it starts below full health (its
+    predicate reads maximum health, CurrentHealth's reads the current one)."""
     assert run.file("slow-none", "digests.csv") != run.file("slow-none-retry", "digests.csv")
-    assert _counters(run, "slow-default").get("respawns", 0) == 0
+    deaths = {job: _counters(run, job).get("respawns", 0) for job in ("slow-default", "slow-current-health", "slow-none")}
+    assert deaths["slow-none"] > deaths["slow-default"] >= deaths["slow-current-health"]
+    check("sim_slow", {"deaths.by_gate": exact(deaths, source="design 4.5 P15")})
 
 
 # ---------------------------------------------------------------- SmartPath
