@@ -509,7 +509,7 @@ def test_x6_rounds_each_modifier_write_and_keeps_double_base(env, shipped):
     assert check().status == "fail"
 
 
-@pytest.mark.parametrize("pending", [0.0, 1.0])
+@pytest.mark.parametrize("pending", [0.0, 1.0, 1e-300])
 @pytest.mark.parametrize("clears", [0, 1])
 def test_x6_rejects_pending_fast_rewards_at_forced_snapshots(env, shipped, pending, clears):
     base = invariants.base_values(env)
@@ -517,7 +517,7 @@ def test_x6_rejects_pending_fast_rewards_at_forced_snapshots(env, shipped, pendi
     snap = replace(snap, stats=[replace(st, value=base.get(st.key, 0.0)) for st in snap.stats])
     run = _run([], _snaps("TimeChunkSnapshots", [snap]))
     run.manifest["engine"]["counters"]["clears"] = clears
-    run.digests = {0: {"fast.stat.8": "Devoured,0,0," + probes.fhex(pending)}}
+    run.digests = {0: {"fast.stat.8": "Devoured,0,0," + probes.dhex(pending)}}
     c = X.Check("X6", "values", invariants.COLUMNS)
     invariants._values(c, run, env)
     result = c.result()

@@ -719,6 +719,8 @@ python -m tufu_balance.unity params import [--layers calibrated ...] [--set FIEL
 - 资产守卫的放行只有这一个入口：`tests/test_params_hash.py::test_only_the_importer_writes_assets` 断言 `CodeBase/Simulation` 与 `Assets/Editor/Simulation` 里调用写资产 API（`SetDirty`、`SaveAssets`、`SaveAssetIfDirty`、`CreateAsset` 等）的只有 `SimulationParamsImporter.cs`（C8 的 `SimulationBakeTool.cs` 预先列入白名单）。批处理运行的资产守卫与启动器检查不变。
 - 交给 K3：`params import --layers calibrated` 写入发布值，结果复制回开发工作树后提交。拟合出的 double 一般不是 float32 值：先把 `calibrated.json` 的 float 字段舍入成 float32（或加 `--float32`），否则导入在启动 Unity 前以 5 结束；请求运行时同样建议先舍入，否则 manifest 的 `hash` 与 `params_hash` 不同（`matches_request = false`）。
 
+Postmerge 补充：C5 新增的 `Kappa` / `TourA` / `TourB` 是 float32；引擎 manifest 用 G9，参数规范 JSON 用最短 float32 文本，Python 比较须按 C# 字段类型逐位核对，不能把两种十进制解析后的 binary64 值直接比较。double 字段仍逐位按 binary64 核对，hash 规则不变。C6 新增 `int[] WeaponSlotUnlockLocations`，Unity 6000.6 保存成 `0400000008000000i`（小端 int32 + 类型后缀）；`paramsio.read_asset` 兼容此形式及原有 YAML 列表，`asset_text(..., unity_saved=True)` 预测实际保存字节（含整值 double 去掉 `.0`），默认保留仓库原有可读格式。fresh import 验收继续逐字节核对，run worktree 由导入器恢复；没有修改随包参数资产或任何参数值。完整验收见 [Postmerge.md](Postmerge.md)。
+
 ### 17.3 `SimulationRandom`
 
 ```csharp

@@ -254,7 +254,7 @@ def test_diagnostic_switches(run, shipped, fixture):
 
 def test_accumulation_writes_all_five_fields(run, ident):
     """AccumulateFastTickSpawnerRewards writes the stat, item, soul, gate and kill fields; the flush reads and empties
-    them. Items: the expected copies are C6's (zero until filled), so the item path is counted, not stored."""
+    them. C6 supplies positive expected copies, which must reach the accumulated item field."""
     days = _days(run, "fast-405")
     assert all(d.stats for d in days) and any(d.souls for d in days)
     assert all(d.kill_count == d.kills for d in days)
@@ -266,7 +266,9 @@ def test_accumulation_writes_all_five_fields(run, ident):
     _, defs = ident
     item_clears = sum(1 for r in rows if r.fights and defs[r.spawner].item_reward)
     counters = run.manifest("fast-405")["engine"]["counters"]
-    assert item_clears > 0 and counters.get("fast_item_rewards_zero", 0) == item_clears
+    assert item_clears > 0 and counters.get("fast_item_rewards_zero", 0) == 0
+    assert any(d.items for d in days)
+    assert all(copies > 0 for d in days for copies in d.items.values())
     assert "fast_stat_reward_mixed" not in counters
     assert counters["fast_kills_flushed"] == sum(d.kills for d in days)
     assert counters["accumulate_calls"] == sum(1 for r in rows if r.fights)
@@ -274,7 +276,7 @@ def test_accumulation_writes_all_five_fields(run, ident):
 
 
 def test_gates_unlock_once_per_island_through_the_two_flushes(run):
-    """Islands open only through RebuildFlushFastTickGates (between rounds) or FlushFastTickChunkRewards, each once."""
+    """Fast-phase islands open through the two flushes; slow-phase islands and the total remain counted once."""
     for job in ("fast-405", "fast-405-nextday"):
         days = _days(run, job)
         unlocks = S.unlock_days(_events(run, job))

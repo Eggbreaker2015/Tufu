@@ -13,8 +13,7 @@
     "X4.csv",
     "X5.csv",
     "X6.csv",
-    "X7.csv",
-    "export_text.csv"
+    "X7.csv"
    ]
   },
   "dp8.fields": {
@@ -86,7 +85,7 @@
    "kind": "exact",
    "note": "values C1 wrote as a 15-digit text Mono misreads; confirmed by the bit digest",
    "source": "C1 text defect",
-   "value": 1
+   "value": 0
   },
   "flat405.x2": {
    "kind": "exact",

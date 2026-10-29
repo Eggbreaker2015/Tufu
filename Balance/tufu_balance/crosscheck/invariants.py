@@ -41,8 +41,8 @@ VALUE_REL_TOL = 1e-6
 INF_BITS = "7f800000"
 
 
-def _float_bits(text: str) -> float:
-    return struct.unpack(">f", bytes.fromhex(text))[0]
+def _double_bits(text: str) -> float:
+    return struct.unpack(">d", bytes.fromhex(text))[0]
 
 
 def base_values(env: Env) -> dict[int, float]:
@@ -86,7 +86,7 @@ def _values(c: Check, run: RunData, env: Env) -> None:
     for s in run.full:
         for key, value in run.digests.get(s.tc, {}).items():
             if key.startswith("fast.stat."):
-                pending = _float_bits(value.split(",")[3])
+                pending = _double_bits(value.split(",")[3])
                 c.item(pending == 0.0, invariant="values", where=f"day {s.tc} {key}",
                        csharp=num(pending), oracle="0", detail="forced snapshot follows fast reward flush")
     clears = total_clears(run)

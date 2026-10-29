@@ -100,14 +100,15 @@ def test_x2_k2_lag_with_flat_stats(results, xrun):
     x2 = rs["X2"]
     assert x2.status == "pass" and "k2_lag" not in x2.vacuous
     assert x2.counts["k2_lag_discriminating"] > 300  # days on which K2(d-1) != K2(d) changes the caches
-    # C1's text defect hits this run (BakeTool.md 6.1): the repaired values reproduce the exporter's bit digest
+    # C1 exact decimal formatting must preserve the complete export digest without repairs.
     summary = json.loads((xrun.run_dir / "golden-405-flat" / X.CSV_DIR / "summary.json").read_text())["export_text"]
-    assert summary["exact"]["timechunk_full.json"] is False and summary["confirmed"] is True
+    assert "golden-405-flat" not in INGEST_REFUSED
+    assert summary["exact"] and all(summary["exact"].values())
     check("crosscheck", {
         "flat405.x2": exact(_summary(x2), source="X2"),
         "flat405.x2_k2_lag_discriminating_days": exact(x2.counts["k2_lag_discriminating"], source="X2"),
         "flat405.x7": exact(_summary(rs["X7"]), source="X7"),
-        "flat405.text_repairs": exact(summary["repairs"], source="C1 text defect", better="lower",
+        "flat405.text_repairs": exact(summary.get("repairs", 0), source="C1 text defect", better="lower",
                                       note="values C1 wrote as a 15-digit text Mono misreads; confirmed by the bit digest"),
     })
 

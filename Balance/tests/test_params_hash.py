@@ -518,3 +518,24 @@ def test_asset_reader_parses_bool_fields_as_unity_writes_them(tmp_path):
         (tmp_path / "b.asset").write_text(text.replace("    Seed: 1\n", f"    Seed: 1\n    Flag: {raw}\n"))
         with pytest.raises(paramsio.ParamsIoError):
             paramsio.read_asset(tmp_path / "b.asset", with_bool)
+
+
+def test_unity_saved_packed_int_arrays_and_integral_doubles(tmp_path):
+    from tufu_balance.unity import paramsio
+
+    defaults = P.resolve(["defaults"]).params
+    readable = paramsio.asset_text(defaults)
+    packed = paramsio.asset_text(defaults, unity_saved=True)
+    assert "WeaponSlotUnlockLocations: 0400000008000000i\n" in packed
+    assert "WeaponHeuristicTypeMultipliers:\n    - 1\n" in packed
+    assert "WeaponSlotUnlockLocations:\n    - 4\n    - 8\n" in readable
+    path = tmp_path / "saved.asset"
+    path.write_text(packed)
+    assert paramsio.read_asset(path) == paramsio.effective(defaults)
+    for encoded, expected in (("fcffffff08000000i", [-4, 8]), ("0400000008000000", [4, 8])):
+        path.write_text(packed.replace("0400000008000000i", encoded))
+        assert paramsio.read_asset(path)["WeaponSlotUnlockLocations"] == expected
+    for encoded in ("04000000ffi", "not-hex-i", "i"):
+        path.write_text(packed.replace("0400000008000000i", encoded))
+        with pytest.raises(paramsio.ParamsIoError, match="invalid packed int array"):
+            paramsio.read_asset(path)

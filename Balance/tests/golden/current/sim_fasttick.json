@@ -102,7 +102,7 @@
    "kind": "exact",
    "note": "",
    "source": "P02 KillState AfterPass (report)",
-   "value": 6
+   "value": 5
   },
   "t05.bad_spans": {
    "better": "subset",
@@ -181,7 +181,7 @@
    "kind": "exact",
    "note": "survey ~14/41",
    "source": "design 4.5 same-day planning",
-   "value": 17
+   "value": 15
   },
   "t05.next_day_bad_spans": {
    "kind": "exact",
@@ -189,16 +189,8 @@
    "source": "design 4.5",
    "value": [
     [
-     4,
-     5
-    ],
-    [
      5,
      6
-    ],
-    [
-     6,
-     7
     ],
     [
      8,
@@ -322,8 +314,8 @@
     "15": 110,
     "16": 131,
     "17": 151,
-    "2": 4,
-    "3": 4,
+    "2": 0,
+    "3": 2,
     "4": 5,
     "5": 8,
     "6": 11,

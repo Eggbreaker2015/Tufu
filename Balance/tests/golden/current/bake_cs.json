@@ -89,15 +89,13 @@
    "kind": "exact",
    "note": "",
    "source": "C1",
-   "value": 3
+   "value": 0
   },
   "run.export_text.ulps": {
    "kind": "exact",
    "note": "",
    "source": "C1",
-   "value": {
-    "-1": 3
-   }
+   "value": {}
   },
   "run.export_text.values": {
    "kind": "exact",

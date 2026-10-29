@@ -123,6 +123,21 @@ def _bits_d(x: float) -> str:
     return format(struct.unpack("<Q", struct.pack("<d", x))[0], "016x")
 
 
+def _held_bits(values):
+    fields = P.read_csharp_params().fields
+
+    def encode(value, ctype):
+        if ctype.endswith("[]"):
+            return [encode(v, ctype[:-2]) for v in value]
+        if ctype == "float":
+            return _bits_f(value)
+        if ctype == "double":
+            return _bits_d(value)
+        return value
+
+    return {k: encode(v, fields[k]) for k, v in values.items()}
+
+
 # ---------------------------------------------------------------- params
 
 def test_request_params_hash_equals_p10(run):
@@ -134,7 +149,7 @@ def test_request_params_hash_equals_p10(run):
         assert p["request_hash"] == p["request_hash_given"] == p["hash"] == resolved.params_hash
         assert p["matches_request"] is True
         assert m["job"]["params_hash"] == resolved.params_hash
-        assert m["engine"]["params"] == paramsio.effective(resolved.params)
+        assert _held_bits(m["engine"]["params"]) == _held_bits(paramsio.effective(resolved.params))
 
 
 def _reference_clock(cfg, days, starts, intervals, fast_step):
@@ -206,7 +221,8 @@ def test_params_asset_is_read_through_the_asset_database(run):
     meta = paramsio.asset_path().with_name(paramsio.asset_path().name + ".meta").read_text()
     assert f"guid: {p['asset_guid']}" in meta
     values = paramsio.read_asset()
-    assert p["hash"] == paramsio.effective_hash(values) and m["engine"]["params"] == values
+    assert p["hash"] == paramsio.effective_hash(values)
+    assert _held_bits(m["engine"]["params"]) == _held_bits(values)
     assert "request_hash" not in p and m["job"]["params_source"] == "asset"
 
 
@@ -239,9 +255,7 @@ def test_literals_the_editor_parser_rounds_keep_the_p10_hash(run):
     assert p["request_hash"] == p["request_hash_given"] == mono.params_hash
     assert p["hash"] == paramsio.effective_hash(mono.params)
     # The engine manifest writes floats as G9 (SimulationJson); compare the float32 values.
-    as_f32 = lambda v: [_bits_f(x) for x in v] if isinstance(v, list) else _bits_f(v) if isinstance(v, float) else v
-    got, want = m["engine"]["params"], paramsio.effective(mono.params)
-    assert {k: as_f32(v) for k, v in got.items()} == {k: as_f32(v) for k, v in want.items()}
+    assert _held_bits(m["engine"]["params"]) == _held_bits(paramsio.effective(mono.params))
 
 
 def test_editors_that_entered_play_refuse_the_import(run):
@@ -265,7 +279,7 @@ def test_params_import_in_a_fresh_editor(imported):
         assert loader["hash"] == loader["result_hash"] == resolved.params_hash
         assert (loader["roll_mode"], loader["seed"]) == (IMPORT_OVERRIDES["RollMode"], IMPORT_OVERRIDES["Seed"])
     assert paramsio.read_asset(imported.dest) == paramsio.effective(resolved.params)
-    assert imported.dest.read_text(encoding="utf-8") == paramsio.asset_text(paramsio.effective(resolved.params))
+    assert imported.dest.read_text(encoding="utf-8") == paramsio.asset_text(paramsio.effective(resolved.params), unity_saved=True)
     assert report["restored_run_worktree_asset"] and report["guard_problems"] == []
     assert not launcher.runner.porcelain(launcher.runner.run_worktree()).strip()
 
