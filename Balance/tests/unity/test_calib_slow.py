@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from tufu_balance.calibrate import stage_slow as S, params as P, report, runcache
 from tufu_balance.golden import at_most, check, exact
-from tufu_balance.unity import trace
+from tufu_balance.unity import trace, paramsio, request
 
 pytestmark = pytest.mark.unity
 SUITE = 'calib_slow'
@@ -33,10 +33,15 @@ def test_real_modules_and_archived_inputs(calibration, unity_rev):
         assert not any(j.get(k) for k in ('override', 'engine_probe', 'test'))
         assert m['engine']['counters']['slow_fights'] > 0
         assert m['engine']['counters']['fast_ticks'] == 2
-        assert m['params']['matches_request']
+        assert m['params']['request_hash_given'] == m['params']['request_hash'] == request.params_hash(j['params'])
+        assert m['params']['hash'] == paramsio.effective_hash(j['params'])
+        assert row['effective_hash_verified']
         g = json.loads((source/'asset_guard.json').read_text())['after_job']
         assert g['ok'] and not g['changed_on_disk']
         assert row['asset_guard_sha256'] == report.sha256_file(source/'asset_guard.json')
+    confirmation = e['confirmation']
+    assert confirmation['matches_request'] and len(confirmation['byte_identical_files'])==10
+    assert runcache.run_ok(Path(confirmation['directory']).parent)
     m = json.loads((directory/'manifest.json').read_text())
     for name, digest in {**m['files'], **m['evidence_files']}.items():
         assert report.sha256_file(directory/name) == digest

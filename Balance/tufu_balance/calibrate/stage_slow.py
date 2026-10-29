@@ -15,7 +15,7 @@ import statistics
 import time
 from . import driver, killseq, metrics as M, params as P, report, targets as T
 from .stage_open import BALANCE, load_results, measure, read_series, write_json
-from ..unity import inventory, request, runner, trace
+from ..unity import inventory, paramsio, request, runner, trace
 from ..model.f32 import f32
 
 GRID = tuple(dict(zip(('PriorityFamily', 'SmartPath', 'TimeModel', 'SlowLethalityGate', 'DeathPolicy'), v))
@@ -233,6 +233,29 @@ def fallback(workspace, initial, candidates, tg, drv, *, analyze_only=False):
     return {**paths, **fine_paths}, {**candidates, **fine}, protocol
 
 
+def confirm_effective_params(workspace, paths, candidates, tg, drv, *, analyze_only=False):
+    """One serialization-only confirmation; no new policy or fitting observation."""
+    chosen = choose(paths,tg,candidates)[0][0]
+    job = make_job('slow-effective-confirmation', candidates[chosen])
+    job['params'] = paramsio.effective(job['params'])
+    job['params_hash'] = request.params_hash(job['params'])
+    index = workspace/'confirmation.json'
+    result = load_results(index) if analyze_only else measure([job],drv,index)
+    directory = result[job['job_id']]
+    m = json.loads((directory/'manifest.json').read_text())
+    assert m['params']['matches_request'] and m['params']['hash']==job['params_hash']
+    files = ('simulation_data.json','timechunk_full.json','snapshots_ext.csv','items_ext.csv',
+             'slow_tick_basis.csv','inventory.json','ready_spawners.csv','digests.csv','daily.csv','events.jsonl')
+    for name in files:
+        assert (directory/name).read_bytes()==(paths[chosen]/name).read_bytes(), name
+    confirmation = dict(selected=chosen, directory=str(directory), code_rev=m['code_rev'],
+        params_hash=job['params_hash'], matches_request=True, byte_identical_files=list(files),
+        asset_guard_sha256=report.sha256_file(directory/'asset_guard.json'),
+        note='C3c shortest-float canonicalization; same effective parameters and trajectory')
+    write_json(workspace/'effective_confirmation.json', confirmation)
+    return confirmation
+
+
 def bootstrap_coefficients(chosen, candidates, details):
     """Conditional two-training-day block bootstrap over already measured candidates."""
     import numpy as np
@@ -267,11 +290,13 @@ def archive(workspace, paths, candidates, tg, out_root, pre):
         m = json.loads((directory/'manifest.json').read_text())
         jobs[name] = dict(directory=str(directory), code_rev=m['code_rev'],
             asset_guard_sha256=report.sha256_file(directory/'asset_guard.json'), params_hash=m['params']['hash'],
-            requested_changes=candidates[name])
+            requested_changes=candidates[name], request_hash=m['params']['request_hash'],
+            effective_hash_verified=m['params']['hash']==paramsio.effective_hash(m['job']['params']))
     detail = dict(selected=chosen, runner_up=ranked[1], choices=changes, split=SPLIT, preflight=pre,
         candidates=details, jobs=jobs, design_failures=details[chosen]['failures'],
         holdout=details[chosen]['holdout_ratio'], accepted=not details[chosen]['failures'],
-        bootstrap=bootstrap_coefficients(chosen, candidates, details))
+        bootstrap=bootstrap_coefficients(chosen, candidates, details),
+        confirmation=json.loads((workspace/'effective_confirmation.json').read_text()))
     out = report.write(out_root, 'slow', evaluations=[evaluations[chosen]],
         params=P.resolve(['defaults', 'open'], changes), hypotheses=hypotheses,
         inputs=dict(jobs=jobs, selection=chosen, split=SPLIT, preflight=pre))
@@ -285,7 +310,7 @@ def archive(workspace, paths, candidates, tg, out_root, pre):
     (out/'day3_deaths.csv').write_text(report.csv_text(
         ('candidate', 'type', 'day', 'playtime', 'total_playtime', 'spawner', 'location'), deaths))
     for p in workspace.iterdir():
-        if p.name in ('killseq_times.csv', 'killseq_intervals.csv', 'preflight.json', 'fallback_protocol.json', 'simplex_candidates.json') or p.name.endswith('.timing.json'):
+        if p.name in ('killseq_times.csv', 'killseq_intervals.csv', 'preflight.json', 'fallback_protocol.json', 'simplex_candidates.json', 'effective_confirmation.json') or p.name.endswith('.timing.json'):
             (out/p.name).write_bytes(p.read_bytes())
     manifest = json.loads((out/'manifest.json').read_text())
     manifest['evidence_files'] = {p.name: report.sha256_file(p) for p in sorted(out.iterdir())
@@ -317,6 +342,7 @@ def main(argv=None):
         tg = T.build(db)
         paths, candidates, protocol = fallback(args.workspace, paths, candidates, tg, drv, analyze_only=args.analyze_only)
         pre['fallback'] = protocol
+        confirm_effective_params(args.workspace, paths, candidates, tg, drv, analyze_only=args.analyze_only)
         out, detail = archive(args.workspace, paths, candidates, tg, args.out, pre)
         if args.write_layer:
             (P.PARAMS_ROOT/'slow.json').write_bytes((out/'slow.json').read_bytes())

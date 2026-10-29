@@ -1361,3 +1361,7 @@ P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept*
 killseq 的第一个区间为69.9365秒/6次清怪；起点 farmedTime 合计232.0878秒（fight39.8969、move91.3043、regen60.9897），终点 `2×fight+regen` 的零移动下界仍为106.4822秒。快照区间分摊与 C7 的顺路战斗不是同一观测，因此只作结构线索，不直接把 NNLS 系数写入参数。初始网格中必须先确认两种恢复模型在**训练 TC1/2**的 T16 都没有通过组合，才启用后备；T03 的结果同时保留。
 
 后备基底只取初始网格 T20 合格者中训练残差最小者，将 TimeModel 对应地换为 Decomposed / DecomposedMoveByDistance。CMove、CRegen 各取 `{0,.25,.5,.75,1}`（5×5），战斗系数仍固定为原版2；范围取自 killseq 少于单位移动/回血等待的线索，不放开其它字段。随后在 `[0,1]²` 用 scipy Nelder–Mead，预批三个顶点、边长.125，最多12迭代/24评价，xatol=.015625、fatol=.001。所有请求浮点先存成binary32。只有 T20 与 TC1/2 的同一训练目标参与选择，持出和岛屿/物品/分钟不能用来挑参数或追加候选；各原阈值不变。计时按首次与每次重试分别保存。达到预算或不收敛如实报告，不宣称已唯一辨识参数。
+
+### 25.4 参数哈希口径
+
+K1的open层以展开binary32十进制保存Kappa/TourA/TourB；C3c的effective hash却按float32最短十进制规范化。因此初始/后备92作业的request_hash_given=request_hash（P10原请求哈希），effective hash也逐作业等于paramsio.effective_hash，但matches_request=false。最初单元测试把后者误要求为true，已按C3c契约改为同时核对两种哈希。新增**一个**参数文本规范化的确认作业（非策略候选），用paramsio.effective生成请求，要求matches_request=true且10个确定性输出与最终候选逐字节一致；不重新拟合、不改变物理float值。K3导入/生成请求时应使用paramsio.round_float32或params build/import --float32，不能以原请求hash冒充effective hash。
