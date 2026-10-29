@@ -88,6 +88,8 @@ def formula_section(f):
         lines.append("**依赖图节点**：输入 " + "、".join(f"`{i['node']}`" for i in f.get("inputs", []))
                      + "；输出 " + "、".join(f"`{o['node']}`" for o in f.get("outputs", [])))
         lines.append("")
+    if f.get("realizes"):
+        lines += ["**实现的原有规则**：" + "、".join(f"`{x}`" for x in f["realizes"]), ""]
     if f.get("correction_resolutions") or f.get("review_notes"):
         lines += ["**核验记录**（已写入上方字段）：", ""]
         for r in f.get("correction_resolutions", []):

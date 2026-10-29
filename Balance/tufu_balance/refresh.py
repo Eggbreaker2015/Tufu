@@ -37,7 +37,8 @@ def plan(level: int, out: Path, *, rev="HEAD", python=sys.executable):
     def internal(name):
         return Step(name, module("tufu_balance.refresh", "--step", name, "--out", out, "--rev", rev))
 
-    steps = [internal("extract"), internal("graph"), internal("render_catalog"), internal("pytest-static"),
+    steps = [internal("extract"), internal("graph"), internal("render_catalog"),
+             Step("rebuild-coverage", module("tufu_balance.model.registry", "coverage", "--write", out / "rebuild_coverage.json")), internal("pytest-static"),
              Step("cscheck", module("tufu_balance.cscheck", "--worktree", REPO)),
              Step("drift", module("tufu_balance.drift", "--head", "worktree", "--out", out / "drift")),
              Step("golden-guard", module("tufu_balance.golden", "guard"))]

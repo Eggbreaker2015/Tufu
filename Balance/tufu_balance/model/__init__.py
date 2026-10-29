@@ -34,7 +34,13 @@ __all__ = [
 ]
 
 # Expose the stage-5 modules without flattening their potentially overlapping names.
-from . import ab, config, data, evolution_gen, f32, items, patch, pipeline, registry, simcalc, spawners, timeaxis, timeline
-
 __all__ += ["ab", "config", "data", "evolution_gen", "f32", "items", "patch", "pipeline",
             "registry", "simcalc", "spawners", "timeaxis", "timeline"]
+
+def __getattr__(name):
+    if name in __all__:
+        from importlib import import_module
+        module = import_module(f"{__name__}.{name}")
+        globals()[name] = module
+        return module
+    raise AttributeError(name)

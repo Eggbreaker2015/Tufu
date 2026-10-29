@@ -39,8 +39,10 @@ def affected(cfg, nodes):
                 continue
             fid = node.removeprefix("formula:")
             formula = g.formulas[fid]
-            py = R.REGISTRY.implementers(fid)
-            rebuilt = [a for a in cs if a.formula_id == fid]
+            related = [fid] + [other for other, entry in g.formulas.items()
+                               if fid in entry.get("realizes", []) and entry["status"] != "stub"]
+            py = [i for other in related for i in R.REGISTRY.implementers(other)]
+            rebuilt = [a for a in cs if a.formula_id in related and a.provenance != "Null"]
             # Catalog recovery describes implementation availability, not per-run branch coverage.
             native = formula["status"] == "recovered_native" or fid == "stats.raw_value_aggregation"
             implementers = [f"{i.module}.{i.qualname}" for i in py] + [f"{a.type_name}.{a.member}" for a in rebuilt]

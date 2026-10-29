@@ -230,8 +230,11 @@ def import_model_modules() -> list[str]:
 def _as_annotation(entry: RebuildAnnotation | Mapping[str, Any]) -> RebuildAnnotation:
     if isinstance(entry, RebuildAnnotation):
         return entry
+    provenance = entry.get("provenance")
+    if isinstance(provenance, int) and 0 <= provenance <= 4:
+        provenance = ("Inferred", "Calibrated", "Null", "DebugOnly", "Native")[provenance]
     return RebuildAnnotation(entry.get("file", ""), int(entry.get("line", 0)), entry.get("type"),
-                             entry.get("member"), entry.get("provenance"), entry.get("formula_id"))
+                             entry.get("member"), provenance, entry.get("formula_id"))
 
 
 # ---------------------------------------------------------------------------------------------
@@ -361,3 +364,22 @@ def scan_csharp(roots: Iterable[Path] = CSHARP_ROOTS, repo: Path = REPO) -> list
             rel = path.relative_to(repo).as_posix() if path.is_relative_to(repo) else str(path)
             out.extend(parse_rebuild_annotations(data.decode("utf-8-sig", errors="replace"), rel))
     return sorted(out, key=lambda a: (a.file, a.line))
+
+
+def main(argv=None):
+    import argparse
+    parser = argparse.ArgumentParser(description="Export static rebuild annotations")
+    parser.add_argument("command", choices=["coverage"])
+    parser.add_argument("--write", required=True, type=Path)
+    args = parser.parse_args(argv)
+    names = ("Inferred", "Calibrated", "Null", "DebugOnly", "Native")
+    entries = [{"file": a.file, "line": a.line, "type": a.type_name, "member": a.member,
+                "provenance": names.index(a.provenance) if a.provenance in names else None,
+                "formula_id": a.formula_id} for a in scan_csharp()]
+    args.write.parent.mkdir(parents=True, exist_ok=True)
+    args.write.write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n")
+    print(f"{len(entries)} static annotations written to {args.write}")
+
+
+if __name__ == "__main__":
+    main()

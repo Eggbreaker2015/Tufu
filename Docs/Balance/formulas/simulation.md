@@ -27,7 +27,7 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | ID | 名称 | 状态 | 类型 |
 |---|---|---|---|
 | [`simulation.balance_timing`](#simulationbalance_timing) | Simulation balance timing | 原生证据恢复 | `runtime_formula` |
-| [`simulation.snapshot_stat_composition`](#simulationsnapshot_stat_composition) | Simulated player stat composition with feature interpolation | 空壳 | `simulation` |
+| [`simulation.snapshot_stat_composition`](#simulationsnapshot_stat_composition) | Simulated player stat composition with feature interpolation | 重建（无原生标注） | `simulation` |
 | [`simulation.dps_data`](#simulationdps_data) | Simulated DPS per weapon type (DpsData) | 原生证据恢复 | `runtime_formula` |
 | [`simulation.defense_data`](#simulationdefense_data) | Simulated defense per damage type (DefenseData) | 原生证据恢复 | `runtime_formula` |
 | [`simulation.combat_multiplier_cache`](#simulationcombat_multiplier_cache) | Player defensive/offensive specific-value multipliers | 原生证据恢复 | `runtime_formula` |
@@ -48,9 +48,9 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | [`simulation.bake_spawner_health`](#simulationbake_spawner_health) | Baked spawner Health | 原生证据恢复 | `editor_generator` |
 | [`simulation.bake_spawner_damage`](#simulationbake_spawner_damage) | Baked spawner Damage | 原生证据恢复 | `editor_generator` |
 | [`simulation.bake_apply`](#simulationbake_apply) | Rebake / apply balance to scene spawners | 编辑器工具缺失 | `editor_generator` |
-| [`simulation.player_progression_tick`](#simulationplayer_progression_tick) | Bot progression loop (what generated Simulation Data) | 空壳 | `simulation` |
-| [`simulation.lifecycle_time_model`](#simulationlifecycle_time_model) | Session / AFK time model | 空壳 | `simulation` |
-| [`simulation.spawner_priority`](#simulationspawner_priority) | Bot spawner priority | 空壳 | `simulation` |
+| [`simulation.player_progression_tick`](#simulationplayer_progression_tick) | Bot progression loop (what generated Simulation Data) | 重建（无原生标注） | `simulation` |
+| [`simulation.lifecycle_time_model`](#simulationlifecycle_time_model) | Session / AFK time model | 重建（无原生标注） | `simulation` |
+| [`simulation.spawner_priority`](#simulationspawner_priority) | Bot spawner priority | 重建（无原生标注） | `simulation` |
 | [`simulation.difficulty_map`](#simulationdifficulty_map) | Spawner difficulty classification | 空壳 | `simulation` |
 | [`simulation.amulet_sim_multipliers`](#simulationamulet_sim_multipliers) | Amulet soul emission & spawner-charge multipliers in simulation | 编辑器工具缺失 | `simulation` |
 | [`simulation.snapshot_growth_curve`](#simulationsnapshot_growth_curve) | Simulated player power vs day (baked balance target) | 纯数据 | `lookup_table` |
@@ -63,13 +63,13 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | [`simulation.forecast_crystal_reward_mapping`](#simulationforecast_crystal_reward_mapping) | Forecast crystal reward entry -> reward | 原生证据恢复 | `lookup_table` |
 | [`simulation.spawner_charges_limit`](#simulationspawner_charges_limit) | Spawner charges per daily big respawn (used by RPM and soul RPM) | 原生证据恢复 | `runtime_formula` |
 | [`simulation.forecast_current_player_fallback`](#simulationforecast_current_player_fallback) | Forecast fallback snapshot from current player (local addition) | 重建（无原生标注） | `runtime_formula` |
-| [`simulation.ads_reward_model`](#simulationads_reward_model) | Simulated rewarded-ad income in the bot | 空壳 | `simulation` |
+| [`simulation.ads_reward_model`](#simulationads_reward_model) | Simulated rewarded-ad income in the bot | 重建（无原生标注） | `simulation` |
 | [`simulation.stat_benefit_weights`](#simulationstat_benefit_weights) | Bot stat / item benefit weights | 空壳 | `simulation` |
-| [`simulation.item_emission_model`](#simulationitem_emission_model) | Simulated item copy emission and fractional rolls | 空壳 | `simulation` |
-| [`simulation.bot_fight_resolution`](#simulationbot_fight_resolution) | Bot fight resolution, regen and death handling | 空壳 | `simulation` |
-| [`simulation.spawner_charges_chunk`](#simulationspawner_charges_chunk) | Simulated spawner charge budget per day chunk | 空壳 | `simulation` |
+| [`simulation.item_emission_model`](#simulationitem_emission_model) | Simulated item copy emission and fractional rolls | 重建（无原生标注） | `simulation` |
+| [`simulation.bot_fight_resolution`](#simulationbot_fight_resolution) | Bot fight resolution, regen and death handling | 重建（无原生标注） | `simulation` |
+| [`simulation.spawner_charges_chunk`](#simulationspawner_charges_chunk) | Simulated spawner charge budget per day chunk | 重建（无原生标注） | `simulation` |
 | [`simulation.rpm_stat_class_ab_multiplier`](#simulationrpm_stat_class_ab_multiplier) | AB stat-class RPM multiplier and fast-RPM parameters | 重建（无原生标注） | `lookup_table` |
-| [`ab.enemy_hp_damage_multiplier`](#abenemy_hp_damage_multiplier) | ab.enemy hp damage multiplier | 重建（无原生标注） | `rebuild_rule` |
+| [`ab.enemy_hp_damage_multiplier`](#abenemy_hp_damage_multiplier) | ab.enemy hp damage multiplier | 原生证据恢复 | `rebuild_rule` |
 | [`balance.armor_base`](#balancearmor_base) | balance.armor base | 重建（无原生标注） | `rebuild_rule` |
 | [`balance.evolution_armor_sync_by_leader`](#balanceevolution_armor_sync_by_leader) | balance.evolution armor sync by leader | 重建（无原生标注） | `rebuild_rule` |
 | [`balance.evolution_data_identities`](#balanceevolution_data_identities) | balance.evolution data identities | 重建（无原生标注） | `rebuild_rule` |
@@ -88,12 +88,12 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | [`balance.shards_capture`](#balanceshards_capture) | balance.shards capture | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.ads`](#simulationads) | simulation.ads | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.ads_reward_stat`](#simulationads_reward_stat) | simulation.ads reward stat | 重建（无原生标注） | `rebuild_rule` |
-| [`simulation.amulet_auto_balance`](#simulationamulet_auto_balance) | simulation.amulet auto balance | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.amulet_auto_balance`](#simulationamulet_auto_balance) | simulation.amulet auto balance | 空壳 | `rebuild_rule` |
 | [`simulation.apply_clear`](#simulationapply_clear) | simulation.apply clear | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.armor_base_balance`](#simulationarmor_base_balance) | simulation.armor base balance | 重建（无原生标注） | `rebuild_rule` |
-| [`simulation.bake_day`](#simulationbake_day) | simulation.bake day | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.bake_day`](#simulationbake_day) | simulation.bake day | 原生证据恢复 | `rebuild_rule` |
 | [`simulation.charges_per_clear`](#simulationcharges_per_clear) | simulation.charges per clear | 重建（无原生标注） | `rebuild_rule` |
-| [`simulation.crystal_simulation`](#simulationcrystal_simulation) | simulation.crystal simulation | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.crystal_simulation`](#simulationcrystal_simulation) | simulation.crystal simulation | 空壳 | `rebuild_rule` |
 | [`simulation.current_boss`](#simulationcurrent_boss) | simulation.current boss | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.day_change`](#simulationday_change) | simulation.day change | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.day_change_order`](#simulationday_change_order) | simulation.day change order | 重建（无原生标注） | `rebuild_rule` |
@@ -114,7 +114,7 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | [`simulation.item_preferred`](#simulationitem_preferred) | simulation.item preferred | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.make_snapshot`](#simulationmake_snapshot) | simulation.make snapshot | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.next_location_timing`](#simulationnext_location_timing) | simulation.next location timing | 重建（无原生标注） | `rebuild_rule` |
-| [`simulation.optimum_time_cap`](#simulationoptimum_time_cap) | simulation.optimum time cap | 重建（无原生标注） | `rebuild_rule` |
+| [`simulation.optimum_time_cap`](#simulationoptimum_time_cap) | simulation.optimum time cap | 原生证据恢复 | `rebuild_rule` |
 | [`simulation.prepare_run`](#simulationprepare_run) | simulation.prepare run | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.process_inventory`](#simulationprocess_inventory) | simulation.process inventory | 重建（无原生标注） | `rebuild_rule` |
 | [`simulation.same_day_gates`](#simulationsame_day_gates) | simulation.same day gates | 重建（无原生标注） | `rebuild_rule` |
@@ -175,7 +175,7 @@ t = UseSpawnerCharges ? floor(CurrentTotalPlaytime / SpawnerChargesChunkMinutes)
 
 **Simulated player stat composition with feature interpolation**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：合并核验
 
@@ -193,9 +193,9 @@ t = UseSpawnerCharges ? floor(CurrentTotalPlaytime / SpawnerChargesChunkMinutes)
 
 **输出**：SimulationStatData {Key, Value, StatsFromFeaturesFlat, PercentMultiplier, TotalFlatValue, TotalValue, CurrentGpm} per stat in each snapshot
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:183-191](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L183)；[Simulation/Systems/SimulationSystem.cs:822-824](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L822)；[Simulation/Systems/SimulationSystem.cs:889-906](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L889)；[Simulation/SimulationStatData.cs:7-22](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationStatData.cs#L7)；[Simulation/SimulationData.cs:41-56](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationData.cs#L41)；[Simulation/Forecast/ForecastSnapshots.cs:96-101](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L96)
+**代码**：[Simulation/Systems/SimulationSystem.cs:183-191](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L183)；Simulation/Systems/SimulationSystem.Targeting.cs:201-204；Simulation/Systems/SimulationSystem.Targeting.cs:327-327；Simulation/Systems/SimulationSystem.Run.cs:403-404；[Simulation/Systems/SimulationSystem.cs:665-665](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L665)；[Simulation/SimulationStatData.cs:7-22](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationStatData.cs#L7)；[Simulation/SimulationData.cs:41-56](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationData.cs#L41)；[Simulation/Forecast/ForecastSnapshots.cs:96-101](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L96)
 
-**状态依据**：MakeSnapshot (822-824), GetSimulationInterpolationCoefficient (889-892), UpdateInterpolationStatModifier, GetSimulationSnapshotStatValue and UsesInterpolationStats (894-906) are all empty/default with no native annotation. Only the stat sets and modifier names (__simulationStatsFromFeaturesFlatModifier, __simulationInterpolationStatModifier) survive. The math was reverse-engineered from Simulation Data: tf/v = 1+K2 and tv/tf = K3 exactly for Health, HealthRegen and LifestealFlat; tv/tf = 1 for the six combat flats (whose PercentMultiplier still holds K3); day 405: Evasion (23) has StatsFromFeaturesFlat 0 and PercentMultiplier 1, key 14 has 3.0 / 4.9075 with TotalValue == TotalFlatValue, key 1 has TotalValue = TotalFlat*4.9075.
+**状态依据**：MakeSnapshot (822-824), GetSimulationInterpolationCoefficient (889-892), UpdateInterpolationStatModifier, GetSimulationSnapshotStatValue and UsesInterpolationStats (894-906) are all empty/default with no native annotation. Only the stat sets and modifier names (__simulationStatsFromFeaturesFlatModifier, __simulationInterpolationStatModifier) survive. The math was reverse-engineered from Simulation Data: tf/v = 1+K2 and tv/tf = K3 exactly for Health, HealthRegen and LifestealFlat; tv/tf = 1 for the six combat flats (whose PercentMultiplier still holds K3); day 405: Evasion (23) has StatsFromFeaturesFlat 0 and PercentMultiplier 1, key 14 has 3.0 / 4.9075 with TotalValue == TotalFlatValue, key 1 has TotalValue = TotalFlat*4.9075. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`Combat Balance Config.Interpolations (StatsFromFeaturesFlat, StatModifier)`；`Simulation Data.Snapshots / TimeChunkSnapshots (stored outputs)`
 
@@ -236,7 +236,7 @@ For each WeaponType w in {Stabbing, Cutting, Magic, Buckshot, Universal}: equipp
 
 **输出**：List<SimulationDpsData> currentDpsData (stored in snapshots as DpsData) and dpsDataCache
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:908-933](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L908)；[Simulation/Systems/SimulationSystem.cs:869-873](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L869)；[Simulation/Systems/SimulationSystem.cs:515-520](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L515)；[Simulation/Systems/SimulationSystem.cs:993-997](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L993)；[Simulation/Systems/SimulationSystem.cs:321-329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L321)
+**代码**：[Simulation/Systems/SimulationSystem.cs:667-692](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L667)；[Simulation/Systems/SimulationSystem.cs:647-650](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L647)；Simulation/Systems/SimulationSystem.Targeting.cs:234-261；[Simulation/Systems/SimulationSystem.cs:515-520](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L515)；[Simulation/Systems/SimulationSystem.cs:752-756](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L752)；[Simulation/Systems/SimulationSystem.cs:321-329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L321)
 
 **状态依据**：CalculateDpsData carries 'Original ELF VA 0x13e4478 and closures'. Data check: at day 0 (one Cut item) Stab, Magic, Buckshot and Universal are all exactly 1/10 of Cut (0.923 vs 9.23); at later days Magic equals Universal (no items of either type), each equal to the sum of off-type DPS/10 over the equipped items (day 405: Magic = Universal = 1.01e8). This confirms the off-type /10 rule.
 
@@ -275,7 +275,7 @@ For each WeaponType w: A_w = SUM of item.Armor over the top UnlockedArmorSlots a
 
 **输出**：List<SimulationDpsData> currentDefenseData (snapshot DefenseData)
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:935-958](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L935)
+**代码**：[Simulation/Systems/SimulationSystem.cs:694-717](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L694)
 
 **状态依据**：Native VA comment.
 
@@ -306,7 +306,7 @@ dodge = S(Evasion); blockMult = 1 - S(BlockChance)*S(BlockAmount); gDefMult = 1/
 
 **输出**：cached multipliers
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:331-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L331)；[Simulation/Systems/SimulationSystem.cs:993-1003](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L993)
+**代码**：[Simulation/Systems/SimulationSystem.cs:331-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L331)；[Simulation/Systems/SimulationSystem.cs:752-762](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L752)
 
 **状态依据**：Native VA comments.
 
@@ -335,7 +335,7 @@ AbDps(t) = 1 + K(4 PlayerAbilityDPSMult, t); AbEhp(t) = 1 + K(5 PlayerAblityEHPM
 
 **输出**：multipliers >= 1 (shipped: 1..5 for DPS, 1..2.5 for EHP between day 20 and 775)
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:875-887](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L875)；[Simulation/SimulationConfig.cs:120-121](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L120)；[Simulation/Forecast/ForecastSnapshots.cs:54-55](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L54)
+**代码**：[Simulation/Systems/SimulationSystem.cs:653-664](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L653)；Simulation/Systems/SimulationSystem.Targeting.cs:265-320；[Simulation/SimulationConfig.cs:120-121](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L120)；[Simulation/Forecast/ForecastSnapshots.cs:54-55](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L54)
 
 **状态依据**：Native VA comments.
 
@@ -399,7 +399,7 @@ Fast: a* = argmax over spawner armors a with DpsData[a.Type] of DpsData[a.Type]*
 
 **输出**：double player DPS vs spawner
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:826-851](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L826)；[Simulation/Systems/SimulationSystem.cs:853-867](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L853)
+**代码**：[Simulation/Systems/SimulationSystem.cs:604-628](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L604)；Simulation/Systems/SimulationSystem.Targeting.cs:207-214；[Simulation/Systems/SimulationSystem.cs:631-644](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L631)；Simulation/Systems/SimulationSystem.Targeting.cs:218-229
 
 **状态依据**：Native VA comments.
 
@@ -437,7 +437,7 @@ If IsStatic: 0. Fast path (isFast=true, used by the fight model): abMult = IsEve
 
 **输出**：double enemy DPS per unit
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:960-991](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L960)；[Simulation/Systems/SimulationSystem.cs:331-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L331)；[Simulation/Systems/SimulationSystem.cs:220-224](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L220)；[Simulation/Systems/SimulationSystem.cs:350-357](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L350)；[Simulation/Systems/SimulationSystem.cs:999-1003](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L999)；[Services/Damage/DamageCalculator.cs:24-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L24)；[ABTests/ABTestService.cs:18-19](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L18)
+**代码**：[Simulation/Systems/SimulationSystem.cs:719-750](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L719)；[Simulation/Systems/SimulationSystem.cs:331-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L331)；[Simulation/Systems/SimulationSystem.cs:220-224](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L220)；[Simulation/Systems/SimulationSystem.cs:350-357](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L350)；[Simulation/Systems/SimulationSystem.cs:758-762](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L758)；[Services/Damage/DamageCalculator.cs:24-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L24)；[ABTests/ABTestService.cs:18-19](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L18)
 
 **状态依据**：GetSpawnerDps carries 'Original ELF VA 0x13ef8d4'; the cached multipliers come from RebuildPerFrameCaches (0x13e5bc0).
 
@@ -481,7 +481,7 @@ If IsStatic: 0. Fast path (isFast=true, used by the fight model): abMult = IsEve
 
 **输出**：SpawnerData {playerDPS, enemyDPS, fightTime, healthDelta, farmedTime, avMoveTime, avRegenTime, rewardValue, playerRPS} in spawnerData[spawner]
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:623-674](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L623)；[Simulation/Systems/SimulationSystem.cs:226-230](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L226)；[Simulation/Systems/SimulationSystem.cs:220-224](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L220)；[Simulation/Systems/SimulationSystem.cs:321-329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L321)；[Simulation/Systems/SimulationSystem.cs:608-612](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)；[Simulation/Systems/SimulationSystem.cs:686-691](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L686)；[Simulation/Systems/SimulationSystem.cs:758-763](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L758)；[Simulation/Systems/SimulationSystem.cs:882-887](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L882)；[Services/Damage/DamageCalculator.cs:59-62](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L59)；[Simulation/Systems/SpawnerData.cs:36-42](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L36)
+**代码**：[Simulation/Systems/SimulationSystem.cs:623-674](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L623)；[Simulation/Systems/SimulationSystem.cs:226-230](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L226)；[Simulation/Systems/SimulationSystem.cs:220-224](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L220)；[Simulation/Systems/SimulationSystem.cs:321-329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L321)；[Simulation/Systems/SimulationSystem.cs:608-612](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)；[Simulation/Systems/SimulationSystem.cs:686-691](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L686)；[Simulation/Systems/SimulationSystem.cs:758-763](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L758)；[Simulation/Systems/SimulationSystem.cs:660-664](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L660)；Simulation/Systems/SimulationSystem.Targeting.cs:311-320；[Services/Damage/DamageCalculator.cs:59-62](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L59)；[Simulation/Systems/SpawnerData.cs:36-42](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L36)
 
 **状态依据**：CalculateSpawnerData carries 'Original ELF VA 0x13e6074. Preserve float32 count factor and widened float literals.'
 
@@ -517,7 +517,7 @@ GetResourceValue = StatRewards[0].Value (0 if none). CalculateSpawnerRewardValue
 
 **输出**：reward value
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:758-787](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L758)
+**代码**：[Simulation/Systems/SimulationSystem.cs:573-601](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L573)；Simulation/Systems/SimulationSystem.Inventory.cs:297-300
 
 **状态依据**：Native VA comments.
 
@@ -931,7 +931,7 @@ For each non-hand-balanced spawner: info = {Key, OptimumTime, PrevHealth=current
 
 **Bot progression loop (what generated Simulation Data)**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：子系统梳理
 - 原生地址：`0x13e276c (OnUpdate only)`
@@ -947,9 +947,9 @@ Inferred: each Tick (TimeStep=300 s, SimulationSpeed=9 ticks/frame): rebuild Spa
 
 **输出**：Simulation Data.Snapshots / TimeChunkSnapshots (player power vs time)
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:291-317](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L291)；[Simulation/Systems/SimulationSystem.cs:497-511](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L497)；[Simulation/Systems/SimulationSystem.cs:546-606](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L546)；[Simulation/Systems/SimulationSystem.cs:676-680](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L676)；[Simulation/Systems/SimulationSystem.cs:693-750](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L693)；[Simulation/Systems/SimulationSystem.cs:795-824](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L795)；[Simulation/SimulationConfig.cs:82-96](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L82)
+**代码**：[Simulation/Systems/SimulationSystem.cs:291-317](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L291)；[Simulation/Systems/SimulationSystem.cs:497-511](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L497)；[Simulation/Systems/SimulationSystem.cs:546-606](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L546)；[Simulation/Systems/SimulationSystem.cs:676-680](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L676)；[Simulation/Systems/SimulationSystem.cs:693-750](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L693)；Simulation/Systems/SimulationSystem.Targeting.cs:144-204；[Simulation/SimulationConfig.cs:82-96](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L82)
 
-**状态依据**：OnUpdate is recovered, but ExecuteTick, PrepareSimulationRun, Tick, FastTick, FindBestSpawner, SimulateFightWithSpawner(Fast), ProcessInventory, ProcessDeath, ApplyRegen, UpgradeCrystalsGreedy, ProcessCrystalSimulationChunk, RollFractionalCount, GetChainedItemBaseCount, GetSpawnerItemRewardCopies, GetItemEmissionCoefficient, CalcDifficultSpawner, MakeSnapshot and the auto-balance methods are all empty.
+**状态依据**：OnUpdate is recovered, but ExecuteTick, PrepareSimulationRun, Tick, FastTick, FindBestSpawner, SimulateFightWithSpawner(Fast), ProcessInventory, ProcessDeath, ApplyRegen, UpgradeCrystalsGreedy, ProcessCrystalSimulationChunk, RollFractionalCount, GetChainedItemBaseCount, GetSpawnerItemRewardCopies, GetItemEmissionCoefficient, CalcDifficultSpawner, MakeSnapshot and the auto-balance methods are all empty. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`Simulation Config.TimeStep`；`Simulation Config.SnapshotInterval`；`Simulation Config.SimulationSpeed`；`Simulation Config.UseFastTick`；`Simulation Config.FastTickStartChunkOffset`；`Simulation Config.AutoBalanceItems`；`Simulation Config.IsSmartPath`；`Simulation Config.IsDynamicResourcePriority`；`Simulation Config.StopAtLocation/TargetLocationNumber/StopAtDay/TargetDay`
 
@@ -963,7 +963,7 @@ Inferred: each Tick (TimeStep=300 s, SimulationSpeed=9 ticks/frame): rebuild Spa
 
 **Session / AFK time model**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：子系统梳理
 
@@ -980,7 +980,7 @@ Inferred from data: LifeCycleInMinutes=[10,230] -> play 10 active minutes, then 
 
 **代码**：[Simulation/Systems/SimulationSystem.cs:264-265](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L264)；[Simulation/Systems/SimulationSystem.cs:556-570](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L556)
 
-**状态依据**：ProcessAFK, NextLifeCycle, CheckLifeCycle and ProcessSimulateAds are empty. In the Snapshots list, TotalPlaytime − Playtime jumps by exactly 230 after each ~10-minute block.
+**状态依据**：ProcessAFK, NextLifeCycle, CheckLifeCycle and ProcessSimulateAds are empty. In the Snapshots list, TotalPlaytime − Playtime jumps by exactly 230 after each ~10-minute block. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`Simulation Config.LifeCycleInMinutes`；`Simulation Config.AdsIntervalMinutes`；`Simulation Config.AdsRewardMultiplierInMinutes`；`Simulation Config.SpawnerChargesChunkMinutes`
 
@@ -994,7 +994,7 @@ Inferred from data: LifeCycleInMinutes=[10,230] -> play 10 active minutes, then 
 
 **Bot spawner priority**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：子系统梳理
 
@@ -1008,9 +1008,9 @@ Unknown body; inputs available: playerRPS, rewardValue, moveTime(position), Prio
 
 **输出**：priority score
 
-**代码**：[Simulation/Systems/SpawnerData.cs:44-67](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L44)；[Simulation/Systems/SimulationSystem.cs:697-733](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L697)；[Simulation/Systems/SimulationSystem.cs:789-793](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L789)
+**代码**：[Simulation/Systems/SpawnerData.cs:44-67](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L44)；[Simulation/Systems/SimulationSystem.cs:697-733](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L697)；Simulation/Systems/SimulationSystem.Targeting.cs:133-139
 
-**状态依据**：GetMoveTime, GetPriority, GetStaticPriority, GetDynamicPriority, GetFightEfficiency, CalculateFarmPotencial and TryGetSpawnerPriority all return 0/false.
+**状态依据**：GetMoveTime, GetPriority, GetStaticPriority, GetDynamicPriority, GetFightEfficiency, CalculateFarmPotencial and TryGetSpawnerPriority all return 0/false. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`EnemySpawnerConfig.PriorityMultiplier`；`Simulation Config.IsDynamicResourcePriority`；`Simulation Config.IsSmartPath`
 
@@ -1414,7 +1414,7 @@ If Simulation Data.TimeChunkSnapshots is missing or empty: run CalculateSimulati
 
 **Simulated rewarded-ad income in the bot**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：完整性审查补充
 
@@ -1432,7 +1432,7 @@ Intended: every AdsIntervalMinutes of simulated playtime, grant a stat reward wo
 
 **代码**：[Simulation/Systems/SimulationSystem.cs:568](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L568)；[Simulation/Systems/SimulationSystem.cs:256](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L256)；[Simulation/SimulationConfig.cs:28-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L28)
 
-**状态依据**：ProcessSimulateAds() has an empty body. No other reference to AdsRewardMultiplierInMinutes or AdsIntervalMinutes exists.
+**状态依据**：ProcessSimulateAds() has an empty body. No other reference to AdsRewardMultiplierInMinutes or AdsIntervalMinutes exists. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`Simulation Config.AdsRewardMultiplierInMinutes`；`Simulation Config.AdsIntervalMinutes`
 
@@ -1463,7 +1463,7 @@ statsBenefit[s] is initialized to 1 for every StatType, and itemBenefit[item] is
 
 **输出**：Spawner reward value used for bot target choice
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:270-273](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L270)；[Simulation/Systems/SimulationSystem.cs:717](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L717)；[Simulation/Systems/SimulationSystem.cs:721](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L721)；[Simulation/Systems/SimulationSystem.cs:765-787](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L765)
+**代码**：[Simulation/Systems/SimulationSystem.cs:270-273](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L270)；[Simulation/Systems/SimulationSystem.cs:717](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L717)；[Simulation/Systems/SimulationSystem.cs:721](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L721)；[Simulation/Systems/SimulationSystem.cs:580-601](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L580)；Simulation/Systems/SimulationSystem.Inventory.cs:297-300
 
 **状态依据**：CalculateStatBenefit() is empty and ModifyFromItem returns default. The consumer CalculateSpawnerRewardValue is native-annotated.
 
@@ -1479,7 +1479,7 @@ statsBenefit[s] is initialized to 1 for every StatType, and itemBenefit[item] is
 
 **Simulated item copy emission and fractional rolls**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：完整性审查补充
 
@@ -1494,9 +1494,9 @@ Intended: copies per simulated clear = RollFractionalCount(baseCount * GetItemEm
 
 **输出**：Simulated item copies, which drive simulated evolution timing
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:546](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L546)；[Simulation/Systems/SimulationSystem.cs:551](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L551)；[Simulation/Systems/SimulationSystem.cs:807](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L807)；[Simulation/Systems/SimulationSystem.cs:812](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L812)；[Simulation/Systems/SimulationSystem.cs:817](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L817)
+**代码**：[Simulation/Systems/SimulationSystem.cs:546](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L546)；[Simulation/Systems/SimulationSystem.cs:551](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L551)；[Simulation/Systems/SimulationSystem.cs:1](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L1)
 
-**状态依据**：All five methods return default constants.
+**状态依据**：All five methods return default constants. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`Combat Balance Config.Interpolations (item emission types if present)`；`Locations Config.PreferredWeaponType/PreferredArmorType (likely 'preferred' type)`
 
@@ -1510,7 +1510,7 @@ Intended: copies per simulated clear = RollFractionalCount(baseCount * GetItemEm
 
 **Bot fight resolution, regen and death handling**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：完整性审查补充
 
@@ -1527,7 +1527,7 @@ Intended per bot step: choose best = FindBestSpawner() by priority; resolve figh
 
 **代码**：[Simulation/Systems/SimulationSystem.cs:676](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L676)；[Simulation/Systems/SimulationSystem.cs:693](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L693)；[Simulation/Systems/SimulationSystem.cs:697-713](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L697)；[Simulation/Systems/SimulationSystem.cs:730-741](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L730)；[Simulation/Systems/SimulationSystem.cs:748](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L748)
 
-**状态依据**：Empty or default-return bodies. Only GetRegen/GetBattleRegen/CalculateSpawnerData around them are native.
+**状态依据**：Empty or default-return bodies. Only GetRegen/GetBattleRegen/CalculateSpawnerData around them are native. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`Simulation Config.TimeStep`；`Simulation Config.SimulationSpeed`；`Simulation Config.UseFastTick`；`Simulation Config.FastTickStartChunkOffset`；`Simulation Config.IsSmartPath`
 
@@ -1541,7 +1541,7 @@ Intended per bot step: choose best = FindBestSpawner() by priority; resolve figh
 
 **Simulated spawner charge budget per day chunk**
 
-- 状态：**空壳**（`stub`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：完整性审查补充
 - 原生地址：`0x13ebe60, 0x13e83ec (implemented parts)`
@@ -1560,13 +1560,13 @@ chunk = floor(CurrentTotalPlaytime / SpawnerChargesChunkMinutes) with SpawnerCha
 
 **代码**：[Simulation/Systems/SimulationSystem.cs:515-520](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L515)；[Simulation/Systems/SimulationSystem.cs:580](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L580)；[Simulation/Systems/SimulationSystem.cs:584](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L584)；[Simulation/Systems/SimulationSystem.cs:608-616](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)；[Simulation/Systems/SimulationSystem.cs:639-643](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L639)
 
-**状态依据**：UpdateSpawnerChargesChunk and ResetCooldowns are empty, and GetSpawnerChargesPerClear returns 0. The limit and timing functions are native.
+**状态依据**：UpdateSpawnerChargesChunk and ResetCooldowns are empty, and GetSpawnerChargesPerClear returns 0. The limit and timing functions are native. Stage 5 rebuild implements part of this rule; see realization links.
 
 **配置参数**：`Simulation Config.UseSpawnerCharges`；`Simulation Config.SpawnerChargesChunkMinutes`；`EnemySpawnerConfig.ChargesBeforeBigRespawn`；`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.DisableAfterFirstClear`
 
 **使用方**：simulation.rpm_time_chunk；simulation.soul_rpm；simulation.spawner_fight_model
 
-**备注**：This complements the already-missed simulation.spawner_charges_limit. Note the unit mismatch: optimum 'days' are 30-minute time chunks (TimeChunkDurationMinutes = 30, ConvertOptimumToDays = minutes/30), while charges reset every 1440 simulated minutes.
+**备注**：This complements the already-missed simulation.spawner_charges_limit. Note the unit mismatch: snapshot and charge days are 1440-minute blocks of total playtime T; TimeChunkDurationMinutes = 30 applies to minute-mode OT conversion in GetSpawnerOptimumTimingForCurrentMode.
 
 **依赖图节点**：输入 `config:SimulationConfig.UseSpawnerCharges`、`config:SimulationConfig.SpawnerChargesChunkMinutes`、`value:sim.total_playtime`、`value:spawner.charges_limit_per_day`、`state:sim_bot_state`；输出 `value:sim.spawner_eligible`
 
@@ -1606,7 +1606,7 @@ rpm(stat) *= m(stat), where m = sustainMult for {Health, HealthRegen, LifestealF
 
 **ab.enemy hp damage multiplier**
 
-- 状态：**重建（无原生标注）**（`reconstructed`）
+- 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`rebuild_rule`
 - 来源：合并核验
 
@@ -1616,9 +1616,13 @@ rpm(stat) *= m(stat), where m = sustainMult for {Health, HealthRegen, LifestealF
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**代码**：[ABTests/ABTestService.cs:18-19](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L18)
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**状态依据**：Stage 5: port; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.enemy_multiplier`
 
 ### `balance.armor_base`
 
@@ -1636,9 +1640,11 @@ Reconstructed implementation in the cited C# member for balance.armor_base.
 
 **代码**：[Balance/CombatBalanceConfig.cs:211](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L211)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.bake_spawner_health`
 
 ### `balance.evolution_armor_sync_by_leader`
 
@@ -1655,9 +1661,11 @@ H are already synced in the stored tables); ReferenceStatPercent follows each ro
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_data_identities`
 
@@ -1673,9 +1681,11 @@ G09 and G10 counts on the stored tables.
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: data; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_fill_remaining`
 
@@ -1696,11 +1706,13 @@ output forward unless ``previous`` gives ``(Value, CopyValue)`` of levels ``0..n
 
 **输出**：See implementation and tests.
 
-**代码**：[Balance/CombatBalanceConfig.cs:129](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L129)
+**代码**：[Balance/CombatBalanceConfig.cs:129](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L129)；[Balance/CombatBalanceConfig.cs:115-117](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L115),221-223
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred, rule; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_fitted_h`
 
@@ -1718,9 +1730,11 @@ row; filled rows use the last simulated Value). Not exact by construction (R4). 
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: fit; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_generator`
 
@@ -1738,9 +1752,11 @@ Reconstructed implementation in the cited C# member for balance.evolution_genera
 
 **代码**：[Balance/CombatBalanceConfig.cs:250](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L250)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_heuristic_fit`
 
@@ -1758,9 +1774,11 @@ last simulated level); ``k_t`` is the geometric mean over rarities of ``min / M_
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: fit; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_nice_rounding`
 
@@ -1780,9 +1798,11 @@ Non-positive inputs give 0.
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: rule; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_reference_stat_percent`
 
@@ -1798,9 +1818,11 @@ Non-positive inputs give 0.
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: rule; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_reference_stat_value`
 
@@ -1817,9 +1839,11 @@ Non-positive inputs give 0.
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: rule; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_reference_time_chunk`
 
@@ -1835,9 +1859,11 @@ R5: ``ReferenceTimeChunkIndex == ceil(T)`` (the item evolved on the target day).
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: data; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_replay_stored_inputs`
 
@@ -1855,9 +1881,11 @@ row (stage 4's one-step replay; the design's ablation counts are one-step).
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: rule; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_targets`
 
@@ -1875,9 +1903,11 @@ Reconstructed implementation in the cited C# member for balance.evolution_target
 
 **代码**：[Balance/CombatBalanceConfig.cs:303](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L303)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.evolution_value`
 
@@ -1895,9 +1925,11 @@ Reconstructed implementation in the cited C# member for balance.evolution_value.
 
 **代码**：[Balance/CombatBalanceConfig.cs:235](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L235)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `balance.island_timing`
 
@@ -1915,9 +1947,11 @@ Reconstructed implementation in the cited C# member for balance.island_timing.
 
 **代码**：[Balance/CombatBalanceConfig.cs:343](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L343)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.balance_timing`
 
 ### `balance.shards_capture`
 
@@ -1935,9 +1969,11 @@ Reconstructed implementation in the cited C# member for balance.shards_capture.
 
 **代码**：[Balance/CombatBalanceConfig.cs:141](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L141)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated, Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`balance.evolution_value_autobalance`、`balance.evolution_shards_capture`
 
 ### `simulation.ads`
 
@@ -1955,9 +1991,11 @@ Reconstructed implementation in the cited C# member for simulation.ads.
 
 **代码**：Simulation/Systems/SimulationSystem.Lifecycle.cs:12
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.ads_reward_model`
 
 ### `simulation.ads_reward_stat`
 
@@ -1975,15 +2013,17 @@ Reconstructed implementation in the cited C# member for simulation.ads_reward_st
 
 **代码**：Simulation/Systems/SimulationSystem.Lifecycle.cs:12
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.ads_reward_model`
 
 ### `simulation.amulet_auto_balance`
 
 **simulation.amulet auto balance**
 
-- 状态：**重建（无原生标注）**（`reconstructed`）
+- 状态：**空壳**（`stub`）
 - 类型：`rebuild_rule`
 - 来源：合并核验
 
@@ -1995,9 +2035,11 @@ Reconstructed implementation in the cited C# member for simulation.amulet_auto_b
 
 **代码**：Simulation/Systems/SimulationSystem.Amulet.cs:23
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Null; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.amulet_sim_multipliers`
 
 ### `simulation.apply_clear`
 
@@ -2015,9 +2057,11 @@ Reconstructed implementation in the cited C# member for simulation.apply_clear.
 
 **代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:153
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.bot_fight_resolution`
 
 ### `simulation.armor_base_balance`
 
@@ -2035,15 +2079,17 @@ Reconstructed implementation in the cited C# member for simulation.armor_base_ba
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:193
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.bake_day`
 
 **simulation.bake day**
 
-- 状态：**重建（无原生标注）**（`reconstructed`）
+- 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`rebuild_rule`
 - 来源：合并核验
 
@@ -2053,9 +2099,13 @@ Reconstructed implementation in the cited C# member for simulation.armor_base_ba
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**代码**：[Simulation/SimulationConfig.cs:118](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L118)
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**状态依据**：Stage 5: port; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.bake_recalc_optimum_time`
 
 ### `simulation.charges_per_clear`
 
@@ -2073,15 +2123,17 @@ Reconstructed implementation in the cited C# member for simulation.charges_per_c
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:327
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_charges_chunk`、`simulation.rpm_time_chunk`
 
 ### `simulation.crystal_simulation`
 
 **simulation.crystal simulation**
 
-- 状态：**重建（无原生标注）**（`reconstructed`）
+- 状态：**空壳**（`stub`）
 - 类型：`rebuild_rule`
 - 来源：合并核验
 
@@ -2093,9 +2145,11 @@ Reconstructed implementation in the cited C# member for simulation.crystal_simul
 
 **代码**：Simulation/Systems/SimulationSystem.Amulet.cs:11
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Null; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.current_boss`
 
@@ -2117,9 +2171,11 @@ None if there is none (island 17). Gates elsewhere can also lead to ``location +
 
 **代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:296
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred, inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.day_change`
 
@@ -2137,9 +2193,11 @@ Reconstructed implementation in the cited C# member for simulation.day_change.
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:238
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_charges_chunk`、`simulation.rpm_time_chunk`
 
 ### `simulation.day_change_order`
 
@@ -2160,11 +2218,13 @@ DpsData/DefenseData are the snapshot's own. ``k4k5_offset`` lags the live K4/K5 
 
 **输出**：See implementation and tests.
 
-**代码**：Simulation/Systems/SimulationSystem.Run.cs:251
+**代码**：Simulation/Systems/SimulationSystem.Run.cs:251；[Simulation/Systems/SimulationSystem.cs:183-191](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L183)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred, inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_charges_chunk`、`simulation.rpm_time_chunk`
 
 ### `simulation.eligible_spawners`
 
@@ -2182,9 +2242,13 @@ cooldown -- a cleared DAFC spawner's ``+inf`` excludes it --, charges, OT cap, u
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**代码**：[Simulation/Systems/SimulationSystem.cs:623-674](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L623)
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**状态依据**：Stage 5: inferred; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.evolution_balance`
 
@@ -2202,9 +2266,11 @@ Reconstructed implementation in the cited C# member for simulation.evolution_bal
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:201
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.execute_tick`
 
@@ -2222,9 +2288,11 @@ Reconstructed implementation in the cited C# member for simulation.execute_tick.
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:20
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.fast_accumulate`
 
@@ -2242,9 +2310,11 @@ Reconstructed implementation in the cited C# member for simulation.fast_accumula
 
 **代码**：Simulation/Systems/SimulationSystem.FastTick.cs:167
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.fast_day_advance`
 
@@ -2262,9 +2332,11 @@ Reconstructed implementation in the cited C# member for simulation.fast_day_adva
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:196
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_charges_chunk`、`simulation.rpm_time_chunk`
 
 ### `simulation.fast_flush`
 
@@ -2282,9 +2354,11 @@ Reconstructed implementation in the cited C# member for simulation.fast_flush.
 
 **代码**：Simulation/Systems/SimulationSystem.FastTick.cs:221
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.fast_kill_gate`
 
@@ -2301,11 +2375,13 @@ Design 4.5: the fast phase farms a spawner only if :func:`rpm_survivable` with `
 
 **输出**：See implementation and tests.
 
-**代码**：Simulation/Systems/SimulationSystem.FastTick.cs:151
+**代码**：Simulation/Systems/SimulationSystem.FastTick.cs:151；[Simulation/Systems/SimulationSystem.cs:438-439](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L438)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred, inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.bot_fight_resolution`
 
 ### `simulation.fast_tick`
 
@@ -2323,9 +2399,11 @@ Reconstructed implementation in the cited C# member for simulation.fast_tick.
 
 **代码**：Simulation/Systems/SimulationSystem.FastTick.cs:24
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.forecast_unlocked_location`
 
@@ -2343,9 +2421,11 @@ Reconstructed implementation in the cited C# member for simulation.forecast_unlo
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:333
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.fractional_count`
 
@@ -2363,9 +2443,11 @@ Reconstructed implementation in the cited C# member for simulation.fractional_co
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:72
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.hand_tick`
 
@@ -2383,9 +2465,11 @@ Reconstructed implementation in the cited C# member for simulation.hand_tick.
 
 **代码**：[Simulation/SimulationConfig.cs:89](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L89)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.idle_step`
 
@@ -2403,9 +2487,11 @@ Reconstructed implementation in the cited C# member for simulation.idle_step.
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:174
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.lifecycle_time_model`
 
 ### `simulation.item_chain`
 
@@ -2423,9 +2509,11 @@ Reconstructed implementation in the cited C# member for simulation.item_chain.
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:86
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.item_emission`
 
@@ -2443,9 +2531,11 @@ Reconstructed implementation in the cited C# member for simulation.item_emission
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:221
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.item_preferred`
 
@@ -2463,9 +2553,11 @@ Reconstructed implementation in the cited C# member for simulation.item_preferre
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:229
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.make_snapshot`
 
@@ -2483,9 +2575,11 @@ Reconstructed implementation in the cited C# member for simulation.make_snapshot
 
 **代码**：Simulation/Systems/SimulationSystem.Snapshot.cs:15
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.snapshot_stat_composition`
 
 ### `simulation.next_location_timing`
 
@@ -2503,15 +2597,17 @@ Reconstructed implementation in the cited C# member for simulation.next_location
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:222
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: DebugOnly; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.optimum_time_cap`
 
 **simulation.optimum time cap**
 
-- 状态：**重建（无原生标注）**（`reconstructed`）
+- 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`rebuild_rule`
 - 来源：合并核验
 
@@ -2521,9 +2617,13 @@ Reconstructed implementation in the cited C# member for simulation.next_location
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**代码**：[Simulation/Systems/SimulationSystem.cs:647-651](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L647)
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**状态依据**：Stage 5: port; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_optimum_timing_mode`
 
 ### `simulation.prepare_run`
 
@@ -2541,9 +2641,11 @@ Reconstructed implementation in the cited C# member for simulation.prepare_run.
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:51
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.process_inventory`
 
@@ -2561,9 +2663,11 @@ Reconstructed implementation in the cited C# member for simulation.process_inven
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:140
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.same_day_gates`
 
@@ -2581,9 +2685,11 @@ Reconstructed implementation in the cited C# member for simulation.same_day_gate
 
 **代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:285
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.slow_death`
 
@@ -2601,9 +2707,11 @@ Reconstructed implementation in the cited C# member for simulation.slow_death.
 
 **代码**：Simulation/Systems/SimulationSystem.Fight.cs:24
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.bot_fight_resolution`
 
 ### `simulation.slow_fight`
 
@@ -2621,9 +2729,11 @@ Reconstructed implementation in the cited C# member for simulation.slow_fight.
 
 **代码**：Simulation/Systems/SimulationSystem.Fight.cs:14
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated, DebugOnly; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.bot_fight_resolution`
 
 ### `simulation.slow_item_reward`
 
@@ -2641,9 +2751,11 @@ Reconstructed implementation in the cited C# member for simulation.slow_item_rew
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:214
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.slow_move_time`
 
@@ -2661,9 +2773,11 @@ Reconstructed implementation in the cited C# member for simulation.slow_move_tim
 
 **代码**：[Simulation/Systems/SpawnerData.cs:48](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L48)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.slow_priority`
 
@@ -2681,9 +2795,11 @@ Reconstructed implementation in the cited C# member for simulation.slow_priority
 
 **代码**：Simulation/Systems/SimulationSystem.Targeting.cs:20；[Simulation/Systems/SpawnerData.cs:55](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L55)
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated, DebugOnly; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_priority`
 
 ### `simulation.slow_tick`
 
@@ -2701,9 +2817,11 @@ Reconstructed implementation in the cited C# member for simulation.slow_tick.
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:144
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.smart_path`
 
@@ -2721,9 +2839,11 @@ Reconstructed implementation in the cited C# member for simulation.smart_path.
 
 **代码**：Simulation/Systems/SimulationSystem.Targeting.cs:30
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.snapshot_current_gpm`
 
@@ -2741,9 +2861,11 @@ Data fact (G19, relative error <= 1e-5): ``MakeSnapshot`` is empty in the recove
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: data; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.snapshot_stat_composition`
 
 ### `simulation.stat_benefit`
 
@@ -2761,9 +2883,11 @@ Reconstructed implementation in the cited C# member for simulation.stat_benefit.
 
 **代码**：Simulation/Systems/SimulationSystem.Targeting.cs:77
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_priority`
 
 ### `simulation.state_override`
 
@@ -2781,9 +2905,11 @@ Reconstructed implementation in the cited C# member for simulation.state_overrid
 
 **代码**：Simulation/Systems/SimulationSystem.Replay.cs:23
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: DebugOnly; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.snapshot_stat_composition`
 
 ### `simulation.stop`
 
@@ -2801,9 +2927,11 @@ Reconstructed implementation in the cited C# member for simulation.stop.
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:130
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.tick_heartbeat`
 
@@ -2821,9 +2949,11 @@ Reconstructed implementation in the cited C# member for simulation.tick_heartbea
 
 **代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:105
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.unlock_location`
 
@@ -2841,9 +2971,11 @@ Reconstructed implementation in the cited C# member for simulation.unlock_locati
 
 **代码**：Simulation/Systems/SimulationSystem.Rebuild.cs:265
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.player_progression_tick`
 
 ### `simulation.weapon_slot_unlocks`
 
@@ -2860,9 +2992,11 @@ slot, slot rewards when their gate's next island is reached, weapon_3 at island 
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `simulation.weapon_slots`
 
@@ -2880,9 +3014,11 @@ Reconstructed implementation in the cited C# member for simulation.weapon_slots.
 
 **代码**：Simulation/Systems/SimulationSystem.Inventory.cs:99
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Calibrated; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ### `timeline.days_to_island_timing`
 
@@ -2899,9 +3035,11 @@ Inverse of :func:`convert_island_timing_to_days` (double): island ``k`` covers
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.balance_timing`
 
 ### `timeline.island_timing_to_days`
 
@@ -2919,9 +3057,11 @@ Reconstructed implementation in the cited C# member for timeline.island_timing_t
 
 **代码**：Simulation/Systems/SimulationSystem.Run.cs:231
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**状态依据**：Stage 5: Inferred; see cited implementation and tests.
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.balance_timing`
 
 ## 配置参数
 

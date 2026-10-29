@@ -61,7 +61,7 @@ cd Balance && .venv/bin/python -m tufu_balance.graph impact CombatBalanceConfig.
 | `state` | 18 |
 | `value` | 342 |
 | `formula` | 350 |
-| 边 | 2874 |
+| 边 | 2961 |
 
 ## 子系统之间的数值流
 

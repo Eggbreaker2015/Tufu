@@ -1478,9 +1478,13 @@ Every other spawner fills on bootstrap (Runbook 6.1: 699 of 716).
 
 **输出**：See implementation and tests.
 
-**状态依据**：Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.
+**代码**：[Enemy/EnemySpawner.cs:746](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L746),860-863,922-925
 
-**备注**：Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.
+**状态依据**：Stage 5: inferred; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_fight_model`
 
 ## 配置参数
 

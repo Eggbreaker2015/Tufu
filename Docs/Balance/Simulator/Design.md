@@ -1,6 +1,6 @@
 # 阶段 5 设计：混合架构的可执行模型与重建模拟器
 
-> 状态：设计稿第 3 版，2026-10-28，尚未实现。第 3 版按两份评审（无头运行与工作流程；数据保真）修订，逐条处理记录见第 9 节。
+> 状态：阶段 5 已集成（2026-10-29）；可选 S1 未实现，科学失败与未决项见第 10 节。第 3 版按两份评审（无头运行与工作流程；数据保真）修订，逐条处理记录见第 9 节。
 >
 > 本版按用户决定改为**混合架构**：模拟器用 C# 在 Unity 工程里重建，Python 保留工具链并作为独立预言机。它取代此前以 Python 为主模拟器的设计稿。旧稿备份在 `/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/architect/rev/Design.v2-python-sim.md`。旧稿里经数据核实的事实、测试数字、校准目标和两轮评审的修正原样沿用，清单见附录 C。
 
@@ -527,7 +527,7 @@ sequenceDiagram
 
 **每天的状态摘要**是下列内容按键排序后的 sha256：
 
-- 36 项属性的 Value 与 TotalValue（取 IEEE 位）；
+- 30 项属性的 Value 与 TotalValue（取 IEEE 位）；
 - 物品 (Key, Level, Copies, Evolved)；
 - Location；
 - P、T 的位；
@@ -908,7 +908,10 @@ OnUpdate（已恢复）:
 PrepareSimulationRun():                       # 幂等：isSimulationPrepared
     重置 4.2 中标"是"的状态；RPM 字典清零；currentBoss = RebuildFindBoss(1)
     UpdateInterpolationStatModifier()          # d = 0 的 K2/K3
-    CalculateRPMValueTimeChunk()               # 已恢复：内含 CalculateSimulationData(true) 与灵魂 RPM
+    RebuildApplyDayOverrideBeforeRpm(0)        # replay 的状态先于 RPM
+    CurrentHealth = Health
+    if RebuildReplayRpmDay != null: RecalculateChunkRpmValues()
+    else: CalculateRPMValueTimeChunk()
     MakeSnapshot(force: true)                  # 快照 0 同时进两个列表
     [replay/checkpoint] RebuildApplyDayOverride(0)
 
@@ -926,8 +929,10 @@ Tick():                                       # 慢阶段：一次战斗或一�
     best = FindBestSpawner()
     if best != null: SimulateFightWithSpawner(best)            # 方法体内决定时长与血量，并调用 RebuildApplyClear(…, false)
     else: RebuildIdle(min(TimeStep/60, 下一个快照到期 − P))    # P、T 同步推进；回血；冷却递减
-    CalculateSimulationData()                 # 慢战斗后刷新 DpsData/DefenseData；早期普通快照使用战后值
-    MakeSnapshot()
+    if CurrentPlaytime >= RebuildNextSnapshotDue():
+        CalculateSimulationData()             # 战后刷新 DpsData/DefenseData
+        SlowTickBasis = 当前属性; RebuildApplyReplayCaches()
+    MakeSnapshot(); SlowTickBasis = null
     CheckLifeCycle()                           # P ≥ lifeCyclePeriodEnd 时 NextLifeCycle → ProcessAFK(230)
     ProcessSimulateAds()
     UpdateSpawnerChargesChunk()
@@ -953,13 +958,23 @@ RebuildAdvanceFastDay(activeMinutes):          # C3b，.Run.cs；与策略无关
 UpdateSpawnerChargesChunk():
     c = floor(T / SpawnerChargesChunkMinutes); if c == timeChunkIndex: return
     timeChunkIndex = c; spawnerChargesUsage.Clear(); ResetCooldowns()   # 跳过 Cooldown = +∞ 的 DAFC
-    [replay/checkpoint] RebuildApplyDayOverrideBeforeRpm(c) # 应用第 c 天覆盖，随后重算 RPM
-    RecalculateChunkRpmValues()                # 先：用旧修饰器 K2/K3(c−1) 重算 DpsData、RPM；K4/K5 由 GetBalanceTimingMinutes 读到 c
-    UpdateInterpolationStatModifier()          # 后：换成 K2/K3(c)
-    ProcessAmuletAutoBalanceTargets(c); ProcessCrystalSimulationChunk()   # null
-    MakeSnapshot(force: true)
-    [replay/checkpoint] RebuildApplyDayOverride(c) # 其余覆盖在强制快照之后                  # SFF/PM = K(c)，DpsData 与 Gpm 是 K(c−1) 下算的；天列表总写；
-                                               # 早期列表只在 !(UseFastTick && c >= FastTickStartChunkOffset) 时写
+    RebuildApplyDayOverrideBeforeRpm(c); if rebuildStopped: return
+    if DpsCacheProvenance == ModifierFirst:
+        UpdateInterpolationStatModifier(); RecalculateChunkRpmValues()
+    else:                                      # RpmFirst 或 StaleTickCache
+        RecalculateChunkRpmValues(); UpdateInterpolationStatModifier()
+    RebuildInventoryAfterDayRpm()
+    ProcessAmuletAutoBalanceTargets(c); ProcessCrystalSimulationChunk()
+    MakeSnapshot(force: true)                  # SFF/PM = K(c)；天列表总写；早期列表按新日门控
+    RebuildApplyDayOverride(c); RebuildTraceDayStart()
+
+RecalculateChunkRpmValues():
+    if replay 使用 stored caches 且非 StaleTickCache:
+        CalculateSimulationData(); RebuildApplyReplayCaches()
+        仅随包 TC 日计算 RPM 与 running max；必要时恢复生成物品的缓存
+    else if 非 StaleTickCache: CalculateRPMValueTimeChunk()  # free/checkpoint 每日计算
+    else: 使用上次 Tick 缓存；replay 非随包 TC 日返回，否则重算 RPM
+
 ```
 
 C3b 写的最小 `FastTick` 让时间在第 4 天之后照样推进：空策略下 P 不变，T 按 120 分钟一步离线到下一天，换天、强制快照、RPM 都照常发生。C5 只替换"规划、累积、活跃分钟"三部分，`RebuildAdvanceFastDay` 不动。
@@ -1073,7 +1088,7 @@ EnemySpawner RebuildFindBoss(int location)
   - 动态：形式相同，奖励值按 `statsBenefit` 加权，即 `CalculateSpawnerRewardValue` 带属性参数的版本。
 
   `currentBoss` 的奖励值是 1e6；优先级为 reward × PM / cost，门禁仍与其他目标竞争，不保证被选中。
-- `CalculateStatBenefit`：基线是常数 1.0。这是 `OnAwake` 的初始化值，也是唯一已知的数值。备选是"该属性对下一批刷怪点（按 OT 顺序取 `statBenefitCandidates`）击杀时间的边际收益"。备选要对 36 项属性逐个重评候选刷怪点，所以只在会话开始或换天时算一次并缓存，不逐 Tick 重算（4.10 的预算）。
+- `CalculateStatBenefit`：基线是常数 1.0。这是 `OnAwake` 的初始化值，也是唯一已知的数值。备选是"该属性对下一批刷怪点（按 OT 顺序取 `statBenefitCandidates`）击杀时间的边际收益"。备选要对 30 项属性逐个重评候选刷怪点，所以只在会话开始或换天时算一次并缓存，不逐 Tick 重算（4.10 的预算）。
 - `IsSmartPath = 1`：备选做法是在去目标的路上，顺手清掉线段附近距离 δ 以内的刷怪点（`CalculateSpawnerPaths`、`countNeighbFight`）。线段扫描按合格集合签名缓存。
 - 快阶段照单全清，所以这个模块只影响第 0–3 天。诊断用 `calibrate/killseq.py`，它把早期快照的增量分解成"各奖励类别的击杀数"。
 
@@ -1151,7 +1166,7 @@ EnemySpawner RebuildFindBoss(int location)
 | `checkpoint` | 在随包存档的每个天快照处，把属性 Value、物品、槽位重置为随包值，然后继续闭环；可以用 `from_day` 只从某一天起重置 | 区间误差不累积；把慢阶段误差和快阶段误差分开 |
 | `replay` | 教师强制：每天开头把状态设成随包插值快照 | 开环校准单个模块 |
 
-`replay` 的覆盖内容由 C4 实现（`SimulationStateOverride.cs` 与 `SimulationSystem.Replay.cs`）。它在第 d 天的强制快照之后、当天第一次规划之前生效。
+`replay` 的覆盖内容由 C4 实现（`SimulationStateOverride.cs` 与 `SimulationSystem.Replay.cs`）。replay 的 day-d 状态覆盖在 RPM 重算之前生效；强制快照后恢复规划缓存。checkpoint 的其余状态覆盖在强制快照之后生效。
 
 | 项 | 做法 | 选项 |
 |---|---|---|
@@ -1161,7 +1176,7 @@ EnemySpawner RebuildFindBoss(int location)
 | 经济缓存 | `econ_caches = stored`（默认）：在 `CalculateSimulationData` 之后，由 `RebuildApplyReplayCaches` 把插值快照的 DpsData/DefenseData 写进 `currentDpsData`/`dpsDataCache` 和防御缓存，再重建战斗乘数与 `spawnerData`。`recomputed`：用已恢复的 `CalculateDpsData`/`CalculateDefenseData` 从物品和槽位重算 | forensics 的 37/41 是在 `stored` 下得到的。`recomputed` 是通往闭环的桥，两者之差就是 R2 那部分 DPS 重算误差 |
 | 解锁 | `unlock = derived`（默认）：由门禁的可杀性推出；`snapshot`：取快照的 Location，只作诊断 | — |
 
-引擎通过 `.Rebuild.cs` 里声明的两个 partial 方法调用这些覆盖：`RebuildApplyDayOverride(int day)` 与 `RebuildApplyReplayCaches()`。策略模块不知道自己处在哪种模式。
+引擎通过 `RebuildApplyDayOverrideBeforeRpm(int day)`、`RebuildApplyDayOverride(int day)` 与 `RebuildApplyReplayCaches()` 调用这些覆盖。策略模块不知道自己处在哪种模式。
 
 ### 4.7 期望值与随机
 
@@ -1720,7 +1735,7 @@ Python 单元的进度只受 C0b、C1 的数据格式约束，不受 Unity 车�
 - 验收：
   - G11、G14、G19、G22、G23 达到 3.3 节的数字：`fma`、`double_tail`、`double_all` 都是 109/109，`stepwise` 消融的数字也冻结；
   - 四种舍入在 0..800 网格上两两不同的点数冻结（fma 与 double_tail 123、fma 与 double_all 263、double_tail 与 double_all 140）；默认舍入由 `model/interpolation_default.json` 一处决定（P2 建，交给 C2 修改）；
-  - K2(405) = 3.0000002f，K3(405) = 4.9075f；
+  - K2(405) = 3.0000002f，K3(405) = 4.90752f；
   - `fmaf` 在构造的舍入平局样例上与有理数精确计算一致；`fmaf` 只用在 `Evaluate` 里（测试检查调用点）；
   - 优化前后，`get_by_time_chunk_index` 在 0..405 的全部整数天和 100 个小数天上结果相同；
   - `interpolate_snapshot` 不再与左快照共用 items；
@@ -1874,7 +1889,7 @@ Python 单元的进度只受 C0b、C1 的数据格式约束，不受 Unity 车�
   - Python：`Balance/sim/params/defaults/engine.json`；`tests/unity/test_engine.py`；黄金套件 `sim_engine`。
 - 验收：
   - 快照 0：
-    - 36 项属性的 Value 等于随包快照 0；
+    - 30 项属性的 Value 等于随包快照 0；
     - 物品为 knife 1/1；
     - DpsData 是 Cut 9.2308、其它 0.92308（G21），DefenseData 全 0；
     - 天列表快照 0 的 Health CurrentGpm 为 2.8507（相对 1e-4）；
@@ -2179,8 +2194,8 @@ Python 单元的进度只受 C0b、C1 的数据格式约束，不受 Unity 车�
 | Q20 | 默认终点 | 第 405 天，延长时给外推警告；不把 405 当作停止规则的证据 |
 | Q21 | G20 的断言形式 | 已定：`RpmFirst` 口径精确 1380/1380、未命中集合为空；P8 首次复现不到时先查移植 |
 | Q22 | 多日区间的未命中，冻结为精确集合还是作为容差带 | 作为容差带（首杀日 ±1），敏感性曲线入库；只试有结构依据的假设。RPM 已无未命中 |
-| Q23 | 武器槽 3/4 的开启规则（到达岛 4、岛 8）| 作为校准规则：TC1–24 的 DpsData 训练、TC ≥ 25 验证；等原生的 `UnlockSimulationWeaponSlot` |
-| Q24 | 活跃分钟模型：`FarmedTime`（κ）还是 `NnTour` | 默认 `FarmedTime`；`NnTour` 只有在留出段按 AIC 胜出时才换 |
+| Q23 | 武器槽 3/4 的开启规则（到达岛 4、岛 8）| 已决定：岛 4/8 校准规则；原版 `UnlockSimulationWeaponSlot` 在 6af011f 为空壳，weapon_2 为岛 1 pier boss 的 SlotReward。 |
+| Q24 | 活跃分钟模型：`FarmedTime`（κ）还是 `NnTour` | 已决定：`NnTour` + κ（K1）；K3 拟合 TourA/TourB。 |
 | Q25 | 第 5 天 DpsData 异常（隐含 K2 ≈ 0.26）| 未解决：P18 四组合打平，不能辨识；不调参数 |
 | Q26 | 是否开第二个运行工作树（第二条 Unity 车道）| 先单车道；C# 已能离线编译并行写，C3d 合入后看运行车道的排队再决定 |
 | Q27 | AB `keyData` 的抽取缺陷：修抽取器，还是在 `model/ab.py` 里回退 | 先回退（P6）；修抽取器作为 P6 的可选部分 |
@@ -2301,16 +2316,16 @@ cd Balance && .venv/bin/python -m tufu_balance.graph impact <节点> [--runtime-
 17. **慢阶段时间**（第 3 版新增）：首选零参数的已恢复形式 `farmedTime`（或把移动项换成按距离），`CMove = CRegen = 1`。
 
 
-## 9. 2026-10-29 偏差与修订记录
+## 10. 2026-10-29 偏差与修订记录
 
 本节记录实施后证据，遇到前文的历史计划或验收文字与本节冲突时以本节及各单元 Runbook、Calibration.md 为准。
 
 - **0、1.5、3.3（C2/P2）**：Mono 采用 binary64 表达式、存储时 float32；默认 double_all，109/109。DP4 796/816、DP7 136/7808 有至多 1 ulp 差异；DP5 四个中间量相对差 3.7e-8。K3(405)=4.90752f；插值缓存按对象身份，原地修改可能失效。G14 的声明容差为 0.005。Q03 不需要改游戏代码。
 - **3.3（P3/P4/P6/P7/P8）**：OT→rel 为 653/717；float64 为 676，s=100 返回 ITD[98]。G18 为 675；88 个物品配置、86 个 key，Level 为 EffectiveLevel；机器人并非立刻进化。boss 查找仅限本岛；变体按类默认值回退，Newtonsoft 原位合并；BossTower 走物品奖励路径。R1 为 at-least ratchet，Damage 使用偏好武器的 DefenseData，Dummy 用分钟制；G20 1155/1380 逐位，其余相对误差小于 1e-4（最差 7e-10）；R2 最后 DPS 0.0013227，K3(d−1) 拟合更好。
 - **2、7.3（W0/C0/C1/C3）**：fixture --check 不检查 provenance hash，--force 有保护；网络探测在代理后有盲区，manifest 中整数值 double 的类型可能丢失；零冷却就绪修复保留（698 个）。导出总调用 GetTrimmedTimeChunkSnapshots；StatBase.Modifiers 不序列化，守卫遍历托管字段并通过 UnloadAsset 恢复。快照是 30 个属性，不是 36；TotalValue 顺序为 (Value × (1+K2)) × K3。门只打开一次，回门独立计数；清怪次数上限取 ceil((limit−used)/Count)，超出计 charge_clamped。性能预算使用中位数；机器忙时 perf 在负载超过 CPU/4 跳过。
-- **4.4、4.6、7.4（Enginefix/K1）**：慢战斗后、普通早期快照前刷新 DpsData/DefenseData；X2 相应重算。replay 的 day-d 覆盖在 RecalculateChunkRpmValues 前，其他覆盖在强制快照后，后者不自动重算 RPM 或开槽。RPM running max 仅在随包 TC 日更新；所有日更新会抬高 5336 个单元。T09 为 1380/1380（1190 逐位，其余至多 3 ulp）。X6 按同名 float 修饰器累加。DP8 的钩子跨所有权边界，详见 CrossCheck.md 与 Enginefix.md。
+- **4.4、4.6、7.4（Enginefix/K1）**：慢战斗后、普通早期快照前刷新 DpsData/DefenseData；X2 相应重算。replay 的 day-d 覆盖在 RecalculateChunkRpmValues 前，其他覆盖在强制快照后，后者不自动重算 RPM 或开槽。仅 replay 使用 stored caches 时 RPM running max 在随包 TC 日更新；所有日更新会抬高 5336 个单元。T09 为 1380/1380（1190 逐位，其余至多 3 ulp）。X6 按同名 float 修饰器累加。DP8 的钩子跨所有权边界，详见 CrossCheck.md 与 Enginefix.md。
 - **4.5、5.1、7.3（C5/C7/K1/K2）**：门禁奖励 1e6 仍须按 reward×PM/cost 竞争；例如第 2 天 98462 对物品点 126445。T04 原 2%/8% 只对 NnTour 可行（开环 1.085%/5.635%）；FarmedTime 4.29%/8.59%。T12 逐日整数原契约 18/29，改用掷骰前期望 5% 加每流少于 1 份；训练 TC57–104、留出 TC104–154。T16 的 5% 对 TC1 MovementSpeed 13 比一次清怪（约 15%）更细，保留为设计问题。C7 初次交付的 countRespawn 与 boss 标志缺口后来由 K2 补充逐日计数并改为清怪前取样；其他边界与优先级测试缺口见 Runbook 21。
-- **5、7.3（K3）**：以 TC4–103 的 T06 和 T20 硬筛选，基线 0.621%，H3 0.631%，选基线；TourA [0.9796,1.0535]、TourB [0.7433,0.8266]（seed 0，TC 区间块），CMove 不可辨识固定 1。T05 36/41、T07 11 个区间内且 1 次翻转、T15 后期 DPS 17.06% / defense 0.98% 的 ratchet 仅适用于 Carry；随机种子不满足部分 ratchet。自由运行 T03、T04、T06、T09、T12、T14、T16、T19 Health、岛 3 和早期物品失败，checkpoint 亦有失败，均已登记；闭环可信度未建立。T19 Health：Carry 138/383，seed-1 171/386，seed-2 120/386，A 为 162/469；分钟制 9/108 对 79/108；Damage 通过。X4 seed-1 为 716/717，其余 Carry/checkpoint/seed-2 为 717/717。
+- **5、7.3（K3）**：以 TC4–103 的 T06 和 T20 硬筛选，基线 0.621%，H3 0.631%，选基线；TourA [0.9796,1.0535]、TourB [0.7433,0.8266]（seed 0，TC 区间块），CMove 不可辨识固定 1。T05 36/41、T07 11 个区间内且 1 次翻转、T15 后期 DPS 17.06% / defense 0.98% 的 ratchet 仅适用于 Carry；随机种子不满足部分 ratchet。自由运行 T03、T04、T06、T09、T12、T14、T15 中段 DPS（TC25–99 最大 40.036% 对 15%）、T16、T19 Health、岛 3 和早期物品失败，checkpoint 亦有失败，均已登记；闭环可信度未建立。T19 Health：Carry 138/383，seed-1 171/386，seed-2 120/386，A 为 162/469；分钟制 9/108 对 79/108；Damage 通过。X4 seed-1 为 716/717，其余 Carry/checkpoint/seed-2 为 717/717。
 - **补丁、导出与刷新（P9/P10/P11/P12/P13）**：143 个可补丁字段；add/mul 以 double 计算后转换，刷怪点键为 (scene,file_id)，新增 evolution_armor_sync；字典非 Python 可补丁节点透传并告警。缓存命中要求 asset_guard.json；X2 的 override 慢快照和 X5 override 有空检范围。diff 的资产版本模式限于安全的已有配置叶子，缓存索引由 diff --cache-base 建立；refresh L0 预算 60/90 秒原文冲突，实际 fail-fast。具体例外、测试缺口及测量见 Patch、CrossCheck、DiffTool、DriftCheck、Runbook 和 Calibration 文档。
 - **基线工具**：定义变化或序列化文本变化仍须通过现有 accept/loosen 流程登记；独立的无需 loosen 的纯重接受入口列为后续工作，不改变 ORIGINAL。
 
@@ -2320,3 +2335,71 @@ cd Balance && .venv/bin/python -m tufu_balance.graph impact <节点> [--runtime-
 - **运行与所有权（C0b/C1/C3a/C3c）**：Job 新字段均使用 JsonProperty 的 NullValueHandling.Ignore；受代理影响的网络探测和 Job 阶段心跳按帧而非纯 tick 检测仍是限制。退出后 Temp 被删除，常驻报告在 out/sim/serve。真实存档变化仅在干净退出及同一游戏副本编辑器、沙箱证据完整时归因；其他编辑器存在时禁止恢复，失败测试仍可能退出 2。曾发生将备份恢复覆盖另一编辑器写入的事故，后续启动器已修复。C1 导出对大整数 YAML 的规则仅适用 |x|<1e15；rebuild_coverage.json 尚未导出。C3a 有些原有方法虽有代码体却无 VA 注释，签名锁不应把它们称为 Native。参数散列对 Newtonsoft 的 -0.0→0.0 差异安全失败。
 - **补丁和校准（P9/P10/C5/C6）**：结构列只在 where 使用，直接设置与既有不一致保留并报告漂移；StatRewards 不可由 Python 打补丁，整数 NaN/inf、枚举小数或 bool 和 float32 where 比较仍有边界缺口。T07 的 2–3 岛按 P 区间日 ±1，T11 容许下一快照；T17 随包夹具 TC9 前已有 armor=1。快阶段门禁允许同日多轮；T04 的早期 FarmedTime 不合原限，忙机测得 405 天 p95 49.3ms、最大 60.8ms，不能把它当空闲中位数。C6 原版开武器槽方法是空壳，weapon_2 来自岛 1 pier boss 的 SlotReward；T12 mace 提前的 C5 单独归因已撤回。
 - **校验和基线（P11/P12/P13/K2/K3）**：P11 override 作业的 X2 慢快照与 X5 部分为空检；P12 曾将 reconstructed 计入未建模、readiness 路径影响缓存键，修订见 Enginefix。P13 的 L0 60 秒与 90 秒预算冲突，实际采用 fail-fast；LFS 离线 smudge 是环境限制。K2 的候选排序和 ORIGINAL 修正执行顺序偏离记录在 Calibration.md；H1/H2/H3 比较没有消除岛 3 与早期物品失败。K3 的 405 天作业 9.35 秒、冷启动约 25 秒；科学失败以证据和放宽记录保留，不能误读为科学验收通过。
+
+### Z1 决定与逐条交接索引
+
+- **R2**：保留已验证的 RpmFirst 默认，不把 K3(d−1) 较好拟合当作证明或改动运行行为；作为后续假设记录（3.3、4.4）。
+- **DP8 所有权**：接受跨所有权钩子的现状作为集成偏差；C# 钩子由 Enginefix/C1 共同维护，Python 交叉检查由 P11 维护；不移动实现（7.4、CrossCheck.md）。
+- **K2**：原始奖励优先级在 statsBenefit=1 时导致首日死亡损失 minisaw；SameAsFast 因岛 2 boss loss/H=1.06 拒绝，空闲约 19 分钟，岛 3 第 2 天，P=128.8 对 [110.2,115.3]。CMove=0.953 为六路平局；H1 训练 0.90 更差，H2 消除首日死亡，H2+H3 T04 为 0.9–2.2%。
+- **T03**：K2 cadence 计数 61/60 的问题交 K3；K3 为 57/60，仍失败。
+- **K3**：T06 TC≥24 最大相对误差 0.50 对 0.02；calibrated.json hash 前缀 be166b02，归档在 `Balance/out/calibration/full/calibrated-round4`。
+- **C7 风险**：死亡判据 ≤0，而游戏 IsDead ≤0.01；SameAsFast 反射读取 KillLossMultiplier，缺失时静默回退 1.0。killseq 的 DAFC 边界和 is_dummy 未测试。
+- **基线定义变化**：X2 golden405 4740→6660、smoke11 800→2720；T12 原始单元 11181→11190 经 rebaseline-original；oracle.raw_bits.default 和 G20.variant_b 有 loosening 记录。
+
+下表逐条保留调度者交接原文，作为本节的详细修订记录；编号固定，含历史环境事件与未完成事项。涉及具体契约时以前述正文和链接文档为准。
+
+| 编号 | 对应章节 | 交接记录（原文） |
+|---|---|---|
+| Z01-01 | 10（及相应单元 7.3、Runbook） | G18 = 675 on pet-free data (design says 690). |
+| Z01-02 | 10（及相应单元 7.3、Runbook） | Fixture --check ignores provenance hashes (7da12da); generate.py --force guard. |
+| Z01-03 | 10（及相应单元 7.3、Runbook） | C0a Runbook section 9 contradictions. |
+| Z02-01 | 10（及相应单元 7.3、Runbook） | Integration fix: extract.py skips Harness/ and Rebuild/ enums (REBUILD_SCRIPT_DIRS); timeline docstring reworded (P2 rounding ban false positive). |
+| Z02-02 | 10（及相应单元 7.3、Runbook） | P2: interpolation default (json) reaches only evaluate_rounded / total_coefficient / composition_coefficients; legacy evaluate/get_total_coefficient/get_interpolation_coefficient stay stepwise (fixtures). P7/P8 must use total_coefficient. K3(405) = 4.90752f (design says 4.9075f). get_by_time_chunk_index cache keyed by identity (stale if mutated). original/core.json G14 residual declared 0.005 tolerance not 0.0032 measured. |
+| Z02-03 | 10（及相应单元 7.3、Runbook） | P3: OT->rel 653/717 (not 656); f32 vs f64 distinguishable (676 for f64); TimingPoints text reproducible (format_points); s==100.0 returns ITD[98]. Docstring of relative_from_optimum_time still says 656. No test pins f32 stepwise in convert_island_timing_to_days. |
+| Z02-04 | 10（及相应单元 7.3、Runbook） | P4: 88 item configs / 86 keys (mushroommancer _0 duplicates); snapshot Level is EffectiveLevel; bot did not evolve ASAP; items_evolved_override day snapshots only. |
+| Z02-05 | 10（及相应单元 7.3、Runbook） | P6: boss_for_location restricted to island n; variant fallback to class defaults (B cooldowns == A); Newtonsoft in-place merge over class-default overrides (latent; matters for P9 patches removing keys); BossTower takes item path (ItemReward cut_common_shield) — P6 report wrong; shared DB not re-extracted (keyData fallback warns); original/current int vs float formatting. |
+| Z02-06 | 10（及相应单元 7.3、Runbook） | C0b: UserModel.cs hooks (ownership), ABTestModel isNewUser hook, zero_ready_cooldowns default on (698 zeroed; modelling decision for C3b/Q07); net check blind behind proxy 127.0.0.1:7897 (needs proxy-aware check); manifest echo loses float type for integral doubles; heartbeat progress includes Frames (stall check should be ticks-only in Job phase, C3b); partial hooks per unit RebuildJobApplyPatch(C9)/ApplyOverride(C4)/ExportOutputs(C1)/ExportBake(C8); Temp deleted at exit -> resident reports in Balance/out/sim/serve; StatBase.Modifiers not serialized, asset guard walks managed fields, restore via UnloadAsset; editor analytics session written to real save folder pre-rename; -nographics byte-identical. |
+| Z03-01 | 10（及相应单元 7.3、Runbook） | Env incident: shared balance.sqlite rewritten 05:54 by a P7 reviewer mutant (CREATE TABLE probe on shared DB); content equal, bytes differ. Restored from pristine (a7a2e3c5) and chmod 444; pristine copy in scratchpad/stage5/db_pristine/. P7 fix: probe now on private copy. |
+| Z03-02 | 10（及相应单元 7.3、Runbook） | Dispatcher: added `perf` marker (skip when load > cpus/2) to 3 timing tests (snapshots lookup, interpolation evaluate cost, bake cost) — user's editor in Play loads the machine. |
+| Z03-03 | 10（及相应单元 7.3、Runbook） | Real-save guard cannot attribute writes: while the user's main-checkout editor is in Play (rewrites game_data.bin every ~5 s), every launcher run exits 2. Launcher already skips restore when a foreign Unity runs. |
+| Z03-04 | 10（及相应单元 7.3、Runbook） | test_cscheck::test_membership_follows_unity_rules depends on run worktree's last compile (C3a adjusted it). |
+| Z03-05 | 10（及相应单元 7.3、Runbook） | P5: R4 bounds declared at stage-4 6-dp precision (design rounded 2 sig figs); k_armor = median 0.80356; R4 Value one-step; 6 nice() midpoints (doc says 4); generator arithmetic double (levers double in 6af011f), f32 equivalent on data; fitted_h armor per type ignores SyncShieldValuesByLeader (breaks sync identity — P9/C9 beware); untested boundaries (d<=T, T>=150). |
+| Z03-06 | 10（及相应单元 7.3、Runbook） | P7: owns bake.py/data.py; analysis/bake_check.py pinned rounding="stepwise" (outside file list); golden oracle.raw_bits.default depends on interpolation_default.json (C2 must re-accept when it changes the default); R1 counts are at_least ratchets (confirm reading of 按集合指纹冻结); G13 band defined independent of match; R1 Damage uses preferred weapon type's DefenseData; Dummy is minute-mode; all four roundings give identical G13 counts/sets; stepwise vs fma raw differences 47/20/12/20/2. |
+| Z03-07 | 10（及相应单元 7.3、Runbook） | P8: G20 1155 bit-exact of 1380 (rest within 1e-4 rel, worst 7e-10); fma/double_tail/double_all identical, stepwise worse; R2.dps.last 0.0013227 (design ≤0.00132 -> 0.001323); R2 fits better with K3(d-1) (Z1 decide); R2b differs at TC13 (P12 rule gives 2 armor slots vs fitted 1); ab.py additions: Newtonsoft merge over class defaults, CommonRewardMultipliers parsing + rpm_stat_value_multiplier (beyond handoff); ab.fast_rpm_config mislabelled formula id; kill days need explicit day (interpolated snapshot carries neighbour's TC); spawner order within island by (scene,file_id); SimCalcContext caches shared by dataclasses.replace (stale risk); keeps_fight_time no own @implements; identities on shipped data (EnemyHpDamageMultiplier=1, GlobalDefence=0, running max never exercised). |
+| Z03-08 | 10（及相应单元 7.3、Runbook） | C1: Mono "R" is .NET Framework kind (1396/20650 doubles 17-digit) — verified round-trip with G17 fallback; SimulationJson integral doubles now get ".0"; edits to C0b files (StartJob ResetRecorder, launcher, request, test_sandbox, __main__ CLI) listed in ExportIngest.md §8; exporter calls GetTrimmedTimeChunkSnapshots regardless of TrimSimulationData; ExportedIndices null passed to WriteSnapshotsExt; C3b must call SimulationExport.RecordSnapshot/ResetRecorder from MakeSnapshot; rebuild_coverage.json not written; YAML integral-number rule only \|x\|<1e15. |
+| Z03-09 | 10（及相应单元 7.3、Runbook） | C3a: RebuildResetForJob(ref bool) + internal bridge RebuildTryResetForJob(); SpawnerData's 5 empty methods unannotated (C7 owns); edited P0's test_cscheck.py; added Balance/tools/csmembers/; Provenance has Native; some original methods with bodies lack VA comments; Provenance enum values unpinned (manifest writes ints); SimulationConfig partial untested; AttributeUsage untested. |
+| Z04-01 | 10（及相应单元 7.3、Runbook） | Launcher attributes real save/PlayerPrefs changes to the user's main-checkout editor (real_changed_by_main_editor) only for clean runs with sandbox proof (same main editor pid before/after, unity exit 0, no others_seen, editor_report pid == proc.pid, real path == protected save dir, probe sandbox-only, no other guard problems); never restores; backup kept whenever a real change was seen and not restored. Reviewed (fix_needed -> fixed), 7/7 mutants killed. Serve mode -> P10 handoff. |
+| Z04-02 | 10（及相应单元 7.3、Runbook） | Live check with the user playing: clean runs pass with attribution; deliberately failing harness self-tests (exit 1/3/4/5/8, guard) and serve-mode test still exit 2 while the user plays (by design). |
+| Z04-03 | 10（及相应单元 7.3、Runbook） | perf marker: skip when load > cpus/4, checked at test setup. |
+| Z05-01 | 10（及相应单元 7.3、Runbook） | P9: 143 patchable fields; non-patchable dictionary nodes pass through to C# with warning `not_python_patchable`; structural cols only in `where`. New regenerate key `evolution_armor_sync` (report\|Stabbing\|Cutting\|Buckshot) -> register pending formula `pending:balance.evolution_armor_sync_by_leader`. optimum_time_from_relative also regenerates SpawnerRelativeOptimumTimeTool windows. Generators keep pre-broken (16 G03 exceptions) and directly-set values, warn on rule drift. add/mul in double then cast; int rejects non-integral; "a:b" half-open. Spawner leaves keyed (scene,file_id). Spawner Stats[*] are double in C#. keyData min/max 1e30 -> no range warnings. simcalc reads s_EnemySpawner__config.Stats; StatRewards not patchable in Python. New modules not in model/__init__.py. Open minors: NaN/inf on int -> raw error; enum set accepts 1.5/bool; float32 `where` compare unspecified (C9 parity). |
+| Z05-02 | 10（及相应单元 7.3、Runbook） | P10: T05 closed tolerance/caps, T07 flip count = pending_clause (K1/K3). T08/T15/T19/T20 not computed. T07 islands 2-3: unlock within 1 day of P-range day (TC0/TC1). T11 +-1 snapshot. T12 split at TC104 (57-104 train 5%, 104-154 holdout 7%); cells 11181->11190 via rebaseline-original (definition change, not loosening). T13 vs shipped evolution brackets. T17 fixture has armor=1 before TC9 (contradicts design); T12 tolerances conflict 5.1 vs C6 list. Cache hits need asset_guard.json (fake editors must write one). Serve stop clean only if all requests exit 0. Serve-mode attribution done (sandbox.json). Handoffs: C5 export spawner_days + charge counts; C6 slot counts in sim_snapshots_ext. |
+| Z05-03 | 10（及相应单元 7.3、Runbook） | C2: editor Mono = double_all exactly (109/109); Q03 game change NOT needed. Default rounding fma -> double_all; loosening entries in bake.jsonl/simcalc.jsonl (oracle.raw_bits.default, G20.variant_b). DP4 tc 796/816 (TotalPlaytime +-1ulp), DP5 4 NewHealthRaw intermediates 3.7e-8 rel, DP7 136/7808 within 1 ulp -> all from "Mono computes float in binary64, rounds on store". Design 1.5 rule 3 wrong for editor -> Z1/Q03 decide whether other oracle float paths follow. G19 anchor: GetByTimeChunkIndex interpolates with t=1 at stored days. Edited C0b files (SimulationHarness.cs hook RebuildJobRunProbes; PlayModeDriver.StartJob). tests/unity/ dir is itself the unity marker. |
+| Z05-04 | 10（及相应单元 7.3、Runbook） | C3b: snapshots have 30 stats not 36. Composition order (Value*(1+K2))*K3 rests on G11 only. Rebuild* prefix (cscheck rejects lowercase rebuild*). Gates open once; back-gates (islands 4,11,12,13) counted separately. Day override AFTER forced snapshot (4.6 over 4.4); RPM not recomputed after override (C4 must call CalculateRPMValueTimeChunk; C4 unlock override must open SlotReward). Engine caps clears at ceil((limit-used)/Count), excess = charge_clamped. zero_ready_cooldowns stays on (Runbook 16.4). Provenance pinned 0-4. Perf budgets on medians (Runbook 16.3), C5/C7 to re-measure idle. Disabled-modules/heartbeat launcher tests never passed: user editor wrote real save continuously -> rerun when quiet. |
+| Z05-05 | 10（及相应单元 7.3、Runbook） | Integration fix a9276e2: C2's Job.Probes lacked NullValueHandling.Ignore -> C0b round-trip test failed after merge (C2 had misattributed it to the real save). RULE for every later request field on Job: [JsonProperty(..., NullValueHandling = NullValueHandling.Ignore)] -- check C4/C8/C9 Request partials at batch-5 merge. Also: unit reports' "all failures are real-save" claims must be verified per test (grep guard_problems/assert) before trusting. |
+| Z06-01 | 10（及相应单元 7.3、Runbook） | Merged: c12a566 C3c, dc18aa7 C3d, 80f1592 C4 (Runbook 18->19), 422bfd2 C8, b0c2774 C9 (Runbook ->20), 1ed027a extractor skips rebuild ScriptableObject assets (c_SimulationRebuildParamsAsset), 38bda3d C7 (Runbook ->21). Runbook section numbers in unit commit messages/golden notes may say 18/19 — renumbered at merge. |
+| Z06-02 | 10（及相应单元 7.3、Runbook） | C3c: params asset class in SimulationRebuildParamsAsset.cs; Newtonsoft reads -0.0 as 0.0 (params_hash check fails safe, exit 5); FromJson/Validate/SimulationCanonicalJson public; new tool Balance/tools/rebuildcheck; job field params_source; daily.csv +ticks/offline_steps/complete. Handoffs C5/C6/C7 trace calls (RebuildTraceEligible/Fight/Death/Evolve/SlotUnlock), K3 `params import --layers calibrated`. |
+| Z06-03 | 10（及相应单元 7.3、Runbook） | C7 review minors (accepted, for Z1/K2): countRespawn/countNeighbFight/countFightWithStrong written but never exported/asserted (design wants countRespawn per day in daily.csv); no test of priority value/argmax (reviewer recomputed: correct to 1e-12); slow_fight `boss` flag computed after RebuildApplyClear so gate fights logged boss=false (fix: capture before); killseq DAFC bound + is_dummy untested; HealthBefore==loss edge takes non-death branch, death predicate <=0 vs game IsDead <=0.01; SameAsFast reads KillLossMultiplier via reflection, silently 1.0 if renamed. |
+| Z06-04 | 10（及相应单元 7.3、Runbook） | C5 (Codex): T04 median 4.29% / max 8.59% vs 2%/8% -> frozen with loosening records (under review). Diagnostics measured: no-gate 25/41, theta 14/4/7, next-day planning 17 bad. |
+| Z06-05 | 10（及相应单元 7.3、Runbook） | Merged 1b586bf C5 (Codex; Runbook 22; FastTick.md lists ownership deviations), 6dbd753 P11 (Codex fix). C5 review minors: T04 2%/8% infeasible even on the survey's own farmtime.py (2.31%/8.14%) -> Z1 must restate T04 tolerance; flush-modifier test is tautological (count real modifiers + Source); T05 batch explanation (8-spawner island group) beyond design wording, window untested; recorder unlock dict merges duplicates; perf measured on busy machine (fast-405 p95 49.3 ms, max 60.8 ms vs 50 ms median budget). |
+| Z06-06 | 10（及相应单元 7.3、Runbook） | P11 minors: on override jobs X2 skips all slow-tick snapshots (incl. day 0) and X5 whole check vacuous — wider than needed (could compare against override_days stored caches). DP8 C# hook ownership deviation needs Z1 disposition. |
+| Z06-07 | 10（及相应单元 7.3、Runbook） | From batch 6 on: Codex implements (C6, P12, P13 started from 6dbd753), Claude reviews once. |
+| Z07-01 | 10（及相应单元 7.3、Runbook） | Merged: P13 (drift/refresh; L0 60 s vs 90 s budget conflict 7.3 vs 2.8; fail-fast documented; LFS smudge offline), P12 ff83aea (diff tool; temporary X2 slow_tick exemption to be removed by Enginefix). |
+| Z07-02 | 10（及相应单元 7.3、Runbook） | ENGINE FIDELITY (confirmed from shipped data by an independent reviewer): the original refreshes DpsData/DefenseData after the slow fight and before the early snapshot (day-0 Cutting DPS = c*(CutDamageFlat+12*knifeLevel) with each snapshot's own stats; shipped 12.307693/40.000001 vs tick-start 11.538/38.46). Design 4.4 pseudocode must be corrected. Fix in progress on balance/s5-X2fix ("Enginefix"), together with: X2 slow_tick back to post-fight recompute; X6 oracle float32 accumulation (StatBase.AddModifier merges same-name float modifiers) -> 47 false failures from day 359 vanish; P12 exemption removal. |
+| Z07-03 | 10（及相应单元 7.3、Runbook） | C6 review: G07 probe could not detect a no-op generator (fixing); T12 Epic weapons 68 vs 62 = all mace from island-4 Epic spawner Spawner_1_epic_buck, first eligible day 10 in replay vs ~13 shipped -> C5 fast kill gate (K1/C5); T17 free/checkpoint 2 slots at TC1 (replay lag from day-0 override unlock); UnlockSimulationWeaponSlot is an empty stub at 6af011f, weapon_2 is a SlotReward on island-1 pier boss. |
+| Z07-04 | 10（及相应单元 7.3、Runbook） | P12 re-review minors: 'reconstructed' formulas counted 未建模 while text says included; readiness path absolute -> cache keys location-dependent (in Enginefix brief). |
+| Z07-05 | 10（及相应单元 7.3、Runbook） | Merged C6 (Codex) and c5a1450 Enginefix (Codex; engine refreshes caches after slow fight before non-forced early snapshot; Enginefix.md). Design 4.4 pseudocode must be updated. StaleTickCache ablation semantics changed (Runbook 16.2a). crosscheck X2 counts re-accepted (golden405 4740->6660, smoke11 800->2720: +30 basis checks per non-forced snapshot). P1 golden tool forces --loosen records for exact-object definition changes and serialization-only text changes (C6 headroom) -> Z1: add a plain re-accept for bit-equal/definition changes. |
+| Z07-06 | 10（及相应单元 7.3、Runbook） | Island 3 unlock: rebuilt day 4 vs shipped day 1 -> K2 calibration. C5 tests assumed all 16 unlocks in fast phase (stale after C7) -> fixed in Postmerge. |
+| Z07-07 | 10（及相应单元 7.3、Runbook） | Postmerge review: design 4.5/7.3 C7 "gate reward 1e6 -> always chosen" is wrong; priority = reward*PM/cost, gate competes (slow-bydist day 2: gate 98462 vs island-1 Cut item spawner 126445). FindBestSpawner/GetPriority empty at 6af011f; CalculateSpawnerRewardValue: boss 1e6, item 1e4*Count. C6 roughly doubled slow-phase clears/ticks (403->854, 237->557) -> K2 re-check killseq/T16/T03. C4 evolution oracle OK. |
+| Z07-08 | 10（及相应单元 7.3、Runbook） | K1 round 1 (Codex): choices StartOfDay, NnTour+kappa, Chain/Swapped, Timed evolution, slots 4/8, P18 default (DayChangeInventoryOrder is a tie, not identified). NnTour meets original T04 limits (1.085% / 5.635%) -> C5's "T04 infeasible" holds only for FarmedTime. Exported T09 889/1380: replay day-change order (RPM before override; post-override recompute leaks through running max) -> fixing in K1 round 2 (C3b/C4 hook). T12 daily 5% on integer copies infeasible (shipped scatter +-1-2) -> restate on expectations/bands. Mace +6 copies: Spawner_1_epic_buck killable day 10 even with kill-none -> C5 eligibility, not a K1 lever (C6 handoff note was wrong). Holdout non-discriminating for KillState/P12. |
+| Z07-09 | 10（及相应单元 7.3、Runbook） | Merged 88b08e5 K1 (Codex round 2): replay applies the day-d override BEFORE RecalculateChunkRpmValues (C4 hook RebuildApplyDayOverrideBeforeRpm); T09 1380/1380 under G20's 1e-4 cell test (1190 bit-exact, rest <= 3 ulp); RPM running max only updates on shipped TC days (by construction; all-days max would raise 5336 cells, T09 still 1380). T12 daily restated on pre-roll expectation + 5% + <1 copy per stream (Carry-derived, weakly discriminating; original integer check 18/29 kept as ORIGINAL t12.daily_contract). Mace +6: eligible days 10-13 in original filter (skip only OT > TC), oracle, C5 -> K3 policy (lead: original 0.2x RPS when loss > H/2, 6af011f SimulationSystem.cs:671). Inventory.md lines 58/90 superseded (fix requested in K2). |
+| Z07-10 | 10（及相应单元 7.3、Runbook） | K2 round 1 (Codex): T20/island 2/island 4/holdout pass; island 3 P 128.8 vs [110.2,115.3], items 4/5/7/8, T16 15.4% (MovementSpeed TC1 11 vs 13), T03 57/60, T04 4.7% fail. Reviewer chain: priority values raw reward (statsBenefit=1) -> day-0 HealthRegen +18 vs +21, MoveSpeed +10 vs +12 (Spawner_1 (12) never targeted), day-0 death loses a minisaw -> island-2 boss loss/H 1.06 vs shipped 1.02/0.98 refused by SameAsFast -> ~19 min idle -> island 3 day 2. T04: idle runs past lifeCyclePeriodEnd. CMove 0.953 moved nothing (6-way tie) -> back to 1. Round 2 tests registered H1 (MarginalKillTime / RPM-normalised benefit), H2 (RegenToFull), H3 (idle cap, en-route chain break). Z1: T16 5% on MovementSpeed(13)/HealthRegen at TC1 is coarser than one clear (15%) -> design issue. |
+| Z07-11 | 10（及相应单元 7.3、Runbook） | K2 round 2 (Codex, not re-reviewed by user's choice to save quota; I self-checked slow.json CMove=1, ORIGINAL arrivals = design ranges): grid baseline/H1-marginal/H1-rpm/H2/H3 combos; island 3 day 2 and items 4/5/7/8 in ALL arms; H1 worse (train 0.90); H2 removes day-0 deaths; H2+H3 T04 0.9-2.2%. User chose (2026-10-29): register failures, merge 68a164e, pass H2/H3 to K3 for selection on full-run data. T03 cadence counter bug (61/60) -> K3. |
+| Z08-01 | 10（及相应单元 7.3、Runbook） | Selection on full-run T06 TC4-103 (holdout TC>=104), T20 hard filter: baseline kept (0.621%), H3 runner-up (0.631%); H2/H3 not adopted. Two fitted params TourA [0.9796,1.0535], TourB [0.7433,0.8266] (seed 0, TC-interval blocks); CMove unidentified, fixed 1; kappa alternative inactive. |
+| Z08-02 | 10（及相应单元 7.3、Runbook） | Scientific FAIL registered (loosening records with evidence): free T03, T04, T06 (TC>=24 max rel 0.50 vs 0.02), T09, T12, T14, T16, T19 Health, island 3, early items; checkpoint failures. T19 Health 1%/5%: Carry 138/383, seed-1 171/386, seed-2 120/386 vs A 162/469 -> FAIL; minute mode 9/108 vs 79/108; Damage passes. Closed-loop credibility NOT established. |
+| Z08-03 | 10（及相应单元 7.3、Runbook） | Ratchets T05 (36/41 exact, <=3 unexplained), T07 (11 in range, 1 flip), T15 (late DPS 17.06%, defense 0.98%) apply to deterministic Carry only; seed-2 breaks T05/T07, both seeds break T15 late defense. |
+| Z08-04 | 10（及相应单元 7.3、Runbook） | X4 717/717 bit-exact for Carry/checkpoint/seed-2; seed-1 716/717 (Scenes/Main.unity:55596 new-value bit mismatch, unresolved). |
+| Z08-05 | 10（及相应单元 7.3、Runbook） | calibrated.json (be166b02...) imported via importer; asset committed; sim_regression golden + 4 sim_run CSVs accepted; P12 labels calibrated. |
+| Z08-06 | 10（及相应单元 7.3、Runbook） | Archive: shared Balance/out/calibration/full/{calibrated-round3,calibrated-round4,preflight} (copied from K3 worktree; job dirs referenced in preflight/full_jobs.json live in /Users/joyfort/MyProjects/Tufu-s5-K3/Balance/out/sim/runs). Rebuild: python -m tufu_balance.calibrate.stage_full --cached. |
+| Z08-07 | 10（及相应单元 7.3、Runbook） | Runtime: 405-day 9.35 s job, cold 25 s. refresh --level 2 on e46214b green (Unity 308 passed). |
+| Z08-08 | 10（及相应单元 7.3、Runbook） | Launcher (c30312b, a6f7ee3, by main session): any other Unity editor blocks real-save restore; only editors on a copy of the game (path contains Recovery/StudyProject) are used for attribution. Incident: before the fix, run b24896723110 restored the save over the Tufu-rpg editor's writes (07:17 PDT 2026-10-29). |
+| Z08-09 | 10（及相应单元 7.3、Runbook） | Open for Z1: Q25; T16 5% finer than one clear; T04 tolerance restatement; T12 mace (Spawner_1_epic_buck days 10-13, 0.2x RPS lead); design 4.4 pseudocode and 4.5 gate 1e6 claim; "147/177 vs 13/16" and "day = 30 min" wording. |

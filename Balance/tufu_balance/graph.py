@@ -31,7 +31,7 @@ ROLES = ("config", "value", "state", "constant")
 def dictionary_nodes():
     if not DATABASE.exists():
         sys.exit("Balance/out/balance.sqlite missing: run `python -m tufu_balance.extract` first")
-    with sqlite3.connect(DATABASE) as db:
+    with sqlite3.connect(f"{DATABASE.resolve().as_uri()}?mode=ro", uri=True) as db:
         return {row[0] for row in db.execute("SELECT node FROM data_dictionary")}
 
 
@@ -73,6 +73,12 @@ class Graph:
                     if unknown:
                         self.problems.append(f"{fid}: output {node} depends on non-inputs {sorted(unknown)}")
                     self.output_deps.setdefault(fnode, {})[node] = set(item["depends_on"]) & input_nodes
+        for fid, f in self.formulas.items():
+            for target in f.get("realizes", []):
+                if target not in self.formulas or target == fid:
+                    self.problems.append(f"{fid}: invalid realizes target {target}")
+                else:
+                    self._edge(f"formula:{target}", f"formula:{fid}", "realized by")
         for node in list(self.nodes):
             # value:x.q[Q] specialises value:x.q: whatever moves the generic quantity moves each qualified one
             if node.startswith("value:") and node.endswith("]") and "[" in node:

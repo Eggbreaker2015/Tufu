@@ -2342,7 +2342,7 @@
    "verdict_summary": "The catalog is largely accurate. I checked all 36 formulas against the code and found no rejections. I re-derived the amulet numbers with a script that parses all 298 AmuletUpgradeDefsBuilder defs and the baked multipliers in Amulet Config.asset. Stat totals, meta lambda values, XP thresholds, and the native/stub status labels all hold up.\n\nCorrections:\n- **Amulet cost (main defect):** cost is PrettyRound(PrettyRound(c(L)) * CM), not single-rounded. UpgradeCostDef.Evaluate already rounds before UpgradeDef.EvaluateCosts multiplies. This changes non-integer shapes such as L^1.5 and L^1.2. Corrected totals: elite 84,435 (not ~84.6k), common 12,143,385, XP 41.59M.\n- **Two open questions are wrong:** the AbilityHealthRegenMultiplier consumer exists (PlayerRegenSystem.cs:36), and DoubleLoot is consumed in PlayerRewardSystem.cs:55-63.\n- **Callers that do not exist:** no code calls AddSouls(isSimulation=true) or AmuletModel.AddLevels. Their used_by claims are unsupported.\n- **AddStatEffect:** the daily-proc check comes before the temporary branch too.\n- **Ability conditions:** CombatCondition has a Mode inversion and StacksCondition has a NotReachedMax mode; both were missing. The cooldown tick lives in ResetPerFrameState.\n- **Lightning:** its base damage is the already-mitigated hit damage.\n- **Line numbers:** many code_refs are off (AbilityState, AbilityExecuteEventSystem, AddRageEffect, AbilityContext, builder lambdas at 1958-3214).\n\nMissed formulas added:\n- the DoubleLoot multiplier;\n- the trigger-routing mask, which makes OnHit/OnCrit procs fire only from the owning weapon while OnPostHit is broadcast;\n- TriggerAbilityEffect chaining;\n- the item ability unlock gate (Evolved and UnlockLevel)."
   }
  ],
- "critic_summary": "The catalog covers the core combat and growth loop well. The main gaps are cross-couplings and simulation and editor stubs, not missing combat math.\n\n**Key missed couplings**\n1. Item-spawner copies overwrite the per-kill multiplier. Item drop amount therefore also scales devour stat and soul income (EnemySpawner.cs:1215, GrantSpawnerStatRewardCommandHandler.cs:29, GrantSpawnerSoulRewardCommandHandler.cs:33). The simulated RPM does not model this.\n2. Weapon cadence modifiers sit outside the attack-cycle entries: the 1 s equip warm-up, the weapon_1 base-range gate, and the ability cooldown reset (cooldown = castPoint*cd + 0.15).\n3. Meta mark synergies (evasion_mark, mark_lifesteal, the hard-coded 10% piercing mark chance) and state-dependent effects (missing-health, empty-slot and stat-proportional damage, temporary buffs) cannot be represented in the expected-value simulation or bake. They enter the design only through the PlayerAbilityDPSMult and EHPMult interpolation curves.\n\n**Status audit (correct labels before export)**\nThese files carry no native VA comments, so their formulas should be `reconstructed`, not `recovered_native`, unless other evidence exists:\n- Unit/Stat.cs (all specific-value curves, cap 0.8) and Unit/StatBase.cs (raw aggregation).\n- Runtime EnemySpawner logic (only SetupView is annotated).\n- Meta/SpawnerChargesCalculator.cs, SpawnerTimerCalculator.cs, ItemDropAmountCalculator.cs.\n- CombatBalanceConfig getters (GetDamageBase, GetEvolution*, GetEvolutionShardsRequirement).\n- ABTestService, EnemyAttackSystem, EnemyRegenSystem.\n- The DamageCalculator helpers ApplyDamageDefense, SolveAttackDamage, GetBattleRegen and GetGlobalAttack/DefenceMultiplier. Only Calculate and the event and mastery multipliers are annotated.\n\nOther status issues:\n- The SpawnerRelativeOptimumTimeTool, SpawnerDifficultyBulkSetter and EnemySpawnersDebugger bodies are empty, so they are `editor_only_missing`.\n- ArmorFormulas.Get has no callers, so it has zero model impact.\n\n**Duplicates to merge (same code under several ids)**\n- stats.raw_value_aggregation / combat.stat_value_aggregation\n- stats.modifier_merge / combat.stat_modifier_merge\n- stats.specific_curve.* / combat.stat_specific_value_curves\n- Lifesteal, thorns, enemy reflection and first-vulnerability (stats.* vs combat.*); thorns appears a third time as powerups.thorns\n- Lethal ignore (three ids)\n- Rage reduction, health and extra-hit (combat.* vs powerups.*)\n- Hammer regen, creeper explosion and enemy regen (combat vs spawners)\n- Interpolation evaluate, total coefficient and island-timing-to-days (balance.* vs simulation.*)\n- Zero-cooldown collapse, item copies, stat, soul and currency grant (spawners.* vs meta.*)\n- Enemy cadence, leash and damage ramp (spawners vs combat)\n- Rewarded-ad stat (meta vs powerups)\n\n**Modeling concerns for the extractor**\n1. Export ABTest Data Config.asset with all variants and location overrides. Live enemy HP and damage, spawner cooldowns, charges (x unit Count) and the RPM stat-class multipliers come from it, overriding scene values whenever Cooldown >= 10 and the spawner is not item, VIP or event.\n2. \"Days\" in OptimumTime, IsDays and snapshots are 30-minute playtime chunks (TimeChunkDurationMinutes = 30, ConvertOptimumToDays = min/30). Simulated charge resets use 1440 minutes and live charge refill is UTC-aligned BigCooldown. Keep the units explicit.\n3. Bake and simulation use the location's PreferredWeaponType for incoming-damage defence and Rare-rarity interpolation, but live combat uses each spawner's WeaponType. Report the bake-vs-live delta per spawner.\n4. In the incoming hit, typed percent defence multiplies flat defence, while universal percent reduces damage directly.\n5. GetDamageBase and GetDamageGrowth map Magic and Universal to the Pierce arrays. Armor base and growth ignore damage type. All DamageBaseByRarity arrays are 0, so pre-evolution damage = growth*copies + FlatDamage.\n6. Simulation DPS divides off-type weapons by 10 and fills only UnlockedWeaponSlots/UnlockedArmorSlots. Typed defence excludes Universal armor, while live incoming damage includes it.\n7. RPM values that feed rewards are recomputed at runtime only from Shop and Forecast code. EnemySpawner.rpmCalculatedOnLoad is never set, so the core-scope trigger is missing. Model RPM as a pure function of the current state.\n8. The bot's core (stat benefit weights, item emission, fight resolution, ads, charge-chunk reset, interpolation stat modifier) is stubbed. Treat Simulation Data and TimeChunkSnapshots as ground-truth inputs rather than something to regenerate.\n9. An asset scan shows GrantStatOnHit, TreatAsAllSlotsEmpty, ScaledMultiplier and EmptySlotsCondition are unused, so their stubs are harmless today.\n10. EnemySoulSystem.OnUpdate is empty (1 s check interval, amulet refs). It is probably a soul-indicator visual, but verify it does not gate soul drops.\n\nAll paths are relative to /Users/joyfort/MyProjects/Tufu/Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase.",
+ "critic_summary": "The catalog covers the core combat and growth loop well. The main gaps are cross-couplings and simulation and editor stubs, not missing combat math.\n\n**Key missed couplings**\n1. Item-spawner copies overwrite the per-kill multiplier. Item drop amount therefore also scales devour stat and soul income (EnemySpawner.cs:1215, GrantSpawnerStatRewardCommandHandler.cs:29, GrantSpawnerSoulRewardCommandHandler.cs:33). The simulated RPM does not model this.\n2. Weapon cadence modifiers sit outside the attack-cycle entries: the 1 s equip warm-up, the weapon_1 base-range gate, and the ability cooldown reset (cooldown = castPoint*cd + 0.15).\n3. Meta mark synergies (evasion_mark, mark_lifesteal, the hard-coded 10% piercing mark chance) and state-dependent effects (missing-health, empty-slot and stat-proportional damage, temporary buffs) cannot be represented in the expected-value simulation or bake. They enter the design only through the PlayerAbilityDPSMult and EHPMult interpolation curves.\n\n**Status audit (correct labels before export)**\nThese files carry no native VA comments, so their formulas should be `reconstructed`, not `recovered_native`, unless other evidence exists:\n- Unit/Stat.cs (all specific-value curves, cap 0.8) and Unit/StatBase.cs (raw aggregation).\n- Runtime EnemySpawner logic (only SetupView is annotated).\n- Meta/SpawnerChargesCalculator.cs, SpawnerTimerCalculator.cs, ItemDropAmountCalculator.cs.\n- CombatBalanceConfig getters (GetDamageBase, GetEvolution*, GetEvolutionShardsRequirement).\n- ABTestService, EnemyAttackSystem, EnemyRegenSystem.\n- The DamageCalculator helpers ApplyDamageDefense, SolveAttackDamage, GetBattleRegen and GetGlobalAttack/DefenceMultiplier. Only Calculate and the event and mastery multipliers are annotated.\n\nOther status issues:\n- The SpawnerRelativeOptimumTimeTool, SpawnerDifficultyBulkSetter and EnemySpawnersDebugger bodies are empty, so they are `editor_only_missing`.\n- ArmorFormulas.Get has no callers, so it has zero model impact.\n\n**Duplicates to merge (same code under several ids)**\n- stats.raw_value_aggregation / combat.stat_value_aggregation\n- stats.modifier_merge / combat.stat_modifier_merge\n- stats.specific_curve.* / combat.stat_specific_value_curves\n- Lifesteal, thorns, enemy reflection and first-vulnerability (stats.* vs combat.*); thorns appears a third time as powerups.thorns\n- Lethal ignore (three ids)\n- Rage reduction, health and extra-hit (combat.* vs powerups.*)\n- Hammer regen, creeper explosion and enemy regen (combat vs spawners)\n- Interpolation evaluate, total coefficient and island-timing-to-days (balance.* vs simulation.*)\n- Zero-cooldown collapse, item copies, stat, soul and currency grant (spawners.* vs meta.*)\n- Enemy cadence, leash and damage ramp (spawners vs combat)\n- Rewarded-ad stat (meta vs powerups)\n\n**Modeling concerns for the extractor**\n1. Export ABTest Data Config.asset with all variants and location overrides. Live enemy HP and damage, spawner cooldowns, charges (x unit Count) and the RPM stat-class multipliers come from it, overriding scene values whenever Cooldown >= 10 and the spawner is not item, VIP or event.\n2. Snapshot and charge days are 1440-minute blocks of total playtime T; TimeChunkDurationMinutes=30 applies only to minute-mode OT conversion (TimeChunkDurationMinutes = 30, ConvertOptimumToDays = min/30). Simulated charge resets use 1440 minutes and live charge refill is UTC-aligned BigCooldown. Keep the units explicit.\n3. Bake and simulation use the location's PreferredWeaponType for incoming-damage defence and Rare-rarity interpolation, but live combat uses each spawner's WeaponType. Report the bake-vs-live delta per spawner.\n4. In the incoming hit, typed percent defence multiplies flat defence, while universal percent reduces damage directly.\n5. GetDamageBase and GetDamageGrowth map Magic and Universal to the Pierce arrays. Armor base and growth ignore damage type. All DamageBaseByRarity arrays are 0, so pre-evolution damage = growth*copies + FlatDamage.\n6. Simulation DPS divides off-type weapons by 10 and fills only UnlockedWeaponSlots/UnlockedArmorSlots. Typed defence excludes Universal armor, while live incoming damage includes it.\n7. RPM values that feed rewards are recomputed at runtime only from Shop and Forecast code. EnemySpawner.rpmCalculatedOnLoad is never set, so the core-scope trigger is missing. Model RPM as a pure function of the current state.\n8. The bot's core (stat benefit weights, item emission, fight resolution, ads, charge-chunk reset, interpolation stat modifier) is stubbed. Treat Simulation Data and TimeChunkSnapshots as ground-truth inputs rather than something to regenerate.\n9. An asset scan shows GrantStatOnHit, TreatAsAllSlotsEmpty, ScaledMultiplier and EmptySlotsCondition are unused, so their stubs are harmless today.\n10. EnemySoulSystem.OnUpdate is empty (1 s check interval, amulet refs). It is probably a soul-indicator visual, but verify it does not gate soul drops.\n\nAll paths are relative to /Users/joyfort/MyProjects/Tufu/Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase.",
  "unattached_corrections": [],
  "formulas": [
   {
@@ -4121,7 +4121,8 @@
    "output": "capped SpecificValue / FastSpecificValue; IsSpecificValueCapped flag",
    "code_refs": [
     "Unit/Stat.cs:17,42,51-59,81-90",
-    "Simulation/Systems/SimulationSystem.cs:339-347,999-1003",
+    "Simulation/Systems/SimulationSystem.cs:327-335",
+    "Simulation/Systems/SimulationSystem.cs:758-762",
     "Simulation/Forecast/ForecastSnapshots.cs:100,150-158",
     "Simulation/SimulationConfig.cs:114-138",
     "BossTower/BossSpawnService.cs:83,444-467,494-496",
@@ -7058,7 +7059,7 @@
     "Unit/Systems/UnitDamageSystem.cs:212-228",
     "Enemy/EnemyAttackSystem.cs:342-348",
     "BossTower/Systems/LavaCrabExplosionSystem.cs:116",
-    "Simulation/Systems/SimulationSystem.cs:979-990",
+    "Simulation/Systems/SimulationSystem.cs:738-749",
     "Simulation/Systems/SimulationSystem.cs:660"
    ],
    "native_va": "0x140a4cc (Calculate); 0x15cdf10 (ApplyDamageToPlayer); 0x140c070 (GetEnemyEventDamageMultiplier); 0x140c150 (GetIslandMasteryIncomingMultiplier); 0x15ce604 (ApplyThornsReflection); 0x15ce7e8 (ApplyLifesteal)",
@@ -7763,10 +7764,11 @@
     "Services/Damage/DamageCalculator.cs:149-174",
     "Services/Damage/DamageCalculator.cs:193-203",
     "Services/Damage/DamageCalculator.cs:219-225",
-    "Simulation/Systems/SimulationSystem.cs:826-851",
+    "Simulation/Systems/SimulationSystem.cs:604-628",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:207-214",
     "Simulation/Systems/SimulationSystem.cs:658",
-    "Simulation/Systems/SimulationSystem.cs:795-797",
-    "Simulation/Systems/SimulationSystem.cs:908-958"
+    "Simulation/Systems/SimulationSystem.Targeting.cs:144-146",
+    "Simulation/Systems/SimulationSystem.cs:667-717"
    ],
    "native_va": "0x140a4cc (Calculate); 0x140bef8 (GetEventGolemDamageMultiplier)",
    "status": "recovered_native",
@@ -8733,7 +8735,7 @@
     "Services/Damage/DamageCalculator.cs:105-110",
     "Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:910-916",
     "Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:2524",
-    "Simulation/Systems/SimulationSystem.cs:960-990"
+    "Simulation/Systems/SimulationSystem.cs:719-749"
    ],
    "native_va": "0x140a4cc (DamageCalculator.Calculate)",
    "status": "recovered_native",
@@ -14807,8 +14809,8 @@
     "Balance/CombatBalanceConfig.cs:239-246"
    ],
    "native_va": "",
-   "status": "editor_only_missing",
-   "status_evidence": "UpdateEvolutionShardsRequirements(playtime, items), TryCaptureShardsRequirement and SetShardsValue are empty. The exact capture/rounding rule is inferred from their signatures; only the output tables survive.",
+   "status": "reconstructed",
+   "status_evidence": "UpdateEvolutionShardsRequirements(playtime, items), TryCaptureShardsRequirement and SetShardsValue are empty. The exact capture/rounding rule is inferred from their signatures; only the output tables survive. Stage 5 reconstruction implements part of this rule.",
    "config_params": [
     "Combat Balance Config.EvolutionDamageShardsRequirements",
     "Combat Balance Config.EvolutionArmorShardsRequirements"
@@ -15041,8 +15043,8 @@
     "Balance/EvolutionCombatValue.cs:8-29"
    ],
    "native_va": "",
-   "status": "editor_only_missing",
-   "status_evidence": "ApplyEvolutionAutoBalance, SetEvolutionValue (both overloads), FillRemainingEvolutionValues and FillRemainingEvolutionsByLastValue are empty. The relations were fitted from data: ReferenceStatPercent matches exactly, and Value is a nice rounding of the heuristic (3461.8->3500, 20675->21000, 304372->300000).",
+   "status": "reconstructed",
+   "status_evidence": "ApplyEvolutionAutoBalance, SetEvolutionValue (both overloads), FillRemainingEvolutionValues and FillRemainingEvolutionsByLastValue are empty. The relations were fitted from data: ReferenceStatPercent matches exactly, and Value is a nice rounding of the heuristic (3461.8->3500, 20675->21000, 304372->300000). Stage 5 reconstruction implements part of this rule.",
    "config_params": [
     "Combat Balance Config.EvolutionDamageValues",
     "Combat Balance Config.EvolutionArmorValues",
@@ -16016,8 +16018,8 @@
     "Player/Inventory/ItemModel.cs:482",
     "Player/Inventory/ItemModel.cs:507",
     "Services/Damage/DamageCalculator.cs:129-130",
-    "Simulation/Systems/SimulationSystem.cs:841-848",
-    "Simulation/Systems/SimulationSystem.cs:915-929",
+    "Simulation/Systems/SimulationSystem.cs:619-626",
+    "Simulation/Systems/SimulationSystem.cs:674-688",
     "Player/Models/PlayerModel.cs:768-828",
     "Player/PlayerAttackSystem.cs:130-146",
     "Player/PlayerAttackSystem.cs:168",
@@ -25556,15 +25558,17 @@
    "output": "SimulationStatData {Key, Value, StatsFromFeaturesFlat, PercentMultiplier, TotalFlatValue, TotalValue, CurrentGpm} per stat in each snapshot",
    "code_refs": [
     "Simulation/Systems/SimulationSystem.cs:183-191",
-    "Simulation/Systems/SimulationSystem.cs:822-824",
-    "Simulation/Systems/SimulationSystem.cs:889-906",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:201-204",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:327-327",
+    "Simulation/Systems/SimulationSystem.Run.cs:403-404",
+    "Simulation/Systems/SimulationSystem.cs:665-665",
     "Simulation/SimulationStatData.cs:7-22",
     "Simulation/SimulationData.cs:41-56",
     "Simulation/Forecast/ForecastSnapshots.cs:96-101"
    ],
    "native_va": "",
-   "status": "stub",
-   "status_evidence": "MakeSnapshot (822-824), GetSimulationInterpolationCoefficient (889-892), UpdateInterpolationStatModifier, GetSimulationSnapshotStatValue and UsesInterpolationStats (894-906) are all empty/default with no native annotation. Only the stat sets and modifier names (__simulationStatsFromFeaturesFlatModifier, __simulationInterpolationStatModifier) survive. The math was reverse-engineered from Simulation Data: tf/v = 1+K2 and tv/tf = K3 exactly for Health, HealthRegen and LifestealFlat; tv/tf = 1 for the six combat flats (whose PercentMultiplier still holds K3); day 405: Evasion (23) has StatsFromFeaturesFlat 0 and PercentMultiplier 1, key 14 has 3.0 / 4.9075 with TotalValue == TotalFlatValue, key 1 has TotalValue = TotalFlat*4.9075.",
+   "status": "reconstructed",
+   "status_evidence": "MakeSnapshot (822-824), GetSimulationInterpolationCoefficient (889-892), UpdateInterpolationStatModifier, GetSimulationSnapshotStatValue and UsesInterpolationStats (894-906) are all empty/default with no native annotation. Only the stat sets and modifier names (__simulationStatsFromFeaturesFlatModifier, __simulationInterpolationStatModifier) survive. The math was reverse-engineered from Simulation Data: tf/v = 1+K2 and tv/tf = K3 exactly for Health, HealthRegen and LifestealFlat; tv/tf = 1 for the six combat flats (whose PercentMultiplier still holds K3); day 405: Evasion (23) has StatsFromFeaturesFlat 0 and PercentMultiplier 1, key 14 has 3.0 / 4.9075 with TotalValue == TotalFlatValue, key 1 has TotalValue = TotalFlat*4.9075. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "Combat Balance Config.Interpolations (StatsFromFeaturesFlat, StatModifier)",
     "Simulation Data.Snapshots / TimeChunkSnapshots (stored outputs)"
@@ -25724,10 +25728,11 @@
    ],
    "output": "List<SimulationDpsData> currentDpsData (stored in snapshots as DpsData) and dpsDataCache",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.cs:908-933",
-    "Simulation/Systems/SimulationSystem.cs:869-873",
+    "Simulation/Systems/SimulationSystem.cs:667-692",
+    "Simulation/Systems/SimulationSystem.cs:647-650",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:234-261",
     "Simulation/Systems/SimulationSystem.cs:515-520",
-    "Simulation/Systems/SimulationSystem.cs:993-997",
+    "Simulation/Systems/SimulationSystem.cs:752-756",
     "Simulation/Systems/SimulationSystem.cs:321-329"
    ],
    "native_va": "0x13e4478 (+closures 0x13f4634/0x13f465c/0x13f514c), UpdateDpsDataCache 0x13e4f24, GetBalanceTimingMinutes 0x13ebe60, GetForecastStatValue 0x13e83c4, CalculateSimulationData 0x13e4444",
@@ -25897,7 +25902,7 @@
    ],
    "output": "List<SimulationDpsData> currentDefenseData (snapshot DefenseData)",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.cs:935-958"
+    "Simulation/Systems/SimulationSystem.cs:694-717"
    ],
    "native_va": "0x13e5104 (+closures 0x13f4674/468c/5180)",
    "status": "recovered_native",
@@ -26016,7 +26021,7 @@
    "output": "cached multipliers",
    "code_refs": [
     "Simulation/Systems/SimulationSystem.cs:331-348",
-    "Simulation/Systems/SimulationSystem.cs:993-1003"
+    "Simulation/Systems/SimulationSystem.cs:752-762"
    ],
    "native_va": "0x13e5bc0, 0x13e686c, 0x13e83c4",
    "status": "recovered_native",
@@ -26145,7 +26150,8 @@
    ],
    "output": "multipliers >= 1 (shipped: 1..5 for DPS, 1..2.5 for EHP between day 20 and 775)",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.cs:875-887",
+    "Simulation/Systems/SimulationSystem.cs:653-664",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:265-320",
     "Simulation/SimulationConfig.cs:120-121",
     "Simulation/Forecast/ForecastSnapshots.cs:54-55"
    ],
@@ -26355,8 +26361,10 @@
    ],
    "output": "double player DPS vs spawner",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.cs:826-851",
-    "Simulation/Systems/SimulationSystem.cs:853-867"
+    "Simulation/Systems/SimulationSystem.cs:604-628",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:207-214",
+    "Simulation/Systems/SimulationSystem.cs:631-644",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:218-229"
    ],
    "native_va": "0x13ef248, 0x13f2cf8",
    "status": "recovered_native",
@@ -26497,11 +26505,11 @@
    ],
    "output": "double enemy DPS per unit",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.cs:960-991",
+    "Simulation/Systems/SimulationSystem.cs:719-750",
     "Simulation/Systems/SimulationSystem.cs:331-348",
     "Simulation/Systems/SimulationSystem.cs:220-224",
     "Simulation/Systems/SimulationSystem.cs:350-357",
-    "Simulation/Systems/SimulationSystem.cs:999-1003",
+    "Simulation/Systems/SimulationSystem.cs:758-762",
     "Services/Damage/DamageCalculator.cs:24-29",
     "ABTests/ABTestService.cs:18-19"
    ],
@@ -26713,7 +26721,8 @@
     "Simulation/Systems/SimulationSystem.cs:608-612",
     "Simulation/Systems/SimulationSystem.cs:686-691",
     "Simulation/Systems/SimulationSystem.cs:758-763",
-    "Simulation/Systems/SimulationSystem.cs:882-887",
+    "Simulation/Systems/SimulationSystem.cs:660-664",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:311-320",
     "Services/Damage/DamageCalculator.cs:59-62",
     "Simulation/Systems/SpawnerData.cs:36-42"
    ],
@@ -27132,7 +27141,8 @@
    ],
    "output": "reward value",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.cs:758-787"
+    "Simulation/Systems/SimulationSystem.cs:573-601",
+    "Simulation/Systems/SimulationSystem.Inventory.cs:297-300"
    ],
    "native_va": "0x13efd98, 0x13e0cb8",
    "status": "recovered_native",
@@ -28828,12 +28838,12 @@
     "Simulation/Systems/SimulationSystem.cs:546-606",
     "Simulation/Systems/SimulationSystem.cs:676-680",
     "Simulation/Systems/SimulationSystem.cs:693-750",
-    "Simulation/Systems/SimulationSystem.cs:795-824",
+    "Simulation/Systems/SimulationSystem.Targeting.cs:144-204",
     "Simulation/SimulationConfig.cs:82-96"
    ],
    "native_va": "0x13e276c (OnUpdate only)",
-   "status": "stub",
-   "status_evidence": "OnUpdate is recovered, but ExecuteTick, PrepareSimulationRun, Tick, FastTick, FindBestSpawner, SimulateFightWithSpawner(Fast), ProcessInventory, ProcessDeath, ApplyRegen, UpgradeCrystalsGreedy, ProcessCrystalSimulationChunk, RollFractionalCount, GetChainedItemBaseCount, GetSpawnerItemRewardCopies, GetItemEmissionCoefficient, CalcDifficultSpawner, MakeSnapshot and the auto-balance methods are all empty.",
+   "status": "reconstructed",
+   "status_evidence": "OnUpdate is recovered, but ExecuteTick, PrepareSimulationRun, Tick, FastTick, FindBestSpawner, SimulateFightWithSpawner(Fast), ProcessInventory, ProcessDeath, ApplyRegen, UpgradeCrystalsGreedy, ProcessCrystalSimulationChunk, RollFractionalCount, GetChainedItemBaseCount, GetSpawnerItemRewardCopies, GetItemEmissionCoefficient, CalcDifficultSpawner, MakeSnapshot and the auto-balance methods are all empty. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "Simulation Config.TimeStep",
     "Simulation Config.SnapshotInterval",
@@ -29292,8 +29302,8 @@
     "Simulation/Systems/SimulationSystem.cs:556-570"
    ],
    "native_va": "",
-   "status": "stub",
-   "status_evidence": "ProcessAFK, NextLifeCycle, CheckLifeCycle and ProcessSimulateAds are empty. In the Snapshots list, TotalPlaytime − Playtime jumps by exactly 230 after each ~10-minute block.",
+   "status": "reconstructed",
+   "status_evidence": "ProcessAFK, NextLifeCycle, CheckLifeCycle and ProcessSimulateAds are empty. In the Snapshots list, TotalPlaytime − Playtime jumps by exactly 230 after each ~10-minute block. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "Simulation Config.LifeCycleInMinutes",
     "Simulation Config.AdsIntervalMinutes",
@@ -29375,11 +29385,11 @@
    "code_refs": [
     "Simulation/Systems/SpawnerData.cs:44-67",
     "Simulation/Systems/SimulationSystem.cs:697-733",
-    "Simulation/Systems/SimulationSystem.cs:789-793"
+    "Simulation/Systems/SimulationSystem.Targeting.cs:133-139"
    ],
    "native_va": "",
-   "status": "stub",
-   "status_evidence": "GetMoveTime, GetPriority, GetStaticPriority, GetDynamicPriority, GetFightEfficiency, CalculateFarmPotencial and TryGetSpawnerPriority all return 0/false.",
+   "status": "reconstructed",
+   "status_evidence": "GetMoveTime, GetPriority, GetStaticPriority, GetDynamicPriority, GetFightEfficiency, CalculateFarmPotencial and TryGetSpawnerPriority all return 0/false. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "EnemySpawnerConfig.PriorityMultiplier",
     "Simulation Config.IsDynamicResourcePriority",
@@ -37495,8 +37505,8 @@
     "Simulation/SimulationConfig.cs:28-29"
    ],
    "native_va": "",
-   "status": "stub",
-   "status_evidence": "ProcessSimulateAds() has an empty body. No other reference to AdsRewardMultiplierInMinutes or AdsIntervalMinutes exists.",
+   "status": "reconstructed",
+   "status_evidence": "ProcessSimulateAds() has an empty body. No other reference to AdsRewardMultiplierInMinutes or AdsIntervalMinutes exists. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "Simulation Config.AdsRewardMultiplierInMinutes",
     "Simulation Config.AdsIntervalMinutes"
@@ -37581,7 +37591,8 @@
     "Simulation/Systems/SimulationSystem.cs:270-273",
     "Simulation/Systems/SimulationSystem.cs:717",
     "Simulation/Systems/SimulationSystem.cs:721",
-    "Simulation/Systems/SimulationSystem.cs:765-787"
+    "Simulation/Systems/SimulationSystem.cs:580-601",
+    "Simulation/Systems/SimulationSystem.Inventory.cs:297-300"
    ],
    "native_va": "0x13e0cb8 (consumer only)",
    "status": "stub",
@@ -37713,13 +37724,11 @@
    "code_refs": [
     "Simulation/Systems/SimulationSystem.cs:546",
     "Simulation/Systems/SimulationSystem.cs:551",
-    "Simulation/Systems/SimulationSystem.cs:807",
-    "Simulation/Systems/SimulationSystem.cs:812",
-    "Simulation/Systems/SimulationSystem.cs:817"
+    "Simulation/Systems/SimulationSystem.cs:1"
    ],
    "native_va": "",
-   "status": "stub",
-   "status_evidence": "All five methods return default constants.",
+   "status": "reconstructed",
+   "status_evidence": "All five methods return default constants. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "Combat Balance Config.Interpolations (item emission types if present)",
     "Locations Config.PreferredWeaponType/PreferredArmorType (likely 'preferred' type)"
@@ -37822,8 +37831,8 @@
     "Simulation/Systems/SimulationSystem.cs:748"
    ],
    "native_va": "",
-   "status": "stub",
-   "status_evidence": "Empty or default-return bodies. Only GetRegen/GetBattleRegen/CalculateSpawnerData around them are native.",
+   "status": "reconstructed",
+   "status_evidence": "Empty or default-return bodies. Only GetRegen/GetBattleRegen/CalculateSpawnerData around them are native. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "Simulation Config.TimeStep",
     "Simulation Config.SimulationSpeed",
@@ -37987,8 +37996,8 @@
     "Simulation/Systems/SimulationSystem.cs:639-643"
    ],
    "native_va": "0x13ebe60, 0x13e83ec (implemented parts)",
-   "status": "stub",
-   "status_evidence": "UpdateSpawnerChargesChunk and ResetCooldowns are empty, and GetSpawnerChargesPerClear returns 0. The limit and timing functions are native.",
+   "status": "reconstructed",
+   "status_evidence": "UpdateSpawnerChargesChunk and ResetCooldowns are empty, and GetSpawnerChargesPerClear returns 0. The limit and timing functions are native. Stage 5 rebuild implements part of this rule; see realization links.",
    "config_params": [
     "Simulation Config.UseSpawnerCharges",
     "Simulation Config.SpawnerChargesChunkMinutes",
@@ -38001,7 +38010,7 @@
     "simulation.soul_rpm",
     "simulation.spawner_fight_model"
    ],
-   "notes": "This complements the already-missed simulation.spawner_charges_limit. Note the unit mismatch: optimum 'days' are 30-minute time chunks (TimeChunkDurationMinutes = 30, ConvertOptimumToDays = minutes/30), while charges reset every 1440 simulated minutes.",
+   "notes": "This complements the already-missed simulation.spawner_charges_limit. Note the unit mismatch: snapshot and charge days are 1440-minute blocks of total playtime T; TimeChunkDurationMinutes = 30 applies to minute-mode OT conversion in GetSpawnerOptimumTimingForCurrentMode.",
    "subsystem": "simulation",
    "origin": "critic",
    "merged_from": [
@@ -38883,15 +38892,20 @@
    "expression": "``GetEnemyHpDamageMultiplier``: override for the location, else the default (float32).",
    "variables": [],
    "output": "See implementation and tests.",
-   "code_refs": [],
+   "code_refs": [
+    "ABTests/ABTestService.cs:18-19"
+   ],
    "native_va": "",
-   "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status": "recovered_native",
+   "status_evidence": "Stage 5: port; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.enemy_multiplier"
+   ]
   },
   {
    "id": "balance.armor_base",
@@ -38906,12 +38920,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.bake_spawner_health"
+   ]
   },
   {
    "id": "balance.evolution_armor_sync_by_leader",
@@ -38924,12 +38941,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_data_identities",
@@ -38942,12 +38963,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: data; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_fill_remaining",
@@ -38958,16 +38983,21 @@
    "variables": [],
    "output": "See implementation and tests.",
    "code_refs": [
-    "Balance/CombatBalanceConfig.cs:129"
+    "Balance/CombatBalanceConfig.cs:129",
+    "Balance/CombatBalanceConfig.cs:115-117,221-223"
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred, rule; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_fitted_h",
@@ -38980,12 +39010,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: fit; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_generator",
@@ -39000,12 +39034,16 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_heuristic_fit",
@@ -39018,12 +39056,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: fit; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_nice_rounding",
@@ -39036,12 +39078,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: rule; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_reference_stat_percent",
@@ -39054,12 +39100,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: rule; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_reference_stat_value",
@@ -39072,12 +39122,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: rule; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_reference_time_chunk",
@@ -39090,12 +39144,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: data; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_replay_stored_inputs",
@@ -39108,12 +39166,16 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: rule; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_targets",
@@ -39128,12 +39190,16 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.evolution_value",
@@ -39148,12 +39214,16 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "balance.island_timing",
@@ -39168,12 +39238,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.balance_timing"
+   ]
   },
   {
    "id": "balance.shards_capture",
@@ -39188,12 +39261,16 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated, Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "balance.evolution_value_autobalance",
+    "balance.evolution_shards_capture"
+   ]
   },
   {
    "id": "items.evolve_jump_ratio",
@@ -39206,12 +39283,15 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: data; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "items.infer_evolved",
@@ -39224,12 +39304,15 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.ads",
@@ -39244,12 +39327,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.ads_reward_model"
+   ]
   },
   {
    "id": "simulation.ads_reward_stat",
@@ -39264,12 +39350,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.ads_reward_model"
+   ]
   },
   {
    "id": "simulation.amulet_auto_balance",
@@ -39283,13 +39372,16 @@
     "Simulation/Systems/SimulationSystem.Amulet.cs:23"
    ],
    "native_va": "",
-   "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status": "stub",
+   "status_evidence": "Stage 5: Null; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.amulet_sim_multipliers"
+   ]
   },
   {
    "id": "simulation.apply_clear",
@@ -39304,12 +39396,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.bot_fight_resolution"
+   ]
   },
   {
    "id": "simulation.armor_base_balance",
@@ -39324,12 +39419,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.bake_day",
@@ -39339,15 +39437,20 @@
    "expression": "``BuildSpawnerBakeReport``: ``day = isDays ? t : t / 60f``.",
    "variables": [],
    "output": "See implementation and tests.",
-   "code_refs": [],
+   "code_refs": [
+    "Simulation/SimulationConfig.cs:118"
+   ],
    "native_va": "",
-   "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status": "recovered_native",
+   "status_evidence": "Stage 5: port; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.bake_recalc_optimum_time"
+   ]
   },
   {
    "id": "simulation.charges_per_clear",
@@ -39362,12 +39465,16 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_charges_chunk",
+    "simulation.rpm_time_chunk"
+   ]
   },
   {
    "id": "simulation.crystal_simulation",
@@ -39381,13 +39488,16 @@
     "Simulation/Systems/SimulationSystem.Amulet.cs:11"
    ],
    "native_va": "",
-   "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status": "stub",
+   "status_evidence": "Stage 5: Null; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.current_boss",
@@ -39402,12 +39512,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred, inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.day_change",
@@ -39422,12 +39535,16 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_charges_chunk",
+    "simulation.rpm_time_chunk"
+   ]
   },
   {
    "id": "simulation.day_change_order",
@@ -39438,16 +39555,21 @@
    "variables": [],
    "output": "See implementation and tests.",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.Run.cs:251"
+    "Simulation/Systems/SimulationSystem.Run.cs:251",
+    "Simulation/Systems/SimulationSystem.cs:183-191"
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred, inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_charges_chunk",
+    "simulation.rpm_time_chunk"
+   ]
   },
   {
    "id": "simulation.eligible_spawners",
@@ -39457,15 +39579,20 @@
    "expression": "The fast phase's eligible set (design 4.5): ``CalculateSpawnerData(false)`` (bot filter: alive,\ncooldown -- a cleared DAFC spawner's ``+inf`` excludes it --, charges, OT cap, unlocked island),\n``fightTime < 300``, and :func:`fast_killable`.",
    "variables": [],
    "output": "See implementation and tests.",
-   "code_refs": [],
+   "code_refs": [
+    "Simulation/Systems/SimulationSystem.cs:623-674"
+   ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.evolution_balance",
@@ -39480,12 +39607,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.execute_tick",
@@ -39500,12 +39630,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.fast_accumulate",
@@ -39520,12 +39653,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.fast_day_advance",
@@ -39540,12 +39676,16 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_charges_chunk",
+    "simulation.rpm_time_chunk"
+   ]
   },
   {
    "id": "simulation.fast_flush",
@@ -39560,12 +39700,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.fast_kill_gate",
@@ -39576,16 +39719,20 @@
    "variables": [],
    "output": "See implementation and tests.",
    "code_refs": [
-    "Simulation/Systems/SimulationSystem.FastTick.cs:151"
+    "Simulation/Systems/SimulationSystem.FastTick.cs:151",
+    "Simulation/Systems/SimulationSystem.cs:438-439"
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred, inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.bot_fight_resolution"
+   ]
   },
   {
    "id": "simulation.fast_tick",
@@ -39600,12 +39747,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.forecast_unlocked_location",
@@ -39620,12 +39770,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.fractional_count",
@@ -39640,12 +39793,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.hand_tick",
@@ -39660,12 +39816,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.idle_step",
@@ -39680,12 +39839,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.lifecycle_time_model"
+   ]
   },
   {
    "id": "simulation.item_chain",
@@ -39700,12 +39862,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.item_emission",
@@ -39720,12 +39885,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.item_preferred",
@@ -39740,12 +39908,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.make_snapshot",
@@ -39760,12 +39931,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.snapshot_stat_composition"
+   ]
   },
   {
    "id": "simulation.next_location_timing",
@@ -39780,12 +39954,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: DebugOnly; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.optimum_time_cap",
@@ -39795,15 +39972,20 @@
    "expression": "``IsCapOptimumTime`` filter: True = the bot skips the spawner (OT > d for day mode, OT > P otherwise).",
    "variables": [],
    "output": "See implementation and tests.",
-   "code_refs": [],
+   "code_refs": [
+    "Simulation/Systems/SimulationSystem.cs:647-651"
+   ],
    "native_va": "",
-   "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status": "recovered_native",
+   "status_evidence": "Stage 5: port; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_optimum_timing_mode"
+   ]
   },
   {
    "id": "simulation.prepare_run",
@@ -39818,12 +40000,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.process_inventory",
@@ -39838,12 +40023,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.same_day_gates",
@@ -39858,12 +40046,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.slow_death",
@@ -39878,12 +40069,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.bot_fight_resolution"
+   ]
   },
   {
    "id": "simulation.slow_fight",
@@ -39898,12 +40092,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated, DebugOnly; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.bot_fight_resolution"
+   ]
   },
   {
    "id": "simulation.slow_item_reward",
@@ -39918,12 +40115,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.slow_move_time",
@@ -39938,12 +40138,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.slow_priority",
@@ -39959,12 +40162,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated, DebugOnly; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_priority"
+   ]
   },
   {
    "id": "simulation.slow_tick",
@@ -39979,12 +40185,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.smart_path",
@@ -39999,12 +40208,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.snapshot_current_gpm",
@@ -40017,12 +40229,15 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: data; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.snapshot_stat_composition"
+   ]
   },
   {
    "id": "simulation.stat_benefit",
@@ -40037,12 +40252,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_priority"
+   ]
   },
   {
    "id": "simulation.state_override",
@@ -40057,12 +40275,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: DebugOnly; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.snapshot_stat_composition"
+   ]
   },
   {
    "id": "simulation.stop",
@@ -40077,12 +40298,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.tick_heartbeat",
@@ -40097,12 +40321,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.unlock_location",
@@ -40117,12 +40344,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.player_progression_tick"
+   ]
   },
   {
    "id": "simulation.weapon_slot_unlocks",
@@ -40135,12 +40365,15 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "simulation.weapon_slots",
@@ -40155,12 +40388,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Calibrated; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.item_emission_model"
+   ]
   },
   {
    "id": "spawners.ready_alive_new_save",
@@ -40170,15 +40406,20 @@
    "expression": "Whether a registered spawner has units when the game is ready on a new save.\n\nEvent spawners never initialize (``TryInitializeEventSpawner`` is a stub returning false), VIP\nspawners refuse below location 2, ``IsDummy`` refuses always, ``Count = 0`` (BossTower) spawns none.\nEvery other spawner fills on bootstrap (Runbook 6.1: 699 of 716).",
    "variables": [],
    "output": "See implementation and tests.",
-   "code_refs": [],
+   "code_refs": [
+    "Enemy/EnemySpawner.cs:746,860-863,922-925"
+   ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.spawner_fight_model"
+   ]
   },
   {
    "id": "timeline.days_to_island_timing",
@@ -40191,12 +40432,15 @@
    "code_refs": [],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.balance_timing"
+   ]
   },
   {
    "id": "timeline.island_timing_to_days",
@@ -40211,12 +40455,15 @@
    ],
    "native_va": "",
    "status": "reconstructed",
-   "status_evidence": "Stage 5 implementation; inferred or calibrated unless its implementation states otherwise.",
+   "status_evidence": "Stage 5: Inferred; see cited implementation and tests.",
    "config_params": [],
    "used_by": [],
-   "notes": "Stage 5 rule; see implementation and calibration evidence. Dependency edges have not been inferred.",
+   "notes": "Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.",
    "inputs": [],
-   "outputs": []
+   "outputs": [],
+   "realizes": [
+    "simulation.balance_timing"
+   ]
   }
  ],
  "aliases": {
