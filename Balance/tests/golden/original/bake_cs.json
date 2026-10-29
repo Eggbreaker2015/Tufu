@@ -131,6 +131,12 @@
    "source": "X4",
    "value": 20076
   },
+  "run.x4.interpolated_day": {
+   "kind": "exact",
+   "note": "every day-mode bake read an interpolated snapshot: the stored-day path is not exercised",
+   "source": "X4",
+   "value": 609
+  },
   "run.x4.minute_n": {
    "kind": "exact",
    "note": "",
@@ -170,6 +176,13 @@
    "value": [
     "Scenes/Main.unity:56955"
    ]
+  },
+  "run.x4.report_only_bits_equal": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "DefenseFromSnapshot, PlayerBlockChanceRaw, PlayerBlockAmountRaw",
+   "source": "X4",
+   "value": 2151
   },
   "run.x4.spawners": {
    "kind": "exact",
@@ -366,6 +379,13 @@
    "value": [
     "Scenes/Main.unity:56955"
    ]
+  },
+  "shipped.x4.report_only_bits_equal": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "the three report fields DP5 does not carry",
+   "source": "X4",
+   "value": 2151
   }
  },
  "schema": "tufu.golden/1",
