@@ -194,3 +194,23 @@ def tuft(mb, cx, cy, cz, size, rng, s=0):
         length = size * rng.uniform(0.6, 1.0)
         shard(mb, (cx + math.cos(a) * 0.15, cy, cz + math.sin(a) * 0.15), (math.cos(a) * lean, 1, math.sin(a) * lean),
               size * 0.05, length, GOLD, rng, s, sides=3)
+
+
+def road(mb, pts, width, y, s=0):
+    """Flat ribbon along a resampled centre line. UV.x runs 0..1 across the width (the road shader fades
+    both edges by UV.x); the texture itself is tiled in world space, so UV.y only tracks the length."""
+    n = len(pts)
+    left, right = [], []
+    for i in range(n):
+        a = pts[max(0, i - 1)]; b = pts[min(n - 1, i + 1)]
+        dx, dz = b[0] - a[0], b[1] - a[1]
+        l = math.hypot(dx, dz) or 1
+        nx, nz = -dz / l, dx / l
+        left.append((pts[i][0] + nx * width / 2, y, pts[i][1] + nz * width / 2))
+        right.append((pts[i][0] - nx * width / 2, y, pts[i][1] - nz * width / 2))
+    acc = 0.0
+    for i in range(n - 1):
+        seg = math.dist(pts[i], pts[i + 1])
+        v0, v1 = acc * 0.05, (acc + seg) * 0.05
+        acc += seg
+        mb.quad(s, left[i], right[i], right[i + 1], left[i + 1], (0.014, v0), (0.986, v0), (0.986, v1), (0.014, v1), (0, 1, 0))

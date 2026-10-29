@@ -1,5 +1,5 @@
 """Write Crystal Canyon meshes, materials and scene into the Unity project. Re-runnable: guids persist in guids.json."""
-import json, os, re, sys
+import json, math, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from meshlib import write_mesh, write_meta, new_guid, ASSETS
 from layout import build
@@ -77,14 +77,17 @@ MAT['floor'] = material('CC_Floor', 'Grass', {'_MaskColor1': col('#7c6cb0'), '_M
                         textures={'_Texture0': TEX_GROUND1})
 MAT['top'] = material('CC_Top', 'Grass', {'_MaskColor1': col('#8a80c4'), '_MaskColor2': col('#e9e2ff')}, {'_UVTile': -0.06},
                       textures={'_Texture0': TEX_SAND})
+ROAD_MAT = '61dc6b7219c41bc4ea5cdf40fa78acd3'  # original Volcano_Road 1: violet cobblestones
 MAT['water'] = material('CC_Water', 'StylizedWater_Mobile',
                         {'_WaterColor': col('#16b7c9', 0), '_WaterShallowColor': col('#7dfff0'), '_FresnelColor': '{r: 0.75, g: 0.6, b: 1, a: 0.12}'})
 
+MAT['road'] = ROAD_MAT
+
 # ------------------------------------------------------------------ meshes
-parts, edge = build()
+parts, edge, props = build()
 MESH_MATS = {  # mesh name -> materials per submesh
     'Plateaus': ['rock', 'top'], 'Stairs': ['rock'], 'Spires': ['rock', 'top'],
-    'Rocks': ['rock'], 'Crystals': ['crystal'], 'Grass': ['props'], 'Pool': ['water'],
+    'Rocks': ['rock'], 'Crystals': ['crystal'], 'Grass': ['props'], 'Pool': ['water'], 'Roads': ['road'],
 }
 meshes = {}
 total_v = 0
@@ -130,14 +133,14 @@ def transform(tid, gid, pos=(0, 0, 0), rot=(0, 0, 0, 1), scale=(1, 1, 1), parent
 MESH_RENDERER = open(HERE + '/meshrenderer.tmpl').read()
 
 
-def mesh_object(name, mesh_ref, mat_guids, parent_tid, pos=(0, 0, 0), scale=(1, 1, 1), collider=False):
+def mesh_object(name, mesh_ref, mat_guids, parent_tid, pos=(0, 0, 0), scale=(1, 1, 1), collider=False, rot=(0, 0, 0, 1)):
     tid, mf, mr = fid(), fid(), fid()
     comps = [tid, mf, mr]
     bc = None
     if collider:
         bc = fid(); comps.append(bc)
     gid = gameobject(name, comps)
-    transform(tid, gid, pos=pos, scale=scale, parent=parent_tid)
+    transform(tid, gid, pos=pos, rot=rot, scale=scale, parent=parent_tid)
     docs.append((33, mf, 'MeshFilter:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n'
                          '  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: %d}\n  m_Mesh: %s\n' % (gid, mesh_ref)))
     mats = ''.join('  - {fileID: 2100000, guid: %s, type: 2}\n' % g for g in mat_guids)
@@ -157,6 +160,89 @@ def group(name, parent_tid, build_children):
     kids = build_children(tid)
     transform(tid, gid, parent=parent_tid, children=kids)
     return tid
+
+
+# Props reused from Main.unity: mesh, materials and world rotation/scale of one instance each (see props.json).
+PROPS = json.load(open(HERE + '/props.json'))
+ARMYCAMP_SIDE = 'f2a2bb29fa25ebe47a78eeecd4de2400'
+
+
+def qmul(a, b):
+    ax, ay, az, aw = a; bx, by, bz, bw = b
+    return (aw * bx + ax * bw + ay * bz - az * by, aw * by - ax * bz + ay * bw + az * bx,
+            aw * bz + ax * by - ay * bx + az * bw, aw * bw - ax * bx - ay * by - az * bz)
+
+
+def qrot(q, v):
+    r = qmul(qmul(q, (v[0], v[1], v[2], 0.0)), (-q[0], -q[1], -q[2], q[3]))
+    return r[:3]
+
+
+def ry(deg):
+    t = math.radians(deg) / 2
+    return (0.0, math.sin(t), 0.0, math.cos(t))
+
+
+def long_axis_angle(d):
+    """World heading (deg, 0 = +z, 90 = +x) of the prop's longest horizontal side as it sits in Main.unity."""
+    sc = d['scale']; R = d['rot']
+    s = open(A + '/' + d['mesh_path'], errors='ignore').read()
+    m = re.findall(r'm_LocalAABB:\n    m_Center: .*\n    m_Extent: \{x: ([-\d.eE]+), y: ([-\d.eE]+), z: ([-\d.eE]+)\}', s)[-1]
+    e = [float(x) for x in m]
+    best = None
+    for i in range(3):
+        v = [0.0, 0.0, 0.0]; v[i] = e[i] * sc[i]
+        w = qrot(R, v)
+        hl = math.hypot(w[0], w[2])
+        if best is None or hl > best[0]:
+            best = (hl, math.degrees(math.atan2(w[0], w[2])))
+    return best[1]
+
+
+def mats_of(d):
+    out = []
+    for m in d['mats']:
+        g = re.search(r'guid: (\w+)', m).group(1)
+        out.append(MAT['props'] if g == ARMYCAMP_SIDE else g)
+    return out
+
+
+def place(key, x, z, kw, parent, name=None):
+    d = PROPS[key]
+    k = kw.get('scale', 1.0)
+    theta = kw['along'] - long_axis_angle(d) if 'along' in kw else kw.get('yaw', 0.0)
+    q = qmul(ry(theta), tuple(d['rot']))
+    c = qrot(ry(theta), [v * k for v in d['wcenter']])
+    bottom = d['pos'][1] + d['wmin_y']
+    sink = 0.0 if key == 'dock' else max(-2.5, min(0.0, bottom - 0.05))
+    ground = kw.get('y', 0.05)
+    y = ground + sink * k - d['wmin_y'] * k + kw.get('lift', 0.0)
+    return mesh_object(name or key, d['mesh'], mats_of(d), parent, pos=(x - c[0], y, z - c[2]), rot=q, scale=[v * k for v in d['scale']])
+
+
+def place_gate(gx, gz, yaw, parent):
+    tid = fid()
+    gid = gameobject('Gate', [tid])
+    doors = PROPS['gate_doors']
+    kids = []
+    for part in ('gate_doors', 'gate_left', 'gate_right'):
+        d = PROPS[part]
+        off = [d['pos'][i] - doors['pos'][i] for i in range(3)]
+        o = qrot(ry(yaw), off)
+        q = qmul(ry(yaw), tuple(d['rot']))
+        kids.append(mesh_object(part, d['mesh'], mats_of(d), tid, pos=(o[0], d['pos'][1] - 0.05 + 0.0, o[2]), rot=q, scale=d['scale']))
+    transform(tid, gid, pos=(gx, 0.05, gz), parent=parent, children=kids)
+    return tid
+
+
+def props_group(tid):
+    kids = []
+    for i, (key, x, z, kw) in enumerate(props):
+        if key == 'gate':
+            kids.append(place_gate(x, z, kw.get('yaw', 0.0), tid))
+        else:
+            kids.append(place(key, x, z, kw, tid, name='%s (%d)' % (key, i)))
+    return kids
 
 
 root_tid = fid()
@@ -184,13 +270,14 @@ def terrain(tid):
 
 def dressing(tid):
     kids = []
-    for name in ['Rocks', 'Crystals', 'Grass', 'Pool']:
+    for name in ['Roads', 'Rocks', 'Crystals', 'Grass', 'Pool']:
         g, mats = meshes[name]
         kids.append(mesh_object(name, '{fileID: 4300000, guid: %s, type: 2}' % g, [MAT[m] for m in mats], tid))
     return kids
 
 
-root_kids = [group('Ground', root_tid, ground), group('Terrain', root_tid, terrain), group('Dressing', root_tid, dressing)]
+root_kids = [group('Ground', root_tid, ground), group('Terrain', root_tid, terrain), group('Dressing', root_tid, dressing),
+             group('Props', root_tid, props_group)]
 transform(root_tid, root_gid, children=root_kids)
 
 # directional light (same as Main.unity's sun) and a game-like camera at the south entrance
@@ -202,7 +289,7 @@ docs.append((108, light_c, open(HERE + '/light.tmpl').read().replace('{GO}', str
 cam_tid, cam_c, cam_al = fid(), fid(), fid()
 cam_gid = gameobject('Main Camera', [cam_tid, cam_c, cam_al], static=False, tag='MainCamera')
 # look at (0, 0, -38) from 35 m away, pitched 60 degrees down, facing north
-import math
+
 pitch = math.radians(60)
 target = (0.0, 0.0, -38.0)
 pos = (target[0], target[1] + 35 * math.sin(pitch), target[2] - 35 * math.cos(pitch))

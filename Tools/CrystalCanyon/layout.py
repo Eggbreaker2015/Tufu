@@ -1,9 +1,21 @@
-"""Crystal Canyon layout: what goes where. World units are metres, floor top at y = 0.05; x = east, z = north."""
+"""Crystal Canyon layout: what goes where. World units are metres, floor top at y = 0.05; x = east, z = north.
+
+The map reads like a level, not a scatter:
+  south gate -> main road north -> mining camp (west of the road) -> crossroads with a signpost
+  -> branches to the west lookout, to the pool and the north-east ruins, and to the south-east dig site
+  -> main road continues past the central crystal mesa and old ruins to the north gate.
+Props come from the original game (camp, ruins, gates, lamps); crystals and rocks are grouped at
+landmarks, wall feet and road bends; grass lines the road edges.
+"""
 import math, random
 from meshlib import MeshBuilder, point_in_poly, offset_poly
-from shapes import (mesa, column, stairs, rock, cluster, tuft, ROCK, ROCK_DARK, CYAN, TEAL, PINK, VIOLET)
+from shapes import (mesa, column, stairs, rock, cluster, tuft, road, ROCK, ROCK_DARK, CYAN, TEAL, PINK, VIOLET)
 
 FLOOR_Y = 0.05
+BIG = [CYAN, CYAN, TEAL, PINK]
+ROSE = [PINK, PINK, VIOLET, CYAN]
+DUSK = [VIOLET, VIOLET, PINK, TEAL]
+PALETTES = [BIG, ROSE, DUSK]
 
 
 def blob(cx, cz, rx, rz, n, rng, wob=0.15, rot=0.0):
@@ -18,7 +30,6 @@ def blob(cx, cz, rx, rz, n, rng, wob=0.15, rot=0.0):
 def boundary(rng, hx=44.0, hz=60.0, corner=18.0, step=6.0):
     """Inner edge of the canyon walls: a rounded rectangle with noise, as (x, z, outward_nx, outward_nz)."""
     pts = []
-    # walk a rounded rectangle by arc length
     straight_x = 2 * (hx - corner); straight_z = 2 * (hz - corner)
     per = 2 * straight_x + 2 * straight_z + math.tau * corner
     n = int(per / step)
@@ -39,14 +50,63 @@ def boundary(rng, hx=44.0, hz=60.0, corner=18.0, step=6.0):
         return at(0)
     for i in range(n):
         x, z, nx, nz = at(i * per / n)
-        k = rng.uniform(-2.5, 2.5)
+        k = rng.uniform(-2.0, 2.0)
         pts.append((x + nx * k, z + nz * k, nx, nz))
     return pts
+
+
+# ---------------------------------------------------------------------- the plan
+# Roads: (centre line, width). Branch ends tuck under stairs or into the main road.
+ROADS = {
+    'MainRoad': ([(0, -70), (0, -54), (-3, -44), (-4, -32), (-2, -20), (-5, -8), (-6, 2), (-11, 12), (-12, 24), (-8, 36),
+                  (-3, 46), (-2, 56), (-2, 70)], 7.0),
+    'WestPath': ([(-5, -3), (-8, -2), (-11.5, -1.5)], 5.0),
+    'EastPath': ([(-5, -3), (4, -1.5), (12, 2.5), (18.5, 6), (22, 10), (22, 14)], 5.0),
+    'SouthEastPath': ([(-3, -42), (4, -40), (12.5, -38)], 5.0),
+    'CampPath': ([(-4, -33), (-11, -32), (-17, -31)], 4.5),
+}
+GATES = {'SouthGate': (0.0, -58.5, 0.0), 'NorthGate': (-2.0, 58.5, 180.0)}  # x, z, yaw
+
+
+def sample_road(pts, step=1.5):
+    """Catmull-Rom through the control points, resampled every ~step metres."""
+    P = [pts[0]] + list(pts) + [pts[-1]]
+    out = []
+    for i in range(1, len(P) - 2):
+        p0, p1, p2, p3 = P[i - 1], P[i], P[i + 1], P[i + 2]
+        seg = math.dist(p1, p2)
+        n = max(2, int(seg / step))
+        for k in range(n):
+            t = k / n
+            t2, t3 = t * t, t * t * t
+            out.append(tuple(0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2
+                                    + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3) for j in range(2)))
+    out.append(pts[-1])
+    return out
+
+
+def dist_to_roads(x, z, sampled):
+    best = 1e9
+    for pts, w in sampled.values():
+        for i in range(len(pts) - 1):
+            ax, az = pts[i]; bx, bz = pts[i + 1]
+            dx, dz = bx - ax, bz - az
+            L = dx * dx + dz * dz or 1
+            t = max(0, min(1, ((x - ax) * dx + (z - az) * dz) / L))
+            d = math.hypot(x - (ax + dx * t), z - (az + dz * t)) - w / 2
+            best = min(best, d)
+    return best
 
 
 def build(seed=7):
     rng = random.Random(seed)
     out = {}
+    props = []  # (key, x, z, dict(yaw=, along=, y=, scale=))
+
+    def prop(key, x, z, **kw):
+        props.append((key, x, z, kw))
+
+    sampled = {k: (sample_road(p), w) for k, (p, w) in ROADS.items()}
 
     # ---------------------------------------------------------------- plateaus (walkable tops)
     plateaus = {
@@ -55,32 +115,40 @@ def build(seed=7):
         'PlateauNorthEastHigh': (blob(31, 41, 6.5, 6, 7, rng, rot=0.5), 8.0),
         'MesaCentre': (blob(1, 15, 6.5, 6, 7, rng, rot=0.2), 3.0),
         'PlateauSouthEast': (blob(28, -36, 9, 10, 8, rng, rot=0.4), 3.0),
-        'MesaSouthWest': (blob(-27, -37, 7, 6, 7, rng, rot=0.6), 2.5),
     }
     pool = blob(23, -7, 8.5, 6.5, 10, rng, wob=0.12)
+    camp = [(-36, -48), (-9, -48), (-9, -21), (-36, -21)]
 
-    def blocked(x, z, pad=1.5):
+    def blocked(x, z, pad=1.5, road_pad=1.0, camp_too=True):
         for pts, h in plateaus.values():
             if point_in_poly((x, z), offset_poly(pts, pad)):
                 return True
         if point_in_poly((x, z), offset_poly(pool, pad)):
             return True
-        return False
+        if camp_too and point_in_poly((x, z), camp):
+            return True
+        for gx, gz, _ in GATES.values():
+            if abs(x - gx) < 10 and abs(z - gz) < 7:
+                return True
+        return dist_to_roads(x, z, sampled) < road_pad
 
     mb = MeshBuilder(2)
     tops = {}
     for name, (pts, h) in plateaus.items():
         tops[name] = mesa(mb, pts, h, rng, base=-1.0, sw=ROCK, bevel=0.8, jitter=0.9, rows=3)
-        # rock columns hugging the outer side of plateaus (kept away from the stairs)
     out['Plateaus'] = mb
 
-    # stairs: (x0, z0) on the floor, direction towards the plateau, width, height, run
     mb = MeshBuilder(1)
-    stairs(mb, -10.0, -1.5, -1, 0, 6.5, 4.0, 9.0, rng)       # up to PlateauWest from the east
-    stairs(mb, 22.0, 13.0, 0, 1, 6.5, 4.0, 9.0, rng)        # up to PlateauNorthEast from the south
-    stairs(mb, 31.0, 30.5, 0, 1, 4.5, 4.0, 6.5, rng, y0=4.0)        # NorthEast -> High terrace (starts on the 4 m top)
-    stairs(mb, 11.0, -38.0, 1, 0, 6.0, 3.0, 7.0, rng)        # up to PlateauSouthEast from the west
+    stairs(mb, -11.0, -1.5, -1, 0, 6.5, 4.0, 8.0, rng)        # West lookout, from the crossroads
+    stairs(mb, 22.0, 13.0, 0, 1, 6.5, 4.0, 9.0, rng)          # North-east ruins, from the east path
+    stairs(mb, 31.0, 30.5, 0, 1, 4.5, 4.0, 6.5, rng, y0=4.0)  # ruins -> crystal shrine on the high terrace
+    stairs(mb, 12.0, -38.0, 1, 0, 6.0, 3.0, 6.5, rng)         # South-east dig site
     out['Stairs'] = mb
+
+    mb = MeshBuilder(1)
+    for name, (pts, w) in sampled.items():
+        road(mb, pts, w, FLOOR_Y + 0.03)
+    out['Roads'] = mb
 
     # ---------------------------------------------------------------- canyon walls: three rows of basalt-like columns
     edge = boundary(rng)
@@ -88,8 +156,11 @@ def build(seed=7):
     col_tops = []
     for i, (x, z, nx, nz) in enumerate(edge):
         mb = sectors[i * len(sectors) // len(edge)]
+        near_gate = any(abs(x - gx) < 10 and abs(z - gz) < 8 for gx, gz, _ in GATES.values())
         r0 = rng.uniform(3.2, 4.8)
-        column(mb, x + nx * r0 * 0.5, z + nz * r0 * 0.5, r0, rng.uniform(8, 13), rng)
+        h0 = rng.uniform(8, 13)
+        if not near_gate:
+            column(mb, x + nx * r0 * 0.5, z + nz * r0 * 0.5, r0, h0, rng)
         r1 = rng.uniform(4.0, 5.5)
         d1 = r0 + r1 * 0.9
         c1x, c1z = x + nx * d1 + rng.uniform(-1.5, 1.5), z + nz * d1 + rng.uniform(-1.5, 1.5)
@@ -98,93 +169,190 @@ def build(seed=7):
         r2 = rng.uniform(5, 7)
         d2 = d1 + r1 + r2 * 0.6
         column(mb, x + nx * d2, z + nz * d2, r2, rng.uniform(15, 21), rng)
-        if rng.random() < 0.35:  # low step columns in front of the wall
-            r3 = rng.uniform(1.6, 2.6)
-            column(mb, x - nx * rng.uniform(1.0, 2.5), z - nz * rng.uniform(1.0, 2.5), r3, rng.uniform(2.5, 5.5), rng)
+        if not near_gate and i % 3 == 1 and dist_to_roads(x - nx * 2, z - nz * 2, sampled) > 3:  # low step columns in front of the wall
+            column(mb, x - nx * 1.8, z - nz * 1.8, rng.uniform(1.6, 2.6), rng.uniform(2.5, 5.5), rng)
     for k, mb in enumerate(sectors):
         out['Wall_%d' % k] = mb
 
-    # columns hugging plateau edges (outer sides only) and a few lone spires on the floor
+    # gate towers: two tall columns either side of each gate opening
     mb = MeshBuilder(2)
+    for gx, gz, yaw in GATES.values():
+        for sx in (-1, 1):
+            column(mb, gx + sx * 10.5, gz + (2.5 if gz < 0 else -2.5), 3.6, 15.0, rng, sides=6)
     for name, x, z, r, h in [('PlateauWest', -37, 18, 3.5, 9), ('PlateauWest', -36, 0, 3.0, 7.5), ('PlateauNorthEast', 37, 27, 3.5, 9),
-                             ('PlateauNorthEast', 14, 40, 3.0, 7), ('MesaCentre', 5.5, 21, 2.2, 5.5), ('PlateauSouthEast', 37, -42, 3.2, 7.5),
-                             ('', -14, 34, 2.4, 7.0), ('', 12, -18, 2.0, 5.5), ('', -16, -22, 2.6, 6.5), ('', -6, 46, 2.2, 6.0)]:
+                             ('PlateauNorthEast', 14, 40, 3.0, 7), ('MesaCentre', 6.0, 20.5, 2.2, 5.5), ('PlateauSouthEast', 37, -42, 3.2, 7.5),
+                             ('', 12, -20, 2.0, 5.5), ('', 33, 8, 2.4, 6.0)]:
         column(mb, x, z, r, h, rng)
     out['Spires'] = mb
 
-    # ---------------------------------------------------------------- boulders
-    mb = MeshBuilder(1)
-    placed = 0
-    tries = 0
-    while placed < 26 and tries < 2000:
-        tries += 1
-        x, z = rng.uniform(-38, 38), rng.uniform(-54, 54)
-        if blocked(x, z, 2.0) or abs(x) < 6 and -56 < z < -40:
-            continue
-        rock(mb, x, z, rng.uniform(0.8, 2.6), rng, sw=ROCK_DARK if rng.random() < 0.5 else ROCK, y0=FLOOR_Y)
-        placed += 1
-    # pool rim stones
-    for i, (x, z) in enumerate(offset_poly(pool, 0.6)):
-        rock(mb, x, z, rng.uniform(0.9, 1.6), rng, sw=ROCK, y0=FLOOR_Y - 0.3)
-    out['Rocks'] = mb
+    # ---------------------------------------------------------------- crystals: landmarks first, then rhythm along the walls
+    cr = MeshBuilder(1)
+    rk = MeshBuilder(1)
+    gr = MeshBuilder(1)
 
-    # ---------------------------------------------------------------- crystals
-    big = [CYAN, CYAN, TEAL, PINK]
-    pinkish = [PINK, PINK, VIOLET, CYAN]
-    violet = [VIOLET, VIOLET, PINK, TEAL]
-    mb = MeshBuilder(1)
-    # hero clusters on tops
-    cluster(mb, 1.0, 3.0, 15.0, 10.0, rng, big, count=9, spread=4.0)
-    cluster(mb, 31.0, 8.0, 41.0, 8.0, rng, pinkish, count=7, spread=3.0)
-    cluster(mb, -31.0, 4.0, 13.0, 6.5, rng, big, count=6, spread=3.0)
-    cluster(mb, -31.0, 4.0, -1.0, 3.5, rng, violet, count=5, spread=1.8)
-    cluster(mb, 30.0, 3.0, -39.0, 6.0, rng, pinkish, count=6, spread=2.5)
-    cluster(mb, -27.0, 2.5, -37.0, 5.0, rng, big, count=6, spread=2.2)
-    cluster(mb, 20.0, 4.0, 37.0, 4.0, rng, violet, count=5, spread=2.0)
-    # clusters on wall column tops (on the inner row) and at the wall foot
+    def rock_group(x, z, size, y=FLOOR_Y, toward=None):
+        """Three boulders, large to small, stepping away from the anchor (toward = unit vector)."""
+        tx, tz = toward or (rng.uniform(-1, 1), rng.uniform(-1, 1))
+        l = math.hypot(tx, tz) or 1
+        tx, tz = tx / l, tz / l
+        for k, f in enumerate((1.0, 0.6, 0.35)):
+            d = size * (0.0, 1.3, 2.1)[k]
+            px, pz = x + tx * d + tz * rng.uniform(-0.6, 0.6) * size, z + tz * d - tx * rng.uniform(-0.6, 0.6) * size
+            rock(rk, px, pz, size * f, rng, sw=ROCK_DARK if k == 0 else ROCK, y0=y)
+        for k in range(2):
+            a = rng.uniform(0, math.tau)
+            tuft(gr, x + math.cos(a) * size * 1.6, y, z + math.sin(a) * size * 1.6, rng.uniform(0.6, 1.0), rng)
+
+    # hero crystals (visible from far away)
+    cluster(cr, 1.0, 3.0, 15.0, 10.0, rng, BIG, count=9, spread=4.0)            # central mesa
+    cluster(cr, 31.0, 8.0, 41.0, 8.0, rng, ROSE, count=7, spread=3.0)           # shrine on the high terrace
+    cluster(cr, -31.0, 4.0, 12.0, 6.5, rng, BIG, count=6, spread=3.0)           # west lookout
+    cluster(cr, 27.0, 3.0, -40.0, 5.0, rng, ROSE, count=6, spread=2.0)          # dig site, breaking out of the rubble
+    for gname, (gx, gz, yaw) in GATES.items():                                  # gate towers wear crystal crowns
+        for sx in (-1, 1):
+            cluster(cr, gx + sx * 10.5, 15.0, gz + (2.5 if gz < 0 else -2.5), 4.5, rng, BIG if sx < 0 else ROSE, count=5, spread=1.6)
+    # crystals on some inner wall columns
+    for i, (cx_, h_, cz_, r_) in enumerate(col_tops):
+        if i % 6 == 3:
+            cluster(cr, cx_, h_, cz_, rng.uniform(4, 6.5), rng, PALETTES[i % 3], spread=min(2.5, r_ * 0.5))
+    # wall foot: every 4th edge point gets crystals + a rock group, unless a road, gate or plateau is in the way
     for i, (x, z, nx, nz) in enumerate(edge):
-        if i % 5 == 2:
-            cluster(mb, x - nx * 1.2, FLOOR_Y, z - nz * 1.2, rng.uniform(3.5, 6.5), rng, rng.choice([big, pinkish, violet]), spread=2.2)
-        elif i % 6 == 4:
-            cx_, h_, cz_, r_ = col_tops[i]
-            cluster(mb, cx_, h_, cz_, rng.uniform(4, 7), rng, rng.choice([big, pinkish]), spread=min(2.5, r_ * 0.5))
-    # floor clusters along the path and around the pool
-    for (x, z, s) in [(-6, -28, 3.0), (8, -8, 2.5), (-12, 22, 3.5), (6, 40, 3.0), (-20, 44, 4.0), (14, -48, 2.5), (-30, -16, 3.0),
-                      (34, 14, 3.5), (36, -22, 3.0)]:
-        cluster(mb, x, FLOOR_Y, z, s, rng, rng.choice([big, pinkish, violet]), spread=1.6)
-    for (x, z) in offset_poly(pool, 1.8)[::3]:
-        cluster(mb, x, FLOOR_Y, z, rng.uniform(1.8, 3.2), rng, [CYAN, TEAL, PINK], count=4, spread=1.0)
-    # scattered single shards
-    scat = 0
-    while scat < 40:
-        x, z = rng.uniform(-40, 40), rng.uniform(-56, 56)
-        if blocked(x, z, 1.0):
+        if i % 4 != 0:
             continue
-        cluster(mb, x, FLOOR_Y, z, rng.uniform(0.8, 1.6), rng, rng.choice([big, pinkish, violet]), count=rng.randint(1, 3), spread=0.6)
-        scat += 1
-    out['Crystals'] = mb
+        fx, fz = x - nx * 1.5, z - nz * 1.5
+        if blocked(fx, fz, pad=0.5, road_pad=3.0, camp_too=False):
+            continue
+        cluster(cr, fx, FLOOR_Y, fz, rng.uniform(3.5, 5.5), rng, PALETTES[(i // 4) % 3], spread=2.0)
+        rock_group(fx - nz * 3.0, fz + nx * 3.0, rng.uniform(1.3, 2.0), toward=(-nx, -nz))
+    # pool shore
+    shore = offset_poly(pool, 1.8)
+    for k, (x, z) in enumerate(shore):
+        if k % 3 == 0 and dist_to_roads(x, z, sampled) > 1.5:
+            cluster(cr, x, FLOOR_Y, z, 2.6 if k % 2 else 3.4, rng, [CYAN, TEAL, PINK], count=4, spread=1.0)
+    for (x, z) in offset_poly(pool, 0.6):
+        rock(rk, x, z, rng.uniform(0.9, 1.5), rng, sw=ROCK, y0=FLOOR_Y - 0.3)
+    # road bends: a rock group with a couple of shards on the outside of each bend
+    for name, (pts, w) in sampled.items():
+        ctrl = ROADS[name][0]
+        for j in range(1, len(ctrl) - 1):
+            (ax, az), (bx, bz), (cx2, cz2) = ctrl[j - 1], ctrl[j], ctrl[j + 1]
+            d1 = (bx - ax, bz - az); d2 = (cx2 - bx, cz2 - bz)
+            turn = d1[0] * d2[1] - d1[1] * d2[0]
+            l1 = math.hypot(*d1) or 1; l2 = math.hypot(*d2) or 1
+            if abs(turn) / (l1 * l2) < 0.25:
+                continue
+            nx_, nz_ = (d1[0] / l1 - d2[0] / l2), (d1[1] / l1 - d2[1] / l2)  # points to the outside of the bend
+            nl = math.hypot(nx_, nz_) or 1
+            px, pz = bx + nx_ / nl * (w / 2 + 3.0), bz + nz_ / nl * (w / 2 + 3.0)
+            if blocked(px, pz, pad=1.0, road_pad=1.5):
+                continue
+            rock_group(px, pz, rng.uniform(1.0, 1.5), toward=(nx_, nz_))
+            cluster(cr, px + nx_ / nl * 2.5, FLOOR_Y, pz + nz_ / nl * 2.5, rng.uniform(1.8, 2.6), rng, PALETTES[j % 3], count=3, spread=0.9)
 
-    # ---------------------------------------------------------------- dry grass tufts
-    mb = MeshBuilder(1)
-    t = 0
-    while t < 70:
-        x, z = rng.uniform(-40, 40), rng.uniform(-56, 56)
-        if blocked(x, z, 0.8):
-            continue
-        tuft(mb, x, FLOOR_Y, z, rng.uniform(0.6, 1.1), rng)
-        t += 1
+    # plateau bases: rock groups where the cliff meets the floor (away from the stairs)
+    for x, z in [(-18, 16), (-22, -6), (-39, -4), (13, 27), (37, 21), (19, -30), (36, -27), (-4, 9), (7, 10)]:
+        if dist_to_roads(x, z, sampled) > 2.0:
+            rock_group(x, z, rng.uniform(1.2, 1.8))
+
+    # grass lines both road edges
+    for name, (pts, w) in sampled.items():
+        acc = 0.0
+        side = 1
+        for i in range(1, len(pts)):
+            acc += math.dist(pts[i - 1], pts[i])
+            if acc < 4.5:
+                continue
+            acc = 0.0
+            side = -side
+            dx, dz = pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]
+            l = math.hypot(dx, dz) or 1
+            off = w / 2 + rng.uniform(0.6, 1.8)
+            x, z = pts[i][0] - dz / l * off * side, pts[i][1] + dx / l * off * side
+            if not blocked(x, z, pad=0.6, road_pad=0.4, camp_too=False):
+                tuft(gr, x, FLOOR_Y, z, rng.uniform(0.6, 1.0), rng)
     for name in ('PlateauWest', 'PlateauNorthEast', 'PlateauSouthEast'):
         pts = tops[name]
         h = plateaus[name][1]
-        for k in range(6):
-            x, z = rng.uniform(min(p[0] for p in pts), max(p[0] for p in pts)), rng.uniform(min(p[1] for p in pts), max(p[1] for p in pts))
-            if point_in_poly((x, z), offset_poly(pts, -1.0)):
-                tuft(mb, x, h, z, rng.uniform(0.6, 1.0), rng)
-    out['Grass'] = mb
+        for k in range(5):
+            x = rng.uniform(min(p[0] for p in pts), max(p[0] for p in pts))
+            z = rng.uniform(min(p[1] for p in pts), max(p[1] for p in pts))
+            if point_in_poly((x, z), offset_poly(pts, -1.5)):
+                tuft(gr, x, h, z, rng.uniform(0.6, 1.0), rng)
 
-    # ---------------------------------------------------------------- water surface
+    # ---------------------------------------------------------------- props from the original game
+    # gates
+    for gx, gz, yaw in GATES.values():
+        prop('gate', gx, gz, yaw=yaw)
+        for sx in (-1, 1):
+            prop('brazier', gx + sx * 7.5, gz + (6 if gz < 0 else -6))
+    # mining camp west of the road
+    prop('planks', -21, -32, along=0)
+    prop('tent', -27, -26, yaw=90)
+    prop('tent_small', -30, -40, yaw=30)
+    prop('table', -20, -33, along=90)
+    prop('barrel_wood', -17.5, -34.5, yaw=10)
+    prop('barrel_wood', -22.5, -35.5, yaw=200)
+    prop('brazier', -15, -27)
+    for (x, z, yaw) in [(-14, -41, 0), (-12, -40.5, 25), (-13, -38.8, 60)]:
+        prop('crate', x, z, yaw=yaw)
+    prop('crate', -13.4, -40.4, yaw=40, lift=2.3)
+    prop('barrel', -22, -43, yaw=0)
+    prop('barrel', -20, -44.2, yaw=0)
+    prop('barrel', -24, -44, yaw=0)
+    prop('cart', -12, -25, along=0)
+    prop('cart', -31, -33, along=90)
+    prop('rubble', -31, -44, yaw=0)
+    prop('rock_decal', -26, -36, yaw=0)
+    prop('rock_decal', -15, -30, yaw=70)
+    for z in (-46.5, -40, -33.5, -27, -21.5):        # fence along the west side of the camp
+        prop('fence', -36, z, along=90)
+    for x in (-30, -23.5, -17):                       # and the south side
+        prop('fence', x, -48, along=0)
+    prop('lamp', -9, -28, yaw=0)
+    prop('lamp', -9, -36, yaw=0)
+    cluster(cr, -12, 2.4, -25, 2.4, rng, BIG, count=5, spread=1.0)        # carts loaded with crystals
+    cluster(cr, -31, 2.4, -33, 2.4, rng, ROSE, count=5, spread=1.0)
+    cluster(cr, -31, FLOOR_Y + 1.0, -44, 3.5, rng, DUSK, count=6, spread=1.8)  # ore pile in the rubble
+    # crossroads
+    prop('signpost', -0.5, -7.5, yaw=30)
+    prop('lamp', -10.5, -7, yaw=90)
+    prop('lamp', 0, 3, yaw=0)
+    # lamps along the main road, alternating sides
+    for (x, z, yaw) in [(5, -50, 0), (3, -28, 0), (-15, 20, 0), (-3.5, 30, 0), (-8, 44, 0), (4, 50, 0)]:
+        prop('lamp', x, z, yaw=yaw)
+    # pool: a small dock
+    prop('dock', 16.0, -3.5, along=20, scale=0.5, y=FLOOR_Y + 0.18)
+    # west lookout
+    prop('crate', -30, -1, yaw=10, y=4.0)
+    prop('crate', -32, 0.5, yaw=50, y=4.0)
+    prop('lamp', -21.5, 4, yaw=0, y=4.0)
+    # north-east ruins and the shrine
+    prop('ruin_wall', 33, 29, yaw=20, y=4.0)
+    prop('ruin_tall', 18, 37, yaw=-30, y=4.0)
+    prop('rubble', 26, 26, yaw=60, y=4.0)
+    prop('brazier', 27.5, 38.5, y=8.0)
+    prop('brazier', 34.5, 38.5, y=8.0)
+    # dig site on the south-east plateau
+    prop('rubble', 27, -40, yaw=0, y=3.0)
+    prop('cart', 31, -31, along=30, y=3.0)
+    prop('crate', 22.5, -33, yaw=15, y=3.0)
+    prop('crate', 23.5, -31, yaw=60, y=3.0)
+    prop('tent_small', 33, -37, yaw=200, y=3.0)
+    cluster(cr, 31, 5.4, -31, 2.2, rng, ROSE, count=4, spread=0.8)
+    # old ruins by the north gate
+    prop('ruin_arch', -16, 41, yaw=0)
+    prop('ruin_wall', 8, 46, yaw=-60)
+    prop('ruin_tall', 15, 51, yaw=120)
+    prop('rubble', -22, 50, yaw=30)
+    cluster(cr, -18.5, FLOOR_Y, 45, 3.5, rng, DUSK, count=5, spread=1.5)
+    cluster(cr, 11, FLOOR_Y, 49.5, 3.0, rng, BIG, count=4, spread=1.2)
+
+    out['Crystals'] = cr
+    out['Rocks'] = rk
+    out['Grass'] = gr
+
     mb = MeshBuilder(1)
     mb.poly_xz(0, pool, FLOOR_Y + 0.12, (0.5, 0.5))
     out['Pool'] = mb
 
-    return out, edge
+    return out, edge, props
