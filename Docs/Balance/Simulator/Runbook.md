@@ -802,3 +802,43 @@ string s = random.StateText();                                // 进每天的状
 - 请求的部分参数对象仍按字段覆盖代码默认值（见上），没有改成拒绝：C3b 的引擎测试（`modifier-first`、`stale-tick-cache`）就是靠部分对象只改一个字段；正式运行带完整对象，`manifest.params.complete` 可查。是否在批处理里强制完整对象留给 Z1 决定。
 - 设计稿 2.6 写 36 项属性；引擎的快照与摘要都是 `Unit.Stats` 的 30 项（同 16.6）。
 - 改了别的单元的测试：C3a/C3b 的 `tests/test_cs_signature_lock.py`（`PARTIAL_FILES` 加 `Trace`，`NEW_MEMBERS` 加 `RebuildTraceFlush`，新文件的 `.meta` 检查加上本单元的文件）、C3b 的 `tests/test_engine_static.py`（`FromJson` 可以是 public）；C0b 的 `tufu_balance/unity/__init__.py`（导入 `trace` 以登记字段）、`__main__.py`（`params build|import`）。
+
+## 18. 确定性（C3d）
+
+测试在 `Balance/tests/unity/test_determinism.py`，黄金套件 `sim_determinism`。作业都是第 0–6 天（`stop.day = 6`）、开 `digest_text`；默认策略（不带 `engine_probe`），所以 C5–C7 填好策略后重跑本文件就是对它们的确定性检查；另有一个 `null_policy` 作业 `det-null`，它第 0–6 天的摘要链记进黄金套件，作为跨会话、跨提交的锚点（与 C3c 的 `stop-6` 相同）。
+
+### 18.1 运行
+
+| 启动 | 请求 | 用途 |
+|---|---|---|
+| 基准 | 速度 500，三个作业 `det`、`det-again`（与 `det` 相同）、`det-null` | 同进程两作业；复制到临时目录后与下一次比较 |
+| 重复 | 与基准完全相同，`force` 重跑（真实时刻更晚）| 两次启动逐字节相同 |
+| 预置 | 基准加 `prefs_seed = {TimeSkipSeconds: 259200.0}` | 预置 `TimeSkipSeconds`、不同真实时刻 |
+| 速度 | 各一个作业：`speed-1`（`frame_budget_ms = 1e-6`）、`speed-9`、`speed-500`、`speed-paced`（速度 8、预算 2 毫秒）| 速度无关、自动调速 |
+
+`simulation_speed`、`frame_budget_ms` 不进 `run_key`（设计稿 1.4.2），所以每个速度变体用自己的作业 id，各是一次独立的运行，不会命中速度 500 的缓存。
+
+逐字节比较的是运行目录里的全部文件，只除去第 10 节列出的带时间或进程号的文件：运行级的 `launcher.json`、`editor_report.json`、`sandbox.json`、`unity.log`，作业级的 `timings.json`、`unity.log`，以及测试自己用 `simio.ingest` 生成的 `sim.sqlite` 和启动器的 `_real_backup/`。一次三作业的启动比较 35 个文件（每个作业 11 个，加 `request.json` 和就绪核对表）。`simio.ingest` 从两次启动的作业目录建出的 `sim.sqlite` 也逐字节相同。
+
+### 18.2 验收记录（设计稿 7.3 C3d）
+
+在提交 `e0d2fe4` 上，`pytest --unity tests/unity/test_determinism.py`：4 通过；首次全部新跑 126 秒（7 次启动：三作业的约 23–24 秒，单作业的 12–13 秒），之后只有 `force` 的重复启动要跑，约 26 秒。运行期间主检出没有开着的编辑器（`main_checkout_editors` 为空）。
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 速度 1、9、500 与自动调速，第 0–6 天摘要相同 | 通过：四个变体 7 天的摘要全部相同，也与基准启动的 `det` 相同；作业目录的文件（除 `timings.json`、`unity.log`）逐字节相同，`manifest.json` 除去请求回显（`run_key`、`request`、`job`、`job_id`、`job_index`）后相同。实际节奏：`speed-1` 67 帧、每帧 1 个 Tick（速度始终 1）；`speed-9` 4 帧、速度 9→36；`speed-500` 1 帧；`speed-paced` 52 帧、速度在 1 到 8 之间随帧耗时变化。全部 67 个 Tick | `test_digests_do_not_depend_on_the_simulation_speed`；黄金 `speeds.*` |
+| 两次启动的全部输出逐字节相同 | 通过：同一请求在不同真实时刻（相隔数十秒，测试断言后一次的启动时刻更晚）的两次启动，35 个文件全部逐字节相同 | `test_two_launches_are_byte_identical`；黄金 `launches.differing_files` |
+| 其中一次在不同真实时刻、预置 `TimeSkipSeconds` 非零 | 通过：`prefs_time_skip_seconds = 259200`、`prefs_seed_seen` 读回预置值，`time_service_cheat_offset_s = 0`、`TimeService.Now` 仍是沙箱时刻；除 `request.json` 与三个 `manifest.json` 外的文件全部逐字节相同，这两类文件只在请求回显（`prefs_seed`、`run_key`、`out_dir`）和沙箱报告的两个预置读回字段上不同 | `test_time_skip_preset_and_real_time_change_nothing`；黄金 `time_skip.differing_files` |
+| 同一编辑器进程里连跑两个相同作业（`reenter_play`），摘要相同 | 通过：`det` 与 `det-again` 7 天摘要相同、作业开始的状态摘要相同，文件逐字节相同（`asset_guard.json` 去掉 `job_id` 后），`manifest.json` 除作业 id 与序号外相同 | `test_two_identical_jobs_in_one_editor_process`；黄金 `same_process.*` |
+
+### 18.3 找到的不确定性与修正
+
+- **`asset_guard.json` 依赖速度与帧耗时**（已修正，偏离：改了 C0b 的 `Harness/SimulationHarness.cs`）。资产守卫在作业后把 Simulation Config 的内存摘要写进 `asset_guard.json` 的 `changed_sha256`；`SimulationSpeed` 是这个资产对象的序列化字段，而作业里它先被设成请求的速度、再由帧预算按墙钟帧耗时调整。所以这个文件随请求的速度变（C3c 的运行：速度 3 的 `stop-6` 是 `a3cef66d…`，速度 500 是 `e4bfe673…`），作业跨多帧、调速生效时还随机器负载变。修正：`StartJob` 记下作业前的 `SimulationSpeed`，`Complete` 时恢复（成功与失败都经过 `Complete`）。修正后四个速度变体的 `asset_guard.json` 除 `job_id` 外逐字节相同。守卫之后照样把资产卸载重载，不影响模拟结果。
+- 没有发现别的不确定来源：引擎、导出、轨迹、就绪表、manifest 在上面的所有比较里都相同。
+
+### 18.4 与设计稿不同的地方
+
+- 设计稿把"速度 1、9、500"和"帧预算自动调速"分开写，但驾驭器总在调速（第 11.2 节），`frame_budget_ms` 必须大于 0，没有固定速度的开关。`speed-1` 用 `frame_budget_ms = 1e-6` 把速度压在 1（每帧 1 个 Tick）；`speed-9` 用默认预算，前几帧 9 个 Tick，之后翻倍到 36；`speed-500` 一帧跑完。真正按帧耗时上下调的是 `speed-paced`，测试要求它的速度确实变过（最小值 < 最大值）。
+- "两次启动的全部输出逐字节相同，其中一次预置 `TimeSkipSeconds`"：预置值在请求里，`request.json` 和 manifest 的请求回显必然不同，所以拆成两项：同一请求的两次启动逐字节相同；预置的那次除请求回显与预置读回外相同。多跑了一次启动。
+- 比较"全部文件"时除去第 10 节本来就说明不能逐字节比较的文件（时间、进程号、日志），见 18.1。
+- 设计稿 2.6 写 36 项属性；摘要是 `Unit.Stats` 的 30 项（同 16.6、17.7）。
