@@ -153,15 +153,25 @@ namespace Codebase.Core.UserData
         public GameDataService(Lifetime lifetime)
         {
             Lifetime = lifetime;
-            savePath = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
-            tempPath = Path.Combine(Application.persistentDataPath, TEMP_FILE_NAME);
-            backupPath = Path.Combine(Application.persistentDataPath, BACKUP_FILE_NAME);
+            string saveDirectory = Application.persistentDataPath;
+#if UNITY_EDITOR
+            saveDirectory = RecoveryCompatibility.StudyTestProfile.SaveDirectory;
+#endif
+            Directory.CreateDirectory(saveDirectory);
+            savePath = Path.Combine(saveDirectory, SAVE_FILE_NAME);
+            tempPath = Path.Combine(saveDirectory, TEMP_FILE_NAME);
+            backupPath = Path.Combine(saveDirectory, BACKUP_FILE_NAME);
         }
         public void Initialize()
         {
             UdRoot.RegisterResolver(Generated.UserDataResolver.Instance);
             LoadOrCreate();
-            if (!IsMigrationComplete()) MigrateFromLegacy();
+            bool migrateLegacy = true;
+#if UNITY_EDITOR
+            // A fresh test slot must not import the normal profile's legacy PlayerPrefs.
+            migrateLegacy = !RecoveryCompatibility.StudyTestProfile.IsEnabled;
+#endif
+            if (migrateLegacy && !IsMigrationComplete()) MigrateFromLegacy();
             StartAutoSave().Forget();
         }
         public void OverrideSaveFile(byte[] bytes)

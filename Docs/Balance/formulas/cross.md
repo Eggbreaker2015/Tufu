@@ -39,6 +39,8 @@ Editor rule, body absent. When SyncShieldValuesByLeader is true, the shield Evol
 
 **备注**：Also note that GetArmorBase and GetArmorGrowthPerLevel ignore damageType (they index by rarity only), so pre-evolution helmets and shields of equal rarity have identical armor.
 
+**依赖图节点**：输入 `config:CombatBalanceConfig.SyncShieldValuesByLeader`、`config:CombatBalanceConfig.EvolutionArmorValues[].Value`、`config:CombatBalanceConfig.EvolutionArmorValues[].CopyValue`、`config:CombatBalanceConfig.EvolutionArmorValues[].DamageType`；输出 `config:CombatBalanceConfig.EvolutionArmorValues[].Value`、`config:CombatBalanceConfig.EvolutionArmorValues[].CopyValue`
+
 ### `balance.evolution_autobalance_thresholds`
 
 **Evolution auto-balance guard multipliers (unconsumed levers)**
@@ -69,3 +71,5 @@ Presumed generator constraints: copyValue_e >= MinCopyValueGrowthMultiplier * co
 **使用方**：balance.evolution_value_autobalance；balance.copy_value_rule
 
 **备注**：If balance.evolution_value_autobalance already lists these four config_params, fold this entry into it. They can be validated empirically against the exported EvolutionCombatValue rows (ratio checks).
+
+**依赖图节点**：输入 `config:CombatBalanceConfig.MinCopyValueGrowthMultiplier`、`config:CombatBalanceConfig.CopyValueTargetShare`、`config:CombatBalanceConfig.MinEvolutionValueFromShardsMultiplier`、`config:CombatBalanceConfig.MinArmorEvolutionValueFromPreviousEvolutionMultiplier`、`config:CombatBalanceConfig.EvolutionDamageValues[].Value`、`config:CombatBalanceConfig.EvolutionDamageValues[].CopyValue`、`config:CombatBalanceConfig.EvolutionArmorValues[].Value`、`config:CombatBalanceConfig.EvolutionArmorValues[].CopyValue`、`config:CombatBalanceConfig.EvolutionDamageShardsRequirements[].Value`、`config:CombatBalanceConfig.EvolutionArmorShardsRequirements[].Value`、`config:CombatBalanceConfig.CutDamageBaseByRarity`、`config:CombatBalanceConfig.CutDamageGrowthPerLevelByRarity`、`config:CombatBalanceConfig.PierceDamageBaseByRarity`、`config:CombatBalanceConfig.PierceDamageGrowthPerLevelByRarity`、`config:CombatBalanceConfig.SmashDamageBaseByRarity`、`config:CombatBalanceConfig.SmashDamageGrowthPerLevelByRarity`；输出 `config:CombatBalanceConfig.EvolutionDamageValues[].Value`、`config:CombatBalanceConfig.EvolutionDamageValues[].CopyValue`、`config:CombatBalanceConfig.EvolutionArmorValues[].Value`、`config:CombatBalanceConfig.EvolutionArmorValues[].CopyValue`

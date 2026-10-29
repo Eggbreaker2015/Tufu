@@ -211,7 +211,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x48A35982_URtVrjL
+    attribute: material._EmissionColor.r
     path:
     classID: 23
     script: {fileID: 0}
@@ -241,7 +241,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x58A35982_INLLQRJ
+    attribute: material._EmissionColor.g
     path:
     classID: 23
     script: {fileID: 0}
@@ -271,7 +271,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x68A35982_oVLQPjH
+    attribute: material._EmissionColor.b
     path:
     classID: 23
     script: {fileID: 0}
@@ -301,7 +301,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x78A35982_sJtKsRN
+    attribute: material._EmissionColor.a
     path:
     classID: 23
     script: {fileID: 0}

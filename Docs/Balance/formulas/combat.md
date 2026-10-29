@@ -12,11 +12,17 @@ Combat runs on a single hit resolver, DamageCalculator.Calculate (native VA 0x14
 
 | ID | 名称 | 状态 | 类型 |
 |---|---|---|---|
+| [`combat.player_lifesteal_on_hit`](#combatplayer_lifesteal_on_hit) | Player lifesteal per weapon hit | 原生证据恢复 | `runtime_formula` |
+| [`combat.enemy_lifesteal_on_hit`](#combatenemy_lifesteal_on_hit) | Enemy lifesteal when damaging the player | 原生证据恢复 | `runtime_formula` |
+| [`combat.thorns_reflection`](#combatthorns_reflection) | Player thorns reflection on being attacked | 原生证据恢复 | `runtime_formula` |
+| [`combat.enemy_reflection`](#combatenemy_reflection) | Enemy reflection damage to the player on being hit | 原生证据恢复 | `runtime_formula` |
+| [`combat.first_vulnerability_multiplier`](#combatfirst_vulnerability_multiplier) | First-hit vulnerability multiplier | 原生证据恢复 | `runtime_formula` |
+| [`combat.lethal_damage_ignore`](#combatlethal_damage_ignore) | Lethal damage ignore (cheat death) | 原生证据恢复 | `runtime_formula` |
 | [`combat.flat_defense_curve`](#combatflat_defense_curve) | Flat defence mitigation curve (ApplyDamageDefense) | 重建（无原生标注） | `runtime_formula` |
 | [`combat.solve_attack_for_incoming`](#combatsolve_attack_for_incoming) | Inverse defence: attack needed for target incoming damage | 重建（无原生标注） | `runtime_formula` |
 | [`combat.battle_regen`](#combatbattle_regen) | Battle regen budget (difficulty-scaled sustain) | 重建（无原生标注） | `runtime_formula` |
-| [`combat.player_flat_defense`](#combatplayer_flat_defense) | Player effective flat defence vs a damage type | 原生证据恢复 | `runtime_formula` |
-| [`combat.event_enemy_damage_ramp`](#combatevent_enemy_damage_ramp) | Event enemy damage ramp-up | 原生证据恢复 | `runtime_formula` |
+| [`combat.player_flat_defense`](#combatplayer_flat_defense) | Player effective flat defence vs a damage type (live hit) | 原生证据恢复 | `runtime_formula` |
+| [`combat.event_enemy_damage_ramp`](#combatevent_enemy_damage_ramp) | Event enemy damage ramp-up (timer + multiplier) | 原生证据恢复 | `runtime_formula` |
 | [`combat.incoming_damage_to_player`](#combatincoming_damage_to_player) | Enemy -> player hit resolution | 原生证据恢复 | `runtime_formula` |
 | [`combat.dodge_block_rolls`](#combatdodge_block_rolls) | Chance rolls (dodge / block / crit) | 原生证据恢复 | `runtime_formula` |
 | [`combat.outgoing_damage_to_enemy`](#combatoutgoing_damage_to_enemy) | Player weapon -> enemy hit resolution | 原生证据恢复 | `runtime_formula` |
@@ -31,40 +37,20 @@ Combat runs on a single hit resolver, DamageCalculator.Calculate (native VA 0x14
 | [`combat.rage_damage_reduction`](#combatrage_damage_reduction) | Rage incoming damage reduction | 原生证据恢复 | `runtime_formula` |
 | [`combat.weapon_type_defence_mapping`](#combatweapon_type_defence_mapping) | Damage type -> defence stat mapping | 重建（无原生标注） | `lookup_table` |
 | [`combat.enemy_armor_resist_table`](#combatenemy_armor_resist_table) | Enemy ArmorConfig resist table | 纯数据 | `lookup_table` |
-| [`combat.event_enemy_armor_override`](#combatevent_enemy_armor_override) | Event enemy resist/stat override at spawn | 原生证据恢复 | `runtime_formula` |
 | [`combat.quest_mob_armor_and_stats`](#combatquest_mob_armor_and_stats) | Quest chain mob armor and combat stats | 重建（无原生标注） | `runtime_formula` |
-| [`combat.stat_value_aggregation`](#combatstat_value_aggregation) | Stat raw value aggregation (StatBase.CalculateValue) | 重建（无原生标注） | `runtime_formula` |
-| [`combat.stat_modifier_merge`](#combatstat_modifier_merge) | Modifier stacking on AddModifier | 重建（无原生标注） | `runtime_formula` |
-| [`combat.stat_specific_value_curves`](#combatstat_specific_value_curves) | Specific-value (diminishing-return) conversion per stat | 重建（无原生标注） | `runtime_formula` |
-| [`combat.player_lifesteal_on_hit`](#combatplayer_lifesteal_on_hit) | Player lifesteal per weapon hit | 原生证据恢复 | `runtime_formula` |
-| [`combat.enemy_lifesteal_on_hit`](#combatenemy_lifesteal_on_hit) | Enemy lifesteal when damaging player | 原生证据恢复 | `runtime_formula` |
-| [`combat.thorns_reflection`](#combatthorns_reflection) | Player thorns on being attacked | 原生证据恢复 | `runtime_formula` |
-| [`combat.enemy_reflection`](#combatenemy_reflection) | Enemy reflection on being hit | 原生证据恢复 | `runtime_formula` |
-| [`combat.lethal_damage_ignore`](#combatlethal_damage_ignore) | Lethal damage ignore (cheat death) | 原生证据恢复 | `runtime_formula` |
 | [`combat.block_to_supercrit_bonus`](#combatblock_to_supercrit_bonus) | Block grants super-crit chance | 原生证据恢复 | `runtime_formula` |
-| [`combat.first_vulnerability_multiplier`](#combatfirst_vulnerability_multiplier) | First-hit vulnerability multiplier | 原生证据恢复 | `runtime_formula` |
 | [`combat.attack_speed_multiplier`](#combatattack_speed_multiplier) | Weapon attack-speed multiplier | 原生证据恢复 | `runtime_formula` |
 | [`combat.player_weapon_attack_cycle`](#combatplayer_weapon_attack_cycle) | Player weapon attack cycle / cooldown | 原生证据恢复 | `runtime_formula` |
 | [`combat.animation_cast_point`](#combatanimation_cast_point) | Movement-adjusted animation cast point | 原生证据恢复 | `runtime_formula` |
 | [`combat.player_attack_range_and_targeting`](#combatplayer_attack_range_and_targeting) | Player attack range and auto-target | 原生证据恢复 | `runtime_formula` |
 | [`combat.enemy_attack_cycle`](#combatenemy_attack_cycle) | Enemy attack cadence | 重建（无原生标注） | `runtime_formula` |
-| [`combat.enemy_leash_and_aggro`](#combatenemy_leash_and_aggro) | Enemy leash heal, aggro and retreat | 重建（无原生标注） | `runtime_formula` |
+| [`combat.enemy_leash_and_aggro`](#combatenemy_leash_and_aggro) | Enemy leash full-heal, aggro and retreat | 重建（无原生标注） | `runtime_formula` |
 | [`combat.enemy_regen`](#combatenemy_regen) | Enemy HP regeneration | 重建（无原生标注） | `runtime_formula` |
 | [`combat.player_regen`](#combatplayer_regen) | Player HP regeneration | 原生证据恢复 | `runtime_formula` |
 | [`combat.death_threshold`](#combatdeath_threshold) | Death threshold and enemy death processing | 原生证据恢复 | `runtime_formula` |
 | [`combat.player_revive`](#combatplayer_revive) | Player revive | 原生证据恢复 | `runtime_formula` |
-| [`combat.rage_extra_health`](#combatrage_extra_health) | Rage max-HP bonus | 重建（无原生标注） | `runtime_formula` |
-| [`combat.rage_extra_hit`](#combatrage_extra_hit) | Rage-gained extra hit | 重建（无原生标注） | `runtime_formula` |
-| [`combat.enemy_spawn_hp_damage_ab_multiplier`](#combatenemy_spawn_hp_damage_ab_multiplier) | Enemy HP/Damage A/B multiplier at spawn | 重建（无原生标注） | `runtime_formula` |
-| [`combat.hammer_regen_stub`](#combathammer_regen_stub) | Hammer regen bonus (graph upgrade) | 空壳 | `runtime_formula` |
 | [`combat.hits_taken_decay_stub`](#combathits_taken_decay_stub) | Hits-taken counter decay | 空壳 | `runtime_formula` |
-| [`combat.creeper_explosion_stub`](#combatcreeper_explosion_stub) | Creeper mob explosion damage | 空壳 | `runtime_formula` |
 | [`combat.unit_auto_target_stub`](#combatunit_auto_target_stub) | UnitAutoTargetSystem (MonoBehaviour) | 空壳 | `runtime_formula` |
-| [`combat.armor_formulas_stub`](#combatarmor_formulas_stub) | ArmorFormulas.Get(level) | 空壳 | `runtime_formula` |
-| [`combat.temporary_modifier_expiry`](#combattemporary_modifier_expiry) | Temporary (ability) stat modifier expiry | 原生证据恢复 | `runtime_formula` |
-| [`combat.stun_duration`](#combatstun_duration) | Stun duration countdown and effects | 原生证据恢复 | `runtime_formula` |
-| [`combat.enemy_far_activation`](#combatenemy_far_activation) | Enemy far/active culling radius | 重建（无原生标注） | `runtime_formula` |
-| [`combat.player_movement`](#combatplayer_movement) | Player movement displacement | 原生证据恢复 | `runtime_formula` |
 | [`combat.ab_enemy_hp_damage_live_rescale`](#combatab_enemy_hp_damage_live_rescale) | Live A/B cohort change rescale of enemy HP/Damage | 重建（无原生标注） | `runtime_formula` |
 | [`combat.weapon_equip_warmup_and_primary_range_gate`](#combatweapon_equip_warmup_and_primary_range_gate) | Weapon equip warm-up and weapon_1 range gate | 原生证据恢复 | `runtime_formula` |
 | [`combat.cooldown_reset_cycle`](#combatcooldown_reset_cycle) | Ability cooldown reset and highest-DPS weapon re-trigger | 原生证据恢复 | `runtime_formula` |
@@ -72,6 +58,218 @@ Combat runs on a single hit resolver, DamageCalculator.Calculate (native VA 0x14
 | [`combat.devour_reward_delay`](#combatdevour_reward_delay) | Devour animation delay before rewards | 原生证据恢复 | `runtime_formula` |
 
 ## 公式
+
+### `combat.player_lifesteal_on_hit`
+
+**Player lifesteal per weapon hit**
+
+- 状态：**原生证据恢复**（`recovered_native`）
+- 类型：`runtime_formula`
+- 合并自：`combat.player_lifesteal_on_hit`、`stats.lifesteal_player`
+- 原生地址：`0x15d00cc (ApplyPlayerLifesteal); caller ApplyDamageToEnemy 0x15cd840; BuffNextHitLifestealFlatEffect.Execute 0x15eeeb4`
+
+```text
+flat = Source.GetStatValue(LifestealFlat); pct = Source.GetStatValue(LifestealPercent); if target has MarkComponent with k = Stacks > 0 and b = Meta('mark_lifesteal') > 0: m = 1 + b*k; if flat > 0: flat *= m; if pct > 0: pct *= m; if flat > 0 and target has HydraBossComponent and Mark Stacks k > 0: flat *= 1 + k*0.1; if n = PlayerModel.NextHitLifestealFlatBonus > 0: NextHitLifestealFlatBonus = 0 (consumed even when flat == 0); flat *= 1f + n; if flat > 0 and !Source.IsDead: HP += flat; if pct > 0 and !Source.IsDead: HP += pct * Source.GetStatValue(Health); if flat > 0 or pct > 0: HP = min(HP, Source.GetStatValue(Health))
+```
+
+| 符号 | 含义 | 来源 |
+|---|---|---|
+| `LifestealFlat (stat 22), LifestealPercent (stat 32)` | attacker (player) stat Values via GetStatValue (FastValue, not the specific value) | Player Config.Stats + modifiers (devour, items such as cut_rare_shield, quests) |
+| `b` | meta stat mark_lifesteal | Meta Stats Config key mark_lifesteal |
+| `k` | MarkComponent.Stacks on the hit target | abilities mark system (runtime) |
+| `0.1` | extra flat-lifesteal multiplier per mark stack against the Hydra boss | hard-coded constant, UnitDamageSystem.cs:356 |
+| `n` | PlayerModel.NextHitLifestealFlatBonus, one-shot flat multiplier | BuffNextHitLifestealFlatEffect.Execute: += scaled value if > 0 (Abilities/Effects/BuffNextHitLifestealFlatEffect.cs:14-20) |
+| `Health` | player max HP = raw Health stat Value | GetStatValue(Health) |
+
+**输出**：player heal per weapon hit (applied even on dodged or zero-damage hits and on dummy targets)
+
+**代码**：[Unit/Systems/UnitDamageSystem.cs:336-366](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L336)；[Unit/Systems/UnitDamageSystem.cs:318](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L318)；[Unit/Systems/UnitDamageSystem.cs:332](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L332)；[Unit/UnitCore.cs:107-114](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/UnitCore.cs#L107)；[Abilities/Effects/BuffNextHitLifestealFlatEffect.cs:14-20](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/BuffNextHitLifestealFlatEffect.cs#L14)
+
+**状态依据**：ApplyPlayerLifesteal carries the comment 'Native ELF VA 0x15d00cc' (UnitDamageSystem.cs:338).
+
+**配置参数**：`Player Config.Stats[Type=22] (LifestealFlat)`；`Player Config.Stats[Type=32] (LifestealPercent)`；`Meta Stats Config: mark_lifesteal`；`BuffNextHitLifestealFlatEffect.ValueScaling / ScalingStat`
+
+**使用方**：combat.battle_regen (DamageCalculator.GetBattleRegen models it as (2d+3)*lifestealFlat)；simulation battle regen (DamageCalculator.GetBattleRegen uses LifestealFlat)；combat
+
+**备注**：Called unconditionally from ApplyDamageToEnemy for every player weapon hit: in the dummy branch (line 318) and in the normal branch (line 332). It therefore runs on dodged hits and on hits whose damage is 0. NextHitLifestealFlatBonus is consumed even when flat == 0. Each heal is skipped if the player IsDead. The min(HP, MaxHP) cap runs only if flat > 0 or pct > 0. MaxHP is the raw Health Value from GetStatValue. The mark multiplier applies to both flat and percent; the Hydra 0.1*k bonus applies to flat only. Unlike enemy lifesteal (combat.enemy_lifesteal_on_hit), this path is capped at MaxHP.
+
+**依赖图节点**：输入 `value:player.stat_raw[LifestealFlat]`、`value:player.stat_raw[LifestealPercent]`、`value:player.stat_raw[Health]`、`value:player.mark_lifesteal_multiplier`、`value:enemy.mark_stacks`、`constant:UnitDamageSystem.hydra_mark_flat_lifesteal_per_stack`、`state:boss_tower_context`、`value:player.next_hit_lifesteal_bonus`、`value:unit.is_dead`；输出 `value:player.lifesteal_heal_per_hit`、`value:player.current_hp`
+
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `stats.lifesteal_player`）：Checked against UnitDamageSystem.cs:318,332,357-365: calls are unconditional (dodged hits and dummies included), the bonus is reset before the flat>0 check, the cap is guarded by flat>0||pct>0, and MaxHP comes from GetStatValue(Health), which is the raw Value. The expression and notes now state all of this.
+
+### `combat.enemy_lifesteal_on_hit`
+
+**Enemy lifesteal when damaging the player**
+
+- 状态：**原生证据恢复**（`recovered_native`）
+- 类型：`runtime_formula`
+- 合并自：`combat.enemy_lifesteal_on_hit`、`stats.lifesteal_enemy`
+- 原生地址：`0x15ce7e8 (ApplyLifesteal); caller ApplyDamageToPlayer 0x15cdf10`
+
+```text
+in ApplyDamageToPlayer, only when damage (after FixedDamage override and god-mode zeroing) > 0, after player HP -= damage: a = hit Source; flat = a.GetStatValue(LifestealFlat); pct = a.GetStatValue(LifestealPercent); if flat > 0 and !a.IsDead: a.HP += flat; if pct > 0 and !a.IsDead: a.HP += pct * a.GetStatValue(Health); no MaxHP cap
+```
+
+| 符号 | 含义 | 来源 |
+|---|---|---|
+| `LifestealFlat, LifestealPercent` | attacker (enemy) stats via GetStatValue; in practice only quest mobs set LifestealPercent | QuestMobSpawnerService.ApplyChainMobSettings: LifestealPercent = (double)(MobLifestealMaxHealthPercent * 0.01f) (Quests/QuestMobSpawnerService.cs:283); see combat.quest_mob_armor_and_stats |
+| `Health` | enemy max HP (raw Health Value) | EnemySpawnerConfig.Stats[Type=1] |
+
+**输出**：enemy heal per landed (damage > 0) hit on the player
+
+**代码**：[Unit/Systems/UnitDamageSystem.cs:134-144](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L134)；[Unit/Systems/UnitDamageSystem.cs:155-162](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L155)；[Quests/QuestMobSpawnerService.cs:283](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L283)
+
+**状态依据**：ApplyLifesteal carries 'Native ELF VA 0x15ce7e8; this general helper intentionally does not cap health' (UnitDamageSystem.cs:157).
+
+**配置参数**：`QuestChainDef.MobLifestealMaxHealthPercent`
+
+**使用方**：quests
+
+**备注**：Only applied when damage > 0 after the god-mode check, so dodged hits, fully absorbed hits and god mode give no heal. There is no health cap, so enemies can overheal above MaxHP. It runs before the player's lethal-ignore check (line 145).
+
+**依赖图节点**：输入 `value:enemy.stat_raw[LifestealFlat]`、`value:enemy.stat_raw[LifestealPercent]`、`value:enemy.stat_raw[Health]`、`value:player.incoming_damage_per_hit`、`state:cheats`、`value:unit.is_dead`；输出 `value:enemy.lifesteal_heal_per_hit`、`value:enemy.current_hp`
+
+### `combat.thorns_reflection`
+
+**Player thorns reflection on being attacked**
+
+- 状态：**原生证据恢复**（`recovered_native`）
+- 类型：`runtime_formula`
+- 合并自：`combat.thorns_reflection`、`stats.thorns_reflection`、`powerups.thorns`
+- 原生地址：`0x15ce604 (ApplyThornsReflection), 0x15f2fa0 (ThornsEffect.UpdatePassive), 0x15eef6c (BuffNextThornsDamageEffect.Execute), 0x15e8420 (ResetPerFrameState)`
+
+```text
+Upstream, each frame: ThornsDamage = 0 (AbilityExecuteEventSystem.ResetPerFrameState); for each active ThornsEffect passive: ThornsDamage += (float)SpecificValue(DamageSourceStat) * (float)SpecificValue(DamageMultiplierStat) * State.GetValue(). BuffNextThornsDamageEffect.Execute: NextThornsDamageBonus += State.GetValue() (persists until consumed). Application in ApplyDamageToPlayer (skipped if the player IsDying), after block handling and before the dodge / god-mode / damage<=0 checks: if ThornsDamage > 0: d = ThornsDamage; if NextThornsDamageBonus > 0: bonus consumed (set to 0), d *= 1f + bonus; attacker.HP -= d (no armor/defence/resist); attacker.LastDamageGet = now; ProcessEnemyDeath(attacker)
+```
+
+| 符号 | 含义 | 来源 |
+|---|---|---|
+| `ThornsDamage` | PlayerModel.ThornsDamage, rebuilt every frame as SUM over ThornsEffect of specific(sourceStat) * specific(multStat) * abilityValue | Abilities/Effects/ThornsEffect.cs:14-20; reset in Abilities/Systems/AbilityExecuteEventSystem.cs:79 |
+| `DamageSourceStat, DamageMultiplierStat` | player stats whose specific values are multiplied | ThornsEffect fields |
+| `NextThornsDamageBonus` | one-shot multiplier bonus, accumulated by BuffNextThornsDamageEffect | Abilities/Effects/BuffNextThornsDamageEffect.cs:9-13 |
+
+**输出**：flat, unmitigated damage to the attacking enemy on every enemy hit attempt
+
+**代码**：[Abilities/Effects/ThornsEffect.cs:14-20](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/ThornsEffect.cs#L14)；[Abilities/Effects/BuffNextThornsDamageEffect.cs:9-13](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/BuffNextThornsDamageEffect.cs#L9)；[Abilities/Systems/AbilityExecuteEventSystem.cs:51-53](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Systems/AbilityExecuteEventSystem.cs#L51)；[Abilities/Systems/AbilityExecuteEventSystem.cs:79](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Systems/AbilityExecuteEventSystem.cs#L79)；[Unit/Systems/UnitDamageSystem.cs:113](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L113)；[Unit/Systems/UnitDamageSystem.cs:124](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L124)；[Unit/Systems/UnitDamageSystem.cs:212-228](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L212)
+
+**状态依据**：ApplyThornsReflection carries 'Native ELF VA 0x15ce604'; ThornsEffect.UpdatePassive 'Native 0x15f2fa0'; BuffNextThornsDamageEffect.Execute 'Original ELF VA 0x15eef6c'.
+
+**配置参数**：`ThornsEffect.DamageSourceStat`；`ThornsEffect.DamageMultiplierStat`；`AbilityDef.Value (State.GetValue) of ThornsEffect / BuffNextThornsDamageEffect`
+
+**使用方**：combat
+
+**备注**：Triggers on every enemy hit attempt, including dodged, blocked, zero-damage and god-mode hits, because line 124 runs before the damage<=0 early return. It does not trigger when the player IsDying (line 113). It is unmitigated by enemy armor, defence or resist. It also refreshes the attacker's LastDamageGet, which keeps resetting the enemy idle-regen timer (see combat.enemy_regen), and it can kill the attacker via ProcessEnemyDeath. ThornsEffect casts each double stat to float before the float product (native order).
+
+**依赖图节点**：输入 `value:player.stat_specific`、`value:ability.effective_value`、`value:unit.is_dead`；输出 `value:player.thorns_damage_per_hit`、`value:enemy.current_hp`
+
+### `combat.enemy_reflection`
+
+**Enemy reflection damage to the player on being hit**
+
+- 状态：**原生证据恢复**（`recovered_native`）
+- 类型：`runtime_formula`
+- 合并自：`combat.enemy_reflection`、`stats.enemy_reflection`
+- 原生地址：`0x15cf560 (ApplyEnemyReflection); caller ApplyDamageToEnemy 0x15cd840`
+
+```text
+in ApplyDamageToEnemy, non-dummy branch only, after enemy HP -= damage: if !HasDodged and target.ReflectionDamage > 0 and Source is PlayerUnit and !GodMode and !player.IsDead: player.HP -= ReflectionDamage (flat, no defence/armor, no rounding); player.LastDamageGet = now; HitsTakenCount++; HitsTakenLastUpdate = now; if player.HP <= 0.01 and !IsDying: ProcessPlayerDeath(enemy.name) (no lethal-ignore check)
+```
+
+| 符号 | 含义 | 来源 |
+|---|---|---|
+| `ReflectionDamage` | enemy field, flat damage per player hit | Quest mobs: Damage stat * (double)MobReflectionMaxHealthPercent * (double)0.01f (Quests/QuestMobSpawnerService.cs:270,284); crystal objectives: CrystalObjectiveUnitStats.ReflectionDamage (Crystals/CrystalObjectiveBalance.cs:36) |
+
+**输出**：player HP loss per own non-dodged hit
+
+**代码**：[Unit/Systems/UnitDamageSystem.cs:252-271](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L252)；[Unit/Systems/UnitDamageSystem.cs:314-321](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L314)；[Unit/Systems/UnitDamageSystem.cs:329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L329)；[Quests/QuestMobSpawnerService.cs:270](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L270)；[Quests/QuestMobSpawnerService.cs:284](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L284)；[Crystals/CrystalObjectiveBalance.cs:36](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Crystals/CrystalObjectiveBalance.cs#L36)
+
+**状态依据**：ApplyEnemyReflection carries 'Native ELF VA 0x15cf560' (UnitDamageSystem.cs:254).
+
+**配置参数**：`QuestChainDef.MobReflectionMaxHealthPercent`；`Crystal objective balance (CrystalObjectiveUnitStats.ReflectionDamage)`
+
+**使用方**：quests；crystals
+
+**备注**：It bypasses lethal-ignore and can kill the player directly. It also increments HitsTakenCount and sets HitsTakenLastUpdate, so it feeds BonusStatPerHitsTakenEffect. It applies to non-dodged hits even when the hit damage is 0, but not to dummies, because the dummy branch returns before it. Despite its name, the quest MobReflectionMaxHealthPercent scales the mob's Damage stat, not its max health.
+
+**依赖图节点**：输入 `value:enemy.reflection_damage`、`config:CrystalConfig.ObjectiveReflectionDamageMultiplier`、`config:CrystalConfig.ObjectiveSnapshotBaseDay`、`config:CrystalConfig.ObjectiveSnapshotDayStep`、`value:sim.snapshot_at_time`、`constant:CrystalObjectiveBalance.reflection_kill_ramp_divisor`、`state:save_counters`、`value:unit.hit_roll_outcome`、`state:cheats`、`value:unit.is_dead`；输出 `value:player.reflection_damage_taken`、`value:player.current_hp`、`value:player.hits_taken_count`
+
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `combat.enemy_reflection`）：Confirmed in UnitDamageSystem.cs:255-260 (HitsTaken increments), 314-321 (dummy branch returns before line 329) and 329 (only a !HasDodged guard, no damage>0 guard). The expression and notes now reflect it.
+
+### `combat.first_vulnerability_multiplier`
+
+**First-hit vulnerability multiplier**
+
+- 状态：**原生证据恢复**（`recovered_native`）
+- 类型：`runtime_formula`
+- 合并自：`combat.first_vulnerability_multiplier`、`stats.first_hit_vulnerability`
+- 原生地址：`0x15cd840 (ApplyDamageToEnemy)`
+
+```text
+damage = OneDamageMode ? 1.0 : (OneHitMode ? 0.9 * target.Health : Math.Round(DamageCalculator.Calculate(data).Damage)); if target entity has UnitFirstVulnerabilityComponent: damage *= DamageModifier (float); component removed; result.IsEmpowered = true
+```
+
+| 符号 | 含义 | 来源 |
+|---|---|---|
+| `DamageModifier` | one-shot outgoing damage multiplier (float32) | Set only by VampireSpiritSystem to 2f (BossTower/Systems/VampireSpiritSystem.cs:249) |
+
+**输出**：outgoing player damage on the first hit against the marked unit
+
+**代码**：[Unit/Systems/UnitDamageSystem.cs:291-306](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L291)；[Unit/Components/UnitFirstVulnerabilityComponent.cs:5-8](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Components/UnitFirstVulnerabilityComponent.cs#L5)；[BossTower/Systems/VampireSpiritSystem.cs:229](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/Systems/VampireSpiritSystem.cs#L229)；[BossTower/Systems/VampireSpiritSystem.cs:249](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/Systems/VampireSpiritSystem.cs#L249)
+
+**状态依据**：Inline in ApplyDamageToEnemy, which carries 'Native ELF VA 0x15cd840' (UnitDamageSystem.cs:288).
+
+**使用方**：combat.outgoing_damage_to_enemy；bosstower
+
+**备注**：Applied after DamageCalculator rounding, so the result can be fractional before HP subtraction. It is not part of simulation DPS. It is applied after the cheat overrides (OneHitMode 0.9*MaxHP, OneDamageMode 1), so OneDamageMode plus vulnerability gives 2. The component is consumed even on a dodged hit (dodged damage is 0, so the x2 is wasted) because there is no HasDodged guard. It applies before the dummy branch.
+
+**依赖图节点**：输入 `constant:VampireSpiritSystem.first_vulnerability_damage_modifier`、`state:boss_tower_context`；输出 `value:enemy.first_hit_damage_multiplier`
+
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `stats.first_hit_vulnerability`）：UnitDamageSystem.cs:292-306 sets the cheat overrides before the multiplier and has no HasDodged guard. The outgoing Calculate path zeroes damage on dodge (DamageCalculator.cs:195), and VampireSpiritSystem.cs:249 uses 2f. The expression, variables and notes now reflect this.
+
+### `combat.lethal_damage_ignore`
+
+**Lethal damage ignore (cheat death)**
+
+- 状态：**原生证据恢复**（`recovered_native`）
+- 类型：`runtime_formula`
+- 合并自：`combat.lethal_damage_ignore`、`stats.lethal_ignore`、`powerups.lethal_ignore`
+- 原生地址：`0x15ce89c (TryIgnoreLethalDamage), 0x15f0ce4 (LethalIgnorePassiveEffect.UpdatePassive), 0x15cdf10 (ApplyDamageToPlayer), 0x15e8420 (ResetPerFrameState)`
+
+```text
+Upstream, each frame: LethalIgnoreChance = 0, HasPerTargetLethalIgnore = false (ResetPerFrameState); for each LethalIgnorePassiveEffect: LethalIgnoreCooldown = State.Cooldown; if State.Cooldown > 0: skip; else LethalIgnoreChance += State.GetChance(); if Mode == PerTarget: HasPerTargetLethalIgnore = true. On a player hit with damage > 0, after HP -= damage and after enemy lifesteal: if player.IsDead (HP <= 0.01): TryIgnoreLethalDamage: if LethalIgnoreChance <= 0 and !HasPerTargetLethalIgnore: fail; if HasPerTargetLethalIgnore: { id = Source.GetEntityId().GetHashCode(); if id in LethalIgnoreTargetIds or LethalIgnoreCooldown > 0: fail (NO fallback to the chance roll); else add id } else if Random.value >= LethalIgnoreChance: fail; success: fire OnLethalDamageIgnore, HasPerTargetLethalIgnore = false, LethalIgnoreChance = 0, HP = 1. If it fails and HP <= 0.01: ProcessPlayerDeath
+```
+
+| 符号 | 含义 | 来源 |
+|---|---|---|
+| `LethalIgnoreChance` | survive probability, rebuilt each frame from passive abilities | LethalIgnorePassiveEffect: += State.GetChance() (AbilityDef.Chance, see powerups.ability_effective_value) |
+| `HasPerTargetLethalIgnore` | per-attacker mode flag | LethalIgnorePassiveEffect.Mode == PerTarget |
+| `LethalIgnoreCooldown` | ability state cooldown mirrored each frame | LethalIgnorePassiveEffect.cs:16 (State.Cooldown) |
+| `LethalIgnoreTargetIds` | set of attacker entity-id hashes already ignored | PlayerModel.LethalIgnoreTargetIds (PlayerModel.cs:495,521) |
+
+**输出**：whether the player survives a lethal hit at 1 HP
+
+**代码**：[Unit/Systems/UnitDamageSystem.cs:140-152](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L140)；[Unit/Systems/UnitDamageSystem.cs:176-193](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L176)；[Abilities/Effects/LethalIgnorePassiveEffect.cs:13-20](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/LethalIgnorePassiveEffect.cs#L13)；[Abilities/Systems/AbilityExecuteEventSystem.cs:70](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Systems/AbilityExecuteEventSystem.cs#L70)；[Abilities/Systems/AbilityExecuteEventSystem.cs:77-78](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Systems/AbilityExecuteEventSystem.cs#L77)；[Player/Models/PlayerModel.cs:495-496](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Models/PlayerModel.cs#L495)；[Player/Models/PlayerModel.cs:521](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Models/PlayerModel.cs#L521)
+
+**状态依据**：TryIgnoreLethalDamage carries 'Native ELF VA 0x15ce89c'; LethalIgnorePassiveEffect.UpdatePassive carries 'Original ELF VA 0x15f0ce4'.
+
+**配置参数**：`AbilityDef.Chance`；`LethalIgnorePassiveEffect.Mode`；`CooldownCondition.Cooldown`
+
+**使用方**：combat survival / effective HP；combat survival / time-to-kill
+
+**备注**：The check runs only after a damaging hit (damage > 0), once IsDead is true (HP <= 0.01; IsDying was already excluded at line 113), and after enemy lifesteal. In per-target mode, a used attacker or an active cooldown fails outright; the chance roll only happens when per-target mode is off. On success both flags are zeroed, but this lasts only until the next frame's passive tick rebuilds them. The real rate limiter is the ability State.Cooldown, which gates the passive's contribution in both modes. No call clears LethalIgnoreTargetIds outside the PlayerModel constructor in this reconstruction. Enemy reflection deaths are not covered (ApplyEnemyReflection kills directly without this check, UnitDamageSystem.cs:261-265). If several passives exist, LethalIgnoreCooldown holds the last one's State.Cooldown. NaN cooldown follows the chance branch (native B.GT).
+
+**依赖图节点**：输入 `value:ability.effective_chance`、`value:ability.condition_pass`、`state:rng`、`value:player.incoming_damage_per_hit`、`value:unit.is_dead`、`constant:UnitDamageSystem.lethal_ignore_survive_hp`；输出 `value:player.lethal_ignore_chance`、`value:player.current_hp`
+
+**核验记录**（已写入上方字段）：
+
+- 采纳 `id (missed list)`（来自 `stats.lethal_ignore`）：The three duplicates are merged into this single canonical entry. stats.lethal_ignore and powerups.lethal_ignore are listed in merged_from.
+- 采纳 `expression`（来自 `combat.lethal_damage_ignore`）：Matches UnitDamageSystem.cs:179-190: early fail at 179, per-target fail at 184 with no fallback, chance roll only in the else-branch at 187, and the reset at 189-190. Lines 140-145 confirm it runs after HP -= damage and ApplyLifesteal. The expression now encodes this exactly.
 
 ### `combat.flat_defense_curve`
 
@@ -101,6 +299,8 @@ r = D / A ; incoming(A, D) = A * exp(-0.75 * r) * max(0, 1 - 0.25 * r)   (return
 **使用方**：combat.incoming_damage_to_player；combat.solve_attack_for_incoming；simulation.GetSpawnerDps ([Simulation/Systems/SimulationSystem.cs:970](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L970))
 
 **备注**：Constants 0.75 and 0.25 are the main defence tuning levers and have no config source. f is monotonic in A, which is what makes the bisection inverse well defined.
+
+**依赖图节点**：输入 `value:enemy.attack_damage_ramped`、`value:player.boss_tower_incoming_multiplier`、`value:player.flat_defense_effective`、`constant:DamageCalculator.flat_defense_exp_coef`、`constant:DamageCalculator.flat_defense_linear_coef`；输出 `value:player.incoming_damage_after_flat_defense`
 
 ### `combat.solve_attack_for_incoming`
 
@@ -132,10 +332,11 @@ find minimal A (absolute tolerance 1.0) s.t. forward(A) >= T; forward(A) = incom
 
 **备注**：This formula ties authored enemy Damage values to the designer's intended incoming DPS. If combat.flat_defense_curve changes, every baked enemy Damage becomes stale.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:sim.target_incoming_damage_per_hit`、`value:sim.snapshot_at_time`、`value:sim.ability_ehp_multiplier`、`constant:DamageCalculator.flat_defense_exp_coef`、`constant:DamageCalculator.flat_defense_linear_coef`、`constant:DamageCalculator.solve_attack_tolerance`；输出 `value:enemy.solved_attack_damage`
 
-- [已应用] `status`：reconstructed  
-  依据：[Services/Damage/DamageCalculator.cs:31-57](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L31) has no native VA comment. No recovery notes outside the .cs files mention it (I grepped the repo). The int.MaxValue counter and LogError are only shape evidence, the same kind the catalog itself rejected for ApplyDamageDefense (lines 24-29, labelled reconstructed) and GetBattleRegen. One rule should apply to all three, so treat this as unconfirmed.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `status`（来自 `combat.solve_attack_for_incoming`）：[Services/Damage/DamageCalculator.cs:31-57](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L31) has no native VA comment. No recovery notes outside the .cs files mention it (I grepped the repo). The int.MaxValue counter and LogError are only shape evidence, the same kind the catalog itself rejected for ApplyDamageDefense (lines 24-29, labelled reconstructed) and GetBattleRegen. One rule should apply to all three, so treat this as unconfirmed.
 
 ### `combat.battle_regen`
 
@@ -167,73 +368,81 @@ battleRegen = (d + 1) * healthRegen + (2d + 3) * lifestealFlat
 
 **备注**：The model only uses it; the runtime fight does not. In BossSpawnService the target per-hit damage is ((regen + d*playerHP/AverageFightTime)/attackers) * (cooldown/(1-evasion)) / (1 - blockChance*blockAmount).
 
+**依赖图节点**：输入 `config:EnemySpawnerConfig.Difficulty`、`config:BossTowerConfig.Bosses[].Difficulty`、`config:BossTowerConfig.Bosses[].EliteDifficulty`、`value:sim.snapshot_at_time`、`value:player.stat_specific[HealthRegen]`、`value:player.stat_raw[LifestealFlat]`、`constant:DamageCalculator.battle_regen_regen_offset`、`constant:DamageCalculator.battle_regen_lifesteal_slope`、`constant:DamageCalculator.battle_regen_lifesteal_offset`；输出 `value:player.battle_regen`
+
 ### `combat.player_flat_defense`
 
-**Player effective flat defence vs a damage type**
+**Player effective flat defence vs a damage type (live hit)**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x140a4cc`
+- 来源：合并核验
+- 原生地址：`0x140a4cc (DamageCalculator.Calculate)`
 
 ```text
-D = s * (UniversalDefenceFlat + sum_{armor items i equipped, i.DamageType in {Universal, hitType}} i.Armor + TypedDefenceFlat[hitType]) * TypedDefencePercent[hitType] ; s = simulationFlatDefenceMultiplier if fromSimulation else 1
+D = s * (UniversalDefenceFlat + sum_{i in EquippedArmors, i.Config.DamageType in {Universal, hitType}} i.Armor + TypedDefenceFlat[hitType]) * TypedDefencePercent[hitType] ; s = fromSimulation ? simulationFlatDefenceMultiplier : 1.0 ; EquippedArmors = equipped items with SlotType Helmet or Shield ; typed stats via WeaponTypeToDefence(hitType): Stab 14/15, Cut 16/17, Magic 18/19, Buckshot 20/21, Universal 26/27 (so for hitType = Universal: D = s * (2*UniversalDefenceFlat + sum Universal armor) * UniversalDefencePercent, because stat 26 is added twice)
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `UniversalDefenceFlat` | player stat 26 raw value | Player Config.Stats + modifiers |
-| `i.Armor` | helmet/shield armor value | items subsystem ItemModel.CalcArmor (Player/Inventory/ItemModel.cs:489-497) |
-| `TypedDefenceFlat` | Stab/Cut/Magic/Buckshot DefenceFlat raw (14/16/18/20) | Player Config.Stats + devour/shop modifiers |
-| `TypedDefencePercent` | Stab/Cut/Magic/Buckshot DefencePercent raw (15/17/19/21); base 1, acts as a MULTIPLIER on flat defence | Player Config.Stats (base 1) + modifiers |
-| `s` | simulation flat defence multiplier | Calculate() argument (default 1.0) |
+| `UniversalDefenceFlat` | player stat 26 raw value (base 0) | Player Config.Stats + modifiers |
+| `i.Armor` | helmet/shield armor value | items subsystem ItemModel.CalcArmor (Player/Inventory/ItemModel.cs:486-498) |
+| `TypedDefenceFlat` | Stab/Cut/Magic/Buckshot DefenceFlat raw (stats 14/16/18/20); stat 26 for Universal hits | Player Config.Stats + devour/shop modifiers |
+| `TypedDefencePercent` | Stab/Cut/Magic/Buckshot DefencePercent raw (stats 15/17/19/21, base 1); stat 27 for Universal hits. It acts as a MULTIPLIER on all flat defence | Player Config.Stats + modifiers |
+| `hitType` | WeaponHitEvent.DamageType = attacking enemy's DamageType (spawner WeaponType) | EnemySpawnerConfig.WeaponType |
+| `s` | simulation flat defence multiplier | Calculate() argument (default 1.0; simulation passes 1.0) |
 
-**输出**：D for combat.flat_defense_curve
+**输出**：D for combat.flat_defense_curve (ApplyDamageDefense(A, D))
 
-**代码**：[Services/Damage/DamageCalculator.cs:71-87](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L71)；[Services/Damage/DamageCalculator.cs:269-280](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L269)
+**代码**：[Services/Damage/DamageCalculator.cs:71-72](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L71)；[Services/Damage/DamageCalculator.cs:75](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L75)；[Services/Damage/DamageCalculator.cs:83-87](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L83)；[Services/Damage/DamageCalculator.cs:269-280](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L269)；[Player/Models/PlayerModel.cs:163-172](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Models/PlayerModel.cs#L163)；[Player/Inventory/ItemModel.cs:486-498](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L486)
 
-**状态依据**：Inside Calculate, annotated 'Native ELF VA 0x140a4cc (bounded pcode)'. SimulationSystem.CalculateDefenseData (VA 0x13e5104) has the same percent*(flat+armor) form.
+**状态依据**：Inside Calculate, annotated 'Native ELF VA 0x140a4cc (bounded pcode)'. SimulationSystem.CalculateDefenseData (VA 0x13e5104) does NOT corroborate it, because it uses a different formula: D_sim = TypedPercent * (TypedFlat + sum of top-N armor items whose DamageType == t exactly) * interpolationCoefficient(StatModifier, Rare), with N = UnlockedArmorSlots. It leaves out UniversalDefenceFlat and Universal (mythical) armor and adds a balance-interpolation factor. The fast GetSpawnerDps path also looks D up by location.PreferredWeaponType, not spawner.WeaponType.
 
-**配置参数**：`Player Config.Stats[Type=14..21,26]`；`ItemConfig.DamageType (armor items)`；`CombatBalanceConfig armor base/growth`
-
-**使用方**：combat.incoming_damage_to_player；simulation.CalculateDefenseData
-
-**备注**：Player Config has no stats 18/19 (Magic defence), so TypedDefencePercent = 0 for Magic and D = 0: Magic attacks ignore all flat defence and armor. Universal (mythical) armor counts toward every type. The percent stat multiplies all flat sources, universal flat included.
-
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
-
-- [待人工合入] `status_evidence`：CalculateDefenseData is NOT the same as runtime. It computes D_sim = TypedPercent * (TypedFlat + sum of the top-N armor items whose DamageType == t exactly) * interpolationCoefficient(StatModifier, Rare), with N = UnlockedArmorSlots. Compared with runtime it leaves out UniversalDefenceFlat, leaves out Universal (mythical) armor items, and adds a balance-interpolation factor. The fast GetSpawnerDps path also looks D up by location.PreferredWeaponType, not by spawner.WeaponType. The runtime formula is still inside VA-annotated Calculate 0x140a4cc, so recovered_native stands, but the simulation's D does not corroborate it.  
-  依据：[Simulation/Systems/SimulationSystem.cs:935-957](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L935) (CalculateDefenseData) and :964-970 (fast path uses location.PreferredWeaponType). Runtime is at [Services/Damage/DamageCalculator.cs:75](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L75),83-87.
-
-### `combat.event_enemy_damage_ramp`
-
-**Event enemy damage ramp-up**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x140a4cc`
-
-```text
-A_event = A * (1 + 0.04 * max(0, t - 5)) ; t (EventDamageRampTimer) increases by dt each tick while event enemy HP < maxHP - 0.01, else resets to 0
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `A` | event enemy Damage stat | event forecast (EnemySpawner.ApplyEventPlanToConfig) |
-| `t` | seconds the event enemy has been below full HP | EnemyUnit.Tick runtime state |
-
-**输出**：attack value fed to the defence curve
-
-**代码**：[Services/Damage/DamageCalculator.cs:78-79](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L78)；[Enemy/EnemyUnit.cs:188](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L188)
-
-**状态依据**：The multiplier sits in the VA-annotated Calculate. The timer update in EnemyUnit.Tick has no annotation, so the timer itself is reconstructed.
-
-**配置参数**：`EnemySpawnerConfig.IsEvent`
+**配置参数**：`Player Config.Stats[Type=14..21,26,27]`；`ItemConfig.DamageType (armor items)`；`ItemConfig.SlotType (Helmet/Shield)`；`CombatBalanceConfig armor base/growth`
 
 **使用方**：combat.incoming_damage_to_player
 
-**备注**：Event enemies gain +4% damage per second after the first 5 s of a fight. This is an anti-stall lever.
+**备注**：Player Config has no stats 18/19 (Magic defence), so unless a modifier creates them, TypedDefencePercent = 0 for Magic and D = 0: Magic attacks ignore all flat defence and armor. For a Universal-typed hit, the percent stat is UniversalDefencePercent (27, base 0), so D = 0 unless 27 is raised. That same stat also cuts damage by (1 - stat27). The flat stat is UniversalDefenceFlat (26), which line 87 adds twice (once as universalFlat, once as typedFlat), while Universal armor is counted once. Universal (mythical) armor counts toward every type. The percent stat multiplies all flat sources, universal flat included. The simulation and bake defence (SimulationSystem.CalculateDefenseData, Simulation/Systems/SimulationSystem.cs:935-957; fast path :964-971; BossSpawnService.BakeStatsForFloor reads snapshot.DefenseData by spawner WeaponType) is a separate formula, catalogued under the simulation subsystem, and differs as described in status_evidence. The only simulation route that would use this live formula is the GetSpawnerDps slow path (Calculate(hit, true, 1.0), s = 1, SimulationSystem.cs:982-985), which is unreachable in the reconstruction (only isFast=true is called, :660). Expect a bake-vs-live delta for players holding Universal flat defence or mythical armor, and for spawners whose WeaponType differs from the location's PreferredWeaponType.
+
+**依赖图节点**：输入 `value:player.stat_raw[UniversalDefenceFlat]`、`value:player.stat_raw[DefenceFlatByType]`、`value:player.stat_raw[DefencePercentByType]`、`value:player.stat_raw[UniversalDefencePercent]`、`value:weapon.damage_type_defence_stats`、`value:armor.item_armor`、`value:player.equipped_items`、`config:ItemConfig.DamageType`、`config:ItemConfig.SlotType`、`value:enemy.damage_type`、`constant:DamageCalculator.simulation_flat_defence_multiplier`；输出 `value:player.flat_defense_effective`
+
+**核验记录**（已写入上方字段）：
+
+- 采纳 `status_evidence`（来自 `combat.player_flat_defense`）：Verified at SimulationSystem.cs:935-957 (exact DamageType match, top UnlockedArmorSlots armors, no UniversalDefenceFlat, x Rare StatModifier interpolation coefficient) and :964-971 (fast path keyed on location.PreferredWeaponType). status_evidence says the simulation does not corroborate the runtime formula. The simulation.CalculateDefenseData used_by link is removed because CalculateDefenseData does not call this formula, and the differences are recorded in notes. recovered_native stays because the runtime formula is in the annotated Calculate.
+- 合并复核修正：(b) The expression and notes miss a case. For a Universal-typed hit, WeaponTypeToDefence(Universal, false) returns UniversalDefenceFlat (stat 26), so the line-87 sum universalFlat + armor + typedFlat counts stat 26 TWICE: D = s*(2*UniversalDefenceFlat + universal armor)*stat27. The notes describe the Universal-hit case but give only the stat-27 gate. The entry also gives no consumer caveat for the live-formula simulation use: the GetSpawnerDps slow path (Calculate(hit, true, 1.0), s=1) uses this formula but is unreachable in the reconstruction (only isFast=true is called, SimulationSystem.cs:660). The forecast defence therefore always comes from CalculateDefenseData.
+
+### `combat.event_enemy_damage_ramp`
+
+**Event enemy damage ramp-up (timer + multiplier)**
+
+- 状态：**原生证据恢复**（`recovered_native`）
+- 类型：`runtime_formula`
+- 合并自：`combat.event_enemy_damage_ramp`、`spawners.event_damage_ramp_timer`
+- 原生地址：`0x140a4cc (DamageCalculator.Calculate)`
+
+```text
+Timer (EnemyUnit.Tick, every frame): t = (Config.IsEvent && CurrentHealth < GetStatValue(Health) - 0.01) ? t + dt : 0 (float; t = 0 on Initialize) ; Multiplier (DamageCalculator.Calculate, enemy->player branch, applied to the raw attack BEFORE the tower reduction and the defence curve): if attacker is EnemyUnit && attacker.Config.IsEvent: A = A * ((double)max(0f, t - 5f) * 0.04 + 1.0)
+```
+
+| 符号 | 含义 | 来源 |
+|---|---|---|
+| `A` | event enemy Damage stat (GetStatValue(Damage)) | EnemySpawnerConfig.Stats[Type=3] set by the event forecast (EnemySpawner.ApplyEventPlanToConfig) |
+| `t` | EventDamageRampTimer: seconds the event enemy has continuously been below full HP | EnemyUnit.Tick runtime state |
+| `dt` | frame delta time | Tick(deltaTime) |
+
+**输出**：ramped attack value A fed to the flat-defence curve (combat.flat_defense_curve) in the incoming hit
+
+**代码**：[Services/Damage/DamageCalculator.cs:77-79](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L77)；[Enemy/EnemyUnit.cs:129](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L129)；[Enemy/EnemyUnit.cs:144](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L144)；[Enemy/EnemyUnit.cs:186-188](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L186)
+
+**状态依据**：The multiplier is inside Calculate, annotated 'Native ELF VA 0x140a4cc (bounded pcode)'. The timer update in EnemyUnit.Tick (EnemyUnit.cs:188) has no native annotation, so the timer half is reconstructed.
+
+**配置参数**：`EnemySpawnerConfig.IsEvent`；`constant grace period 5 s`；`constant ramp slope 0.04 per s`
+
+**使用方**：combat.incoming_damage_to_player
+
+**备注**：Event enemies gain +4% raw attack per second after the first 5 s spent below full HP. This is an anti-stall lever. Because the ramp scales attack before the non-linear defence curve exp(-0.75 D/A)*(1-0.25 D/A), the damage actually taken grows faster than 4%/s while D/A is significant. The timer resets to 0 on any frame the enemy is at full HP (within 0.01), for example after a leash or revive full-heal (combat.enemy_leash_and_aggro) or full regen. The ramp checks only Config.IsEvent, not whether the event is current (unlike enemyEventMult). simulation.forecast_damage_ramp_average is a separate averaged quantity and is not merged here. The spawners agent catalogued the timer half as spawners.event_damage_ramp_timer.
+
+**依赖图节点**：输入 `value:enemy.stat_raw[Damage]`、`config:EnemySpawnerConfig.IsEvent`、`state:frame_delta_time`、`value:enemy.current_hp`、`value:enemy.stat_raw[Health]`、`constant:DamageCalculator.event_damage_ramp_delay_seconds`、`constant:DamageCalculator.event_damage_ramp_per_second`；输出 `value:enemy.attack_damage_ramped`
 
 ### `combat.incoming_damage_to_player`
 
@@ -241,43 +450,47 @@ A_event = A * (1 + 0.04 * max(0, t - 5)) ; t (EventDamageRampTimer) increases by
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x140a4cc; ApplyDamageToPlayer 0x15cdf10`
+- 来源：合并核验
+- 原生地址：`0x140a4cc (Calculate); 0x15cdf10 (ApplyDamageToPlayer); 0x140c070 (GetEnemyEventDamageMultiplier); 0x140c150 (GetIslandMasteryIncomingMultiplier); 0x15ce604 (ApplyThornsReflection); 0x15ce7e8 (ApplyLifesteal)`
 
 ```text
-A = Damage_enemy * ramp ; if attacker.IsBossFightPart: A /= (1 + tower_damage_reduction) ; x = incoming(A, D) ; x = max((1 - UniversalDefencePercent_raw) * x, 0) ; if roll(Evasion_spec) and !Undodgeable: x = 0 (dodged) ; else { if !Undodgeable and roll(BlockChance_spec): x *= 1 - BlockAmount_spec ; if x > 0: x /= (1 + rage_damage_reduce * rageLevel) [if rage>0 and reduce>0]; x *= enemyEventMult * islandIncoming * 1/(1 + 0.01*GlobalDefence_spec) } ; if HasSpecialMultiplier: x *= SpecialMultiplier ; Damage = round_half_even(x) ; then if HasFixedDamage: Damage = FixedDamage ; godMode -> 0
+Calculate (target not EnemyUnit): A = Source.Damage ; if attacker.IsEvent: A *= max(0, t-5)*0.04 + 1 ; if attacker.IsBossFightPart: A /= (tower_damage_reduction + 1) ; x = ApplyDamageDefense(A, D) ; x = max((1 - UniversalDefencePercent_raw) * x, 0) ; if roll(Evasion_spec) && !Undodgeable: x = 0, HasDodged ; else { if !Undodgeable && roll(BlockChance_spec): x *= 1 - BlockAmount_spec, HasBlocked ; if x > 0: { if rageLevel > 0 && rage_damage_reduce > 0: x /= rage_damage_reduce * rageLevel + 1 ; x *= enemyEventMult(attacker) ; if attacker != null: x *= islandIncoming ; x *= 1/(1 + 0.01*GlobalDefence_spec) } } ; if HasSpecialMultiplier: x *= SpecialMultiplier ; Damage = Math.Round(x) (banker's) ; Resist = Damage <= 0 ? 0 : 1 - A/Damage. ApplyDamageToPlayer: skip if target IsDying ; if HasFixedDamage: Damage = FixedDamage (overrides everything above, including a dodge) ; applied = GodMode ? 0 : Damage ; on block: BlockSuperCritChanceBonus += block_to_supercrit (if > 0), OnBlock trigger ; if ThornsDamage > 0: thorns reflect ; on dodge: evasion triggers/marks ; if applied <= 0: stop ; else HitsTakenCount++, CurrentHealth -= applied, enemy lifesteal (LifestealFlat + LifestealPercent*enemyMaxHP, uncapped), lethal-ignore check (HP = 1), death at HP <= 0.01
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `Damage_enemy` | enemy Damage stat raw | EnemySpawnerConfig.Stats[Type=3] x AB multiplier (combat.enemy_spawn_hp_damage_ab_multiplier) |
-| `ramp` | event ramp | combat.event_enemy_damage_ramp |
+| `A / Damage_enemy` | enemy Damage stat raw | EnemySpawnerConfig.Stats[Type=3] x AB multiplier (spawners.enemy_spawn_stats) |
+| `t` | event ramp timer | combat.event_enemy_damage_ramp |
 | `D` | flat defence | combat.player_flat_defense |
 | `UniversalDefencePercent_raw` | player stat 27 raw (base 0) | Player Config.Stats |
-| `Evasion_spec, BlockChance_spec, BlockAmount_spec` | specific values (capped 0.8) | combat.stat_specific_value_curves |
+| `Evasion_spec, BlockChance_spec, BlockAmount_spec` | specific values (capped 0.8) | stats.specific_value_pipeline |
 | `rageLevel` | active rage level | RageModel.ActiveRageLevel (rage subsystem) |
 | `rage_damage_reduce` | meta stat | Meta Stats Config key rage_damage_reduce (amulet upgrades) |
-| `enemyEventMult` | event crystal defence multiplier | combat.event_crystal_damage_multipliers |
+| `tower_damage_reduction` | meta stat for boss-tower attackers | Meta Stats Config key tower_damage_reduction |
+| `enemyEventMult` | event enemy damage multiplier (current event only) | combat.event_crystal_damage_multipliers (GetEnemyEventDamageMultiplier -> EventBalance.GetEnemyDamageMultiplier) |
 | `islandIncoming` | island mastery reduction | combat.island_mastery_multipliers |
 | `GlobalDefence_spec` | global defence specific value | combat.global_defence_multiplier |
-| `SpecialMultiplier` | per-hit special multiplier (e.g. LavaCrab explosion = 10, Undodgeable) | WeaponHitEvent producer |
+| `SpecialMultiplier` | per-hit special multiplier (e.g. LavaCrab explosion = 10, also Undodgeable) | WeaponHitEvent producer |
+| `FixedDamage` | per-hit fixed damage override | WeaponHitEvent producer |
 
-**输出**：DamageResult.Damage subtracted from player CurrentHealth; DamageResult.Resist = 1 - A/Damage (display only)
+**输出**：DamageResult.Damage subtracted from player CurrentHealth. DamageResult.Resist = 1 - A/Damage is display only.
 
-**代码**：[Services/Damage/DamageCalculator.cs:69-121](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L69)；[Unit/Systems/UnitDamageSystem.cs:110-153](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L110)；[Enemy/EnemyAttackSystem.cs:342-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L342)；[BossTower/Systems/LavaCrabExplosionSystem.cs:116](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/Systems/LavaCrabExplosionSystem.cs#L116)
+**代码**：[Services/Damage/DamageCalculator.cs:64-121](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L64)；[Services/Damage/DamageCalculator.cs:227-236](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L227)；[Services/Damage/DamageCalculator.cs:243-246](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L243)；[Services/Damage/DamageCalculator.cs:263-267](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L263)；[Unit/Systems/UnitDamageSystem.cs:110-153](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L110)；[Unit/Systems/UnitDamageSystem.cs:155-162](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L155)；[Unit/Systems/UnitDamageSystem.cs:212-228](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L212)；[Enemy/EnemyAttackSystem.cs:342-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L342)；[BossTower/Systems/LavaCrabExplosionSystem.cs:116](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/Systems/LavaCrabExplosionSystem.cs#L116)；[Simulation/Systems/SimulationSystem.cs:979-990](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L979)；[Simulation/Systems/SimulationSystem.cs:660](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L660)
 
-**状态依据**：Both methods carry Native ELF VA comments (bounded pcode / ARM64).
+**状态依据**：Calculate ('Native ELF VA 0x140a4cc (bounded pcode)') and ApplyDamageToPlayer ('Native ELF VA 0x15cdf10') both carry native annotations. The island incoming helper's tail math is inferred (see combat.island_mastery_multipliers).
 
-**配置参数**：`EnemySpawnerConfig.Stats`；`EnemySpawnerConfig.WeaponType`；`EnemySpawnerConfig.IsBossFightPart`；`EnemySpawnerConfig.IsEvent`；`Player Config.Stats`；`Meta Stats Config: tower_damage_reduction, rage_damage_reduce, island_medal_bonus`
+**配置参数**：`EnemySpawnerConfig.Stats[Type=3]`；`EnemySpawnerConfig.WeaponType`；`EnemySpawnerConfig.IsBossFightPart`；`EnemySpawnerConfig.IsEvent`；`Player Config.Stats[Type=14..21,23,26,27,31,33,34]`；`Meta Stats Config: tower_damage_reduction, rage_damage_reduce, island_medal_bonus, block_to_supercrit, evasion_mark`
 
-**使用方**：simulation.GetSpawnerDps slow path ([Simulation/Systems/SimulationSystem.cs:984-985](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L984))；boss_tower
+**使用方**：simulation.GetSpawnerDps slow path ([Simulation/Systems/SimulationSystem.cs:979-990](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L979); unreachable in the reconstruction, see notes)；boss_tower
 
-**备注**：Order matters: universal% applies before dodge and block. Rage, event, island and GlobalDefence apply only when x > 0 after block. The special multiplier applies even to dodged (0) hits. Math.Round uses banker's rounding. Each damaging hit increments HitsTakenCount. Enemy lifesteal and player thorns trigger from this path.
+**备注**：Order matters: universal% applies before dodge and block. Rage, event, island and GlobalDefence apply only when x > 0 after block. The special multiplier applies even to dodged (0) hits. Math.Round uses banker's rounding. Undodgeable=true turns off BOTH the dodge roll and the block roll (DamageCalculator.cs:90,97). The simulation slow path relies on this: it sets Undodgeable and applies (1-ev)*(1-bc*ba) analytically (SimulationSystem.cs:979-987). In this reconstruction, though, GetSpawnerDps is only called with isFast=true (SimulationSystem.cs:660), so the slow path and its Calculate(hit, true) call never run. The forecast enemy DPS uses the fast path (ApplyDamageDefense on the cached defence with analytic dodge/block/GlobalDefence), not this function. HasFixedDamage overrides the computed damage, even on a dodged hit, so the dodge still triggers its effects but FixedDamage is taken. Quirk: GetEnemyEventDamageMultiplier(target, attacker) is called even when attacker is null (line 111, inside x > 0), which would throw a null reference if a non-EnemyUnit source ever hit the player. Thorns fire before the god-mode zeroing takes effect and before the damage <= 0 return (UnitDamageSystem.cs:124 vs 135), so they also fire on dodged hits and in god mode. Block bonuses (block_to_supercrit) also accrue in god mode. Each damaging hit increments HitsTakenCount. Enemy lifesteal (flat + percent of the enemy's own max HP, not capped) fires only on damaging hits.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:enemy.stat_raw[Damage]`、`value:enemy.attack_damage_ramped`、`value:player.boss_tower_incoming_multiplier`、`value:player.flat_defense_effective`、`value:player.incoming_damage_after_flat_defense`、`value:player.stat_raw[UniversalDefencePercent]`、`value:unit.hit_roll_outcome`、`value:player.stat_specific[Evasion]`、`value:player.stat_specific[BlockChance]`、`value:player.stat_specific[BlockAmount]`、`value:rage.incoming_damage_multiplier`、`value:player.event_crystal_incoming_multiplier`、`value:island.mastery_incoming_multiplier`、`value:player.global_defence_multiplier`、`constant:LavaCrabExplosionSystem.special_multiplier`、`state:boss_tower_context`、`state:cheats`；输出 `value:player.incoming_damage_per_hit`、`value:player.current_hp`
 
-- [待人工合入] `notes`：Add: (a) Undodgeable=true turns off BOTH the dodge roll and the block roll (line 97). The simulation slow path relies on this: it sets Undodgeable and applies (1-ev)*(1-bc*ba) analytically. (b) GetEnemyEventDamageMultiplier(target, attacker) is called even when attacker is null, which would null-ref if a non-EnemyUnit source ever hits the player. (c) Thorns fire before the god-mode and damage<=0 checks, so they also fire on dodged hits and in god mode.  
-  依据：[Services/Damage/DamageCalculator.cs:90-113](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L90); [Simulation/Systems/SimulationSystem.cs:981-988](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L981); [Unit/Systems/UnitDamageSystem.cs:116](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L116),124,135
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `combat.incoming_damage_to_player`）：Verified: line 97 gates the block roll on !Undodgeable. SimulationSystem.cs:984-987 sets Undodgeable and applies (1-dodge) and (1-block*blockAmount) analytically. Line 111 calls GetEnemyEventDamageMultiplier with a possibly-null attacker, which dereferences enemy.Config. UnitDamageSystem.cs:124 (thorns) runs before the damage <= 0 return at 135, and god mode only zeroes the applied damage at 116. All three points are in notes, and the expression reflects the null-guarded island call and the thorns ordering.
+- 合并复核修正：(b/a) The notes cite the wrong line for the damage <= 0 early return. It says 'UnitDamageSystem.cs:124 vs 133', but line 133 is the evasion_mark call; the `if (damage <= 0.0) return` is at line 135 (verified). The resolution reason repeats the same wrong line. The entry also leaves out a consumer caveat: used_by names the simulation GetSpawnerDps slow path (SimulationSystem.cs:979-990) as a consumer, but the reconstruction's only caller (SimulationSystem.cs:660) passes isFast=true. The slow path, and with it Calculate(hit, true) on the incoming branch, is unreachable here (the native comment at :962 does not list other callers).
 
 ### `combat.dodge_block_rolls`
 
@@ -294,7 +507,7 @@ roll(p) = UnityEngine.Random.Range(0,1) < p ; dodge: roll(Evasion_spec) ; block:
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `p` | probability (specific value) | combat.stat_specific_value_curves |
+| `p` | probability (specific value) | stats.specific_value_pipeline |
 
 **输出**：boolean outcomes, block reduction factor
 
@@ -307,6 +520,8 @@ roll(p) = UnityEngine.Random.Range(0,1) < p ; dodge: roll(Evasion_spec) ; block:
 **使用方**：combat.incoming_damage_to_player；combat.outgoing_damage_to_enemy；combat.crit_and_supercrit
 
 **备注**：Expected incoming multiplier = (1 - ev) * (1 - bc*ba). The simulation uses exactly this (SimulationSystem.cs:986-988). Enemies have stats 0-5 only, so player hits are never dodged except by quest mobs with an Evasion override.
+
+**依赖图节点**：输入 `state:rng`、`value:player.stat_specific[Evasion]`、`value:player.stat_specific[BlockChance]`、`value:player.stat_specific[BlockAmount]`、`value:enemy.stat_specific[Evasion]`、`value:player.crit_chance_total`、`value:player.supercrit_chance_total`、`value:weapon.ability_supercrit_bonus`、`state:boss_tower_context`；输出 `value:unit.hit_roll_outcome`
 
 ### `combat.outgoing_damage_to_enemy`
 
@@ -349,40 +564,45 @@ base = Pct_t * (Damage_p + W + Flat_t + AbilFlat_owner + AbilFlat_weapon) * (1 -
 
 **备注**：Core growth loop: devour rewards add Flat_t (e.g. 'Devoured' CutDamageFlat +1), which is additive with weapon damage W and then scaled by Pct_t and (1 - resist). Resist ranges from -0.9 (x1.9) to 1.0 (immune). Player weapons exist only for types 0, 1 and 3, so enemies using magic.asset (resist 1 vs 0/1/3) take 0 from weapons. Ability side effects run even in simulation mode: EmpoweredHit is consumed and HitsCounter is incremented.
 
+**依赖图节点**：输入 `value:player.stat_raw[DamagePercentByType]`、`value:player.stat_raw[Damage]`、`value:weapon.item_damage`、`value:player.stat_raw[DamageFlatByType]`、`value:player.ability_damage_flat`、`value:weapon.ability_damage_flat`、`config:ItemConfig.DamageStatTypeFlat`、`config:ItemConfig.DamageStatTypePercent`、`config:ItemConfig.DamageType`、`config:ArmorConfig.Armors[].Resist`、`config:ArmorConfig.Armors[].Type`、`config:EnemySpawnerConfig.ArmorConfig`、`config:BossTowerConfig.Bosses[].ArmorConfig`、`value:enemy.resist_by_damage_type`、`value:player.boss_tower_outgoing_multiplier`、`value:unit.hit_roll_outcome`、`value:player.crit_multiplier_total`、`value:player.supercrit_multiplier_total`、`value:weapon.stat_stack_multiplier[Damage]`、`value:weapon.empowered_hit_multiplier`、`value:weapon.ability_damage_multiplier`、`value:player.ability_damage_multiplier`、`value:enemy.stat_raw`、`value:player.next_hit_damage_bonus`、`value:player.event_crystal_outgoing_multiplier`、`value:player.global_attack_multiplier`、`value:island.mastery_outgoing_multiplier`、`value:enemy.stunned_damage_multiplier`、`value:enemy.shock_damage_multiplier`、`value:player.event_golem_damage_multiplier`、`value:enemy.first_hit_damage_multiplier`、`state:cheats`；输出 `value:player.outgoing_damage_per_hit`、`value:enemy.current_hp`
+
 ### `combat.outgoing_damage_simulation_mode`
 
 **Expected-value hit used by simulation (fromSimulation=true)**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x140a4cc`
+- 来源：合并核验
+- 原生地址：`0x140a4cc (Calculate); 0x140bef8 (GetEventGolemDamageMultiplier)`
 
 ```text
-same as combat.outgoing_damage_to_enemy but: critMult_exp = (CritDmg_spec - 1) * p_crit + 1 is ALWAYS applied (times AbilityCritMultiplier and CritDamage stack mults); no dodge roll; event golem mult applied; Damage = round(base). Super-crit is still RNG-rolled (IsSuperCrit = IsCrit && roll), and IsCrit is still rolled
+Same pipeline as combat.outgoing_damage_to_enemy (Calculate player->enemy branch) with fromSimulation=true: critMult_exp = (CritDmg_spec - 1) * p_crit + 1 is ALWAYS applied, times AbilityCritMultiplier and prod GetWeaponStatMultiplier(CritDamage), regardless of the rolled IsCrit ; IsCrit and IsSuperCrit are still RNG-rolled, and superMult is applied when IsSuperCrit ; EmpoweredHit / NextHitEmpower are applied AND consumed, HitsCounter is incremented (on owner.EquippedItems), NextHitDamageBonus is applied but NOT consumed ; no dodge roll ; Damage = Math.Round(base * eventGolemMult) (banker's) ; NextHitSuperCrit*, NextHitDamageBonus and BlockSuperCritChanceBonus are not reset
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `p_crit` | crit chance | combat.crit_and_supercrit |
-| `CritDmg_spec` | crit damage multiplier | combat.stat_specific_value_curves |
+| `p_crit` | crit chance (uncapped, includes enemy SpecialAdditionalCritChancePercent and AbilityCritChanceBonus) | combat.crit_and_supercrit |
+| `CritDmg_spec` | crit damage multiplier 1.5*v^0.08 | stats.specific_value_pipeline |
+| `eventGolemMult` | 1 + event_golem_damage for event golem units | Meta Stats Config event_golem_damage |
 
-**输出**：deterministic-ish per-hit damage for DPS forecasts
+**输出**：per-hit damage for DPS forecasts. It is expectation-based for crit, but super-crit is still random.
 
-**代码**：[Services/Damage/DamageCalculator.cs:136-148](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L136)；[Services/Damage/DamageCalculator.cs:193-203](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L193)
+**代码**：[Services/Damage/DamageCalculator.cs:136-148](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L136)；[Services/Damage/DamageCalculator.cs:149-174](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L149)；[Services/Damage/DamageCalculator.cs:193-203](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L193)；[Services/Damage/DamageCalculator.cs:219-225](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L219)；[Simulation/Systems/SimulationSystem.cs:826-851](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L826)；[Simulation/Systems/SimulationSystem.cs:658](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L658)；[Simulation/Systems/SimulationSystem.cs:795-797](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L795)；[Simulation/Systems/SimulationSystem.cs:908-958](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L908)
 
-**状态依据**：The same VA-annotated method, fromSimulation branch.
+**状态依据**：The same VA-annotated method (Native ELF VA 0x140a4cc), fromSimulation branch.
 
-**配置参数**：`Player Config.Stats[Type=24,25,28,29]`
+**配置参数**：`Player Config.Stats[Type=24,25,28,29]`；`ItemConfig.SimulationDpsWeaponMultiplier`；`ItemConfig.AttackCooldown`；`Meta Stats Config: event_golem_damage`
 
-**使用方**：simulation.GetDpsAgainstSpawner；simulation.UpdateDpsDataCache
+**使用方**：simulation.GetDpsAgainstSpawner slow path ([Simulation/Systems/SimulationSystem.cs:841-850](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L841); unreachable in the reconstruction because the only caller at :658 passes isFast=true)
 
-**备注**：Simulation DPS per weapon = Damage_sim * ItemConfig.SimulationDpsWeaponMultiplier / ItemConfig.AttackCooldown (SimulationSystem.cs:848). The super-crit RNG in simulation may be a reconstruction artifact or an original quirk.
+**备注**：Simulation DPS (slow path) = GetPlayerAbilityDpsMultiplier() * sum over SimulationSystem.equippedItems (non-armor) of Damage_sim * ItemConfig.SimulationDpsWeaponMultiplier / ItemConfig.AttackCooldown (SimulationSystem.cs:841-850). It ignores attack speed and cast timing. The fast path (SimulationSystem.cs:828-834) does not call Calculate. Reachability: the only call to GetDpsAgainstSpawner (SimulationSystem.cs:658) passes isFast=true, so this fromSimulation=true outgoing branch is never reached in the reconstruction. The native comment at :828 ('normal shop uses the fast cached branch') suggests that other native callers may use the slow path. equippedItems is the simulation's scratch list, not PlayerModel.EquippedItems. CalculateDpsData fills it with the top UnlockedWeaponSlots items from playerModel.Items, then CalculateDefenseData clears it and refills it with armor (called in that order at :324-326). ProcessInventory, which runs on a location change, is an empty stub (:795-797). As reconstructed, the slow path would usually iterate no weapons. Potential side effect: if the slow path ran, a simulation call would consume EmpoweredHit and NextHitEmpower on the passed ItemModel (a real inventory item, possibly unequipped) and increment HitsCounter on the player's real equipped items, so forecasting could alter live combat state. NextHitDamageBonus is applied but not reset. With p_crit > 1 the expected crit multiplier exceeds the real one. GuaranteedCrit does not raise critMult_exp. The super-crit RNG in simulation may be a reconstruction artifact or an original quirk.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:player.stat_raw[DamagePercentByType]`、`value:player.stat_raw[Damage]`、`value:weapon.item_damage`、`value:player.stat_raw[DamageFlatByType]`、`value:player.ability_damage_flat`、`value:weapon.ability_damage_flat`、`config:ItemConfig.DamageStatTypeFlat`、`config:ItemConfig.DamageStatTypePercent`、`config:ItemConfig.DamageType`、`config:ArmorConfig.Armors[].Resist`、`config:ArmorConfig.Armors[].Type`、`config:EnemySpawnerConfig.ArmorConfig`、`value:enemy.resist_by_damage_type`、`value:player.boss_tower_outgoing_multiplier`、`value:player.stat_specific[CritDamagePercent]`、`value:player.crit_chance_total`、`value:weapon.ability_crit_multiplier`、`value:weapon.stat_stack_multiplier[CritDamage]`、`value:unit.hit_roll_outcome`、`value:player.supercrit_multiplier_total`、`value:weapon.stat_stack_multiplier[Damage]`、`value:weapon.empowered_hit_multiplier`、`value:weapon.ability_damage_multiplier`、`value:player.ability_damage_multiplier`、`value:enemy.stat_raw`、`value:player.next_hit_damage_bonus`、`value:player.event_crystal_outgoing_multiplier`、`value:player.global_attack_multiplier`、`value:island.mastery_outgoing_multiplier`、`value:enemy.stunned_damage_multiplier`、`value:enemy.shock_damage_multiplier`、`value:player.event_golem_damage_multiplier`；输出 `value:player.expected_damage_per_hit`
 
-- [待人工合入] `expression`：Damage = round_half_even(base * eventGolemMult). Also, in simulation mode NextHitDamageBonus is still applied but not consumed, and NextHitSuperCrit*/BlockSuperCritChanceBonus are not reset. EmpoweredHit/NextHitEmpower ARE consumed and HitsCounter IS incremented.  
-  依据：[Services/Damage/DamageCalculator.cs:152-168](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L152),170-174,193-203
+**核验记录**（已写入上方字段）：
+
+- 采纳 `expression`（来自 `combat.outgoing_damage_simulation_mode`）：Verified: line 203 rounds damage * GetEventGolemDamageMultiplier with Math.Round (banker's). Lines 170-174 apply NextHitDamageBonus, and the resets at 198-201 sit only in the !fromSimulation branch. EmpoweredHit (152-158) and NextHitEmpower (160-166) are consumed unconditionally, and HitsCounter++ (167-168) also runs in simulation. The expression states all of this. used_by is also corrected: Calculate(…, true) is called only at SimulationSystem.cs:847 (GetDpsAgainstSpawner) for outgoing hits, not from UpdateDpsDataCache.
+- 合并复核修正：(a/b) Two consumer caveats are wrong or missing. (1) used_by and notes present the GetDpsAgainstSpawner slow path as the live consumer and warn that forecasting alters live combat state. But the only caller in the codebase, SimulationSystem.cs:658, passes isFast=true, so Calculate(hit, true) on the outgoing branch is never reached in the reconstruction. The side effect is only potential. (2) 'sum over equipped non-armor items' is misleading. The loop iterates SimulationSystem's scratch list equippedItems (SimulationSystem.cs:101). CalculateDpsData fills it with the top UnlockedWeaponSlots candidates from playerModel.Items, and CalculateDefenseData then clears it and refills it with armor (SimulationSystem.cs:324-326, 914-922, 941-950). ProcessInventory, which should rebuild it on a location change, is an empty stub (:795-797). As reconstructed, the non-armor filter would therefore usually see no items, and the consumed EmpoweredHit/NextHitEmpower would belong to inventory items, which are not necessarily equipped.
 
 ### `combat.crit_and_supercrit`
 
@@ -390,36 +610,40 @@ same as combat.outgoing_damage_to_enemy but: critMult_exp = (CritDmg_spec - 1) *
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x140a4cc`
+- 来源：合并核验
+- 原生地址：`0x140a4cc (Calculate); 0x15f2bd4, 0x15f2ce4 (TemporaryWeaponBuffEffect)`
 
 ```text
-p_crit = enemy.SpecialAdditionalCritChancePercent + CritChance_spec + weapon.AbilityCritChanceBonus ; isCrit = any(state.GuaranteedCrit) or roll(p_crit) ; p_super = SuperCritChance_spec + weapon.AbilitySuperCritChanceBonus + owner.NextHitSuperCritChanceBonus + owner.BlockSuperCritChanceBonus ; isSuper = isCrit and roll(p_super) ; critMult = CritDamagePercent_spec (= 1.5 * v^0.08) ; superMult = SuperCritDamagePercent_spec (= 2.0 constant before post-formula mods) + weapon.AbilitySuperCritDamageBonus + owner.NextHitSuperCritDamageBonus ; crit hit multiplier = critMult * AbilityCritMultiplier * prod CritDamageStack ; super-crit multiplies further by superMult
+p_crit = enemy.SpecialAdditionalCritChancePercent + CritChance_spec + weapon.AbilityCritChanceBonus ; isCrit = any(weapon.AbilityStates.GuaranteedCrit) or roll(p_crit) ; p_super = SuperCritChance_spec + weapon.AbilitySuperCritChanceBonus + owner.NextHitSuperCritChanceBonus + owner.BlockSuperCritChanceBonus ; isSuper = isCrit and roll(p_super) ; critMult = CritDamagePercent_spec (= postMult*(1.5*v^0.08 + postFlat)) ; superMult = SuperCritDamagePercent_spec (= postMult*(2.0 + postFlat)) + weapon.AbilitySuperCritDamageBonus + owner.NextHitSuperCritDamageBonus ; if isCrit (or fromSimulation, using critMult_exp): damage *= critMult * weapon.AbilityCritMultiplier * prod_states GetWeaponStatMultiplier(CritDamage) ; then damage *= isSuper ? superMult : 1 ; after a real (non-simulation) hit: if isSuper: BlockSuperCritChanceBonus = 0 ; NextHitSuperCritChanceBonus = NextHitSuperCritDamageBonus = NextHitDamageBonus = 0
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
 | `CritChance_spec` | 0.08*v^0.15 (v<=700) else 0.07*v^0.1+0.082; player base v=1 -> 8% | Player Config.Stats[Type=24] + modifiers |
 | `SpecialAdditionalCritChancePercent` | per-enemy bonus (Lich marks*0.01) | BossTower/Systems/LichSkeletonDeathSystem.cs:47 |
+| `AbilityCritChanceBonus` | per-weapon crit chance bonus, including the TemporaryWeaponBuffEffect CritChance buff while it lasts | Abilities/Effects/TemporaryWeaponBuffEffect.cs:28,53-57; reset each frame at Abilities/Systems/AbilityExecuteEventSystem.cs:61 |
 | `SuperCritChance_spec` | raw passthrough (base 0) | Player Config.Stats[Type=28] |
 | `BlockSuperCritChanceBonus` | accumulated block_to_supercrit | combat.block_to_supercrit_bonus |
+| `CritDamagePercent_spec` | 1.5*v^0.08; base v=1 -> 1.5x | Player Config.Stats[Type=25] |
+| `SuperCritDamagePercent_spec` | constant 2.0 before post-formula mods | Player Config.Stats[Type=29] |
 
 **输出**：crit flags and multipliers
 
-**代码**：[Services/Damage/DamageCalculator.cs:132-148](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L132)；[Services/Damage/DamageCalculator.cs:197-201](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L197)；[Unit/Stat.cs:69-72](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L69)
+**代码**：[Services/Damage/DamageCalculator.cs:132-148](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L132)；[Services/Damage/DamageCalculator.cs:197-201](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L197)；[Unit/Stat.cs:61-77](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L61)；[Unit/Stat.cs:80-88](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L80)；[Abilities/Effects/TemporaryWeaponBuffEffect.cs:28](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/TemporaryWeaponBuffEffect.cs#L28)；[Abilities/Effects/TemporaryWeaponBuffEffect.cs:53-57](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/TemporaryWeaponBuffEffect.cs#L53)；[Abilities/Systems/AbilityExecuteEventSystem.cs:61](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Systems/AbilityExecuteEventSystem.cs#L61)
 
-**状态依据**：Inside the VA-annotated Calculate. The specific-value curves it depends on are reconstructed (see combat.stat_specific_value_curves).
+**状态依据**：Inside the VA-annotated Calculate (Native ELF VA 0x140a4cc). The specific-value curves it depends on (Stat.CalculateSpecificValue) carry no native annotation and are reconstructed (see combat.stat_specific_value_curves).
 
-**配置参数**：`Player Config.Stats[Type=24,25,28,29]`；`Meta Stats Config: block_to_supercrit`
+**配置参数**：`Player Config.Stats[Type=24,25,28,29]`；`Meta Stats Config: block_to_supercrit`；`AbilityDef TemporaryWeaponBuffEffect (BuffType=CritChance/CritDamage, value scaling, Duration)`
 
-**使用方**：combat.outgoing_damage_to_enemy
+**使用方**：combat.outgoing_damage_to_enemy；combat.outgoing_damage_simulation_mode
 
-**备注**：Crit chance is not capped and can exceed 1. Super-crit damage ignores raw SuperCritDamagePercent modifiers (it returns 2.0); only PostFormula* modifiers and ability bonuses change it. After a real hit, NextHit* bonuses reset, and BlockSuperCritChanceBonus resets after a super-crit. WeaponBuffType.CritChance (3) exists but Calculate never reads it.
+**备注**：Crit chance is not capped and can exceed 1. Super-crit damage ignores raw SuperCritDamagePercent modifiers (the curve returns 2.0); only PostFormula* modifiers and ability bonuses change it. After a real hit, the NextHit* bonuses reset, and BlockSuperCritChanceBonus resets after a super-crit. WeaponBuffType.CritChance is handled by TemporaryWeaponBuffEffect. It writes AbilityState.TemporaryCritChanceBonus and, while the duration lasts, adds it into ItemModel.AbilityCritChanceBonus each frame, which Calculate reads at line 133. Only the WeaponStatStack route for CritChance (GetWeaponStatMultiplier) goes unused in Calculate. Similarly, a CritDamage temporary buff multiplies AbilityCritMultiplier by (1 + bonus).
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:player.stat_specific[CritChance]`、`state:boss_tower_context`、`value:weapon.ability_crit_chance_bonus`、`value:weapon.ability_supercrit_bonus`、`value:player.stat_specific[SuperCritChance]`、`value:player.next_hit_supercrit_bonus`、`value:player.supercrit_bonus_from_block`、`value:player.stat_specific[CritDamagePercent]`、`value:player.stat_specific[SuperCritDamagePercent]`、`value:weapon.ability_crit_multiplier`、`value:weapon.stat_stack_multiplier[CritDamage]`；输出 `value:player.crit_chance_total`、`value:player.crit_multiplier_total`、`value:player.supercrit_chance_total`、`value:player.supercrit_multiplier_total`
 
-- [待人工合入] `notes`：WeaponBuffType.CritChance is handled by TemporaryWeaponBuffEffect. It writes AbilityState.TemporaryCritChanceBonus and, while the duration lasts, adds it into ItemModel.AbilityCritChanceBonus, which Calculate reads at line 133. Only the WeaponStatStack (GetWeaponStatMultiplier) route for CritChance goes unused, so the open question is mostly answered.  
-  依据：[Abilities/Effects/TemporaryWeaponBuffEffect.cs:28](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/TemporaryWeaponBuffEffect.cs#L28),56-57; [Abilities/Systems/AbilityExecuteEventSystem.cs:61](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Systems/AbilityExecuteEventSystem.cs#L61) (reset); [Services/Damage/DamageCalculator.cs:133](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L133)
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `combat.crit_and_supercrit`）：Verified: TemporaryWeaponBuffEffect.cs:28 stores TemporaryCritChanceBonus, :53-57 adds it into ItemModel.AbilityCritChanceBonus while the duration lasts, AbilityExecuteEventSystem.cs:61 resets AbilityCritChanceBonus, and DamageCalculator.cs:133 reads it. The note 'Calculate never reads it' is replaced, and the AbilityCritChanceBonus variable, code_refs and config_params were added.
 
 ### `combat.global_attack_multiplier`
 
@@ -449,6 +673,8 @@ mult = 1 + 0.01 * GA_spec ; GA_spec = v if v <= 100 else (v - 100)^0.75 + 100 (v
 
 **备注**：Diminishing returns above +100%.
 
+**依赖图节点**：输入 `value:player.stat_specific[GlobalAttack]`、`constant:DamageCalculator.global_attack_percent_scale`；输出 `value:player.global_attack_multiplier`
+
 ### `combat.global_defence_multiplier`
 
 **GlobalDefence multiplier**
@@ -477,17 +703,19 @@ mult = 1 / (1 + 0.01 * GD_spec) ; GD_spec = v if v <= 100 else (v - 100)^0.75 + 
 
 **备注**：Hyperbolic: +100 gives x0.5 incoming.
 
+**依赖图节点**：输入 `value:player.stat_specific[GlobalDefence]`、`constant:DamageCalculator.global_defence_percent_scale`；输出 `value:player.global_defence_multiplier`
+
 ### `combat.island_mastery_multipliers`
 
 **Island medal (mastery) damage multipliers**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x140c264, 0x140be68, 0x140c150`
+- 来源：合并核验
+- 原生地址：`0x140c264 (IsIslandMasteryEligible), 0x140be68 (outgoing), 0x140c150 (incoming)`
 
 ```text
-eligible = !(IsEvent or IsVip or IsSpecial or IsDummy or IsBossFightPart or CrystalUnit or QuestMob) ; outgoing = eligible ? 1 + b(loc) : 1 ; incoming = eligible ? max(0, 1 - b(loc)) : 1 ; b(loc) = MetaStat island_medal_bonus.GetValue(LocationNumber)
+eligible = !(IsEvent || IsVip || IsSpecial || IsDummy || IsBossFightPart || enemy is CrystalUnit || has QuestMobTag) ; b(loc) = MetaStat island_medal_bonus.GetValue(enemy.Config.LocationNumber) ; outgoing = eligible ? b(loc) + 1 : 1 [native] ; incoming = eligible ? max(0, 1 - b(loc)) : 1 [tail math inferred, not ported] ; incoming is applied only when the attacker is an EnemyUnit and the hit is > 0 after dodge/block
 ```
 
 | 符号 | 含义 | 来源 |
@@ -495,22 +723,23 @@ eligible = !(IsEvent or IsVip or IsSpecial or IsDummy or IsBossFightPart or Crys
 | `b(loc)` | per-island medal bonus (param = location number) | Meta Stats Config key island_medal_bonus; IslandMasteryModel (location subsystem) |
 | `loc` | enemy location | EnemySpawnerConfig.LocationNumber |
 
-**输出**：two multipliers
+**输出**：two multipliers: outgoing (player->enemy damage) and incoming (enemy->player damage)
 
-**代码**：[Services/Damage/DamageCalculator.cs:248-267](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L248)
+**代码**：[Services/Damage/DamageCalculator.cs:248-267](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L248)；[Services/Damage/DamageCalculator.cs:112](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L112)；[Services/Damage/DamageCalculator.cs:175](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L175)
 
-**状态依据**：VA comments on all three helpers. The incoming helper notes the 'original tail math is absent in decompiler return types', so the max(0, 1-b) form is partly inferred.
+**状态依据**：Split. The eligibility gate (0x140c264, 'bounded ARM64 includes the tail') and the outgoing 1 + b(loc) (0x140be68) are recovered_native. The incoming helper is VA-annotated (0x140c150), but its comment says 'original tail math is absent in decompiler return types', so max(0, 1 - b(loc)) is reconstructed (inferred), not ported. The single status field keeps recovered_native for the entry, and the incoming term is marked [inferred] in the expression.
 
 **配置参数**：`Meta Stats Config: island_medal_bonus`；`EnemySpawnerConfig.LocationNumber, IsEvent, IsVip, IsSpecial, IsDummy, IsBossFightPart`
 
 **使用方**：combat.outgoing_damage_to_enemy；combat.incoming_damage_to_player
 
-**备注**：The incoming formula is uncertain (see open questions).
+**备注**：The incoming formula is uncertain. It could equally be 1/(1+b) or another form; treat max(0, 1 - b) as a placeholder until the native tail is recovered. Quest mobs (QuestMobTag), crystal units, event, VIP, special, dummy and boss-fight units are excluded.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:player.meta_stat[island_medal_bonus]`、`config:EnemySpawnerConfig.LocationNumber`、`config:EnemySpawnerConfig.IsEvent`、`config:EnemySpawnerConfig.IsVip`、`config:EnemySpawnerConfig.IsSpecial`、`config:EnemySpawnerConfig.IsDummy`、`config:EnemySpawnerConfig.IsBossFightPart`、`state:quest_progress`；输出 `value:island.mastery_outgoing_multiplier`、`value:island.mastery_incoming_multiplier`
 
-- [待人工合入] `status`：split: outgoing 1 + b(loc) and the eligibility gate stay recovered_native (0x140be68, 0x140c264). The incoming max(0, 1 - b(loc)) should be reconstructed.  
-  依据：[Services/Damage/DamageCalculator.cs:265](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L265) says outright 'original tail math is absent in decompiler return types'. The incoming expression was inferred, not ported, so a single recovered_native label claims too much.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `status`（来自 `combat.island_mastery_multipliers`）：DamageCalculator.cs:265 confirms the incoming tail math is not recovered. The status field holds one value per entry, so the split is applied in status_evidence (gate and outgoing recovered_native, incoming reconstructed or inferred) and by tagging the incoming term [inferred] in the expression. The entry-level status stays recovered_native because the gate and outgoing methods are natively annotated and ported.
 
 ### `combat.event_crystal_damage_multipliers`
 
@@ -541,6 +770,8 @@ applies only if enemy.IsEvent and enemy.EventDef.Key == currentEvent.Key: player
 
 **备注**：EventBalance itself belongs to the events subsystem. It is listed here because the combat wrappers gate it.
 
+**依赖图节点**：输入 `value:economy.currency_balance`、`state:current_event`、`config:EnemySpawnerConfig.IsEvent`、`config:EnemySpawnerConfig.EventDef.Key`、`constant:EventBalance.red_crystal_damage_per_unit`、`constant:EventBalance.blue_crystal_defence_per_unit`、`constant:EventBalance.currency_double_factor`；输出 `value:player.event_crystal_outgoing_multiplier`、`value:player.event_crystal_incoming_multiplier`
+
 ### `combat.event_golem_damage_multiplier`
 
 **Event golem damage bonus**
@@ -569,6 +800,8 @@ if enemy.IsEvent and EventDef.UnitType == Mob(0): mult = 1 + event_golem_damage 
 **使用方**：combat.outgoing_damage_to_enemy
 
 **备注**：'Golem' means EventUnitType 0 (Mob).
+
+**依赖图节点**：输入 `value:player.meta_stat[event_golem_damage]`、`config:EnemySpawnerConfig.IsEvent`、`config:EnemySpawnerConfig.EventDef.UnitType`；输出 `value:player.event_golem_damage_multiplier`
 
 ### `combat.boss_tower_damage_multipliers`
 
@@ -600,33 +833,43 @@ outgoing vs IsBossFightPart: x (1 + tower_damage) ; incoming from IsBossFightPar
 
 **备注**：Reducing attack before the nonlinear curve means tower_damage_reduction is worth more than a post-curve multiplier when defence is high.
 
+**依赖图节点**：输入 `value:player.meta_stat[tower_damage]`、`value:player.meta_stat[tower_damage_reduction]`、`config:EnemySpawnerConfig.IsBossFightPart`；输出 `value:player.boss_tower_outgoing_multiplier`、`value:player.boss_tower_incoming_multiplier`
+
 ### `combat.rage_damage_reduction`
 
 **Rage incoming damage reduction**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x140a4cc`
+- 合并自：`combat.rage_damage_reduction`、`powerups.rage_damage_reduce`
+- 原生地址：`0x140a4cc (DamageCalculator.Calculate)`
 
 ```text
-if rageLevel > 0 and rage_damage_reduce > 0: incoming /= (1 + rage_damage_reduce * rageLevel)
+in DamageCalculator.Calculate incoming (target not EnemyUnit) branch, non-dodged path, after block: if incoming > 0 and L = RageModel.ActiveRageLevel > 0 and r = Meta('rage_damage_reduce') > 0: incoming /= r * L + 1.0; then *= event, island-mastery (if attacker != null) and global defence multipliers; then (outside the dodge branch) *= SpecialMultiplier if HasSpecialMultiplier; Math.Round
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `rageLevel` | RageModel.ActiveRageLevel | rage subsystem |
-| `rage_damage_reduce` | meta stat (base 0) | Meta Stats Config key rage_damage_reduce |
+| `L` | RageModel.ActiveRageLevel (= RageLevel if EffectiveMaxLevel > 0, else 0) | rage subsystem (GameContext RageModel, Rage/RageModel.cs:124-131) |
+| `r` | meta stat rage_damage_reduce (base 0) | Meta Stats Config key rage_damage_reduce; raised only by amulet upgrade graph_rage_damage_reduce_5_7 = 0.05*level, MaxLevel 3 (AmuletUpgradeDefsBuilder.cs:910-916, 2524), so r <= 0.15; see powerups.amulet_meta_modifiers |
 
-**输出**：incoming multiplier
+**输出**：incoming damage to the player
 
-**代码**：[Services/Damage/DamageCalculator.cs:105-110](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L105)
+**代码**：[Services/Damage/DamageCalculator.cs:97-117](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L97)；[Services/Damage/DamageCalculator.cs:105-110](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L105)；[Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:910-916](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs#L910)；[Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:2524](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs#L2524)；[Simulation/Systems/SimulationSystem.cs:960-990](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L960)
 
-**状态依据**：Inside the VA-annotated Calculate.
+**状态依据**：Inline in DamageCalculator.Calculate, annotated 'Native ELF VA 0x140a4cc' (DamageCalculator.cs:66).
 
-**配置参数**：`Meta Stats Config: rage_damage_reduce`
+**配置参数**：`Meta Stats Config: rage_damage_reduce`；`Amulet Upgrade Config: graph_rage_damage_reduce_5_7`
 
-**使用方**：combat.incoming_damage_to_player
+**使用方**：combat.incoming_damage_to_player；combat incoming damage；simulation.GetSpawnerDps slow path (non-fast; Calculate(hit, true, 1.0), SimulationSystem.cs:985)
+
+**备注**：Defined inside the combat DamageCalculator but driven by rage and amulet powerups. It is applied after block and before the event, island and global-defence multipliers. It is skipped on dodge. With r = 0.15 (upgrade maxed) and ActiveRageLevel 3, incoming is divided by 1.45. ActiveRageLevel can exceed 3 if EffectiveMaxLevel (MaxAccessibleLevel + BossMaxLevelBonus) allows it. Simulation: only the slow GetSpawnerDps path (isFast=false) goes through Calculate(fromSimulation=true) and so includes this reduction, and it reads the LIVE RageModel.ActiveRageLevel rather than a forecast value. The fast path (isFast=true, SimulationSystem.cs:965-977) uses ApplyDamageDefense / AttackCooldown * (1-dodge) * block * global-defence multipliers and omits rage reduction entirely.
+
+**依赖图节点**：输入 `value:rage.active_level`、`value:player.meta_stat[rage_damage_reduce]`；输出 `value:rage.incoming_damage_multiplier`
+
+**核验记录**（已写入上方字段）：
+
+- 合并复核修正：The notes say the simulation path runs the same code and reads the live RageModel, which implies simulation DPS always includes rage reduction. In SimulationSystem.GetSpawnerDps, only the slow path (isFast=false, lines 978-990) calls DamageCalculator.Calculate(hit, true, 1.0) and reaches the rage division, using the live RageModel.ActiveRageLevel rather than a forecast value. The fast path (lines 965-977) computes ApplyDamageDefense(...)/AttackCooldown * (1-dodge) * blockMult * globalDefenceMult and never applies rage reduction. The simulation consumer is also missing from used_by.
 
 ### `combat.weapon_type_defence_mapping`
 
@@ -656,6 +899,8 @@ Stabbing(0)->StabDefenceFlat(14)/StabDefencePercent(15); Cutting(1)->16/17; Magi
 
 **备注**：Weapon damage stat pairs are authored per ItemConfig: stab 6/7, cut 8/9, buckshot(smash) 12/13. The 'pierce' asset name means Stabbing and 'smash' means Buckshot.
 
+**依赖图节点**：输入 `constant:DamageCalculator.weapon_type_to_defence_map`；输出 `value:weapon.damage_type_defence_stats`
+
 ### `combat.enemy_armor_resist_table`
 
 **Enemy ArmorConfig resist table**
@@ -684,35 +929,7 @@ resist_t = ArmorConfig.Armors.First(a => a.Type == t).Resist ; damage factor = (
 
 **备注**：Asset name convention is 'Cut Stab Buckshot' resist x10, e.g. '05 -09 0' = Cut 0.5, Stab -0.9, Buckshot 0, Magic 0. '1' means 0.98. 'magic.asset' is 1/1/1 with Magic -0.9. 'Event Armor Dynamic Config' is all 0 and overwritten at runtime. Spawner usage over the 717 spawners: 09 -09 09 (150), -09 09 09 (127), 09 09 -09 (122), 0 0 0 (107), 05 05 -05 (53), 05 -05 05 (47), 05 09 -09 (31), -05 05 05 (22), 05 -09 0 (15), others fewer. No asset contains a Universal(4) entry, so a Universal-type weapon would throw in First().
 
-### `combat.event_enemy_armor_override`
-
-**Event enemy resist/stat override at spawn**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x150639c`
-
-```text
-for each armor a in config.ArmorConfig.Armors: a.Resist = (a.Type == eventResistType and a.Type != Magic) ? -0.9 : 0 ; config.WeaponType = enemyInfo.AttackType ; Health.BaseValue = enemyInfo.Health ; Damage.BaseValue = enemyInfo.Damage
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `eventResistType` | current event's weak type | EventModel.Data.ResistType (events subsystem) |
-| `enemyInfo` | forecasted event enemy stats | EventsRepository.GetEventEnemyInfo (events/simulation subsystem) |
-
-**输出**：mutated EnemySpawnerConfig before EnemyUnit.Initialize
-
-**代码**：[Enemy/EnemySpawner.cs:1141-1158](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L1141)
-
-**状态依据**：Annotated 'Original APK ARM64 ELF VA 0x150639c'.
-
-**配置参数**：`Event Armor Dynamic Config.asset`；`EventSpawnerDef`
-
-**使用方**：combat.outgoing_damage_to_enemy
-
-**备注**：Mutates the shared ScriptableObject in place.
+**依赖图节点**：输入 `config:ArmorConfig.Armors[].Type`、`config:ArmorConfig.Armors[].Resist`、`config:EnemySpawnerConfig.ArmorConfig`、`config:BossTowerConfig.Bosses[].ArmorConfig`；输出 `value:enemy.resist_by_damage_type`
 
 ### `combat.quest_mob_armor_and_stats`
 
@@ -720,263 +937,37 @@ for each armor a in config.ArmorConfig.Armors: a.Resist = (a.Type == eventResist
 
 - 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x1424d18, 0x1426018, 0x142608c, 0x1425c54`
+- 来源：合并核验
+- 原生地址：`0x1424700, 0x1425184, 0x1424d18, 0x1424c74, 0x1425e08, 0x1426018, 0x142608c, 0x1425c54, 0x142623c (all 'independent candidate only')`
 
 ```text
-Armors: for t in {0,1,2,3}: Resist_t = (t == location.PreferredArmorType) ? -0.9 : +0.9 ; WeaponType = location.PreferredWeaponType ; Evasion: base 0 + PostFormulaFlat(MobEvasionPercent*0.01) -> spec = min(0.8, MobEvasionPercent/100) ; HealthRegen = maxHP * MobHealthRegenMaxHealthPercent * 0.01 ; LifestealPercent = MobLifestealMaxHealthPercent*0.01 ; ReflectionDamage = Damage * MobReflectionMaxHealthPercent * 0.01 ; base stats: MoveSpeed 3.5, AttackRange 3.3, AttackCooldown = chain.MobAttackCooldown ; AverageFightTime = 25 (last step) else 15
+BuildConfig: Count = 1, WeaponType = location.PreferredWeaponType, AggroRange = 10, AggroDuration = 8, Difficulty = 1, IsEvent = false, AverageFightTime = (step is last in chain) ? 25 : 15, SpawnArea = ref.SpawnArea*4 + (10,10) ; Armors: for t in {0,1,2,3}: Resist_t = (t == location.PreferredArmorType) ? -0.9 : +0.9 ; BuildFixedStats: Health = 0, Damage = 0, MovementSpeed = 3.5, AttackRange = 3.3f, AttackCooldown = chain.MobAttackCooldown ; Bake: BossSpawnService.BakeStatsForFloor(config, optimum, isWeakened=false) then Damage.BaseValue *= chain.MobAttackMultiplier, Health.BaseValue *= chain.MobHealthMultiplier (optimum = IsDays ? ConvertDaysToOptimum(OptimumTime) : OptimumTime) ; on spawn: if abMult = GetEnemyHpDamageMultiplier(loc) != 1: Health, Damage = round_half_even(BaseValue * abMult), CurrentHealth = Health ; ApplyChainMobSettings (reads post-A/B Health and Damage): Evasion = base 0 + PostFormulaFlat(MobEvasionPercent*0.01f) -> spec = min(0.8, MobEvasionPercent/100) ; HealthRegen = Health * MobHealthRegenMaxHealthPercent * 0.01f ; LifestealPercent = MobLifestealMaxHealthPercent * 0.01f ; ReflectionDamage = Damage * MobReflectionMaxHealthPercent * 0.01f
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `PreferredArmorType / PreferredWeaponType` | location defaults | Locations Config.asset |
-| `Mob*Percent` | quest chain tuning | QuestChainDef (quests subsystem config) |
+| `PreferredArmorType / PreferredWeaponType` | location defaults (weakness / attack type) | Locations Config.asset |
+| `Mob*Percent, MobAttackCooldown, MobAttackMultiplier, MobHealthMultiplier` | quest chain tuning | QuestChainDef (quests subsystem config) |
+| `OptimumTime, IsDays` | step optimum time used for the bake | QuestStepDef |
+| `abMult` | A/B enemy HP/damage multiplier for the location | spawners.enemy_spawn_stats (ABTest Data Config) |
 
-**输出**：quest mob EnemySpawnerConfig and stats
+**输出**：quest mob EnemySpawnerConfig, baked Health/Damage and runtime stats
 
-**代码**：[Quests/QuestMobSpawnerService.cs:191-212](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L191)；[Quests/QuestMobSpawnerService.cs:214-217](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L214)；[Quests/QuestMobSpawnerService.cs:234-265](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L234)；[Quests/QuestMobSpawnerService.cs:268-283](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L268)
+**代码**：[Quests/QuestMobSpawnerService.cs:79-105](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L79)；[Quests/QuestMobSpawnerService.cs:107-154](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L107)；[Quests/QuestMobSpawnerService.cs:191-215](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L191)；[Quests/QuestMobSpawnerService.cs:217-220](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L217)；[Quests/QuestMobSpawnerService.cs:222-232](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L222)；[Quests/QuestMobSpawnerService.cs:234-266](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L234)；[Quests/QuestMobSpawnerService.cs:268-286](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L268)；[Quests/QuestMobSpawnerService.cs:293-301](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L293)；[BossTower/BossSpawnService.cs:444-499](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/BossSpawnService.cs#L444)；[Unit/Stat.cs:17](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L17),55-58,67-68
 
-**状态依据**：Has VA comments, but each one says 'independent candidate only', so the match to native is unconfirmed.
+**状态依据**：Every method carries an 'Original ELF 0x... ; independent candidate only' comment, so the match to native is unconfirmed.
 
-**配置参数**：`Locations Config: PreferredArmorType, PreferredWeaponType`；`QuestChainDef: MobEvasionPercent, MobHealthRegenMaxHealthPercent, MobLifestealMaxHealthPercent, MobReflectionMaxHealthPercent, MobAttackCooldown`
+**配置参数**：`Locations Config: PreferredArmorType, PreferredWeaponType`；`QuestChainDef: MobEvasionPercent, MobHealthRegenMaxHealthPercent, MobLifestealMaxHealthPercent, MobReflectionMaxHealthPercent, MobAttackCooldown, MobAttackMultiplier, MobHealthMultiplier`；`QuestStepDef: OptimumTime, IsDays, LocationNumber, Prefab`；`ABTest Data Config: EnemyHpDamageMult`；`constants: AggroRange 10, AggroDuration 8, MoveSpeed 3.5, AttackRange 3.3, AverageFightTime 25/15, armor resist +/-0.9`
 
-**使用方**：combat.outgoing_damage_to_enemy；combat.enemy_reflection；combat.enemy_regen
+**使用方**：combat.outgoing_damage_to_enemy；combat.enemy_reflection；combat.enemy_regen；combat.enemy_lifesteal_on_hit；combat.incoming_damage_to_player
 
-**备注**：Defined in the Quests folder and listed here for the ArmorConfig structure. Quest mobs are excluded from island mastery. Unlike the asset tables, quest armor resists Magic at +0.9 unless Magic is the weakness.
+**备注**：Defined in the Quests folder and listed here for the ArmorConfig structure. Quest mobs are excluded from island mastery (QuestMobTag). Unlike the asset tables, quest armor resists Magic at +0.9 unless Magic is the weakness. Health and Damage start at 0 in BuildFixedStats and are filled entirely by the bake. The bake solves Damage from the player snapshot with AverageFightTime 25/15, Difficulty 1 and attackers = min(4, (1+1)/2) = 1, then applies the chain multipliers, then the A/B factor with explicit banker's rounding. The 'MaxHealthPercent' names are misleading in two places: reflection is a percent of mob Damage, not HP, and LifestealPercent heals that fraction of the mob's own max HP per damaging hit on the player. The 0.01 factors are float (0.01f).
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `config:QuestConfig.Chains[].MobAttackCooldown`、`config:QuestConfig.Chains[].MobAttackMultiplier`、`config:QuestConfig.Chains[].MobHealthMultiplier`、`config:QuestConfig.Chains[].MobEvasionPercent`、`config:QuestConfig.Chains[].MobHealthRegenMaxHealthPercent`、`config:QuestConfig.Chains[].MobLifestealMaxHealthPercent`、`config:QuestConfig.Chains[].MobReflectionMaxHealthPercent`、`config:QuestConfig.Chains[].Steps`、`config:QuestConfig.Chains[].Steps[].OptimumTime`、`config:QuestConfig.Chains[].Steps[].IsDays`、`config:QuestConfig.Chains[].Steps[].LocationNumber`、`config:LocationsConfig.Locations[].PreferredWeaponType`、`config:LocationsConfig.Locations[].PreferredArmorType`、`value:spawner.optimum_time_days`、`config:SimulationConfig.TimeChunkDurationMinutes`、`value:sim.snapshot_at_time`、`value:sim.snapshot_progress`、`value:sim.balance_coefficient[PlayerAbilityDPSMult]`、`value:sim.balance_coefficient[PlayerAblityEHPMult]`、`value:player.battle_regen`、`value:enemy.solved_attack_damage`、`value:enemy.ab_hp_damage_multiplier`、`state:quest_progress`、`constant:QuestMobSpawnerService.fight_time_last_step`、`constant:QuestMobSpawnerService.fight_time_step`、`constant:QuestMobSpawnerService.difficulty`、`constant:QuestMobSpawnerService.count`、`constant:QuestMobSpawnerService.move_speed`、`constant:QuestMobSpawnerService.attack_range`、`constant:QuestMobSpawnerService.weakness_resist`、`constant:QuestMobSpawnerService.other_resist`、`constant:BossSpawnService.max_attackers`、`constant:BossSpawnService.resist_cap`、`constant:BossSpawnService.beyond_snapshot_growth`、`constant:BossSpawnService.damage_round_step`；输出 `value:enemy.override_base_stats`、`value:enemy.damage_type`、`value:enemy.resist_by_damage_type`、`value:enemy.stat_base`、`value:enemy.current_hp`、`value:enemy.reflection_damage`、`value:sim.target_incoming_damage_per_hit`
 
-- [待人工合入] `notes`：Add: Health and Damage start at 0 in BuildFixedStats. They are then baked by BossSpawnService.BakeStatsForFloor(spawnerConfig, optimum, false, chain.MobAttackMultiplier, chain.MobHealthMultiplier) and scaled by the A/B EnemyHpDamageMult factor with explicit banker's rounding. Spawn config also sets AggroRange 10, AggroDuration 8 and Difficulty 1. The BuildConfig code_ref should be 191-214, not 191-212.  
-  依据：[Quests/QuestMobSpawnerService.cs:95](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L95),118-146,191-214,222-232
+**核验记录**（已写入上方字段）：
 
-### `combat.stat_value_aggregation`
-
-**Stat raw value aggregation (StatBase.CalculateValue)**
-
-- 状态：**重建（无原生标注）**（`reconstructed`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-value = prod_event(1 + 0.01 * sqrt(e) * sqrt(min(e, 20))) * prod(PercentMultiplicative v) * (1 + sum PercentAdditive v) * (BaseValue + sum Flat v) * prod_{source s}(1 + sum_{PreAdditivePostMultiplicative, source s} v)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `BaseValue` | authored base | Player Config.Stats / EnemySpawnerConfig.Stats / MetaStat BaseValue |
-| `Flat, PercentAdditive, PercentMultiplicative, PreAdditivePostMultiplicative, EventPercentModifier` | modifier lists by ModifierType | StatModifier from items, devour rewards, shop, upgrades, abilities |
-
-**输出**：Stat.Value / FastValue (what GetStatValue returns, except HealthRegen)
-
-**代码**：[Unit/StatBase.cs:107-134](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/StatBase.cs#L107)；[Unit/StatModifier.cs:25-33](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/StatModifier.cs#L25)；[Unit/UnitCore.cs:107-114](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/UnitCore.cs#L107)
-
-**状态依据**：No VA comment in StatBase. StatModifier.ToString is annotated (0x15ca9f4) but CalculateValue is not.
-
-**配置参数**：`Player Config.Stats[].BaseValue`；`EnemySpawnerConfig.StatRewards (devour modifiers)`
-
-**使用方**：combat.outgoing_damage_to_enemy；combat.incoming_damage_to_player；meta stats (MetaStat derives from StatBase)；progression/devour
-
-**备注**：PercentMultiplicative uses v directly as a factor, not (1+v). Enemies drop config modifiers at spawn (EnemyUnit.Initialize creates Stat(base, type) only). Probably shared with a stats/progression subsystem.
-
-### `combat.stat_modifier_merge`
-
-**Modifier stacking on AddModifier**
-
-- 状态：**重建（无原生标注）**（`reconstructed`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-if a modifier with same (Name, Source, ModifierType) exists: if type in {PercentMultiplicative, PostFormulaMultiplicative}: existing.Value *= new.Value else existing.Value += new.Value ; existing.Duration = max(existing.Duration, new.Duration)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `Value` | modifier value | StatModifier |
-
-**输出**：merged modifier
-
-**代码**：[Unit/StatBase.cs:63-85](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/StatBase.cs#L63)
-
-**状态依据**：No VA comment.
-
-**配置参数**：`StatModifier.Name`；`StatModifier.Source`；`StatModifier.ModifierType`
-
-**使用方**：combat.stat_value_aggregation；devour growth (repeated 'Devoured' rewards add into one Flat modifier)
-
-**备注**：PostFormulaMultiplicative is applied as (1+v), but merged values multiply v directly, which is an inconsistent quirk (see open questions).
-
-### `combat.stat_specific_value_curves`
-
-**Specific-value (diminishing-return) conversion per stat**
-
-- 状态：**重建（无原生标注）**（`reconstructed`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-spec = clamp_cap( postMult * (f_type(raw) + postFlat) ) ; postMult = prod(1 + PostFormulaMultiplicative v) * (1 + sum PostFormulaAdditive v) ; postFlat = sum PostFormulaFlat v ; f: MovementSpeed: raw<10000 ? 4.6*raw^0.115 : 3*raw^0.1 + 5.8 ; Evasion: raw<700 ? 0.06*raw^0.12 : 0.05*raw^0.065 + 0.06 ; CritChance: raw<=700 ? 0.08*raw^0.15 : 0.07*raw^0.1 + 0.082 ; CritDamagePercent: 1.5*raw^0.08 ; SuperCritDamagePercent: 2.0 ; GlobalAttack/GlobalDefence: raw<=100 ? raw : (raw-100)^0.75 + 100 ; BlockChance: 0.08*raw^0.1 ; BlockAmount: 0.15*raw^0.053 ; others: raw ; cap: Evasion, BlockChance, BlockAmount -> min(spec, 0.8)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `raw` | combat.stat_value_aggregation output | Stat.Value |
-| `PostFormula* modifiers` | modifier types 3,5,6 | StatModifier lists |
-
-**输出**：Stat.SpecificValue / FastSpecificValue (GetStatSpecificValue; GetStatValue for HealthRegen)
-
-**代码**：[Unit/Stat.cs:17](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L17)；[Unit/Stat.cs:51-59](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L51)；[Unit/Stat.cs:61-79](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L61)；[Unit/Stat.cs:81-110](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L81)；[Unit/UnitCore.cs:100-114](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/UnitCore.cs#L100)
-
-**状态依据**：No VA comment in Stat.cs. The constant and branch layout looks ported (piecewise curves are roughly continuous at the breakpoints), but this is unconfirmed.
-
-**配置参数**：`Player Config.Stats[Type=0,23,24,25,29,30,31,33,34]`
-
-**使用方**：combat.crit_and_supercrit；combat.dodge_block_rolls；combat.global_attack_multiplier；combat.global_defence_multiplier；combat.animation_cast_point (MovementSpeed)；combat.player_regen (HealthRegen via GetStatValue)；simulation forecast
-
-**备注**：Player defaults: crit 8%, crit damage x1.5, super-crit x2.0, block amount 15%, block chance 0, evasion 0, move speed 4.6. The 0.8 cap applies to Evasion and Block only, not to CritChance. Enemy MovementSpeed uses the raw value (EnemyAttackSystem), not this curve.
-
-### `combat.player_lifesteal_on_hit`
-
-**Player lifesteal per weapon hit**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x15d00cc`
-
-```text
-flat = LifestealFlat_raw ; pct = LifestealPercent_raw ; if target marked (stacks n>0) and mark_lifesteal>0: flat *= 1 + mark_lifesteal*n, pct *= same ; if flat>0 and target is Hydra and marked: flat *= 1 + 0.1*n ; if NextHitLifestealFlatBonus b>0: flat *= 1+b (consumed) ; HP += flat + pct * MaxHP ; HP = min(HP, MaxHP)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `LifestealFlat_raw, LifestealPercent_raw` | player stats 22, 32 | Player Config.Stats + modifiers |
-| `mark_lifesteal` | meta stat | Meta Stats Config key mark_lifesteal |
-| `n` | MarkComponent.Stacks on target | abilities mark system |
-
-**输出**：player heal per hit
-
-**代码**：[Unit/Systems/UnitDamageSystem.cs:336-366](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L336)
-
-**状态依据**：VA comment.
-
-**配置参数**：`Player Config.Stats[Type=22]`；`Meta Stats Config: mark_lifesteal`
-
-**使用方**：combat.battle_regen (modeled as (2d+3)*lifestealFlat)
-
-**备注**：Applied on every player hit, including dodged hits and hits on dummies.
-
-### `combat.enemy_lifesteal_on_hit`
-
-**Enemy lifesteal when damaging player**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x15ce7e8`
-
-```text
-if damage > 0: enemy.HP += LifestealFlat + LifestealPercent * enemy.MaxHP (no cap)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `LifestealFlat, LifestealPercent` | enemy stats (only quest mobs set LifestealPercent) | combat.quest_mob_armor_and_stats |
-
-**输出**：enemy heal
-
-**代码**：[Unit/Systems/UnitDamageSystem.cs:144](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L144)；[Unit/Systems/UnitDamageSystem.cs:155-162](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L155)
-
-**状态依据**：VA comment that explicitly notes no health cap.
-
-**配置参数**：`QuestChainDef.MobLifestealMaxHealthPercent`
-
-**备注**：Can overheal enemies above MaxHP.
-
-### `combat.thorns_reflection`
-
-**Player thorns on being attacked**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x15ce604`
-
-```text
-if ThornsDamage > 0: dmg = ThornsDamage * (1 + NextThornsDamageBonus) (bonus consumed) ; attacker.HP -= dmg (no defence/resist)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `ThornsDamage, NextThornsDamageBonus` | ability-granted values | PlayerModel (abilities subsystem) |
-
-**输出**：flat damage to attacker
-
-**代码**：[Unit/Systems/UnitDamageSystem.cs:124](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L124)；[Unit/Systems/UnitDamageSystem.cs:212-228](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L212)
-
-**状态依据**：VA comment.
-
-**备注**：Triggers on every enemy hit attempt, including dodged ones, because it runs before the damage<=0 early return.
-
-### `combat.enemy_reflection`
-
-**Enemy reflection on being hit**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x15cf560`
-
-```text
-if !dodged and enemy.ReflectionDamage > 0 and !godMode: player.HP -= ReflectionDamage (flat, no defence)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `ReflectionDamage` | quest mob: Damage * MobReflectionMaxHealthPercent * 0.01 | combat.quest_mob_armor_and_stats |
-
-**输出**：damage to player
-
-**代码**：[Unit/Systems/UnitDamageSystem.cs:252-271](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L252)；[Unit/Systems/UnitDamageSystem.cs:329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L329)
-
-**状态依据**：VA comment.
-
-**配置参数**：`QuestChainDef.MobReflectionMaxHealthPercent`
-
-**备注**：Bypasses lethal-ignore and can kill the player directly.
-
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
-
-- [待人工合入] `notes`：It bypasses lethal-ignore and can kill the player directly. It also increments HitsTakenCount and sets HitsTakenLastUpdate, so it feeds BonusStatPerHitsTakenEffect. It applies to non-dodged hits even when the hit damage is 0, but not to dummies, because the dummy branch returns before it.  
-  依据：[Unit/Systems/UnitDamageSystem.cs:255-260](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L255),314-321,329
-
-### `combat.lethal_damage_ignore`
-
-**Lethal damage ignore (cheat death)**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x15ce89c`
-
-```text
-if HP <= 0.01 after hit: if HasPerTargetLethalIgnore and sourceId not used and LethalIgnoreCooldown <= 0 -> HP = 1 ; else if Random.value < LethalIgnoreChance -> HP = 1 ; on success both flags reset to 0/false
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `LethalIgnoreChance, HasPerTargetLethalIgnore, LethalIgnoreCooldown` | ability-granted | PlayerModel (abilities subsystem) |
-
-**输出**：survive at 1 HP
-
-**代码**：[Unit/Systems/UnitDamageSystem.cs:145](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L145)；[Unit/Systems/UnitDamageSystem.cs:176-193](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L176)
-
-**状态依据**：VA comment.
-
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
-
-- [待人工合入] `expression`：if LethalIgnoreChance <= 0 and !HasPerTargetLethalIgnore: fail ; if HasPerTargetLethalIgnore: { id = hash(source entity) ; if id in LethalIgnoreTargetIds or LethalIgnoreCooldown > 0: fail (NO fallback to the chance roll) ; else add id } else if Random.value >= LethalIgnoreChance: fail ; success -> HP = 1, HasPerTargetLethalIgnore = false, LethalIgnoreChance = 0. The check runs only after a damaging hit, once IsDead is true (HP <= 0.01) and after enemy lifesteal has been applied.  
-  依据：[Unit/Systems/UnitDamageSystem.cs:179-190](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L179). When per-target mode is on, line 184 returns false. Line 187 is the else-branch of 'if (HasPerTargetLethalIgnore)', so the chance roll happens only when per-target mode is off.
+- 采纳 `notes`（来自 `combat.quest_mob_armor_and_stats`）：Verified: BuildFixedStats sets Health and Damage to 0 (226-227). The bake runs at line 95 with chain.MobAttackMultiplier/MobHealthMultiplier (BossSpawnService.cs:494-499). The A/B banker's rounding is at 119-151. AggroRange 10, AggroDuration 8 and Difficulty 1 are at 205-206 and 213. The expression, config_params and notes now include these, and the BuildConfig code_ref is corrected to 191-215 (the method spans 191-215, and its initializer ends at 214).
 
 ### `combat.block_to_supercrit_bonus`
 
@@ -1007,32 +998,7 @@ on player block: BlockSuperCritChanceBonus += block_to_supercrit ; reset to 0 wh
 
 **备注**：Evasion similarly applies evasion_mark marks to the attacker when a Stabbing weapon is equipped (UnitDamageSystem.cs:130-132).
 
-### `combat.first_vulnerability_multiplier`
-
-**First-hit vulnerability multiplier**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x15cd840`
-
-```text
-if target has UnitFirstVulnerabilityComponent: damage *= DamageModifier (component removed)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `DamageModifier` | component field | UnitFirstVulnerabilityComponent (abilities/boss systems) |
-
-**输出**：damage multiplier
-
-**代码**：[Unit/Systems/UnitDamageSystem.cs:301-306](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitDamageSystem.cs#L301)
-
-**状态依据**：Inside the VA-annotated ApplyDamageToEnemy.
-
-**使用方**：combat.outgoing_damage_to_enemy
-
-**备注**：Applied after DamageCalculator, so it is not included in simulation DPS.
+**依赖图节点**：输入 `value:player.meta_stat[block_to_supercrit]`、`value:unit.hit_roll_outcome`；输出 `value:player.supercrit_bonus_from_block`
 
 ### `combat.attack_speed_multiplier`
 
@@ -1064,42 +1030,48 @@ as = prod_states(AttackSpeedStackMult) * weapon.AbilityAttackSpeedMultiplier * (
 
 **备注**：The player AttackCooldown stat (5, base 0) is not used for player weapons. No stat-based attack speed exists, only abilities.
 
+**依赖图节点**：输入 `value:weapon.stat_stack_multiplier[AttackSpeed]`、`value:weapon.ability_attack_speed_multiplier`、`value:enemy.weak_or_event_golem_flag`、`constant:PlayerAttackSystem.WeakEnemyAttackSpeedMultiplier`、`constant:PlayerAttackSystem.EventGolemAttackSpeedMultiplier`；输出 `value:weapon.attack_speed_multiplier`
+
 ### `combat.player_weapon_attack_cycle`
 
 **Player weapon attack cycle / cooldown**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x1440178, 0x1441034, 0x1440f74`
+- 来源：合并核验
+- 原生地址：`0x1440178 (Update), 0x1441034 (Attack), 0x1440f74 (GetHitCooldownThreshold), 0x1440fa0 (GetAnimationCastPoint), 0x1440a9c (GetAttackRangeSqr), 0x1440de4 / 0x1440eac (weak enemy / event golem checks), 0x14630e8 (ItemConfig.HitFrameAt60Fps)`
 
 ```text
-per weapon: on start Cooldown = AC ; with target: Cooldown -= as*dt ; hit fires when AttackInProgress and Cooldown <= cp*AC + as*dt ; new attack starts when Cooldown <= 0 ; => period ~= AC/as (+1 frame), hit at ~(1-cp)*AC/as after start ; without target: if Cooldown > cp*AC: Cooldown += 3*as*dt until >= AC then Cooldown = 0 (ready) ; else keep cooling ; weapon cannot attack until WearingTime >= 1 s ; ResetCooldown (rage extra hit): when Cooldown <= AnimationBackPoint*AC -> Cooldown = cp*AC + 0.15 (forces a quick extra hit)
+Update, per equipped weapon each frame: hasTarget = current target alive and within GetAttackRangeSqr, OR out of range for < 0.2 s (retention), else FindTarget ; as = prod_states GetWeaponStatMultiplier(AttackSpeed) * AbilityAttackSpeedMultiplier * (2.5 if the target is a weak enemy or event golem) ; T = cp*AC (GetHitCooldownThreshold) ; if hasTarget: Cooldown -= as*dt ; else if Cooldown > T: { Cooldown += 3*as*dt ; if Cooldown >= AC: Cooldown = 0, AttackInProgress = false } ; else { AttackInProgress = false (pending hit cancelled) ; Cooldown -= as*dt } ; WearingTime += dt ; ResetCooldown path 1: if ResetCooldown && !AttackInProgress && Cooldown <= AnimationBackPoint*AC: ResetCooldown = false, AttackInProgress = true, Cooldown = T + 0.15 (forced hit about 0.15/as s later). Then Attack() if hasTarget and alive (skips if dying, dead, sleeping or !CanMove), per weapon: skip if slot 'weapon_1' and sqrDist >= baseAttackRange^2 ; skip if WearingTime < 1 ; if Cooldown <= 0: AttackInProgress = true, Cooldown = AC (swing starts, no hit this frame) ; else if AttackInProgress && Cooldown <= T + as*dt: hit fires (AttackInProgress = false ; ResetCooldown path 2: if ResetCooldown: ResetCooldown = false, Cooldown = 0, so the next swing starts on the next Attack()) => steady period ~= AC/as (+ up to 1 frame), hit ~= (1-cp)*AC/as - dt after swing start
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
 | `AC` | weapon attack cooldown (s) | ItemConfig.AttackCooldown (e.g. cut common 1.3, smash legendary 1.7, div smash legendary 3) |
-| `as` | attack speed multiplier | combat.attack_speed_multiplier |
-| `cp` | effective cast point | combat.animation_cast_point |
-| `AnimationBackPoint` | reset window | ItemConfig.AnimationBackPoint |
+| `as` | weapon attack speed multiplier | combat.attack_speed_multiplier |
+| `cp` | effective cast point = 1 - (1-AnimationCastPoint)/(factor*k + 1), factor Cut 0.5 / Buckshot 1 / else 0, k = smoothed joystick*MoveSpeed_spec*0.05 | combat.animation_cast_point |
+| `AnimationBackPoint` | reset window as a fraction of AC | ItemConfig.AnimationBackPoint |
+| `ResetCooldown` | extra-hit flag | ResetCooldownEffect, TriggerHighestDamageWeaponEffect, RageExtraHitSystem |
+| `dt` | Time.deltaTime | runtime |
 
-**输出**：hit timing; per-weapon DPS ~= hitDamage * as / AC
+**输出**：hit timing. Per-weapon DPS ~= hitDamage * as / AC.
 
-**代码**：[Player/PlayerAttackSystem.cs:119-148](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L119)；[Player/PlayerAttackSystem.cs:153-191](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L153)；[Player/PlayerAttackSystem.cs:225-229](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L225)；[Player/Inventory/ItemConfig.cs:25](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L25)；[Player/Inventory/ItemConfig.cs:49](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L49)
+**代码**：[Player/PlayerAttackSystem.cs:85-151](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L85)；[Player/PlayerAttackSystem.cs:97-118](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L97)；[Player/PlayerAttackSystem.cs:119-148](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L119)；[Player/PlayerAttackSystem.cs:153-191](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L153)；[Player/PlayerAttackSystem.cs:206-211](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L206)；[Player/PlayerAttackSystem.cs:225-229](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L225)；[Player/PlayerAttackSystem.cs:238-244](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L238)；[Player/Inventory/ItemConfig.cs:25](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L25)；[Player/Inventory/ItemConfig.cs:32](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L32)；[Player/Inventory/ItemConfig.cs:35](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L35)；[Player/Inventory/ItemConfig.cs:49](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L49)；[Player/Systems/RageExtraHitSystem.cs:57](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/RageExtraHitSystem.cs#L57)
 
-**状态依据**：VA comments on Update, Attack and GetHitCooldownThreshold.
+**状态依据**：VA comments on Update (Native ELF VA 0x1440178), Attack (0x1441034) and GetHitCooldownThreshold (0x1440f74).
 
-**配置参数**：`ItemConfig.AttackCooldown`；`ItemConfig.AnimationCastPoint`；`ItemConfig.AnimationBackPoint`
+**配置参数**：`ItemConfig.AttackCooldown`；`ItemConfig.AnimationCastPoint`；`ItemConfig.AnimationBackPoint`；`constants: wearing delay 1 s, no-target rewind 3x, reset hit offset 0.15 s, weak/golem speed 2.5x, target retention 0.2 s`
 
 **使用方**：simulation DPS (Damage/AttackCooldown, SimulationSystem.cs:848)；items ItemModel.DPS = Damage / AttackCooldown ([Player/Inventory/ItemModel.cs:397-405](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L397))
 
-**备注**：All equipped weapons cycle in parallel; total DPS is the sum over weapons. The weapon_1 slot additionally requires base AttackRange (no chain x3). ItemConfig.HitFrameAt60Fps = (1-cp)*AC*60 is display or editor only.
+**备注**：All equipped weapons cycle in parallel, so total DPS is the sum over weapons. The weapon_1 slot also requires the base AttackRange (no chain x3). A target that leaves range is kept for 0.2 s (hasTarget stays true and Cooldown keeps ticking down) before re-targeting. Without a target, a swing still before its hit threshold is rewound at 3x speed back to ready; a swing already past it keeps cooling and its pending hit is cancelled. The +as*dt look-ahead makes the hit fire one frame early. The hit is emitted as a NextFrame WeaponHitEvent, so damage lands one frame after the threshold crossing. Both simulation and ItemModel.DPS ignore attack speed and cast timing. ItemConfig.HitFrameAt60Fps = (1 - AnimationCastPoint)*AC*60 uses the RAW config cast point, not the effective cp, and is display or editor only.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `config:ItemConfig.AttackCooldown`、`config:ItemConfig.AnimationBackPoint`、`value:weapon.attack_speed_multiplier`、`value:weapon.cast_point_effective`、`value:weapon.cooldown_reset_flag`、`value:player.auto_target`、`value:weapon.can_attack`、`value:player.equipped_items`、`value:unit.is_dead`、`state:frame_delta_time`、`constant:PlayerAttackSystem.ResetCooldownPostCastPointDelay`、`constant:PlayerAttackSystem.AttackCancelRewindMultiplier`；输出 `value:weapon.attacks_per_second`
 
-- [待人工合入] `expression`：without target: if Cooldown > cp*AC: Cooldown += 3*as*dt; once >= AC: Cooldown = 0 and AttackInProgress = false ; else AttackInProgress = false (pending hit cancelled) and Cooldown -= as*dt. ResetCooldown has two paths. (1) In Update, if ResetCooldown and !AttackInProgress and Cooldown <= AnimationBackPoint*AC: ResetCooldown = false, AttackInProgress = true, Cooldown = cp*AC + 0.15, which forces a hit about 0.15/as s later. (2) If ResetCooldown is set while a swing is in progress, the hit sets Cooldown = 0 when it lands, so the next swing starts on the next Attack() call.  
-  依据：[Player/PlayerAttackSystem.cs:127-140](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L127) (no-target branch incl. AttackInProgress=false at 133 and 138), :142-147 (path 1), :177-181 (path 2)
+**核验记录**（已写入上方字段）：
+
+- 采纳 `expression`（来自 `combat.player_weapon_attack_cycle`）：Verified at PlayerAttackSystem.cs:127-140 (the no-target branch sets AttackInProgress=false at 133 and 138 and keeps cooling at 139), :142-147 (ResetCooldown path 1, Cooldown = cp*AC + 0.15) and :177-181 (path 2 sets Cooldown = 0 when the hit lands). The expression describes both paths and the AttackInProgress resets.
+- 合并复核修正：(b) The notes say 'ItemConfig.HitFrameAt60Fps = (1-cp)*AC*60', where cp is the entry's EFFECTIVE (joystick-dependent) cast point. ItemConfig.cs:49 actually computes (1f - AnimationCastPoint) * AttackCooldown * 60f from the raw config value. It does not use GetAnimationCastPoint, so for Cut/Buckshot weapons on the move it differs from the live hit frame. The entry also leaves out the 0.2 s out-of-range target retention (PlayerAttackSystem.cs:104-111) that defines hasTarget, which affects whether Cooldown keeps ticking down or rewinds.
 
 ### `combat.animation_cast_point`
 
@@ -1117,7 +1089,7 @@ k <- k + (target - k) * clamp01(1 - exp(-4 dt)), target = |joystick| * MoveSpeed
 | 符号 | 含义 | 来源 |
 |---|---|---|
 | `AnimationCastPoint` | authored fraction of cycle | ItemConfig.AnimationCastPoint (0.4-0.86) |
-| `MoveSpeed_spec` | player movement speed specific value | combat.stat_specific_value_curves |
+| `MoveSpeed_spec` | player movement speed specific value | stats.specific_value_pipeline |
 
 **输出**：cp used for hit threshold
 
@@ -1130,6 +1102,8 @@ k <- k + (target - k) * clamp01(1 - exp(-4 dt)), target = |joystick| * MoveSpeed
 **使用方**：combat.player_weapon_attack_cycle
 
 **备注**：Moving makes cut and smash hits land earlier within a cycle but does not shorten the period. It mostly affects first-hit latency.
+
+**依赖图节点**：输入 `config:ItemConfig.AnimationCastPoint`、`config:ItemConfig.DamageType`、`value:player.stat_specific[MovementSpeed]`、`state:player_input`、`state:frame_delta_time`、`constant:PlayerAttackSystem.AnimationCastPointSpeedFactor`、`constant:PlayerAttackSystem.cast_point_smoothing_rate`、`constant:PlayerAttackSystem.CuttingCastPointSpeedMultiplier`、`constant:PlayerAttackSystem.BuckshotCastPointSpeedMultiplier`、`constant:PlayerAttackSystem.StabbingCastPointSpeedMultiplier`；输出 `value:weapon.cast_point_effective`
 
 ### `combat.player_attack_range_and_targeting`
 
@@ -1161,68 +1135,86 @@ R = AttackRange_raw (player base 3.4) ; R_eff = R * 3 if chain weapon equipped a
 
 **备注**：Unit/UnitAutoTargetSystem.cs is not the real targeting; see combat.unit_auto_target_stub.
 
+**依赖图节点**：输入 `value:player.stat_raw[AttackRange]`、`value:player.has_chain_weapon`、`constant:PlayerAttackSystem.WeakEnemyAttackRangeMultiplier`、`constant:PlayerAttackSystem.EventGolemAttackRangeMultiplier`、`value:player.meta_stat[weak_spawner_extra_range]`、`value:player.meta_stat[event_golem_extra_range]`、`value:player.unlocked_location`、`config:EnemySpawnerConfig.LocationNumber`、`config:EnemySpawnerConfig.IsVip`、`config:EnemySpawnerConfig.IsSpecial`、`config:EnemySpawnerConfig.IsEvent`、`config:EnemySpawnerConfig.EventDef.UnitType`、`state:unit_positions`、`value:enemy.is_far`、`value:unit.is_dead`、`constant:PlayerAttackSystem.TargetOutOfRangeRetainDuration`、`state:frame_delta_time`；输出 `value:player.attack_range_effective`、`value:player.auto_target`、`value:enemy.weak_or_event_golem_flag`
+
 ### `combat.enemy_attack_cycle`
 
 **Enemy attack cadence**
 
 - 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
+- 合并自：`combat.enemy_attack_cycle`、`spawners.enemy_attack_cadence`
 
 ```text
-each frame (not stunned/casting/in spawn anim): AttackCooldown -= dt (if > 0) ; if dist < AttackRange (ground: dist^2 < R^2) and AttackCooldown <= 0: emit hit, AttackCooldown = AttackCooldown_stat ; enemy DPS ~= incoming(Damage) / AttackCooldown_stat ; first hit is instant (AttackCooldown = 0 at spawn)
+each frame for non-static enemies that are not IsDead, not IsFar and not in spawn animation. Ground: return if VampireSpiritTag, EnemyCanEscapeMarker, stunned or IsCasting; else if AttackCooldown > 0: AttackCooldown -= dt; if retreat or player unavailable or waiting marker: no attack; else if dist^2 < AttackRange^2: Attack. Flying: return if EnemyCanEscapeMarker or stunned; if AttackCooldown > 0: AttackCooldown -= dt; (move) ; if dist < AttackRange: Attack (regardless of retreat/unavailable/waiting). Attack: if AttackCooldown > 0 return; emit WeaponHitEvent{Source=enemy, Target=player, DamageType=enemy.DamageType}; AttackCooldown = (float)GetStatValue(AttackCooldown). AttackCooldown = 0 at Initialize, so the first hit is instant. Hit rate ~= 1/AttackCooldown_stat; enemy DPS ~= incoming(Damage)/AttackCooldown_stat
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
 | `AttackCooldown_stat` | enemy stat 5 (s) | EnemySpawnerConfig.Stats[Type=5] |
 | `AttackRange` | enemy stat 4 | EnemySpawnerConfig.Stats[Type=4] |
+| `MovementSpeed` | enemy stat 0; x2 while RetreatTimer > 0 | EnemySpawnerConfig.Stats[Type=0] |
+| `AggroRange, AggroDuration` | aggro parameters gating the retreat state | EnemySpawnerConfig.AggroRange / AggroDuration |
 
-**输出**：hit events to player
+**输出**：WeaponHitEvent frequency to the player (damage type = config.WeaponType; per-hit damage from DamageCalculator)
 
-**代码**：[Enemy/EnemyAttackSystem.cs:102-106](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L102)；[Enemy/EnemyAttackSystem.cs:140-142](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L140)；[Enemy/EnemyAttackSystem.cs:268-303](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L268)；[Enemy/EnemyAttackSystem.cs:342-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L342)；[Enemy/EnemyUnit.cs:313-316](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L313)
+**代码**：[Enemy/EnemyAttackSystem.cs:52-73](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L52)；[Enemy/EnemyAttackSystem.cs:81-100](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L81)；[Enemy/EnemyAttackSystem.cs:102-105](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L102)；[Enemy/EnemyAttackSystem.cs:110-142](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L110)；[Enemy/EnemyAttackSystem.cs:258-270](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L258)；[Enemy/EnemyAttackSystem.cs:276-303](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L276)；[Enemy/EnemyAttackSystem.cs:342-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L342)；[Enemy/EnemyUnit.cs:154](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L154)；[Enemy/EnemyUnit.cs:313-316](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L313)；[Player/Commands/RevivePlayerCommandHandler.cs:37](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Commands/RevivePlayerCommandHandler.cs#L37)；[BossTower/Systems/MageBossSystem.cs:93](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/Systems/MageBossSystem.cs#L93)
 
-**状态依据**：EnemyAttackSystem and EnemyUnit have no VA comments.
+**状态依据**：EnemyAttackSystem and the relevant EnemyUnit methods have no VA comments.
 
-**配置参数**：`EnemySpawnerConfig.Stats[Type=3,4,5]`；`EnemySpawnerConfig.WeaponType`；`EnemySpawnerConfig.IsStatic (static enemies never attack)`
+**配置参数**：`EnemySpawnerConfig.Stats[Type=0,3,4,5]`；`EnemySpawnerConfig.WeaponType`；`EnemySpawnerConfig.AggroRange`；`EnemySpawnerConfig.AggroDuration`；`EnemySpawnerConfig.IsStatic (static enemies never attack)`
 
-**使用方**：combat.incoming_damage_to_player；simulation.GetSpawnerDps (damage / AttackCooldown)
+**使用方**：combat.incoming_damage_to_player；combat damage model；simulation.GetSpawnerDps (damage / AttackCooldown, [Simulation/Systems/SimulationSystem.cs:960](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L960))
 
-**备注**：The attack animation speed is 1/AttackCooldown, which is visual only. Stun freezes the cooldown for ground enemies. Flying enemies return early on stun before the decrement.
+**备注**：Stun freezes AttackCooldown for both ground and flying enemies (both return before the decrement). IsCasting freezes cooldown and movement for ground enemies only. Ground enemies keep decrementing AttackCooldown during retreat, player-unavailable and waiting frames, but can only attack in the non-retreat branch (lines 140-142). Flying enemies call Attack() whenever distance < AttackRange, even while retreating, while the player is unavailable or sleeping, or while a waiting marker is set. Escaping enemies (EnemyCanEscapeMarker, both handlers) never attack. VampireSpirit-tagged enemies never attack in the ground handler; the flying handler has no such check. The ground range test is dist^2 < R^2; the flying test is dist < R. The timer is reset to the full cooldown without carrying the negative remainder, so the real period is quantized up to whole frames. The attack animation speed is 1/AttackCooldown_stat (EnemyUnit.cs:313-316), which is visual only. Aggro and retreat (detailed in combat.enemy_leash_and_aggro): dist < AggroRange sets AggroTimer = AggroDuration; retreat when dist > AggroRange && AggroTimer <= 0 && the player is not targeting the enemy, or RetreatTimer > 0. Move speed = MovementSpeed * (RetreatTimer > 0 ? 2 : 1). RetreatTimer is set to 3 s for aggroed enemies on player revive (with AggroTimer = 0) and to RetreatDuration by MageBossSystem. Scene WeaponType counts: Stabbing(0) 474, Cutting(1) 147, Buckshot(3) 96.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:enemy.stat_raw[AttackCooldown]`、`value:enemy.stat_raw[AttackRange]`、`value:enemy.aggro_state`、`config:EnemySpawnerConfig.WeaponType`、`config:BossTowerConfig.Bosses[].WeaponType`、`config:EnemySpawnerConfig.IsStatic`、`value:enemy.stun_duration`、`value:enemy.is_far`、`value:unit.is_dead`、`state:unit_positions`、`state:frame_delta_time`、`state:boss_tower_context`；输出 `value:enemy.attacks_per_second`、`value:enemy.damage_type`
 
-- [待人工合入] `code_refs`：Enemy/EnemyUnit.cs:154 (AttackCooldown = 0f in Initialize). Lines 313-316 are GetAttackAnimationSpeed = 1/AttackCooldown_stat, which is visual only.  
-  依据：[Enemy/EnemyUnit.cs:154](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L154) and :313-316
-- [待人工合入] `notes`：Corrections and additions. (a) Flying enemies call Attack() whenever distance < AttackRange, even while retreating, while the player is unavailable or sleeping, or while a waiting marker is set. Ground enemies can only attack in the non-retreat branch. (b) Ground enemies keep decrementing AttackCooldown during retreat or player-unavailable frames. (c) IsCasting freezes cooldown and movement for ground enemies only. (d) Enemies with EnemyCanEscapeMarker (both escape handlers) and VampireSpirit-tagged enemies never call Attack. (e) The ground range test is dist^2 < R^2; the flying test is dist < R.  
-  依据：[Enemy/EnemyAttackSystem.cs:83-100](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L83) (vampire/escape/stun/cast early returns), :104-105 (decrement before the retreat check), :112-135 (retreat returns before Attack), :268-303 (flying: Attack at 302-303 outside the retreat condition)
+**核验记录**（已写入上方字段）：
+
+- 采纳 `code_refs`（来自 `combat.enemy_attack_cycle`）：EnemyUnit.cs:154 sets AttackCooldown = 0f in Initialize and is now cited for the instant first hit. 313-316 is kept, cited only for the visual animation speed.
+- 采纳 `notes`（来自 `combat.enemy_attack_cycle`）：Points (a), (b), (c) and (e) are confirmed at EnemyAttackSystem.cs:91-105, 111-135 and 302-303. Point (d) is applied with a precision fix: the VampireSpiritTag early return exists only in HandleGroundEnemy (line 83); HandleFlyingEnemy has no such check. The expression and notes now reflect this.
+- 采纳 `notes`（来自 `spawners.enemy_attack_cadence`）：Confirmed: flying Attack at 302-303 is outside the retreat branch, ground attacks only at 140-142, escaping enemies never attack, RevivePlayerCommandHandler.cs:37 sets RetreatTimer = 3f for aggroed enemies, MageBossSystem.cs:93 sets RetreatDuration, and EnemyUnit.cs:154 gives the immediate first hit. All of this is now in the expression, notes and code_refs.
 
 ### `combat.enemy_leash_and_aggro`
 
-**Enemy leash heal, aggro and retreat**
+**Enemy leash full-heal, aggro and retreat**
 
 - 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
+- 合并自：`combat.enemy_leash_and_aggro`、`spawners.enemy_leash_heal`
+- 原生地址：`0x1469b28 (RevivePlayerCommandHandler.Execute only)`
 
 ```text
-if dist > 30 (ground uses dist^2 > 900) and not boss arena: HP = MaxHP ; retreat = (dist > AggroRange and AggroTimer <= 0 and player.target != enemy) or RetreatTimer > 0 ; if dist < AggroRange: AggroTimer = AggroDuration ; speed = MovementSpeed_raw * (2 if RetreatTimer > 0 else 1) ; on player revive: aggroed enemies get RetreatTimer = 3 and full HP
+Per Update, for each enemy in NonStaticEnemies that is not dead, not IsFar and not in spawn anim (ground: also skipped if VampireSpirit, escaping, stunned or casting; flying: skipped if escaping or stunned) : RetreatTimer -= dt ; LEASH: if dist(enemy, player) > 30 (ground: 3D sqrMagnitude > 900f; flying: Vector3.Distance > 30f) and !IsDead and !BossArenaUnitTag: CurrentHealth = GetStatValue(Health) ; retreat = (dist > AggroRange [ground compares sqrDist > AggroRange^2] and AggroTimer <= 0 and player.CurrentTarget != enemy) or RetreatTimer > 0 ; if retreat or player unavailable (sleeping, !CanMove, dying) or waiting marker: return to CurrentSpawnerPatrolPoint (AggroTimer not decremented) ; else { AggroTimer -= dt ; if dist < AggroRange: AggroTimer = AggroDuration ; chase / attack } ; move speed = MovementSpeed_raw * (RetreatTimer > 0 ? 2 : 1) (ground: Agent.speed; flying: step per frame); escaping enemies use MovementSpeed_raw x1 ; on player revive: for EVERY enemy in EnemiesModel.Enemies: PreviousHealth = CurrentHealth, CurrentHealth = GetStatValue(Health); and if AggroTimer > 0: AggroTimer = 0, RetreatTimer = 3
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `AggroRange, AggroDuration` | spawner config | EnemySpawnerConfig.AggroRange/AggroDuration |
-| `MovementSpeed_raw` | enemy stat 0 raw | EnemySpawnerConfig.Stats[Type=0] |
+| `dist` | 3D world distance enemy-player (ground compares squared distance) | runtime transforms (EnemyAttackSystem.Distance / SqrDistance) |
+| `AggroRange, AggroDuration` | aggro radius (m) and aggro hold time (s) | EnemySpawnerConfig.AggroRange / AggroDuration via EnemyUnit.AggroRange/AggroDuration (Enemy/EnemyUnit.cs:90-102); quest mobs use 10 / 8 |
+| `AggroTimer, RetreatTimer` | per-enemy runtime timers (s) | EnemyUnit runtime state |
+| `MovementSpeed_raw` | enemy stat 0 raw value (GetStatValue, not the specific curve) | EnemySpawnerConfig.Stats[Type=0] |
+| `Health` | enemy max HP (stat 1 fast value) | EnemySpawnerConfig.Stats[Type=1] x A/B multiplier |
+| `30` | hard-coded leash radius (m) | constant in EnemyAttackSystem |
 
-**输出**：enemy HP reset and pursuit
+**输出**：enemy CurrentHealth reset to max HP, pursuit/retreat state, and movement speed
 
-**代码**：[Enemy/EnemyAttackSystem.cs:102-139](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L102)；[Enemy/EnemyAttackSystem.cs:274-287](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L274)；[Player/Commands/RevivePlayerCommandHandler.cs:33-37](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Commands/RevivePlayerCommandHandler.cs#L33)
+**代码**：[Enemy/EnemyAttackSystem.cs:52-74](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L52)；[Enemy/EnemyAttackSystem.cs:81-169](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L81)；[Enemy/EnemyAttackSystem.cs:107-109](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L107)；[Enemy/EnemyAttackSystem.cs:249](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L249)；[Enemy/EnemyAttackSystem.cs:258-304](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L258)；[Enemy/EnemyAttackSystem.cs:274-275](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L274)；[Enemy/EnemyAttackSystem.cs:350-358](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L350)；[Enemy/EnemyUnit.cs:90-102](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L90)；[Player/Commands/RevivePlayerCommandHandler.cs:26-43](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Commands/RevivePlayerCommandHandler.cs#L26)
 
-**状态依据**：No VA comments in EnemyAttackSystem. The revive handler is annotated (0x1469b28).
+**状态依据**：EnemyAttackSystem (Update, HandleGroundEnemy, HandleFlyingEnemy) has no native VA comments, so the leash, aggro and retreat logic is reconstructed. Only the revive handler is annotated (Native ELF VA 0x1469b28).
 
-**配置参数**：`EnemySpawnerConfig.AggroRange`；`EnemySpawnerConfig.AggroDuration`；`EnemySpawnerConfig.Stats[Type=0]`
+**配置参数**：`EnemySpawnerConfig.AggroRange`；`EnemySpawnerConfig.AggroDuration`；`EnemySpawnerConfig.Stats[Type=0] (MovementSpeed)`；`EnemySpawnerConfig.Stats[Type=1] (Health)`；`constant leash radius 30 m`；`constant revive RetreatTimer 3 s`；`constant retreat speed multiplier 2`
 
-**备注**：The 30 m leash full-heal prevents kiting or chip-damage across fights.
+**使用方**：combat.event_enemy_damage_ramp (a leash or revive full-heal brings HP back to max, which resets the ramp timer to 0)；spawners / boss arena (BossArenaUnitTag units are exempt)
+
+**备注**：The 30 m leash full-heal prevents kiting or chip damage across fights. The radius is hard-coded and not a config lever. Boss-arena units are exempt. Both ground and flying use full 3D distance (ground: sqrMagnitude vs 900). The heal does not run on enemies that are IsFar, stunned, casting (ground) or escaping, because those branches return before the leash check. On revive, ALL enemies are refilled to max HP, not just aggroed ones. Only aggroed ones (AggroTimer > 0) also get the 3 s double-speed retreat. Quirk (flying): the `if (distance < attackRange) Attack(enemy)` call at EnemyAttackSystem.cs:302-303 sits outside the retreat branch, so a flying enemy within AttackRange still attacks while retreating or while the player is unavailable. The spawners agent catalogued the leash-only subset as spawners.enemy_leash_heal.
+
+**依赖图节点**：输入 `config:EnemySpawnerConfig.AggroRange`、`config:EnemySpawnerConfig.AggroDuration`、`config:BossTowerConfig.Bosses[].AggroRange`、`config:BossTowerConfig.Bosses[].AggroDuration`、`constant:QuestMobSpawnerService.aggro_range`、`constant:QuestMobSpawnerService.aggro_duration`、`constant:EnemyAttackSystem.leash_radius`、`constant:EnemyAttackSystem.retreat_speed_multiplier`、`constant:RevivePlayerCommandHandler.revive_retreat_timer`、`value:enemy.stat_raw[MovementSpeed]`、`value:enemy.stat_raw[Health]`、`value:player.auto_target`、`state:unit_positions`、`state:frame_delta_time`、`state:player_actions`、`state:boss_tower_context`、`value:enemy.is_far`、`value:enemy.stun_duration`、`value:unit.is_dead`；输出 `value:enemy.current_hp`、`value:enemy.move_speed_effective`、`value:enemy.aggro_state`
+
+**核验记录**（已写入上方字段）：
+
+- 合并复核修正：(b) Code line references are off. HandleFlyingEnemy runs to line 304, so the code_ref '258-302' cuts off the Attack call. The notes cite the flying Attack call as 'EnemyAttackSystem.cs:301-302', but line 301 is `enemy.LastDestination = target` and the `if (distance < attackRange) Attack(enemy)` is at 302-303. The entry also does not say that the ground leash uses the full 3D sqrMagnitude (SqrDistance, line 355-358), not a planar distance. The 'ground dist^2' wording in the original unit description could be read as planar.
 
 ### `combat.enemy_regen`
 
@@ -1230,31 +1222,36 @@ if dist > 30 (ground uses dist^2 > 900) and not boss arena: HP = MaxHP ; retreat
 
 - 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
+- 合并自：`combat.enemy_regen`、`spawners.enemy_regen`
 
 ```text
-HP = min(HP + (HealthRegen + (time >= LastDamageGet + 5 ? 0.05 * MaxHP : 0)) * dt, MaxHP)
+each frame for enemies without UnitDeadMarker, FarFromPlayerMarker or UnitWithoutRegenMarker: HP = min(HP + (GetStatValue(HealthRegen) + (LastDamageGet + 5 <= Time.time ? 0.05 * MaxHP : 0)) * dt, MaxHP)
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `HealthRegen` | enemy stat 2 (via GetStatValue -> specific value = raw for plain stats) | EnemySpawnerConfig.Stats[Type=2] |
-| `MaxHP` | enemy Health stat | EnemySpawnerConfig.Stats[Type=1] |
+| `HealthRegen` | enemy stat 2; GetStatValue returns its specific value for HealthRegen | EnemySpawnerConfig.Stats[Type=2]; quest mobs: Health * MobHealthRegenMaxHealthPercent * 0.01f (Quests/QuestMobSpawnerService.cs:282) |
+| `MaxHP` | enemy Health stat Value | EnemySpawnerConfig.Stats[Type=1] |
+| `0.05, 5` | 5% MaxHP/s idle regen after 5 s without damage | constants EnemyRegenSystem.HEAL_PER_SECOND / NO_DAMAGE_TIME_TO_HEAL |
+| `LastDamageGet` | last time the enemy took damage (also refreshed by player thorns) | UnitDamageSystem |
 
-**输出**：enemy HP over time
+**输出**：enemy CurrentHealth over time
 
-**代码**：[Enemy/Systems/EnemyRegenSystem.cs:12-13](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyRegenSystem.cs#L12)；[Enemy/Systems/EnemyRegenSystem.cs:19-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyRegenSystem.cs#L19)
+**代码**：[Enemy/Systems/EnemyRegenSystem.cs:12-13](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyRegenSystem.cs#L12)；[Enemy/Systems/EnemyRegenSystem.cs:16](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyRegenSystem.cs#L16)；[Enemy/Systems/EnemyRegenSystem.cs:19-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyRegenSystem.cs#L19)；[Unit/UnitCore.cs:107-114](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/UnitCore.cs#L107)；[Quests/QuestMobSpawnerService.cs:282](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Quests/QuestMobSpawnerService.cs#L282)
 
-**状态依据**：No VA comment. The constants HEAL_PER_SECOND=0.05 and NO_DAMAGE_TIME_TO_HEAL=5 are named fields from metadata.
+**状态依据**：EnemyRegenSystem has no VA comment. HEAL_PER_SECOND=0.05 and NO_DAMAGE_TIME_TO_HEAL=5 are named constants from metadata.
 
-**配置参数**：`EnemySpawnerConfig.Stats[Type=1,2]`
+**配置参数**：`EnemySpawnerConfig.Stats[Type=1,2]`；`QuestChainDef.MobHealthRegenMaxHealthPercent`
 
-**备注**：After 5 s without damage, an enemy heals 5% of max HP per second, so it fully heals 20 s after combat.
+**使用方**：combat
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**备注**：From near-zero HP, a full heal takes 20 s of idle regen, which ends about 25 s after the last damage (5 s delay + 20 s), less if HealthRegen > 0. Regen is skipped for enemies with FarFromPlayerMarker, UnitWithoutRegenMarker (crystal objectives) or UnitDeadMarker. The separate leash full-heal (distance > 30) lives in EnemyAttackSystem; see combat.enemy_leash_and_aggro.
 
-- [待人工合入] `notes`：From near-zero HP, a full heal takes 20 s of idle regen, which ends about 25 s after the last damage (5 s delay + 20 s). Regen is skipped for enemies with FarFromPlayerMarker, UnitWithoutRegenMarker or UnitDeadMarker.  
-  依据：[Enemy/Systems/EnemyRegenSystem.cs:12-13](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyRegenSystem.cs#L12),16,26-27
+**依赖图节点**：输入 `value:enemy.current_hp`、`value:enemy.stat_specific[HealthRegen]`、`value:enemy.stat_raw[Health]`、`constant:EnemyRegenSystem.HEAL_PER_SECOND`、`constant:EnemyRegenSystem.NO_DAMAGE_TIME_TO_HEAL`、`value:enemy.is_far`、`value:unit.is_dead`、`state:frame_delta_time`；输出 `value:enemy.current_hp`、`value:enemy.hp_regen_per_second`
+
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `combat.enemy_regen`）：EnemyRegenSystem.cs:16 filters the three markers. Line 26 starts idle regen at LastDamageGet+5, and 0.05/s needs 20 s to fill, so a full heal ends about 25 s after the last hit. The notes are replaced accordingly.
 
 ### `combat.player_regen`
 
@@ -1286,6 +1283,8 @@ HP = min(HP + HealthRegen_spec * AbilityHealthRegenMultiplier * dt, MaxHP)
 
 **备注**：No out-of-combat bonus for the player in the recovered code.
 
+**依赖图节点**：输入 `value:player.current_hp`、`value:player.stat_specific[HealthRegen]`、`value:player.ability_regen_multiplier`、`value:player.stat_raw[Health]`、`state:frame_delta_time`；输出 `value:player.current_hp`、`value:player.hp_regen_per_second`
+
 ### `combat.death_threshold`
 
 **Death threshold and enemy death processing**
@@ -1310,6 +1309,8 @@ IsDead = CurrentHealth <= 0.01 or IsDying ; player death when HP <= 0.01 and !Is
 **状态依据**：VA comments on ProcessPlayerDeath and ProcessEnemyDeath. EnemyDeathSystem has none.
 
 **使用方**：devour/rewards (UnitDiedEvent)
+
+**依赖图节点**：输入 `value:player.current_hp`、`value:enemy.current_hp`、`value:enemy.stat_raw[Health]`、`value:player.outgoing_damage_per_hit`、`constant:UnitCore.death_hp_threshold`、`constant:UnitDamageSystem.oneshot_full_hp_tolerance`；输出 `value:unit.is_dead`、`value:unit.ability_trigger_events`
 
 ### `combat.player_revive`
 
@@ -1336,116 +1337,7 @@ HP = restoreHealth ? MaxHP : 1 ; rage reset ; all enemies HP = MaxHP ; current l
 
 **备注**：A firecamp revive returns the player with 1 HP, and regen does the rest.
 
-### `combat.rage_extra_health`
-
-**Rage max-HP bonus**
-
-- 状态：**重建（无原生标注）**（`reconstructed`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-bonus = rageLevel > 0 and rage_extra_health > 0 ? rage_extra_health * rageLevel : 0 ; Health stat gets PercentAdditive modifier 'graph_rage_extra_health' = bonus (source GraphUpgrade)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `rage_extra_health` | meta stat | Meta Stats Config key rage_extra_health |
-| `rageLevel` | active rage level | RageModel |
-
-**输出**：player MaxHP multiplier (1 + other PA + bonus)
-
-**代码**：[Player/Systems/RageExtraHealthSystem.cs:35-70](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/RageExtraHealthSystem.cs#L35)
-
-**状态依据**：No VA comment.
-
-**配置参数**：`Meta Stats Config: rage_extra_health`
-
-**使用方**：combat.stat_value_aggregation
-
-**备注**：CurrentHealth is not rescaled when MaxHP changes.
-
-### `combat.rage_extra_hit`
-
-**Rage-gained extra hit**
-
-- 状态：**重建（无原生标注）**（`reconstructed`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-acc += rageGained ; while acc >= T: acc -= T ; weapon with max ItemModel.Damage gets ResetCooldown = true (extra quick hit) ; T = rage_extra_hit
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `T` | rage per extra hit | Meta Stats Config key rage_extra_hit |
-
-**输出**：extra attacks
-
-**代码**：[Player/Systems/RageExtraHitSystem.cs:26-59](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/RageExtraHitSystem.cs#L26)；[Player/PlayerAttackSystem.cs:142-147](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L142)
-
-**状态依据**：RageExtraHitSystem has no VA comment. The ResetCooldown handling in PlayerAttackSystem is native-annotated.
-
-**配置参数**：`Meta Stats Config: rage_extra_hit`
-
-**使用方**：combat.player_weapon_attack_cycle
-
-### `combat.enemy_spawn_hp_damage_ab_multiplier`
-
-**Enemy HP/Damage A/B multiplier at spawn**
-
-- 状态：**重建（无原生标注）**（`reconstructed`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-if !IsEvent and m != 1: Health.Base = round_half_even(Health.Base * m) ; Damage.Base = round_half_even(Damage.Base * m) ; CurrentHealth = MaxHP ; m = ABTest EnemyHpDamageMult.damageMultiplier.overridesByLocation[loc] or defaultValue
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `m` | A/B test multiplier per location | ABTestData.EnemyHpDamageMult (remote config) |
-
-**输出**：enemy Health and Damage
-
-**代码**：[Enemy/EnemySpawner.cs:963-976](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L963)；[ABTests/ABTestService.cs:18-19](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L18)；[Enemy/EnemyUnit.cs:140-155](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L140)
-
-**状态依据**：TrySpawnUnit and EnemyUnit.Initialize have no VA comments.
-
-**配置参数**：`EnemySpawnerConfig.Stats[Type=1,3]`；`ABTest EnemyHpDamageMult`
-
-**使用方**：combat.incoming_damage_to_player；combat.outgoing_damage_to_enemy；simulation GetCachedEnemyHpDamageMultiplier
-
-**备注**：Probably shared with the spawner subsystem. It scales both enemy HP and Damage by the same factor.
-
-### `combat.hammer_regen_stub`
-
-**Hammer regen bonus (graph upgrade)**
-
-- 状态：**空壳**（`stub`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-UNKNOWN: GetFlatBonus(maxHealth) -> 0.0 ; intended: HealthRegen modifier 'graph_hammer_regen' = f(hammer_regen meta, maxHealth)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `hammer_regen` | meta stat (amulet upgrade graph_hammer_regen_3_3) | Meta Stats Config key hammer_regen |
-
-**输出**：player regen bonus (missing)
-
-**代码**：[Player/Systems/HammerRegenSystem.cs:27-42](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/HammerRegenSystem.cs#L27)；[Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:392-396](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs#L392)
-
-**状态依据**：All methods are empty or return 0.0, yet the system is registered (Core/SystemsInstaller.cs:82) and an upgrade grants hammer_regen.
-
-**配置参数**：`Meta Stats Config: hammer_regen`
-
-**使用方**：combat.player_regen
-
-**备注**：The signature suggests regen scales with max health.
+**依赖图节点**：输入 `state:player_actions`、`value:player.stat_raw[Health]`、`value:enemy.stat_raw[Health]`、`constant:RevivePlayerCommandHandler.revive_hp`、`constant:RevivePlayerCommandHandler.revive_location`、`constant:RevivePlayerCommandHandler.last_damage_get_shift`；输出 `value:player.current_hp`、`value:enemy.current_hp`、`value:rage.level`、`value:player.current_location`
 
 ### `combat.hits_taken_decay_stub`
 
@@ -1473,33 +1365,7 @@ UNKNOWN: presumably HitsTakenCount = 0 when time - HitsTakenLastUpdate > OutOfCo
 
 **备注**：Without decay the counter grows forever in this build, which inflates hit-scaling abilities.
 
-### `combat.creeper_explosion_stub`
-
-**Creeper mob explosion damage**
-
-- 状态：**空壳**（`stub`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-UNKNOWN: after ExplosionDelay, damage within ExplosionRadius likely = DamageMaxHealthPercent * (player or creeper) MaxHP via UnitDamageSystem
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `ExplosionDelay, ExplosionRadius, DamageMaxHealthPercent` | creeper tuning | CreeperMobComponent (prefab-authored) |
-
-**输出**：explosion damage (missing)
-
-**代码**：[Enemy/Systems/CreeperExplosionSystem.cs:37-55](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/CreeperExplosionSystem.cs#L37)；[Enemy/Components/CreeperMobComponent.cs:10-14](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Components/CreeperMobComponent.cs#L10)
-
-**状态依据**：All bodies are empty; the system is registered (Core/SystemsInstaller.cs:68). EnemyDeathSystem suppresses death until creeper State == Finalized.
-
-**配置参数**：`CreeperMobComponent.DamageMaxHealthPercent`；`CreeperMobComponent.ExplosionRadius`；`CreeperMobComponent.ExplosionDelay`
-
-**使用方**：combat.death_threshold
-
-**备注**：Creepers may never finalize death in this build.
+**依赖图节点**：输入 `value:player.incoming_damage_per_hit`、`constant:PlayerHitsTakenDecaySystem.OutOfCombatTimeout`、`state:frame_delta_time`；输出 `value:player.hits_taken_count`
 
 ### `combat.unit_auto_target_stub`
 
@@ -1525,151 +1391,7 @@ UNKNOWN (empty Update/UpdateEnemy/UpdatePlayer)
 
 **备注**：Real targeting is PlayerAttackSystem.FindTarget (combat.player_attack_range_and_targeting) plus EnemyAttackSystem aggro.
 
-### `combat.armor_formulas_stub`
-
-**ArmorFormulas.Get(level)**
-
-- 状态：**空壳**（`stub`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-
-```text
-UNKNOWN: Get(level) returns 0.0
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `level` | item or armor level | caller |
-
-**输出**：armor value by level (missing)
-
-**代码**：[Balance/ArmorFormulas.cs:5-8](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/ArmorFormulas.cs#L5)
-
-**状态依据**：Returns the constant 0.0, and no callers exist in the reconstructed code.
-
-**备注**：Live armor values come from ItemModel.CalcArmor (CombatBalanceConfig armor base + growth*level, or evolution tables), so this may be a dead or legacy helper.
-
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
-
-- [待人工合入] `used_by / notes`：Keep one entry (balance.armor_formulas_get). Set used_by to empty: ArmorFormulas.Get(level) has no callers anywhere in CodeBase. Every armor value comes from ItemModel.CalcArmor/CalcEvolutionArmor through CombatBalanceConfig.ArmorBase/ArmorGrowthPerLevelByRarity and EvolutionArmorValues. Treat it as dead code with zero model impact, not as a missing runtime formula.  
-  依据：grep 'ArmorFormulas' returns only [Balance/ArmorFormulas.cs:3](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/ArmorFormulas.cs#L3). Item armor comes from [Player/Inventory/ItemModel.cs:491-517](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L491) via [Balance/CombatBalanceConfig.cs:180-203](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L180).
-
-### `combat.temporary_modifier_expiry`
-
-**Temporary (ability) stat modifier expiry**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：核验时补充
-- 原生地址：`0x15ccda8`
-
-```text
-each frame, for each unit tagged HasTemporaryModifiers, for each stat, for each m in TemporaryModifiers (reverse): m.Duration -= dt ; if m.Duration <= 0: RemoveModifier(m) (stat value recomputed) ; VisualScaleMultiplier tweens to OriginalScale*value over 0.35 s ; TemporaryModifiers = {m : m.Source == AbilityTemporary and m.Duration > 0}. Re-adding the same (Name, Source, Type) merges values and sets Duration = max(old, new), so it refreshes rather than stacks the timer.
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `m.Duration` | remaining seconds of a temporary modifier | StatModifier.Duration (set by ability effects) |
-| `dt` | frame delta | runtime |
-
-**输出**：lifetime of temporary buffs and debuffs on any stat
-
-**代码**：[Unit/Systems/UnitBuffSystem.cs:43-65](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitBuffSystem.cs#L43)；[Unit/StatBase.cs:70](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/StatBase.cs#L70)；[Unit/StatBase.cs:80-81](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/StatBase.cs#L80)；[Unit/StatBase.cs:90](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/StatBase.cs#L90)
-
-**状态依据**：UpdateTemporaryModifiers has the comment 'Native ELF VA 0x15ccda8; reverse modifier iteration...'.
-
-**配置参数**：`Ability defs: temporary modifier durations`
-
-**使用方**：combat.stat_value_aggregation；combat.stat_specific_value_curves
-
-**备注**：Only Source == AbilityTemporary modifiers with Duration > 0 expire. Every other source is permanent.
-
-### `combat.stun_duration`
-
-**Stun duration countdown and effects**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：核验时补充
-- 原生地址：`0x15cd31c`
-
-```text
-BuffStunComponent.Duration = ability value (StunEffect: context.State.GetValue()) ; each frame Duration -= dt ; remove at <= 0 and resume enemy animation. While stunned: ground and flying enemy AI returns early, so no movement, no AttackCooldown decrement and no attacks ; animator speed 0 ; player damage x (1 + BonusDamageToStunned)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `Duration` | stun seconds | Abilities/Effects/StunEffect.cs:18 (ability state value); BossTower VikingsRageDebuffSystem |
-| `BonusDamageToStunned` | player ability bonus | PlayerModel (abilities) |
-
-**输出**：time an enemy is unable to act; damage-bonus window
-
-**代码**：[Unit/Systems/UnitBuffSystem.cs:67-71](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Systems/UnitBuffSystem.cs#L67)；[Abilities/Effects/StunEffect.cs:18](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/StunEffect.cs#L18)；[Enemy/EnemyAttackSystem.cs:91-100](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L91)；[Enemy/EnemyAttackSystem.cs:266-267](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L266)；[Services/Damage/DamageCalculator.cs:176-181](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L176)
-
-**状态依据**：UpdateStuns has the comment 'Native ELF VA 0x15cd31c'. The stun gating in EnemyAttackSystem is not annotated.
-
-**配置参数**：`Ability defs (stun value)`
-
-**使用方**：combat.enemy_attack_cycle；combat.outgoing_damage_to_enemy
-
-**备注**：Stun cuts enemy DPS directly by pausing its attack cooldown, so the effective enemy attack period becomes AttackCooldown + stunned time.
-
-### `combat.enemy_far_activation`
-
-**Enemy far/active culling radius**
-
-- 状态：**重建（无原生标注）**（`reconstructed`）
-- 类型：`runtime_formula`
-- 来源：核验时补充
-
-```text
-IsFar = min(|p_player - p_enemy|^2, |p_attackPos - p_enemy|^2) > 3600 (i.e. > 60 m) ; far enemies: skipped by EnemyAttackSystem (no attack, no leash heal), skipped by FindTarget (not targetable), NavMesh agent disabled
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `FarDistance` | squared activation radius | constant 3600 (EnemyVisibilitySystem) |
-| `p_attackPos` | camera follow attack position | CameraFollowSystem.PositionOfAttack |
-
-**输出**：which enemies participate in combat
-
-**代码**：[Enemy/Systems/EnemyVisibilitySystem.cs:18](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyVisibilitySystem.cs#L18)；[Enemy/Systems/EnemyVisibilitySystem.cs:56-61](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/EnemyVisibilitySystem.cs#L56)；[Enemy/EnemyAttackSystem.cs:58](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyAttackSystem.cs#L58)；[Player/PlayerAttackSystem.cs:218](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L218)
-
-**状态依据**：EnemyVisibilitySystem has no VA comment.
-
-**使用方**：combat.player_attack_range_and_targeting；combat.enemy_attack_cycle；combat.enemy_leash_and_aggro
-
-**备注**：Interacts with the 30 m leash. The leash full heal runs only for enemies that are not far, so it applies between 30 m and 60 m.
-
-### `combat.player_movement`
-
-**Player movement displacement**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：核验时补充
-- 原生地址：`0x15cbf80`
-
-```text
-v = CanMove ? MoveSpeed_spec : 0 ; displacement = Rotate((v*input.x*dt, v*input.y*dt), atan2(cam.z - p.z, cam.x - p.x)*Rad2Deg + 90) ; rotation rate 460 deg/s
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `MoveSpeed_spec` | movement speed specific value (4.6 at raw 1) | combat.stat_specific_value_curves (Player Config.Stats[Type=0]) |
-| `input` | joystick vector (\|input\| <= 1) | Joystick.GetInput |
-
-**输出**：player position change per frame
-
-**代码**：[Unit/UnitMovement.cs:45-51](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/UnitMovement.cs#L45)；[Unit/UnitMovement.cs:60-64](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/UnitMovement.cs#L60)
-
-**状态依据**：The comment reads 'Native ELF VA 0x15cbf80; ARM64 confirms the vector return values...'.
-
-**配置参数**：`Player Config.Stats[Type=0]`
-
-**使用方**：combat.animation_cast_point (same MoveSpeed_spec * |input|)
-
-**备注**：This is the only gameplay use of the move-speed curve besides the cast-point shift. It controls kiting and engagement speed.
+**依赖图节点**：输入 ；输出 `value:player.auto_target`
 
 ### `combat.ab_enemy_hp_damage_live_rescale`
 
@@ -1695,9 +1417,11 @@ on cohort change, for each live non-event enemy: r = m_new(loc) / m_old(loc) ; H
 
 **配置参数**：`ABTest EnemyHpDamageMult.damageMultiplier (defaultValue, overridesByLocation)`
 
-**使用方**：combat.enemy_spawn_hp_damage_ab_multiplier
+**使用方**：spawners.enemy_spawn_stats
 
 **备注**：Companion to the spawn-time multiplier. Repeated rounding can drift values. Modifiers on those stats are dropped because a new Stat(base, type) is created.
+
+**依赖图节点**：输入 `state:ab_cohort`、`config:ABTestDataConfig.enemyHpDamageMult.variants[].data.damageMultiplier.defaultValue`、`config:ABTestDataConfig.enemyHpDamageMult.variants[].data.damageMultiplier.overridesByLocation.keyData`、`config:ABTestDataConfig.enemyHpDamageMult.variants[].data.damageMultiplier.overridesByLocation.valueData`、`config:EnemySpawnerConfig.LocationNumber`、`config:EnemySpawnerConfig.IsEvent`、`value:enemy.stat_base`、`value:enemy.stat_raw[Health]`、`value:enemy.current_hp`；输出 `value:enemy.ab_hp_damage_multiplier`、`value:enemy.stat_base`、`value:enemy.current_hp`
 
 ### `combat.weapon_equip_warmup_and_primary_range_gate`
 
@@ -1728,6 +1452,8 @@ A weapon may start an attack only if WearingTime >= 1.0 s, where WearingTime res
 **使用方**：combat.player_weapon_attack_cycle；simulation.dps_data
 
 **备注**：Each loadout swap costs 1 s of lost DPS per weapon. The simulation ignores this, which is negligible for long fights. The weapon_1 restriction means the x3 weak-enemy/golem range bonus only benefits chain weapons.
+
+**依赖图节点**：输入 `state:player_actions`、`state:frame_delta_time`、`constant:PlayerAttackSystem.equip_warmup_seconds`、`value:player.equipped_items`、`config:PlayerConfig.Slots[].Key`、`value:player.stat_raw[AttackRange]`、`value:player.attack_range_effective`、`value:player.auto_target`、`state:unit_positions`；输出 `value:weapon.can_attack`
 
 ### `combat.cooldown_reset_cycle`
 
@@ -1760,6 +1486,8 @@ The ResetCooldownEffect (Mode=Self or HighestDamageWeapon) and TriggerHighestDam
 
 **备注**：Check that powerups.empower_hit and combat.player_weapon_attack_cycle actually include the cadence part (cooldown set to castPoint*cd + 0.15). If they do, merge this entry into them. The simulation's EV DPS (simulation.dps_data) does not include reset procs. They are only approximated by the PlayerAbilityDPSMult interpolation.
 
+**依赖图节点**：输入 `value:weapon.cooldown_reset_flag`、`value:ability.proc_roll`、`value:weapon.item_dps`、`value:player.equipped_items`、`value:ability.effective_value`、`value:ability.scaled_value`、`config:ItemConfig.AttackCooldown`、`config:ItemConfig.AnimationBackPoint`、`value:weapon.cast_point_effective`、`constant:PlayerAttackSystem.reset_cooldown_offset`；输出 `value:weapon.attacks_per_second`、`value:weapon.empowered_hit_multiplier`
+
 ### `combat.mark_meta_synergies`
 
 **Mark procs and mark-scaled lifesteal (meta and passive)**
@@ -1788,9 +1516,11 @@ The ResetCooldownEffect (Mode=Self or HighestDamageWeapon) and TriggerHighestDam
 
 **配置参数**：`Meta Stats Config.evasion_mark`；`Meta Stats Config.mark_lifesteal`；`AbilityDef ApplyMarkEffect.AppliesToAllPiercingWeapons`；`AbilityDef IncreaseMaxMarksEffect / IncreaseMarkChanceEffect`
 
-**使用方**：stats.lifesteal_player；combat.player_lifesteal_on_hit；powerups.marks
+**使用方**：combat.player_lifesteal_on_hit；powerups.marks
 
 **备注**：The 10% base piercing mark chance is hard-coded. If stats.lifesteal_player / combat.player_lifesteal_on_hit omit the mark_lifesteal multiplier, those entries are incomplete. Note that the general ApplyLifesteal (enemy on player) does not cap health, while the player path caps at HPmax.
+
+**依赖图节点**：输入 `value:player.meta_stat[mark_lifesteal]`、`value:player.meta_stat[evasion_mark]`、`value:player.meta_stat[extra_mark]`、`value:enemy.mark_stacks`、`value:enemy.max_marks`、`constant:PiercingWeaponMarkSystem.base_piercing_mark_chance`、`value:ability.scaled_value`、`value:item.unlocked_abilities`、`config:ItemConfig.DamageType`、`value:player.equipped_items`、`value:unit.hit_roll_outcome`、`state:rng`；输出 `value:enemy.mark_stacks`、`value:player.mark_lifesteal_multiplier`
 
 ### `combat.devour_reward_delay`
 
@@ -1818,9 +1548,11 @@ t_reward = floatingTime + catchingTime when the animation completes, or at most 
 
 **配置参数**：`Pudge.prefab PlayerDevour.floatingTime`；`Pudge.prefab PlayerDevour.catchingTime`
 
-**使用方**：spawners.stat_reward_grant；simulation.spawner_fight_model
+**使用方**：meta.devour_stat_reward_scaling；simulation.spawner_fight_model
 
 **备注**：This is small, but it is per-kill overhead that the simulation folds into its constant RPM tuple (70, 50, 2, 2). It matters for fast-kill spawners (fight time of 1-2 s).
+
+**依赖图节点**：输入 `config:PlayerDevour.floatingTime`、`config:PlayerDevour.catchingTime`、`constant:PlayerDevour.FinishTimeout`、`state:player_actions`、`state:frame_delta_time`；输出 `value:reward.devour_delay_seconds`
 
 ## 配置参数
 

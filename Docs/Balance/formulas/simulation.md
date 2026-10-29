@@ -26,10 +26,6 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 
 | ID | 名称 | 状态 | 类型 |
 |---|---|---|---|
-| [`simulation.interp_evaluate`](#simulationinterp_evaluate) | BalanceInterpolation piecewise-linear curve | 原生证据恢复 | `runtime_formula` |
-| [`simulation.interp_total_coefficient`](#simulationinterp_total_coefficient) | Interpolation total coefficient per type | 原生证据恢复 | `runtime_formula` |
-| [`simulation.interp_island_timing_points`](#simulationinterp_island_timing_points) | Interpolation island -> day timing conversion (ApplyIslandTimings) | 编辑器工具缺失 | `editor_generator` |
-| [`simulation.island_timing_to_days`](#simulationisland_timing_to_days) | Island timing -> days | 原生证据恢复 | `runtime_formula` |
 | [`simulation.balance_timing`](#simulationbalance_timing) | Simulation balance timing | 原生证据恢复 | `runtime_formula` |
 | [`simulation.snapshot_stat_composition`](#simulationsnapshot_stat_composition) | Simulated player stat composition with feature interpolation | 空壳 | `simulation` |
 | [`simulation.dps_data`](#simulationdps_data) | Simulated DPS per weapon type (DpsData) | 原生证据恢复 | `runtime_formula` |
@@ -49,7 +45,6 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | [`simulation.snapshot_interpolation_chunk`](#simulationsnapshot_interpolation_chunk) | Snapshot interpolation by day (time chunk) | 重建（无原生标注） | `runtime_formula` |
 | [`simulation.snapshot_trim`](#simulationsnapshot_trim) | Trimming TimeChunkSnapshots (TrimSimulationData) | 编辑器工具缺失 | `editor_generator` |
 | [`simulation.bake_recalc_optimum_time`](#simulationbake_recalc_optimum_time) | Early-spawner optimum-time shift for bake | 重建（无原生标注） | `config_rule` |
-| [`simulation.optimum_time_from_relative`](#simulationoptimum_time_from_relative) | Spawner OptimumTime from RelativeOptimumTime | 编辑器工具缺失 | `editor_generator` |
 | [`simulation.bake_spawner_health`](#simulationbake_spawner_health) | Baked spawner Health | 原生证据恢复 | `editor_generator` |
 | [`simulation.bake_spawner_damage`](#simulationbake_spawner_damage) | Baked spawner Damage | 原生证据恢复 | `editor_generator` |
 | [`simulation.bake_apply`](#simulationbake_apply) | Rebake / apply balance to scene spawners | 编辑器工具缺失 | `editor_generator` |
@@ -76,127 +71,6 @@ I added two missed entries: the spawner charges limit (a recovered_native RPM mu
 | [`simulation.rpm_stat_class_ab_multiplier`](#simulationrpm_stat_class_ab_multiplier) | AB stat-class RPM multiplier and fast-RPM parameters | 重建（无原生标注） | `lookup_table` |
 
 ## 公式
-
-### `simulation.interp_evaluate`
-
-**BalanceInterpolation piecewise-linear curve**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x1579ed4 (Evaluate), 0x157a65c (ParsePoints)`
-
-```text
-T = parse(TimingPoints), C = parse(CoefPoints) (split ';', invariant float). If |T|<2 or |C|<2 or |T|!=|C| -> 0 (error). If x <= T0 -> C0. Else for the first segment i with T[i+1] >= x: p = clamp01((x - T[i])/(T[i+1]-T[i])) (p=0 if T[i]==T[i+1]); value = C[i] + p*(C[i+1]-C[i]). If x > T_last -> C_last (flat extrapolation both ends).
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `x` | timing in days (or hours for minute-mode bakes) | caller: GetBalanceTimingMinutes / snapshot day / ConvertIslandTimingToDays |
-| `T` | timing breakpoints (days) | Combat Balance Config.Interpolations[].TimingPoints |
-| `C` | coefficient breakpoints | Combat Balance Config.Interpolations[].CoefPoints |
-
-**输出**：float coefficient of one curve
-
-**代码**：[Balance/BalanceInterpolation.cs:23-52](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L23)；[Balance/BalanceInterpolation.cs:58-64](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L58)
-
-**状态依据**：Comments 'Original ELF VA 0x1579ed4' and '0x157a65c' on bodies; data check: snapshot StatsFromFeaturesFlat/PercentMultiplier reproduce exactly from these curves at integer days (e.g. day 3 -> 0.20396976, day 405 -> 3.0 / 4.9075).
-
-**配置参数**：`Combat Balance Config.Interpolations.Interpolations[].TimingPoints`；`Combat Balance Config.Interpolations.Interpolations[].CoefPoints`；`Combat Balance Config.Interpolations.Interpolations[].Use`
-
-**使用方**：simulation.interp_total_coefficient
-
-**备注**：FormatPoint (BalanceInterpolation.cs:66) is an empty editor helper. IslandPoints are not read at runtime; see simulation.interp_island_timing_points.
-
-### `simulation.interp_total_coefficient`
-
-**Interpolation total coefficient per type**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x1579dac, 0x157dd80, 0x157dd98`
-
-```text
-if rarity==Legendary and type==ItemEmission(0): type = ItemLegendaryEmission(6). If type in {1 ItemChainProbability, 3 StatModifier}: K(type,x) = PRODUCT over curves with Use && Type==type of Evaluate(x), starting at 1. Else (types 0,2,4,5,6,7): K = SUM of Evaluate(x), starting at 0. CombatBalanceConfig.GetInterpolationCoefficient(x,type[,rarity]) = K (default rarity Rare).
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `x` | timing (days) | caller |
-| `type` | BalanceInterpolationType | caller constant |
-| `0xF5 mask` | bitmask of additive types {0,2,4,5,6,7} | constant in native |
-
-**输出**：float K(type, day)
-
-**代码**：[Balance/BalanceInterpolationsConfig.cs:12-27](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolationsConfig.cs#L12)；[Balance/CombatBalanceConfig.cs:135-145](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L135)
-
-**状态依据**：Native VA comments; verified against Simulation Data: day 405 type2 sum = 0.3+0.6+0.7+0.4+0.4+0.2+0.4 = 3.0 and type3 product = 1.6*1.8*1.704 = 4.9075, equal to the stored StatsFromFeaturesFlat / PercentMultiplier.
-
-**配置参数**：`Combat Balance Config.Interpolations`
-
-**使用方**：simulation.dps_data；simulation.defense_data；simulation.ability_multipliers；simulation.snapshot_stat_composition；simulation.bake_spawner_health；simulation.bake_spawner_damage；simulation.forecast_auto_balanced_enemy；simulation.item_emission_in_sim；[BossTower/BossSpawnService.cs](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/BossSpawnService.cs):BakeStatsForFloor
-
-**备注**：Shipped curves (Combat Balance Config lines ~8150-8265): type0 ItemEmission: Tower(26..150: 0..0.2), GraphMapUpgrade(20..150: 0..1), EventItems(7..26: 0..0.3); type7 TowerByType(26..150: 0..1.8); type6 TowerLeg(110..180: 0..0.8), GraphMapUpgrade(110..180: 0..1); type1 FarmItem(20..44: 0.9..1); type2 GraphFlat 0..0.3, AmuletFlat 0..0.6, VIP 0..0.7, InApps 0..0.4, EventsFlat 0..0.4, Ads 0..0.2, ItemsEconomic 0..0.4 (max sum 3.0); type3 GraphMult 1..1.6, AmuletMult 1..1.8, EventsMult 1..2.0 (max product 5.76 at day 775); type4 AbilityDPS (20,90,150,775 -> 0,0.4,1.3,4); type5 AbilityEHP (-> 0,0.2,0.5,1.5).
-
-### `simulation.interp_island_timing_points`
-
-**Interpolation island -> day timing conversion (ApplyIslandTimings)**
-
-- 状态：**编辑器工具缺失**（`editor_only_missing`）
-- 类型：`editor_generator`
-- 来源：子系统梳理
-
-```text
-TimingPoints[i] = IslandStartDay(IslandPoints[i]) where IslandStartDay(n) = 0 if n==1 else IslandTargetDays[n-2] (i.e. ConvertIslandTimingToDays with integer island)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `IslandPoints` | island numbers at which curve breakpoints sit | Combat Balance Config.Interpolations[].IslandPoints |
-| `IslandTargetDays` | target day by which island n is finished | Combat Balance Config.IslandTargetDays |
-
-**输出**：TimingPoints string (days)
-
-**代码**：[Balance/BalanceInterpolation.cs:54-56](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L54)；[Balance/CombatBalanceConfig.cs:131-133](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L131)
-
-**状态依据**：ApplyIslandTimings and CombatBalanceConfig.ApplyInterpolationIslandsToTimings have empty bodies; all shipped curves satisfy the rule (e.g. islands 9;14;17 -> 26;90;150, 3 -> 1.833333, 19 -> 211.6667, 1 -> 0).
-
-**配置参数**：`Combat Balance Config.Interpolations[].IslandPoints`；`Combat Balance Config.IslandTargetDays`
-
-**使用方**：simulation.interp_evaluate
-
-**备注**：Changing IslandTargetDays does NOT move curves at runtime until this editor step is re-run; TimingPoints are baked.
-
-### `simulation.island_timing_to_days`
-
-**Island timing -> days**
-
-- 状态：**原生证据恢复**（`recovered_native`）
-- 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x157ad44`
-
-```text
-n = floor(s); prev = (n==1) ? 0 : IslandTargetDays[n-2]; f = s - n; day = (f==0) ? prev : prev + f*(IslandTargetDays[n-1] - prev)
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `s` | fractional island timing (island number + progress) | ForecastAutoBalanceInput.ForecastLocationNumber + BossSnapshotTimingStep*i |
-| `IslandTargetDays` | cumulative day at end of each island | Combat Balance Config.IslandTargetDays (0.5,1.833,4,7,10,14,20,26,34,44,56,71,90,110,130,150,180,211.67,245,280,...) |
-
-**输出**：day timing
-
-**代码**：[Simulation/Forecast/ForecastSnapshots.cs:69-75](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L69)；[Simulation/Systems/SimulationSystem.cs:528-531](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L528)
-
-**状态依据**：Comment 'Original 0x157ad44, inlined locally'; the public SimulationSystem.ConvertIslandTimingToDays wrapper (SimulationSystem.cs:528) is still a stub returning 0.
-
-**配置参数**：`Combat Balance Config.IslandTargetDays`
-
-**使用方**：simulation.forecast_build_core；simulation.interp_island_timing_points
-
-**备注**：SimulationSystem.GetNextLocationInterpolationTiming (SimulationSystem.cs:523) is a related stub.
 
 ### `simulation.balance_timing`
 
@@ -229,40 +103,45 @@ t = UseSpawnerCharges ? floor(CurrentTotalPlaytime / SpawnerChargesChunkMinutes)
 
 **备注**：Despite the name it returns days (or hours when UseSpawnerCharges=0). In the game outside simulation CurrentTotalPlaytime is 0, so the timing is day 0 and every curve gives its first value. That makes the runtime RPM use the day-0 ability multipliers. This is an open question.
 
+**依赖图节点**：输入 `config:SimulationConfig.UseSpawnerCharges`、`config:SimulationConfig.SpawnerChargesChunkMinutes`、`value:sim.total_playtime`、`value:sim.active_playtime`、`constant:SimulationSystem.minutes_per_hour`；输出 `value:sim.balance_timing`
+
 ### `simulation.snapshot_stat_composition`
 
 **Simulated player stat composition with feature interpolation**
 
 - 状态：**空壳**（`stub`）
 - 类型：`simulation`
-- 来源：子系统梳理
+- 来源：合并核验
 
 ```text
-For s in MainInterpolationStats {Stab/Cut/BuckshotDamageFlat, Stab/Cut/BuckshotDefenceFlat, Health, HealthRegen, LifestealFlat}: TotalFlat_s = Value_s * (1 + K(2,day)); for s in DirectInterpolationStats {Health, HealthRegen, LifestealFlat}: Total_s = TotalFlat_s * K(3,day); for combat flats Total_s = TotalFlat_s (K(3) is applied later in DpsData/DefenseData); all other stats: Total = TotalFlat = Value. StatsFromFeaturesFlat = K(2,day), PercentMultiplier = K(3,day).
+(Stub here; math reconstructed from Simulation Data.) For s in MainInterpolationStats {StabDamageFlat 6, CutDamageFlat 8, BuckshotDamageFlat 12, StabDefenceFlat 14, CutDefenceFlat 16, BuckshotDefenceFlat 20, Health 1, HealthRegen 2, LifestealFlat 22}: StatsFromFeaturesFlat_s = K(2,day); PercentMultiplier_s = K(3,day); TotalFlatValue_s = Value_s * (1 + K(2,day)). For s in DirectInterpolationStats {Health, HealthRegen, LifestealFlat}: TotalValue_s = TotalFlatValue_s * K(3,day). For s in CombatFlatInterpolationStats {6,8,12,14,16,20}: TotalValue_s = TotalFlatValue_s (PercentMultiplier still stores K(3,day), but K(3) is applied later inside DpsData/DefenseData). Every other stat: StatsFromFeaturesFlat = 0, PercentMultiplier = 1, TotalFlatValue = TotalValue = Value. CurrentGpm_s = RPMCalculatedValue[s] at snapshot time. Between stored TimeChunkSnapshots every field (Value, StatsFromFeaturesFlat, PercentMultiplier, TotalFlatValue, TotalValue, CurrentGpm) is linearly interpolated: a + (b - a)*t.
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
 | `Value_s` | stat earned by the bot (base + devour/item rewards) | simulation.player_progression_tick output |
-| `K(2,day)` | flat 'features' bonus (graph, amulet, VIP, IAP, events, ads, economy) | simulation.interp_total_coefficient type StatsFromFeaturesFlat |
-| `K(3,day)` | multiplicative feature bonus | simulation.interp_total_coefficient type StatModifier |
+| `K(2,day)` | flat 'features' bonus (graph, amulet, VIP, IAP, events, ads, economy) | balance.total_coefficient, BalanceInterpolationType.StatsFromFeaturesFlat (=2) |
+| `K(3,day)` | multiplicative feature bonus | balance.total_coefficient, BalanceInterpolationType.StatModifier (=3) |
+| `RPMCalculatedValue[s]` | current stat reward-per-minute | simulation.rpm_time_chunk |
+| `t` | interpolation fraction between neighbouring time-chunk snapshots | SimulationData.GetByTimeChunkIndex |
 
-**输出**：SimulationStatData {Value, StatsFromFeaturesFlat, PercentMultiplier, TotalFlatValue, TotalValue, CurrentGpm}
+**输出**：SimulationStatData {Key, Value, StatsFromFeaturesFlat, PercentMultiplier, TotalFlatValue, TotalValue, CurrentGpm} per stat in each snapshot
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:183-191](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L183)；[Simulation/Systems/SimulationSystem.cs:894-906](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L894)；[Simulation/Systems/SimulationSystem.cs:822-824](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L822)；[Simulation/SimulationStatData.cs:7-22](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationStatData.cs#L7)
+**代码**：[Simulation/Systems/SimulationSystem.cs:183-191](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L183)；[Simulation/Systems/SimulationSystem.cs:822-824](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L822)；[Simulation/Systems/SimulationSystem.cs:889-906](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L889)；[Simulation/SimulationStatData.cs:7-22](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationStatData.cs#L7)；[Simulation/SimulationData.cs:41-56](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationData.cs#L41)；[Simulation/Forecast/ForecastSnapshots.cs:96-101](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L96)
 
-**状态依据**：UpdateInterpolationStatModifier, GetSimulationSnapshotStatValue, UsesInterpolationStats and MakeSnapshot are empty. The stat sets and modifier names (__simulationStatsFromFeaturesFlatModifier, __simulationInterpolationStatModifier) are kept. I reverse-engineered the math from Simulation Data: tf/v = 1+K2 and tv/tf = K3 exactly for Health, HealthRegen and LifestealFlat, while tv/tf = 1 for the flat damage/defence stats.
+**状态依据**：MakeSnapshot (822-824), GetSimulationInterpolationCoefficient (889-892), UpdateInterpolationStatModifier, GetSimulationSnapshotStatValue and UsesInterpolationStats (894-906) are all empty/default with no native annotation. Only the stat sets and modifier names (__simulationStatsFromFeaturesFlatModifier, __simulationInterpolationStatModifier) survive. The math was reverse-engineered from Simulation Data: tf/v = 1+K2 and tv/tf = K3 exactly for Health, HealthRegen and LifestealFlat; tv/tf = 1 for the six combat flats (whose PercentMultiplier still holds K3); day 405: Evasion (23) has StatsFromFeaturesFlat 0 and PercentMultiplier 1, key 14 has 3.0 / 4.9075 with TotalValue == TotalFlatValue, key 1 has TotalValue = TotalFlat*4.9075.
 
-**配置参数**：`Combat Balance Config.Interpolations`
+**配置参数**：`Combat Balance Config.Interpolations (StatsFromFeaturesFlat, StatModifier)`；`Simulation Data.Snapshots / TimeChunkSnapshots (stored outputs)`
 
-**使用方**：simulation.bake_spawner_health；simulation.bake_spawner_damage；simulation.forecast_auto_balanced_enemy
+**使用方**：simulation.bake_spawner_health；simulation.bake_spawner_damage；simulation.forecast_auto_balanced_enemy；simulation.forecast_snapshot；[Events/Services/EventForecastService.cs:292](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Events/Services/EventForecastService.cs#L292) (CurrentGpm)；[Crystals/CrystalObjectiveBalance.cs:28-31](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Crystals/CrystalObjectiveBalance.cs#L28) (Health/LifestealFlat TotalValue)
 
-**备注**：This is how non-combat progression systems (map graph, amulet, VIP, IAP, events, ads) enter enemy balance. They are not simulated; they are injected as time curves. CurrentGpm = RPMCalculatedValue[stat] at snapshot time.
+**备注**：This is how non-combat progression systems (map graph, amulet, VIP, IAP, events, ads) enter enemy balance. They are not simulated; they are injected as time curves. CurrentGpm = RPMCalculatedValue[stat] at snapshot time. The local forecast fallback (ForecastSnapshots.cs:96-101) builds snapshot stats with Value = TotalValue = current GetStatValue and leaves StatsFromFeaturesFlat/PercentMultiplier/TotalFlatValue at 0; that is a local fallback, not the original composition.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:sim.snapshot_stat_value`、`value:sim.balance_coefficient[StatsFromFeaturesFlat]`、`value:sim.balance_coefficient[StatModifier]`、`value:sim.balance_timing`、`value:sim.stat_rpm`、`constant:SimulationSystem.main_interpolation_stats`、`constant:SimulationSystem.direct_interpolation_stats`、`constant:SimulationSystem.combat_flat_interpolation_stats`；输出 `value:sim.snapshot_stat_total`、`value:sim.snapshot_stat_gpm`
 
-- [待人工合入] `expression`：Only for MainInterpolationStats (6/8/12/14/16/20/1/2/22) is StatsFromFeaturesFlat = K(2,day) and PercentMultiplier = K(3,day). All other stats store StatsFromFeaturesFlat=0 and PercentMultiplier=1. For the six combat flats PercentMultiplier holds K3, but TotalValue = TotalFlatValue.  
-  依据：Simulation Data day 405: key 23 Evasion has StatsFromFeaturesFlat 0 and PercentMultiplier 1; key 14 has 3.0 / 4.9075 with TotalValue == TotalFlatValue; key 1 has TotalValue = TotalFlat*4.9075.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `expression`（来自 `simulation.snapshot_stat_composition`）：Expression now restricts StatsFromFeaturesFlat=K2 / PercentMultiplier=K3 to the nine MainInterpolationStats (keys 6/8/12/14/16/20/1/2/22, matching SimulationSystem.cs:187 and the StatType enum), states 0/1 for all other stats, and notes the combat flats store K3 in PercentMultiplier while TotalValue == TotalFlatValue. The data evidence was copied into status_evidence.
 
 ### `simulation.dps_data`
 
@@ -270,38 +149,43 @@ For s in MainInterpolationStats {Stab/Cut/BuckshotDamageFlat, Stab/Cut/BuckshotD
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x13e4478 (+closures 0x13f4634/465c/514c), UpdateDpsDataCache 0x13e4f24`
+- 来源：合并核验
+- 原生地址：`0x13e4478 (+closures 0x13f4634/0x13f465c/0x13f514c), UpdateDpsDataCache 0x13e4f24, GetBalanceTimingMinutes 0x13ebe60, GetForecastStatValue 0x13e83c4, CalculateSimulationData 0x13e4444`
 
 ```text
-For each WeaponType w: equip up to UnlockedWeaponSlots non-armor items sorted by (DamageType==w desc, item.DPS desc); DPS_w = SUM_items [ P_i * (F_i + item.Damage) * K(3,t) / AttackCooldown_i * (DamageType_i==w ? 1 : 1/10) * SimulationDpsWeaponMultiplier_i ], where F_i = stat(DamageStatTypeFlat_i), P_i = stat(DamageStatTypePercent_i), t = balance timing.
+For each WeaponType w in {Stabbing, Cutting, Magic, Buckshot, Universal}: equipped = first UnlockedWeaponSlots of playerModel.Items.Where(!IsArmor).OrderByDescending(DamageType == w).ThenByDescending(item.DPS); DPS_w = SUM_{i in equipped} [ dps_i * SimulationDpsWeaponMultiplier_i ], dps_i = P_i * (F_i + item.Damage_i) * (double)K(3,t) / AttackCooldown_i, then dps_i /= 10 if DamageType_i != w. F_i = GetStatValue(DamageStatTypeFlat_i), P_i = GetStatValue(DamageStatTypePercent_i), K(3,t) = GetInterpolationCoefficient(t, StatModifier, Rare), t = GetBalanceTimingMinutes() = UseSpawnerCharges ? floor(CurrentTotalPlaytime / SpawnerChargesChunkMinutes) : CurrentPlaytime/60. dpsDataCache[w] = DPS_w (overwritten, never cleared).
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `F_i` | player flat damage stat for item's type (incl. 1+K2 feature bonus) | PlayerModel stat value (GetForecastStatValue) |
-| `P_i` | player percent damage stat for item's type | PlayerModel stat value |
+| `F_i` | player flat damage stat for the item's type (includes the 1+K2 feature bonus in the bot) | GetForecastStatValue = playerModel.Unit.GetStatValue(type, true) |
+| `P_i` | player percent damage stat for the item's type | GetForecastStatValue |
 | `item.Damage` | item damage at its level/evolution | items subsystem (ItemModel.Damage) |
+| `item.DPS` | sort key for item choice | ItemModel.DPS |
 | `AttackCooldown_i` | weapon cooldown | ItemConfig.AttackCooldown |
 | `SimulationDpsWeaponMultiplier_i` | per-item sim fudge factor (79x1, 1.3,1.35,3x1.4,2x1.6,2x2) | ItemConfig.SimulationDpsWeaponMultiplier |
-| `K(3,t)` | StatModifier multiplier | simulation.interp_total_coefficient |
+| `UnlockedWeaponSlots` | number of weapon slots | PlayerModel.UnlockedWeaponSlots |
+| `K(3,t)` | StatModifier multiplier (float) | balance.total_coefficient (CombatBalanceConfig.GetInterpolationCoefficient, Rarity.Rare) |
+| `t` | balance timing: day chunk index when UseSpawnerCharges, else CurrentPlaytime/60 | SimulationSystem.GetBalanceTimingMinutes |
 
-**输出**：List<SimulationDpsData> currentDpsData (stored in snapshots as DpsData)
+**输出**：List<SimulationDpsData> currentDpsData (stored in snapshots as DpsData) and dpsDataCache
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:908-933](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L908)；[Simulation/Systems/SimulationSystem.cs:869-873](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L869)
+**代码**：[Simulation/Systems/SimulationSystem.cs:908-933](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L908)；[Simulation/Systems/SimulationSystem.cs:869-873](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L869)；[Simulation/Systems/SimulationSystem.cs:515-520](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L515)；[Simulation/Systems/SimulationSystem.cs:993-997](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L993)；[Simulation/Systems/SimulationSystem.cs:321-329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L321)
 
-**状态依据**：Native VA comments. In the data, the Magic and Universal DPS entries are exactly 1/10 of the matching-type DPS at day 0, which confirms the off-type /10 rule.
+**状态依据**：CalculateDpsData carries 'Original ELF VA 0x13e4478 and closures'. Data check: at day 0 (one Cut item) Stab, Magic, Buckshot and Universal are all exactly 1/10 of Cut (0.923 vs 9.23); at later days Magic equals Universal (no items of either type), each equal to the sum of off-type DPS/10 over the equipped items (day 405: Magic = Universal = 1.01e8). This confirms the off-type /10 rule.
 
-**配置参数**：`ItemConfig.SimulationDpsWeaponMultiplier`；`ItemConfig.AttackCooldown`；`ItemConfig.DamageType`；`ItemConfig.DamageStatTypeFlat`；`ItemConfig.DamageStatTypePercent`
+**配置参数**：`ItemConfig.SimulationDpsWeaponMultiplier`；`ItemConfig.AttackCooldown`；`ItemConfig.DamageType`；`ItemConfig.DamageStatTypeFlat`；`ItemConfig.DamageStatTypePercent`；`Combat Balance Config.Interpolations (StatModifier)`；`Simulation Config.UseSpawnerCharges`；`Simulation Config.SpawnerChargesChunkMinutes`
 
-**使用方**：simulation.dps_against_spawner；simulation.bake_spawner_health；simulation.forecast_auto_balanced_enemy；[BossTower/BossSpawnService.cs](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/BossSpawnService.cs):BakeStatsForFloor
+**使用方**：simulation.dps_against_spawner；simulation.spawner_fight_model；simulation.bake_spawner_health；simulation.forecast_auto_balanced_enemy；simulation.forecast_snapshot；[BossTower/BossSpawnService.cs](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/BossSpawnService.cs):BakeStatsForFloor
 
-**备注**：Crit, GlobalAttack and ability DPS are NOT in DpsData; they are applied by consumers.
+**备注**：Crit, GlobalAttack and ability DPS are NOT in DpsData; they are applied by consumers (fast GetDpsAgainstSpawner, bake). The off-type /10 is applied before the SimulationDpsWeaponMultiplier. equippedItems is a shared list. CalculateDpsData leaves it holding the Universal weapon selection, but CalculateSimulationData runs CalculateDefenseData next (SimulationSystem.cs:324-326), which clears it and refills it with the Universal armor selection (941-950). The slow GetDpsAgainstSpawner path iterates equippedItems.Where(!IsArmor) (841), and ProcessInventory (795-797) is an empty stub, so after CalculateSimulationData that path finds no weapons and returns 0. Runtime uses only the fast path.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:player.stat_raw[DamageFlatByType]`、`value:player.stat_raw[DamagePercentByType]`、`value:weapon.item_damage`、`value:weapon.item_dps`、`value:item.copies`、`value:player.unlocked_slot_counts`、`config:ItemConfig.SlotType`、`config:ItemConfig.DamageType`、`config:ItemConfig.DamageStatTypeFlat`、`config:ItemConfig.DamageStatTypePercent`、`config:ItemConfig.AttackCooldown`、`config:ItemConfig.SimulationDpsWeaponMultiplier`、`value:sim.balance_coefficient[StatModifier]`、`value:sim.balance_timing`、`constant:SimulationSystem.off_type_dps_divisor`；输出 `value:sim.dps_by_damage_type`
 
-- [待人工合入] `status_evidence`：At day 0 (one Cut item) Stab, Magic, Buckshot and Universal are all exactly 1/10 of Cut (0.923 vs 9.23). At later days Magic equals Universal (no items of either type), each equal to the sum of off-type DPS/10 over the equipped items.  
-  依据：Simulation Data Snapshots[0].DpsData; day-405 DpsData Magic=Universal=1.01e8.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `status_evidence`（来自 `simulation.dps_data`）：status_evidence rewritten with the corrected data observation (all four off-types are 1/10 of Cut at day 0; Magic = Universal later). Consistent with code: one Cut item gives every other type that item's DPS/10 (SimulationSystem.cs:927).
+- 合并复核修正：(b/notes vs code) The merged notes say equippedItems 'is reused and left holding the selection of the last weapon type (Universal)'. That is wrong after CalculateSimulationData. CalculateDefenseData runs right after CalculateDpsData (SimulationSystem.cs:324-326), clears equippedItems and refills it with armor items for the last weapon type (lines 941-950). The slow GetDpsAgainstSpawner path iterates equippedItems.Where(!IsArmor) (line 841), and ProcessInventory (795-797) is an empty stub, so after CalculateSimulationData that path sees no weapons. The notes are corrected; all other fields were verified against lines 908-933 and 515-520.
 
 ### `simulation.defense_data`
 
@@ -321,7 +205,7 @@ For each WeaponType w: A_w = SUM of item.Armor over the top UnlockedArmorSlots a
 | `F_def(w)` | flat defence stat for w (WeaponTypeToDefence(w,false)) | PlayerModel stat |
 | `P_def(w)` | percent defence stat for w | PlayerModel stat |
 | `item.Armor` | armor item value | items subsystem |
-| `K(3,t)` | StatModifier multiplier | simulation.interp_total_coefficient |
+| `K(3,t)` | StatModifier multiplier | balance.total_coefficient |
 
 **输出**：List<SimulationDpsData> currentDefenseData (snapshot DefenseData)
 
@@ -334,6 +218,8 @@ For each WeaponType w: A_w = SUM of item.Armor over the top UnlockedArmorSlots a
 **使用方**：simulation.spawner_dps；simulation.bake_spawner_damage；simulation.forecast_auto_balanced_enemy
 
 **备注**：Universal defence stats are not included here.
+
+**依赖图节点**：输入 `value:player.stat_raw[DefenceFlatByType]`、`value:player.stat_raw[DefencePercentByType]`、`value:player.stat_raw[UniversalDefenceFlat]`、`value:player.stat_raw[UniversalDefencePercent]`、`value:weapon.damage_type_defence_stats`、`value:armor.item_armor`、`value:item.copies`、`value:player.unlocked_slot_counts`、`config:ItemConfig.SlotType`、`config:ItemConfig.DamageType`、`value:sim.balance_coefficient[StatModifier]`、`value:sim.balance_timing`；输出 `value:sim.defense_by_damage_type`
 
 ### `simulation.combat_multiplier_cache`
 
@@ -361,6 +247,8 @@ dodge = S(Evasion); blockMult = 1 - S(BlockChance)*S(BlockAmount); gDefMult = 1/
 **使用方**：simulation.dps_against_spawner；simulation.spawner_dps
 
 **备注**：The same five factors are recomputed from snapshot TotalValues in the forecast (ForecastSnapshots.cs:152-158). The spawner bake uses only crit, evasion and block, not the Global* stats.
+
+**依赖图节点**：输入 `value:player.stat_specific[Evasion]`、`value:player.stat_specific[BlockChance]`、`value:player.stat_specific[BlockAmount]`、`value:player.stat_specific[GlobalDefence]`、`value:player.stat_specific[CritChance]`、`value:player.stat_specific[CritDamagePercent]`、`value:player.stat_specific[GlobalAttack]`、`constant:SimulationSystem.global_stat_percent_scale`；输出 `value:player.expected_crit_multiplier`、`value:player.block_damage_multiplier`、`value:player.global_attack_multiplier`、`value:player.global_defence_multiplier`
 
 ### `simulation.ability_multipliers`
 
@@ -390,6 +278,8 @@ AbDps(t) = 1 + K(4 PlayerAbilityDPSMult, t); AbEhp(t) = 1 + K(5 PlayerAblityEHPM
 **使用方**：simulation.dps_against_spawner；simulation.spawner_fight_model；simulation.bake_spawner_health；simulation.bake_spawner_damage；simulation.forecast_auto_balanced_enemy
 
 **备注**：These model player power from active abilities, which are not simulated. They directly inflate baked enemy HP (×AbDps) and damage (the inverse solve uses 1/AbEhp). SimulationSystem.GetSimulationInterpolationCoefficient (SimulationSystem.cs:889) is a stub.
+
+**依赖图节点**：输入 `value:sim.balance_coefficient[PlayerAbilityDPSMult]`、`value:sim.balance_coefficient[PlayerAblityEHPMult]`、`value:sim.balance_timing`；输出 `value:sim.ability_dps_multiplier`、`value:sim.ability_ehp_multiplier`
 
 ### `simulation.enemy_multiplier`
 
@@ -421,6 +311,8 @@ simMult = IsRunning ? EnemyHpDamageMultiplier : 1; abMult(loc) = ABTest enemy_hp
 
 **备注**：The bake does NOT apply these, so baked HP and damage are pre-AB values.
 
+**依赖图节点**：输入 `config:SimulationConfig.EnemyHpDamageMultiplier`、`config:SimulationConfig.IsRunning`、`state:sim_bot_state`、`config:ABTestDataConfig.enemyHpDamageMult.variants[].data.damageMultiplier.defaultValue`、`config:ABTestDataConfig.enemyHpDamageMult.variants[].data.damageMultiplier.overridesByLocation`、`config:ABTestDataConfig.enemyHpDamageMult.rules`、`state:ab_cohort`、`config:EnemySpawnerConfig.LocationNumber`；输出 `value:sim.enemy_hp_damage_multiplier`、`value:enemy.ab_hp_damage_multiplier`
+
 ### `simulation.dps_against_spawner`
 
 **Player DPS against a spawner**
@@ -451,41 +343,49 @@ Fast: a* = argmax over spawner armors a with DpsData[a.Type] of DpsData[a.Type]*
 
 **备注**：The resist is not clamped here. The bake clamps it to [-0.9, 0.9].
 
+**依赖图节点**：输入 `value:sim.dps_by_damage_type`、`config:EnemySpawnerConfig.ArmorConfig`、`config:ArmorConfig.Armors[].Type`、`config:ArmorConfig.Armors[].Resist`、`value:sim.ability_dps_multiplier`、`value:player.global_attack_multiplier`、`value:player.expected_crit_multiplier`、`value:player.expected_damage_per_hit`、`config:ItemConfig.SimulationDpsWeaponMultiplier`、`config:ItemConfig.AttackCooldown`；输出 `value:sim.player_dps_vs_spawner`
+
 ### `simulation.spawner_dps`
 
 **Spawner DPS against the player**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x13ef8d4`
+- 来源：合并核验
+- 原生地址：`0x13ef8d4 (GetSpawnerDps), RebuildPerFrameCaches 0x13e5bc0, GetSimulationEnemyMultiplier 0x13e13b0, GetCachedEnemyHpDamageMultiplier 0x13e68ac, GetForecastStatSpecificValue 0x13e686c`
 
 ```text
-If IsStatic: 0. Fast: dmg = ApplyDamageDefense(simMult * BaseDamage * (IsEvent ? 1 : abMult(loc)), Def[PreferredWeaponType(loc)]); DPSenemy = dmg / AttackCooldownBase * (1 - dodge) * blockMult * gDefMult. ApplyDamageDefense(a,d) = a * exp(-0.75 d/a) * max(0, 1 - 0.25 d/a). Slow: (1-dodge)*Calculate(hit).Damage/AttackCooldown * (1 - bc*ba) * simMult (NaN->0).
+If IsStatic: 0. Fast path (isFast=true, used by the fight model): abMult = IsEvent ? 1 : GetCachedEnemyHpDamageMultiplier(loc); dmg = ApplyDamageDefense(simMult * (BaseDamage * abMult), Def[PreferredWeaponType(loc)]); DPSenemy = dmg / AttackCooldownBase * (1 - dodge) * (1 - bc*ba) * 1/(1 + 0.01*GlobalDefence_spec). ApplyDamageDefense(a,d) = a <= 0 ? 0 : exp(-0.75*d/a) * a * max(0, 1 - 0.25*d/a). Slow path: hit = WeaponHitEvent{Source = spawner.FirstUnit, Target = player, DamageType = spawner.Config.WeaponType, Undodgeable = true}; total = (1 - dodge) * (Calculate(hit, true, 1).Damage / (float)FirstUnit.GetStatValue(AttackCooldown)) * (1 - bc*ba) * simMult; NaN -> 0. simMult = Simulation Config.IsRunning ? EnemyHpDamageMultiplier : 1; dodge, bc, ba, GlobalDefence = player specific values (Stat.CalculateSpecificValue).
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `BaseDamage` | spawner Damage stat (Stats Type 3) | EnemySpawnerConfig.Stats |
-| `AttackCooldownBase` | spawner AttackCooldown stat (Type 5) | EnemySpawnerConfig.Stats |
-| `Def[...]` | player defense vs the location's preferred weapon type | simulation.defense_data, LocationsConfig.Locations[].PreferredWeaponType |
+| `BaseDamage` | spawner Damage stat BaseValue (Stats Type 3) | EnemySpawnerConfig.Stats |
+| `AttackCooldownBase` | spawner AttackCooldown stat BaseValue (Type 5) | EnemySpawnerConfig.Stats |
+| `Def[...]` | player defense vs the location's preferred weapon type | simulation.defense_data (defenseDataCache), LocationsConfig.Locations[].PreferredWeaponType |
+| `abMult` | AB enemy HP/damage multiplier by location | ABTestService.GetEnemyHpDamageMultiplier (EnemyHpDamageMult.damageMultiplier) |
+| `simMult` | simulation-only enemy multiplier | Simulation Config.EnemyHpDamageMultiplier (only while IsRunning) |
+| `dodge` | player specific Evasion | cachedDodgeChance (RebuildPerFrameCaches) |
+| `bc, ba` | player specific BlockChance, BlockAmount | cachedBlockDamageMultiplier = 1 - bc*ba |
+| `GlobalDefence_spec` | player specific GlobalDefence | cachedGlobalDefenceMultiplier = 1/(GlobalDefence*0.01 + 1) |
 
 **输出**：double enemy DPS per unit
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:960-991](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L960)；[Services/Damage/DamageCalculator.cs:24-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L24)
+**代码**：[Simulation/Systems/SimulationSystem.cs:960-991](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L960)；[Simulation/Systems/SimulationSystem.cs:331-348](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L331)；[Simulation/Systems/SimulationSystem.cs:220-224](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L220)；[Simulation/Systems/SimulationSystem.cs:350-357](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L350)；[Simulation/Systems/SimulationSystem.cs:999-1003](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L999)；[Services/Damage/DamageCalculator.cs:24-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L24)；[ABTests/ABTestService.cs:18-19](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L18)
 
-**状态依据**：Native VA comment.
+**状态依据**：GetSpawnerDps carries 'Original ELF VA 0x13ef8d4'; the cached multipliers come from RebuildPerFrameCaches (0x13e5bc0).
 
-**配置参数**：`EnemySpawnerConfig.Stats`；`EnemySpawnerConfig.IsStatic`；`Locations Config.Locations[].PreferredWeaponType`
+**配置参数**：`EnemySpawnerConfig.Stats (Damage, AttackCooldown)`；`EnemySpawnerConfig.IsStatic`；`EnemySpawnerConfig.IsEvent`；`EnemySpawnerConfig.WeaponType (slow path only)`；`Locations Config.Locations[].PreferredWeaponType`；`ABTest Data Config.EnemyHpDamageMult.damageMultiplier`；`Simulation Config.EnemyHpDamageMultiplier`
 
 **使用方**：simulation.spawner_fight_model
 
-**备注**：It uses the location's preferred weapon type, not the spawner's own WeaponType. The bake does the same.
+**备注**：The fast path uses the location's preferred weapon type, not the spawner's own WeaponType; the bake does the same. The slow path is different: it builds an Undodgeable WeaponHitEvent with DamageType = spawner.Config.WeaponType and uses the runtime FirstUnit AttackCooldown stat. It applies (1-dodge), (1-bc*ba) and simMult, but not GlobalDefence and not the AB enemy multiplier explicitly (only whatever DamageCalculator.Calculate itself applies). Only the fast path is called at runtime (CalculateSpawnerData passes isFast=true).
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `config:EnemySpawnerConfig.IsStatic`、`config:EnemySpawnerConfig.IsEvent`、`config:EnemySpawnerConfig.Stats[Damage]`、`config:EnemySpawnerConfig.Stats[AttackCooldown]`、`config:EnemySpawnerConfig.LocationNumber`、`config:LocationsConfig.Locations[].PreferredWeaponType`、`value:sim.defense_by_damage_type`、`value:enemy.ab_hp_damage_multiplier`、`value:sim.enemy_hp_damage_multiplier`、`value:player.stat_specific[Evasion]`、`value:player.block_damage_multiplier`、`value:player.global_defence_multiplier`、`constant:DamageCalculator.flat_defense_exp_coef`、`constant:DamageCalculator.flat_defense_linear_coef`、`config:EnemySpawnerConfig.WeaponType`、`value:player.incoming_damage_per_hit`、`value:enemy.stat_raw[AttackCooldown]`；输出 `value:sim.spawner_dps_vs_player`
 
-- [待人工合入] `notes`：This holds for the fast path only. The slow path builds an Undodgeable WeaponHitEvent with DamageType = spawner.Config.WeaponType and the runtime FirstUnit AttackCooldown. It applies (1-dodge), (1-bc*ba) and simMult, but not GlobalDefence and not the AB enemy multiplier (except inside Calculate).  
-  依据：SimulationSystem.cs:979-990.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `simulation.spawner_dps`）：Verified at SimulationSystem.cs:979-990. The slow path uses spawner.Config.WeaponType, Undodgeable=true and the runtime FirstUnit AttackCooldown, and multiplies by (1-dodge), (1-block*blockAmount) and GetSimulationEnemyMultiplier only. Notes and expression now limit the preferred-weapon-type statement to the fast path.
 
 ### `simulation.spawner_fight_model`
 
@@ -493,37 +393,43 @@ If IsStatic: 0. Fast: dmg = ApplyDamageDefense(simMult * BaseDamage * (IsEvent ?
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x13e6074, 0x13e13dc, 0x13efd54, 0x13e0724`
+- 来源：合并核验
+- 原生地址：`0x13e6074 (CalculateSpawnerData), 0x13e13dc (GetRPMConfig), 0x13efd54 (GetBattleRegen), 0x13e0724 (SpawnerData ctor), 0x13efd98 (GetResourceValue), 0x13efd18 (GetPlayerAblityEhpMultiplier), 0x13e4444 (CalculateSimulationData), 0x13e83ec (GetSpawnerChargesLimit)`
 
 ```text
-(m,r,f,n)=(70,50,2,2). moveTime = 70 / S(MovementSpeed). missing = max(0, HPmax - HPcur). playerDPS = DPSvs + 0.1; countF = min((Count+1)/2, 4); enemyDPS = (DPSenemy + 0.1)*countF / AbEhp(t); fightTime = simMult * BaseHP*Count * abMult(loc) / playerDPS; delta = (BattleRegen(Difficulty) - enemyDPS)*fightTime; healthDelta = min(delta, missing); regenTime = 50 * max(0, -healthDelta / max(1,HPmax)); farmedTime = regenTime + moveTime + 2*fightTime; playerRPS = Reward0 / farmedTime, *0.2 if -healthDelta > 0.5*HPmax; keep only if fightTime < 300 s. BattleRegen(D) = (D+1)*HealthRegen + (2D+3)*LifestealFlat.
+(m,r,f,n) = GetRPMConfig() = (70,50,2,2). HPmax = GetStatValue(Health); speed = specific MovementSpeed; missing = max(0, HPmax - CurrentHealth); moveTime = 70 / speed. Per kept spawner: playerDPS = DPSvs(fast) + (double)0.1f; countF = min((float)(Count+1)/2f, 4f) (float division: Count=2 gives 1.5, Count=4 gives 2.5); enemyDPS = (DPSenemy(fast) + (double)0.1f) * countF / AbEhp(t), AbEhp = 1 + K(PlayerAblityEHPMult, t, Rare); fightTime = simMult * (BaseHP * Count) * abMult(loc) / playerDPS; delta = (BattleRegen(Difficulty) - enemyDPS) * fightTime, using the raw Difficulty; healthDelta = min(delta, missing); regenTime = 50 * max(0, -healthDelta / max(1, HPmax)); farmedTime = regenTime + (moveTime + 2*fightTime); rewardValue = CalculateSpawnerRewardValue(spawner); playerRPS = StatRewards[0].Value / farmedTime, then *= (double)0.2f if -healthDelta > 0.5*HPmax; keep in spawnerData only if fightTime < 300 s. BattleRegen(D) = (D+1)*HealthRegen + (2D+3)*LifestealFlat (stat values). Filters: skip IsEvent or IsVip; skip LocationNumber > LastUnlockedLocation. forGPMBot=true (the only runtime call, from CalculateSimulationData): also skip DisableAfterFirstClear. forGPMBot=false (bot only): skip !AnyoneAlive; skip Cooldown > 0 only if Simulation Config.IsRunning; skip if UseSpawnerCharges and used charges >= GetSpawnerChargesLimit; skip if IsCapOptimumTime and OptimumTime > (UseSpawnerCharges && IsDays ? timeChunkIndex : CurrentPlaytime).
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `BaseHP` | spawner Health stat | EnemySpawnerConfig.Stats Type 1 |
+| `BaseHP` | spawner Health stat BaseValue | EnemySpawnerConfig.Stats Type 1 |
 | `Count` | units per spawner | EnemySpawnerConfig.Count |
-| `Difficulty` | spawner difficulty (fraction of player HP to lose) | EnemySpawnerConfig.Difficulty |
-| `Reward0` | value of first StatReward | simulation.spawner_reward_value (GetResourceValue) |
-| `HPmax` | player max health | PlayerModel stat |
+| `Difficulty` | spawner difficulty (fraction of player HP to lose); used raw here, without the <=0 -> 1 validation the bake applies | EnemySpawnerConfig.Difficulty |
+| `StatRewards[0].Value` | value of the first StatReward (GetResourceValue) | EnemySpawnerConfig.StatRewards |
+| `HPmax` | player Health stat value | GetForecastStatValue(Health) |
+| `DPSvs` | player DPS against the spawner, fast path | simulation.dps_against_spawner |
+| `DPSenemy` | spawner DPS against the player, fast path | simulation.spawner_dps |
+| `abMult(loc)` | AB enemy HP/damage multiplier | ABTestService.GetEnemyHpDamageMultiplier |
+| `simMult` | Simulation Config.EnemyHpDamageMultiplier while IsRunning, else 1 | GetSimulationEnemyMultiplier |
+| `t` | balance timing | GetBalanceTimingMinutes |
 
-**输出**：SpawnerData {playerDPS, enemyDPS, fightTime, healthDelta, farmedTime, avMoveTime, avRegenTime, rewardValue, playerRPS}
+**输出**：SpawnerData {playerDPS, enemyDPS, fightTime, healthDelta, farmedTime, avMoveTime, avRegenTime, rewardValue, playerRPS} in spawnerData[spawner]
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:623-674](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L623)；[Simulation/Systems/SimulationSystem.cs:226-230](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L226)；[Simulation/Systems/SimulationSystem.cs:686-691](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L686)；[Services/Damage/DamageCalculator.cs:59-62](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L59)；[Simulation/Systems/SpawnerData.cs:36-42](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L36)
+**代码**：[Simulation/Systems/SimulationSystem.cs:623-674](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L623)；[Simulation/Systems/SimulationSystem.cs:226-230](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L226)；[Simulation/Systems/SimulationSystem.cs:220-224](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L220)；[Simulation/Systems/SimulationSystem.cs:321-329](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L321)；[Simulation/Systems/SimulationSystem.cs:608-612](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)；[Simulation/Systems/SimulationSystem.cs:686-691](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L686)；[Simulation/Systems/SimulationSystem.cs:758-763](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L758)；[Simulation/Systems/SimulationSystem.cs:882-887](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L882)；[Services/Damage/DamageCalculator.cs:59-62](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L59)；[Simulation/Systems/SpawnerData.cs:36-42](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L36)
 
-**状态依据**：Native VA comments (float32 count factor preserved).
+**状态依据**：CalculateSpawnerData carries 'Original ELF VA 0x13e6074. Preserve float32 count factor and widened float literals.'
 
-**配置参数**：`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.Difficulty`；`EnemySpawnerConfig.Stats`；`EnemySpawnerConfig.IsEvent`；`EnemySpawnerConfig.IsVip`；`EnemySpawnerConfig.DisableAfterFirstClear`；`EnemySpawnerConfig.OptimumTime`；`EnemySpawnerConfig.IsDays`；`Simulation Config.IsCapOptimumTime`；`Simulation Config.UseSpawnerCharges`
+**配置参数**：`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.Difficulty`；`EnemySpawnerConfig.Stats`；`EnemySpawnerConfig.StatRewards`；`EnemySpawnerConfig.IsEvent`；`EnemySpawnerConfig.IsVip`；`EnemySpawnerConfig.LocationNumber`；`EnemySpawnerConfig.DisableAfterFirstClear`；`EnemySpawnerConfig.OptimumTime`；`EnemySpawnerConfig.IsDays`；`Simulation Config.IsCapOptimumTime`；`Simulation Config.UseSpawnerCharges`；`Simulation Config.IsRunning`；`Simulation Config.EnemyHpDamageMultiplier`；`ABTest Data Config.EnemyHpDamageMult.damageMultiplier`；`Combat Balance Config.Interpolations (PlayerAblityEHPMult)`
 
 **使用方**：simulation.rpm_time_chunk；simulation.rpm_old；simulation.soul_rpm；simulation.player_progression_tick
 
-**备注**：Filters: skip Event/Vip spawners. Skip spawners on locations not yet unlocked. Outside GPM-bot mode, also skip dead or cooling-down spawners, spawners with charges used up, and spawners not yet at OptimumTime when IsCapOptimumTime (day index for IsDays, Playtime minutes otherwise). In GPM-bot mode (forGPMBot=true) spawners with DisableAfterFirstClear are excluded.
+**备注**：At runtime CalculateSimulationData always calls CalculateSpawnerData(true), so the game only uses GPM-bot mode: no alive, cooldown, charge or optimum-time filters, and DisableAfterFirstClear spawners are excluded. The non-GPM filters exist only for the (stubbed) bot. The 0.1f and 0.2f literals are float32 widened to double. playerRPS uses only the first StatReward value (GetResourceValue), while rewardValue uses the benefit-weighted CalculateSpawnerRewardValue. abMult multiplies fightTime regardless of IsEvent (event spawners are skipped anyway).
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:sim.player_dps_vs_spawner`、`value:sim.spawner_dps_vs_player`、`value:sim.ability_ehp_multiplier`、`value:sim.enemy_hp_damage_multiplier`、`value:enemy.ab_hp_damage_multiplier`、`config:EnemySpawnerConfig.Stats[Health]`、`config:EnemySpawnerConfig.Count`、`value:player.battle_regen`、`config:EnemySpawnerConfig.Difficulty`、`value:player.stat_raw[Health]`、`value:player.current_hp`、`value:player.stat_specific[MovementSpeed]`、`config:EnemySpawnerConfig.StatRewards[].Value`、`config:EnemySpawnerConfig.IsEvent`、`config:EnemySpawnerConfig.IsVip`、`config:EnemySpawnerConfig.LocationNumber`、`value:player.unlocked_location`、`config:EnemySpawnerConfig.DisableAfterFirstClear`、`config:EnemySpawnerConfig.OptimumTime`、`config:EnemySpawnerConfig.IsDays`、`config:SimulationConfig.IsCapOptimumTime`、`config:SimulationConfig.UseSpawnerCharges`、`config:SimulationConfig.IsRunning`、`value:spawner.charges_limit_per_day`、`state:sim_bot_state`、`constant:SimulationSystem.rpm_move_distance`、`constant:SimulationSystem.rpm_regen_time_factor`、`constant:SimulationSystem.rpm_fight_time_multiplier`、`constant:SimulationSystem.dps_epsilon`、`constant:SimulationSystem.count_factor_divisor`、`constant:SimulationSystem.count_factor_cap`、`constant:SimulationSystem.heavy_damage_hp_fraction`、`constant:SimulationSystem.heavy_damage_rps_penalty`、`constant:SimulationSystem.max_fight_time_seconds`；输出 `value:sim.spawner_fight_time`、`value:sim.spawner_health_delta`、`value:sim.spawner_farmed_time`、`value:sim.spawner_player_rps`
 
-- [待人工合入] `expression`：countF = min((float)(Count+1)/2f, 4f) (float division). Non-GPM filters: skip when !AnyoneAlive; skip when Cooldown > 0 ONLY if config.IsRunning; skip when charges are used up (UseSpawnerCharges); skip when IsCapOptimumTime && OptimumTime > (UseSpawnerCharges&&IsDays ? timeChunkIndex : CurrentPlaytime). At runtime CalculateSimulationData always calls CalculateSpawnerData(true), so the game only uses GPM-bot mode: no alive, cooldown, charge or optimum-time filters, and DisableAfterFirstClear spawners are excluded.  
-  依据：SimulationSystem.cs:638-654 (`if (!(spawner.Cooldown <= 0f) && config.IsRunning) continue;`), :659, :328 `CalculateSpawnerData(true)`.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `expression`（来自 `simulation.spawner_fight_model`）：Verified at SimulationSystem.cs:638-660 and :328. Expression now uses float division for countF, gives the exact non-GPM filters (cooldown only when IsRunning, charges, optimum time against timeChunkIndex vs CurrentPlaytime), and states that runtime always uses forGPMBot=true.
 
 ### `simulation.spawner_reward_value`
 
@@ -555,42 +461,47 @@ GetResourceValue = StatRewards[0].Value (0 if none). CalculateSpawnerRewardValue
 
 **备注**：CalculateStatBenefit (SimulationSystem.cs:717) is a stub, so statsBenefit stays 1.
 
+**依赖图节点**：输入 `config:EnemySpawnerConfig.StatRewards[].Value`、`config:EnemySpawnerConfig.StatRewards[].StatType`、`config:EnemySpawnerConfig.ItemReward`、`config:EnemySpawnerConfig.Count`、`value:sim.stat_benefit_weights`、`value:item.copies`、`state:sim_bot_state`、`constant:SimulationSystem.current_boss_reward_value`、`constant:SimulationSystem.unowned_item_reward_value`；输出 `value:sim.spawner_reward_value`
+
 ### `simulation.rpm_time_chunk`
 
 **Stat reward-per-minute (RPM/GPM), current algorithm**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
-- 原生地址：`0x13e7cf4, 0x13e1468, 0x13e83ec, 0x13e7a00`
+- 来源：合并核验
+- 原生地址：`0x13e7cf4 (CalculateRPMValueTimeChunk(StatType)), 0x13e7a00 (CalculateRPMValueTimeChunk()), 0x13e71d4 (CalculateRPMValue(StatType) dispatcher), 0x13e6adc (CalculateRPMValue()), 0x13e1468 (GetFastRPMConfig), 0x13e83ec (GetSpawnerChargesLimit)`
 
 ```text
-(F, L) = FastRPMParams(fightTimeSeconds, maxHealthLossMultiplier) = (10, 1) variant A / (15, 5) variant B. For spawners s with a StatReward of type k, skipping those with loss_s = -healthDelta_s > L*HPmax: c_s = F/(F + fightTime_s) * reward_s(k) * charges_s * locMult_s * hpMult_s, where charges_s = DisableAfterFirstClear ? Count : ChargesTotal; locMult = 2 for non-elite spawners on locations 1-2, else 1; hpMult = sqrt(HPmax/loss_s) if loss_s > HPmax else 1. RPM_k = SUM c_s / 60; if RPM_k > 0 then RPM_k = max(0.5, RPM_k); RPM_k *= AB RpmStatValueMultiplier(k) (attack {6,8,12}, armor {14,16,20}, sustain {1,2,22}); RPM_k = max(RPM_k, previous RPM_k) (monotonic).
+(F, L) = GetFastRPMConfig() = AB FastRPMParams (fightTimeSeconds, maxHealthLossMultiplier): (10, 1) variant A / (15, 5) variant B. HPmax = GetStatValue(Health). Candidates = spawnerData entries whose StatRewards contain type k (none -> RPM_k unchanged). For each, loss_s = -healthDelta_s; skip if L*HPmax < loss_s; c_s = F/(F + fightTime_s) * reward_s(k) * charges_s * locMult_s * hpMult_s, where reward_s(k) = first StatReward of type k, charges_s = GetSpawnerChargesLimit = DisableAfterFirstClear ? Count : ChargesTotal, locMult = 2 for non-elite spawners on locations 1-2 else 1, hpMult = sqrt(HPmax/loss_s) if loss_s > HPmax else 1. RPM_k = SUM c_s / 60; if RPM_k > 0 then RPM_k = max(0.5, RPM_k); RPM_k *= AB RpmStatValueMultiplier(k) (attack for {6,8,12}, armor for {14,16,20}, sustain for {1,2,22}, else 1); RPM_k = max(RPM_k, previous RPM_k) (monotonic). ChargesTotal = IsChargesEnabled ? eff : 0, IsChargesEnabled = !IsEvent && eff > 0; eff = CanUseSpawnerCooldownsAb (not Event, not Vip, no ItemReward, Cooldown >= 10) ? AB spawnerCooldowns(isElite).charges(loc) * Count : ChargesBeforeBigRespawn + meta 'items_rarity_charges'(ItemReward rarity) bonus (bonus only for item-reward spawners).
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `reward_s(k)` | stat reward per kill | EnemySpawnerConfig.StatRewards |
-| `ChargesTotal` | kills per big respawn (daily) | EnemySpawner.ChargesTotal (ChargesBeforeBigRespawn / AB spawnerCooldowns.charges * unit count) |
-| `fightTime_s, healthDelta_s` | from fight model | simulation.spawner_fight_model |
+| `reward_s(k)` | stat reward per kill (first StatReward of type k) | EnemySpawnerConfig.StatRewards |
+| `ChargesTotal` | kills per big respawn (daily); 0 if charges disabled, so such spawners contribute 0 | EnemySpawner.ChargesTotal / ComputeEffectiveChargesBeforeBigRespawn; ABTestService.GetSpawnerCharges; SpawnerChargesCalculator.GetTotalCharges |
+| `fightTime_s, healthDelta_s` | from the fight model | simulation.spawner_fight_model |
+| `F, L` | fight-time softening constant and max health-loss multiplier | ABTest Data Config.fastRPMParams |
 | `60` | divisor; inferred = designed active minutes per day (6 sessions x 10 min) | constant |
+| `HPmax` | player Health stat value | GetForecastStatValue(Health) |
 
 **输出**：RPMCalculatedValue[StatType] (stat gained per minute of play)
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:426-461](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L426)；[Simulation/Systems/SimulationSystem.cs:232-237](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L232)；[Simulation/Systems/SimulationSystem.cs:608-612](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)；[Simulation/Systems/SimulationSystem.cs:376-382](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L376)；[ABTests/ABTestService.cs:40-58](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L40)
+**代码**：[Simulation/Systems/SimulationSystem.cs:426-461](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L426)；[Simulation/Systems/SimulationSystem.cs:396-400](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L396)；[Simulation/Systems/SimulationSystem.cs:368-382](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L368)；[Simulation/Systems/SimulationSystem.cs:232-237](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L232)；[Simulation/Systems/SimulationSystem.cs:608-612](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)；[ABTests/ABTestService.cs:26-27](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L26)；[ABTests/ABTestService.cs:40-41](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L40)；[ABTests/ABTestService.cs:45](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L45)；[ABTests/ABTestService.cs:49-58](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/ABTests/ABTestService.cs#L49)；[Enemy/EnemySpawner.cs:307-328](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L307)；[Enemy/EnemySpawner.cs:697-720](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L697)；[Meta/SpawnerChargesCalculator.cs:23-40](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Meta/SpawnerChargesCalculator.cs#L23)
 
-**状态依据**：Native VA comments ('original location multipliers and FP operation order').
+**状态依据**：CalculateRPMValueTimeChunk(StatType) carries 'Original ELF VA 0x13e7cf4: original location multipliers and FP operation order'.
 
-**配置参数**：`ABTest Data Config.fastRPMParams`；`ABTest Data Config.commonRewardMultipliers.attack/armor/sustainStatValueMultiplier`；`EnemySpawnerConfig.StatRewards`；`EnemySpawnerConfig.ChargesBeforeBigRespawn`；`EnemySpawnerConfig.DisableAfterFirstClear`；`EnemySpawnerConfig.IsEliteBoss`；`EnemySpawnerConfig.LocationNumber`
+**配置参数**：`ABTest Data Config.fastRPMParams`；`ABTest Data Config.rpmOldAlgorithm.enabled`；`ABTest Data Config.commonRewardMultipliers.attack/armor/sustainStatValueMultiplier`；`ABTest Data Config.spawnerCooldowns.elite/nonElite.charges`；`EnemySpawnerConfig.StatRewards`；`EnemySpawnerConfig.ChargesBeforeBigRespawn`；`EnemySpawnerConfig.DisableAfterFirstClear`；`EnemySpawnerConfig.IsEliteBoss`；`EnemySpawnerConfig.LocationNumber`；`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.Cooldown`；`EnemySpawnerConfig.ItemReward`；`Meta stat items_rarity_charges`
 
-**使用方**：[UI/Events/RewardView.cs:288](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/UI/Events/RewardView.cs#L288)；[Rewards/Commands/GrantRewardCommandRunner.cs:227](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Rewards/Commands/GrantRewardCommandRunner.cs#L227)；[Shop/Systems/ShopLotRpmCalculationSystem.cs:77](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Shop/Systems/ShopLotRpmCalculationSystem.cs#L77)；[Rewards/Commands/BakeRewardsCommandRunner.cs:84-93](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Rewards/Commands/BakeRewardsCommandRunner.cs#L84)；[Enemy/EnemySpawner.cs:990](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L990) (crystal-event mob reward = max(1, 0.4*RPM))；[Events/Services/EventForecastService.cs](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Events/Services/EventForecastService.cs) (via snapshot CurrentGpm)；simulation.forecast_reward；SimulationSnapshot.Stats[].CurrentGpm
+**使用方**：[UI/Events/RewardView.cs:288](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/UI/Events/RewardView.cs#L288)；[Rewards/Commands/GrantRewardCommandRunner.cs:227](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Rewards/Commands/GrantRewardCommandRunner.cs#L227)；[Shop/Systems/ShopLotRpmCalculationSystem.cs:77](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Shop/Systems/ShopLotRpmCalculationSystem.cs#L77)；[Rewards/Commands/BakeRewardsCommandRunner.cs:84-93](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Rewards/Commands/BakeRewardsCommandRunner.cs#L84)；[Enemy/EnemySpawner.cs:990](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L990) (crystal-event mob reward = max(1, 0.4*RPM))；[Events/Services/EventForecastService.cs](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Events/Services/EventForecastService.cs) (via snapshot CurrentGpm)；simulation.forecast_reward；simulation.snapshot_stat_composition (CurrentGpm)
 
-**备注**：This is the main runtime link between spawner configuration and the value of rewarded, shop and event stat rewards: reward = Value × RPM[k]. With the daily big-respawn charges it reads as 'achievable daily devour income ÷ 60 minutes'. The old algorithm is used only when rpm_old_algorithm is enabled; the shipped rule is A, which is disabled.
+**备注**：This is the main runtime link between spawner configuration and the value of rewarded, shop and event stat rewards: reward = Value x RPM[k]. With the daily big-respawn charges it reads as 'achievable daily devour income / 60 minutes'. CalculateRPMValue(StatType) falls through to this method unless UseOldRpmAlgorithm (rpm_old_algorithm) is enabled; the shipped rule is A, which is disabled. Because runtime spawnerData is built with forGPMBot=true, DisableAfterFirstClear spawners are never candidates at runtime, so the Count branch of GetSpawnerChargesLimit applies only inside the bot. Candidates are only spawners that passed the fight-model filters (fightTime < 300 s).
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `config:ABTestDataConfig.fastRPMParams.variants[].data.fightTimeSeconds`、`config:ABTestDataConfig.fastRPMParams.variants[].data.maxHealthLossMultiplier`、`config:ABTestDataConfig.rpmOldAlgorithm.variants[].data.enabled`、`state:ab_cohort`、`value:player.stat_raw[Health]`、`value:sim.spawner_health_delta`、`value:sim.spawner_fight_time`、`config:EnemySpawnerConfig.StatRewards[].Value`、`config:EnemySpawnerConfig.StatRewards[].StatType`、`value:spawner.charges_limit_per_day`、`config:EnemySpawnerConfig.IsEliteBoss`、`config:EnemySpawnerConfig.LocationNumber`、`constant:SimulationSystem.locationMultipliers`、`constant:SimulationSystem.rpm_minutes_divisor`、`constant:SimulationSystem.rpm_min_floor`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.attackStatValueMultiplier`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.armorStatValueMultiplier`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.sustainStatValueMultiplier`；输出 `value:sim.stat_rpm`
 
-- [待人工合入] `variables`：ChargesTotal = IsChargesEnabled ? eff : 0, where eff = AB GetSpawnerCharges(isElite, loc) * Count if CanUseSpawnerCooldownsAb (not Event, not Vip, no ItemReward, Cooldown >= 10), else SpawnerChargesCalculator.GetTotalCharges, which is ChargesBeforeBigRespawn plus the meta 'items_rarity_charges' bonus for item-reward spawners. Spawners with 0 charges contribute 0. Because runtime spawnerData is built with forGPMBot=true, DisableAfterFirstClear spawners are never candidates at runtime; the Count branch applies only inside the bot.  
-  依据：[Enemy/EnemySpawner.cs:307-341](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L307) and ComputeEffectiveChargesBeforeBigRespawn; [Meta/SpawnerChargesCalculator.cs:23-40](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Meta/SpawnerChargesCalculator.cs#L23); SimulationSystem.cs:328, :654.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `variables`（来自 `simulation.rpm_time_chunk`）：Verified at EnemySpawner.cs:307-328 and 707-720 (IsChargesEnabled = !IsEvent && eff>0; eff = CanUseSpawnerCooldownsAb ? AB charges*Count : GetTotalCharges), SpawnerChargesCalculator.cs:23-40 (items_rarity_charges bonus only when ItemReward != null), and SimulationSystem.cs:328/659 (forGPMBot=true excludes DisableAfterFirstClear). The ChargesTotal variable, expression and notes are updated.
 
 ### `simulation.rpm_old`
 
@@ -622,6 +533,8 @@ Candidates with reward k and playerRPS>0, sorted by playerRPS desc; budget 1000 
 
 **备注**：Inactive in the shipped AB config.
 
+**依赖图节点**：输入 `config:ABTestDataConfig.rpmOldAlgorithm.variants[].data.enabled`、`state:ab_cohort`、`value:sim.spawner_player_rps`、`value:sim.spawner_farmed_time`、`value:player.stat_specific[MovementSpeed]`、`constant:SimulationSystem.rpm_move_distance_factor`、`value:spawner.small_cooldown`、`config:EnemySpawnerConfig.Count`、`config:EnemySpawnerConfig.StatRewards[].Value`、`config:EnemySpawnerConfig.StatRewards[].StatType`、`constant:SimulationSystem.rpm_old_time_budget`、`constant:SimulationSystem.rpm_minutes_divisor`、`constant:SimulationSystem.rpm_min_floor`；输出 `value:sim.stat_rpm`
+
 ### `simulation.soul_rpm`
 
 **Soul reward-per-minute**
@@ -652,6 +565,8 @@ For each distinct non-blank SoulReward key q: kills = SUM over spawners with Sou
 
 **备注**：F is fixed at 10 here; it is not the AB parameter.
 
+**依赖图节点**：输入 `value:player.stat_raw[Health]`、`value:sim.spawner_health_delta`、`value:sim.spawner_fight_time`、`config:EnemySpawnerConfig.SoulReward`、`value:spawner.charges_limit_per_day`、`constant:SimulationSystem.soul_rpm_fight_time_softening`、`constant:SimulationSystem.rpm_minutes_divisor`、`constant:SimulationSystem.soul_rpm_min_floor`、`value:player.meta_stat[soul_drop_bonus]`、`value:player.meta_stat[souls_rarity_amount]`；输出 `value:sim.soul_rpm`
+
 ### `simulation.spawner_optimum_timing_mode`
 
 **Spawner optimum timing in current mode**
@@ -681,38 +596,43 @@ timing = (UseSpawnerCharges && !IsDays) ? OptimumTime / TimeChunkDurationMinutes
 
 **备注**：The units do not match: snapshot TimeChunkIndex counts days (1440 min), but this divides by 30. See open questions.
 
+**依赖图节点**：输入 `config:SimulationConfig.UseSpawnerCharges`、`config:EnemySpawnerConfig.IsDays`、`config:EnemySpawnerConfig.OptimumTime`、`config:SimulationConfig.TimeChunkDurationMinutes`；输出 `value:spawner.optimum_timing_chunks`
+
 ### `simulation.snapshot_lookup_playtime`
 
 **Snapshot lookup by playtime (minute-mode)**
 
 - 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
+- 来源：合并核验
 
 ```text
-snap = argmin over Snapshots of |snap.Playtime - t| (no interpolation)
+snap = Snapshots.OrderBy(|snap.Playtime - t|).FirstOrDefault() (nearest snapshot, float abs; stable sort so ties go to the earlier list entry; no interpolation). Used by GetSnapshotForBake when !IsDays, with t = re-calculated optimum time in minutes.
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `t` | (re-calculated) optimum time in active-play minutes | EnemySpawnerConfig.OptimumTime (IsDays=0) |
+| `t` | (re-calculated) optimum time in active-play minutes | EnemySpawnerConfig.OptimumTime (IsDays=0), via SimulationConfig.GetReCalcOptimumTime |
+| `Snapshots` | minute-mode snapshot list | Simulation Data.Snapshots |
 
 **输出**：SimulationSnapshot
 
-**代码**：[Simulation/SimulationData.cs:13-16](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationData.cs#L13)；[Simulation/SimulationConfig.cs:233-236](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L233)
+**代码**：[Simulation/SimulationData.cs:13-16](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationData.cs#L13)；[Simulation/SimulationConfig.cs:233-239](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L233)
 
-**状态依据**：No native annotation. Data check: with nearest-snapshot lookup, 79 of 102 minute-mode spawners bake to exactly the shipped scene Health.
+**状态依据**：No native annotation on GetByPlayTime or GetSnapshotForBake. Data check: with nearest-snapshot lookup, 79 minute-mode spawners bake to exactly the shipped scene Health (79 of 102 in the first count over 706 spawners; 79 of 108 in the later independent recomputation over 716 spawners, see simulation.bake_spawner_health). No day-mode spawner matches exactly, so minute-mode data is the part consistent with the scene.
 
-**配置参数**：`Simulation Data.Snapshots (63 entries, Playtime 0..248 min, ~5 min apart = SnapshotInterval 300 s)`
+**配置参数**：`Simulation Data.Snapshots (63 entries, Playtime 0..248.1 min; about 1.1 min apart in the first 10-minute cycle (9 snapshots in 0-10.1 min), about 5 min apart after that (SnapshotInterval 300 s); duplicate Playtimes at day boundaries: 63.3 twice, 186.0 twice)`
 
 **使用方**：simulation.bake_spawner_health；simulation.bake_spawner_damage
 
-**备注**：Covers roughly the first 4 days of the game (Playtime ≤ 248 min). Minute-mode spawners have OptimumTime up to 240.
+**备注**：Covers roughly the first 4 days of the game (Playtime <= 248.1 min). Minute-mode spawners have OptimumTime up to 240. For duplicate Playtimes (63.3, 186.0) the stable OrderBy returns the first of the tie. GetByPlayTime has no other caller.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:spawner.bake_optimum_time`、`value:sim.snapshot_progress`、`value:sim.snapshot_stat_value`、`value:sim.snapshot_stat_total`、`value:sim.snapshot_stat_gpm`、`value:sim.dps_by_damage_type`、`value:sim.defense_by_damage_type`；输出 `value:sim.snapshot_at_time`
 
-- [待人工合入] `config_params`：63 entries, Playtime 0..248.1 min. During the first 10-minute cycle they are about 1.1 min apart (9 snapshots in 0-10.1 min); after that about 5 min apart. Duplicates occur at day boundaries (63.3 twice, 186.0 twice). Nearest-snapshot lookup picks the first of a tie.  
-  依据：Parsed Simulation Data.Snapshots Playtime list: 0,1.2,2.2,3.4,4.4,5.6,6.8,8.2,10.1,11.1,...,63.3,63.3,...,186.0,186.0,...,248.1.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `config_params`（来自 `simulation.snapshot_lookup_playtime`）：config_params now give the parsed Playtime distribution and duplicates. The tie-break claim matches the code: LINQ OrderBy is stable, so FirstOrDefault returns the earlier tied entry (SimulationData.cs:15).
+- 合并复核修正：The status_evidence count '79 of 102 minute-mode spawners' contradicts the merged simulation.bake_spawner_health evidence: its later independent recomputation counts 108 minute-mode spawners out of 716 (716 - 608 day-mode), still with all 79 exact matches. Left unreconciled, the two merged entries give different denominators for the same data check.
 
 ### `simulation.snapshot_interpolation_chunk`
 
@@ -742,6 +662,8 @@ Sort by TimeChunkIndex; x <= first -> first; x >= last -> last; else with L,R br
 
 **备注**：Linear interpolation in absolute value, while the underlying growth is roughly exponential. Bakes therefore slightly overshoot between trimmed points. GetStatValueAtTimeChunk returns .Value (pre-feature), not TotalValue.
 
+**依赖图节点**：输入 `value:spawner.bake_optimum_time`、`value:time.island_timing_days`、`state:boss_tower_context`、`constant:BossModel.floor_optimum_time_curve`、`config:BossTowerConfig.ArmorBossOptimumTimeOffsetMinutes`、`config:QuestConfig.Chains[].Steps[].OptimumTime`、`config:QuestConfig.Chains[].Steps[].IsDays`、`constant:SpawnerOptimumTimeDaysConverter.minutes_per_day`、`config:SimulationConfig.TimeChunkDurationMinutes`、`config:SimulationConfig.TimeChunkSnapshots`、`value:sim.snapshot_progress`、`value:sim.snapshot_stat_value`、`value:sim.snapshot_stat_total`、`value:sim.snapshot_stat_gpm`、`value:sim.dps_by_damage_type`、`value:sim.defense_by_damage_type`；输出 `value:sim.snapshot_at_time`
+
 ### `simulation.snapshot_trim`
 
 **Trimming TimeChunkSnapshots (TrimSimulationData)**
@@ -770,6 +692,8 @@ Inferred: keep chunk index i_0 = 0 and i_{n+1} = max(i_n + 1, ceil(1.1 * i_n)), 
 
 **备注**：Trimming adds interpolation error to bakes and the forecast.
 
+**依赖图节点**：输入 `config:SimulationConfig.TrimSimulationData`、`constant:SimulationConfig.trim_geometric_ratio`；输出 `value:sim.snapshot_progress`
+
 ### `simulation.bake_recalc_optimum_time`
 
 **Early-spawner optimum-time shift for bake**
@@ -793,40 +717,21 @@ if LocationNumber >= EarlySpawnerOptimumTimeOffsetStartLocation (11) and Relativ
 
 **状态依据**：No native annotation on this helper (the caller BuildSpawnerBakeReport is native-annotated). Applying it improves agreement with scene values on islands 11+.
 
+**由数据反推的生成规则**（拟合规则，详见 [Generation/BakeCheck.md](../Generation/BakeCheck.md)）：
+
+```text
+Early-spawner offset active when the scene was baked (L >= 11 and Rel < 0.5).
+```
+
+吻合情况：182 shifted spawners: HP/Damage within 5% = 147/177 with the shift vs 13/16 without.
+
 **配置参数**：`Simulation Config.EarlySpawnerOptimumTimeOffsetStartLocation`；`Simulation Config.EarlySpawnerOptimumTimeOffsetRelativePart`；`Simulation Config.EarlySpawnerOptimumTimeOffsetMultiplier`；`Combat Balance Config.IslandTargetDays`
 
 **使用方**：simulation.bake_spawner_health；simulation.bake_spawner_damage
 
 **备注**：On late islands, spawners in the first half of the island are baked against the player's power from earlier days, so they are easier. With the shipped values the shift reaches up to half an island's duration at Rel=0.
 
-### `simulation.optimum_time_from_relative`
-
-**Spawner OptimumTime from RelativeOptimumTime**
-
-- 状态：**编辑器工具缺失**（`editor_only_missing`）
-- 类型：`editor_generator`
-- 来源：子系统梳理
-
-```text
-OptimumTime(days) = start(L) + RelativeOptimumTime * (IslandTargetDays[L-1] - start(L)), start(L) = (L==1 ? 0 : IslandTargetDays[L-2]), rounded to 0.1 day
-```
-
-| 符号 | 含义 | 来源 |
-|---|---|---|
-| `RelativeOptimumTime` | designer placement within island | EnemySpawnerConfig.RelativeOptimumTime |
-| `IslandTargetDays` | island schedule | Combat Balance Config.IslandTargetDays |
-
-**输出**：EnemySpawnerConfig.OptimumTime for IsDays spawners
-
-**代码**：[Enemy/SpawnerRelativeOptimumTimeTool.cs:10-24](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/SpawnerRelativeOptimumTimeTool.cs#L10)
-
-**状态依据**：SpawnerRelativeOptimumTimeTool.FillRelativeOptimumTimes / ApplyOptimumTimesFromRelative have empty bodies. In Main.unity, 604 of 609 IsDays spawners satisfy the formula within ±0.05. The outliers are a superboss, an elite, Spawner_1_epic_buck (rel>1), Spawner_Crystal and second_biome_door.
-
-**配置参数**：`EnemySpawnerConfig.RelativeOptimumTime`；`EnemySpawnerConfig.OptimumTime`；`Combat Balance Config.IslandTargetDays`；`SpawnerRelativeOptimumTimeTool.Islands`
-
-**使用方**：simulation.bake_spawner_health；simulation.bake_spawner_damage；simulation.spawner_fight_model (IsCapOptimumTime)
-
-**备注**：This is the main lever for retiming content. Changing IslandTargetDays and re-running this tool and the bake moves every spawner's power target.
+**依赖图节点**：输入 `config:EnemySpawnerConfig.LocationNumber`、`config:EnemySpawnerConfig.RelativeOptimumTime`、`config:EnemySpawnerConfig.OptimumTime`、`config:EnemySpawnerConfig.IsDays`、`config:SimulationConfig.EarlySpawnerOptimumTimeOffsetStartLocation`、`config:SimulationConfig.EarlySpawnerOptimumTimeOffsetRelativePart`、`config:SimulationConfig.EarlySpawnerOptimumTimeOffsetMultiplier`、`config:CombatBalanceConfig.IslandTargetDays`、`constant:SimulationConfig.minutes_per_day_minute_mode`；输出 `value:spawner.bake_optimum_time`
 
 ### `simulation.bake_spawner_health`
 
@@ -834,37 +739,48 @@ OptimumTime(days) = start(L) + RelativeOptimumTime * (IslandTargetDays[L-1] - st
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`editor_generator`
-- 来源：子系统梳理
+- 来源：合并核验
 - 原生地址：`0x13db16c`
 
 ```text
-snap = snapshot(bakeTime); day = IsDays ? bakeTime : bakeTime/60; cc = S(CritChance, snap), cd = S(CritDamagePercent, snap); rows = armors sorted desc by Score = DpsData[a.Type]*(1 - a.Resist); a* = rows[0]; r = clamp(a*.Resist, -0.9, 0.9); P0 = (1 + K(4,day)) * DpsData[a*.Type]; Peff = (1-cc)*P0 + cd*cc*P0; NewHealth = round(Peff * AverageFightTime / Count * (1 - r))
+bakeTime = GetReCalcOptimumTime(spawner) (OptimumTime minus the early-spawner shift); snap = IsDays ? GetByTimeChunkIndex(bakeTime, config.TimeChunkSnapshots if non-empty else SimulationData.TimeChunkSnapshots) : GetByPlayTime(bakeTime); day = IsDays ? bakeTime : bakeTime/60; cc = S(CritChance, snap.TotalValue), cd = S(CritDamagePercent, snap.TotalValue); rows = Armors ordered desc (stable) by Score = DpsData[a.Type] * (1 - a.Resist), using the unclamped resist and 0 if the type is missing; a* = armor of rows[0]; r = clamp(a*.Resist, -0.9, 0.9); P0 = (1 + K(4,day)) * DpsData[a*.Type]; Peff = (1 - cc)*P0 + cd*cc*P0; NewHealth = Math.Round(Peff * AverageFightTime / Count * (1 - r)) (banker's rounding). CalculateBakedSpawnerHealth(spawner, d) = same with bakeTime = d, isDays = true and no early shift.
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `DpsData` | simulated player DPS by weapon type | Simulation Data snapshot |
+| `DpsData` | simulated player DPS by weapon type | Simulation Data snapshot (simulation.dps_data) |
 | `AverageFightTime` | designed seconds to clear the spawner | EnemySpawnerConfig.AverageFightTime (5 s for 318 spawners; 10, 12, 15, 20, ... up to 500) |
 | `Count` | units | EnemySpawnerConfig.Count |
 | `Armors` | enemy resists | EnemySpawnerConfig.ArmorConfig |
-| `K(4,day)` | ability DPS curve | simulation.ability_multipliers |
+| `K(4,day)` | ability DPS curve (PlayerAbilityDPSMult) | simulation.ability_multipliers |
+| `S(...)` | specific (diminishing) stat value | Stat.CalculateSpecificValue (Unit/Stat.cs:61) |
 
-**输出**：per-unit Health written to EnemySpawnerConfig.Stats[Health].BaseValue
+**输出**：per-unit Health written to EnemySpawnerConfig.Stats[Health].BaseValue (SpawnerBakeReportData.NewHealth)
 
-**代码**：[Simulation/SimulationConfig.cs:113-160](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L113)；[Simulation/SimulationConfig.cs:108-111](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L108)
+**代码**：[Simulation/SimulationConfig.cs:103-111](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L103)；[Simulation/SimulationConfig.cs:113-160](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L113)；[Simulation/SimulationConfig.cs:219-239](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L219)；[Simulation/SimulationData.cs:23-39](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationData.cs#L23)；[Unit/Stat.cs:61](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L61)
 
-**状态依据**：Comment 'Original ELF0x13db16c plus all19 actual predicates'. Re-running it on shipped Simulation Data reproduces scene Health exactly for 79 spawners, within 1% for 246 and within 5% for 552 of 706.
+**状态依据**：BuildSpawnerBakeReport carries 'Original ELF0x13db16c plus all19 actual predicates/captured armor selectors'. An initial re-run on the shipped Simulation Data reproduced scene Health exactly for 79 spawners, within 1% for 246 and within 5% for 552 of 706. An independent recomputation (GetReCalcOptimumTime, interpolation, Stat.CalculateSpecificValue) against Main.unity and Simulation Data.asset gives these results. All 79 exact HP matches are minute-mode (79 of 108). 0 of 608 day-mode spawners match exactly (median ratio 0.995, 10th-90th percentile 0.915-1.058). Even the 54 day-mode spawners whose re-calc time is exactly a stored chunk index give 0 exact HP; there the interpolation returns the stored snapshot (t=0 or t=1, up to rounding), so trimming cannot explain the gap. Day-mode scene values were baked from a different simulation run or Simulation Data version. Overall within 5%: HP 555/716.
 
-**配置参数**：`EnemySpawnerConfig.AverageFightTime`；`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.ArmorConfig`；`EnemySpawnerConfig.OptimumTime`；`EnemySpawnerConfig.IsDays`；`Combat Balance Config.Interpolations (AbilityDPS)`
+**由数据反推的生成规则**（精确复现，详见 [Generation/BakeCheck.md](../Generation/BakeCheck.md)）：
 
-**使用方**：simulation.bake_apply；Enemy runtime HP (×abMult at spawn)
+```text
+Python port: tufu_balance.model.bake (float32 where the C# uses float). Day-mode "day" = TimeChunkIndex = floor(TotalPlaytime/1440).
+```
+
+吻合情况：Minute mode (108): HP exact 79, within 1% 82, within 5% 88. Day mode (609): HP exact 1 (BossTower inf), but 90 of 92 non-trivial (bake time, chosen armor type) groups share one scene/model factor -> formula structure holds, player state used for the final bake differs from shipped Simulation Data. Stored SpawnerBakeInfos are an older bake log, not the source of scene values.
+
+**配置参数**：`EnemySpawnerConfig.AverageFightTime`；`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.ArmorConfig`；`EnemySpawnerConfig.OptimumTime`；`EnemySpawnerConfig.RelativeOptimumTime`；`EnemySpawnerConfig.IsDays`；`EnemySpawnerConfig.LocationNumber`；`Simulation Config.EarlySpawnerOptimumTimeOffsetStartLocation/RelativePart/Multiplier`；`Simulation Config.TimeChunkSnapshots`；`Combat Balance Config.IslandTargetDays`；`Combat Balance Config.Interpolations (AbilityDPS)`
+
+**使用方**：simulation.bake_apply；Enemy runtime HP (x abMult at spawn)；[Crystals/CrystalObjectiveBalance.cs:25](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Crystals/CrystalObjectiveBalance.cs#L25) (CalculateBakedSpawnerHealth for crystal objective units; replaced by 10^k*1000 when objectiveKillCount > 8, line 27)
 
 **备注**：The design intent is that, at its optimum time, the player kills the group in AverageFightTime using their best weapon type against the enemy's weakest resist. GlobalAttack is not included. The report method is runtime-callable, but writing the result into spawners was an editor step (see simulation.bake_apply). CalculateBakedSpawnerHealth(spawner, day) exposes it with an explicit day and no early shift.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:spawner.bake_optimum_time`、`value:sim.snapshot_at_time`、`config:EnemySpawnerConfig.IsDays`、`config:SimulationConfig.TimeChunkSnapshots`、`constant:SimulationConfig.minutes_per_day_minute_mode`、`value:sim.balance_coefficient[PlayerAbilityDPSMult]`、`config:EnemySpawnerConfig.ArmorConfig`、`constant:SimulationConfig.bake_resist_clamp`、`constant:Stat.crit_chance_curve`、`constant:Stat.crit_damage_curve`、`config:EnemySpawnerConfig.AverageFightTime`、`config:EnemySpawnerConfig.Count`；输出 `value:sim.bake_new_health`、`config:EnemySpawnerConfig.Stats[Health]`
 
-- [待人工合入] `status_evidence`：Independent recomputation: all 79 exact HP matches are minute-mode (79 of 108); 0 of 608 day-mode spawners match HP exactly (median ratio 0.995, 10th-90th percentile 0.915-1.058). Even the 54 day-mode spawners whose re-calc time is exactly a stored chunk index give 0 exact HP and 10 exact damage. At a stored index the interpolation returns the stored snapshot unchanged, so trimming cannot explain the mismatch. Day-mode scene values were baked from a different simulation run or Simulation Data version (Snapshots/minute-mode data is consistent with the scene). Overall within 5%: HP 555/716, damage 511/716; exact damage 124.  
-  依据：Re-ran SimulationConfig.cs:113-160 logic (incl. GetReCalcOptimumTime, interpolation, Stat.CalculateSpecificValue, SolveAttackDamage) against Main.unity and Simulation Data.asset.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `status_evidence`（来自 `simulation.bake_spawner_health`）：status_evidence now carries the corrected recomputation statistics and the conclusion that day-mode scene values came from a different run. The code-side claim was checked: SimulationData.cs:26-35 returns ordered[0] at the first index and otherwise interpolates with t=0/1 at stored indices, which reproduces the stored values. The original within-1% count is kept as an earlier-run figure.
+- 合并复核修正：(a) The member's within-1% statistic (246 spawners) was dropped when the status_evidence correction was folded in. (b) The used_by consumer reference is off: CalculateBakedSpawnerHealth is called at [Crystals/CrystalObjectiveBalance.cs:25](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Crystals/CrystalObjectiveBalance.cs#L25), not :27. Line 27 is the objectiveKillCount > 8 override, which replaces the baked health with 10^k*1000. All other fields were verified against SimulationConfig.cs:103-160 and 219-239.
 
 ### `simulation.bake_spawner_damage`
 
@@ -872,38 +788,50 @@ snap = snapshot(bakeTime); day = IsDays ? bakeTime : bakeTime/60; cc = S(CritCha
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`editor_generator`
-- 来源：子系统梳理
+- 来源：合并核验
 - 原生地址：`0x13db16c`
 
 ```text
-D = Difficulty<=0 ? 1 : Difficulty; n = min(4, (Count+1)/2); BR = (D+1)*HealthRegen + (2D+3)*LifestealFlat (snapshot TotalValues); needDpsUnit = (BR + HP_player*D/AverageFightTime)/n; perHit = needDpsUnit * (AttackCooldown/(1 - ev)) / (1 - bc*ba); find a with ApplyDamageDefense(a, Def[PreferredWeaponType(L)]) / (1 + K(5,day)) = perHit (doubling then bisection to within 1); NewDamage = round(max(10, a)/10)*10
+snap/day as in the health bake (bakeTime = GetReCalcOptimumTime(spawner); snap = IsDays ? GetByTimeChunkIndex(bakeTime, config.TimeChunkSnapshots if non-empty else SimulationData.TimeChunkSnapshots) : GetByPlayTime(bakeTime); day = IsDays ? bakeTime : bakeTime/60). D = Difficulty <= 0 ? 1 : Difficulty; n = min(4f, (float)(Count+1)/2f) (float division, not an integer attacker count: Count=2 gives 1.5, Count=4 gives 2.5); BR = (D+1)*HealthRegen + (2D+3)*LifestealFlat (snapshot TotalValues); needDpsUnit = (BR + HP_player*D/AverageFightTime) / n; perHit = needDpsUnit * (AttackCooldown/(1 - ev)) / (1 - bc*ba); solve a: ApplyDamageDefense(a, Def[PreferredWeaponType(L)]) * (1/(1 + K(5,day))) >= perHit, starting at upper = 1 and doubling until satisfied, then bisecting (lower=0) until upper - lower <= 1 and returning upper; NewDamage = Math.Round(max(10, a)/10)*10 (banker's rounding). ApplyDamageDefense(a,d) = a <= 0 ? 0 : exp(-0.75*d/a)*a*max(0, 1 - 0.25*d/a).
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
 | `HP_player` | simulated player Health TotalValue | Simulation Data snapshot |
 | `Difficulty` | fraction of player HP lost per fight (0.23, 0.3, 0.7, 1 most common) | EnemySpawnerConfig.Difficulty |
-| `AttackCooldown` | enemy attack cooldown (Stats Type 5) | EnemySpawnerConfig.Stats |
-| `ev, bc, ba` | player specific Evasion, BlockChance, BlockAmount | snapshot via Stat.CalculateSpecificValue |
-| `Def` | player defense vs location's preferred weapon | snapshot DefenseData, Locations Config |
-| `K(5,day)` | ability EHP curve | simulation.ability_multipliers |
+| `AttackCooldown` | enemy attack cooldown (Stats Type 5 BaseValue) | EnemySpawnerConfig.Stats |
+| `AverageFightTime` | designed seconds per fight | EnemySpawnerConfig.AverageFightTime |
+| `ev, bc, ba` | player specific Evasion, BlockChance, BlockAmount | snapshot TotalValue via Stat.CalculateSpecificValue |
+| `Def` | player defense vs the location's preferred weapon | snapshot DefenseData, Locations Config |
+| `K(5,day)` | ability EHP curve (PlayerAblityEHPMult) | simulation.ability_multipliers |
+| `snap, day` | bake snapshot and day chosen from the re-calculated optimum time | SimulationConfig.GetReCalcOptimumTime / GetSnapshotForBake (simulation.snapshot_lookup_playtime, SimulationData.GetByTimeChunkIndex) |
 
-**输出**：per-unit Damage written to EnemySpawnerConfig.Stats[Damage].BaseValue
+**输出**：per-unit Damage written to EnemySpawnerConfig.Stats[Damage].BaseValue (SpawnerBakeReportData.NewDamage)
 
-**代码**：[Simulation/SimulationConfig.cs:130-159](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L130)；[Services/Damage/DamageCalculator.cs:24-62](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L24)
+**代码**：[Simulation/SimulationConfig.cs:113-160](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L113)；[Simulation/SimulationConfig.cs:219-239](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L219)；[Services/Damage/DamageCalculator.cs:24-62](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L24)；[Unit/Stat.cs:61](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/Stat.cs#L61)
 
-**状态依据**：Same native method. Recomputed damage matches the scene exactly for 118 of 706 spawners and within 5% for 504.
+**状态依据**：Same native method BuildSpawnerBakeReport (0x13db16c). Recomputed damage matches the scene exactly for 118 of 706 spawners and within 5% for 504. A later recomputation on 716 spawners gives 124 exact and 511 within 5%; day-mode spawners mostly differ because of a different simulation run.
 
-**配置参数**：`EnemySpawnerConfig.Difficulty`；`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.Stats[AttackCooldown]`；`EnemySpawnerConfig.AverageFightTime`；`Locations Config.Locations[].PreferredWeaponType`；`Combat Balance Config.Interpolations (AbilityEHP)`
+**由数据反推的生成规则**（精确复现，详见 [Generation/BakeCheck.md](../Generation/BakeCheck.md)）：
+
+```text
+Python port: tufu_balance.model.bake / model.defense (inverse of the flat defence curve, round to 10, floor 10).
+```
+
+吻合情况：Minute mode Damage exact 104/108; day mode exact 20/609 (all at day 4-5), within 1% 177/609. Which defence type (PreferredWeaponType) is used cannot be tested: defence is 0 in all early snapshots.
+
+**配置参数**：`EnemySpawnerConfig.Difficulty`；`EnemySpawnerConfig.Count`；`EnemySpawnerConfig.Stats[AttackCooldown]`；`EnemySpawnerConfig.AverageFightTime`；`EnemySpawnerConfig.OptimumTime`；`EnemySpawnerConfig.RelativeOptimumTime`；`EnemySpawnerConfig.IsDays`；`EnemySpawnerConfig.LocationNumber`；`Simulation Config.EarlySpawnerOptimumTimeOffsetStartLocation/RelativePart/Multiplier`；`Simulation Config.TimeChunkSnapshots`；`Combat Balance Config.IslandTargetDays`；`Locations Config.Locations[].PreferredWeaponType`；`Combat Balance Config.Interpolations (AbilityEHP)`
 
 **使用方**：simulation.bake_apply
 
-**备注**：Design intent: over AverageFightTime the group drains Difficulty × player max HP on top of the player's battle regen. At most 4 units attack at once (SimulationConfig.MaxSimultaneousAttackers=4).
+**备注**：Design intent: over AverageFightTime the group drains Difficulty x player max HP on top of the player's battle regen. At most 4 units attack at once (SimulationConfig.MaxSimultaneousAttackers=4), but the attacker factor is the fractional (Count+1)/2. The solver returns the upper bound, so the raw value overshoots the exact solution by up to 1 before rounding to a multiple of 10 (minimum 10).
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:spawner.bake_optimum_time`、`value:sim.snapshot_at_time`、`config:EnemySpawnerConfig.IsDays`、`config:SimulationConfig.TimeChunkSnapshots`、`constant:SimulationConfig.minutes_per_day_minute_mode`、`config:EnemySpawnerConfig.Difficulty`、`constant:SimulationConfig.bake_default_difficulty`、`config:EnemySpawnerConfig.Count`、`constant:SimulationConfig.MaxSimultaneousAttackers`、`constant:SimulationConfig.attacker_factor_divisor`、`constant:DamageCalculator.battle_regen_coefficients`、`config:EnemySpawnerConfig.AverageFightTime`、`config:EnemySpawnerConfig.Stats[AttackCooldown]`、`constant:Stat.evasion_curve`、`constant:Stat.block_chance_curve`、`constant:Stat.block_amount_curve`、`config:EnemySpawnerConfig.LocationNumber`、`config:LocationsConfig.Locations[].Number`、`config:LocationsConfig.Locations[].PreferredWeaponType`、`value:sim.balance_coefficient[PlayerAblityEHPMult]`、`constant:DamageCalculator.flat_defense_exp_coef`、`constant:DamageCalculator.flat_defense_linear_coef`、`constant:DamageCalculator.solve_attack_tolerance`、`constant:SimulationConfig.bake_damage_rounding_step`；输出 `value:sim.bake_new_damage`、`config:EnemySpawnerConfig.Stats[Damage]`
 
-- [待人工合入] `expression`：n = min(4, (float)(Count+1)/2) (float division, so Count=2 gives 1.5 and Count=4 gives 2.5; it is not an integer attacker count). Rest unchanged: needDpsUnit = (BR + HP_player*D/AverageFightTime)/n; perHit = needDpsUnit*(AttackCooldown/(1-ev))/(1-bc*ba); solve ApplyDamageDefense(a, Def[PreferredWeaponType(L)])*(1/(1+K5)) >= perHit (doubling from 1, then bisection until upper-lower <= 1, returning the upper bound); NewDamage = Math.Round(max(10,a)/10)*10 (banker's rounding)  
-  依据：[Simulation/SimulationConfig.cs:139](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L139) `float enemies = Math.Min(4f, (float)unchecked(c.Count + 1) / 2f);`; DamageCalculator.cs:31-52 returns `upper` once upper-lower<=1.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `expression`（来自 `simulation.bake_spawner_damage`）：Verified at SimulationConfig.cs:139 (float division) and DamageCalculator.cs:31-52 (doubling from 1, bisection, returns upper once upper-lower<=1). The expression now states float n, the >= solve condition, the upper-bound return and banker's rounding.
+- 合并复核修正：(a) The expression says 'snap/day as in the health bake', so the damage bake depends on the same snapshot-selection levers: GetReCalcOptimumTime and GetSnapshotForBake at SimulationConfig.cs:105, 118-119 and 219-239. The location lookup at line 129 also needs LocationNumber. config_params omits RelativeOptimumTime, LocationNumber, the EarlySpawnerOptimumTimeOffset* params, Simulation Config.TimeChunkSnapshots and IslandTargetDays, so the config-to-formula dependency graph would miss these edges. Variables also omit the snapshot selection. The expression was verified exactly against SimulationConfig.cs:139-159 and DamageCalculator.cs:24-62.
 
 ### `simulation.bake_apply`
 
@@ -930,6 +858,8 @@ For each non-hand-balanced spawner: info = {Key, OptimumTime, PrevHealth=current
 **配置参数**：`Simulation Config.SpawnerBakeInfos`；`EnemySpawnerConfig.HandBalance`
 
 **备注**：The stored SpawnerBakeInfos are an OLDER bake: only 5 of 712 scene spawners equal their logged Health/Damage, with a median deviation of 24% for HP and 49% for damage. Late-game scene values are up to 15–30× higher than the log. Use the scene plus Simulation Data as the source of truth.
+
+**依赖图节点**：输入 `value:sim.bake_new_health`、`value:sim.bake_new_damage`、`config:EnemySpawnerConfig.HandBalance`、`config:EnemySpawnerConfig.OptimumTime`；输出 `config:EnemySpawnerConfig.Stats[Health]`、`config:EnemySpawnerConfig.Stats[Damage]`、`config:SimulationConfig.SpawnerBakeInfos[].Health`、`config:SimulationConfig.SpawnerBakeInfos[].Damage`、`config:SimulationConfig.SpawnerBakeInfos[].OptimumTime`
 
 ### `simulation.player_progression_tick`
 
@@ -961,6 +891,8 @@ Inferred: each Tick (TimeStep=300 s, SimulationSpeed=9 ticks/frame): rebuild Spa
 
 **备注**：Only its output survives. The bot's item choices and pathing are unknown, so Simulation Data cannot be regenerated for a changed economy. A replacement model would have to re-implement this loop using the recovered fight model and RPM formulas as building blocks.
 
+**依赖图节点**：输入 `config:SimulationConfig.TimeStep`、`config:SimulationConfig.SnapshotInterval`、`config:SimulationConfig.UseFastTick`、`config:SimulationConfig.FastTickStartChunkOffset`、`config:SimulationConfig.AutoBalanceItems`、`config:SimulationConfig.IsSmartPath`、`config:SimulationConfig.IsDynamicResourcePriority`、`config:SimulationConfig.StopAtLocation`、`config:SimulationConfig.TargetLocationNumber`、`config:SimulationConfig.StopAtDay`、`config:SimulationConfig.TargetDay`、`config:SimulationConfig.SpawnerChargesChunkMinutes`、`config:SimulationConfig.UseSpawnerCharges`、`config:SimulationConfig.IsCapOptimumTime`、`config:EnemySpawnerConfig.OptimumTime`、`config:EnemySpawnerConfig.IsDays`、`config:EnemySpawnerConfig.StatRewards[].Value`、`config:EnemySpawnerConfig.Count`、`config:EnemySpawnerConfig.LocationNumber`、`value:sim.spawner_priority`、`value:sim.spawner_fight_time`、`value:sim.spawner_farmed_time`、`value:sim.spawner_health_delta`、`value:sim.spawner_eligible`、`value:spawner.charges_limit_per_day`、`value:spawner.optimum_timing_chunks`、`value:sim.item_copies_emitted`、`value:sim.bot_current_hp`、`value:sim.ads_stat_income`、`value:sim.amulet_multipliers`、`value:sim.upgrade_purchase_hints`、`value:sim.total_playtime`、`value:sim.active_playtime`、`state:sim_bot_state`；输出 `value:sim.snapshot_stat_value`、`value:sim.snapshot_progress`、`value:sim.dps_by_damage_type`、`value:sim.defense_by_damage_type`、`value:sim.active_playtime`
+
 ### `simulation.lifecycle_time_model`
 
 **Session / AFK time model**
@@ -990,6 +922,8 @@ Inferred from data: LifeCycleInMinutes=[10,230] -> play 10 active minutes, then 
 
 **备注**：In fast-tick days (4+), active minutes per day vary between about 11 and 60, averaging 46/day overall (18,699 min over 405 days).
 
+**依赖图节点**：输入 `config:SimulationConfig.LifeCycleInMinutes`、`value:sim.spawner_farmed_time`、`state:sim_bot_state`；输出 `value:sim.active_playtime`、`value:sim.total_playtime`
+
 ### `simulation.spawner_priority`
 
 **Bot spawner priority**
@@ -1016,6 +950,8 @@ Unknown body; inputs available: playerRPS, rewardValue, moveTime(position), Prio
 
 **使用方**：simulation.player_progression_tick
 
+**依赖图节点**：输入 `config:EnemySpawnerConfig.PriorityMultiplier`、`config:SimulationConfig.IsDynamicResourcePriority`、`config:SimulationConfig.IsSmartPath`、`value:sim.spawner_player_rps`、`value:sim.spawner_reward_value`、`value:sim.stat_benefit_weights`、`value:sim.spawner_farmed_time`、`state:sim_bot_state`；输出 `value:sim.spawner_priority`
+
 ### `simulation.difficulty_map`
 
 **Spawner difficulty classification**
@@ -1041,6 +977,8 @@ Inferred: d = CalcDifficultSpawner(spawner, secondsRegen) (probably health lost 
 **配置参数**：`Simulation Config.DifficultyThresholds`；`Simulation Config.ShowDifficultyMap`
 
 **备注**：This is a visualization only. The bands do suggest the design reads 'fraction of HP lost': below 0.3 is easy, about 1 is the limit, above 1 is impossible.
+
+**依赖图节点**：输入 `config:SimulationConfig.DifficultyThresholds[].Threshold`、`value:sim.spawner_health_delta`、`value:player.stat_raw[Health]`、`value:player.stat_specific[HealthRegen]`；输出 `value:sim.spawner_difficulty_class`
 
 ### `simulation.amulet_sim_multipliers`
 
@@ -1070,38 +1008,41 @@ Unknown; structure: soulEmissionPoints[soulKey] = list of (day, amount) -> GetSo
 
 **备注**：Auto-balance-cost soul keys are {common, large, elite} (SimulationSystem.cs:203).
 
+**依赖图节点**：输入 `config:SimulationConfig.AutoBalanceAmulet`、`config:AmuletConfig.AutoBalanceCostMultiplier`、`config:AmuletConfig.AutoBalanceExperienceMultipliers`、`config:AmuletConfig.LevelTargetDays`、`config:AmuletConfig.MaxLevel`、`config:AmuletConfig.SoulDefs[].BaseExperience`、`config:AmuletUpgradeConfig.Upgrades[].RequiredAmuletLevel`、`config:ItemConfig.Rarity`、`value:sim.upgrade_purchase_hints`、`value:sim.balance_timing`、`value:sim.snapshot_progress`；输出 `value:sim.amulet_multipliers`、`config:SimulationConfig.AmuletLevelBalance[].Experience`、`config:SimulationConfig.AmuletLevelBalance[].SoulRewards.valueData`、`config:AmuletConfig.RequiredExperiencePerLevel`
+
 ### `simulation.snapshot_growth_curve`
 
 **Simulated player power vs day (baked balance target)**
 
 - 状态：**纯数据**（`data_only`）
 - 类型：`lookup_table`
-- 来源：子系统梳理
+- 来源：合并核验
 
 ```text
-P(day) table: Health TotalValue 100 (d0), 1.6e3 (d1), 9.1e3 (d3), 9.5e4 (d10), 4.2e5 (d21), 1.66e6 (d33), 5.8e6 (d51), 2.4e7 (d77), 9.5e7 (d115), 4.5e8 (d170), 1.24e9 (d250), 2.74e9 (d405). Max DpsData 9.2 -> 345 -> 1.7e3 -> 1.3e4 -> 6.5e4 -> 3.0e5 -> 1.3e6 -> 6.8e6 -> 2.5e7 -> 1.15e8 -> 3.8e8 -> 9.3e8. Daily growth: HP ×1.45/day (d4-6), ×1.12 (d20-33), ×1.05 (d50-80), ×1.03 (d100-155), ×1.01 (d200-250), ×1.004 (d400)
+P(day) table: Health TotalValue 100 (d0), 1.6e3 (d1), 9.1e3 (d3), 9.5e4 (d10), 4.2e5 (d21), 1.66e6 (d33), 5.8e6 (d51), 2.4e7 (d77), 9.5e7 (d115), 4.5e8 (d170), 1.24e9 (d250), 2.74e9 (d405). Max DpsData 9.2 -> 345 -> 1.7e3 -> 1.3e4 -> 6.5e4 -> 3.0e5 -> 1.3e6 -> 6.8e6 -> 2.5e7 -> 1.15e8 -> 3.8e8 -> 9.3e8. Daily growth: HP x1.45/day (d4-6), x1.12 (d20-33), x1.05 (d50-80), x1.03 (d100-155), x1.01 (d200-250), x1.004 (d400). Location reached: 17 at day 154 and through day 405; items plateau at 45 from day 187.
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `P(day)` | snapshot stats/DPS/defense/items | Simulation Data.TimeChunkSnapshots |
+| `P(day)` | snapshot stats/DPS/defense/items/location | Simulation Data.TimeChunkSnapshots |
 
 **输出**：target power curve used by all bakes
 
 **代码**：[Simulation/SimulationData.cs:9-12](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationData.cs#L9)；[Simulation/SimulationSnapshot.cs:7-24](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationSnapshot.cs#L7)
 
-**状态依据**：Produced by the stub bot and stored as data. Stats present: keys 0-9, 12-17, 20-31, 33, 34. Items (Key, Level, Copies) grow from 1 to 45.
+**状态依据**：Produced by the stubbed bot and stored as data. Stats present: keys 0-9, 12-17, 20-31, 33, 34. Items (Key, Level, Copies) grow from 1 to 45.
 
 **配置参数**：`Simulation Data.Snapshots`；`Simulation Data.TimeChunkSnapshots`
 
-**使用方**：simulation.bake_spawner_health；simulation.bake_spawner_damage；simulation.forecast_snapshot；[BossTower/BossSpawnService.cs](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/BossSpawnService.cs):BakeStatsForFloor
+**使用方**：simulation.bake_spawner_health；simulation.bake_spawner_damage；simulation.forecast_snapshot；[BossTower/BossSpawnService.cs](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/BossTower/BossSpawnService.cs):BakeStatsForFloor；[Crystals/CrystalObjectiveBalance.cs:28-31](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Crystals/CrystalObjectiveBalance.cs#L28)
 
-**备注**：This is the most important single lever. Every spawner's HP and damage is linear in this curve at its OptimumTime. A 10% change in simulated DPS at day d changes the HP of every spawner baked at d by 10%.
+**备注**：This is the most important single lever. Every spawner's HP and damage is linear in this curve at its OptimumTime. A 10% change in simulated DPS at day d changes the HP of every spawner baked at d by 10%. The bot reaches Location 17 at day 154 and stays there through day 405. Locations Config defines only 17 locations, so every spawner is on islands 1-17. Items plateau at 45 from day 187. Growth after day 154 therefore comes only from farming and the feature curves (K2/K3/ability), which explains the slowing daily growth.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:sim.snapshot_stat_value`、`value:sim.snapshot_progress`；输出 `value:sim.snapshot_stat_total`、`value:sim.dps_by_damage_type`、`value:sim.defense_by_damage_type`
 
-- [待人工合入] `notes`：Add: the bot reaches Location 17 at day 154 and stays there through day 405. Locations Config defines only 17 locations, so every spawner is on islands 1-17. Items plateau at 45 from day 187. Growth after day 154 therefore comes only from farming and the feature curves (K2/K3/ability), which explains the slowing daily growth.  
-  依据：Simulation Data.TimeChunkSnapshots Location column; Locations Config.asset Number 1..17.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `simulation.snapshot_growth_curve`）：The Location-17 plateau, the 17-location limit and the items plateau were added to notes (and summarized in the expression). These are data observations from TimeChunkSnapshots and Locations Config, and the code does not contradict them.
 
 ### `simulation.forecast_build_core`
 
@@ -1135,6 +1076,8 @@ timePoints_i = ForecastLocationNumber + BossSnapshotTimingStep*i for i < |EventB
 
 **备注**：At runtime every boss uses the same snapshot (the start day of the player's island). Growth over the event comes only from EnemyStatsMultiplier. minutesAhead and stepMinutes are ignored by the reconstructed BuildCore. If no table is available, the fallback takes the current player's stats as constant (local addition, not original).
 
+**依赖图节点**：输入 `config:CrystalEventRosterConfig.Leagues[].SnapshotIslandNumber`、`value:player.unlocked_location`、`constant:EventForecastService.crystal_boss_snapshot_timing_step`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.EventBossMinutes`、`config:CrystalEventRosterConfig.BossMinutes`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.EnemyStatsGrowthPerMinute`、`value:time.island_timing_days`、`value:sim.snapshot_at_time`、`value:sim.balance_coefficient[PlayerAbilityDPSMult]`、`value:sim.balance_coefficient[PlayerAblityEHPMult]`、`state:current_event`；输出 `value:forecast.snapshot`、`value:forecast.enemy_stats_multiplier`、`value:sim.ability_dps_multiplier`、`value:sim.ability_ehp_multiplier`
+
 ### `simulation.forecast_auto_balanced_enemy`
 
 **Forecast auto-balanced event golem/boss/grand boss**
@@ -1166,38 +1109,45 @@ crit = S(CC)*(S(CD)-1)+1; atk = 1+0.01*S(GlobalAttack); dodge = S(Evasion); bloc
 
 **备注**：This differs from the spawner bake in four ways: it uses ×(1−dodge) instead of a ÷(1−evasion) hit frequency, has no attack cooldown or unit count, includes GlobalAttack and GlobalDefence, and puts the player's battle regen outside the per-unit split.
 
+**依赖图节点**：输入 `value:forecast.snapshot`、`state:current_event`、`constant:EventForecastService.event_weakness_resist`、`constant:ForecastSnapshots.resist_clamp`、`value:forecast.boss_preset`、`config:CrystalEventRosterConfig.ForecastSettings.EnemyPresets.Golem.FightTimeSeconds`、`config:CrystalEventRosterConfig.ForecastSettings.EnemyPresets.Golem.Difficulty`、`config:CrystalEventRosterConfig.ForecastSettings.EnemyPresets.GrandBoss.FightTimeSeconds`、`config:CrystalEventRosterConfig.ForecastSettings.EnemyPresets.GrandBoss.Difficulty`、`value:forecast.enemy_stats_multiplier`、`value:sim.ability_dps_multiplier`、`value:sim.ability_ehp_multiplier`、`value:forecast.damage_ramp_average`、`constant:ForecastSnapshots.battle_regen_regen_coef`、`constant:ForecastSnapshots.battle_regen_lifesteal_coef`、`constant:DamageCalculator.flat_defense_exp_coef`、`constant:DamageCalculator.flat_defense_linear_coef`、`constant:ForecastSnapshots.damage_round_step`、`constant:ForecastSnapshots.min_damage`、`constant:ForecastSnapshots.min_fight_time`；输出 `value:forecast.enemy_health`、`value:forecast.enemy_damage`
+
 ### `simulation.forecast_damage_ramp_average`
 
 **Average event damage-ramp multiplier**
 
 - 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`runtime_formula`
-- 来源：子系统梳理
+- 来源：合并核验
 
 ```text
-if T<=0 or p<=0: 1; d = max(0, delay); if d >= T: 1; else RampAvg = 1 + (T - d)^2 * p / (2T)  (= mean over [0,T] of 1 + p*max(0, t - d))
+GetAverageDamageRampMultiplier(T, delay, p): if (T <= 0 || p <= 0) return 1.0; d = max(0.0, delay); return d >= T ? 1.0 : 1.0 + (T - d) * (T - d) * p / (T + T)   // = mean over t in [0,T] of (1 + p*max(0, t - d)). Used in BuildEnemy (non-Golem only): damage = round((damage / max(0.0001, RampAvg(settings.FightTimeSeconds, input.DamageRampDelaySeconds, input.DamageRampPercentPerSecond))) / 10) * 10
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `delay` | 5 s | AutoBalanceInput.DamageRampDelaySeconds |
-| `p` | 0.04 per s | AutoBalanceInput.DamageRampPercentPerSecond |
-| `T` | boss fight seconds | presets |
+| `T` | Enemy fight time in seconds (settings.FightTimeSeconds of the Boss/GrandBoss preset; Boss value comes from TunePresetsForBoss, 15..25 s; GrandBoss preset 40 s) | ForecastEnemySettings.FightTimeSeconds (Crystal Event Roster Config.ForecastSettings.EnemyPresets, tuned by TunePresetsForBoss) |
+| `delay` | Ramp start delay, 5 s in the shipped config | ForecastAutoBalanceInput.DamageRampDelaySeconds |
+| `p` | Ramp slope, 0.04 per second in the shipped config | ForecastAutoBalanceInput.DamageRampPercentPerSecond |
+| `RampAvg` | Time-averaged damage multiplier over the fight; divides the forecast boss damage | computed |
 
-**输出**：divisor for boss damage
+**输出**：Divisor (>= 1) applied to the forecast Boss/GrandBoss damage so the ramped runtime damage averages to the balanced target
 
-**代码**：[Simulation/Forecast/ForecastSnapshots.cs:191-196](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L191)；[Services/Damage/DamageCalculator.cs:77-78](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L77)
+**代码**：[Simulation/Forecast/ForecastSnapshots.cs:191-196](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L191)；[Simulation/Forecast/ForecastSnapshots.cs:181-182](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L181)；[Services/Damage/DamageCalculator.cs:78-79](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L78)；[Enemy/EnemyUnit.cs:188](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemyUnit.cs#L188)
 
-**状态依据**：No annotation. It is consistent with the runtime event ramp in DamageCalculator: attack × (1 + 0.04 × max(0, timer − 5)).
+**状态依据**：GetAverageDamageRampMultiplier (ForecastSnapshots.cs:191) has no native-address comment. Only its caller BuildAutoBalancedEnemies is annotated (Original 0x13f7da0 + local functions 0x13f87f0, 0x13f8934), and a caller's annotation does not count. The closed form matches the runtime ramp in DamageCalculator.cs:78-79: attack *= max(0, EventDamageRampTimer - 5) * 0.04 + 1 for IsEvent attackers.
 
-**配置参数**：`Crystal Event Roster Config.ForecastSettings.AutoBalanceInput.DamageRampDelaySeconds`；`...DamageRampPercentPerSecond`
+**配置参数**：`Crystal Event Roster Config.ForecastSettings.AutoBalanceInput.DamageRampDelaySeconds (5)`；`Crystal Event Roster Config.ForecastSettings.AutoBalanceInput.DamageRampPercentPerSecond (0.04)`；`Crystal Event Roster Config.ForecastSettings.EnemyPresets.Boss.FightTimeSeconds (20; overridden by BossFightTimeSecondsMin/Max 15..25)`；`Crystal Event Roster Config.ForecastSettings.EnemyPresets.GrandBoss.FightTimeSeconds (40)`
 
 **使用方**：simulation.forecast_auto_balanced_enemy
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**备注**：Worked values with the shipped config (d=5, p=0.04): T=15 gives 1.1333; T=20 gives 1.225; T=25 gives 1.32; GrandBoss T=40 gives 1.6125. Golem damage is not divided (kind != EnemyGolem guard at ForecastSnapshots.cs:181). Related runtime entries, which mirror this formula but do not consume it: combat.event_enemy_damage_ramp (DamageCalculator.cs:78-79) and spawners.event_damage_ramp_timer (EnemyUnit.cs:188). The runtime ramp constants 5 s and 0.04 are hard-coded in DamageCalculator and are not read from AutoBalanceInput, so if the config values change, forecast and runtime drift apart. EnemyUnit.cs:188 advances EventDamageRampTimer only while the event enemy is below max health (CurrentHealth < Health - 0.01) and resets it to 0 otherwise, so the real ramp starts at first damage taken, not at spawn. The forecast assumes the ramp runs for the whole fight T.
 
-- [待人工合入] `code_refs`：Services/Damage/DamageCalculator.cs:78-79  
-  依据：Line 78 is the IsEvent check and line 79 is `attack *= Math.Max(0f, attacker.EventDamageRampTimer - 5f) * 0.04 + 1.0`.
+**依赖图节点**：输入 `value:forecast.boss_preset`、`config:CrystalEventRosterConfig.ForecastSettings.EnemyPresets.GrandBoss.FightTimeSeconds`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.DamageRampDelaySeconds`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.DamageRampPercentPerSecond`；输出 `value:forecast.damage_ramp_average`
+
+**核验记录**（已写入上方字段）：
+
+- 采纳 `code_refs`（来自 `simulation.forecast_damage_ramp_average`）：Checked: DamageCalculator.cs line 78 is the IsEvent check and line 79 is the ramp multiply. code_refs now cite [Services/Damage/DamageCalculator.cs:78-79](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L78).
+- 合并复核修正：used_by lists combat.event_enemy_damage_ramp and spawners.event_damage_ramp_timer, but neither consumes this forecast divisor. They are the runtime ramp that the closed form averages: DamageCalculator.cs:78-79 hard-codes 5 s and 0.04, and EnemyUnit.cs:188 drives the timer. Neither reads GetAverageDamageRampMultiplier or its output. In the dependency graph these would become false formula-to-consumer edges. The only real consumer is BuildEnemy in BuildAutoBalancedEnemies (ForecastSnapshots.cs:182), which is simulation.forecast_auto_balanced_enemy. The fix moves the two runtime ids into notes as related, not dependent, entries. I checked the expression, the worked values (1.1333, 1.225, 1.32, 1.6125), the status, the config values (asset lines 30-31, 60-61, 70, 73) and the resolution of the pending code_refs correction against the code. All are correct.
 
 ### `simulation.forecast_tune_boss_presets`
 
@@ -1227,6 +1177,8 @@ T_boss = BossFightTimeSecondsMin + clamp01(progress)*(Max - Min); D_boss = BossD
 **使用方**：simulation.forecast_auto_balanced_enemy
 
 **备注**：Difficulty saturates at the 5th boss.
+
+**依赖图节点**：输入 `value:forecast.snapshot`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.BossFightTimeSecondsMin`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.BossFightTimeSecondsMax`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.BossDifficultyMin`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.BossDifficultyMax`、`constant:ForecastSnapshots.boss_difficulty_ramp_bosses`、`config:CrystalEventRosterConfig.ForecastSettings.EnemyPresets.Boss.FightTimeSeconds`、`config:CrystalEventRosterConfig.ForecastSettings.EnemyPresets.Boss.Difficulty`；输出 `value:forecast.boss_preset`
 
 ### `simulation.forecast_reward`
 
@@ -1258,39 +1210,46 @@ minutes = (RewardMinutesMax<=0 && RewardMinutesMin<=0) ? RewardMinutes : Min + c
 
 **备注**：Rewards are denominated in 'minutes of farming'.
 
+**依赖图节点**：输入 `value:forecast.snapshot`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.RewardMinutes`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.RewardMinutesMin`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.RewardMinutesMax`、`config:CrystalEventRosterConfig.ForecastSettings.RewardAllowedStats`、`state:rng`；输出 `value:forecast.stat_reward`
+
 ### `simulation.forecast_event_plan`
 
 **Event plan assembly**
 
 - 状态：**原生证据恢复**（`recovered_native`）
 - 类型：`lookup_table`
-- 来源：子系统梳理
+- 来源：合并核验
 - 原生地址：`0x13f5ee0`
 
 ```text
-Bosses[i] = {Minute = EventBossMinutes[i], Enemy = snapshot_i Boss, Reward = snapshot_i reward}; Golem = first snapshot Golem at minute 0; GrandBoss = last snapshot GrandBoss at max(0, EventEndMinute); resists/attack type copied from input
+BuildEventPlan(snapshots, input): for i in 0..input.EventBossMinutes.Count-1: Bosses[i] = { Enemy = ToEnemyInfo(minute = input.EventBossMinutes[i], kind = EnemyBoss, snapshots[i].AutoBalanceInput, FindEnemyOrDefault(snapshots[i], EnemyBoss)), Reward = {HasReward, RewardStatType, RewardMinutes, RewardValue} of snapshots[i] }; Golem = ToEnemyInfo(0, EnemyGolem, snapshots[0].AutoBalanceInput, FindEnemyOrDefault(snapshots[0], EnemyGolem)); GrandBoss = ToEnemyInfo(max(0, input.EventEndMinute), EnemyGrandBoss, snapshots[last].AutoBalanceInput, FindEnemyOrDefault(snapshots[last], EnemyGrandBoss)); ToEnemyInfo copies Health and Damage from the enemy and AttackType = EnemyAttackType, ResistStabbing/Cutting/Buckshot from that snapshot's AutoBalanceInput. FindEnemyOrDefault returns default (Health = 0, Damage = 0) if Enemies is null or has no enemy of that kind. Crystal-event caller (EventForecastService.BuildEventPlanAsync): before the build, input.EventBossMinutes = roster.BossMinutes; EventLastBossMinute = BossMinutes[last]; EventEndMinute = max(EventEndMinute, EventLastBossMinute); BossSnapshotTimingStep = 0.25. After the build, plan.Golem.Health and Damage are replaced by the Golem of the snapshot whose time point (ForecastLocationNumber + 0.25*i) is nearest the player's BossProgressLocation.Number.
 ```
 
 | 符号 | 含义 | 来源 |
 |---|---|---|
-| `EventEndMinute` | 200 | AutoBalanceInput.EventEndMinute |
+| `EventBossMinutes` | Per-boss event minute. Its count also sets the number of snapshots (BuildTimePoints). | ForecastAutoBalanceInput.EventBossMinutes; for crystal events overwritten by CrystalEventRosterConfig.BossMinutes |
+| `EventEndMinute` | Grand boss minute (asset value 200; for crystal events raised to max(200, last roster boss minute) = 1000) | ForecastAutoBalanceInput.EventEndMinute |
+| `snapshots[i]` | ForecastSnapshotExtended i (auto-balanced Golem/Boss/GrandBoss, reward data, AutoBalanceInput copy) | ForecastSnapshots.BuildCore |
+| `EnemyAttackType, ResistStabbing/Cutting/Buckshot` | Combat types copied into every enemy info. Set by EventForecastService.SetCombatTypes from the event's WeaponType and ResistType: the resisted weapon type gets -0.9, the others 0. | ForecastAutoBalanceInput |
 
-**输出**：ForecastEventPlan
+**输出**：ForecastEventPlan {Golem, Bosses[], GrandBoss} (plus LeagueIndex, CrystalStages and CrystalMilestones for crystal events), serialized to JSON by EventForecastService
 
-**代码**：[Simulation/Forecast/ForecastSnapshots.cs:115-147](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L115)
+**代码**：[Simulation/Forecast/ForecastSnapshots.cs:114-128](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L114)；[Simulation/Forecast/ForecastSnapshots.cs:137-147](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L137)；[Simulation/Forecast/ForecastSnapshots.cs:111-112](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastSnapshots.cs#L111)；[Simulation/Forecast/ForecastApi.cs:30](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastApi.cs#L30)；[Events/Services/EventForecastService.cs:154-181](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Events/Services/EventForecastService.cs#L154)；[Simulation/Forecast/ForecastHelper.cs:101-103](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Forecast/ForecastHelper.cs#L101)
 
-**状态依据**：Native VA comment.
+**状态依据**：BuildEventPlan carries the comment "// Original ARM64 ELF VA 0x13f5ee0 and tiny ToEnemyInfo/ToBossInfo bodies." (ForecastSnapshots.cs:114). The crystal-event post-processing in EventForecastService.BuildEventPlanAsync is annotated Original 0x14e6d34; it is listed here as a consumer, not as this formula's address.
 
-**配置参数**：`AutoBalanceInput.EventBossMinutes`；`AutoBalanceInput.EventEndMinute`
+**配置参数**：`Crystal Event Roster Config.ForecastSettings.AutoBalanceInput.EventBossMinutes (20 entries: 0,10,25,40,55,60,80,100,120,135,150,165,180,195,210,300,400,500,600,700; overwritten for crystal events)`；`Crystal Event Roster Config.BossMinutes (20 entries: 10,20,30,40,60,60,80,100,120,150,200,250,300,350,450,500,600,700,800,1000)`；`Crystal Event Roster Config.ForecastSettings.AutoBalanceInput.EventEndMinute (200)`；`AutoBalanceInput.EnemyAttackType / ResistStabbing / ResistCutting / ResistBuckshot (overwritten by SetCombatTypes)`
 
-**使用方**：Events crystal roster
+**使用方**：Events crystal roster (EventForecastService.BuildEventPlanAsync -> EventsRepository)；spawners.event_plan_override；meta.event_plan_stat_reward
 
-**备注**：EventBossCount, EventBossGamma and EventLastBossMinute are not used here. ForecastHelper.SetEventSettings(grandBossMinute, lastBossMinute, bossCount, bossGamma) is a stub that presumably generated EventBossMinutes, e.g. minute_i = last × (i/count)^gamma.
+**备注**：Upstream input: simulation.forecast_build_core produces the snapshots this plan reads (ForecastApi.cs:30); it is not a consumer. EventBossCount (10), EventBossGamma (1) and RandomBossResists (0) are not read by BuildEventPlan or BuildCore; they are only declared in ForecastAutoBalanceInput. EventLastBossMinute is written by EventForecastService but not read here. ForecastHelper.SetEventSettings(grandBossMinute, lastBossMinute, bossCount, bossGamma) is an empty stub (editor/inspector helper). A generator of the form minute_i = last * (i/count)^gamma does not match the shipped data: count=10, gamma=1, last=150, yet AutoBalanceInput.EventBossMinutes has 20 irregular entries. The minute list was therefore hand-edited or produced some other way. For crystal events, that asset list is not used at runtime: EventForecastService replaces it with CrystalEventRosterConfig.BossMinutes (also 20 irregular entries, including a duplicate 60), and that list is also not a gamma curve. Bosses[i] pairs EventBossMinutes[i] with snapshots[i]. This relies on BuildTimePoints producing exactly EventBossMinutes.Count snapshots. The fallback current-player snapshot path is not in the event-plan code.
 
-**核验意见**（对抗性核验 agent 对照代码提出；`已应用` 的已改入上方字段，其余以此处为准）：
+**依赖图节点**：输入 `value:forecast.snapshot`、`value:forecast.enemy_health`、`value:forecast.enemy_damage`、`value:forecast.stat_reward`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.EventBossMinutes`、`config:CrystalEventRosterConfig.BossMinutes`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.EventEndMinute`、`config:EventConfig.DifficultySettings`、`config:CrystalEventRosterConfig.Leagues[].SnapshotIslandNumber`、`constant:EventForecastService.crystal_boss_snapshot_timing_step`、`constant:EventForecastService.resisted_type_weakness`、`state:current_event`、`value:player.unlocked_location`、`config:CrystalEventRosterConfig.Stages[].Rewards`、`config:CrystalEventRosterConfig.Milestones[].Rewards`、`config:CrystalEventRosterConfig.Milestones[].RequiredCrystals`、`value:reward.baked_stat_reward`、`state:rng`；输出 `value:forecast.event_plan`
 
-- [待人工合入] `notes`：That guess contradicts the shipped data. EventBossCount=10, EventBossGamma=1 and EventLastBossMinute=150, yet EventBossMinutes has 20 irregular entries (0,10,25,40,55,60,80,100,120,135,150,165,180,195,210,300,400,500,600,700), so the list was hand-edited or made another way. RandomBossResists is also unused by the recovered BuildCore.  
-  依据：Crystal Event Roster Config.asset lines 32-57; ForecastSnapshots.cs:111-112 uses EventBossMinutes.Count only.
+**核验记录**（已写入上方字段）：
+
+- 采纳 `notes`（来自 `simulation.forecast_event_plan`）：Checked against Crystal Event Roster Config.asset lines 32-57: EventBossCount=10, EventBossGamma=1, EventLastBossMinute=150, a 20-entry irregular EventBossMinutes list, and RandomBossResists=0 with no reader in the code. Notes now replace the gamma-generator guess with this evidence. The notes also add that crystal events overwrite EventBossMinutes with roster.BossMinutes (EventForecastService.cs:157-161), which is also not gamma-shaped.
+- 合并复核修正：used_by lists simulation.forecast_build_core, but the dependency runs the other way. BuildCore produces the snapshots that BuildEventPlan consumes: ForecastApi.cs:30 calls BuildEventPlan(snapshots, input) after ForecastSnapshots.BuildAsync. Listing BuildCore as a consumer would create a reversed edge in the dependency graph, from the event plan to BuildCore. The fix removes it from used_by and records it in notes as the upstream input. I checked the rest against ForecastSnapshots.cs:111-147, EventForecastService.cs:122-190 and Crystal Event Roster Config.asset lines 32-57 and 75-95: the expression, the crystal-caller pre/post-processing, the status/native_va 0x13f5ee0 and the resolution of the pending notes correction are accurate (EventLastBossMinute=150, a 20-entry EventBossMinutes list, RandomBossResists=0, and roster BossMinutes with a duplicate 60 ending at 1000).
 
 ### `simulation.forecast_crystal_reward_mapping`
 
@@ -1318,6 +1277,8 @@ Stat -> StatReward(Value=(float)Value); EventCurrency/Chest -> Amount; Weapon/Sh
 **配置参数**：`Crystal Event Roster Config.Stages[].Rewards`
 
 **使用方**：Events crystal roster
+
+**依赖图节点**：输入 `value:forecast.event_plan`、`value:reward.baked_stat_reward`、`config:CrystalEventRosterConfig.Stages[].Rewards`、`config:CrystalEventRosterConfig.Milestones[].Rewards`、`constant:ForecastCrystalRewardEntryHelper.mythical_tier`；输出 `value:forecast.crystal_reward`
 
 ### `simulation.spawner_charges_limit`
 
@@ -1350,6 +1311,8 @@ chargesLimit = DisableAfterFirstClear ? Count : ChargesTotal; ChargesTotal = IsC
 
 **备注**：This is a direct multiplier in RPM, so it scales every RPM-denominated reward (shop, rewarded, event). At runtime the DisableAfterFirstClear branch is dead because those spawners are filtered out of spawnerData in GPM-bot mode.
 
+**依赖图节点**：输入 `config:EnemySpawnerConfig.DisableAfterFirstClear`、`config:EnemySpawnerConfig.Count`、`config:EnemySpawnerConfig.ChargesBeforeBigRespawn`、`config:EnemySpawnerConfig.IsEvent`、`config:EnemySpawnerConfig.ItemReward`、`value:spawner.uses_ab_cooldowns`、`value:spawner.ab_charges`、`value:player.meta_stat[items_rarity_charges]`、`value:item.rarity_param`；输出 `value:spawner.charges_total`、`value:spawner.charges_limit_per_day`
+
 ### `simulation.forecast_current_player_fallback`
 
 **Forecast fallback snapshot from current player (local addition)**
@@ -1378,6 +1341,8 @@ If Simulation Data.TimeChunkSnapshots is missing or empty: run CalculateSimulati
 **使用方**：simulation.forecast_auto_balanced_enemy；simulation.forecast_reward
 
 **备注**：It changes event enemy HP and damage only when the shipped table is missing. The model should ignore it when Simulation Data is present.
+
+**依赖图节点**：输入 `value:sim.snapshot_progress`、`value:player.stat_raw`、`value:player.stat_specific[HealthRegen]`、`value:sim.stat_rpm`、`value:sim.dps_by_damage_type`、`value:sim.defense_by_damage_type`、`value:player.unlocked_location`、`value:item.copies`、`value:item.evolution_level`、`config:CrystalEventRosterConfig.ForecastSettings.AutoBalanceInput.EventBossMinutes`、`config:CrystalEventRosterConfig.BossMinutes`、`config:EventConfig.DifficultySettings`；输出 `value:sim.snapshot_at_time`
 
 ### `simulation.ads_reward_model`
 
@@ -1408,6 +1373,8 @@ Intended: every AdsIntervalMinutes of simulated playtime, grant a stat reward wo
 **使用方**：simulation.player_progression_tick；simulation.snapshot_growth_curve
 
 **备注**：Live rewarded ads (meta.rewarded_ad_stat_value = RPM*6*...) are therefore not reflected in the baked balance target. Real players who watch ads are ahead of the curve.
+
+**依赖图节点**：输入 `config:SimulationConfig.AdsIntervalMinutes`、`config:SimulationConfig.AdsRewardMultiplierInMinutes`、`value:sim.stat_rpm`、`value:sim.active_playtime`、`state:sim_bot_state`；输出 `value:sim.ads_stat_income`
 
 ### `simulation.stat_benefit_weights`
 
@@ -1440,6 +1407,8 @@ statsBenefit[s] is initialized to 1 for every StatType, and itemBenefit[item] is
 
 **备注**：Without the weights, a rerun bot values all stats equally (1.0), so the farm path and therefore the baked growth curve cannot be regenerated faithfully. Treat Simulation Data snapshots as ground truth.
 
+**依赖图节点**：输入 `constant:SimulationSystem.stats_benefit_init`、`state:sim_bot_state`、`config:EnemySpawnerConfig.StatRewards[].Value`、`config:EnemySpawnerConfig.StatRewards[].StatType`、`config:EnemySpawnerConfig.Count`、`config:EnemySpawnerConfig.ItemReward`、`value:item.copies`、`constant:SimulationSystem.unowned_item_benefit_fallback`、`constant:SimulationSystem.current_boss_reward_value`；输出 `value:sim.stat_benefit_weights`、`value:sim.spawner_reward_value`
+
 ### `simulation.item_emission_model`
 
 **Simulated item copy emission and fractional rolls**
@@ -1469,6 +1438,8 @@ Intended: copies per simulated clear = RollFractionalCount(baseCount * GetItemEm
 
 **备注**：This is the missing link between spawner item drops and the EvolutionShardsRequirements and EvolutionTargetTimings tables. Those tables are output-only data (editor_only_missing generators).
 
+**依赖图节点**：输入 `value:sim.balance_timing`、`value:sim.balance_coefficient[ItemEmission]`、`config:EnemySpawnerConfig.ItemReward`、`config:EnemySpawnerConfig.Count`、`config:LocationsConfig.Locations[].PreferredWeaponType`、`config:LocationsConfig.Locations[].PreferredArmorType`、`constant:SimulationSystem.preferred_item_emission_multiplier`、`state:rng`；输出 `value:sim.item_copies_emitted`
+
 ### `simulation.bot_fight_resolution`
 
 **Bot fight resolution, regen and death handling**
@@ -1497,6 +1468,8 @@ Intended per bot step: choose best = FindBestSpawner() by priority; resolve figh
 **使用方**：simulation.player_progression_tick；simulation.snapshot_growth_curve
 
 **备注**：Merge into simulation.player_progression_tick if that entry already enumerates these stubs. TimeStep (300), SimulationSpeed, UseFastTick and FastTickStartChunkOffset have no live consumer.
+
+**依赖图节点**：输入 `value:sim.spawner_priority`、`value:sim.spawner_farmed_time`、`value:sim.spawner_health_delta`、`value:sim.spawner_fight_time`、`value:player.stat_specific[HealthRegen]`、`value:player.stat_raw[Health]`、`state:sim_bot_state`、`config:SimulationConfig.TimeStep`、`config:SimulationConfig.SimulationSpeed`、`config:SimulationConfig.UseFastTick`、`config:SimulationConfig.FastTickStartChunkOffset`、`config:SimulationConfig.IsSmartPath`；输出 `value:sim.bot_current_hp`、`value:sim.active_playtime`
 
 ### `simulation.spawner_charges_chunk`
 
@@ -1529,6 +1502,8 @@ chunk = floor(CurrentTotalPlaytime / SpawnerChargesChunkMinutes) with SpawnerCha
 
 **备注**：This complements the already-missed simulation.spawner_charges_limit. Note the unit mismatch: optimum 'days' are 30-minute time chunks (TimeChunkDurationMinutes = 30, ConvertOptimumToDays = minutes/30), while charges reset every 1440 simulated minutes.
 
+**依赖图节点**：输入 `config:SimulationConfig.UseSpawnerCharges`、`config:SimulationConfig.SpawnerChargesChunkMinutes`、`value:sim.total_playtime`、`value:spawner.charges_limit_per_day`、`state:sim_bot_state`；输出 `value:sim.spawner_eligible`
+
 ### `simulation.rpm_stat_class_ab_multiplier`
 
 **AB stat-class RPM multiplier and fast-RPM parameters**
@@ -1555,9 +1530,11 @@ rpm(stat) *= m(stat), where m = sustainMult for {Health, HealthRegen, LifestealF
 
 **配置参数**：`ABTest Data Config.CommonRewardMultipliers.attackStatValueMultiplier`；`ABTest Data Config.CommonRewardMultipliers.armorStatValueMultiplier`；`ABTest Data Config.CommonRewardMultipliers.sustainStatValueMultiplier`；`ABTest Data Config.FastRPMParams.fightTimeSeconds`；`ABTest Data Config.FastRPMParams.maxHealthLossMultiplier`
 
-**使用方**：simulation.rpm_time_chunk；meta.rewarded_ad_stat_value；meta.bake_stat_reward；meta.grant_reward_stat；meta.crystal_event_mob_stat_reward
+**使用方**：simulation.rpm_time_chunk；meta.rewarded_ad_stat_value；meta.bake_stat_reward；meta.grant_reward_stat；spawners.event_crystal_mob_bonus
 
 **备注**：The extractor must export ABTest Data Config.asset (all variants and per-location overrides). Scene and config values alone do not determine live RPM, enemy HP/damage, spawner cooldowns or charges.
+
+**依赖图节点**：输入 `state:ab_cohort`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.attackStatValueMultiplier`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.armorStatValueMultiplier`、`config:ABTestDataConfig.commonRewardMultipliers.variants[].data.sustainStatValueMultiplier`；输出 `value:sim.rpm_stat_class_multiplier`
 
 ## 配置参数
 

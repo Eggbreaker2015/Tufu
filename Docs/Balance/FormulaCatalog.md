@@ -1,8 +1,8 @@
 # 数值公式清单
 
-核心战斗成长相关的全部公式、配置参数及其恢复状态。数据导出见 [Balance/README.md](../../Balance/README.md)。
+核心战斗成长相关的全部公式、配置参数及其恢复状态。数据导出见 [Balance/README.md](../../Balance/README.md)，公式之间的依赖关系和改动影响查询见[数值依赖图](DependencyGraph.md)。
 
-共 329 条公式，由 7 个子系统梳理 agent 逐一读代码整理，每个子系统再由一个对抗性核验 agent 对照代码检查表达式、状态和行号，最后由完整性审查 agent 补漏。105 条带有核验意见，见各子系统页。
+共 281 条公式。7 个子系统梳理 agent 逐一读代码整理，对抗性核验 agent 对照代码检查表达式、状态和行号，完整性审查 agent 补漏；随后把跨子系统重复的条目合并为一条，把全部核验意见写入正文，再逐批复核。44 条由多条合并而来，109 条带核验记录。旧 id 到新 id 的对应见 JSON 的 `aliases`。
 
 结构化原始数据是 [formulas.json](../../Balance/catalog/formulas.json)，本页及子页由 `Balance/tufu_balance/render_catalog.py` 从它生成；修改请改 JSON 后重新生成。公式细节保留英文原文，以免翻译改动表达式和标识符。
 
@@ -22,38 +22,35 @@
 
 | 子系统 | 原生证据恢复 | 重建（无原生标注） | 空壳 | 编辑器工具缺失 | 纯数据 | 合计 |
 |---|---|---|---|---|---|---|
-| [属性系统](formulas/stats.md) | 16 | 10 | 0 | 0 | 1 | 27 |
-| [战斗结算](formulas/combat.md) | 34 | 18 | 5 | 0 | 1 | 58 |
+| [属性系统](formulas/stats.md) | 10 | 10 | 0 | 0 | 1 | 21 |
+| [战斗结算](formulas/combat.md) | 30 | 11 | 2 | 0 | 1 | 44 |
 | [装备与进化](formulas/items.md) | 11 | 13 | 2 | 8 | 3 | 37 |
-| [永久成长与奖励](formulas/meta.md) | 22 | 21 | 2 | 1 | 3 | 49 |
-| [刷怪点、岛屿与门](formulas/spawners.md) | 2 | 36 | 3 | 3 | 6 | 50 |
-| [原版模拟与烘焙管线](formulas/simulation.md) | 24 | 8 | 10 | 5 | 1 | 48 |
-| [护符、怒气与能力](formulas/powerups.md) | 44 | 9 | 3 | 2 | 0 | 58 |
+| [永久成长与奖励](formulas/meta.md) | 20 | 14 | 2 | 1 | 3 | 40 |
+| [刷怪点、岛屿与门](formulas/spawners.md) | 2 | 27 | 3 | 3 | 6 | 41 |
+| [原版模拟与烘焙管线](formulas/simulation.md) | 21 | 8 | 10 | 3 | 1 | 43 |
+| [护符、怒气与能力](formulas/powerups.md) | 40 | 8 | 3 | 2 | 0 | 53 |
 | [跨系统](formulas/cross.md) | 0 | 0 | 0 | 2 | 0 | 2 |
-| **合计** | **153** | **115** | **25** | **21** | **15** | **329** |
+| **合计** | **134** | **91** | **22** | **19** | **15** | **281** |
 
 ## 空壳：建模前必须补证据
 
 | ID | 名称 | 代码 |
 |---|---|---|
-| [`combat.hammer_regen_stub`](formulas/combat.md) | Hammer regen bonus (graph upgrade) | [Player/Systems/HammerRegenSystem.cs:27-42](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/HammerRegenSystem.cs#L27)；[Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:392-396](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs#L392) |
+| [`powerups.hammer_regen`](formulas/powerups.md) | Hammer regen (amulet keystone) | [Player/Systems/HammerRegenSystem.cs:10-43](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/HammerRegenSystem.cs#L10)；[Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:392-397](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs#L392) |
 | [`combat.hits_taken_decay_stub`](formulas/combat.md) | Hits-taken counter decay | [Player/Systems/PlayerHitsTakenDecaySystem.cs:9](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/PlayerHitsTakenDecaySystem.cs#L9)；[Player/Systems/PlayerHitsTakenDecaySystem.cs:14-20](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/PlayerHitsTakenDecaySystem.cs#L14) |
-| [`combat.creeper_explosion_stub`](formulas/combat.md) | Creeper mob explosion damage | [Enemy/Systems/CreeperExplosionSystem.cs:37-55](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/CreeperExplosionSystem.cs#L37)；[Enemy/Components/CreeperMobComponent.cs:10-14](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Components/CreeperMobComponent.cs#L10) |
+| [`spawners.creeper_explosion`](formulas/spawners.md) | Creeper mob explosion damage (stub) | [Enemy/Systems/CreeperExplosionSystem.cs:37-55](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/CreeperExplosionSystem.cs#L37)；[Enemy/Components/CreeperMobComponent.cs:8-26](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Components/CreeperMobComponent.cs#L8) |
 | [`combat.unit_auto_target_stub`](formulas/combat.md) | UnitAutoTargetSystem (MonoBehaviour) | [Unit/UnitAutoTargetSystem.cs:5-21](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Unit/UnitAutoTargetSystem.cs#L5) |
-| [`combat.armor_formulas_stub`](formulas/combat.md) | ArmorFormulas.Get(level) | [Balance/ArmorFormulas.cs:5-8](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/ArmorFormulas.cs#L5) |
-| [`balance.armor_formulas_get`](formulas/items.md) | ArmorFormulas.Get(level) | [Balance/ArmorFormulas.cs:5-8](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/ArmorFormulas.cs#L5) |
+| [`balance.armor_formulas_get`](formulas/items.md) | ArmorFormulas.Get(level) (dead helper) | [Balance/ArmorFormulas.cs:5-8](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/ArmorFormulas.cs#L5) |
 | [`meta.upgrade_max_capacity_bonus`](formulas/meta.md) | Max-capacity upgrade top-up (geodes/enchant stones/tickets/free chest) | [Meta/Systems/UpgradeMaxCapacityBonusSystem.cs:33-44](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Meta/Systems/UpgradeMaxCapacityBonusSystem.cs#L33) |
 | [`meta.prepare_event_rewards`](formulas/meta.md) | Prepare event success/failed rewards | [Rewards/Commands/PrepareEventRewardsCommandRunner.cs:16-26](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Rewards/Commands/PrepareEventRewardsCommandRunner.cs#L16) |
-| [`spawners.event_spawner_init`](formulas/spawners.md) | Event spawner initialization | [Enemy/EnemySpawner.cs:860-863](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L860)；[Enemy/EnemySpawner.cs:746-750](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L746) |
-| [`spawners.time_skip`](formulas/spawners.md) | Spawner time skip | [Enemy/EnemySpawner.cs:682-684](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L682) |
-| [`spawners.creeper_explosion`](formulas/spawners.md) | Creeper mob explosion damage | [Enemy/Systems/CreeperExplosionSystem.cs:41-55](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Systems/CreeperExplosionSystem.cs#L41)；[Enemy/Components/CreeperMobComponent.cs:8-26](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Components/CreeperMobComponent.cs#L8) |
-| [`simulation.snapshot_stat_composition`](formulas/simulation.md) | Simulated player stat composition with feature interpolation | [Simulation/Systems/SimulationSystem.cs:183-191](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L183)；[Simulation/Systems/SimulationSystem.cs:894-906](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L894) |
+| [`spawners.event_spawner_init`](formulas/spawners.md) | Event spawner initialization | [Enemy/EnemySpawner.cs:860-863](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L860)；[Enemy/EnemySpawner.cs:744-750](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L744) |
+| [`spawners.time_skip`](formulas/spawners.md) | Spawner time skip | [Enemy/EnemySpawner.cs:682-684](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L682)；[Enemy/EnemySpawner.cs:426-432](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L426) |
+| [`simulation.snapshot_stat_composition`](formulas/simulation.md) | Simulated player stat composition with feature interpolation | [Simulation/Systems/SimulationSystem.cs:183-191](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L183)；[Simulation/Systems/SimulationSystem.cs:822-824](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L822) |
 | [`simulation.player_progression_tick`](formulas/simulation.md) | Bot progression loop (what generated Simulation Data) | [Simulation/Systems/SimulationSystem.cs:291-317](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L291)；[Simulation/Systems/SimulationSystem.cs:497-511](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L497) |
 | [`simulation.lifecycle_time_model`](formulas/simulation.md) | Session / AFK time model | [Simulation/Systems/SimulationSystem.cs:264-265](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L264)；[Simulation/Systems/SimulationSystem.cs:556-570](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L556) |
 | [`simulation.spawner_priority`](formulas/simulation.md) | Bot spawner priority | [Simulation/Systems/SpawnerData.cs:44-67](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L44)；[Simulation/Systems/SimulationSystem.cs:697-733](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L697) |
 | [`simulation.difficulty_map`](formulas/simulation.md) | Spawner difficulty classification | [Simulation/Systems/SimulationSystem.cs:748-751](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L748)；[Simulation/DifficultyThreshold.cs:7-13](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/DifficultyThreshold.cs#L7) |
 | [`powerups.scaled_multiplier_effect`](formulas/powerups.md) | ScaledMultiplierEffect | [Abilities/Effects/ScaledMultiplierEffect.cs:12-14](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/ScaledMultiplierEffect.cs#L12)；[Abilities/Effects/MultiplierTarget.cs](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Abilities/Effects/MultiplierTarget.cs) |
-| [`powerups.hammer_regen`](formulas/powerups.md) | Hammer regen (amulet keystone) | [Player/Systems/HammerRegenSystem.cs:31-42](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Systems/HammerRegenSystem.cs#L31)；[Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs:392](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/Upgrades/AmuletUpgradeDefsBuilder.cs#L392) |
 | [`simulation.ads_reward_model`](formulas/simulation.md) | Simulated rewarded-ad income in the bot | [Simulation/Systems/SimulationSystem.cs:568](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L568)；[Simulation/Systems/SimulationSystem.cs:256](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L256) |
 | [`simulation.stat_benefit_weights`](formulas/simulation.md) | Bot stat / item benefit weights | [Simulation/Systems/SimulationSystem.cs:270-273](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L270)；[Simulation/Systems/SimulationSystem.cs:717](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L717) |
 | [`simulation.item_emission_model`](formulas/simulation.md) | Simulated item copy emission and fractional rolls | [Simulation/Systems/SimulationSystem.cs:546](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L546)；[Simulation/Systems/SimulationSystem.cs:551](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L551) |
@@ -68,19 +65,17 @@
 |---|---|---|
 | [`balance.evolution_island_fill_rule`](formulas/items.md) | Evolution island schedule fill rule | [Balance/CombatBalanceConfig.cs:95-97](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L95)；[Balance/EvolutionIslandFillRuleRow.cs:8-20](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/EvolutionIslandFillRuleRow.cs#L8) |
 | [`balance.evolution_target_timings_from_islands`](formulas/items.md) | Evolution target timings from island schedule | [Balance/CombatBalanceConfig.cs:99-101](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L99)；[Balance/CombatBalanceConfig.cs:152-154](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L152) |
-| [`balance.interpolation_points_from_islands`](formulas/items.md) | Interpolation timing points from island points | [Balance/BalanceInterpolation.cs:54-56](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L54)；[Balance/BalanceInterpolation.cs:66-69](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L66) |
+| [`balance.interpolation_points_from_islands`](formulas/items.md) | Interpolation timing points from island points (ApplyIslandTimings) | [Balance/BalanceInterpolation.cs:54-56](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L54)；[Balance/BalanceInterpolation.cs:66-69](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L66) |
 | [`balance.evolution_shards_capture`](formulas/items.md) | Evolution shard requirement capture | [Balance/CombatBalanceConfig.cs:13](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L13)；[Balance/CombatBalanceConfig.cs:123-125](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L123) |
 | [`balance.evolution_value_autobalance`](formulas/items.md) | Evolution stat value auto-balance | [Balance/CombatBalanceConfig.cs:206-208](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L206)；[Balance/CombatBalanceConfig.cs:217-227](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L217) |
-| [`balance.copy_value_rule`](formulas/items.md) | Per-copy value after evolution | [Balance/CombatBalanceConfig.cs:17-19](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L17)；[Balance/CombatBalanceConfig.cs:225-227](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L225) |
+| [`balance.copy_value_rule`](formulas/items.md) | Per-copy value after evolution | [Balance/CombatBalanceConfig.cs:17-19](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L17)；[Balance/CombatBalanceConfig.cs:25](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L25) |
 | [`balance.mythical_evolution_curve`](formulas/items.md) | Mythical evolution curve | [Balance/CombatBalanceConfig.cs:111-113](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L111)；[Balance/CombatBalanceConfig.cs:262-265](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L262) |
 | [`balance.armor_base_reset`](formulas/items.md) | Armor base / item cost reset tools | [Balance/CombatBalanceConfig.cs:107-109](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L107)；[Balance/CombatBalanceConfig.cs:185-187](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L185) |
 | [`meta.metastats_fill`](formulas/meta.md) | MetaStatsConfig.Fill editor generator | [Meta/MetaStatsConfig.cs:11-13](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Meta/MetaStatsConfig.cs#L11) |
-| [`spawners.relative_optimum_time`](formulas/spawners.md) | RelativeOptimumTime <-> OptimumTime within island | [Enemy/SpawnerRelativeOptimumTimeTool.cs:10-41](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/SpawnerRelativeOptimumTimeTool.cs#L10)；[Enemy/IslandOptimumTimeRange.cs:6-19](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/IslandOptimumTimeRange.cs#L6) |
+| [`spawners.relative_optimum_time`](formulas/spawners.md) | RelativeOptimumTime <-> OptimumTime within island (SpawnerRelativeOptimumTimeTool) | [Enemy/SpawnerRelativeOptimumTimeTool.cs:8-41](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/SpawnerRelativeOptimumTimeTool.cs#L8)；[Enemy/IslandOptimumTimeRange.cs:6-19](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/IslandOptimumTimeRange.cs#L6) |
 | [`spawners.difficulty_bulk_setter`](formulas/spawners.md) | Bulk Difficulty setter | [Enemy/SpawnerDifficultyBulkSetter.cs:5-22](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/SpawnerDifficultyBulkSetter.cs#L5) |
 | [`spawners.debugger_gpm_export`](formulas/spawners.md) | Spawner debugger GPM / CSV export | [Enemy/EnemySpawnersDebugger.cs:7-41](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawnersDebugger.cs#L7)；[Enemy/EnemySpawnerDebugInfo.cs](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawnerDebugInfo.cs) |
-| [`simulation.interp_island_timing_points`](formulas/simulation.md) | Interpolation island -> day timing conversion (ApplyIslandTimings) | [Balance/BalanceInterpolation.cs:54-56](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/BalanceInterpolation.cs#L54)；[Balance/CombatBalanceConfig.cs:131-133](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L131) |
 | [`simulation.snapshot_trim`](formulas/simulation.md) | Trimming TimeChunkSnapshots (TrimSimulationData) | [Simulation/SimulationConfig.cs:98-101](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L98)；[Simulation/SimulationConfig.cs:55](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L55) |
-| [`simulation.optimum_time_from_relative`](formulas/simulation.md) | Spawner OptimumTime from RelativeOptimumTime | [Enemy/SpawnerRelativeOptimumTimeTool.cs:10-24](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/SpawnerRelativeOptimumTimeTool.cs#L10) |
 | [`simulation.bake_apply`](formulas/simulation.md) | Rebake / apply balance to scene spawners | [Simulation/SimulationConfig.cs:79-80](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L79)；[Simulation/SimulationConfig.cs:75](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L75) |
 | [`simulation.amulet_sim_multipliers`](formulas/simulation.md) | Amulet soul emission & spawner-charge multipliers in simulation | [Simulation/Systems/AmuletSimulationMultipliers.cs:23-44](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/AmuletSimulationMultipliers.cs#L23)；[Simulation/Systems/SimulationSystem.cs:600-606](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L600) |
 | [`powerups.amulet_autobalance_bake`](formulas/powerups.md) | Amulet auto-balance bake (cost/stat multipliers) | [Amulet/AmuletConfig.cs:11](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/AmuletConfig.cs#L11)；[Amulet/AmuletConfig.cs:53-55](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/AmuletConfig.cs#L53) |
@@ -88,42 +83,41 @@
 | [`balance.evolution_autobalance_thresholds`](formulas/cross.md) | Evolution auto-balance guard multipliers (unconsumed levers) | [Balance/CombatBalanceConfig.cs:17-23](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L17)；[Balance/CombatBalanceConfig.cs:217-226](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L217) |
 | [`powerups.amulet_level_target_days`](formulas/powerups.md) | Amulet level target days and auto-balance multipliers (unconsumed) | [Amulet/AmuletConfig.cs:17-31](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/AmuletConfig.cs#L17)；[Amulet/AmuletConfig.cs:53](../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Amulet/AmuletConfig.cs#L53) |
 
-## 重叠条目
+## 由数据反推出的生成规则
 
-各子系统并行梳理，同一段代码可能在多个子系统下各有一条。建依赖图前需要合并成一个节点。下表按首个代码引用的文件分组，只列跨子系统的文件。
+原团队的编辑器生成工具不在 APK 里，状态为“编辑器工具缺失”或“纯数据”的条目，有一部分已从产出数据反推出规则，见[生成规则总览](Generation/README.md)。状态列仍表示代码恢复程度。
+
+| ID | 名称 | 状态 | 生成规则 |
+|---|---|---|---|
+| [`balance.island_target_days_curve`](formulas/items.md) | Island target timing curve | 纯数据 | 拟合规则 |
+| [`balance.evolution_island_fill_rule`](formulas/items.md) | Evolution island schedule fill rule | 编辑器工具缺失 | 精确复现 |
+| [`balance.evolution_target_timings_from_islands`](formulas/items.md) | Evolution target timings from island schedule | 编辑器工具缺失 | 精确复现 |
+| [`balance.interpolation_points_from_islands`](formulas/items.md) | Interpolation timing points from island points (ApplyIslandTimings) | 编辑器工具缺失 | 精确复现 |
+| [`balance.evolution_shards_capture`](formulas/items.md) | Evolution shard requirement capture | 编辑器工具缺失 | 拟合规则 |
+| [`balance.evolution_value_autobalance`](formulas/items.md) | Evolution stat value auto-balance | 编辑器工具缺失 | 精确复现 |
+| [`balance.copy_value_rule`](formulas/items.md) | Per-copy value after evolution | 编辑器工具缺失 | 精确复现 |
+| [`balance.mythical_evolution_curve`](formulas/items.md) | Mythical evolution curve | 编辑器工具缺失 | 精确复现 |
+| [`balance.armor_base_reset`](formulas/items.md) | Armor base / item cost reset tools | 编辑器工具缺失 | 假设 |
+| [`spawners.relative_optimum_time`](formulas/spawners.md) | RelativeOptimumTime <-> OptimumTime within island (SpawnerRelativeOptimumTimeTool) | 编辑器工具缺失 | 拟合规则 |
+| [`simulation.bake_recalc_optimum_time`](formulas/simulation.md) | Early-spawner optimum-time shift for bake | 重建（无原生标注） | 拟合规则 |
+| [`simulation.bake_spawner_health`](formulas/simulation.md) | Baked spawner Health | 原生证据恢复 | 精确复现 |
+| [`simulation.bake_spawner_damage`](formulas/simulation.md) | Baked spawner Damage | 原生证据恢复 | 精确复现 |
+| [`powerups.amulet_level_target_days`](formulas/powerups.md) | Amulet level target days and auto-balance multipliers (unconsumed) | 编辑器工具缺失 | 拟合规则 |
+
+## 同一文件下跨子系统的条目
+
+真正重复的条目已合并（44 组）。下表是首个代码引用落在同一文件、但归属不同子系统的条目，合并时已逐一核对为不同公式，保留供查阅。
 
 | 文件 | 条目 |
 |---|---|
-| `Unit/StatBase.cs` | `stats.raw_value_aggregation`、`stats.modifier_merge`、`combat.stat_value_aggregation`、`combat.stat_modifier_merge`、`meta.metastat_value_unfiltered`、`meta.modifier_merge_accumulation` |
-| `Unit/Stat.cs` | `stats.specific_value_pipeline`、`stats.specific_curve.movement_speed`、`stats.specific_curve.evasion`、`stats.specific_curve.crit_chance`、`stats.specific_curve.crit_damage`、`stats.specific_curve.super_crit_damage`、`stats.specific_curve.global_attack_defence`、`stats.specific_curve.block`、`stats.specific_cap`、`stats.specific_identity`、`combat.stat_specific_value_curves` |
 | `Player/Models/PlayerModel.cs` | `stats.modifier_source_persistence`、`stats.player_base_stats`、`items.copy_merge`、`items.weapon_set_synergy_counts`、`items.unlocked_slot_caps`、`items.equip_stat_modifiers`、`items.auto_equip_and_starting_weapon` |
-| `Unit/Systems/UnitBuffSystem.cs` | `stats.temporary_modifier_decay`、`stats.stun_decay`、`combat.temporary_modifier_expiry`、`combat.stun_duration` |
 | `Unit/UnitCore.cs` | `stats.stat_accessors`、`combat.death_threshold` |
-| `Unit/Systems/UnitDamageSystem.cs` | `stats.lifesteal_player`、`stats.lifesteal_enemy`、`stats.thorns_reflection`、`stats.enemy_reflection`、`stats.first_hit_vulnerability`、`stats.damage_application`、`stats.lethal_ignore`、`combat.player_lifesteal_on_hit`、`combat.enemy_lifesteal_on_hit`、`combat.thorns_reflection`、`combat.enemy_reflection`、`combat.lethal_damage_ignore`、`combat.block_to_supercrit_bonus`、`combat.first_vulnerability_multiplier` |
-| `Unit/UnitMovement.cs` | `stats.player_movement_displacement`、`combat.player_movement` |
-| `Services/Damage/DamageCalculator.cs` | `combat.flat_defense_curve`、`combat.solve_attack_for_incoming`、`combat.battle_regen`、`combat.player_flat_defense`、`combat.event_enemy_damage_ramp`、`combat.incoming_damage_to_player`、`combat.outgoing_damage_to_enemy`、`combat.outgoing_damage_simulation_mode`、`combat.crit_and_supercrit`、`combat.global_attack_multiplier`、`combat.global_defence_multiplier`、`combat.island_mastery_multipliers`、`combat.event_crystal_damage_multipliers`、`combat.event_golem_damage_multiplier`、`combat.boss_tower_damage_multipliers`、`combat.rage_damage_reduction`、`combat.weapon_type_defence_mapping`、`powerups.rage_damage_reduce` |
+| `Unit/Systems/UnitDamageSystem.cs` | `combat.player_lifesteal_on_hit`、`combat.enemy_lifesteal_on_hit`、`combat.enemy_reflection`、`combat.first_vulnerability_multiplier`、`stats.damage_application`、`combat.lethal_damage_ignore`、`combat.block_to_supercrit_bonus` |
 | `Utilities/DoubleExtensions.cs` | `combat.dodge_block_rolls`、`meta.pretty_round` |
-| `Enemy/EnemySpawner.cs` | `combat.event_enemy_armor_override`、`combat.enemy_spawn_hp_damage_ab_multiplier`、`meta.zero_cooldown_charge_burst`、`meta.crystal_event_mob_stat_reward`、`meta.event_plan_stat_reward`、`meta.spawner_charge_upgrade_topup`、`spawners.ab_spawner_override_predicate`、`spawners.base_cooldown`、`spawners.effective_charges`、`spawners.charge_state_init`、`spawners.respawn_tick`、`spawners.death_timer_reset`、`spawners.big_cooldown`、`spawners.charge_restore`、`spawners.zero_cooldown_collapse`、`spawners.item_drop_copies`、`spawners.enemy_spawn_stats`、`spawners.event_plan_override`、`spawners.event_crystal_mob_bonus`、`spawners.event_miniboss_spawn_gate`、`spawners.event_spawner_init`、`spawners.time_skip`、`spawners.vip_spawner_gate`、`spawners.disable_after_first_clear`、`spawners.progress_markers`、`spawners.daily_yield`、`spawners.geode_kill_count`、`spawners.dummy_spawn_block`、`spawners.full_or_depleted_wake_schedule`、`spawners.item_copies_reward_multiplier_coupling` |
-| `Enemy/EnemyAttackSystem.cs` | `combat.enemy_attack_cycle`、`combat.enemy_leash_and_aggro`、`spawners.enemy_attack_cadence`、`spawners.enemy_leash_heal` |
-| `Enemy/Systems/EnemyRegenSystem.cs` | `combat.enemy_regen`、`spawners.enemy_regen` |
-| `Player/Systems/RageExtraHealthSystem.cs` | `combat.rage_extra_health`、`powerups.rage_extra_health` |
-| `Player/Systems/RageExtraHitSystem.cs` | `combat.rage_extra_hit`、`powerups.rage_extra_hit` |
-| `Player/Systems/HammerRegenSystem.cs` | `combat.hammer_regen_stub`、`powerups.hammer_regen` |
-| `Enemy/Systems/CreeperExplosionSystem.cs` | `combat.creeper_explosion_stub`、`spawners.creeper_explosion` |
-| `Balance/ArmorFormulas.cs` | `combat.armor_formulas_stub`、`balance.armor_formulas_get` |
-| `Enemy/Systems/EnemyVisibilitySystem.cs` | `combat.enemy_far_activation`、`spawners.enemy_far_culling` |
-| `Player/Inventory/ItemModel.cs` | `items.weapon_damage_pre_evolution`、`items.weapon_damage_evolved`、`items.armor_pre_evolution`、`items.armor_evolved`、`items.effective_level`、`items.evolution_cost`、`items.next_level_preview`、`items.stat_per_copy`、`items.weapon_dps`、`items.ability_unlock_gate`、`items.display_rarity`、`powerups.ability_unlock_gate` |
+| `Enemy/EnemySpawner.cs` | `spawners.event_plan_override`、`spawners.enemy_spawn_stats`、`spawners.zero_cooldown_collapse`、`spawners.effective_charges`、`spawners.base_cooldown`、`spawners.event_crystal_mob_bonus`、`meta.event_plan_stat_reward`、`spawners.charge_state_init`、`spawners.ab_spawner_override_predicate`、`spawners.respawn_tick`、`spawners.death_timer_reset`、`spawners.big_cooldown`、`spawners.charge_restore`、`spawners.event_miniboss_spawn_gate`、`spawners.event_spawner_init`、`spawners.time_skip`、`spawners.vip_spawner_gate`、`spawners.disable_after_first_clear`、`spawners.progress_markers`、`spawners.daily_yield`、`spawners.geode_kill_count`、`spawners.dummy_spawn_block`、`spawners.full_or_depleted_wake_schedule`、`spawners.item_copies_reward_multiplier_coupling` |
 | `Balance/CombatBalanceConfig.cs` | `items.evolution_level_clamp`、`balance.island_target_days_curve`、`balance.evolution_island_fill_rule`、`balance.evolution_target_timings_from_islands`、`balance.evolution_shards_capture`、`balance.evolution_value_autobalance`、`balance.copy_value_rule`、`balance.mythical_evolution_curve`、`balance.armor_base_reset`、`items.base_growth_tables`、`balance.shield_value_sync_by_leader`、`balance.evolution_autobalance_thresholds` |
-| `Balance/BalanceInterpolation.cs` | `balance.interpolation_evaluate`、`balance.interpolation_points_from_islands`、`simulation.interp_evaluate`、`simulation.interp_island_timing_points` |
-| `Balance/BalanceInterpolationsConfig.cs` | `balance.total_coefficient`、`simulation.interp_total_coefficient` |
-| `Simulation/Forecast/ForecastSnapshots.cs` | `balance.island_timing_to_days`、`simulation.island_timing_to_days`、`simulation.forecast_build_core`、`simulation.forecast_auto_balanced_enemy`、`simulation.forecast_damage_ramp_average`、`simulation.forecast_tune_boss_presets`、`simulation.forecast_reward`、`simulation.forecast_event_plan`、`simulation.forecast_current_player_fallback` |
-| `Enemy/Commands/GrantSpawnerStatRewardCommandHandler.cs` | `meta.devour_stat_reward_scaling`、`spawners.stat_reward_grant` |
-| `Enemy/Commands/GrantSpawnerSoulRewardCommandHandler.cs` | `meta.soul_grant_on_devour`、`spawners.soul_reward_grant` |
-| `Amulet/Upgrades/AmuletUpgradesModel.cs` | `meta.soul_drop_unlock_gate`、`powerups.amulet_node_availability`、`powerups.amulet_souls_drop_unlock` |
-| `Enemy/Commands/GrantSpawnerCurrencyRewardCommandHandler.cs` | `meta.spawner_currency_reward`、`spawners.currency_reward` |
-| `Integrations/Ads/AdsInitialize.cs` | `meta.rewarded_ad_stat_value`、`meta.rewarded_dynamic_weights`、`powerups.rewarded_ad_stat_reward` |
+| `Simulation/Forecast/ForecastSnapshots.cs` | `balance.island_timing_to_days`、`simulation.forecast_build_core`、`simulation.forecast_auto_balanced_enemy`、`simulation.forecast_damage_ramp_average`、`simulation.forecast_tune_boss_presets`、`simulation.forecast_reward`、`simulation.forecast_event_plan`、`simulation.forecast_current_player_fallback` |
 | `ABTests/ABTestService.cs` | `spawners.ab_cooldown_table`、`spawners.ab_charges_table`、`simulation.rpm_stat_class_ab_multiplier` |
-| `Enemy/SpawnerRelativeOptimumTimeTool.cs` | `spawners.relative_optimum_time`、`simulation.optimum_time_from_relative` |
 | `Simulation/SimulationConfig.cs` | `spawners.difficulty_semantics`、`spawners.optimum_time_semantics`、`simulation.snapshot_trim`、`simulation.bake_recalc_optimum_time`、`simulation.bake_spawner_health`、`simulation.bake_spawner_damage`、`simulation.bake_apply` |
 
 ## 完整性审查结论
