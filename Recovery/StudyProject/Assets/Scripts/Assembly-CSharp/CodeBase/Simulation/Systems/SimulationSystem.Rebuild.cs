@@ -346,6 +346,7 @@ namespace Codebase.Simulation.Systems
 				["offline"] = new JArray(RebuildOfflineLog.Cast<object>().ToArray()),
 				["unlocks"] = new JArray(RebuildUnlockLog.Cast<object>().ToArray()),
 				["probe"] = RebuildProbeResult,
+				["fast_tick"] = RebuildFastTickManifest(),
 			};
 		}
 

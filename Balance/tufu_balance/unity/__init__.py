@@ -6,7 +6,7 @@
 
 Command line: ``python -m tufu_balance.unity open|selftest|run|serve|status`` (see ``__main__``).
 C1 adds ``simio``/``schema`` (ingest), C2 ``probes``, C3c ``paramsio``/``trace``/``simrandom``, C4 ``override``,
-C7 ``slow_policy``, C8 ``bake_report``, C9 ``patcher``.
+C5 ``fasttick``, C7 ``slow_policy``, C8 ``bake_report``, C9 ``patcher``.
 """
 
 from .launcher import (EXIT_NAMES, LauncherError, Options, RunResult, open_editor, run, selftest, serve_start,
@@ -18,6 +18,7 @@ from . import override as _override  # noqa: F401  registers C4's override field
 from . import bake_report as _bake_report  # noqa: F401  registers C8's job.bake, manifest "bake", bake_report.csv
 from . import patcher as _patcher  # noqa: F401  registers C9's patch fields and manifest key
 from . import slow_policy as _slow_policy  # noqa: F401  registers C7's request field and events
+from . import fasttick as _fasttick  # noqa: F401  registers C5's fast_tick_probe field and fasttick_days output
 
 __all__ = ["EXIT_NAMES", "LauncherError", "Options", "RequestError", "RunResult", "empty_job", "make_job",
            "make_request", "open_editor", "preset", "run", "selftest", "serve_start", "serve_status", "serve_stop",

@@ -13,6 +13,18 @@ MonoBehaviour:
   m_Name: Simulation Rebuild Params
   m_EditorClassIdentifier: 
   Params:
+    KillState: 0
+    KillLossMultiplier: 1
+    KillLossFromAb: 0
+    ActiveMinutesModel: 0
+    Kappa: 0.245
+    TourA: 1.018
+    TourB: 0.78
+    Tours: 3
+    PlanNewIslandsSameDay: 1
+    DiagnosticDisableKillPredicate: 0
+    DiagnosticPlayerDpsScale: 1
+    DiagnosticDefenseScale: 1
     PriorityFamily: 1
     SmartPath: 1
     SmartPathRadius: 5
