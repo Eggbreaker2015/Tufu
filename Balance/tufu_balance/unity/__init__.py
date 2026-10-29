@@ -13,6 +13,7 @@ from .launcher import (EXIT_NAMES, LauncherError, Options, RunResult, open_edito
 from .request import RequestError, make_job, make_request, empty_job, preset
 from . import engine as _engine  # noqa: F401  registers C3b's request field and manifest key
 from . import trace as _trace  # noqa: F401  registers C3c's outputs, daily.csv columns, manifest keys, params_source
+from . import bake_report as _bake_report  # noqa: F401  registers C8's job.bake, manifest "bake", bake_report.csv
 
 __all__ = ["EXIT_NAMES", "LauncherError", "Options", "RequestError", "RunResult", "empty_job", "make_job",
            "make_request", "open_editor", "preset", "run", "selftest", "serve_start", "serve_status", "serve_stop",
