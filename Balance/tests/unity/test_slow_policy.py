@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import math
 from collections import Counter
+from functools import lru_cache
 
 import pytest
 
@@ -134,6 +135,7 @@ def _slow_phase(fights):
     return [f for f in fights if f["day"] < DAY]
 
 
+@lru_cache(maxsize=None)
 def _params_of(job):
     return _params(VARIANTS.get(job))
 

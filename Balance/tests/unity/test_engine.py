@@ -652,7 +652,9 @@ def test_manifest_engine_block(engine_run):
     m = engine_run.manifest("engine-30")
     schema.validate_manifest(m)
     assert m["engine"]["provenance_enum"] == engine.PROVENANCE
-    assert m["engine"]["params"] == engine.engine_defaults()
+    from tufu_balance.calibrate import params
+    from tufu_balance.unity import paramsio
+    assert paramsio.effective(m["engine"]["params"]) == paramsio.effective(params.resolve(["defaults"]).params)
     assert m["engine"]["null_policy"] is True and m["engine"]["failure"] is None
     assert m["engine"]["modifier_day"] == DAYS
     export = m["export"]

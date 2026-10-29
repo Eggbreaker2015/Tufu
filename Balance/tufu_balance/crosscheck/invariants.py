@@ -1,8 +1,8 @@
 """X6 (design 3.5): trajectory invariants of a run.
 
-* ``values``: every snapshot's Value = base (``Player Config``) + test grants (``engine_probe.grant_flat``) + the
+* ``values``: Value = base (``Player Config``) + test grants (``engine_probe.grant_flat``) + the
   rewards of the clears so far, equipment modifiers excluded (the snapshot Value already leaves them out). Without
-  clears it is exact on every snapshot. With clears, closed charge usage gives the per-day clear counts.
+  clears every snapshot is checked. With clears, day snapshots are checked against closed charge usage.
   Slow days replay each cleared slow_fight event in order (including en-route fights), checking the counts
   against the digest. Fast days make one float32 reward write per stat at the flush. Each write rounds both
   the reward and the merged modifier to float32, as StatBase.AddModifier does. BaseValue is double and

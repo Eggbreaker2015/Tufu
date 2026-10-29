@@ -20,11 +20,11 @@ pytest --unity tests/unity/test_run_crosscheck.py                               
 | ID | 模块 | 口径 | 空策略下 vacuous 的部分 |
 |---|---|---|---|
 | X1 | `composition` | 两个列表的每个快照：SFF、PM、TF、TV 由 Value 与 K2/K3(当天) 经 `compose_stat` 重算，经 C2 的 `probes.encode_snapshot` 逐位比较 | 无 |
-| X2 | `dps` | 由导出的物品（`items_ext.csv` 的 `Evolved`）、槽数（`snapshots_ext.csv`）与属性重算 DpsData/DefenseData，逐位。天快照与它在早期列表里的副本用 K2/K3(d−1)（换天时算的，`RpmFirst`），其余早期快照用 `slow_tick_basis.csv` 的 Tick 开头预测属性（K2/K3(d)，战斗奖励之前；X2fix）；系数都在第 d 天。属性取 `GetForecastStatValue` 的游戏顺序 `((1·K3)·(1+K2))·Value` | `k2_lag`（没有平坦伤害/防御属性时 K2(d−1) 与 K2(d) 给出相同的缓存，滞后本身没被测到；`golden-405-flat` 测它）、`rewards_in_tick`（没有清怪）；覆盖作业的非强制早期快照记 `override_slow_tick`（C4 用随包缓存替换，不能由物品重算）；`forecast_order` 表示两种乘法顺序在本次数据上相同 |
+| X2 | `dps` | 由导出的物品（`items_ext.csv` 的 `Evolved`）、槽数（`snapshots_ext.csv`）与属性重算 DpsData/DefenseData，逐位。天快照与它在早期列表里的副本用 K2/K3(d−1)（换天时算的，`RpmFirst`），其余早期快照用自身战斗后属性、物品、槽位（K2/K3(d)），刷新点的 `slow_tick_basis.csv` 另作逐位一致性核对（Enginefix）；系数都在第 d 天。属性取 `GetForecastStatValue` 的游戏顺序 `((1·K3)·(1+K2))·Value` | `k2_lag`（没有平坦伤害/防御属性时 K2(d−1) 与 K2(d) 给出相同的缓存，滞后本身没被测到；`golden-405-flat` 测它）、`rewards_in_tick`（没有清怪）；覆盖作业的非强制早期快照记 `override_slow_tick`（C4 用随包缓存替换，不能由物品重算）；`forecast_order` 表示两种乘法顺序在本次数据上相同 |
 | X3 | `rpm` | 沿运行路径重算天列表的 CurrentGpm：每天在换天的状态上（K2/K3(d−1) 的预测属性、该快照自己的 DpsData/DefenseData、Location、第 d 天、记录的当前血量）跑 `CalculateRPMValueTimeChunk`（`forGPMBot = true`），预言机自己从全 0 开始取大；相对 1e-12，另计逐位个数 | replay/checkpoint 作业不适用（覆盖之后会重算 RPM，Runbook 18.2），记为 `override`；`running_max`（没有格子保留高于当天新值的旧 RPM）、`missing_health`（比较状态没有缺血）；盔甲平局规则见下文 |
 | X4 | `bake` | 用本次运行的快照（`Snapshots` 与不裁剪的天列表作 `config.TimeChunkSnapshots`）跑 `model.bake`，与 C8 的 `bake_report.json`（`spawners[].report.NewHealth/NewDamage` 的 IEEE 十六进制）逐位比较 | `report`：本分支没有 C8 的导出（预言机一侧仍对 717 个刷怪点烘焙）|
 | X5 | `eligibility` | `daily.csv` 每天第一次规划的合格集合（个数与签名）对 `simcalc.calculate_spawner_data(forGPMBot = false)`：当天开始时的状态（强制快照的 Values 在 K(d) 下、由物品与槽数在 K(d) 重算的缓存、Location、P、当前血量），充能清空、冷却清零，只有更早的天里清过的 DAFC 是 `+∞`（`first_kill` 事件）。另计 `eligible_spawners`（加快阶段可杀性门槛）的个数给 C5 | 快阶段的天：最小 FastTick 不规划（`eligible_count = −1`）；覆盖作业整项记 `override`（C4 在强制快照后覆盖，快照不代表规划状态）|
-| X6 | `invariants` | Value = 基础值 + 测试赠送 + 奖励（没有清怪时逐位）；充能用量不超上限；P、T 不下降（天列表 T 严格上升）；TC = floor((float)(T/1440))；天列表每天恰好一次、导出的天按裁剪规则、`exported_index` 一致；DAFC 至多清一次、之后冷却一直 `+∞`；每个岛只解锁一次、没有 `repeat_unlocks` | `values_rewards`、`charges`、`dafc`、`unlocks`（都没有发生）|
+| X6 | `invariants` | Value = double 基础值 + 独立测试赠送 + float32 合并奖励（逐位；慢日逐清怪、快日逐天写入）；充能用量不超上限；P、T 不下降（天列表 T 严格上升）；TC = floor((float)(T/1440))；天列表每天恰好一次、导出的天按裁剪规则、`exported_index` 一致；DAFC 至多清一次、之后冷却一直 `+∞`；每个岛只解锁一次、没有 `repeat_unlocks` | `values_rewards`、`charges`、`dafc`、`unlocks`（都没有发生）|
 | X7 | `rpm` | 每个天快照的 CurrentGpm 对"从前一天快照的 CurrentGpm 出发、K2/K3(d−1)"的重算（`RpmFirst`），相对 1e-12；同时用 K(d)（`ModifierFirst`）重算，计不同的格子数，为 0 时记 `order` 为 vacuous。DpsData 一半由 X2 覆盖 | `smoke-11` 的 `order`（两种顺序到第 25 天才第一次分开）；`running_max`、`missing_health` 与 X3 相同 |
 | DP8 | `rpm` | checkpoint 作业每个覆盖日的 C# `spawnerData`（9 个 double）与 `simcalc.calculate_spawner_data` 在**只由随包快照构造**的状态上比较，两种状态：覆盖后的 K(d)（`gpm`）与 `RpmFirst`（K2/K3(d−1)、当天存储的缓存、K4/K5 在 d，`rpm_first`）；字段相对 1e-12、键集合相同。锚点：C# 在 `rpm_first` 状态上、只在覆盖日之间取大的 RPM，按 G20 的格子判定对随包 CurrentGpm | 非 replay/checkpoint 作业；`running_max`、`missing_health` 与 X3 相同 |
 
@@ -78,14 +78,14 @@ Unity 运行：提交 `b9884ae`（C# 与最终提交相同，之后只改 Python
 - 交叉检查在编辑器算法下比较（第 4 节第 1 条），不是 `model.simcalc` 的逐步舍入。
 - X3/X7 在 replay/checkpoint 作业上不适用（覆盖后重算 RPM），记为 vacuous；X2 的非强制早期快照与 X5 的规划集合也因 C4 覆盖而不适用，具体原因见第 2 节。
 - X5 比较的是机器人过滤集合（`CalculateSpawnerData(false)`，C3c 的轨迹记的就是它），不是加了可杀性门槛的 `eligible_spawners`；后者只计数。
-- X6 的"Value = 基础值 + Σ 奖励"在有清怪时按天、相对 1e-6 核对（引擎每次写入点加一个 float 修饰器，这里按天合计），需要 `digest_text`。
+- X6 的"Value = 基础值 + Σ 奖励"按实际 float32 修饰器写入路径逐位核对，需要 `digest_text`；慢日还需要成功 `slow_fight` 事件的顺序（第 9 节）。
 - 读 C1 文件时容忍 C1 的文本缺陷并用逐位摘要确认修复（第 4 节第 2 条）；`simio.ingest` 仍然拒绝这样的作业。
 
 ## 7. 交给后续单元
 
 - **C1/Z1**：文本缺陷（第 4 节第 2 条）。修好之后 `flat405.text_repairs` 应变成 0（只许变少）。
 - **C5**：快阶段的 `RebuildTraceEligible` 接上后 X5 自动比较快阶段的天。若规划在冲刷前一天累积的奖励之后，规划时的状态不是强制快照，X5 需要改用摘要文本里的状态。轨迹记的集合是否加可杀性门槛，与 X5 的口径要一致（现在按不加）。
-- **C6/C7**：X2fix 已导出慢阶段 Tick 开头的属性（第 9 节）；C6 若在 Tick 中改变物品或槽数，需同样导出对应的缓存输入，不能用上一张快照代替；X6 的奖励核对需要 `digest_text`（`standard_jobs` 已打开）；DAFC 与解锁的不变量会自动变成非 vacuous。
+- **C6/C7**：Enginefix 在战斗/空闲后刷新早期快照缓存（第 9 节）；X2 使用同一张快照自身的属性、物品和槽位；X6 的奖励核对需要 `digest_text`（`standard_jobs` 已打开）；DAFC 与解锁的不变量会自动变成非 vacuous。
 - **C8**：X4 读 `<作业>/bake_report.json`（`snapshots = "run"`，`spawners[].id/registered/report/error`，与 BakeTool.md 第 3 节相同）；合入后在 `standard_jobs` 的 X 作业里打开 `outputs.bake_report`，X4 就不再 vacuous。
 - **K3**：`standard_jobs(con, null_policy=False)` 跑校准后的策略；黄金套件 `crosscheck` 的计数会变，按 3.2 节接受。
 - **Z1/Q03**：是否让 `model.simcalc` 在 `1f - Resist` 两处改用编辑器的算法（第 4 节第 1 条）。

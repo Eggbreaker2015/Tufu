@@ -77,7 +77,7 @@ sqlite3 -readonly "$TUFU_BALANCE_DB" "SELECT scene, file_id, Key, go_name, Locat
 ## 怎么读报告
 
 1. **补丁与校验**：看命中行数和展开叶子数。类型、节点、选择器错误会停止。超出随包 min/max 只警告。模拟开启时，C9 的 `applied_patch.json` 必须逐叶子与 Python PatchReport 一致，否则停止，不能继续解释效果。
-2. **公式**：immediate 是即时影响，progression 加成长影响，full 加重新生成、模拟和烘焙。公式表列出深度、上一跳、状态、Python 函数、C# 重建成员和出处。覆盖分别统计 Python、C# 重建、C# 原生、未建模；类别可重叠。原生按目录的恢复源码登记（含属性原始值合成），不是本次运行的分支覆盖证明；只有未登记实现的公式才标「未建模」。
+2. **公式**：immediate 是即时影响，progression 加成长影响，full 加重新生成、模拟和烘焙。公式表列出深度、上一跳、状态、Python 函数、C# 重建成员和出处。覆盖分别统计 Python、C# 重建、C# 原生、未建模；类别可重叠。原生按目录 recovered_native（加属性原始值合成）登记，不表示本次运行的分支覆盖；没有登记实现者的 reconstructed 仍标「未建模」。
 3. **静态表**：每行是一个变化单元格，含 key、字段、基线、补丁、差值和比值。ITD +2 的例子只改变岛 10、11 的 OT 窗口，进化时间点与插值节点同步移动，进化数值保持 frozen。16 个原始 OT 例外保留存储值并在警告里列出；这些例外目前都不在岛 10、11。
 4. **烘焙**：`bake/spawners.csv` 只含变化单元格。`model_floor.csv` 是基线模型对随包场景的背景残差，包含未变化的点；它不是这次补丁的变化表。
 5. **模拟**：逐日 Value、TotalValue、Gpm、DPS/防御、到岛日、物品首次出现与进化、活跃分钟、首杀见 `sim/`。`rpm.csv` 使用快照里的 CurrentGpm，等同导出所用的 RPM 缓存口径，不代表重新拟合。`baseline/` 与 `patched/` 保存两侧完整表。到岛日超过该岛起始日（第 L 岛用 ITD[L−2]，第 1 岛为 0）两天、loss/H 在 1 的 ±3% 附近发生变化会警告。两侧都没有事件，或只有初始化的刀而没有物品成长时，对应表标「两侧均无数据：当前重建未模拟…」，不作「无变化」结论；触及物品/进化输入会同时给出 `sim_not_modelled` 警告。
@@ -117,4 +117,4 @@ $PY -m tufu_balance.diff --head worktree --base HEAD --skip-sim
 
 所有对比 CSV 按键排序，浮点用 repr。相同数据库、补丁、代码和参数生成逐字节相同的 report、CSV、manifest 和校验 JSON。`manifest.json` 保存数据库/补丁/参数哈希、代码提交、两个作业键与轮数。墙钟耗时、缓存是否命中和重试次数单独放在 `timings.json`；它不参加逐字节比较。这是对 6.4「manifest 内含耗时」的必要调整，否则同一请求无法字节一致。
 
-验收命令：`pytest -q tests/test_diff.py`；实际 Unity 接口、两侧叶子一致、X1–X7、缓存和重复报告：`pytest -q --unity tests/unity/test_diff_e2e.py`。资产测试在 pytest 的临时目录里建立独立 git 仓库、复制 Scripts 和所需资产后修改并恢复；不写运行 pytest 的仓库。离线模拟测试用合成缓存目录覆盖补丁不一致、交叉检查失败、临时 X2 例外、空数据语义与两轮烘焙，无需 Unity。
+验收命令：`pytest -q tests/test_diff.py`；实际 Unity 接口、两侧叶子一致、X1–X7、缓存和重复报告：`pytest -q --unity tests/unity/test_diff_e2e.py`。资产测试在 pytest 的临时目录里建立独立 git 仓库、复制 Scripts 和所需资产后修改并恢复；不写运行 pytest 的仓库。离线模拟测试用合成缓存目录覆盖补丁不一致、交叉检查失败（包括 slow_tick X2）、空数据语义与两轮烘焙，无需 Unity。

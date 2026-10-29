@@ -93,7 +93,7 @@
    "note": "",
    "source": "X2",
    "value": {
-    "items": 4740,
+    "items": 6660,
     "mismatches": 0,
     "status": "pass"
    }
@@ -129,7 +129,7 @@
    "note": "status, items, mismatches",
    "source": "X",
    "value": {
-    "items": 4740,
+    "items": 6660,
     "mismatches": 0,
     "status": "pass"
    }
@@ -253,7 +253,7 @@
    "note": "",
    "source": "X2",
    "value": {
-    "items": 800,
+    "items": 2720,
     "mismatches": 0,
     "status": "pass"
    }

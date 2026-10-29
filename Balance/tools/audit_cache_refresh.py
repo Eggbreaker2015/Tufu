@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter
 import csv
 import hashlib
 import json
@@ -29,7 +28,17 @@ def digest(path):
 
 
 def audit(before, after, jobs):
-    report = {"before": str(before), "after": str(after), "jobs": {}, "violations": []}
+    report = {"before": str(before), "after": str(after), "run_outputs": {}, "jobs": {}, "violations": []}
+    for name in sorted({p.name for root in (before, after) for p in root.iterdir() if p.is_file()}):
+        a, b = before / name, after / name
+        if not a.exists() or not b.exists():
+            report["violations"].append(f"run/{name}: file set changed")
+            continue
+        entry = {"status": "identical" if a.read_bytes() == b.read_bytes() else "volatile",
+                 "before_sha256": digest(a), "after_sha256": digest(b)}
+        if entry["status"] != "identical" and name.endswith(".json"):
+            entry["fields"] = list(differences(json.loads(a.read_text()), json.loads(b.read_text())))
+        report["run_outputs"][name] = entry
     for job in jobs:
         a, b = before / job, after / job
         files = {p.relative_to(a).as_posix() for p in a.rglob("*") if p.is_file()}
@@ -53,7 +62,7 @@ def audit(before, after, jobs):
                 with x.open() as f, y.open() as g:
                     entry["fields"] = list(differences(list(csv.DictReader(f)), list(csv.DictReader(g))))
             entries[name] = entry
-            allowed = {"manifest.json", "simulation_data.json", "slow_tick_basis.csv", "bake_report.json", "bake_report.csv"} | VOLATILE
+            allowed = {"manifest.json", "asset_guard.json", "simulation_data.json", "slow_tick_basis.csv", "bake_report.json", "bake_report.csv"} | VOLATILE
             if name not in allowed:
                 report["violations"].append(f"{job}/{name}: unexpected changed output")
             if name == "simulation_data.json":
@@ -69,9 +78,13 @@ def audit(before, after, jobs):
                     s = old["Snapshots"][int(m[1])]
                     if s["TimeChunkIndex"] > 3 or (s["Playtime"], s["TotalPlaytime"], s["TimeChunkIndex"]) in forced:
                         report["violations"].append(f"{job}/{name}: changed forced/fast snapshot {m[1]}")
+            if name == "asset_guard.json":
+                for row in entry["fields"]:
+                    if row["field"] != "after_job.changed_sha256.Simulation Config":
+                        report["violations"].append(f"{job}/asset_guard.json: unexpected {row['field']}")
             if name == "manifest.json":
                 for row in entry["fields"]:
-                    if not row["field"].startswith(("run_key", "code_rev", "export.files.", "export.simulation_data_bits_sha256", "export.snapshot_text", "bake.")):
+                    if not row["field"].startswith(("run_key", "code_rev", "request.run_key", "request.code_rev", "request.out_dir", "export.files.", "export.simulation_data_bits_sha256", "export.snapshot_text", "bake.")):
                         report["violations"].append(f"{job}/manifest.json: unexpected {row['field']}")
         report["jobs"][job] = entries
     return report
