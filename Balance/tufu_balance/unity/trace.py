@@ -50,6 +50,37 @@ schema.register_output("digest_text", "C3c")
 # paramsio) and the loader reads job.params_source.
 schema.register_manifest_keys({"trace": "object", "params": "object"})
 req.register_fields("job", {"params_source": (str, None)})
+PARAMS_SOURCES = ("request", "asset")
+
+
+def check_job_params(job: Mapping[str, Any], where: str = "job") -> None:
+    """Python side of ``SimulationRebuildParamsLoader.LoadBatch`` for jobs the engine loads (not ``empty``):
+    params_source, params_hash against the canonical hash of params, exact field names and JSON types of the
+    C# class in this worktree (partial objects allowed, as in C#). Registered with ``request.validate``."""
+    if job.get("mode", "free") == "empty":
+        return
+    params, given, source = job.get("params"), job.get("params_hash"), job.get("params_source")
+    if source is not None and source not in PARAMS_SOURCES:
+        raise req.RequestError(f"{where}.params_source must be one of {PARAMS_SOURCES}")
+    if source == "asset":
+        if params is not None:
+            raise req.RequestError(f'{where}.params: params_source "asset" takes no params object')
+        return
+    if params is None:
+        if given is not None:
+            raise req.RequestError(f"{where}.params_hash is given without params")
+        return
+    if given is not None and given != req.params_hash(params):
+        raise req.RequestError(f"{where}.params_hash {given} is not the canonical hash {req.params_hash(params)} of params")
+    from ..calibrate import params as cparams
+    cs = cparams.read_csharp_params()
+    if cs is not None:
+        problems = cparams.check_against_csharp(params, cs, complete=False)
+        if problems:
+            raise req.RequestError(f"{where}.params: " + "; ".join(problems))
+
+
+req.register_job_check(check_job_params)
 
 
 class TraceError(ValueError):

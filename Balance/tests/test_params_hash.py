@@ -461,6 +461,17 @@ def test_request_load_reads_params_exactly():
     assert "job.ParamsReadError" in loader and "SimulationRebuildParams.FromRequest(job.Params, job.ParamsHash" in loader
 
 
+def test_digest_is_taken_after_the_day_override():
+    """Design 2.6/4.6: day d's digest covers the state after the forced snapshot and the day override, on day 0
+    and at every day change. (No C3c job runs an override; C4 adds the behavioural check, Runbook 17.4.)"""
+    text = (SIM / "Systems" / "SimulationSystem.Run.cs").read_text(encoding="utf-8")
+    code = [ln.strip() for ln in re.sub(r"//[^\n]*", "", text).splitlines() if ln.strip()]
+    starts = [i for i, ln in enumerate(code) if ln == "RebuildTraceDayStart();"]
+    assert len(starts) == 2
+    for i in starts:
+        assert re.fullmatch(r"RebuildApplyDayOverride\((0|day)\);", code[i - 1]) and code[i - 2] == "MakeSnapshot(true);", code[i - 2:i + 1]
+
+
 def test_job_params_are_checked_against_the_class():
     d = P.resolve(["defaults"]).params
     paramsio.job("ok", params={"Seed": 3})
@@ -468,6 +479,30 @@ def test_job_params_are_checked_against_the_class():
     for bad in ({"seed": 3}, {"Seed": "3"}, {"Seed": 3.0}, {"Bogus": 1}, {"RollMode": "Seeded"}):
         with pytest.raises(req.RequestError):
             paramsio.job("bad", params=bad)
+
+
+def test_request_validate_mirrors_the_loader_checks():
+    """request.validate refuses what LoadBatch fails with exit 5 (jobs the engine loads) and leaves empty jobs'
+    params alone, as C# does (C0b's round-trip example carries a free-form object)."""
+    d = P.resolve(["defaults"]).params
+
+    def check(**fields):
+        req.validate(req.make_request([{**engine.engine_job("j", day=1), **fields}], out_dir="/x"))
+
+    check(params=d, params_hash=req.params_hash(d))
+    check(params={"Seed": 3}, params_hash=None)
+    check(params=None, params_hash=None, params_source="asset")
+    req.validate(req.roundtrip_example())
+    bad = [dict(params=d, params_hash="0" * 64),
+           dict(params=None, params_hash=req.params_hash(d)),
+           dict(params=d, params_hash=None, params_source="asset"),
+           dict(params=None, params_hash=None, params_source="Asset"),
+           *(dict(params=p, params_hash=req.params_hash(p))
+             for p in ({"seed": 3}, {"Seed": "3"}, {"Seed": 3.0}, {"Bogus": 1}, {"RollMode": "Seeded"},
+                       {**d, "EarlySnapshotIntervals": None}))]
+    for fields in bad:
+        with pytest.raises(req.RequestError):
+            check(**fields)
 
 
 def test_asset_reader_parses_bool_fields_as_unity_writes_them(tmp_path):

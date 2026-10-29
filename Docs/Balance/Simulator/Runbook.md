@@ -678,11 +678,14 @@ C3c 加了参数类的资产包装与请求覆盖（`Rebuild/SimulationRebuildPa
 
 - 引擎在 `PrepareSimulationRun` 第一步（`RebuildLoadRunOptions`）调用 `SimulationRebuildParamsLoader.Load`，随后按 `RollMode`、`Seed` 建随机源，并开始轨迹记录。参数无效、哈希不符或 `params_source` 不认识时作业以退出码 5 失败，`error` 写明原因。
 - 请求参数的检查比 Newtonsoft 本身严：字段名区分大小写（`seed`、`SEED` 是未知字段，报错里提示正确的写法；Newtonsoft 默认忽略大小写，会让 `"seed"` 悄悄覆盖 `Seed`），JSON 类型必须与字段相符（整数与枚举字段只收 JSON 整数，不收字符串、`7.0`、布尔或 null；float/double 收整数与小数；数组不能是 null，元素逐个检查）。`Validate` 另外拒绝非有限的浮点（NaN、±Infinity，以及 `1e39` 这类读成 float 后溢出的值），对所有 float/double 字段和数组生效，后续单元加的字段也一样。
+- Python 一侧：`request.validate` 对引擎会加载的作业（非 `empty`）做同样的检查（`trace.check_job_params`，经 C0b 新增的 `request.register_job_check` 登记）：`params_source`、`params_hash` 是否等于 `params` 的规范哈希、`params_hash` 不能没有 `params`、字段名与 JSON 类型对照本工作树的 C# 类（允许部分对象，与 C# 相同）。这样大小写写错、类型不符或哈希不符的请求在启动 Unity 之前就以 5 被拒。`empty` 作业的 `params` 不检查（C# 也不加载它们；C0b 的往返示例带的是任意对象）。专门验证 C# 拒绝路径的 Unity 测试以 `validate=False` 绕过这一步。
 - 运行期间只用副本，资产对象本身不被改动（资产守卫核对它的内存摘要）。
-- **哈希**：`params_hash` 是规范化 JSON（键按码位排序、无空格、`ensure_ascii=False`、浮点按 Python `repr`）的 sha256，即 `tufu_balance.calibrate.params.params_hash`。C# 的 `SimulationCanonicalJson` 用整数运算求最短往返十进制，不依赖运行时的数字格式化，与 Python 逐字节相同（`tests/test_params_hash.py` 在 .NET 下对约 8000 个 double、6000 个 float32 和 300 个随机 JSON 值核对）。
+- **哈希**：`params_hash` 是规范化 JSON（键按码位排序、无空格、`ensure_ascii=False`、浮点按 Python `repr`）的 sha256，即 `tufu_balance.calibrate.params.params_hash`。C# 的 `SimulationCanonicalJson` 用整数运算求最短往返十进制，不依赖运行时的数字格式化。
+  - **读数也不依赖运行时**：Newtonsoft 用运行时的 double 解析器读数字，编辑器的 Mono 会把一些普通的字面量读偏 1 ulp（例如 `181.0483539212821`、`1.534053662242575`，约万分之一到千分之一），C# 的 `request_hash` 就与 Python 不同、作业以 5 失败。所以 `SimulationRunRequest.Load` 在 Newtonsoft 读完请求后，再用 `SimulationCanonicalJson.Parse`（自带的严格 JSON 读取器，十进制转 double 用 BigInteger 正确舍入，语义同 Python 的 `json.loads`：接受 `NaN`/`Infinity`，重复键取最后一个，保留 `-0.0`）从请求原文重读每个作业的 `params`（`ReadExactParams`）；读不了时只让带 `params` 的作业以 5 失败（`Job.ParamsReadError`）。`FromJson` 按解析出的 token 用反射直接设字段，不再经过 `PopulateObject` 的文本往返。
+  - 核对：`tools/rebuildcheck` 同时用 .NET 8 和编辑器自带的 Mono（`MonoBleedingEdge` 的 csc 与 mono）构建运行，规范 JSON、参数与随机数的测试在两个运行时下都跑：约 2 万种数字写法与 `json.loads` 相同（含上面两个字面量），读取器的拒绝情形，加载函数的哈希检查（`SimulationRebuildParams.FromRequest`：哈希不符、有哈希没参数都报错），以及"Mono 自己的解析确实不精确"这一前提。Unity 里 `params-mono-literals` 作业带这两个字面量和 `params_hash` 照常运行，`request_hash` 等于 P10 的哈希。
   - `request_hash`：C# 对 `job.params` 原文求的哈希。请求带了 `params_hash` 时两者必须相等，否则退出码 5。
   - `hash`：生效值（`SimulationRebuildParams.EffectiveCanonicalJson`：float 字段写成它的 float32 的最短十进制）的哈希。完整请求里每个浮点都是 float32 值时，它就等于 `params_hash`；Python 用 `paramsio.effective_hash` 预测同一个值。`matches_request` 记两者是否相等。
-  - 已知差异：Newtonsoft 把 `-0.0` 读成 `0.0`，这样的请求会因哈希不符被拒，不会带着另一个哈希运行。
+  - `-0.0`：精确读取器保留符号，`-0.0` 的请求哈希等于 Python 的，生效值也是 `-0.0`（以前 Newtonsoft 读成 `0.0`、作业因哈希不符被拒）。
 - manifest `params`（`tufu.sim.params/1`）：`source`、`interactive`、`complete`、`missing`、`request_hash`、`request_hash_given`、`hash`、`matches_request`、`roll_mode`、`seed`、`asset_path`、`asset_guid`、`asset_found`、`error`。`manifest.engine.params` 仍是生效参数本身。失败的作业只要加载函数已经运行，也带 `params`（`SimulationHarness.Complete` 以 `jobDir = null` 调用钩子 `RebuildJobExportTrace`，只写这一项；轨迹记录按作业对象核对，不会写上一个作业的）。
 
 ### 17.2 参数资产与 `params import`
@@ -740,6 +743,10 @@ string s = random.StateText();                                // 进每天的状
 
 轨迹只读状态、不改状态；`RebuildTraceFlush()`（internal）由钩子在导出前调用，补写未完成的那一天。
 
+交给 C4（或 C3d）：C3c 的作业都没有当天覆盖，摘要取在 `RebuildApplyDayOverride` 之后这一点目前只有静态检查（`tests/test_params_hash.py::test_digest_is_taken_after_the_day_override`）。C4 填覆盖后加一个带当天覆盖的作业，断言当天的摘要反映了覆盖后的状态。
+
+交给 C5：参数类目前没有 bool 字段；`paramsio.read_asset` 对 bool 只收 Unity 写的 `0`/`1`（`test_asset_reader_parses_bool_fields_as_unity_writes_them` 用一个合成的 bool 字段核对）。C5 加 `KillLossFromAb` 之类的 bool 字段时，`check_against_csharp` 与 C# 的 `CheckTokens` 都只收 JSON 的 `true`/`false`。
+
 ### 17.5 每天的状态摘要
 
 文本是按序（ordinal）排好的 `键=值` 行，浮点与 double 写 IEEE 位的十六进制。覆盖设计 2.6 的全部内容，另加第二天会用到的引擎状态：
@@ -757,16 +764,20 @@ string s = random.StateText();                                // 进每天的状
 | `pending_item.*`、`fast.*`、`souls.*`、`currency.*`、`policy.*` | 待处理份数、快阶段累积、灵魂与货币记录、策略状态（`statsBenefit`、`lastRewardStat`）|
 | `random.*` | `SimulationRandom.StateText()` 的每一行 |
 
+`daily.csv` 的 `eligible_count`/`eligible_signature` 由 `test_daily_eligible_set_is_p8s_bot_filter_set` 独立核对：在每个慢阶段天的强制快照上跑 P8 的 `simcalc.calculate_spawner_data(forGPMBot = false)`（空策略：没用过充能、就绪冷却为 0、全员存活），用 C1 的身份表转成"层级路径|Key"，个数与签名都相同（`trace-defaults` 第 0 天 6 个、之后 26 个；引擎运行 `all-islands` 第 1 天起 46 个，用一次性脚本核对也相同）。
+
 `tests/unity/test_params.py::test_digest_covers_design_2_6` 逐天核对：每项属性的 Value/TotalValue、天列表的 CurrentGpm（即 RPM）、P、T、Location、物品、血量、K2/K3 都与独立导出的快照文件逐位相同。`test_digest_carries_the_charges_of_the_closed_day` 在写入点探针（第 0 天清怪后换天）上核对第 1 天摘要的 `charges_closed.*` 等于探针自己记录的换天前各刷怪点用量。
 
 ### 17.6 验收记录（设计稿 7.3 C3c）
 
 在提交 `a2c6080` 上，运行工作树里 `pytest --unity tests/unity/test_params.py tests/unity/test_engine.py tests/unity/test_export_roundtrip.py -k "not disabled and not heartbeat"`：35 通过、1 跳过（`perf`，机器负载 8.5/10 核）。评审修正后在 `ba93b57` 上重跑同一命令：36 通过、1 跳过（`perf`，负载 7.9/10 核），用时 156 秒；新增的 `test_digest_carries_the_charges_of_the_closed_day` 在第 1 天摘要里看到 4 个 `charges_closed` 刷怪点（用量 18、12、2、1），与探针记录相同；导入（约 7 秒）的两次加载函数读回都是非默认值的哈希。C3b 的失败型测试 `disabled`/`heartbeat` 没有跑：用户主检出的编辑器一直开着（pid 19703），失败型运行会被启动器判 2（第 13 节），记为"未运行：用户编辑器在用"。不需要 Unity 的测试：`tests/test_random.py`、`tests/test_params_hash.py`、`tests/test_params_import.py` 与 P10 的 `tests/test_calibration_harness.py` 全部通过。
 
+第二轮评审修正（精确读取请求参数，C# 最后改动在 `b9216d2`）后，在 `b9216d2` 上重跑同一命令：39 通过、1 跳过（`perf`，负载 8.5/10 核），用时约 50 秒（引擎与导出运行命中缓存；导入与两个失败型运行重新执行，导入约 7 秒）。新增：`params-mono-literals` 带 Mono 会读偏的两个字面量，`request_hash = request_hash_given =` P10 的哈希、生效值等于 `paramsio.effective` 的 float32 值；`params-wrong-hash` 带错误的 `params_hash`，Unity 退出码 5、`error` 原文与哈希都核对（启动器因用户编辑器写真实存档得到 2，同上）；`test_daily_eligible_set_is_p8s_bot_filter_set`。之后的提交只改 Python、测试与文档。之前的 .NET 逐字节结论只覆盖 .NET；Mono 下的结论来自本轮的双运行时 `rebuildcheck`。
+
 | 项 | 结果 | 证据 |
 |---|---|---|
 | 请求覆盖生效 | 通过：`params-override`（`FastAfkStepMinutes` 60、`EarlySnapshotIntervals` [2, 5]、`RollMode` 1、`Seed` 7）的早期列表与天列表逐位等于用这些值的参考时钟，P < 20 的早期快照是 0, 2, …, 18（默认运行是 0…19），快阶段每天 24 个 60 分钟离线步；`manifest.trace.random` 为 (1, 7) | `test_request_overrides_take_effect` |
-| `params_hash` 稳定、与 P10 相同 | 通过：Unity 里 `request_hash = request_hash_given = hash = P10 params_hash`（默认值与覆盖两组）；.NET 下 C# 规范 JSON 与 Python 逐字节相同（约 8000 个 double、6000 个 float32、300 个随机 JSON），成员顺序和数字写法（`1.2e2`、`20.000`）不改变哈希 | `test_request_params_hash_equals_p10`、`tests/test_params_hash.py` |
+| `params_hash` 稳定、与 P10 相同 | 通过：Unity 里 `request_hash = request_hash_given = hash = P10 params_hash`（默认值与覆盖两组），Mono 会读偏的字面量也一样（`params-mono-literals`）；错误的 `params_hash` 以 5 失败（`params-wrong-hash`）；.NET 与编辑器的 Mono 下 C# 规范 JSON 与 Python 逐字节相同（约 8000 个 double、6000 个 float32、300 个随机 JSON，另有约 2 万种数字写法与 `json.loads` 比较），成员顺序和数字写法（`1.2e2`、`20.000`）不改变哈希 | `test_request_params_hash_equals_p10`、`test_literals_the_editor_parser_rounds_keep_the_p10_hash`、`test_wrong_params_hash_fails_the_job`、`tests/test_params_hash.py` |
 | P10 的 `resolve()`/`check_against_csharp` 对真实类仍通过 | 通过 | `tests/test_calibration_harness.py`（含 `test_csharp_parameter_class_of_this_worktree`）|
 | 未知字段报错 | 通过：Unity 里作业以 5 失败，`error` 写明 `Bogus`，失败的 manifest 也带 `params`（`request_hash` 等于 Python 的哈希）；大小写不同的字段名、类型不符的值在 .NET 下同一段代码里报错（`test_field_names_and_json_types_are_strict`）；启动器层面因用户主检出的编辑器一直在写真实存档，失败型运行得到 2（第 13 节的规则），测试按这一情形核对 | `test_unknown_param_field_fails_the_job`、`test_unknown_missing_and_invalid_fields` |
 | 交互运行经 `AssetDatabase` 读资产 | 通过（经批处理的 `params_source = "asset"` 走同一个加载函数）：`source = asset`、`asset_found`、GUID 与 `.meta` 相同，哈希等于从资产 YAML 独立读出的值。导入写入非默认值后，`Load` 的作业分支与交互分支读回的哈希都等于新值（不等于默认值）| `test_params_asset_is_read_through_the_asset_database`、`test_params_import_in_a_fresh_editor` |
@@ -786,5 +797,8 @@ string s = random.StateText();                                // 进每天的状
 - `params_hash` 之外另报生效值的哈希 `hash`：C# 的字段是 float32，非 float32 的请求值读进来就变了，只有生效值的哈希能说明实际用了什么。
 - 新增 partial 文件 `Systems/SimulationSystem.Trace.cs`（只有方法），以及 C3b 文件里的一行调用：`.Run.cs` 的 `PrepareSimulationRun`、`Tick`、`UpdateSpawnerChargesChunk`，`.Rebuild.cs` 的 `RebuildApplyClear`、`RebuildApplyGateReward`、`RebuildUnlockLocation`，以及 `RebuildLoadRunOptions` 的方法体和字段 `RebuildRandom`。C0b 的 `SimulationHarness.cs` 加了钩子 `RebuildJobExportTrace` 的声明与两处调用（`FinishJob` 导出；`Complete` 失败时只写 `params`）。新增 internal 成员 `RebuildTraceFlush()`。这些调用点与钩子不在设计稿 7.4 的表里，需要 Z1 补进去。
 - `FromJson`、`Validate` 改为 public：编辑器程序集（导入入口）看不到 `Assembly-CSharp` 的 internal 成员。
+- 精确读取请求参数（第二轮评审）：C0b 的 `SimulationRunRequest.Load` 多一行调用 `ReadExactParams`；新增 public 的 `Job.ParamsReadError`（不序列化）、`SimulationRebuildParams.FromRequest`（加载函数的请求分支挪到这里，不依赖 UnityEngine，`rebuildcheck` 能测）、`SimulationCanonicalJson.ParseToken`、`JobParams`、`DecimalToDouble`。`rebuildcheck` 输出 `NextDouble` 的结果改用 `FormatDouble`（Mono 的 `"R"` 不能往返）。
+- C0b 的 `tufu_balance/unity/request.py` 新增 `register_job_check`（`validate` 末尾调用登记的作业检查），C3c 用它登记 `trace.check_job_params`。P10 的 `tests/test_calibration_harness.py` 里驱动测试的占位参数 `{"Kappa": …}`（类里还没有这个字段）改成 `{"FastAfkStepMinutes": …}`，否则会被新检查拒绝；生产路径上 `resolve()` 本来就拒绝未知字段。
+- 请求的部分参数对象仍按字段覆盖代码默认值（见上），没有改成拒绝：C3b 的引擎测试（`modifier-first`、`stale-tick-cache`）就是靠部分对象只改一个字段；正式运行带完整对象，`manifest.params.complete` 可查。是否在批处理里强制完整对象留给 Z1 决定。
 - 设计稿 2.6 写 36 项属性；引擎的快照与摘要都是 `Unit.Stats` 的 30 项（同 16.6）。
 - 改了别的单元的测试：C3a/C3b 的 `tests/test_cs_signature_lock.py`（`PARTIAL_FILES` 加 `Trace`，`NEW_MEMBERS` 加 `RebuildTraceFlush`，新文件的 `.meta` 检查加上本单元的文件）、C3b 的 `tests/test_engine_static.py`（`FromJson` 可以是 public）；C0b 的 `tufu_balance/unity/__init__.py`（导入 `trace` 以登记字段）、`__main__.py`（`params build|import`）。

@@ -55,6 +55,7 @@ _FIELDS: dict[str, dict[str, tuple]] = {
 }
 REQUIRED = {"": ("schema", "out_dir", "jobs"), "job": ("job_id",)}
 CORE_FIELDS = {obj: frozenset(fields) for obj, fields in _FIELDS.items()}  # C0b's set, before other units register
+_JOB_CHECKS: list = []  # check(job, where) of later units, run by validate after the core checks
 
 
 class RequestError(ValueError):
@@ -68,6 +69,12 @@ def register_fields(obj: str, fields: Mapping[str, tuple]) -> None:
         if name in known and known[name] != tuple(types):
             raise ValueError(f"field {obj}.{name} already registered with other types")
         known[name] = tuple(types)
+
+
+def register_job_check(check) -> None:
+    """Add a later unit's job check ``check(job, where)`` that raises :class:`RequestError` (mirrors C# checks)."""
+    if check not in _JOB_CHECKS:
+        _JOB_CHECKS.append(check)
 
 
 def default_unity() -> dict:
@@ -205,6 +212,8 @@ def validate(request: Mapping[str, Any]) -> None:
             schema.validate_outputs(job.get("outputs", {}), where + ".outputs")
         except schema.SchemaError as e:
             raise RequestError(str(e)) from None
+        for check in _JOB_CHECKS:
+            check(job, where)
 
 
 def canonical_json(value: Any) -> str:

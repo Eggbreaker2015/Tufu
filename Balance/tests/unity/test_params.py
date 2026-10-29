@@ -26,9 +26,9 @@ import numpy as np
 import pytest
 
 from tufu_balance.calibrate import params as P
-from tufu_balance.model import timeaxis as ta
+from tufu_balance.model import simcalc as sc, snapshots as ss, timeaxis as ta
 from tufu_balance.model.f32 import f32
-from tufu_balance.unity import engine, launcher, paramsio, request as req, schema, simio, trace
+from tufu_balance.unity import engine, launcher, paramsio, request as req, schema, simio, spawner_map, trace
 
 pytestmark = pytest.mark.unity
 
@@ -82,17 +82,18 @@ UNKNOWN_PARAMS = {**P.resolve(["defaults"]).params, "Bogus": 1}
 @pytest.fixture(scope="module")
 def unknown_run(unity_run):
     """A job whose params carry an unknown field: C# rejects it (exit 5); the request's hash itself is right.
-    (Mis-cased names and wrongly typed values take the same path; tests/test_params_hash.py runs them.)"""
+    Python's request.validate refuses it too, so the launcher skips it. (Mis-cased names and wrongly typed values take the same path; tests/test_params_hash.py runs them.)"""
     params = UNKNOWN_PARAMS
     return unity_run(req.make_request([engine.engine_job("params-unknown", day=1, max_wall_seconds=120.0, probe=NULL,
-                                                         params=params)]))
+                                                         params=params)]), validate=False)
 
 
 @pytest.fixture(scope="module")
 def wrong_hash_run(unity_run):
-    """A job whose params_hash is not the canonical hash of its params: the loader rejects it (exit 5)."""
+    """A job whose params_hash is not the canonical hash of its params: the loader rejects it (exit 5)
+    (request.validate would refuse it before Unity)."""
     job = engine.engine_job("params-wrong-hash", day=1, max_wall_seconds=120.0, probe=NULL, params=_defaults().params)
-    return unity_run(req.make_request([{**job, "params_hash": "0" * 64}]))
+    return unity_run(req.make_request([{**job, "params_hash": "0" * 64}]), validate=False)
 
 
 def _failed_with_bad_request(result):
@@ -237,7 +238,10 @@ def test_literals_the_editor_parser_rounds_keep_the_p10_hash(run):
     assert m["exit_code"] == 0 and p["error"] is None
     assert p["request_hash"] == p["request_hash_given"] == mono.params_hash
     assert p["hash"] == paramsio.effective_hash(mono.params)
-    assert m["engine"]["params"] == paramsio.effective(mono.params)
+    # The engine manifest writes floats as G9 (SimulationJson); compare the float32 values.
+    as_f32 = lambda v: [_bits_f(x) for x in v] if isinstance(v, list) else _bits_f(v) if isinstance(v, float) else v
+    got, want = m["engine"]["params"], paramsio.effective(mono.params)
+    assert {k: as_f32(v) for k, v in got.items()} == {k: as_f32(v) for k, v in want.items()}
 
 
 def test_editors_that_entered_play_refuse_the_import(run):
@@ -309,6 +313,33 @@ def test_daily_rows_follow_the_snapshots(run, traced, db):
         else:
             assert (r["ticks"], r["offline_steps"], r["offline_minutes"]) == (1, 12, 1440.0)
             assert (r["eligible_count"], r["eligible_signature"]) == (-1, "")
+
+
+def _snapshot(s: dict) -> ss.SimulationSnapshot:
+    return ss.SimulationSnapshot(
+        f32(s["Playtime"]), f32(s["TotalPlaytime"]), s["Location"], s["TimeChunkIndex"],
+        [ss.SimulationStat(st["Key"], st["Value"], st["StatsFromFeaturesFlat"], st["PercentMultiplier"],
+                           st["TotalFlatValue"], st["TotalValue"], st["CurrentGpm"]) for st in s["Stats"]],
+        [ss.SimulationItem(it["Key"], it["Level"], it["Copies"]) for it in s["Items"]],
+        [(x["WeaponType"], x["Value"]) for x in s["DpsData"]], [(x["WeaponType"], x["Value"]) for x in s["DefenseData"]])
+
+
+def test_daily_eligible_set_is_p8s_bot_filter_set(run, traced, db):
+    """eligible_count/eligible_signature of each slow day equal P8's CalculateSpawnerData(false) port on the day's
+    forced snapshot (empty policy: no charges used, ready cooldowns zero, everyone alive), identities from C1's map."""
+    ctx = sc.load_simcalc_context(db)
+    ids = {e.spawner_id: e.runtime_id for e in spawner_map.load_identity_map(db).registered()}
+    full = _json(run, "trace-defaults", "timechunk_full.json")["TimeChunkSnapshots"]
+    checked = []
+    for r in traced["trace-defaults"].daily:
+        if r["eligible_count"] < 0:
+            continue
+        state = sc.snapshot_state(_snapshot(full[r["day"]]), ctx, order=sc.RPM_FIRST)
+        data = sc.calculate_spawner_data(ctx, state, False, sc.BotFilter())
+        assert (r["eligible_count"], r["eligible_signature"]) == (len(data), trace.set_signature(ids[k] for k in data)), r["day"]
+        checked.append(len(data))
+    # the OT cap shrinks day 0's set: the check sees more than one distinct set
+    assert len(checked) >= 2 and len(set(checked)) >= 2, checked
 
 
 def test_events_follow_the_write_points(run, traced):

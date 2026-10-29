@@ -97,7 +97,8 @@ def job(job_id: str, *, params: Mapping[str, Any] | None = None, source: str | N
         cs: cparams.CsParams | None = None, **kw) -> dict:
     """``request.make_job`` plus ``params_source`` (``"asset"`` takes no params). Params are checked against the
     C# class as C# checks them (exact field names, JSON types; partial objects allowed), so a mis-cased or mistyped
-    field fails here instead of in Unity with exit 5. ``request.validate`` stays schema-free for params."""
+    field fails here instead of in Unity with exit 5. ``request.validate`` runs the same checks
+    (:func:`trace.check_job_params`) on every job the engine loads."""
     if source is not None and source not in SOURCES:
         raise req.RequestError(f"params_source must be one of {SOURCES}")
     if source == "asset" and params is not None:

@@ -1424,7 +1424,7 @@ class FakeBackend:
 
 
 def _jobs(n, prefix="j"):
-    return [req.make_job(f"{prefix}{i}", "replay", day=11, params={"Kappa": 0.2 + i / 100}) for i in range(n)]
+    return [req.make_job(f"{prefix}{i}", "replay", day=11, params={"FastAfkStepMinutes": 60.0 + i}) for i in range(n)]
 
 
 def test_driver_cache_hit_does_not_start_unity(tmp_path):
@@ -1437,7 +1437,7 @@ def test_driver_cache_hit_does_not_start_unity(tmp_path):
     assert [r.job_dir for r in again] == [r.job_dir for r in first]
     # one changed parameter is a miss for that job only
     jobs = _jobs(3)
-    jobs[1] = req.make_job("j1", "replay", day=11, params={"Kappa": 0.3})
+    jobs[1] = req.make_job("j1", "replay", day=11, params={"FastAfkStepMinutes": 90.0})
     mixed = D.Driver(backend, cache=RC.RunCache(tmp_path), template=TEMPLATE, log=lambda *_: None).run(jobs)
     assert [r.status for r in mixed] == ["cached", "ok", "cached"] and backend.requests[-1] == ["j1"]
     # a changed manifest invalidates the index entry
