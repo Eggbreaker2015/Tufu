@@ -99,6 +99,7 @@ def test_refresh_uses_private_extracted_db_and_pins_unity_rev(tmp_path, monkeypa
     seen = {}
     def execute(steps, out, *, env):
         seen.update(env)
+        assert Path(env["TMPDIR"]).is_dir()
         return {"exit_code": exit_code}
     monkeypatch.setattr(R, "execute", execute)
     dest = tmp_path / "out/private"
@@ -106,9 +107,23 @@ def test_refresh_uses_private_extracted_db_and_pins_unity_rev(tmp_path, monkeypa
     assert seen["TUFU_BALANCE_DB"] == str(dest / "extracted/balance.sqlite")
     assert seen["TUFU_UNITY_REV"] == "abc123"
     private_tmp = Path(seen["TMPDIR"])
-    assert private_tmp.parent == R.BALANCE / "out" and private_tmp.is_dir()
+    assert private_tmp.parent == R.BALANCE / "out" and not private_tmp.exists()
     assert len(private_tmp.name) <= 14 and not private_tmp.is_relative_to(dest)
 
+
+
+def test_refresh_removes_private_tmp_when_execute_raises(tmp_path, monkeypatch):
+    monkeypatch.setattr(R, "BALANCE", tmp_path)
+    seen = []
+    def execute(steps, out, *, env):
+        private_tmp = Path(env["TMPDIR"])
+        seen.append(private_tmp)
+        (private_tmp / "child-output").write_text("partial")
+        raise RuntimeError("interrupted refresh")
+    monkeypatch.setattr(R, "execute", execute)
+    with pytest.raises(RuntimeError, match="interrupted refresh"):
+        R.main(["--out", str(tmp_path / "out/interrupted")])
+    assert len(seen) == 1 and not seen[0].exists()
 
 def test_outside_out_is_rejected():
     with pytest.raises(SystemExit):

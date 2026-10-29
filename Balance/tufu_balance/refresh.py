@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -346,8 +347,12 @@ def main(argv=None):
     env["TUFU_UNITY_REV"] = a.rev
     out.mkdir(parents=True)
     # Bee appends a named-pipe path; macOS limits the complete socket path to 104 bytes.
-    env["TMPDIR"] = tempfile.mkdtemp(prefix="rt-", dir=BALANCE / "out")
-    result = execute(steps, out, env=env)
+    private_tmp = tempfile.mkdtemp(prefix="rt-", dir=BALANCE / "out")
+    env["TMPDIR"] = private_tmp
+    try:
+        result = execute(steps, out, env=env)
+    finally:
+        shutil.rmtree(private_tmp, ignore_errors=True)
     print(out / "summary.md")
     return result["exit_code"]
 

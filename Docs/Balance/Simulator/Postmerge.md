@@ -1,6 +1,6 @@
 # Postmerge 集成验收
 
-## Round 2：C4 / C7 集成修复
+## Round 2 历史记录：C4 / C7 集成修复（门禁夹具由 Round 3 更正）
 
 结论：**本轮验收全部通过，没有未完成的 Postmerge 阻塞项**。完整 Unity 最终确认 **287 passed、3 perf skipped、0 failures / errors**，523.88 秒；全仓 Python **969 passed**，refresh L1 **13/13** 步通过。
 
@@ -10,7 +10,7 @@
 
 - 原版 `6af011f` 的 `SimulationSystem.cs:765–786` 只保证 `currentBoss` 的奖励值为 1e6；`FindBestSpawner` 和 `SpawnerData.GetPriority` 都是空壳，没有“无条件优先门禁”的原生证据。设计 4.5 的优先级族是奖励除以时间；从奖励 1e6 推出门禁必胜的后一句不总成立。C6 改变战力和路线后，`slow-bydist` 在第 2 天 P=125.751366 出现门禁优先级 **98462.47958719311**，低于普通 Cut 战斗的 **126445.349354054**。保留既有优先级规则，用全允许集合的 argmax 替换过强推论，属于需 Z1 回填的设计偏离。
 - C7 的 `selection` 探针现在在每个合格门禁 Tick 写 `slow_selection`：按原顺序排列的候选、时间成本、失血、跳过标志和实际选择。测试从只读 DB 取奖励、Count、PriorityMultiplier，独立计算门槛和优先级，核对最高者、首个平局者以及三类决策计数。四个变体共 **212** 个决策（61 / 32 / 73 / 46），唯一允许但未选门禁的反例正是上述距离时间变体。没有直接相信 C# 写出的 priority 或 reward。
-- 旧岛 3 夹具结束慢阶段时 P≈236，未曾检查 OT=240 的门禁，不能用于致死门槛验收。单改 Cut grant 的 15 作业扫描没有给三个门槛都产生覆盖；随后扫描仅用于夹具的时钟。在 CMove=2/4/8 的扫描中取最小值，使用 `Decomposed / CMove=2`，保留随包敌人、开局岛 2–3 和 Cut +1200：SameAsFast / CurrentHealth 在第 3 天 P=240.17363、loss/H=1.217195 拒绝，None 在 P=240.295959 选中并死亡 / 复活一次，岛 4 不开。逐事件门槛和死亡断言全部保留；随包 TC3 的 loss/H≈4.16 仍由静态 P8 预言机单独检查。没有更改默认 CMove 或任何校准参数。
+- Round 3 复核更正：C6 合入后，未经 grant 或强制解锁的默认闭环已覆盖 OT=240 的门禁；`slow-default` 第 3 天 P=240.010956、loss/H≈1.527，两种谓词均拒绝；`slow-current-health` 同样拒绝，`slow-none` 选中并在岛 3 门禁死亡两次，三个作业都不开岛 4。测试直接复用这些作业，保留逐事件谓词、day/P、选择、死亡 / 复活与不开岛 4 的检查。撤回 `97c986f` 中需要额外夹具时钟的判断，不需要 Q34 结构偏离；随包 TC3 的 loss/H≈4.16 仍由静态 P8 预言机独立检查。
 - 原版 `ItemModel.cs:135–175` 定义有效等级与碎片费用，`EvolveItemCommandRunner.cs:25–44` 明确消费 Copies、首次设 Evolved、后续升 Level。设计 4.5 Inventory 的 Timed 与 4.6 的“覆盖后继续闭环”允许这些转移。C6 在没有正掉落时仍处理到期进化；null_policy 只关闭战斗 / 规划。C4 覆盖后的即时记录继续逐项精确核对请求，跨日则使用 **P4 原版进化转移 + 随包时间 / 碎片表** 预测物品，再独立重算 DPS / DefenseData；没有冻结物品，也没有忽略等级或份数。
 - C4 replay 有 **167** 个进化事件、**118** 个即时覆盖之后的跨日区间改变物品；Evolved flip 有 3 个进化事件；checkpoint 有 **20** 个进化事件。跨日 Values 仍须不变，所有物品和缓存仍须精确符合独立预测，且测试强制要求确实覆盖有进化的区间。
 
@@ -24,7 +24,7 @@
 | 2 | C7 gate / slow-bydist | (b) 1e6 除以成本后输给普通战斗是允许集合的正确 argmax；原硬断言改为逐 Tick 全集合检查，并首次测到此前被硬失败挡住的 unlock key |
 | 3 | C7 gate / slow-nosmart | (b) 同 #1；禁用 SmartPath 的独立轨迹仍检查 |
 | 4 | C7 gate / slow-current-health | (b) 同 #1；CurrentHealth 谓词和不死亡性质仍检查 |
-| 5 | C7 island3 lethality | (b) 旧夹具没有合格事件；只改夹具时钟恢复三门槛的拒绝 / 选择 / 死亡覆盖，不删 `assert gates` |
+| 5 | C7 island3 lethality | (b) Round 3 改为默认闭环，正常掉落和解锁已覆盖三门槛；不删 `assert gates` 或任何门槛性质 |
 | 6 | C7 deaths / None + SkipSpawner | (b) C6 改变闭环战斗，死亡 55→43；逐场死亡、复活、跳过会话、清怪计数仍检查 |
 | 7 | C7 deaths / ClearThenRespawn | (b) 同上，死亡 41→11；死亡后清怪奖励与回血、位置仍检查 |
 | 8 | C7 death_policy_changes | (b) 汇总中 None 55→43，default=2 / CurrentHealth=0 不变；保留三者严格顺序和 Retry 摘要差异 |
@@ -64,7 +64,7 @@
 
 | 项 | 结果 | 命令、计数与耗时 |
 |---|---|---|
-| 上轮 C4 / C7 的 15 个失败 | PASS / DEVIATION | 冷全套中 C4 **18 passed**（18.92 秒），C7 **61 passed、1 perf skip**（9.97 秒）；每项裁决见上表；设计偏离仅为修正门禁必胜推论和测试专用夹具时钟 |
+| 上轮 C4 / C7 的 15 个失败 | PASS / DEVIATION | 冷全套中 C4 **18 passed**（18.92 秒），C7 **61 passed、1 perf skip**（9.97 秒）；每项裁决见上表；设计推论更正为门禁按优先级竞争；Round 3 撤回额外夹具时钟的判断 |
 | 完整 Unity 最终确认 | PASS | `python -m pytest -q --unity tests/unity --junitxml=out/postmerge/round2/unity-final.xml --durations=25`：**287 passed、3 perf skipped、0 failures / errors**，**523.88 秒**；所有负向 harness 作业均通过，没有 user-editor skip |
 | 首次冷全套 | 环境失败，已重试 | 同一全套命令：**284 passed、3 failed、3 perf skipped、0 errors**，**1940.71 秒**。3 个失败均是用户主编辑器写存档；下面单独列证据，不能将冷运行报告成全绿 |
 | 用户编辑器阻塞的负向作业 | PASS（重试） | `pytest -q --unity tests/unity/test_engine.py::test_disabled_modules_fail_the_job tests/unity/test_engine.py::test_heartbeat_follows_ticks_in_the_job_phase tests/unity/test_state_override.py::test_slots_beyond_the_player_fail_the_job`：**5 passed**，**314.16 秒**（含 Unity 锁排队） |
@@ -108,8 +108,8 @@
 ### 交接
 
 - **C4 / C7**：上轮 15 项已逐项处理；生产行为没有强制门禁优先、禁止进化或延后解锁之类的改动。
-- **Z1**：更新设计 4.5 / 7.3 的“1e6 因而必胜”推论；记录 C7 门禁夹具的测试专用时钟，及 C4 空战斗策略仍允许 Timed 进化。
-- **K2**：岛 3 第 2 天对随包第 1 天仍是校准交接，不能用测试修复消除；T04 / Q25 等既有未解项未变。
+- **Z1**：修订设计 4.5 / 7.3 C7 的“门禁奖励 1e6 → 总被选中”：门禁按优先级竞争，1e6 并不保证必胜；普通物品目标约便宜 200 倍时仍可能胜出（实际阈值还受 Count / PriorityMultiplier 影响）。`slow-bydist` 第 2 天 P=125.751366：门禁成本 93.7493−10.6106+18.4229=101.5615 秒，优先级 1e6×10/101.5615=98462.48；岛 1 Cut 物品点成本 11.00607−10.61064=0.395428 秒，优先级 1e4×5/0.395428=126445.35。奖励和倍率来自只读 DB，成本来自 C# trace；argmax 不等于所有候选成本均经独立预言机核对，逐场时间模型由 `slow_fight` 测试独立检查。另记录 C4 空战斗策略仍允许 Timed 进化。
+- **K2**：岛 3 第 2 天对随包第 1 天仍是校准交接，不能用测试修复消除；T04 / Q25 等既有未解项未变。C6 物品掉落后默认慢阶段 clears 403→854、ticks 237→557，顺路 clears 175→311；第 3 天结束 P≈255.5（`daily.csv`，随包 TC3≈248.1）。需在合并代码上重查 killseq、T16 / T03 时间模型和慢阶段时钟。
 
 ## Round 1 历史归档（以下不是本轮最终状态）
 

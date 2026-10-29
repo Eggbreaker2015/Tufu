@@ -72,35 +72,7 @@ def run(unity_run):
     return result
 
 
-GATES = {"gate-same-as-fast": "SameAsFast", "gate-current-health": "CurrentHealth", "gate-none": "None"}
-
-
-# The grant keeps fightTime below the bot's 300 s cap. C6's drops shortened fights enough that the old clock
-# ended the slow phase at P=236; a test-only doubled move cost gives a qualifying lethal fight at P>=240.
-# This exercises the gate predicates, not the default time model or K2 calibration.
-GATE_GRANT = {8: 1200.0}
-GATE_CLOCK = {"TimeModel": spol.TIME_MODEL["Decomposed"], "CMove": 2.0}
-
-
-def _gate_jobs():
-    """Islands 2-3 open from the start (engine_probe.unlock_through, no slot rewards): currentBoss is the island-3
-    gate (OT 240), which passes the bot filter once P >= 240, late on day 3."""
-    return [spol.slow_job(job_id, day=DAY, max_wall_seconds=600.0,
-                          params=_params({**GATE_CLOCK, "SlowLethalityGate": spol.SLOW_LETHALITY_GATE[gate]}),
-                          engine_probe=engine.engine_probe(unlock_through=3, grant_flat=GATE_GRANT))
-            for job_id, gate in GATES.items()]
-
-
-@pytest.fixture(scope="module")
-def gate_run(unity_run):
-    result = unity_run(req.make_request(_gate_jobs()))
-    assert result.exit_code == 0, result.describe()
-    return result
-
-
-@pytest.fixture(scope="module")
-def gate_traces(gate_run):
-    return {job["job_id"]: trace.read(gate_run.job_dir(job["job_id"])) for job in _gate_jobs()}
+GATES = {"slow-default": "SameAsFast", "slow-current-health": "CurrentHealth", "slow-none": "None"}
 
 
 @pytest.fixture(scope="module")
@@ -375,14 +347,14 @@ def _island3_gate(events):
     return [e for e in events if e["location"] == 3]
 
 
-def test_lethality_gate_at_the_island3_gate(gate_run, gate_traces):
+def test_lethality_gate_at_the_island3_gate(run, traces):
     """On day 3 the island-3 gate (OT 240) passes the bot filter but is lethal (shipped TC3 state: loss/H 4.16):
     SameAsFast and CurrentHealth never pick it, None does (and the player dies); the recorded predicates are the
-    design's. The fixture uses islands 2-3 open, GATE_GRANT and GATE_CLOCK;
+    design's. These default-clock closed loops unlock islands through normal fights;
     tests/test_slow_policy_static.py independently checks loss/H=4.16 on the shipped TC3 state."""
     first = {}
     for job, gate in GATES.items():
-        gates = _island3_gate(_events(gate_traces, job, "slow_gate"))
+        gates = _island3_gate(_events(traces, job, "slow_gate"))
         assert gates, f"{job}: the island-3 gate never passed the bot filter in the slow phase"
         for g in gates:
             assert g["refused_same_as_fast"] == (g["kill_loss_multiplier"] * g["max_health"] < g["loss"])
@@ -393,15 +365,16 @@ def test_lethality_gate_at_the_island3_gate(gate_run, gate_traces):
         chosen = any(x["chosen"] for x in gates)
         assert chosen == (gate == "None"), job
         if gate != "None":
-            assert _counters(gate_run, job).get("slow_boss_chosen", 0) == 0
-    gate_deaths = [f for f in _events(gate_traces, "gate-none", "slow_fight") if f["died"] and f["boss"] and f["location"] == 3]
-    assert gate_deaths and _counters(gate_run, "gate-none")["respawns"] >= len(gate_deaths)
+            assert not any(f["boss"] and f["location"] == 3
+                           for f in _events(traces, job, "slow_fight"))
+    gate_deaths = [f for f in _events(traces, "slow-none", "slow_fight") if f["died"] and f["boss"] and f["location"] == 3]
+    assert gate_deaths and _counters(run, "slow-none")["respawns"] >= len(gate_deaths)
     for job in GATES:
-        assert 4 not in {e["location"] for e in _events(gate_traces, job, "unlock")}
-    g = first["gate-same-as-fast"]
+        assert 4 not in {e["location"] for e in _events(traces, job, "unlock")}
+    g = first["slow-default"]
     check("sim_slow", {
         "island3_gate.first_loss_per_h": exact(round(g["loss"] / g["max_health"], 3), source="design 4.5",
-                                               note=f"closed loop, islands 2-3 open, test-only CMove=2; shipped TC3 state {ISLAND3_GATE_LOSS_PER_H}"),
+                                               note=f"default-clock closed loop, no grants or forced unlocks; shipped TC3 state {ISLAND3_GATE_LOSS_PER_H}"),
         "island3_gate.first_p": exact(round(float(f32(g["playtime"])), 3), source="design 4.5"),
         "island3_gate.none_gate_deaths": exact(len(gate_deaths), source="design 4.5 P15"),
     })
