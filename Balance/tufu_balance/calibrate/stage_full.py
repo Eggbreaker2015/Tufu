@@ -206,5 +206,7 @@ if __name__ == '__main__':
         with T.connect_ro(os.environ['TUFU_BALANCE_DB']) as db:
             print(archive(db, paths, args.workspace, args.out))
     else:
+        if driver.default_backend().name != 'serve':
+            raise RuntimeError('start the launcher serve process before the full-stage run')
         main(args.workspace)
         print(run_stage(args.workspace, args.out))
