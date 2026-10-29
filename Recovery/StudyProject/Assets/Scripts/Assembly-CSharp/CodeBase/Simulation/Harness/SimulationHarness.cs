@@ -784,7 +784,7 @@ namespace Codebase.Simulation.Harness
 				{
 					string inventoryDir = request.JobDir(job);
 					Directory.CreateDirectory(inventoryDir);
-					SimulationJson.WriteText(Path.Combine(inventoryDir, "inventory.json"), inventory.ToString(Newtonsoft.Json.Formatting.None) + "\n");
+					SimulationJson.WriteFile(Path.Combine(inventoryDir, "inventory.json"), inventory);
 				}
                 }
                 catch (Exception e)

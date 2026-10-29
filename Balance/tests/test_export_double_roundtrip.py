@@ -3,6 +3,7 @@
 Mono accepts 7.0236302039131 as the adjacent double 7.0236302039131004;
 the former text corrupted the full-snapshot digest in the inventory replay.
 """
+import json
 import math
 import random
 import struct
@@ -30,3 +31,13 @@ def test_export_double_roundtrips_in_an_independent_parser(runtime):
             values.append(value)
     [out] = rebuildcheck.run([{'op': 'export-format', 'doubles': [bits(v) for v in values]}], runtime)
     assert [bits(float(s)) for s in out['texts']] == [bits(v) for v in values]
+
+
+@pytest.mark.parametrize('runtime', rebuildcheck.RUNTIMES)
+def test_inventory_jobject_uses_exact_export_formatter(runtime):
+    if not rebuildcheck.available(runtime):
+        pytest.skip(f'needs {runtime}')
+    values = [7.0236302039131004, 433.00000089406973, -0., 5e-324, 1e200]
+    [out] = rebuildcheck.run([{'op': 'export-object', 'doubles': [bits(v) for v in values]}], runtime)
+    actual = json.loads(out['text'])['generator']['values']
+    assert [bits(v) for v in actual] == [bits(v) for v in values]

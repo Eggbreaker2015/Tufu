@@ -56,6 +56,11 @@ internal static class Program
             case "export-format":
                 return new JObject { ["texts"] = new JArray(command["doubles"].Select(h => (object)Codebase.Simulation.Harness.SimulationJson.JsonDouble(
                     BitConverter.Int64BitsToDouble(unchecked((long)ulong.Parse((string)h, NumberStyles.HexNumber))))).ToArray()) };
+            case "export-object":
+                var numbers = new JArray(command["doubles"].Select(h => (object)BitConverter.Int64BitsToDouble(
+                    unchecked((long)ulong.Parse((string)h, NumberStyles.HexNumber)))).ToArray());
+                return new JObject { ["text"] = Codebase.Simulation.Harness.SimulationJson.Write(
+                    new JObject { ["generator"] = new JObject { ["values"] = numbers } }) };
             case "runtime-double-parse":
                 return new JObject { ["bits"] = new JArray(command["texts"].Select(t => (object)BitConverter.DoubleToInt64Bits(
                     double.Parse((string)t, NumberStyles.Float, CultureInfo.InvariantCulture)).ToString("x16")).ToArray()) };

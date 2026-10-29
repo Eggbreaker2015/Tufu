@@ -32,7 +32,7 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 
 `Balance/tests/unity/test_inventory.py` 一次启动运行 13 个 reenter_play 作业：四个份数组合、正物品奖励的参考冲刷、四个 P18 组合、free、checkpoint、Regenerate、Seeded。开环从第 0 天开始 replay_items=recompute（避免首次覆盖后的份数校正混入 TC4–19 增量），经济缓存 stored，槽数使用真实开槽规则。P18 只比较 TC4–11 的 DpsData；P12 用独立 P8 重算，在 `(3,8)/(4,8)/(4,7)` 候选中仅以 TC1–24 的 DPS 选规则，TC≥25 单列。
 
-逐刷怪点实际清怪次数和真实插值配置独立重算快阶段物品期望；逐次调用独立 Python SimulationRandom 核对所有 Carry/Seeded 整数。正物品参考冲刷与默认冲刷逐字节比较两种快照 JSON、两种旁路 CSV 和 digests.csv。G07 与 P5 和随包表双重比较。
+逐刷怪点实际清怪次数和真实插值配置独立重算快阶段物品期望；逐次调用独立 Python SimulationRandom 核对所有 Carry/Seeded 整数。正物品参考冲刷与默认冲刷逐字节比较两种快照 JSON、两种旁路 CSV 和 digests.csv。G07 先把克隆中所有普通稀有度、非 Universal 的 level≥1 系列的 Value/CopyValue 全部置为 -1，再按等级递增喂入存储输入；因此递推只能消费本次生成的前级。每行导出 before_value/before_copy_value，C# 与 Python 均核对毒值确已生效，再与 P5 和随包表双重比较。离线埋错覆盖未清表的原表 no-op、清表后的 no-op 和只写 Value 三种情况，均须拒绝。
 
 本单元的黄金套件为 sim_inventory。新测量使用 golden accept --seed-original；设计有明确阈值的键声明 original，不把测量值写成设计阈值，不修改既有 ORIGINAL。任何不能满足的阈值另行说明并登记放宽，不能把登记放宽称为原验收通过。
 
@@ -55,14 +55,14 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 | 验收项 | 判定与证据 |
 |---|---|
 | 四个份数组合、TC4–11 每日五稀有度 | PASS。35 个独立稀有度/日样本均在要求的 5% 带内；另用逐刷怪点轨迹重算全部实际快奖励。Common 日 4–7 为 5.695327，日 10 为 5.965106；Uncommon 为 4.685590–4.907539；Rare 为 3.439000–3.601900；Epic 为 1.900000–1.990000；Legendary 为 1。E1 的各稀有度残差入黄金；TC4–19 武器 C/U/R/E/L 为 +37.86%/+29.15%/+16.05%/+17.74%/0%，不能把设计的“约 25%”当作本次测量。 |
-| T12 武器 ≤5% | DEVIATION。按稀有度/阶段取最大值，TC4–19 Epic 为 68 对 62，即 +9.677419%；其它武器阶段 ≤3.67%。没有调参数消掉 6 份差异。ORIGINAL 保持 0.05，CURRENT 接受 0.0967741935483871，并有单独放宽登记；这不是原阈值通过。 |
+| T12 武器 ≤5% | DEVIATION。按稀有度/阶段取最大值，TC4–19 Epic 为 68 对 62，即 +9.677419%；其它武器阶段 ≤3.67%。逐物品为 coolpike 24/24、doubleaxe 26/26、mace 18/12，全部多出的 6 份来自 mace。其唯一早期来源为岛 4 Epic 的 Spawner_1_epic_buck（Count=1、2 次充能）：重放第 10 天已合格并清两次，loss/H≈0.53；随包 mace 到 TC13 仍为 0、TC15 为 4，推断约第 13 天首杀。单日约 1.99–2.26 份一致，差异指向 C5 快阶段可杀性/资格（pending:simulation.fast_kill_gate），交 K1/C5。四组合的 mace 均为 18 或 19（E1 为 19），P18 无法改变此刷怪点在第 10 天的合格性。没有调参数消掉 6 份差异。ORIGINAL 保持 0.05，CURRENT 接受 0.0967741935483871，并有单独放宽登记；这不是原阈值通过。 |
 | T12 护甲 ≤7%、后期 ≤2% | PASS。护甲阶段最大 3.472222%；TC154–405 全部阶段单元最大 1.012430%。TC206–404 每充能平台为 2.5/4.3000001907，传奇 2.7999999523/4.5999999046，最大相对误差 4.4357e−8。均标 post-hoc。 |
 | 映射、掉落系数的辨识范围 | PASS。只在整个区间 K7>0 时比较映射；Chain Swapped 的武器/护甲加权残差 0.3296%/0.1506%，Direct 为 0.3576%/0.7008%。有/无 K0/K6 仅在整个区间 K0>0.1 时比较，逐单元值入黄金。 |
 | P18 四组合 | PASS（可选择与打分）。40 个 TC4–11 DPS 单元，SlotBeforeRpm 平均/最大 7.6816%/25.3182%，SlotAfterRpm 为 20.6994%/47.1887%。Frozen 下 StatsThenItems 与 ItemsThenStats 同分；默认保持 StatsThenItems × SlotBeforeRpm。四组合没有解释 TC5，Q25 仍交 K1，不能称为已解决。 |
 | P12 | PASS。TC1–24 的 85 个 DPS 单元选中 (4,8)：平均 3.058871%；(4,7) 为 7.734179%，(3,8) 为 9.233272%。TC≥25 单列 140 格：平均 1.449333%、最大 12.484544%，未用于选规则；没有拿槽数夹具验证规则。 |
 | T11 | PASS。15 个类型/稀有度中 14 个同快照；Uncommon 武器重放为 TC2，随包为 TC1，恰为下一个快照。 |
 | T13 | PASS。free 为 253/254 = 99.606299%；checkpoint 为 253/255 = 99.215686%。free 的 C/U/R 为 196/196、E/L 为 57/58；checkpoint 为 196/197、57/58。两种模式各导出 285 行余量表。超带项目：free 的 doubleaxe L5；checkpoint 的 doubleaxe L5、paddle L9。 |
-| T17（只对照） | DEVIATION/报告。实际 TC1 武器为 1，TC2–5 为 2，TC6–21 为 3，TC24 起为 4；weapon_2 仍受慢阶段门禁控制，C6 没有硬编码 TC1。护甲 TC9 前实际为 0；拟合夹具在 TC0–8 为 1，TC13 也只有 1 而实际为 2。夹具不是独立验证。 |
+| T17（只对照） | PASS（free/checkpoint）；DEVIATION（replay）。free 与 checkpoint 在 TC1 均为 (2,0)、Location=2，符合武器 TC1–5=2、TC6–21=3、TC24 起=4。只有 day-0 override 的派生解锁重放在 TC1 为 (1,0)、Location=1，TC2 才到岛 2；同样解释 T11 的 Uncommon 武器晚一快照。weapon_2 由岛 1 pier boss 的 SlotReward 开启，归 C4/C7 重放初始化交接，不是 C6 的槽 3/4 规则或 K2 一般慢门禁偏迟；原版 UnlockSimulationWeaponSlot 本来是空壳。护甲 TC9 前实际为 0；拟合夹具在 TC0–8 为 1，TC13 也只有 1 而实际为 2。夹具不是独立验证。 |
 | 慢阶段、Carry/Seeded | PASS。默认重放共 16,429 次取整、45 条物品流；四个组合的最大累计差分别 0.994036/0.984797/0.967610/0.974276，均 <1。慢阶段逐次期望等于 E(d)，两种模式的所有整数逐次匹配独立 Python SimulationRandom。 |
 | X6 | PASS。同一快照统计函数在加入 Item 来源 +37 修饰器前后 Value 相同，而活的 FastValue 改变。 |
 | Frozen/Regenerate | PASS。三个 JSON sha256 与完整资产守卫共同验证；Regenerate 运行中摘要确实改变、结束后恢复，且退出 Play 的守卫没有看到 Combat Balance Config 改变。请求校验和引擎都限制为 reenter_play 批处理。 |
@@ -87,8 +87,14 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 
 ## 后续交接
 
-- K1：四组合和辨识范围、P18 分数、P12 训练/验证分开记录在 sim_inventory。保留 TC5/Q25 未解决；T12 早期 Epic 的 6 份差异保留，不再增加参数。Direct 的后期拷贝累计误差小也会因碎片阈值导致更大的进化时间偏差。
-- K2：TC1 的 weapon_2 门禁时序仍偏迟；不要通过 C6 的 P12 槽 3/4 规则补偿。free 与 checkpoint 的进化超带项目、headroom 可定位阈值耦合。
+- K1：四组合和辨识范围、P18 分数、P12 训练/验证分开记录在 sim_inventory。保留 TC5/Q25 未解决；T12 早期 Epic 的 6 份差异保留（mace 18/12；coolpike 24/24、doubleaxe 26/26），与 C5 跟进岛 4 Spawner_1_epic_buck 的首杀资格：重放 day 10，随包约 day 13；不再增加 C6 参数。Direct 的后期拷贝累计误差小也会因碎片阈值导致更大的进化时间偏差。
+- C4/C7（K2 知悉）：只有 day-0 override + derived unlock 的 replay 在 TC1 少 weapon_2；free/checkpoint 均为 2 槽、岛 2，不能据此断言一般慢门禁偏迟。weapon_2 是 pier boss 的 SlotReward；不要通过 C6 的 P12 槽 3/4 规则补偿。free 与 checkpoint 的进化超带项目、headroom 可定位阈值耦合。
 - P10：直接读取已有 sim_snapshots_ext 槽数；inventory.json 提供逐 Key 整数奖励和期望、碎片余量。checkpoint 的快照含重置，不能把跨重置差值当作奖励；用 rewards 账本。
 - C1/P11/Z1：C1 格式缺陷已在 b78aa49 修复，并有全文件摘要确认；后续 text_repairs 应降为 0。新增 Inventory、CBC 的 pending 公式 id 需 Z1 登记；固定 P5 启发值参数、所有权偏离和 T12/T17/Q25 差异需合回设计。
 - P13/Z1：合并 refresh 后补跑 level 1。没有修改设计稿、主检出、共享数据库或运行工作树的场景/平衡资产。
+
+## 评审修正与待集成交接
+
+inventory.json 改经 SimulationJson.WriteFile/Write 的 JsonDouble 路径序列化，包括嵌套 JObject/JArray；.NET 与编辑器同版 Mono 的离线回归核对易受影响的 double 位。ConvertIslandTimingToDays 的 199 个样本改按 double_all（binary64 表达式、float 返回时舍入）逐位核对；不再用 stepwise 预言机加 rtol=1e-7，岛 3.5 可区分两者。
+
+- C6 → X2fix/C1/P11：本轮不修改 X2/items 行为，等待引擎决策。C6 的慢阶段清怪会在 Tick 内立即合并份数和自动装备，晚于 Tick 开始的 DPS 缓存；X2fix dc7d002 仅保存属性 basis，按快照末尾物品重算仍可能不一致。评审在旧版 inventory-free 上看到 day 0–3 正奖励数 15/28/40/44，X2 有 78 个 DpsData 未命中、涉及 26 个早期快照；旧版属性/物品混杂，尚不能证明合并后的结果。合并 X2fix 后须跑 smoke-11 与 free inventory 的 X2；若仍失配，由引擎/C1 捕获缓存时的 copies、level、evolved 和 equipped set。此项仅交接，不宣称已修复或已验证合并结果。

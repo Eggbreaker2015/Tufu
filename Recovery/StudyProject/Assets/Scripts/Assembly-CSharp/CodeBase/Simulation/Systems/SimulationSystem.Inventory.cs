@@ -245,17 +245,25 @@ namespace Codebase.Simulation.Systems
             {
                 foreach (bool armor in new[] { false, true })
                 {
-                    var source = (armor ? combatBalanceConfig.EvolutionArmorValues : combatBalanceConfig.EvolutionDamageValues).ToList();
-                    foreach (var row in source.Where(x => (int)x.Rarity <= 4 && x.DamageType != WeaponType.Universal).OrderBy(x => x.EvolutionLevel))
+                    var source = (armor ? combatBalanceConfig.EvolutionArmorValues : combatBalanceConfig.EvolutionDamageValues)
+                        .Where(x => x.EvolutionLevel >= 1 && (int)x.Rarity <= 4 && x.DamageType != WeaponType.Universal).ToList();
+                    // Remove every generated predecessor too: shipped rows cannot satisfy a no-op generator.
+                    foreach (var row in source)
+                        combatBalanceConfig.SetEvolutionValue(armor, row.DamageType, row.Rarity, row.EvolutionLevel, -1f, -1f, 0, 0);
+                    foreach (var row in source.OrderBy(x => x.EvolutionLevel))
                     {
                         var shards = armor ? combatBalanceConfig.EvolutionArmorShardsRequirements : combatBalanceConfig.EvolutionDamageShardsRequirements;
                         int idx = shards.FindIndex(x => x.Rarity == row.Rarity && x.EvolutionLevel == row.EvolutionLevel);
                         shards[idx] = new EvolutionShardsRequirement { Rarity = row.Rarity, EvolutionLevel = row.EvolutionLevel, Value = row.ReferenceShardsRequirement };
+                        var before = (armor ? combatBalanceConfig.EvolutionArmorValues : combatBalanceConfig.EvolutionDamageValues)
+                            .First(x => x.Rarity == row.Rarity && x.DamageType == row.DamageType && x.EvolutionLevel == row.EvolutionLevel);
+                        if (before.Value != -1f || before.CopyValue != -1f || before.Value == row.Value || before.CopyValue == row.CopyValue)
+                            throw new InvalidOperationException("G07 row was not poisoned before generation");
                         combatBalanceConfig.ApplyEvolutionAutoBalance(armor, row.DamageType, row.Rarity, row.EvolutionLevel,
                             row.ReferenceHeuristicValue, row.ReferenceStatValue, row.ReferenceTimeChunkIndex);
                         var generated = (armor ? combatBalanceConfig.EvolutionArmorValues : combatBalanceConfig.EvolutionDamageValues).First(x => x.Rarity == row.Rarity && x.DamageType == row.DamageType && x.EvolutionLevel == row.EvolutionLevel);
                         rows.Add(new JObject { ["armor"] = armor, ["type"] = (int)row.DamageType, ["rarity"] = (int)row.Rarity,
-                            ["level"] = row.EvolutionLevel, ["value"] = generated.Value, ["copy_value"] = generated.CopyValue });
+                            ["level"] = row.EvolutionLevel, ["before_value"] = before.Value, ["before_copy_value"] = before.CopyValue, ["value"] = generated.Value, ["copy_value"] = generated.CopyValue });
                     }
                 }
                 var examples = new JArray();

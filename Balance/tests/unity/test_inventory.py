@@ -216,6 +216,12 @@ def test_t13_free_checkpoint_and_headroom(run, series, targets):
 
 
 def test_t17_slots_export_and_fixture_contradiction(series, targets):
+    for name in ("inventory-free", "inventory-checkpoint"):
+        slots = series[name].slots
+        assert all(slots[d][0] == 2 for d in range(1, 6))
+        assert all(w == 3 for d, (w, a) in slots.items() if 6 <= d <= 21)
+        assert all(w == 4 for d, (w, a) in slots.items() if d >= 24)
+        assert all(a == 0 for d, (w, a) in slots.items() if d < 9)
     s = series["chain-swapped"]
     assert s.slots is not None
     assert s.slots[6][0] == 3 and s.slots[24][0] == 4
@@ -263,21 +269,12 @@ def test_reference_flush_positive_rewards(run):
 
 def test_generator_matches_p5_and_shipped_225_each(run, db):
     cfg = eg.load_evolution_config(db)
-    expected = eg.replay_stored_inputs(cfg)
     generated = inv(run)["generator"]["rows"]
-    assert len(generated) == 450
-    counts = defaultdict(int)
-    for row in generated:
-        key = ("armor" if row["armor"] else "weapon", row["type"], row["rarity"], row["level"])
-        assert (row["value"], row["copy_value"]) == tuple(float(v) for v in expected[key].stored)
-        stored = cfg.row(*key)
-        assert (row["value"], row["copy_value"]) == (stored.value, stored.copy_value)
-        counts[key[0]] += 1
+    counts = inventory.validate_generator_rows(generated, cfg)
     freeze("g07.rows", dict(counts), "G07 C# fed stored H and shards vs P5", original={"armor":225,"weapon":225})
 
 
 def test_unobserved_rarities_chain_curve_and_x6(run, db):
-    from tufu_balance.model.timeline import convert_island_timing_to_days
     from tufu_balance.model.data import load_island_target_days
     probe = inv(run)["generator"]
     ranges = {0: (5, 6), 1: (4.4, 4.7), 2: (3.4, 3.6), 3: (1.9, 2), 4: (1, 1)}
@@ -290,7 +287,11 @@ def test_unobserved_rarities_chain_curve_and_x6(run, db):
     assert x6["before"] == x6["with_equipment"] and x6["total_before"] != x6["total_after"]
     itd = load_island_target_days(db)
     for island, day in probe["island_days"]:
-        assert np.isclose(day, float(convert_island_timing_to_days(island, itd)), rtol=1e-7)
+        n = math.floor(island)
+        fraction = float(np.float32(island - n))
+        previous = 0.0 if n == 1 else float(itd[n - 2])
+        expected = np.float32(previous if fraction == 0 else previous + fraction * (float(itd[n - 1]) - previous))
+        assert day == float(expected), (island, day, float(expected))
 
 
 def test_comparisons_use_only_discriminating_days_and_late_plateau(run, series, targets, db):
