@@ -19,8 +19,12 @@ def norm(a):
 class MeshBuilder:
     """Flat-shaded: every triangle owns its 3 vertices. Front face: normal = cross(b-a, c-a) (Unity)."""
 
+    registry = []
+
     def __init__(self, nsub):
         self.subs = [[] for _ in range(nsub)]  # list of (pos, nrm, uv) * 3
+        self.id = len(MeshBuilder.registry)
+        MeshBuilder.registry.append(self)
 
     def tri(self, s, a, b, c, ua, ub, uc, out=None):
         n = cross(sub(b, a), sub(c, a))

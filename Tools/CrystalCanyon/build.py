@@ -2,7 +2,10 @@
 import json, math, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from meshlib import write_mesh, write_meta, new_guid, ASSETS
+import shapes
+import subprocess
 from layout import build
+from shapes import SWATCHES, guv
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 A = ASSETS
@@ -84,7 +87,29 @@ MAT['water'] = material('CC_Water', 'StylizedWater_Mobile',
 MAT['road'] = ROAD_MAT
 
 # ------------------------------------------------------------------ meshes
+BLENDER_APP = '/Applications/Blender.app/Contents/MacOS/Blender'
+use_blender = '--no-blender' not in sys.argv and os.path.exists(BLENDER_APP)
+if use_blender:
+    shapes.BLENDER = []
 parts, edge, props = build()
+if use_blender:
+    # model the recorded rock / column / plateau / crystal pieces in Blender, then add them to their meshes
+    from meshlib import MeshBuilder
+    spec_path, out_path = HERE + '/.blender_specs.json', HERE + '/.blender_out.json'
+    json.dump(shapes.BLENDER, open(spec_path, 'w'))
+    r = subprocess.run([BLENDER_APP, '-b', '--factory-startup', '-P', HERE + '/blender_kit.py', '--', spec_path, out_path],
+                       capture_output=True, text=True)
+    log = [l for l in r.stdout.splitlines() if 'blender_kit' in l or 'Error' in l or 'Traceback' in l]
+    print('\n'.join(log) or r.stdout[-2000:])
+    if r.returncode != 0 or not os.path.exists(out_path):
+        sys.exit(r.stderr[-3000:] or 'Blender failed')
+    for t in json.load(open(out_path)):
+        mb = MeshBuilder.registry[t[0]]
+        sw = SWATCHES[t[2]]
+        a, b_, c = tuple(t[3:6]), tuple(t[7:10]), tuple(t[11:14])
+        mb.tri(t[1], a, b_, c, guv(sw, t[6]) if t[1] == 0 else (0.5, 0.5), guv(sw, t[10]) if t[1] == 0 else (0.5, 0.5),
+               guv(sw, t[14]) if t[1] == 0 else (0.5, 0.5), tuple(t[15:18]))
+    os.remove(spec_path); os.remove(out_path)
 MESH_MATS = {  # mesh name -> materials per submesh
     'Plateaus': ['rock', 'top'], 'Stairs': ['rock'], 'Spires': ['rock', 'top'],
     'Rocks': ['rock'], 'Crystals': ['crystal'], 'Grass': ['props'], 'Pool': ['water'], 'Roads': ['road'],

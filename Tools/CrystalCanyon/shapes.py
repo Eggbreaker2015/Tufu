@@ -14,6 +14,17 @@ GOLD = (0.828, 0.77, 0.99)
 TOP_UV = (0.5, 0.5)
 
 SIDE, TOP = 0, 1
+SWATCHES = {'ROCK': ROCK, 'ROCK_DARK': ROCK_DARK, 'STEP': STEP, 'CYAN': CYAN, 'TEAL': TEAL, 'PINK': PINK, 'VIOLET': VIOLET, 'GOLD': GOLD}
+SWATCH_NAME = {v: k for k, v in SWATCHES.items()}
+
+# When this is a list, plateaus, columns, boulders and crystals are recorded here as specs and modelled in
+# Blender (blender_kit.py) instead of being built below; stairs, roads, grass and water are always built here.
+BLENDER = None
+
+
+def record(mb, kind, rng, **spec):
+    spec.update(kind=kind, mb=mb.id, seed=rng.random())
+    BLENDER.append(spec)
 
 
 def guv(sw, t):
@@ -42,6 +53,9 @@ def centroid(pts):
 
 def mesa(mb, pts, h, rng, base=-1.0, sw=ROCK, bevel=0.7, jitter=0.6, rows=2, top_sub=TOP, cap=True):
     """Faceted cliff block from a footprint polygon (x,z): rough sides, bevelled rim, flat top at y=h."""
+    if BLENDER is not None and cap:
+        record(mb, 'plateau', rng, pts=[list(p) for p in pts], h=h, base=base, sw=SWATCH_NAME[sw])
+        return offset_poly(pts, -0.85)
     c = centroid(pts)
     rings = [ring(pts, base)]
     cur = pts
@@ -64,8 +78,11 @@ def mesa(mb, pts, h, rng, base=-1.0, sw=ROCK, bevel=0.7, jitter=0.6, rows=2, top
     return top
 
 
-def column(mb, cx, cz, r, h, rng, sides=None, base=-1.0, sw=ROCK, top_sub=TOP):
+def column(mb, cx, cz, r, h, rng, sides=None, base=-1.0, sw=ROCK, top_sub=TOP, detail=True, whole=False):
     sides = sides or rng.choice([5, 6, 6, 7])
+    if BLENDER is not None:
+        record(mb, 'column', rng, x=cx, z=cz, r=r, h=h, sides=sides, base=base, sw=SWATCH_NAME[sw], detail=detail, whole=whole)
+        return [(cx + math.cos(math.tau * i / sides) * r * 0.8, cz + math.sin(math.tau * i / sides) * r * 0.8) for i in range(sides)], h
     rot = rng.uniform(0, math.tau)
     pts = []
     for i in range(sides):
@@ -107,6 +124,9 @@ def stairs(mb, x0, z0, dx, dz, width, h, run, rng, sw=ROCK, top_sw=STEP, y0=0.0)
 
 def rock(mb, cx, cz, size, rng, sw=ROCK_DARK, s=SIDE, y0=0.0):
     """Faceted boulder: a jittered low-res sphere, flattened and half buried."""
+    if BLENDER is not None:
+        record(mb, 'rock', rng, x=cx, z=cz, size=size, y0=y0, sw=SWATCH_NAME[sw])
+        return
     rings_n = 3; seg = rng.choice([5, 6, 7])
     rot = rng.uniform(0, math.tau)
     sy = rng.uniform(0.55, 0.8)
@@ -144,6 +164,9 @@ def rock(mb, cx, cz, size, rng, sw=ROCK_DARK, s=SIDE, y0=0.0):
 
 def shard(mb, base, direction, radius, length, sw, rng, s=0, sides=6):
     """Hexagonal crystal prism with a pointed tip. base: (x,y,z) on the ground; direction: unit-ish vector."""
+    if BLENDER is not None and sides >= 5:
+        record(mb, 'shard', rng, base=list(base), dir=list(direction), radius=radius, length=length, sides=sides, sw=SWATCH_NAME[sw])
+        return
     d = norm(direction)
     helper = (1, 0, 0) if abs(d[0]) < 0.9 else (0, 0, 1)
     e1 = norm(cross(d, helper)); e2 = cross(d, e1)

@@ -164,11 +164,11 @@ def build(seed=7):
         r1 = rng.uniform(4.0, 5.5)
         d1 = r0 + r1 * 0.9
         c1x, c1z = x + nx * d1 + rng.uniform(-1.5, 1.5), z + nz * d1 + rng.uniform(-1.5, 1.5)
-        _, h1 = column(mb, c1x, c1z, r1, rng.uniform(12, 17), rng)
+        _, h1 = column(mb, c1x, c1z, r1, rng.uniform(12, 17), rng, whole=(i % 6 == 3))  # crystal-topped ones stay flat
         col_tops.append((c1x, h1, c1z, r1))
         r2 = rng.uniform(5, 7)
         d2 = d1 + r1 + r2 * 0.6
-        column(mb, x + nx * d2, z + nz * d2, r2, rng.uniform(15, 21), rng)
+        column(mb, x + nx * d2, z + nz * d2, r2, rng.uniform(15, 21), rng, detail=False)  # back row: seen mostly from above
         if not near_gate and i % 3 == 1 and dist_to_roads(x - nx * 2, z - nz * 2, sampled) > 3:  # low step columns in front of the wall
             column(mb, x - nx * 1.8, z - nz * 1.8, rng.uniform(1.6, 2.6), rng.uniform(2.5, 5.5), rng)
     for k, mb in enumerate(sectors):
@@ -178,7 +178,7 @@ def build(seed=7):
     mb = MeshBuilder(2)
     for gx, gz, yaw in GATES.values():
         for sx in (-1, 1):
-            column(mb, gx + sx * 10.5, gz + (2.5 if gz < 0 else -2.5), 3.6, 15.0, rng, sides=6)
+            column(mb, gx + sx * 10.5, gz + (2.5 if gz < 0 else -2.5), 3.6, 15.0, rng, sides=6, whole=True)
     for name, x, z, r, h in [('PlateauWest', -37, 18, 3.5, 9), ('PlateauWest', -36, 0, 3.0, 7.5), ('PlateauNorthEast', 37, 27, 3.5, 9),
                              ('PlateauNorthEast', 14, 40, 3.0, 7), ('MesaCentre', 6.0, 20.5, 2.2, 5.5), ('PlateauSouthEast', 37, -42, 3.2, 7.5),
                              ('', 12, -20, 2.0, 5.5), ('', 33, 8, 2.4, 6.0)]:
