@@ -53,7 +53,9 @@ namespace Codebase.Simulation.Systems
 					foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
 				}
 				RebuildCount("day_overrides");
-				state.Record(RebuildReplayRecord(state, s, locationBefore, removed));
+				JObject record = RebuildReplayRecord(state, s, locationBefore, removed);
+				RebuildCrosscheckDay(record);
+				state.Record(record);
 			}
 			catch (Exception e)
 			{
