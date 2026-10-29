@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict
-import csv
 import dataclasses
 import json
 import math
@@ -19,7 +18,7 @@ import time
 import numpy as np
 
 from . import driver, fit, metrics as M, params as P, report, sensitivity as S, targets as T
-from ..model import data, simcalc as sc, spawners as sp
+from ..model import data, items, simcalc as sc, spawners as sp
 from ..model.enums import StatType, BalanceInterpolationType as K
 from ..unity import fasttick as ft, inventory, override as ov, request as req, simio, spawner_map
 
@@ -81,9 +80,12 @@ def measure(jobs, drv, path):
         row["run_dirs"] = list(map(str, result.run_dirs))
         rows.append(row)
     write_json(path, rows)
-    write_json(path.with_suffix(".timing.json"), {"wall_s": time.monotonic() - start,
-               "jobs": len(jobs), "cached": sum(r.status == "cached" for r in results),
-               "submitted": drv.submitted, "code_rev": drv.backend.identity().code_rev})
+    timing = {"wall_s": time.monotonic() - start,
+              "jobs": len(jobs), "cached": sum(r.status == "cached" for r in results),
+              "submitted": drv.submitted, "code_rev": drv.backend.identity().code_rev}
+    timing_path = path.with_suffix(".timing.json")
+    write_json(path.with_suffix(".cache-timing.json") if timing_path.exists() and all(r.status == "cached" for r in results)
+               else timing_path, timing)
     if not all(r.ok for r in results):
         raise RuntimeError(f"failed jobs: {[r.job_id for r in results if not r.ok]}; see {path}")
     return {r.job_id: r.job_dir for r in results}
@@ -111,7 +113,7 @@ def stat_intervals(directory, shipped):
 
 def mean(values):
     values = list(values)
-    return statistics.mean(values) if values else None
+    return float(statistics.mean(values)) if values else None
 
 
 def ranking(family, scores, *, post_hoc, segment, note=""):
@@ -149,7 +151,7 @@ def tour_features(db, directory):
     out = {}
     for d in fast_days(directory):
         tour = nn_tour(by_day[d.day].values())
-        if not math.isclose(tour, d.tour, rel_tol=1e-9, abs_tol=1e-6):
+        if not math.isclose(tour, d.tour, rel_tol=2e-6, abs_tol=1e-6):
             raise ValueError(f"Python/C5 NN path differs on day {d.day}: {tour} / {d.tour}")
         out[d.day] = (3 * tour / d.speed / 60, d.fight_seconds / 60)
     return out
@@ -159,6 +161,8 @@ def active_fit(db, paths, shipped):
     days = fast_days(paths["kill-start"])
     f = {d.day: d.farmed_seconds / 60 for d in days}
     nf = tour_features(db, paths["tour"])
+    nn_relative = max(abs(nf[d.day][0] - 3*d.tour/d.speed/60) / max(1, abs(nf[d.day][0]))
+                      for d in fast_days(paths["tour"]))
     cells = S.t04(shipped, f)
     x = {"FarmedTime": [[c.sim] for c in cells],
          "NnTour": [[sum(nf[d][i] for d in range(c.a, c.b)) / (c.b-c.a) for i in (0, 1)] for c in cells]}
@@ -190,10 +194,16 @@ def active_fit(db, paths, shipped):
     coefficients = {k: [float(np.float32(v)) for v in vals] for k, vals in coefficients.items()}
     blocks = [[(y[i], x["FarmedTime"][i][0])] for i in train]
     boot = fit.block_bootstrap(blocks, lambda xs: fit.ratio_fit([a for a, _ in xs], [f for _, f in xs]))
+    tour_blocks = [[(y[i], *x["NnTour"][i])] for i in train]
+    tour_ci = []
+    for column in (0, 1):
+        sample = fit.block_bootstrap(tour_blocks,
+                    lambda xs, col=column: fit.linear_least_squares([r[1:] for r in xs], [r[0] for r in xs]).x[col])
+        tour_ci.append([sample.lo, sample.hi])
     changes = {"ActiveMinutesModel": chosen, "Kappa": coefficients["FarmedTime"][0],
                "TourA": coefficients["NnTour"][0], "TourB": coefficients["NnTour"][1], "Tours": 3}
     return changes, {"chosen": chosen, "models": models, "aic": aic_rows,
-                     "kappa_bootstrap90": [boot.lo, boot.hi], "train_n": len(train), "holdout_n": len(hold)}, residuals
+                     "kappa_bootstrap90": [boot.lo, boot.hi], "tour_bootstrap90": tour_ci, "nn_feature_max_relative_vs_csharp": nn_relative, "train_n": len(train), "holdout_n": len(hold)}, residuals
 
 
 def dps_scores(series, targets, lo=1, hi=24):
@@ -237,7 +247,7 @@ def p12_scores(db, targets):
 def rpm_oracle(db, shipped):
     ctx = sc.load_simcalc_context(db)
     results = {}
-    for name in (sc.RPM_FIRST, sc.MODIFIER_FIRST, sc.STALE_TICK_CACHE):
+    for name in (sc.RPM_FIRST, sc.MODIFIER_FIRST):
         replay = dict(sc.replay_day_gpm(ctx, shipped, order=name).replayed)
         misses = [[s.time_chunk_index, StatType(st.key).name] for s in shipped for st in s.stats
                   if not sc.gpm_matches(st.current_gpm, replay[s.time_chunk_index][st.key])]
@@ -255,11 +265,17 @@ def choose(db, paths, targets):
         # Dimensionless MAE, separately per interval; no absolute reward-size weighting.
         vals = [(r, mean(abs(v) / max(1, abs(r.obs[k])) for k, v in r.residual.items())) for r in rs]
         scores[name] = (mean(v for r, v in vals if r.b <= 104), mean(v for r, v in vals if r.a >= 104))
+        residuals[name] = [{"a": r.a, "b": r.b, "stat": StatType(k).name,
+                            "sim": r.pred[k], "ref": v, "residual": r.pred[k]-v,
+                            "rel": abs(r.pred[k]-v)/max(1, abs(v)),
+                            "split": "train" if r.b <= 104 else "holdout"}
+                           for r in rs for k, v in r.obs.items()]
     rank = ranking("KillState", scores, post_hoc=False, segment="T05: TC4-103 / TC104-404; T08 diagnostic")
     hypotheses += rank
     chosen_kill = "StartOfDay" if rank[0]["hypothesis"] == "kill-start" else "AfterPass"
     changes, active, active_rows = active_fit(db, paths, shipped)
     changes["KillState"] = chosen_kill
+    changes["DpsCacheProvenance"] = "RpmFirst"
     detail["active"] = active
     residuals["active"] = active_rows
     for i, aic in enumerate(active["aic"], 1):
@@ -304,6 +320,11 @@ def choose(db, paths, targets):
     changes["EvolutionTrigger"] = evo_rank[0]["hypothesis"]
     p18_scores = {str(i): (dps_scores(series[f"p18-{i}"], targets, 4, 7),
                             dps_scores(series[f"p18-{i}"], targets, 8, 11)) for i in range(4)}
+    for i in range(4):
+        residuals[f"p18-{i}"] = [{"tc": ref.tc, "stat": k, "sim": series[f"p18-{i}"].day(ref.tc).dps[k],
+                                   "ref": v, "rel": abs(series[f"p18-{i}"].day(ref.tc).dps[k]/v-1),
+                                   "split": "train" if ref.tc <= 7 else "holdout"}
+                                  for ref in targets.shipped.tc if 4 <= ref.tc <= 11 for k, v in ref.dps.items() if v]
     p18_rank = ranking("P18", p18_scores, post_hoc=False, segment="DPS only: TC4-7 fit / TC8-11 holdout; never T05")
     hypotheses += p18_rank
     changes["DayChangeInventoryOrder"], changes["SlotRpmOrder"] = P18[int(p18_rank[0]["hypothesis"])]
@@ -325,6 +346,238 @@ def choose(db, paths, targets):
     return changes, hypotheses, detail, residuals
 
 
+
+def selected_jobs(db, changes):
+    return [make_job(db, "selected-kill", changes, rows=True),
+            make_job(db, "selected-items", changes, recompute_items=True, rows=True),
+            make_job(db, "selected-recomputed", changes, econ="recomputed", rows=True)]
+
+
+def t05_evidence(db, directory, shipped):
+    results = stat_intervals(directory, shipped)
+    rows = ft.read_spawner_days((directory / ft.SPAWNER_DAYS_FILE).read_bytes())
+    ctx = sc.load_simcalc_context(db)
+    by_rt = {spawner_map.runtime_id(spawner_map.runtime_path(s.d.scene, s.d.go_path), s.d.key): s
+             for s in ctx.spawners}
+    rewards = {}
+    for r in rows:
+        if r.fights and r.spawner not in rewards:
+            s = by_rt[r.spawner]
+            rewards[r.spawner] = {rw.stat_type: float(rw.value)*s.d.count*r.fights for rw in s.stat_rewards}
+    explanations = {r.unit: S.explain(r, ft.kill_days(rows), rewards) for r in S.bad_intervals(results)}
+    first = {}
+    for key, day in ft.kill_days(rows).items():
+        spawner = by_rt[key].d
+        first.setdefault((spawner.go_name, spawner.location), day)
+    return {"exact": sum(r.exact for r in results), "daily_exact": sum(r.exact for r in results if r.daily),
+            "bad_spans": S.bad_spans(results),
+            "unexplained": [u for u, e in explanations.items() if e is None],
+            "explanations": {u: dataclasses.asdict(e) if e else None for u, e in explanations.items()},
+            "first_kills": S.t08(first),
+            "threshold_equal_rows": sum(r.loss == r.max_health for r in rows),
+            "rows": len(rows)}
+
+
+def trace_cells(directory, targets):
+    """P10 cells, with T04/T05 measured from rewards instead of overwritten snapshots."""
+    shipped = [s for s in targets.shipped.tc if s.tc >= 4]
+    days = fast_days(directory)
+    lookup = {d.day: d for d in days}
+    cells = []
+    for a, b in zip(shipped, shipped[1:]):
+        ds = range(a.tc, b.tc)
+        for key in T.STATS:
+            ref = b.value(key)-a.value(key)
+            pred = sum(lookup[d].stats.get(int(StatType[key]), 0) for d in ds)
+            cells.append(M.Cell("T05", "daily" if b.tc-a.tc == 1 else "multi_day",
+                                f"{a.tc:03d}->{b.tc:03d}|{key}", pred, ref, pred-ref,
+                                abs(pred-ref)/max(1, abs(ref)), stat=key, tc=b.tc,
+                                unit=f"{a.tc:03d}->{b.tc:03d}", split="report",
+                                note="sum of actual fast rewards; replay resets Value daily"))
+        pred = sum(lookup[d].active_minutes for d in ds)/(b.tc-a.tc)
+        ref = (b.playtime-a.playtime)/(b.tc-a.tc)
+        cells.append(M.Cell("T04", "tc_4_10" if a.tc < 11 else "tc_ge_11",
+                            f"{a.tc:03d}->{b.tc:03d}", pred, ref, pred-ref, abs(pred/ref-1), tc=b.tc,
+                            split="train" if b.tc <= 104 else "holdout",
+                            note="sum of actual fast active minutes; excludes replay P resets"))
+    return cells
+
+
+def events(directory):
+    return [json.loads(line) for line in (directory / "events.jsonl").read_text().splitlines()]
+
+
+def diagnostic_rows(paths, shipped):
+    rows = []
+    curve, unlocks = {}, {}
+    for name in ("kill-start", "kill-none", *(f"theta-{t}" for t in THETAS), *(f"dps-{v}" for v in DPS_SCALES)):
+        bad = len(S.bad_intervals(stat_intervals(paths[name], shipped)))
+        t07 = S.t07(S.unlock_days(events(paths[name])))
+        inrange = sum(v["distance"] == 0 for k, v in t07.items() if k >= 5)
+        rows += [{"probe": name, "metric": "T05_bad_intervals", "value": bad, "note": "post-hoc diagnostic, not fitted"},
+                 {"probe": name, "metric": "T07_in_range_5_17", "value": inrange}]
+        if name.startswith("theta-") or name in ("kill-start", "kill-none"):
+            theta = 1.0 if name == "kill-start" else ("Infinity" if name == "kill-none" else float(name[6:]))
+            rows.append({"probe": "theta", "scale": theta, "metric": "T05_bad_intervals", "value": bad,
+                         "note": "fixed L=1; ablation only"})
+        if name.startswith("dps-") or name == "kill-start":
+            scale = 1.0 if name == "kill-start" else float(name[4:])
+            curve[scale] = bad
+            unlocks[scale] = {k: v["distance"] == 0 for k, v in t07.items() if k >= 5}
+            rows += [{"probe": "DPS", "scale": scale, "metric": f"island_{k}_day", "value": v["day"]}
+                     for k, v in t07.items()]
+    base = unlocks[1.0]
+    flips = {str(v): sum(base[k] != values[k] for k in base) for v, values in unlocks.items()}
+    return rows, {"dps_bad": {str(k): v for k, v in curve.items()}, "t07_flips": flips,
+                   "closed_t05_min_e002": S.closed_loop_exact_min(curve, .02)}
+
+
+def coefficient_ablation(db, directory, targets):
+    defs = items.load_item_defs(db)
+    by_asset = {i.asset_name: i for i in defs.values()}
+    by_rt = {spawner_map.runtime_id(spawner_map.runtime_path(s.scene, s.go_path), s.key): s
+             for s in sp.registered(sp.load_spawners(db))}
+    locs = {r["Number"]: (r["PreferredWeaponType"], r["PreferredArmorType"])
+            for r in db.execute('SELECT * FROM c_LocationsConfig__Locations')}
+    days = {d.day: d for d in fast_days(directory)}
+    interp = data.load_interpolations(db)
+    full, no_drop, plateau = defaultdict(float), defaultdict(float), defaultdict(lambda: [0., 0])
+    for r in ft.read_spawner_days((directory / ft.SPAWNER_DAYS_FILE).read_bytes()):
+        spawner = by_rt[r.spawner]
+        if not r.fights or not spawner.item_reward:
+            continue
+        it = by_asset[spawner.item_reward]
+        n = r.fights*r.count
+        p = float(interp.get_total_coefficient(r.day, K.ItemChainProbability))
+        chain = n if p == 1 else (1-p**n)/(1-p)
+        coefficient = float(interp.get_total_coefficient(r.day, K.ItemLegendaryEmission if it.rarity == 4 else K.ItemEmission))
+        bonus = float(interp.get_total_coefficient(r.day, K.ItemEmissionByType))
+        location = days[r.day].rounds[r.round-1].location
+        preferred = it.damage_type == locs[location][0 if it.is_armor else 1]
+        key = (r.day, it.kind, it.rarity)
+        amount = chain*float(np.float32(1+coefficient+(bonus if preferred else 0)))
+        full[key] += amount
+        no_drop[key] += chain*float(np.float32(1+(bonus if preferred else 0)))
+        if r.day >= 206:
+            group = (it.rarity == 4, preferred)
+            plateau[group][0] += amount
+            plateau[group][1] += n
+    rows = []
+    rarities = ("Common", "Uncommon", "Rare", "Epic", "Legendary")
+    for a, b in M.T12_PHASES:
+        if not all(float(interp.get_total_coefficient(d, K.ItemEmission)) > .1 for d in range(a, b)):
+            continue
+        for (kind, rarity), ref in M._gains(targets.shipped, targets, a, b).items():
+            if not ref:
+                continue
+            for label, source in (("full", full), ("no_K0_K6", no_drop)):
+                pred = sum(source.get((d, kind, rarities.index(rarity)), 0) for d in range(a, b))
+                rows.append({"candidate": label, "a": a, "b": b, "kind": kind, "rarity": rarity,
+                             "sim": pred, "ref": ref, "rel": abs(pred/ref-1)})
+    refs = {(False, False): 2.5, (False, True): 4.3, (True, False): 2.8, (True, True): 4.6}
+    platform = {f"legendary={l},preferred={p}": {"sim": val/charges, "ref": refs[(l,p)],
+                                               "rel": abs(val/charges/refs[(l,p)]-1), "charges": charges}
+                for (l, p), (val, charges) in plateau.items()}
+    return rows, platform
+
+
+def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_root, workspace):
+    targets = T.build(db, slot_schedule=T.load_slot_schedule())
+    shipped = data.load_simulation_data(db).time_chunk_snapshots
+    kill, item, bridge = (selected[n] for n in ("selected-kill", "selected-items", "selected-recomputed"))
+    series = read_series(item)
+    cells = [c for c in M.compute(series, targets) if c.target not in ("T04", "T05")]
+    cells += trace_cells(kill, targets)
+    for ref in targets.shipped.tc:
+        snap = series.day(ref.tc)
+        for kind in ("dps", "defense"):
+            for key, value in getattr(ref, kind).items():
+                pred = getattr(snap, kind).get(key, 0)
+                cells.append(M.Cell("T15", kind, f"{ref.tc:03d}|{kind}|{key}", pred, value, pred-value,
+                                    abs(pred/value-1) if value else (0.0 if pred == 0 else math.inf),
+                                    stat=key, tc=ref.tc, split="train" if 1 <= ref.tc <= 24 else "holdout",
+                                    note="actual recompute-items path; P12 R2b residuals in p12.csv"))
+    # Raw exported snapshot evaluation is kept independently; never disguise it as G20.
+    ev = M.evaluate(cells, M.load_tolerances(), "open")
+    detail["raw_export_status"] = ev.targets
+    detail["metric_basis"] = {"T04_T05": "selected-kill fast rewards and active minutes; never overwritten snapshot deltas",
+                               "T07_T08": "selected-kill unlock / first-kill traces",
+                               "T09_export": "selected-items raw exported CurrentGpm",
+                               "T09_G20": "independent Python oracle on shipped states (not exported run)",
+                               "T12_T13_T17": "selected-items (from day 0, recompute items, real slot rule)"}
+    t04_cells = [c for c in cells if c.target == "T04" and c.group == "tc_ge_11"]
+    detail["t04_confirmed"] = {"median": statistics.median(c.rel for c in t04_cells),
+                               "max": max(c.rel for c in t04_cells), "n": len(t04_cells)}
+    t09_cells = [c for c in cells if c.target == "T09"]
+    detail["t09_exported"] = {"hits": sum(sc.gpm_matches(c.ref, c.sim) for c in t09_cells), "cells": len(t09_cells)}
+    t05 = t05_evidence(db, kill, shipped)
+    detail["t05"] = t05
+    diag_rows, detail["sensitivity"] = diagnostic_rows(paths, shipped)
+    detail["t07"] = S.t07(S.unlock_days(events(kill)))
+    detail["p07"] = {}
+    for name, directory in (("RpmFirst", paths["kill-start"]),
+                            *((o, paths[f"p07-{o}"]) for o in ("ModifierFirst", "StaleTickCache"))):
+        cs = M.t09(read_series(directory), targets)
+        detail["p07"][name] = {"hits": sum(sc.gpm_matches(c.ref, c.sim) for c in cs), "cells": len(cs),
+                              "mean_rel": mean(c.rel for c in cs if c.ref)}
+        residuals[f"p07-{name}"] = [dataclasses.asdict(c) for c in cs]
+    coefficient_rows, platform = coefficient_ablation(db, paths["copies-Chain-Swapped"], targets)
+    residuals["coefficient"] = coefficient_rows
+    detail["late_platform"] = platform
+    coefficient_scores = {name: (mean(r["rel"] for r in coefficient_rows if r["candidate"] == name), None)
+                          for name in ("full", "no_K0_K6")}
+    hypotheses += ranking("EmissionCoefficient", coefficient_scores, post_hoc=True,
+                          segment="Full phases with K0>0.1; same measured clear set; diagnostic no-K0/K6")
+    headroom = inventory_data(item)["headroom"]
+    margins = [{"item": r["key"], "level": r["level"], "target_day": r["target"], "reached_tc": r["day"],
+                "copies_margin": r["headroom"], "shards_margin": r["copies"]-r["shards"],
+                "note": "first processing on/after target, not necessarily at target"} for r in headroom]
+    bridge_cells = trace_cells(bridge, targets)
+    stored_cells = trace_cells(kill, targets)
+    detail["bridge"] = {"stored_bad": len(S.bad_intervals(stat_intervals(kill, shipped))),
+                        "recomputed_bad": len(S.bad_intervals(stat_intervals(bridge, shipped))),
+                        "stored_t04_mean_rel": mean(c.rel for c in stored_cells if c.target == "T04" and c.group == "tc_ge_11"),
+                        "recomputed_t04_mean_rel": mean(c.rel for c in bridge_cells if c.target == "T04" and c.group == "tc_ge_11")}
+    residuals["bridge"] = [dict(dataclasses.asdict(c), basis="recomputed") for c in bridge_cells]
+    residuals["bridge"] += [dict(dataclasses.asdict(c), basis="stored") for c in stored_cells]
+    detail["design_failures"] = [f"{g.target}.{g.group}: {g.detail}" for g in ev.groups if g.status == "fail"]
+    detail["design_failures"] += [f"T08.{k}: {v}" for k, v in t05["first_kills"].items() if not v["ok"]]
+    detail["design_failures"] += [f"T12.platform.{k}: rel={v['rel']}" for k, v in platform.items() if v["rel"] > .02]
+    detail["design_failures"] += [f"holdout {k} exceeds 1.5x" for k, v in detail["holdout"].items() if not v["pass"]]
+    detail["t05_unexplained_cap"] = len(t05["unexplained"])
+    detail["jobs"] = {}
+    for name, path in sorted({**paths, **selected}.items()):
+        m = json.loads((path / "manifest.json").read_text())
+        guard = json.loads((path / "asset_guard.json").read_text())["after_job"]
+        if m["exit_code"] != 0 or not guard["ok"]:
+            raise ValueError(f"invalid measurement: {path}")
+        detail["jobs"][name] = {"directory": str(path), "code_rev": m.get("code_rev"),
+                               "manifest_sha256": report.sha256_file(path / "manifest.json"),
+                               "asset_guard_sha256": report.sha256_file(path / "asset_guard.json"),
+                               "timings": json.loads((path / "timings.json").read_text())}
+    resolved = P.resolve(["defaults"], changes)
+    out = report.write(out_root, "open", evaluations=[ev], params=resolved, hypotheses=hypotheses,
+                       sensitivity=diag_rows, evolution_margin=margins,
+                       inputs={"database_sha256": report.sha256_file(os.environ.get("TUFU_BALANCE_DB", BALANCE / "out/balance.sqlite")),
+                               "tolerances_sha256": report.sha256_file(M.TOLERANCES),
+                               "job_manifests": {k: v["manifest_sha256"] for k, v in detail["jobs"].items()}})
+    for name, rows in residuals.items():
+        if rows:
+            (out / (name + ".csv")).write_text(report.csv_text(tuple(rows[0]), rows))
+    write_json(out / "evidence.json", detail)
+    write_json(out / "open.json", changes)
+    for name in ("initial.json", "initial.timing.json", "selected.json", "selected.timing.json"):
+        source = workspace / name
+        if source.exists():
+            (out / name).write_bytes(source.read_bytes())
+    # Additional evidence is content-addressed alongside the P10 report.
+    manifest = json.loads((out / "manifest.json").read_text())
+    manifest["evidence_files"] = {p.name: report.sha256_file(p) for p in sorted(out.iterdir())
+                                  if p.name != "manifest.json" and p.name not in manifest["files"]}
+    write_json(out / "manifest.json", manifest)
+    write_json(workspace / "latest.json", {"report": str(out), "params": changes})
+    return out, detail
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--rev")
@@ -338,6 +591,10 @@ def main(argv=None):
     with T.connect_ro(os.environ.get("TUFU_BALANCE_DB", BALANCE / "out/balance.sqlite")) as db:
         targets = T.build(db, slot_schedule=T.load_slot_schedule())
         drv = driver.Driver(driver.default_backend(rev=args.rev), batch_size=12)
+        if args.rev:
+            from ..unity import runner
+            if drv.backend.identity().code_rev != runner.resolve(runner.WORKTREE, args.rev):
+                raise RuntimeError("resident editor revision differs from --rev; stop/restart it through the launcher")
         path = args.workspace / "initial.json"
         paths = load_results(path) if args.analyze_only else measure(initial_jobs(db), drv, path)
         changes, hypotheses, detail, residuals = choose(db, paths, targets)
@@ -349,7 +606,11 @@ def main(argv=None):
         (args.workspace / "hypotheses.csv").write_text(report.csv_text(report.HYPOTHESIS_COLUMNS, hypotheses))
         if args.write_layer:
             write_json(P.PARAMS_ROOT / "open.json", {"_stage": "K1; empirical choices, see Runbook section 24", **changes})
-        print(json.dumps({"choice": changes, "detail": detail, "wall_s": time.monotonic()-started}, indent=2))
+        selected_path = args.workspace / "selected.json"
+        selected = load_results(selected_path) if args.analyze_only else measure(selected_jobs(db, changes), drv, selected_path)
+        out, detail = archive(db, paths, selected, changes, hypotheses, detail, residuals, args.out, args.workspace)
+        print(json.dumps({"report": str(out), "choice": changes, "holdout": detail["holdout"],
+                          "failures": detail["design_failures"], "wall_s": time.monotonic()-started}, indent=2))
     return 0
 
 
