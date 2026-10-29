@@ -1268,7 +1268,7 @@ recomputed 缓存桥使用随包物品和闭式 P12（R2b 口径）：stored / r
 
 ### 24.7 Round 2：评审修正、科学边界与验收
 
-本轮授权 K1 修 C3b/C4 的换天钩子；不改 Design.md、C# 默认参数或参数资产。旧版诊断恒等式与当前契约见 19.2。新 P07 三作业从 day 0 开始 stored/snapshot/null_policy，禁止插值日把无独立观测的 RPM 加进 running max；free/closed-loop 的二进制输出以 Enginefix 式审计逐文件核对。
+本轮授权 K1 修 C3b/C4 的换天钩子；不改 Design.md、C# 默认参数或参数资产。旧版诊断恒等式与当前契约见 19.2。新 P07 三作业从 day 0 开始 stored/snapshot/null_policy，禁止插值日把无独立观测的 RPM 加进 running max；free/closed-loop 的二进制输出以 Enginefix 式审计逐文件核对。C5 的 TC405 检查改从 day404 override + 当天 float32 奖励账本重建覆盖前值，并逐日核对 free 的真实 Value 增量；不拿注入后的随包值给奖励写入判通过。
 
 T12 日整数总量的 5% 检查不可行：copies-Chain-Swapped、Chain-Direct、Greedy、slots-3-8、selected-items 均为 **18/29** 格超限，绝对残差和 **25**。Uncommon 武器的逐日 pre-roll 期望为 **14.06–14.72**，随包却是 **15,14,15,12,12,14,14**。在 1–18 份的小总量上，一份就超过 5%；物品映射、进化、P12 不改变这些单元。保留旧 daily 整数单元及 5% verdict 作报告；正式逐日组改为 `daily_expected`：快阶段账本的取整前期望，与随包整数比较，允许 **5% + 每个活跃物品流 <1 份** 的整数观测误差（同一 carry 流区间两端累计余数相减，绝对值 <1）。逐流计数来自正期望的物品 key，不拟合系数，不按日手填 allowance；缺 trace 天给 missing/fail。阶段 5%/7% 与后期平台 2% 原样保留。此为明确放宽，登记在 calib_open，ORIGINAL 不重写。仍保留 68/62 的早期 Epic 阶段失败，不用噪声理由遮盖系统性的 +6。
 
@@ -1281,3 +1281,59 @@ P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept*
 首轮诊断提交 7a296e2 和采样网格限制 81fb78c 的 full-policy P07 均为 1375/1380。随后逐日记录定位：剩余五格是完整规划 day26 已打开岛9，TC27 的实际 Location=9、随包仍=8；并非仅加采样网格限制就解决。改用无战斗的完整随包状态契约后 1380/1380。451b843 又修复 item-recompute 的可观测性：生成的 DpsData/DefenseData 不被 stored 注入遮盖，RPM 仍在 stored 上计算；全部矩阵在该提交重跑，前一轮试验只留诊断、不作为最终拟合或黄金依据。
 
 本轮最终数字、命令、用时与审计摘要补记于此节末。
+
+#### Round 2 最终矩阵（运行代码 fb2afc6）
+
+最终报告：`Balance/out/calibration/open/2b5862166339aee6/`；输入/计时在 `open-round2-final-work`。31 个初始候选（含三个完整 P07 作业）+3 个确认/桥接作业，Driver/serve 均为 reenter_play，**34/34 未命中缓存、守卫通过**。initial/selected 的 Driver 墙钟为 **518.790 / 69.472 秒**，完整分析归档命令 **620.251 秒**；Unity serve 四批为 **228.8 / 209.5 / 77.1 / 69.1 秒**。首次计时文件完整保留，后续测试重用缓存写独立 attempt 文件。
+
+| 项 | 最终结果 | 判定 |
+|---|---|---|
+| T09，day0 snapshot-items/stored/null_policy 导出 | **1380/1380**；均值相对误差 6.0578e−17 | PASS，直接导出，不是 Python G20 冒充 |
+| P07 ModifierFirst / StaleTickCache | **1376 / 874**（各 1380 格）；均值相对误差 0.001059819 / 0.020090294 | PASS，RpmFirst 严格优于两者；ModifierFirst 恰为 G20 的四格 |
+| 非 TC 日 | **360 天、10800 格、0 格改变最大值** | PASS |
+| T04 | 34 区间，中位 **1.085156%**、最大 **5.635268%** | PASS，保留原 2% / 8% |
+| T05 / T07 / 敏感性 | 7/7 逐日、37/41 总体、未解释上限1；岛5–17为12/13在区间内、全部在 slack 内，DPS 网格翻转0 | 与 round1 相同；结构规则 post-hoc |
+| T12 日整数原检查 | **18/29** 超5%，绝对残差和25；四种物品假设独立重数相同 | 不可行的原检查继续报告；未调 θ |
+| T12 pre-roll + 整数观测噪声 | **29/29** | DEVIATION/PASS；放宽有单独黄金登记，阶段限不变 |
+| T12 Epic，TC4–19 | **68/62，+9.6774%**，全部是 mace 多6份 | 原5%仍 FAIL；C5/预言机一致，按本轮授权精确交 K3 |
+| 参数、份数/进化/P12/P18及桥接 | 20个非 P07 报告 CSV 与 round1 逐字节相同，open.json 选择和系数也相同 | PASS；hypotheses 只改说明，residuals/targets 加新 T09/T12 口径 |
+
+| P18 | TC4–7 训练 | TC8–11 持出 | day5 |
+|---|---:|---:|---:|
+| StatsThenItems × SlotBeforeRpm | 0.110490540 | 0.043141471 | 0.116988765 |
+| ItemsThenStats × SlotBeforeRpm | 0.110490540 | 0.043141471 | 0.116988765 |
+| StatsThenItems × SlotAfterRpm | 0.254215840 | 0.159772799 | 0.266141218 |
+| ItemsThenStats × SlotAfterRpm | 0.254215840 | 0.159772799 | 0.266141218 |
+
+所以 DayChangeInventoryOrder 为 tie / not identified / default kept；SlotBeforeRpm 为实际选择，Q25 **unresolved**。所有阶段5拟合的 1.5× sanity check 仍过，数值与24.3相同；KillState/P12 的持出仍无辨识力。生成缓存的保留恢复了原 P18 表，明确排除了上一轮诊断中注入 stored 导致的四组合伪零残差。
+
+`engine.audit.json` 在归档内，核对 9526e88 与 fb2afc6 的空策略/完整策略 free 405天：**9+10=19 个确定性输出文件逐字节相同**（两快照JSON、两旁路CSV、DPS basis、逐日/事件/摘要与就绪表，完整策略另含 fasttick_days）。不比较含提交/进程/耗时的 manifest、asset_guard、timings。`before.diagnosis.txt` 独立复跑评审脚本，确认旧恒等式1230/1230、其中1070格单独等于X(d−1)。这两份证据由归档器纳入SHA256，不手工修改manifest。
+
+额外反证：Enginefix 审计中的完整 `audit-free`（无 override）也在 day10 首次掉 mace；同一文件已纳入归档哈希。K3 应检查随包生成的状态 A/B 或未恢复策略，不能只假定移除 replay 或重新选 KillState 就自然延迟三天。
+
+奖励写入的独立检查另外按原版 `StatBase.AddModifier` 的 float 字段合并顺序：`BaseValue + f32(previous Devoured.Value + f32(day reward))`，不是在 double 的快照 Value 上直接加奖励。完整 free 的 **12030 个**快日属性转移吻合；未加宽比较阈值。若忽略这次字段存储，day130 Health 会算16989475而实际16989476。重建覆盖前 TC405 的最大相对残差仍为 **3.0596812e−8**，与既有 sim_fasttick 黄金逐键相同。
+
+#### Round 2 工程验收
+
+命令均在本工作树 Balance 下，用共享 `.venv/bin/python` 与只读 `TUFU_BALANCE_DB`；Unity 运行代码固定为 `fb2afc6`，后续提交只更新测试、黄金与文档，Unity 工程树与它逐字节相同。
+
+| 命令 / 项 | 结果 | 用时 |
+|---|---|---:|
+| `python -m pytest -q` | **978 passed，302 skipped** | **220.20 秒** |
+| `TUFU_UNITY_REV=fb2afc6 python -m pytest -q --unity tests/unity/test_state_override.py tests/unity/test_run_crosscheck.py tests/unity/test_calib_open.py tests/unity/test_fasttick.py tests/unity/test_inventory.py tests/unity/test_engine.py -k 'not disabled_modules_fail_the_job and not heartbeat_follows_ticks_in_the_job_phase'` | **78 passed，3 skipped，4 deselected**；两项 perf 因负载跳过，另一次 bad-slots 因用户编辑器改真实存档跳过 | **136.81 秒** |
+| `python -m tufu_balance.refresh --level 1 --rev fb2afc6 --out out/k1-round2/refresh` | **13/13，退出0，CURRENT未被refresh改写**；静态984个节点逐一分配，979 passed / 5 skipped / 0失败；编辑/Play探针与smoke-11的X1–X7均绿 | **158.71 秒** |
+| `python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-K1` | 两种编译均0错误、0新警告、签名0违规、禁用API0；原有警告3707+8 | **7.3 秒**（与其他检查并行） |
+| `python tests/golden/fixtures/generate.py --check` | **identical**；只有既有provenance提示 | — |
+| `python -m tufu_balance.golden guard` | **21 suites，0 violations** | — |
+
+只重接受 `calib_open` 的7个变化/新增键与 `sim_override` 的8个变化键，每键的接受/放宽记录均点名 C3b/C4 换天修正及相应口径。C4 四个 cache_applications 计数加倍、强制缓存错位日数401→0、fresh-planning相等格数14464→13752、相同统计范围内carry格数730→1522及skip的0→74；非零格子总数1604不变。Checkpoint/recomputed/free、全部sim_inventory与sim_engine、既有sim_fasttick数字无需重接受。
+
+所有已有 ORIGINAL 项保持原样（calib_open原16项逐项相同），只有四个新键首次建立 ORIGINAL（日契约声明旧口径，另外三项按首次测量）；T12日契约的新键把旧“整数总量5%”声明为原口径并登记放宽，未把新口径写回已有原版基线。40个归档产物的SHA256全部核对，八份initial/selected计时（首次+三次缓存验证）均保留，首次initial仍为518.790387209秒。
+
+受保护共享DB仍为mode444、SHA256 `a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098`。最终启动器状态 clean=true、lock=null、unity_processes=[]、serve.running=false。检查日志独立保存于 `Balance/out/k1-round2/`，不再把check文件手工加入已写好的归档manifest。
+
+四项故意失败的引擎断言（AutoGambling、CrystalSimulation、AutoBalanceAmulet、frames-only心跳）内层Unity退出码分别5/5/5/3；四份sandbox.json的进程与路径/PlayerPrefs探针均独立验证，唯一守卫问题是主检出编辑器在改真实存档，所以启动器退出2。原断言未被放宽。`engine-guard-evidence.json`保存原运行路径与判断；只读 `quiet_watch.py` 从首次失败启动时起设15分钟硬截止，5秒采样，要求90秒连续安静；最终等待结论见下。
+
+等待按首次失败启动时间 `2026-10-29 11:27:49 UTC` 起计，硬截止 `11:42:49 UTC`。只读监测约777.994秒，捕获147次变化，最后连续安静仅40.152秒，始终未达到90秒；截止后自动结束，没有再延长等待或碰用户编辑器。上述四项最终均记录 **not run: user editor active**（指未获得有效的启动器失败型验收），不把内层5/5/5/3冒充启动器通过。最终可运行的六模块命令保持78/3skip/4deselected；4个原断言仍严格要求启动器5/3，可在用户编辑器停止写存档后原样重跑。
+
+本轮所有权/口径偏离留给Z1合回设计：授权增加C3b/C4前置钩子；三个C4私有Rebuild字段留在Replay.cs（与既有Inventory状态例外同理）；stored replay的RPM只在观测TC上更新最大值；T09/P07使用无战斗的完整随包状态契约；item-recompute快照保留独立生成缓存；T12日整数检查改pre-roll加整数噪声、阶段限不变。没有新增可调参数、改θ、写C#默认值或参数资产。未完成的科学问题只有原T12 Epic阶段的+6份与既有Q25；各自已有精确K3/Z1交接。工程验收外部未跑项只有上述四个故意失败的启动器断言及已列跳过项。

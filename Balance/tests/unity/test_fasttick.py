@@ -300,8 +300,10 @@ def test_flush_adds_one_merged_modifier_per_stat_per_day(run, shipped):
             for s in _full(run, "free-405")}
     for d in _days(run, "free-405"):
         for k, value in free[d.day].items():
-            assert free[d.day+1][k] == pytest.approx(value + float(np.float32(d.stats.get(k, 0))),
-                                                    rel=1e-12, abs=1e-8), (d.day, k)
+            # StatBase.AddModifier merges Devoured.Value into a float field before adding BaseValue.
+            base = free[0][k]
+            merged = float(np.float32(float(np.float32(value-base)) + float(np.float32(d.stats.get(k, 0)))))
+            assert free[d.day+1][k] == pytest.approx(base + merged, rel=1e-12, abs=1e-8), (d.day, k)
     # Stored replay now overrides before the forced snapshot; reconstruct the actual last
     # flush from its reward ledger instead of checking the injected TC405 reference state.
     before = next(r for r in ov.read_days(run.file("fast-405", ov.DAYS_FILE).decode()) if r.day == LAST-1)

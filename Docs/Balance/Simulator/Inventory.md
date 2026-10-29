@@ -121,3 +121,5 @@ inventory.json 改经 SimulationJson.WriteFile/Write 的 JsonDouble 路径序列
 ## K1 round 2 更正（mace 交接）
 
 早期 Epic 的 +6 份不是可由 K1 KillState / KillLossMultiplier 校准解决的选择。K1 复查原版 6af011f 过滤、只读场景数据、就绪表、实际充能及 model.simcalc.eligible_spawners：岛4 Spawner_1_epic_buck（file_id 57815，OT=10天，Count=1，limit=2）在 day10–12 均 eligible；day10 loss/H=0.525824，禁用 kill predicate 也 day10 首杀。岛4 day5 已由门禁打开，derived override 不注入解锁。随包从 day13 才开始产生 mace，相差三天×2=6，正是 mace18/12、Epic68/62。没有 C5 过滤移植差异的证据；交 K3 的闭环成长/配置状态 A/B 诊断，撤回“用 K1 kill gate 参数解决”的建议。T12 日整数5%不可行与 pre-roll 噪声 allowance 见 Runbook 24.7；阶段检查继续保留失败。
+
+额外控制：K1 的未覆盖完整 free 405天作业（fb2afc6，engine.audit.json 指向其产物）同样 day10 首次有 mace。因此不能假定去掉 replay 覆盖就会延迟到 day13；K3 需对随包生成时的配置状态 A/B、闭环状态或未恢复策略给出解释。当前 free 与 replay 的现有门槛都不支持把 +6 当作可调 θ。
