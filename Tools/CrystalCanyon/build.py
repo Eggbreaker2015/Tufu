@@ -159,7 +159,7 @@ def transform(tid, gid, pos=(0, 0, 0), rot=(0, 0, 0, 1), scale=(1, 1, 1), parent
 MESH_RENDERER = open(HERE + '/meshrenderer.tmpl').read()
 
 
-def mesh_object(name, mesh_ref, mat_guids, parent_tid, pos=(0, 0, 0), scale=(1, 1, 1), collider=False, rot=(0, 0, 0, 1)):
+def mesh_object(name, mesh_ref, mat_guids, parent_tid, pos=(0, 0, 0), scale=(1, 1, 1), collider=False, rot=(0, 0, 0, 1), cast_shadows=True):
     tid, mf, mr = fid(), fid(), fid()
     comps = [tid, mf, mr]
     bc = None
@@ -170,7 +170,10 @@ def mesh_object(name, mesh_ref, mat_guids, parent_tid, pos=(0, 0, 0), scale=(1, 
     docs.append((33, mf, 'MeshFilter:\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n  m_PrefabInstance: {fileID: 0}\n'
                          '  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: %d}\n  m_Mesh: %s\n' % (gid, mesh_ref)))
     mats = ''.join('  - {fileID: 2100000, guid: %s, type: 2}\n' % g for g in mat_guids)
-    docs.append((23, mr, MESH_RENDERER.replace('{GO}', str(gid)).replace('{MATS}', mats.rstrip('\n'))))
+    renderer = MESH_RENDERER.replace('{GO}', str(gid)).replace('{MATS}', mats.rstrip('\n'))
+    if not cast_shadows:
+        renderer = renderer.replace('  m_CastShadows: 1\n', '  m_CastShadows: 0\n')
+    docs.append((23, mr, renderer))
     if bc:
         docs.append((65, bc, 'BoxCollider:\n  serializedVersion: 3\n  m_ObjectHideFlags: 0\n  m_CorrespondingSourceObject: {fileID: 0}\n'
                               '  m_PrefabInstance: {fileID: 0}\n  m_PrefabAsset: {fileID: 0}\n  m_GameObject: {fileID: %d}\n  m_Material: {fileID: 0}\n'
@@ -301,7 +304,9 @@ def dressing(tid):
     kids = []
     for name in ['Roads', 'Rocks', 'Crystals', 'Grass', 'Pool']:
         g, mats = meshes[name]
-        kids.append(mesh_object(name, '{fileID: 4300000, guid: %s, type: 2}' % g, [MAT[m] for m in mats], tid))
+        # flat overlays just above the floor must not cast: their shadow edge shows up as a thin line on the ground
+        kids.append(mesh_object(name, '{fileID: 4300000, guid: %s, type: 2}' % g, [MAT[m] for m in mats], tid,
+                                cast_shadows=name not in ('Roads', 'Pool')))
     return kids
 
 
