@@ -20,13 +20,17 @@ pytest --unity tests/unity/test_run_crosscheck.py                               
 | ID | 模块 | 口径 | 空策略下 vacuous 的部分 |
 |---|---|---|---|
 | X1 | `composition` | 两个列表的每个快照：SFF、PM、TF、TV 由 Value 与 K2/K3(当天) 经 `compose_stat` 重算，经 C2 的 `probes.encode_snapshot` 逐位比较 | 无 |
-| X2 | `dps` | 由导出的物品（`items_ext.csv` 的 `Evolved`）、槽数（`snapshots_ext.csv`）与属性重算 DpsData/DefenseData，逐位。天快照与它在早期列表里的副本用 K2/K3(d−1)（换天时算的，`RpmFirst`），其余早期快照用 K2/K3(d)（慢阶段 Tick 开头算的）；系数都在第 d 天。属性取 `GetForecastStatValue` 的游戏顺序 `((1·K3)·(1+K2))·Value` | `k2_lag`（没有平坦伤害/防御属性时 K2(d−1) 与 K2(d) 给出相同的缓存，滞后本身没被测到；`golden-405-flat` 测它）、`rewards_in_tick`（没有清怪）|
-| X3 | `rpm` | 沿运行路径重算天列表的 CurrentGpm：每天在换天的状态上（K2/K3(d−1) 的预测属性、该快照自己的 DpsData/DefenseData、Location、第 d 天、记录的当前血量）跑 `CalculateRPMValueTimeChunk`（`forGPMBot = true`），预言机自己从全 0 开始取大；相对 1e-12，另计逐位个数 | replay/checkpoint 作业不适用（覆盖之后会重算 RPM，Runbook 18.2），记为 `override` |
+| X2 | `dps` | 由导出的物品（`items_ext.csv` 的 `Evolved`）、槽数（`snapshots_ext.csv`）与属性重算 DpsData/DefenseData，逐位。天快照与它在早期列表里的副本用 K2/K3(d−1)（换天时算的，`RpmFirst`），其余早期快照用 K2/K3(d)（慢阶段 Tick 开头算的）；系数都在第 d 天。属性取 `GetForecastStatValue` 的游戏顺序 `((1·K3)·(1+K2))·Value` | `k2_lag`（没有平坦伤害/防御属性时 K2(d−1) 与 K2(d) 给出相同的缓存，滞后本身没被测到；`golden-405-flat` 测它）、`rewards_in_tick`（没有清怪）；覆盖作业的非强制早期快照记 `override_slow_tick`（C4 用随包缓存替换，不能由物品重算）；`forecast_order` 表示两种乘法顺序在本次数据上相同 |
+| X3 | `rpm` | 沿运行路径重算天列表的 CurrentGpm：每天在换天的状态上（K2/K3(d−1) 的预测属性、该快照自己的 DpsData/DefenseData、Location、第 d 天、记录的当前血量）跑 `CalculateRPMValueTimeChunk`（`forGPMBot = true`），预言机自己从全 0 开始取大；相对 1e-12，另计逐位个数 | replay/checkpoint 作业不适用（覆盖之后会重算 RPM，Runbook 18.2），记为 `override`；`running_max`（没有格子保留高于当天新值的旧 RPM）、`missing_health`（比较状态没有缺血）；盔甲平局规则见下文 |
 | X4 | `bake` | 用本次运行的快照（`Snapshots` 与不裁剪的天列表作 `config.TimeChunkSnapshots`）跑 `model.bake`，与 C8 的 `bake_report.json`（`spawners[].report.NewHealth/NewDamage` 的 IEEE 十六进制）逐位比较 | `report`：本分支没有 C8 的导出（预言机一侧仍对 717 个刷怪点烘焙）|
-| X5 | `eligibility` | `daily.csv` 每天第一次规划的合格集合（个数与签名）对 `simcalc.calculate_spawner_data(forGPMBot = false)`：当天开始时的状态（强制快照的 Values 在 K(d) 下、由物品与槽数在 K(d) 重算的缓存、Location、P、当前血量），充能清空、冷却清零，只有更早的天里清过的 DAFC 是 `+∞`（`first_kill` 事件）。另计 `eligible_spawners`（加快阶段可杀性门槛）的个数给 C5 | 快阶段的天：最小 FastTick 不规划（`eligible_count = −1`）|
+| X5 | `eligibility` | `daily.csv` 每天第一次规划的合格集合（个数与签名）对 `simcalc.calculate_spawner_data(forGPMBot = false)`：当天开始时的状态（强制快照的 Values 在 K(d) 下、由物品与槽数在 K(d) 重算的缓存、Location、P、当前血量），充能清空、冷却清零，只有更早的天里清过的 DAFC 是 `+∞`（`first_kill` 事件）。另计 `eligible_spawners`（加快阶段可杀性门槛）的个数给 C5 | 快阶段的天：最小 FastTick 不规划（`eligible_count = −1`）；覆盖作业整项记 `override`（C4 在强制快照后覆盖，快照不代表规划状态）|
 | X6 | `invariants` | Value = 基础值 + 测试赠送 + 奖励（没有清怪时逐位）；充能用量不超上限；P、T 不下降（天列表 T 严格上升）；TC = floor((float)(T/1440))；天列表每天恰好一次、导出的天按裁剪规则、`exported_index` 一致；DAFC 至多清一次、之后冷却一直 `+∞`；每个岛只解锁一次、没有 `repeat_unlocks` | `values_rewards`、`charges`、`dafc`、`unlocks`（都没有发生）|
-| X7 | `rpm` | 每个天快照的 CurrentGpm 对"从前一天快照的 CurrentGpm 出发、K2/K3(d−1)"的重算（`RpmFirst`），相对 1e-12；同时用 K(d)（`ModifierFirst`）重算，计不同的格子数，为 0 时记 `order` 为 vacuous。DpsData 一半由 X2 覆盖 | `smoke-11` 的 `order`（两种顺序到第 25 天才第一次分开）|
-| DP8 | `rpm` | checkpoint 作业每个覆盖日的 C# `spawnerData`（9 个 double）与 `simcalc.calculate_spawner_data` 在**只由随包快照构造**的状态上比较，两种状态：覆盖后的 K(d)（`gpm`）与 `RpmFirst`（K2/K3(d−1)、当天存储的缓存、K4/K5 在 d，`rpm_first`）；字段相对 1e-12、键集合相同。锚点：C# 在 `rpm_first` 状态上、只在覆盖日之间取大的 RPM，按 G20 的格子判定对随包 CurrentGpm | 非 replay/checkpoint 作业 |
+| X7 | `rpm` | 每个天快照的 CurrentGpm 对"从前一天快照的 CurrentGpm 出发、K2/K3(d−1)"的重算（`RpmFirst`），相对 1e-12；同时用 K(d)（`ModifierFirst`）重算，计不同的格子数，为 0 时记 `order` 为 vacuous。DpsData 一半由 X2 覆盖 | `smoke-11` 的 `order`（两种顺序到第 25 天才第一次分开）；`running_max`、`missing_health` 与 X3 相同 |
+| DP8 | `rpm` | checkpoint 作业每个覆盖日的 C# `spawnerData`（9 个 double）与 `simcalc.calculate_spawner_data` 在**只由随包快照构造**的状态上比较，两种状态：覆盖后的 K(d)（`gpm`）与 `RpmFirst`（K2/K3(d−1)、当天存储的缓存、K4/K5 在 d，`rpm_first`）；字段相对 1e-12、键集合相同。锚点：C# 在 `rpm_first` 状态上、只在覆盖日之间取大的 RPM，按 G20 的格子判定对随包 CurrentGpm | 非 replay/checkpoint 作业；`running_max`、`missing_health` 与 X3 相同 |
+
+`counts.running_max_cells` 统计旧 RPM 严格高于当天从零计算的 RPM 的比较格子；`health_states`、`missing_health_states` 统计比较状态及其中 `current_health < Health` 的状态。空策略的 X3/X7 与 DP8 两项计数都是 0，因此明确标记未覆盖。X5 在慢阶段有 3 个缺血状态（新一天的 Health 高于记录的当前血量），但机器人过滤集合的成员只依赖充能、冷却、存活、OT、岛和 `fight_time`，不依赖当前血量；不能据此声称该集合验证了回血数值。
+
+`counts.forecast_data_order_differences` 统计 X2 中游戏顺序与数据顺序产生不同位的预测属性，本次所有标准作业均为 0。`counts.armor_best_ties` 统计检查运行期间实际遇到的最优盔甲平局，本次为 0；X3/X5/X7/DP8 的 `armor_tie_selection` 明确指出数值输出没有分辨平局选择。非 Unity 测试分别用会产生 1 ulp 差异的乘法输入、两种不同类型/抗性的等 DPS 盔甲验证游戏乘法顺序和首次平局优先。
 
 X 检查的输入一律是 C1 的导出文件，读取时核对 C1 的逐位摘要（第 4 节第 2 条）。
 
@@ -44,8 +48,8 @@ C4 的 `override_days.jsonl` 只记缓存与 RPM，不记 `spawnerData`，DP8 �
 
 ## 4. 发现
 
-1. **编辑器 Mono 的 `(double)(1f - armor.Resist)`**：`SimulationSystem.cs:611`（`GetDpsAgainstSpawner`）与 `:640`（`GetBestArmorAgainstDps`）里的 `1f - armor.Resist` 在 binary64 里算、从不存成 float，所以是 `1.0 − Resist`；`model.simcalc` 按逐步舍入先舍成 float。DP8 在逐步舍入下有 365 行超出 1e-12（最大相对差 3.7e-8，都是 `playerDPS` 及其下游）；换成编辑器的算法后 36514 行、328626 个字段**全部逐位相等**，C# 的 RPM 与 `simcalc.replay_day_gpm`（同样换算法）1380/1380 逐位相等。`crosscheck.mono_arithmetic()` 只在交叉检查里替换这两个函数，没有改 `model.simcalc`（P8 的文件）。这与 C2 在 DifferentialProbes.md 第 3 节记录的规则相同，交给 Q03/Z1 决定预言机是否改用编辑器的算法；G20 的 1380/1380 在两种算法下都成立。
-2. **C1 的文本缺陷在本单元的运行里也出现了**（C8 在 BakeTool.md 6.1 先发现）：`golden-405-flat` 的 `timechunk_full.json` 有 1 个 double 被写成 Mono 会读高 1 ulp 的 15 位文本，`simio.ingest` 因此拒绝导入这个作业。交叉检查自己读文件：摘要不符时先照常解析，比较中凡是"C# 文本差 1 ulp、且预言机值的 15 位文本正好解析成它"的格子记为修复项，用预言机的值代入，全部检查结束后把修复项代回两个文件重算 C1 的逐位摘要；摘要相同才算通过，否则用到修复的检查一律判失败。这次修复 1 处（X2 的一个 DefenseData），摘要相同。`smoke-11`、`golden-405`、`dp8-*` 没有这个问题，正常导入。修法仍在 C1（`FormatDouble` 不信任 Mono 的解析）。
+1. **编辑器 Mono 的 `(double)(1f - armor.Resist)`**：`SimulationSystem.cs:611`（`GetDpsAgainstSpawner`）与 `:640`（`GetBestArmorAgainstDps`）里的 `1f - armor.Resist` 在 binary64 里算、从不存成 float，所以是 `1.0 − Resist`；`model.simcalc` 按逐步舍入先舍成 float。DP8 在逐步舍入下有 322 个刷怪点行超出 1e-12（另有 43 个 RPM 比较行，共 365 项）（最大相对差 3.7e-8，都是 `playerDPS` 及其下游）；换成编辑器的算法后 36514 行、328626 个字段**全部逐位相等**，C# 的 RPM 与 `simcalc.replay_day_gpm`（同样换算法）1380/1380 逐位相等。`crosscheck.mono_arithmetic()` 只在交叉检查里替换这两个函数，没有改 `model.simcalc`（P8 的文件）。这与 C2 在 DifferentialProbes.md 第 3 节记录的规则相同，交给 Q03/Z1 决定预言机是否改用编辑器的算法；G20 的 1380/1380 在两种算法下都成立。
+2. **C1 的文本缺陷在本单元的运行里也出现了**（C8 在 BakeTool.md 6.1 先发现）：`golden-405-flat` 的 `timechunk_full.json` 有 1 个 double 被写成 Mono 会读高 1 ulp 的 15 位文本，`simio.ingest` 因此拒绝导入这个作业。交叉检查自己读文件：摘要不符时先照常解析，比较中凡是"C# 文本差 1 ulp、且预言机值的 15 位文本正好解析成它"的格子记为修复项，用预言机的值代入，全部检查结束后把修复项代回两个文件重算 C1 的逐位摘要；只要任何文件的逐位摘要不符，就始终执行完整摘要确认，即使选中的检查没有修复任何格子。摘要不符的文件全部恢复后才算通过；否则所有选中的检查均判失败（包括没有修复项或原本 vacuous 的检查），并写 `export_text.csv`，不能只看已比较的字段。这次修复 1 处（X2 的一个 DefenseData），摘要相同。`smoke-11`、`golden-405`、`dp8-*` 没有这个问题，正常导入。修法仍在 C1（`FormatDouble` 不信任 Mono 的解析）。
 3. `smoke-11` 测不到换天顺序：`RpmFirst` 与 `ModifierFirst` 的 CurrentGpm 到第 25 天才第一次不同（C3b 已记录）；`golden-405` 有 3 个格子不同，X7 在那里有信息量。
 4. 平坦伤害/防御属性存在时，405 天里有 317 天的 DpsData/DefenseData 能分出 K2(d−1) 与 K2(d)（K2 在其余的天上不变），X2 在这些天全部逐位符合 K2(d−1)。
 5. 空策略下 X5 只有慢阶段的 4 天有集合；快阶段 401 天（`golden-405`）没有规划，等 C5。
@@ -72,7 +76,7 @@ Unity 运行：提交 `b9884ae`（C# 与最终提交相同，之后只改 Python
 - 新增 `tufu_balance/crosscheck/__main__.py`（命令行）与不需要 Unity 的 `tests/test_crosscheck.py`，设计稿的文件表里没有。
 - DP8 的状态由覆盖设好（C4），`RpmFirst` 的状态由 P11 的导出在覆盖日临时构造；取大链只在 46 个覆盖日之间取大（G20 的口径），与运行本身的 `RPMCalculatedValue` 无关。
 - 交叉检查在编辑器算法下比较（第 4 节第 1 条），不是 `model.simcalc` 的逐步舍入。
-- X3/X7 在 replay/checkpoint 作业上不适用（覆盖后重算 RPM），记为 vacuous。
+- X3/X7 在 replay/checkpoint 作业上不适用（覆盖后重算 RPM），记为 vacuous；X2 的非强制早期快照与 X5 的规划集合也因 C4 覆盖而不适用，具体原因见第 2 节。
 - X5 比较的是机器人过滤集合（`CalculateSpawnerData(false)`，C3c 的轨迹记的就是它），不是加了可杀性门槛的 `eligible_spawners`；后者只计数。
 - X6 的"Value = 基础值 + Σ 奖励"在有清怪时按天、相对 1e-6 核对（引擎每次写入点加一个 float 修饰器，这里按天合计），需要 `digest_text`。
 - 读 C1 文件时容忍 C1 的文本缺陷并用逐位摘要确认修复（第 4 节第 2 条）；`simio.ingest` 仍然拒绝这样的作业。
@@ -85,3 +89,12 @@ Unity 运行：提交 `b9884ae`（C# 与最终提交相同，之后只改 Python
 - **C8**：X4 读 `<作业>/bake_report.json`（`snapshots = "run"`，`spawners[].id/registered/report/error`，与 BakeTool.md 第 3 节相同）；合入后在 `standard_jobs` 的 X 作业里打开 `outputs.bake_report`，X4 就不再 vacuous。
 - **K3**：`standard_jobs(con, null_policy=False)` 跑校准后的策略；黄金套件 `crosscheck` 的计数会变，按 3.2 节接受。
 - **Z1/Q03**：是否让 `model.simcalc` 在 `1f - Resist` 两处改用编辑器的算法（第 4 节第 1 条）。
+
+## 8. 评审修复
+
+- 覆盖作业的 X2 保留 4100 项强制快照比较，64 个非强制早期快照记 `override_slow_tick`；X5 整项记 `override`。修复前 `dp8-reference` 的 X2 有 180 项假失败、X5 有 2 项假失败。Unity 测试现在检查两个 DP8 作业的全部 X1–X7 状态，不再只检查 X1/X6；DP8 导出作业也执行全部 X 检查。
+- 文本修复的故障测试从合成的真实 JSON 文件和 manifest 摘要进入 `run_checks`：已知 15 位文本缺陷能修复并确认；不是该缺陷的 1 ulp 错误必须失败；修复一处但另有未比较字段损坏必须失败；仅运行没有修复机会的检查也必须失败。失败会写逐文件的 `export_text.csv`，状态和 CSV 同时保留完整性失败证据。
+- 运行最大值测试把随包末期强状态放在首日，再放入初期弱状态，分别验证 X3、X7 和 DP8 会保留旧 RPM，并抓到每日重置取大链的错误。此数据只用于比较器故障测试，不作为引擎运行基线。
+- 增加 X2 武器类型顺序、X5 已清 DAFC 排除与签名错误、当天 K 与前一天 K 在 `fight_time = 300` 边界两侧的集合、X6 时钟回退/天列表重复/裁剪/导出索引的故障测试。另用超出随包天数的合成边界验证 TC 的 float32 商舍入。
+- X4 增加 C8 格式报告的非 Unity 测试：717 行全部通过，植入 1 ulp NewHealth 只报出对应一行。C8 尚未合入，因此标准作业的 X4 仍明确 vacuous；没有提前登记 C8 的 manifest 字段或改其它单元的文件。
+- 本轮不改 C#，不新增所有权偏离。原有 DP8 C# 导出及跨所有权调用仍需调度者/Z1 按第 6 节处理。

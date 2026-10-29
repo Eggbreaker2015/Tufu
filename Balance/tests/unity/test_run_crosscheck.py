@@ -25,9 +25,11 @@ RUN_JOBS = ("smoke-11", "golden-405")
 X_CHECKS = ("X1", "X2", "X3", "X4", "X5", "X6", "X7")
 # Checks that must compare something on a null-policy run, and the parts that stay vacuous until later units.
 NON_VACUOUS = ("X1", "X2", "X3", "X5", "X6", "X7")
-VACUOUS_PARTS = {"X2": {"k2_lag", "rewards_in_tick"}, "X4": {"report"},
-                 "X5": {"fast_days_without_planning", "fast_phase"},
-                 "X6": {"values_rewards", "charges", "dafc", "unlocks"}, "X7": set()}
+VACUOUS_PARTS = {"X2": {"k2_lag", "rewards_in_tick", "forecast_order"}, "X4": {"report"},
+                 "X3": {"running_max", "missing_health", "armor_tie_selection"},
+                 "X5": {"fast_days_without_planning", "fast_phase", "armor_tie_selection"},
+                 "X6": {"values_rewards", "charges", "dafc", "unlocks"},
+                 "X7": {"running_max", "missing_health", "armor_tie_selection"}}
 # ModifierFirst first differs from RpmFirst in the CurrentGpm on day 25 (C3b): smoke-11 cannot test the order.
 VACUOUS_EXTRA = {"smoke-11": {"X7": {"order"}}}
 
@@ -54,7 +56,7 @@ def results(xrun, db):
         except simio.SimioError as e:
             assert "bits_sha256" in str(e), e
             INGEST_REFUSED[job] = str(e)
-        checks = ("DP8",) if job == "dp8-checkpoint" else X_CHECKS
+        checks = X.CHECKS if job == "dp8-checkpoint" else X_CHECKS
         out[job] = X.run_checks(job_dir, db, checks=checks)
     return out
 
@@ -110,11 +112,15 @@ def test_x2_k2_lag_with_flat_stats(results, xrun):
     })
 
 
-def test_override_jobs_report_x3_x7_as_not_applicable(results):
-    rs = results["dp8-reference"]
-    for c in ("X3", "X7"):
-        assert rs[c].status == "vacuous" and "override" in rs[c].vacuous
-    assert rs["X1"].status == "pass" and rs["X6"].status != "fail"
+def test_override_jobs_have_no_false_failures(results):
+    for job in ("dp8-checkpoint", "dp8-reference"):
+        rs = results[job]
+        assert all(r.status != "fail" for r in rs.values()), {c: r.examples for c, r in rs.items()}
+        for c in ("X3", "X5", "X7"):
+            assert rs[c].status == "vacuous" and "override" in rs[c].vacuous
+        assert rs["X1"].status == rs["X2"].status == "pass"
+        assert "override_slow_tick" in rs["X2"].vacuous
+        assert rs["X2"].counts["override_slow_tick_snapshots"] == 64
 
 
 def test_dp8_spawner_data_and_rpm_first_anchor(results, xrun):

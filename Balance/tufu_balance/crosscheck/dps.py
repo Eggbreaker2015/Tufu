@@ -23,6 +23,7 @@ from pathlib import Path
 from ..model import simcalc as sc
 from ..model.enums import WeaponType
 from ..model.items import ItemState
+from ..model.snapshots import DIRECT_INTERPOLATION_STATS, MAIN_INTERPOLATION_STATS
 from . import Check, CheckResult, Env, RunData, Snap, forecast_value, num, rel_diff, same
 
 COLUMNS = ("list", "index", "time_chunk_index", "case", "k_day", "kind", "weapon_type", "csharp", "oracle", "rel_diff")
@@ -81,10 +82,19 @@ def check_x2(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
     for s in run.full + run.early:
         is_forced = s.list == "TimeChunkSnapshots" or (float(s.snapshot.playtime), float(s.snapshot.total_playtime), s.tc) in forced
         case = "day_change" if is_forced else "slow_tick"
+        if run.override_active and not is_forced:
+            c.count("override_slow_tick_snapshots")
+            continue
         k_day = s.tc - 1 if is_forced else s.tc
         if s.slots[0] is None:
             c.count("no_slot_record")
             continue
+        k2, k3 = env.k(k_day)
+        c.count("forecast_data_order_differences", sum(
+            not same(forecast_value(st.key, st.value, k2, k3),
+                     (st.value * (1.0 + k2 if st.key in MAIN_INTERPOLATION_STATS else 1.0))
+                     * (k3 if st.key in DIRECT_INTERPOLATION_STATS else 1.0))
+            for st in s.snapshot.stats))
         dps, defense = recompute(s, env, k_day, c)
         ok = _compare(c, run, s, case, k_day, dps, list(s.snapshot.dps_data), "DpsData")
         ok &= _compare(c, run, s, case, k_day, defense, list(s.snapshot.defense_data), "DefenseData")
@@ -93,6 +103,11 @@ def check_x2(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
             lag0 = recompute(s, env, s.tc)
             if [v for _, v in lag0[0]] != [v for _, v in dps] or [v for _, v in lag0[1]] != [v for _, v in defense]:
                 c.count("k2_lag_discriminating")
+    if not c.counts.get("forecast_data_order_differences"):
+        c.vacuous_part("forecast_order", "game and data multiplication orders coincide on all compared stats; tested synthetically")
+    if c.counts.get("override_slow_tick_snapshots"):
+        c.vacuous_part("override_slow_tick", "C4 replaces slow-tick caches with shipped DpsData/DefenseData; "
+                                             "recomputation from the exported items does not apply")
     if not c.counts.get("k2_lag_discriminating"):
         c.vacuous_part("k2_lag", "DpsData/DefenseData are the same under K2(d-1) and K2(d) on every day of this run "
                                  "(no flat damage/defence stat): the RpmFirst lag of the caches is not tested here")

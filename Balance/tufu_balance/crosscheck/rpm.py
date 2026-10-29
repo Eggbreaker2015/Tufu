@@ -51,6 +51,30 @@ def _rpm(env: Env, state: sc.PlayerState, previous: Mapping[int, float]) -> dict
     return out
 
 
+def count_health(c: Check, state: sc.PlayerState) -> None:
+    c.count("health_states")
+    c.count("missing_health_states", int(state.current_health is not None
+                                       and state.current_health < state.stat(StatType.Health)))
+
+
+def health_coverage(c: Check) -> None:
+    if not c.counts.get("missing_health_states"):
+        c.vacuous_part("missing_health", "no compared state has current_health < Health: regeneration from missing health is untested")
+
+
+def tracked_rpm(c: Check, env: Env, state: sc.PlayerState, previous: Mapping[int, float]) -> dict[int, float]:
+    count_health(c, state)
+    fresh = _rpm(env, state, sc.initial_rpm())
+    c.count("running_max_cells", sum(previous.get(k, 0.0) > fresh.get(k, 0.0) for k in state.stats))
+    return _rpm(env, state, previous)
+
+
+def rpm_coverage(c: Check) -> None:
+    health_coverage(c)
+    if not c.counts.get("running_max_cells"):
+        c.vacuous_part("running_max", "no cell retains a previous RPM above the day's fresh RPM: the running maximum never binds")
+
+
 def _with(previous: Mapping[int, float], snap) -> dict[int, float]:
     out = dict(previous)
     out.update({st.key: st.current_gpm for st in snap.stats})
@@ -84,9 +108,10 @@ def check_x3(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
     if _no_override(run, c):
         rpm = sc.initial_rpm()
         for s in run.full:
-            rpm = _rpm(env, day_state(env, s, s.tc - 1), rpm)
+            rpm = tracked_rpm(c, env, day_state(env, s, s.tc - 1), rpm)
             for pos, st in enumerate(s.snapshot.stats):
                 _cell(c, run, s, pos, rpm.get(st.key, 0.0))
+        rpm_coverage(c)
         c.counts["days"] = len(run.full)
         c.counts["nonzero_cells"] = sum(1 for s in run.full for st in s.snapshot.stats if st.current_gpm != 0.0)
     return c.result(out_dir)
@@ -98,12 +123,13 @@ def check_x7(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
         previous = sc.initial_rpm()
         modifier_first_off = 0
         for s in run.full:
-            want = _rpm(env, day_state(env, s, s.tc - 1), previous)
+            want = tracked_rpm(c, env, day_state(env, s, s.tc - 1), previous)
             alt = _rpm(env, day_state(env, s, s.tc), previous)
             for pos, st in enumerate(s.snapshot.stats):
                 _cell(c, run, s, pos, want.get(st.key, 0.0))
                 modifier_first_off += not same(s.snapshot.stats[pos].current_gpm, alt.get(st.key, 0.0))
             previous = _with(previous, s.snapshot)
+        rpm_coverage(c)
         c.counts["modifier_first_cells_off"] = modifier_first_off
         if modifier_first_off == 0:
             c.vacuous_part("order", "ModifierFirst gives the same CurrentGpm on every day: the order is not tested")
@@ -198,6 +224,7 @@ def check_dp8(run: RunData, env: Env, out_dir: str | Path | None = None) -> Chec
         if r.get("current_boss") != (env.runtime_id(boss.spawner_id) if boss is not None else None):
             c.count("current_boss_differs")
         gpm_state = _shipped_state(env, snap, d, d)
+        count_health(c, gpm_state)
         _compare_spawners(c, env, d, "gpm", decode_spawners(x["gpm"]), sc.calculate_spawner_data(env.ctx, gpm_state, True, **kw))
         rf = x["rpm_first"]
         rf_state = _shipped_state(env, snap, d, d - 1)
@@ -205,7 +232,7 @@ def check_dp8(run: RunData, env: Env, out_dir: str | Path | None = None) -> Chec
         c.count("rpm_first_stats_bit_equal", sum(same(cs_stats.get(k, 0.0), v) for k, v in rf_state.stats.items()))
         _compare_spawners(c, env, d, "rpm_first", decode_spawners(rf["spawners"]),
                           sc.calculate_spawner_data(env.ctx, rf_state, True, **kw))
-        chain = _rpm(env, rf_state, chain)
+        chain = tracked_rpm(c, env, rf_state, chain)
         cs_rpm = {int(k): probes.doubles(h)[0] for k, h in rf["rpm"]}
         stored = {st.key: st.current_gpm for st in snap.stats} if d in shipped_days else {}
         for key in sorted(chain):
@@ -221,6 +248,7 @@ def check_dp8(run: RunData, env: Env, out_dir: str | Path | None = None) -> Chec
                            g20_replay_bit_equal=int(same(got, replay.get(d, {}).get(key, math.nan))))
                 c.count("g20_replay_bit_equal", row["g20_replay_bit_equal"])
             c.item(rd <= REL_TOL and row["g20_match"] != 0, "DP8_rpm", **row)
+    rpm_coverage(c)
     c.counts.update(states=len(records), shipped_states=sum(int(r["crosscheck_dp8"]["day"]) in shipped_days for r in records),
                     g20_cells=cells, g20_matches=g20)
     return c.result(out_dir)

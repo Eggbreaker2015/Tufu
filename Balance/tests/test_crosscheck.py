@@ -174,3 +174,247 @@ def test_statuses_and_csv(tmp_path):
     assert (tmp_path / "T.csv").read_text() == "a,ok\n1,1\n2,0\n"
     assert X.rel_diff(1.0, 1.0) == 0.0 and X.rel_diff(math.nan, math.nan) == 0.0 and X.rel_diff(1.0, math.inf) == math.inf
     assert X.forecast_value(1, 100.0, 0.5, 2.0) == 300.0 and X.forecast_value(3, 4.0, 0.5, 2.0) == 4.0
+
+
+def test_x2_weapon_order_and_override_scope(env, shipped):
+    from tufu_balance.crosscheck import dps
+
+    s = X.Snap("TimeChunkSnapshots", 0, copy.deepcopy(shipped.time_chunk_snapshots[0]),
+               {"unlocked_weapon_slots": 4, "unlocked_armor_slots": 4}, [])
+    calc, defense = dps.recompute(s, env, -1)
+    s.snapshot.dps_data[:] = calc
+    s.snapshot.defense_data[:] = defense
+    assert dps.check_x2(_run([], [s]), env).status == "pass"
+    s.snapshot.dps_data.reverse()
+    r = dps.check_x2(_run([], [s]), env)
+    assert r.status == "fail" and r.mismatches == 1 and r.examples[0]["weapon_type"] == "order"
+    # C4's slow-tick caches need not equal the item-derived ones; forced snapshots still must.
+    early = replace(s, list="Snapshots", snapshot=replace(s.snapshot, playtime=1.0))
+    r = dps.check_x2(_run([early], [], mode="checkpoint", override=True), env)
+    assert r.status == "vacuous" and r.counts["override_slow_tick_snapshots"] == 1
+    assert "override_slow_tick" in r.vacuous
+    assert dps.check_x2(_run([], [s], mode="checkpoint", override=True), env).status == "fail"
+
+
+def _text_job(path, *, defect=True, extra_fault=False):
+    import hashlib
+    import json
+    from tufu_balance.unity import schema, simio
+
+    path.mkdir()
+    want = float.fromhex("0x1.9000000000001p+6")  # 100 + 1 ulp; its .15g text is 100
+    stat = {"Key": 1, "Value": want, "StatsFromFeaturesFlat": 0.0, "PercentMultiplier": 1.0,
+            "TotalFlatValue": want, "TotalValue": want, "CurrentGpm": 0.0}
+    snap = {"Playtime": 0.0, "TotalPlaytime": 0.0, "Location": 1, "TimeChunkIndex": 0,
+            "Stats": [stat], "Items": [], "DpsData": [], "DefenseData": []}
+    expected = {"Snapshots": [snap], "TimeChunkSnapshots": []}
+    actual = copy.deepcopy(expected)
+    actual["Snapshots"][0]["Stats"][0]["TotalFlatValue"] = float(format(want, ".15g")) if defect else _bump(want)
+    if extra_fault:
+        actual["Snapshots"][0]["Stats"][0]["CurrentGpm"] = 1.0  # not compared by X1
+    body = json.dumps(actual).encode()
+    (path / X.SIM_FILE).write_bytes(body)
+    entry = {"sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body), **simio.bits_digest(expected)}
+    manifest = {"schema": schema.MANIFEST_SCHEMA, "job_id": "text", "exit_code": 0,
+                "export": {"schema": schema.EXPORT_SCHEMA, "files": {X.SIM_FILE: entry}}}
+    (path / "manifest.json").write_text(json.dumps(manifest))
+    return path
+
+
+@pytest.mark.parametrize("defect,extra_fault,checks,repairs,confirmed", [
+    (True, False, ("X1",), 1, True),
+    (False, False, ("X1",), 0, False),
+    (True, True, ("X1", "X3"), 1, False),
+    (True, False, ("X3",), 0, False),
+])
+def test_text_repair_requires_the_known_defect_and_the_complete_digest(
+        db, tmp_path, defect, extra_fault, checks, repairs, confirmed):
+    import json
+
+    job = _text_job(tmp_path / "job", defect=defect, extra_fault=extra_fault)
+    results = X.run_checks(job, db, checks=checks)
+    summary = json.loads((job / X.CSV_DIR / "summary.json").read_text())
+    assert summary["export_text"]["repairs"] == repairs
+    assert summary["export_text"]["confirmed"] is confirmed
+    assert all(r.status == ("pass" if confirmed else "fail") for r in results.values())
+    assert all("export_text.csv" in r.csv for r in results.values())
+    rows = list(csv.DictReader((job / X.CSV_DIR / "export_text.csv").open()))
+    assert [int(row["ok"]) for row in rows] == [int(confirmed)]
+    if not defect:
+        assert results["X1"].counts.get("text_repaired", 0) == 0
+
+
+def _falling_rpm_days(env, shipped):
+    out, chain = [], sc.initial_rpm()
+    for i, snap in enumerate((shipped.time_chunk_snapshots[-1], shipped.time_chunk_snapshots[0])):
+        s = X.Snap("TimeChunkSnapshots", i, replace(snap, time_chunk_index=i), None, [])
+        chain = rpm._rpm(env, rpm.day_state(env, s, i - 1), chain)
+        out.append(replace(s, snapshot=replace(s.snapshot, stats=[
+            replace(st, current_gpm=chain.get(st.key, 0.0)) for st in s.snapshot.stats])))
+    return out
+
+
+def test_rpm_retains_previous_maximum_when_the_state_weakens(env, shipped, db, monkeypatch):
+    with X.mono_arithmetic():
+        full = _falling_rpm_days(env, shipped)
+        for check in (rpm.check_x3, rpm.check_x7):
+            r = check(_run([], full), env)
+            assert r.status == "pass", r.examples
+            assert r.counts["running_max_cells"] > 0 and "running_max" not in r.vacuous
+        # Resetting the C# chain produces a real failure on the second day.
+        state = rpm.day_state(env, full[1], 0)
+        fresh = rpm._rpm(env, state, sc.initial_rpm())
+        bad = copy.deepcopy(full)
+        bad[1].snapshot.stats[:] = [replace(st, current_gpm=fresh.get(st.key, 0.0)) for st in bad[1].snapshot.stats]
+        assert rpm.check_x3(_run([], bad), env).status == "fail"
+        assert rpm.check_x7(_run([], bad), env).status == "fail"
+
+        synthetic = replace(shipped, time_chunk_snapshots=[s.snapshot for s in full])
+        records = _dp8_records(env, synthetic, db)
+        monkeypatch.setattr(rpm, "load_simulation_data", lambda con: synthetic)
+        r = rpm.check_dp8(_run([], [], mode="checkpoint", override=True, records=records), env)
+        assert r.status == "pass", r.examples
+        assert r.counts["running_max_cells"] > 0 and "running_max" not in r.vacuous
+        records[1]["crosscheck_dp8"]["rpm_first"]["rpm"] = [[k, probes.dhex(v)] for k, v in fresh.items()]
+        assert rpm.check_dp8(_run([], [], mode="checkpoint", override=True, records=records), env).status == "fail"
+
+
+def test_x5_oracle_set_excludes_cleared_dafc_and_catches_a_wrong_signature(env, shipped, tmp_path):
+    from tufu_balance.crosscheck import eligibility
+    from tufu_balance.unity import trace
+
+    snap = next(s for s in shipped.time_chunk_snapshots if s.time_chunk_index == 7)
+    s = X.Snap("TimeChunkSnapshots", 0, snap,
+               {"unlocked_weapon_slots": 4, "unlocked_armor_slots": 4, "current_health": 0.0}, [])
+    with X.mono_arithmetic():
+        state = eligibility.planning_state(env, s)
+        assert state.current_health == 0.0
+        plain = sc.calculate_spawner_data(env.ctx, state, False)
+        sid = next(sid for sid, x in plain.items() if x.spawner.d.dafc)
+        filtered = sc.calculate_spawner_data(env.ctx, state, False, sc.BotFilter(cleared_dafc=frozenset({sid})))
+        assert sid not in filtered and set(plain) - set(filtered) == {sid}
+        row = {"day": 7, "eligible_count": len(filtered),
+               "eligible_signature": trace.set_signature([env.runtime_id(sid) for sid in filtered])}
+        run = _run([], [s], daily=[row])
+        run.trace.events.append({"type": "first_kill", "day": 6, "spawner": env.runtime_id(sid)})
+        r = eligibility.check_x5(run, env, tmp_path)
+        assert r.status == "pass" and r.counts["dafc_cleared_excluded"] == 1
+        assert r.counts["missing_health_states"] == 1 and "missing_health" not in r.vacuous
+        row["eligible_signature"] = "0" * 64
+        r = eligibility.check_x5(run, env)
+        assert r.status == "fail" and r.mismatches == 1
+        run.manifest["override"]["active"] = True
+        assert eligibility.check_x5(run, env).vacuous.keys() == {"override"}
+
+
+def test_x5_planning_uses_current_day_modifiers(env, shipped):
+    from tufu_balance.crosscheck import dps, eligibility
+    from tufu_balance.unity import trace
+    from tufu_balance.model.enums import StatType
+
+    snap = next(s for s in shipped.time_chunk_snapshots if s.time_chunk_index == 7)
+    snap = replace(snap, stats=[replace(st, value=st.value + 10.0) if st.key == 8 else st for st in snap.stats])
+    s = X.Snap("TimeChunkSnapshots", 0, snap, {"unlocked_weapon_slots": 4, "unlocked_armor_slots": 4}, [])
+    with X.mono_arithmetic():
+        state = eligibility.planning_state(env, s)
+        stats = dps.forecast_stats(snap, env, s.tc - 1)
+        items = dps.item_entries(s, env)
+        lag = replace(state, stats=stats,
+                      dps_data=dict(sc.calculate_dps_data(env.ctx, stats, items, 4, s.tc)),
+                      defense_data=dict(sc.calculate_defense_data(env.ctx, stats, items, 4, s.tc)))
+        data = sc.calculate_spawner_data(env.ctx, state, False)
+        old = sc.calculate_spawner_data(env.ctx, lag, False)
+        sid = next(sid for sid, x in data.items() if sid in old and not x.spawner.d.dafc
+                   and 0.0 < x.fight_time < old[sid].fight_time)
+        x = data[sid]
+        scale = 300.0 / ((x.fight_time + old[sid].fight_time) / 2.0)
+        target = replace(x.spawner, stats=tuple((k, v * scale if k == int(StatType.Health) else v)
+                                               for k, v in x.spawner.stats))
+        test_env = replace(env, ctx=replace(env.ctx, spawners=[target]))
+        current_ids = sc.calculate_spawner_data(test_env.ctx, state, False)
+        lag_ids = sc.calculate_spawner_data(test_env.ctx, lag, False)
+        assert set(current_ids) == {sid} and not lag_ids
+        row = {"day": 7, "eligible_count": 1, "eligible_signature": trace.set_signature([env.runtime_id(sid)])}
+        r = eligibility.check_x5(_run([], [s], daily=[row]), test_env)
+        assert r.status == "pass" and r.items == 1
+
+
+@pytest.mark.parametrize("fault", ["same_T", "backward_P", "daily_clock", "sequence", "trimmed", "exported_index"])
+def test_x6_planted_clock_and_day_list_faults(env, shipped, fault):
+    days = [X.Snap("TimeChunkSnapshots", i, replace(shipped.time_chunk_snapshots[0], time_chunk_index=i,
+                total_playtime=float(1440 * i), playtime=float(i)), {"exported_index": i}, []) for i in range(3)]
+    daily = [{"day": i, "playtime": float(i), "total_playtime": float(1440 * i)} for i in range(3)]
+    run = _run([], days, daily=daily)
+    if fault == "same_T":
+        days[1] = replace(days[1], snapshot=replace(days[1].snapshot, total_playtime=0.0))
+    elif fault == "backward_P":
+        days[2] = replace(days[2], snapshot=replace(days[2].snapshot, playtime=0.0))
+    elif fault == "daily_clock":
+        daily[2]["total_playtime"] = 0.0
+    elif fault == "sequence":
+        days[1] = replace(days[1], snapshot=replace(days[1].snapshot, time_chunk_index=0))
+    elif fault == "trimmed":
+        run.exported_days.pop()
+    elif fault == "exported_index":
+        days[1].ext["exported_index"] = 7
+    c = X.Check("X6", "guards", invariants.COLUMNS)
+    invariants._clock(c, run)
+    invariants._day_list(c, run)
+    r = c.result()
+    assert r.status == "fail" and r.mismatches >= 1
+    assert r.examples[0]["invariant"] == ("clock" if fault in ("same_T", "backward_P", "daily_clock") else "day_list")
+
+
+def test_x6_time_chunk_uses_float32_quotient(env, shipped):
+    from tufu_balance.model.f32 import f32
+
+    # Binary32 T immediately below this day boundary divides to just below an integer in double,
+    # but rounds to the integer when stored as float32 (the C# RebuildDayIndex path).
+    d = 600001  # deliberately beyond the shipped days, where integer minute totals lose precision
+    total = float(f32(d * 1440.0))
+    assert total / 1440.0 < d and float(f32(total / 1440.0)) == d
+    s = X.Snap("Snapshots", 0, replace(shipped.time_chunk_snapshots[0], time_chunk_index=d, total_playtime=total), None, [])
+    c = X.Check("X6", "TC", invariants.COLUMNS)
+    invariants._time_chunk(c, _run([s], []), env)
+    assert c.result().status == "pass"
+
+
+def test_armor_tie_and_forecast_multiplication_order():
+    from types import SimpleNamespace
+
+    a = SimpleNamespace(type=0, resist=0.0)
+    b = SimpleNamespace(type=1, resist=0.5)
+    coverage = {}
+    assert X.mono_best_armor_against_dps(SimpleNamespace(armors=[a, b]),
+                SimpleNamespace(dps_cache={0: 1.0, 1: 2.0}), coverage=coverage) is a
+    assert coverage["armor_best_ties"] == 1
+    value, k2, k3 = 0.1, 0.2, 1.3
+    game = X.forecast_value(1, value, k2, k3)
+    assert X.same(game, (k3 * (1.0 + k2)) * value)
+    assert not X.same(game, (value * (1.0 + k2)) * k3)
+
+
+def test_x4_c8_format_report_and_one_ulp_fault(env, shipped, tmp_path):
+    import json
+    from tufu_balance.crosscheck import bake
+
+    run = _run(_snaps("Snapshots", shipped.snapshots), _snaps("TimeChunkSnapshots", shipped.time_chunk_snapshots),
+               job_dir=tmp_path)
+    oracle = bake.oracle_bake(run, env)
+    rows = []
+    for sid, (_, result) in oracle.items():
+        row = {"id": env.runtime_id(sid), "registered": True}
+        if isinstance(result, bake.B.BakeError):
+            row["error"] = str(result)
+        else:
+            row["report"] = {"NewHealth": probes.dhex(result.new_health), "NewDamage": probes.dhex(result.new_damage)}
+        rows.append(row)
+    path = tmp_path / bake.REPORT
+    path.write_text(json.dumps({"snapshots": "run", "spawners": rows}))
+    r = bake.check_x4(run, env, tmp_path)
+    assert r.status == "pass" and r.items == 717 and r.counts["report_missing"] == 0
+    row = next(r for r in rows if "report" in r and math.isfinite(probes.doubles(r["report"]["NewHealth"])[0]))
+    row["report"]["NewHealth"] = probes.dhex(_bump(probes.doubles(row["report"]["NewHealth"])[0]))
+    path.write_text(json.dumps({"snapshots": "run", "spawners": rows}))
+    r = bake.check_x4(run, env)
+    assert r.status == "fail" and r.mismatches == 1 and r.examples[0]["spawner"] == row["id"]

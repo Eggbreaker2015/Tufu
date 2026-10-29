@@ -23,6 +23,7 @@ from ..model import simcalc as sc
 from ..unity import trace as tr
 from . import Check, CheckResult, Env, RunData, forecast_value
 from .dps import item_entries
+from .rpm import count_health, health_coverage
 
 COLUMNS = ("day", "phase", "csharp_count", "oracle_count", "csharp_signature", "oracle_signature",
            "oracle_killable_count", "cleared_dafc")
@@ -57,7 +58,9 @@ def check_x5(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
         c.vacuous_part("daily", "the job wrote no daily.csv")
         return c.result(out_dir)
     if run.override_active:
-        c.count("override_job")  # the planning sees the override's state, which is the forced snapshot's only on day 0
+        c.vacuous_part("override", "C4 applies its state after the forced snapshot and replaces planning caches; "
+                                     "the forced snapshot is not the planning state")
+        return c.result(out_dir)
     by_day = {s.tc: s for s in run.full}
     dafc = {s.spawner_id for s in env.ctx.spawners if s.d.dafc}
     fast_from = env.ctx.time_axis.fast_tick_start_chunk_offset if env.ctx.time_axis.use_fast_tick else None
@@ -73,6 +76,7 @@ def check_x5(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
             continue
         cleared = cleared_dafc_before(run, env, d, dafc)
         state = planning_state(env, s)
+        count_health(c, state)
         data = sc.calculate_spawner_data(env.ctx, state, for_gpm_bot=False, bot=sc.BotFilter(cleared_dafc=cleared))
         ids = [env.runtime_id(sid) for sid in data]
         killable = sc.eligible_spawners(env.ctx, state, sc.BotFilter(cleared_dafc=cleared))
@@ -82,6 +86,7 @@ def check_x5(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
                oracle_signature=sig, oracle_killable_count=len(killable), cleared_dafc=len(cleared))
         c.count(f"days_{phase}")
         c.count("dafc_cleared_excluded", sum(1 for sid in cleared if sid not in data))
+    health_coverage(c)
     for phase in ("slow", "fast"):
         n = c.counts.get(f"no_planning_{phase}", 0)
         if n:

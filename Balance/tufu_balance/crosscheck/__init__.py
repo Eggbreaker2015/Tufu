@@ -87,7 +87,7 @@ def forecast_value(key: int, value: float, k2: float, k3: float) -> float:
 
 # ---------------------------------------------------------------- the editor's float arithmetic
 
-def mono_best_armor_against_dps(s, caches):
+def mono_best_armor_against_dps(s, caches, *, coverage=None):
     """``GetBestArmorAgainstDps`` as the editor's Mono runs it (SimulationSystem.cs:640): ``(double)(1f - Resist)``
     is evaluated in binary64 and never stored, so it is ``1.0 - Resist`` without the float rounding
     ``model.simcalc`` applies (DifferentialProbes.md section 3)."""
@@ -97,14 +97,16 @@ def mono_best_armor_against_dps(s, caches):
         data = caches.dps_cache.get(armor.type)
         if data is not None:
             value = data * (1.0 - float(armor.resist))
+            if coverage is not None and value == best:
+                coverage["armor_best_ties"] = coverage.get("armor_best_ties", 0) + 1
             if value > best:
                 best, selected = value, armor
     return selected if selected is not None else (s.armors[0] if s.armors else None)
 
 
-def mono_dps_against_spawner(s, caches):
+def mono_dps_against_spawner(s, caches, *, coverage=None):
     """``GetDpsAgainstSpawner(spawner, true)`` (SimulationSystem.cs:611) under the editor's arithmetic."""
-    armor = mono_best_armor_against_dps(s, caches)
+    armor = mono_best_armor_against_dps(s, caches, coverage=coverage)
     if armor is None:
         raise LookupError(f"spawner {s.d.go_path}: ArmorConfig has no armors (NullReferenceException)")
     value = caches.dps_cache.get(armor.type, 0.0)
@@ -112,16 +114,17 @@ def mono_dps_against_spawner(s, caches):
             * (1.0 - float(armor.resist)))
 
 
-def mono_arithmetic():
+def mono_arithmetic(coverage=None):
     """Context manager: ``model.simcalc`` with the two ``(double)(1f - armor.Resist)`` sites as the editor computes
     them. Every check runs under it; the plain oracle rounds ``1f - Resist`` to float first and differs by up to
     a float32 ulp of that factor (3.7e-8 relative in playerDPS on the shipped states)."""
     from contextlib import ExitStack
+    from functools import partial
     from unittest import mock
     from ..model import simcalc
     stack = ExitStack()
-    stack.enter_context(mock.patch.object(simcalc, "best_armor_against_dps", mono_best_armor_against_dps))
-    stack.enter_context(mock.patch.object(simcalc, "dps_against_spawner", mono_dps_against_spawner))
+    stack.enter_context(mock.patch.object(simcalc, "best_armor_against_dps", partial(mono_best_armor_against_dps, coverage=coverage)))
+    stack.enter_context(mock.patch.object(simcalc, "dps_against_spawner", partial(mono_dps_against_spawner, coverage=coverage)))
     return stack
 
 
@@ -393,7 +396,7 @@ def load_run(job_dir: str | Path) -> RunData:
 
 def read_exported(path: Path, lists, expected) -> tuple[dict, bool]:
     """A C1 snapshot file and whether its numbers passed the exporter's bit digest. The sha256 must match; a digest
-    mismatch is C1's text defect (:func:`text_defect`), which the checks repair and confirm against the digest."""
+    mismatch may be C1's text defect (:func:`text_defect`); any repair must reproduce the complete digest."""
     try:
         return simio.read_snapshot_file(path, lists, expected), True
     except simio.SimioError as e:
@@ -420,16 +423,30 @@ def run_checks(job_dir: str | Path, con, *, checks: Iterable[str] = CHECKS, out_
            "X3": lambda: rpm.check_x3(run, env, out), "X4": lambda: bake.check_x4(run, env, out),
            "X5": lambda: eligibility.check_x5(run, env, out), "X6": lambda: invariants.check_x6(run, env, out),
            "X7": lambda: rpm.check_x7(run, env, out), "DP8": lambda: rpm.check_dp8(run, env, out)}
-    with mono_arithmetic():
-        results = {c: fns[c]() for c in checks}
+    results = {}
+    for name in checks:
+        coverage = {"armor_best_ties": 0}
+        with mono_arithmetic(coverage):
+            result = fns[name]()
+        result.counts.update(coverage)
+        if result.items and name in ("X3", "X5", "X7", "DP8"):
+            result.vacuous["armor_tie_selection"] = (
+                "no numerically discriminating armor tie; armor_best_ties counts observed ties, first-on-tie is tested synthetically")
+        results[name] = result
     text = {"exact": dict(run.text_exact)}
-    if run.repairs:
+    if any(not ok for ok in run.text_exact.values()):
         text.update(run.confirm_repairs())
+        integrity = Check("export_text", "export bit digests after text repairs", ("file", "repairs"))
+        for name, ok in text["files"].items():
+            integrity.item(ok, file=name, repairs=text["repairs"])
+        verified = integrity.result(out)
         for r in results.values():
-            n = r.counts.get("text_repaired", 0)
-            if n and not text["confirmed"]:
-                r.status, r.mismatches = "fail", r.mismatches + n
-                r.examples.append({"text_repairs": n, "problem": "the repaired values do not reproduce C1's bit digest"})
+            r.csv.extend(verified.csv)
+            if not text["confirmed"]:
+                r.status, r.mismatches = "fail", r.mismatches + verified.mismatches
+                r.items += verified.items
+                r.examples.append({"problem": "unconfirmed export bit digest", "files": text["files"],
+                                   "text_repairs": text["repairs"]})
     for r in results.values():
         r.counts["text_defect_files"] = sorted(f for f, ok in run.text_exact.items() if not ok)
     out.mkdir(parents=True, exist_ok=True)
