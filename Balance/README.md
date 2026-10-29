@@ -1,8 +1,20 @@
-# 数值模型：数据抽取
+# 数值模型
 
 把学习工程里的全部数值数据导出成 SQLite 和 CSV，作为数值建模的唯一数据源。改了配置或场景后重跑即可，同样的输入得到逐字节相同的输出。
 
-公式清单和恢复状态见 [数值公式清单](../Docs/Balance/FormulaCatalog.md)。
+公式清单和恢复状态见 [数值公式清单](../Docs/Balance/FormulaCatalog.md)，依赖关系见 [数值依赖图](../Docs/Balance/DependencyGraph.md)。
+
+## 目录
+
+| 路径 | 内容 |
+|---|---|
+| `tufu_balance/extract.py` | 数据抽取 |
+| `tufu_balance/graph.py` | 依赖图构建与改动影响查询 |
+| `tufu_balance/render_catalog.py` | 从 `catalog/formulas.json` 生成公式清单文档 |
+| `tufu_balance/model/` | 可执行模型的核心：属性曲线、防御曲线及其反解、插值、模拟快照查询、烘焙 Health/Damage，均注明移植自哪段 C# |
+| `analysis/` | 阶段 4 的反推脚本：`bake_check.py`、`island_timeline.py`、`item_growth.py`，结果写到 `out/analysis/`，说明见[生成规则总览](../Docs/Balance/Generation/README.md) |
+| `catalog/formulas.json` | 281 条公式：表达式、变量、代码位置、恢复状态、核验记录、依赖图用的 `inputs`/`outputs`（每个输出带 `depends_on`），以及从数据反推的 `generation_rule` |
+| `catalog/values.json` | 派生量和运行时状态词表，含所在层（static/progress/combat/simulation） |
 
 ## 运行
 
@@ -16,7 +28,19 @@ python3 -m venv Balance/.venv && Balance/.venv/bin/pip install -r Balance/requir
 cd Balance && .venv/bin/python -m tufu_balance.extract
 ```
 
-约 7 秒。输出写到 `Balance/out/`（不入库）：`balance.sqlite`、`csv/<分组>/<表>.csv`（UTF-8 BOM，可直接用 Excel 打开）和 `extract_report.json`。`--skip-prefabs` 可跳过预制体组件。
+约 7 秒。之后可以构建依赖图并查询改动影响（需先抽取，校验配置节点要用数据字典）：
+
+```bash
+cd Balance && .venv/bin/python -m tufu_balance.graph build
+```
+
+```bash
+cd Balance && .venv/bin/python -m tufu_balance.graph impact CutDamageGrowthPerLevelByRarity --runtime-only --stop-at combat,progress
+```
+
+查询命令和分层说明见[数值依赖图](../Docs/Balance/DependencyGraph.md)。
+
+抽取输出写到 `Balance/out/`（不入库）：`balance.sqlite`、`csv/<分组>/<表>.csv`（UTF-8 BOM，可直接用 Excel 打开）和 `extract_report.json`。`--skip-prefabs` 可跳过预制体组件。
 
 ## 数据来源
 
@@ -53,6 +77,7 @@ cd Balance && .venv/bin/python -m tufu_balance.extract
 | `assets`、`scene_components`、`prefab_components` | 每个对象的完整 JSON |
 | `serialize_references` | `[SerializeReference]` 多态数据（奖励、能力效果等） |
 | `enums` | 所有 C# 枚举成员 |
+| `data_dictionary` | 每个配置字段一行，带值域统计。`node` 列就是依赖图里 `config:` 节点的名字，如 `CombatBalanceConfig.EvolutionDamageValues[].Value`、`EnemySpawnerConfig.Stats[Health]` |
 
 ## 抽取报告的已知事实
 

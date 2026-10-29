@@ -51,8 +51,8 @@ class Tables:
 def cell(value):
     if isinstance(value, (list, dict)):
         return to_json(value)
-    if isinstance(value, float) and (math.isinf(value) or math.isnan(value)):
-        return str(value)
+    if isinstance(value, float) and math.isnan(value):
+        return str(value)  # SQLite would store NaN as NULL; infinities stay REAL so numeric columns keep their type
     if isinstance(value, int) and not -2**63 <= value < 2**63:
         return str(value)  # serialize-reference ids and hashes exceed SQLite INTEGER
     return value
