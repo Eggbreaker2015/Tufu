@@ -186,6 +186,14 @@ def _ere_escape(text: str) -> str:
     return re.sub(r"([.\[\]{}()*+?^$|\\])", r"\\\1", text)
 
 
+_SECRET_ARGS = re.compile(r"(-(?:accessToken|hubSessionId|licensingIpc|cloudEnvironment)\s+)\S+", re.I)
+
+
+def redact(cmd: str) -> str:
+    """A process command line with the Hub's token and session arguments blanked: launcher reports keep it."""
+    return _SECRET_ARGS.sub(r"\1<redacted>", cmd)
+
+
 def unity_processes(project: Path) -> list[tuple[int, str]]:
     """Processes whose command line opens ``project`` (any case, ``-projectPath`` or ``-projectpath``)."""
     proc = subprocess.run(["pgrep", "-fil", _ere_escape(str(Path(project)).rstrip("/"))], capture_output=True, text=True)
@@ -195,7 +203,7 @@ def unity_processes(project: Path) -> list[tuple[int, str]]:
         if not pid_text.isdigit() or int(pid_text) == os.getpid():
             continue
         if re.search(r"-projectpath", cmd, re.I):
-            found.append((int(pid_text), cmd))
+            found.append((int(pid_text), redact(cmd)))
     return found
 
 
@@ -353,7 +361,7 @@ def _editor_processes() -> list[tuple[int, str]]:
     for line in proc.stdout.splitlines():
         pid_text, _, cmd = line.strip().partition(" ")
         if pid_text.isdigit() and int(pid_text) != os.getpid() and re.search(r"-projectpath", cmd, re.I):
-            found.append((int(pid_text), cmd))
+            found.append((int(pid_text), redact(cmd)))
     return found
 
 

@@ -625,3 +625,10 @@ def test_editors_on_other_copies_of_the_game_count_as_the_users(monkeypatch):
     assert [pid for pid, _ in launcher.other_editors(run)] == [11, 14]
     editors = launcher.main_checkout_editors()
     assert 11 in editors and 14 not in editors
+
+
+def test_process_command_lines_are_redacted():
+    """Hub-launched editors carry an access token on their command line; reports must never keep it."""
+    cmd = "Unity -projectpath /x/Recovery/StudyProject -useHub -hubSessionId abc -accessToken SECRET-1 -cloudEnvironment production"
+    out = launcher.redact(cmd)
+    assert "SECRET-1" not in out and "abc" not in out and "-projectpath /x/Recovery/StudyProject" in out
