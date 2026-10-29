@@ -108,6 +108,21 @@ def _keydata_related(table: str, column: str, row_a: dict, row_b: dict) -> bool:
     return False
 
 
+# Asset edits merged from main after the analysed original (6af011f). Rows from these files, and data
+# dictionary nodes of these component types, are left out of the comparison; any other asset edit fails.
+POST_ORIGINAL_EDITS = {
+    # 05767f1 removed a stray AmuletUnlockView component from this prefab; UI only, no numbers.
+    "Prefabs/UI/Amulet/AmuletSoulHarvestedView.prefab": ("AmuletUnlockView",),
+}
+
+
+def _post_original(table: str, names: list[str], row: tuple) -> bool:
+    if table == "data_dictionary":
+        node = str(dict(zip(names, row)).get("node") or "")
+        return any(node.startswith(f"{t}.") for types in POST_ORIGINAL_EDITS.values() for t in types)
+    return any(cell in POST_ORIGINAL_EDITS for cell in row)
+
+
 @pytest.mark.slow
 def test_reextract_changes_only_keydata(db_path, tmp_path, monkeypatch):
     """Re-extract this checkout and diff every table with the database: only keyData cells may differ.
@@ -133,8 +148,8 @@ def test_reextract_changes_only_keydata(db_path, tmp_path, monkeypatch):
         assert [c for c, _ in cols_old] == [c for c, _ in cols_new], table
         offending += [(table, c, "type") for (c, t1), (_, t2) in zip(cols_old, cols_new) if t1 != t2 and "keyData" not in c]
         names = [c for c, _ in cols_old]
-        rows_old = old.execute(f'SELECT * FROM "{table}" ORDER BY rowid').fetchall()
-        rows_new = new.execute(f'SELECT * FROM "{table}" ORDER BY rowid').fetchall()
+        rows_old = [r for r in old.execute(f'SELECT * FROM "{table}" ORDER BY rowid') if not _post_original(table, names, r)]
+        rows_new = [r for r in new.execute(f'SELECT * FROM "{table}" ORDER BY rowid') if not _post_original(table, names, r)]
         assert len(rows_old) == len(rows_new), table
         for a, b in zip(rows_old, rows_new):
             if a == b and all(type(x) is type(y) for x, y in zip(a, b)):

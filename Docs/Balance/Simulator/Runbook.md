@@ -486,8 +486,8 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 
 | 文件:行 | 标志打开时 | 标志关闭时 |
 |---|---|---|
-| `Services/Time/TimeService.cs:23` | `Now` 取 `sandbox.clock_epoch_utc`，固定不动 | `DateTime.UtcNow + 偏移` |
-| `Services/Time/TimeService.cs:32` | 不读 PlayerPrefs 的 `TimeSkipSeconds`，偏移为 0 | 原样读取 |
+| `Services/Time/TimeService.cs:33` | `Now` 取 `sandbox.clock_epoch_utc`，固定不动 | `DateTime.UtcNow + 偏移` |
+| `Services/Time/TimeService.cs:42` | 不读 PlayerPrefs 的时间偏移键（`TimeSkipSeconds`，编辑器开了 StudyTest 独立存档时是它的专用键），偏移为 0 | 原样读取 |
 | `ABTests/ABTestModel.cs:16` | 一律按新用户处理（不看 `game_loaded_once`）| 原样 |
 | `ABTests/ABTestModel.cs:39` | 抽组返回请求的分组（不在可选分组里时取第一个），不调 `UnityEngine.Random` | 原样随机 |
 | `Analytics/UserModel.cs:431` | 每日广告重置按沙箱时钟的 UTC 零点 | 真实 UTC 零点 |
