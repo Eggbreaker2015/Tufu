@@ -42,6 +42,12 @@
    "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
    "value": 115
   },
+  "T15.free.mid_dps.max_rel": {
+   "kind": "max",
+   "note": "",
+   "source": "T15 TC25-99; K3 item copies and evolution drift; Calibration.md",
+   "value": 0.4003636920640891
+  },
   "T16.main.excess_failures": {
    "kind": "max",
    "note": "",
@@ -59,6 +65,60 @@
    "note": "",
    "source": "T19 external day-mode Health; Calibration.md K3",
    "value": 383
+  },
+  "checkpoint.T03.cadence.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance; Calibration.md K3",
+   "value": 3
+  },
+  "checkpoint.T04.day_0_3.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance; Calibration.md K3",
+   "value": 1
+  },
+  "checkpoint.T06.tc_5_23.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance; Calibration.md K3",
+   "value": 1
+  },
+  "checkpoint.T06.tc_ge_24.max_rel": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance and free-run ratchet; Calibration.md K3",
+   "value": 0.1171303074670571
+  },
+  "checkpoint.T09.nonzero.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance; Calibration.md K3",
+   "value": 17
+  },
+  "checkpoint.T14.level.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance; Calibration.md K3",
+   "value": 43
+  },
+  "checkpoint.T15.late_defense.max_rel": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance and free-run ratchet; Calibration.md K3",
+   "value": 0.06505379697063876
+  },
+  "checkpoint.T16.main.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance; Calibration.md K3",
+   "value": 4
+  },
+  "checkpoint.T17.armor_before_9.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "checkpoint design tolerance; Calibration.md K3",
+   "value": 4
   },
   "island3.minutes_outside": {
    "kind": "max",
@@ -95,6 +155,36 @@
    "note": "",
    "source": "calibrated free run",
    "value": "be166b02ce65885d7908cb6a386ae8f5731159dafca504d09de9503d3aee90e0"
+  },
+  "ratchet.T05.exact": {
+   "kind": "min",
+   "note": "",
+   "source": "first calibrated free run",
+   "value": 36
+  },
+  "ratchet.T05.unexplained": {
+   "kind": "max",
+   "note": "",
+   "source": "first calibrated free run",
+   "value": 3
+  },
+  "ratchet.T07.in_range": {
+   "kind": "min",
+   "note": "",
+   "source": "first calibrated free run",
+   "value": 11
+  },
+  "ratchet.T15.late_defense": {
+   "kind": "max",
+   "note": "",
+   "source": "first calibrated free run",
+   "value": 0.009840993197501419
+  },
+  "ratchet.T15.late_dps": {
+   "kind": "max",
+   "note": "",
+   "source": "first calibrated free run",
+   "value": 0.1706405195322352
   }
  },
  "schema": "tufu.golden/1",
