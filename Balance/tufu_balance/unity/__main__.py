@@ -7,6 +7,8 @@
     python -m tufu_balance.unity status
     python -m tufu_balance.unity ingest JOB_DIR [--db PATH]        # outputs -> JOB_DIR/sim.sqlite (C1)
     python -m tufu_balance.unity spawner-map [--out CSV]          # SpawnerId <-> path|Key (C1)
+    python -m tufu_balance.unity params build [--layers L ...] [--set K=JSON ...] [--float32] [--out FILE]   # (C3c)
+    python -m tufu_balance.unity params import [--layers L ...] [--set K=JSON ...] [--float32] [--rev REV] [--dest PATH]
 
 Exit status is the run's exit code (0 ok, 2 guard, 3 timeout, 4 not ready, 5 bad request, 6 self-check,
 7 dev worktree changed, 8 ready check).
@@ -74,6 +76,15 @@ def main(argv=None) -> int:
     p.add_argument("--db", help="output database (default JOB_DIR/sim.sqlite)")
     p = sub.add_parser("spawner-map", help="SpawnerId <-> runtime path|Key from the extracted database (no Unity)")
     p.add_argument("--out", help="CSV file (default stdout)")
+    p = sub.add_parser("params", help="merge parameter layers (build) or write them into the parameter asset (import)")
+    p.add_argument("action", choices=("build", "import"))
+    p.add_argument("--layers", nargs="*", default=[], help="layers after the defaults, e.g. calibrated (sim/params/<name>.json)")
+    p.add_argument("--set", action="append", default=[], metavar="FIELD=JSON", help="per-run override")
+    p.add_argument("--out", help="build: write the params document here (default stdout)")
+    p.add_argument("--rev", help="import: commit to check out in the run worktree (default: this worktree's HEAD)")
+    p.add_argument("--dest", help="import: where the written asset goes (default: this worktree's asset)")
+    p.add_argument("--float32", action="store_true", help="round float fields to float32 values (fitted doubles)")
+    p.add_argument("--nographics", action="store_true")
     args = ap.parse_args(argv)
 
     if args.cmd == "ingest":
@@ -93,6 +104,38 @@ def main(argv=None) -> int:
         else:
             sys.stdout.write(text)
         return 0
+
+    if args.cmd == "params":
+        from ..calibrate.params import ParamsError
+        from . import paramsio
+        try:
+            overrides = {}
+            for item in args.set:
+                key, _, value = item.partition("=")
+                overrides[key] = json.loads(value)
+            if args.action == "build":
+                resolved = paramsio.resolve_layers(args.layers, overrides)
+                if args.float32:
+                    resolved = paramsio.round_float32(resolved)
+                text = json.dumps(paramsio.input_document(resolved), indent=1, ensure_ascii=False) + "\n"
+                if args.out:
+                    Path(args.out).write_text(text, encoding="utf-8")
+                else:
+                    sys.stdout.write(text)
+                return 0
+            result = paramsio.import_params(args.layers, overrides, rev=args.rev, dest=args.dest, opts=_options(args),
+                                            float32=args.float32)
+            print(result.dest or result.out_dir)
+            return result.exit_code
+        except (ParamsError, ValueError) as e:
+            print(f"error: {e}", file=sys.stderr)
+            return launcher.EXIT_BAD_REQUEST
+        except launcher.LauncherError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return e.code
+        except runner.WorktreeError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return launcher.EXIT_GUARD
 
     try:
         if args.cmd == "selftest":

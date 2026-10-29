@@ -112,6 +112,7 @@ namespace Codebase.Simulation.Systems
 				CalculateRPMValueTimeChunk();
 				MakeSnapshot(true);
 				RebuildApplyDayOverride(0);
+				RebuildTraceDayStart();
 				RebuildApplyProbeSetup();
 				CheckSimulationStopConditions();
 			}
@@ -143,6 +144,7 @@ namespace Codebase.Simulation.Systems
 			CalculateSimulationData();
 			RebuildApplyReplayCaches();
 			CalculateSpawnerData(false);
+			RebuildTraceEligible();
 			SpawnerData best = null;
 			if (!RebuildNullPolicy)
 			{
@@ -236,6 +238,7 @@ namespace Codebase.Simulation.Systems
 		{
 			int day = RebuildDayIndex();
 			if (day == timeChunkIndex) return;
+			RebuildTraceDayEnd();
 			RebuildDayLog.Add(new JArray(timeChunkIndex, RebuildLastTickFast ? 1 : 0, RebuildDayTicks, RebuildDayAfkSteps, RebuildDayOfflineMinutes,
 				(double)config.CurrentPlaytime, (double)config.CurrentTotalPlaytime));
 			RebuildDayTicks = RebuildDayAfkSteps = 0;
@@ -259,6 +262,7 @@ namespace Codebase.Simulation.Systems
 			// After the forced snapshot, as on day 0, so day d's snapshot keeps the closed-loop state (design 4.6;
 			// the 4.4 pseudo-code has it before the snapshot).
 			RebuildApplyDayOverride(day);
+			RebuildTraceDayStart();
 			RebuildCount("day_changes");
 		}
 

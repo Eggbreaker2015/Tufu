@@ -1,0 +1,441 @@
+"""Parameters, random source and trace in Unity (design 1.4.3, 2.6, 4.7, 4.8, 7.3 C3c).
+
+* Request params take effect (the early-snapshot cadence and the fast offline step of an override run follow a
+  reference clock with the overridden values), ``params_hash`` is P10's ``params_hash`` on the C# side too (also
+  for literals the editor's own double parser reads 1 ulp off), unknown fields and a wrong ``params_hash`` fail
+  the job (exit 5), ``params_source = "asset"`` reads the parameter asset through the
+  AssetDatabase (the interactive path's loader).
+* ``params import`` writes the asset in a fresh editor that never entered Play; every editor that did enter Play
+  logs the importer guard's refusal.
+* ``daily.csv``, ``events.jsonl``, ``digests.csv`` validate against C1's schema; the digest text carries every
+  item of design 2.6, each equal to the independently exported snapshot value.
+
+Every engine job runs with ``engine_probe.null_policy`` so the checks keep their meaning after C5-C7.
+"""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import io
+import json
+import sqlite3
+import struct
+
+import numpy as np
+import pytest
+
+from tufu_balance.calibrate import params as P
+from tufu_balance.model import simcalc as sc, snapshots as ss, timeaxis as ta
+from tufu_balance.model.f32 import f32
+from tufu_balance.unity import engine, launcher, paramsio, request as req, schema, simio, spawner_map, trace
+
+pytestmark = pytest.mark.unity
+
+NULL = engine.engine_probe(null_policy=True)
+DAYS = 8
+OVERRIDES = {"FastAfkStepMinutes": 60.0, "EarlySnapshotIntervals": [2.0, 5.0], "RollMode": 1, "Seed": 7}
+IMPORT_OVERRIDES = {"FastAfkStepMinutes": 90.0, "Seed": 11, "RollMode": 1, "EarlySnapshotIntervalStarts": [0.0, 15.0]}
+GUARD_LINE = "[TufuSim] params import guard after Play: "
+# Mono's double parser reads both 1 ulp high (C3c review); the request reader must not.
+MONO_LITERALS = {"FastAfkStepMinutes": 181.0483539212821, "EarlySnapshotIntervals": [1.534053662242575, 5.0]}
+
+
+def _defaults():
+    return P.resolve(["defaults"])
+
+
+def _override():
+    return P.resolve(["defaults"], OVERRIDES)
+
+
+def _mono():
+    return P.resolve(["defaults"], MONO_LITERALS)
+
+
+def _jobs():
+    d, o = _defaults(), _override()
+    return [
+        engine.engine_job("params-mono-literals", day=1, max_wall_seconds=120.0, probe=NULL, params=_mono().params),
+        engine.engine_job("trace-defaults", day=DAYS, max_wall_seconds=300.0, probe=NULL, params=d.params,
+                          outputs={"digest_text": True}),
+        engine.engine_job("params-override", day=DAYS, max_wall_seconds=300.0, probe=NULL, params=o.params),
+        {**engine.engine_job("params-asset", day=2, max_wall_seconds=300.0, probe=NULL), "params_source": "asset"},
+        engine.engine_job("trace-write-points", max_wall_seconds=300.0, probe=engine.engine_probe(write_points=True),
+                          params=d.params, outputs={"digest_text": True}),
+    ]
+
+
+def _ok(result):
+    assert result.exit_code == 0, result.describe()
+    return result
+
+
+@pytest.fixture(scope="module")
+def run(unity_run):
+    return _ok(unity_run(req.make_request(_jobs())))
+
+
+UNKNOWN_PARAMS = {**P.resolve(["defaults"]).params, "Bogus": 1}
+
+
+@pytest.fixture(scope="module")
+def unknown_run(unity_run):
+    """A job whose params carry an unknown field: C# rejects it (exit 5); the request's hash itself is right.
+    Python's request.validate refuses it too, so the launcher skips it. (Mis-cased names and wrongly typed values take the same path; tests/test_params_hash.py runs them.)"""
+    params = UNKNOWN_PARAMS
+    return unity_run(req.make_request([engine.engine_job("params-unknown", day=1, max_wall_seconds=120.0, probe=NULL,
+                                                         params=params)]), validate=False)
+
+
+@pytest.fixture(scope="module")
+def wrong_hash_run(unity_run):
+    """A job whose params_hash is not the canonical hash of its params: the loader rejects it (exit 5)
+    (request.validate would refuse it before Unity)."""
+    job = engine.engine_job("params-wrong-hash", day=1, max_wall_seconds=120.0, probe=NULL, params=_defaults().params)
+    return unity_run(req.make_request([{**job, "params_hash": "0" * 64}]), validate=False)
+
+
+def _failed_with_bad_request(result):
+    if result.exit_code != launcher.EXIT_BAD_REQUEST:
+        # A failed run while the user's editor rewrites the real save is reported as a guard failure (Runbook 13).
+        problems = result.report.get("guard_problems") or []
+        assert result.exit_code == launcher.EXIT_GUARD and result.report.get("main_checkout_editors"), result.describe()
+        assert problems and all(p.startswith("real ") for p in problems), result.describe()
+
+
+@pytest.fixture(scope="module")
+def imported(unity_rev, unity_opts, tmp_path_factory):
+    dest = tmp_path_factory.mktemp("params_import") / "Simulation Rebuild Params.asset"
+    result = paramsio.import_params([], IMPORT_OVERRIDES, rev=unity_rev, dest=dest, opts=unity_opts)
+    return result
+
+
+def _json(result, job, name):
+    return json.loads(result.file(job, name))
+
+
+def _bits_f(x: float) -> str:
+    return format(struct.unpack("<I", struct.pack("<f", x))[0], "08x")
+
+
+def _bits_d(x: float) -> str:
+    return format(struct.unpack("<Q", struct.pack("<d", x))[0], "016x")
+
+
+# ---------------------------------------------------------------- params
+
+def test_request_params_hash_equals_p10(run):
+    for job, resolved in (("trace-defaults", _defaults()), ("params-override", _override())):
+        m = run.manifest(job)
+        p = m["params"]
+        assert p["schema"] == "tufu.sim.params/1" and p["source"] == "request" and p["interactive"] is False
+        assert p["complete"] is True and p["missing"] == [] and p["error"] is None
+        assert p["request_hash"] == p["request_hash_given"] == p["hash"] == resolved.params_hash
+        assert p["matches_request"] is True
+        assert m["job"]["params_hash"] == resolved.params_hash
+        assert m["engine"]["params"] == paramsio.effective(resolved.params)
+
+
+def _reference_clock(cfg, days, starts, intervals, fast_step):
+    """tests/unity/test_engine.py's empty-policy reference clock (C3b), with the cadence and step as inputs."""
+    F = np.float32
+    P_ = T = F(0.0)
+    d, last, end = 0, F(0.0), F(cfg.life_cycle_in_minutes[0])
+    early, day = [(P_, T, 0)], [(P_, T, 0)]
+
+    def interval(p):
+        return F([v for s, v in zip(starts, intervals) if p >= s][-1])
+
+    def day_index(t):
+        return int(np.floor(F(t / F(cfg.spawner_charges_chunk_minutes))))
+
+    while d < days:
+        if cfg.use_fast_tick and d >= cfg.fast_tick_start_chunk_offset:
+            while day_index(T) == d:
+                T = F(T + F(fast_step))
+        else:
+            step = F(cfg.time_step_seconds / F(60.0))
+            until = F(F(last + interval(P_)) - P_)
+            if F(0.0) < until < step:
+                step = until
+            P_, T = F(P_ + step), F(T + step)
+            if P_ >= F(last + interval(P_)):
+                early.append((P_, T, d))
+                last = P_
+            if P_ >= end:
+                T = F(T + F(cfg.life_cycle_in_minutes[1]))
+                end = F(P_ + F(cfg.life_cycle_in_minutes[0]))
+        c = day_index(T)
+        if c != d:
+            d = c
+            day.append((P_, T, d))
+            if ta.writes_early_snapshot(d, cfg):
+                early.append((P_, T, d))
+                last = P_
+    return early, day
+
+
+def _ptt(rows):
+    return [(f32(r["Playtime"]), f32(r["TotalPlaytime"]), r["TimeChunkIndex"]) for r in rows]
+
+
+def test_request_overrides_take_effect(run, db):
+    """The overridden cadence (2 minutes below P = 20) and fast offline step (60 minutes) drive the clock; the
+    default run follows the default reference, and the two differ."""
+    cfg = ta.load_time_axis_config(db)
+    for job, params in (("trace-defaults", _defaults().params), ("params-override", _override().params)):
+        early_ref, day_ref = _reference_clock(cfg, DAYS, params["EarlySnapshotIntervalStarts"],
+                                              params["EarlySnapshotIntervals"], params["FastAfkStepMinutes"])
+        assert _ptt(_json(run, job, "timechunk_full.json")["TimeChunkSnapshots"]) == day_ref, job
+        assert _ptt(_json(run, job, "simulation_data.json")["Snapshots"]) == early_ref, job
+    early_p = {job: {float(s["Playtime"]) for s in _json(run, job, "simulation_data.json")["Snapshots"]
+                     if s["Playtime"] < 20} for job in ("trace-defaults", "params-override")}
+    assert early_p["trace-defaults"] == {float(p) for p in range(20)}
+    assert early_p["params-override"] == {float(p) for p in range(0, 20, 2)}
+    fast = [r for r in trace.read(run.job_dir("params-override")).daily if r["day"] >= cfg.fast_tick_start_chunk_offset]
+    assert fast and all(r["offline_steps"] == 1440 // 60 and r["offline_minutes"] == 1440.0 for r in fast)
+    t = run.manifest("params-override")["trace"]["random"]
+    assert (t["mode"], t["seed"], t["streams"]) == (1, 7, 0)
+
+
+def test_params_asset_is_read_through_the_asset_database(run):
+    m = run.manifest("params-asset")
+    p = m["params"]
+    assert p["source"] == "asset" and p["asset_found"] is True and p["asset_path"] == paramsio.ASSET_REL
+    meta = paramsio.asset_path().with_name(paramsio.asset_path().name + ".meta").read_text()
+    assert f"guid: {p['asset_guid']}" in meta
+    values = paramsio.read_asset()
+    assert p["hash"] == paramsio.effective_hash(values) and m["engine"]["params"] == values
+    assert "request_hash" not in p and m["job"]["params_source"] == "asset"
+
+
+def test_unknown_param_field_fails_the_job(unknown_run):
+    m = unknown_run.manifest("params-unknown")
+    assert m["exit_code"] == launcher.EXIT_BAD_REQUEST
+    assert "Bogus" in m["error"] and m["error"].startswith("params")
+    # A failed job still reports what the loader saw.
+    p = m["params"]
+    assert p["source"] == "request" and p["request_hash"] == req.params_hash(UNKNOWN_PARAMS) and "Bogus" in p["error"]
+    _failed_with_bad_request(unknown_run)
+
+
+def test_wrong_params_hash_fails_the_job(wrong_hash_run):
+    m = wrong_hash_run.manifest("params-wrong-hash")
+    d = _defaults()
+    assert m["exit_code"] == launcher.EXIT_BAD_REQUEST
+    assert m["error"] == f"params_hash {'0' * 64} is not the canonical hash {d.params_hash} of params"
+    p = m["params"]
+    assert p["request_hash"] == d.params_hash and p["request_hash_given"] == "0" * 64 and p["error"] == m["error"]
+    _failed_with_bad_request(wrong_hash_run)
+
+
+def test_literals_the_editor_parser_rounds_keep_the_p10_hash(run):
+    """Newtonsoft under the editor's Mono reads these literals 1 ulp high; the job (params_hash given) still runs
+    and reports P10's hash, and its effective values are the float32 values Python predicts."""
+    m = run.manifest("params-mono-literals")
+    p, mono = m["params"], _mono()
+    assert m["exit_code"] == 0 and p["error"] is None
+    assert p["request_hash"] == p["request_hash_given"] == mono.params_hash
+    assert p["hash"] == paramsio.effective_hash(mono.params)
+    # The engine manifest writes floats as G9 (SimulationJson); compare the float32 values.
+    as_f32 = lambda v: [_bits_f(x) for x in v] if isinstance(v, list) else _bits_f(v) if isinstance(v, float) else v
+    got, want = m["engine"]["params"], paramsio.effective(mono.params)
+    assert {k: as_f32(v) for k, v in got.items()} == {k: as_f32(v) for k, v in want.items()}
+
+
+def test_editors_that_entered_play_refuse_the_import(run):
+    log = (run.run_dir / "unity.log").read_text(errors="replace")
+    verdicts = [line.split(GUARD_LINE, 1)[1].strip() for line in log.splitlines() if GUARD_LINE in line]
+    assert len(verdicts) == len(run.request["jobs"])
+    assert set(verdicts) == {"refused: this editor process has entered Play mode"}
+
+
+def test_params_import_in_a_fresh_editor(imported):
+    assert imported.exit_code == 0, json.dumps(imported.report, indent=1, default=str)[-4000:]
+    report = imported.report
+    assert all(report["checks"].values()) and report["importer"]["entered_play"] is False
+    assert report["importer"]["read_back"]["asset_found"] is True
+    resolved = P.resolve(["defaults"], IMPORT_OVERRIDES)
+    # The run loader on the new, non-default asset: a params_source "asset" job and the interactive branch.
+    assert resolved.params_hash != _defaults().params_hash
+    for key, interactive in (("read_back_job", False), ("read_back_interactive", True)):
+        loader = report["importer"][key]
+        assert (loader["source"], loader["interactive"], loader["asset_found"], loader["error"]) == ("asset", interactive, True, None)
+        assert loader["hash"] == loader["result_hash"] == resolved.params_hash
+        assert (loader["roll_mode"], loader["seed"]) == (IMPORT_OVERRIDES["RollMode"], IMPORT_OVERRIDES["Seed"])
+    assert paramsio.read_asset(imported.dest) == paramsio.effective(resolved.params)
+    assert imported.dest.read_text(encoding="utf-8") == paramsio.asset_text(paramsio.effective(resolved.params))
+    assert report["restored_run_worktree_asset"] and report["guard_problems"] == []
+    assert not launcher.runner.porcelain(launcher.runner.run_worktree()).strip()
+
+
+# ---------------------------------------------------------------- trace
+
+@pytest.fixture(scope="module")
+def traced(run):
+    return {job["job_id"]: trace.read(run.job_dir(job["job_id"])) for job in run.request["jobs"]}
+
+
+def test_trace_files_validate_against_the_schema(run, traced):
+    for job, t in traced.items():
+        assert set(t.manifest["files"]) == {trace.DAILY, trace.EVENTS, trace.DIGESTS} | (
+            {trace.DIGEST_TEXT} if job in ("trace-defaults", "trace-write-points") else set())
+        header = run.file(job, trace.DAILY).decode().splitlines()[0].split(",")
+        assert header == [n for n, _ in schema.CSV_SCHEMAS[trace.DAILY]]
+    # Through C1's ingest as well.
+    db = simio.ingest(run.job_dir("trace-defaults"))
+    con = sqlite3.connect(db)
+    assert con.execute("select count(*) from sim_daily").fetchone()[0] == DAYS
+    assert con.execute("select count(*) from sim_digests").fetchone()[0] == DAYS + 1
+    con.close()
+
+
+def test_daily_rows_follow_the_snapshots(run, traced, db):
+    cfg = ta.load_time_axis_config(db)
+    full = _json(run, "trace-defaults", "timechunk_full.json")["TimeChunkSnapshots"]
+    rows = traced["trace-defaults"].daily
+    days = run.manifest("trace-defaults")["engine"]["days"]
+    assert [r["day"] for r in rows] == list(range(DAYS)) and all(r["complete"] == 1 for r in rows)
+    assert any(r["eligible_count"] > 0 for r in rows)
+    for r, nxt, cur, log in zip(rows, full[1:], full, days):
+        assert r["time_chunk_index"] == r["day"] == cur["TimeChunkIndex"]
+        assert (r["playtime"], r["total_playtime"]) == (nxt["Playtime"], nxt["TotalPlaytime"])
+        assert r["active_minutes"] == float(f32(nxt["Playtime"])) - float(f32(cur["Playtime"]))
+        assert r["offline_minutes"] + r["active_minutes"] == pytest.approx(nxt["TotalPlaytime"] - cur["TotalPlaytime"], abs=1e-3)
+        assert [log[0], log[2], log[3]] == [r["day"], r["ticks"], r["offline_steps"]] and log[4] == r["offline_minutes"]
+        assert r["kills"] == r["clears"] == 0 and r["fight_time_sum"] == r["farmed_time_sum"] == 0.0
+        assert r["unlocked_location"] == 1 and r["location"] == 1
+        if r["day"] < cfg.fast_tick_start_chunk_offset:
+            assert r["offline_steps"] >= 1 and r["offline_minutes"] == r["offline_steps"] * cfg.life_cycle_in_minutes[1]
+            assert r["eligible_count"] >= 0 and (r["eligible_count"] == 0) == (r["eligible_signature"] == "")
+            assert len(r["eligible_signature"]) in (0, 64)
+        else:
+            assert (r["ticks"], r["offline_steps"], r["offline_minutes"]) == (1, 12, 1440.0)
+            assert (r["eligible_count"], r["eligible_signature"]) == (-1, "")
+
+
+def _snapshot(s: dict) -> ss.SimulationSnapshot:
+    return ss.SimulationSnapshot(
+        f32(s["Playtime"]), f32(s["TotalPlaytime"]), s["Location"], s["TimeChunkIndex"],
+        [ss.SimulationStat(st["Key"], st["Value"], st["StatsFromFeaturesFlat"], st["PercentMultiplier"],
+                           st["TotalFlatValue"], st["TotalValue"], st["CurrentGpm"]) for st in s["Stats"]],
+        [ss.SimulationItem(it["Key"], it["Level"], it["Copies"]) for it in s["Items"]],
+        [(x["WeaponType"], x["Value"]) for x in s["DpsData"]], [(x["WeaponType"], x["Value"]) for x in s["DefenseData"]])
+
+
+def test_daily_eligible_set_is_p8s_bot_filter_set(run, traced, db):
+    """eligible_count/eligible_signature of each slow day equal P8's CalculateSpawnerData(false) port on the day's
+    forced snapshot (empty policy: no charges used, ready cooldowns zero, everyone alive), identities from C1's map."""
+    ctx = sc.load_simcalc_context(db)
+    ids = {e.spawner_id: e.runtime_id for e in spawner_map.load_identity_map(db).registered()}
+    full = _json(run, "trace-defaults", "timechunk_full.json")["TimeChunkSnapshots"]
+    checked = []
+    for r in traced["trace-defaults"].daily:
+        if r["eligible_count"] < 0:
+            continue
+        state = sc.snapshot_state(_snapshot(full[r["day"]]), ctx, order=sc.RPM_FIRST)
+        data = sc.calculate_spawner_data(ctx, state, False, sc.BotFilter())
+        assert (r["eligible_count"], r["eligible_signature"]) == (len(data), trace.set_signature(ids[k] for k in data)), r["day"]
+        checked.append(len(data))
+    # the OT cap shrinks day 0's set: the check sees more than one distinct set
+    assert len(checked) >= 2 and len(set(checked)) >= 2, checked
+
+
+def test_events_follow_the_write_points(run, traced):
+    m = run.manifest("trace-write-points")
+    steps = m["engine"]["probe"]["steps"]
+    events = traced["trace-write-points"].events
+    cleared = []
+    previous = {}
+    for step in steps:
+        if step["counters"].get("clears", 0) > previous.get("clears", 0) and step["spawner"] not in cleared:
+            cleared.append(step["spawner"])
+        previous = step["counters"]
+    assert [e["spawner"] for e in events if e["type"] == "first_kill"] == cleared
+    assert [e["location"] for e in events if e["type"] == "unlock"] == [u[0] for u in m["engine"]["unlocks"]]
+    opened = {k for k, v in m["engine"]["probe"]["slots"].items() if v}
+    slot_events = [e for e in events if e["type"] == "slot_unlock"]
+    assert {e["slot"] for e in slot_events} <= opened and len(slot_events) == m["engine"]["counters"].get("slot_unlocks", 0)
+    assert all(e["count"] >= 1 for e in slot_events)
+    assert {e["type"] for e in events} <= set(schema.EVENT_TYPES)
+    assert traced["trace-write-points"].manifest["events"] == {
+        t: sum(e["type"] == t for e in events) for t in sorted({e["type"] for e in events})}
+    # The probe's day change closes day 0 with the clears made before it.
+    day0 = traced["trace-write-points"].daily[0]
+    before = next(s for s in steps if s["name"] == "clear_before_day_change")["counters"]
+    assert (day0["day"], day0["complete"], day0["kills"], day0["clears"]) == (0, 1, before["kills"], before["clears"])
+
+
+def test_digest_covers_design_2_6(run, traced):
+    """Every item of the 2.6 list in the day's digest text, equal to the exported day snapshot: stat Value and
+    TotalValue, items (Key, Level, Copies, Evolved), Location, P and T, the RPM dictionary, charges used (none
+    under the empty policy; the closing day's in charges_closed, see the write-point test); plus health, K
+    modifiers and the random streams."""
+    t = traced["trace-defaults"]
+    full = _json(run, "trace-defaults", "timechunk_full.json")["TimeChunkSnapshots"]
+    items = list(csv.DictReader(io.StringIO(run.file("trace-defaults", "items_ext.csv").decode())))
+    ext = list(csv.DictReader(io.StringIO(run.file("trace-defaults", "snapshots_ext.csv").decode())))
+    ready = csv.DictReader(io.StringIO(run.file("trace-defaults", "ready_spawners.csv").decode()))
+    outside = {f"{r['path']}|{r['key']}" for r in ready if r["is_event"] == "1" or r["is_vip"] == "1"}
+    assert [r["day"] for r in t.digests] == list(range(DAYS + 1)) and set(t.texts) == set(range(DAYS + 1))
+    for row, snap in zip(t.digests, full):
+        assert (row["playtime"], row["total_playtime"], row["time_chunk_index"]) == (snap["Playtime"], snap["TotalPlaytime"], row["day"])
+        f = trace.digest_fields(t.texts[row["day"]][1])
+        assert {k.split(".")[0] for k in f} >= {"clock", "modifiers", "stat", "health", "item", "slot", "location",
+                                                 "rpm", "random", "policy", "fast"}
+        assert f["clock.day"] == str(row["day"])
+        assert f["clock.playtime"] == _bits_f(f32(snap["Playtime"])) and f["clock.total_playtime"] == _bits_f(f32(snap["TotalPlaytime"]))
+        for st in snap["Stats"]:
+            value, _, total, _ = f[f"stat.{st['Key']}"].split(",")
+            assert (value, total) == (_bits_d(st["Value"]), _bits_d(st["TotalValue"]))
+            assert f[f"rpm.{st['Key']}"] == _bits_d(st["CurrentGpm"])
+        day_items = [r for r in items if r["list"] == "TimeChunkSnapshots" and int(r["index"]) == row["day"]]
+        digest_items = sorted(v for k, v in f.items() if k.startswith("item."))
+        assert len(digest_items) == len(snap["Items"]) == len(day_items)
+        assert digest_items == sorted(f"{it['level']},{it['copies']},{it['evolved']}" for it in day_items)
+        assert {k.split("#")[0][5:] for k in f if k.startswith("item.")} == {it["Key"] for it in snap["Items"]}
+        assert f["location.unlocked"] == str(snap["Location"])
+        health = next(r for r in ext if r["list"] == "TimeChunkSnapshots" and int(r["index"]) == row["day"])["current_health"]
+        assert f["health"] == _bits_d(float(health))
+        k2 = next(st for st in snap["Stats"] if st["Key"] == 1)
+        _, b2, b3 = f["modifiers"].split(",")
+        assert (b2, b3) == (_bits_f(f32(k2["StatsFromFeaturesFlat"])), _bits_f(f32(k2["PercentMultiplier"])))
+        # Empty policy: nothing cleared, so no charges used, and only event/VIP spawners (outside the bot,
+        # never zeroed) keep a cooldown.
+        assert not [k for k in f if k.startswith("charges.")]
+        closed = {k: v for k, v in f.items() if k.startswith("charges_closed.")}
+        assert closed == ({} if row["day"] == 0 else {"charges_closed.day": str(row["day"] - 1)})
+        assert {k[len("cooldown."):] for k in f if k.startswith("cooldown.")} <= outside
+        assert f["random.0"] == "mode=0,seed=1"
+
+
+def test_digests_differ_only_where_the_state_differs(traced):
+    """Day 0 of the default and the override run: same world, different random source (RollMode 1, Seed 7)."""
+    a = trace.digest_fields(traced["trace-defaults"].texts[0][1])
+    b_digest = traced["params-override"].digests[0]["sha256"]
+    assert b_digest != traced["trace-defaults"].digests[0]["sha256"]
+    b = dict(a, **{"random.0": "mode=1,seed=7"})
+    text = "".join(sorted(f"{k}={v}\n" for k, v in b.items()))
+    assert hashlib.sha256(text.encode()).hexdigest() == b_digest
+
+
+def test_digest_carries_the_charges_of_the_closed_day(run, traced):
+    """The day change clears spawnerChargesUsage before the next day's digest, so the digest carries the closing
+    day's usage as charges_closed.*: in the write-point probe, the usage of every spawner cleared on day 0 just
+    before its day change (the probe's own state records), and none of the clears made after it."""
+    t = traced["trace-write-points"]
+    steps = run.manifest("trace-write-points")["engine"]["probe"]["steps"]
+    by_name = {s["name"]: s for s in steps}
+    change = by_name["day_change"]
+    expected = {sid: w["usage"] for sid, w in change["before"]["watched"].items() if w["usage"]}
+    gate = by_name["gate_clear_again"]
+    expected[gate["spawner"]] = gate["after"]["usage"]
+    assert len(expected) == 4 and all(v > 0 for v in expected.values())
+    assert change["after"]["watched"] and all(w["usage"] == 0 for w in change["after"]["watched"].values())
+    assert [r["day"] for r in t.digests] == [0, 1] and set(t.texts) == {0, 1}
+    day0, day1 = (trace.digest_fields(t.texts[d][1]) for d in (0, 1))
+    assert not [k for k in day0 if k.startswith("charges")]
+    closed = {k[len("charges_closed."):]: int(v) for k, v in day1.items() if k.startswith("charges_closed.")}
+    assert closed.pop("day") == 0 and closed == expected
+    assert not [k for k in day1 if k.startswith("charges.")]
