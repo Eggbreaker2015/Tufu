@@ -450,7 +450,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x48A35982_URtVrjL
+    attribute: material._EmissionColor.r
     path: Dwarfs_Tnt/Armature.002/root/spine_01/spine_02/spine_03/clavicle_r/upperarm_r/lowerarm_r/hand_r/TNT_03
     classID: 23
     script: {fileID: 0}
@@ -615,7 +615,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x58A35982_INLLQRJ
+    attribute: material._EmissionColor.g
     path: Dwarfs_Tnt/Armature.002/root/spine_01/spine_02/spine_03/clavicle_r/upperarm_r/lowerarm_r/hand_r/TNT_03
     classID: 23
     script: {fileID: 0}
@@ -780,7 +780,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x68A35982_oVLQPjH
+    attribute: material._EmissionColor.b
     path: Dwarfs_Tnt/Armature.002/root/spine_01/spine_02/spine_03/clavicle_r/upperarm_r/lowerarm_r/hand_r/TNT_03
     classID: 23
     script: {fileID: 0}
@@ -810,7 +810,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: material.path_0x78A35982_sJtKsRN
+    attribute: material._EmissionColor.a
     path: Dwarfs_Tnt/Armature.002/root/spine_01/spine_02/spine_03/clavicle_r/upperarm_r/lowerarm_r/hand_r/TNT_03
     classID: 23
     script: {fileID: 0}

@@ -6,7 +6,17 @@ namespace Codebase.Services.Time
 {
     public class TimeService : ITimeService, ILifetimeScope
     {
-        private const string TimeOffset = "TimeSkipSeconds";
+        private static string TimeOffset
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return RecoveryCompatibility.StudyTestProfile.TimeOffsetKey;
+#else
+                return "TimeSkipSeconds";
+#endif
+            }
+        }
         private TimeSpan _cachedCheatOffset;
         private GameTime _cachedGameTime;
         private int _cachedGameTimeFrame;
