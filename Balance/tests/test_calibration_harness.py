@@ -1770,3 +1770,15 @@ def test_driver_over_the_launcher_with_a_fake_editor(fake_run_tree, monkeypatch)
     again = D.Driver(ft["backend"], cache=RC.RunCache(ft["out"]), template=template, log=lambda *_: None).run(jobs)
     assert [r.status for r in again] == ["cached"] * 3
     assert ft["log"].read_text().splitlines() == ["j0 j1 j2", "j1", "j2"]  # Unity was not started again
+
+
+def test_t03_cadence_counts_the_simulated_cells(tg, tolerances):
+    # A longer run still scores every cadence cell, with the same denominator.
+    sim = _early(tg, list(range(20)) + list(range(20, 260, 5)))
+    ev = M.evaluate(M.t03(sim, tg), tolerances, 'closed')
+    cells = [c for c in ev.cells if c.group == 'cadence']
+    group = next(g for g in ev.groups if g.target == 'T03' and g.group == 'cadence')
+    assert len(sim.early) > len(tg.shipped.early)
+    assert group.n == len(cells)
+    assert group.n_ok == sum(c.ok is True for c in cells)
+    assert group.n_ok <= group.n

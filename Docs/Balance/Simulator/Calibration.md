@@ -52,3 +52,26 @@ Q34 后备已尝试并拒绝：六个系数点训练分数并列，CMove 不可�
 原始离散网格去除 Constant 下 Static 重复臂后为24项；训练最优 slow-06，首个非同分次优 slow-07，训练/持出 0.609300310/0.282021995。第二轮结构网格报告另列8项。`stage_slow` 入口转交封闭结构网格实现（辅助模块 `stage_slow_round2.py`，相对指定文件清单的组织偏离）。
 
 执行顺序偏离：第二轮网格开始前已恢复单位系数并登记假设，但 ORIGINAL arrivals 的纠错、CURRENT 接受和旧网格去重 CSV 在网格运行后才完成；原因是先生成第二轮实际观测以通过黄金工具记录，非按要求把全部完整性修复置于网格之前。旧归档不改写，24 项去重表保存在第二轮归档 `historical_hypotheses.csv`；新网格的 `hypotheses.csv` 是8个不同结构臂。该流程偏离不改变训练排名，但须供复审。
+
+## K3 初步全程比较（未完成验收）
+
+运行前固定四个组合 baseline、H2、H3、H2+H3：只用 free 的 TC4–103 T06 单元平均相对误差选优，TC≥104 单列持出；T20 为硬筛，训练同分按列表先后。H2 为 RegenToFull；H3 为 CapIdleAtSessionEnd 与 BreakEnRouteAtBoundary。此项是针对 K2 交接的结构选项比较，不能当成独立外部验证。
+
+| 候选 | 训练平均相对误差 | 持出平均相对误差 | T20 |
+|---|---:|---:|---|
+| baseline | 0.006211365 | 0.000415264 | 通过 |
+| H3 | 0.006309266 | 0.000415005 | 通过 |
+| H2 | 0.006418353 | 0.000415560 | 通过 |
+| H2+H3 | 0.006550658 | 0.000414669 | 通过 |
+
+baseline 排第一，H3 第二，保留 K2 的 baseline；持出未用于重排。四作业 serve 批耗时 62.42 秒；checkpoint（from_day 4）与两个 Seeded 作业另批 47.54 秒，均 launcher 退出 0。运行键分别为 `1e7089f96b8231b95b2d984b0499df9c59af55e858837004567d3490122500fe` 与 `7534116e076458bb329d239e6d686643d4a33e99c9cbc8600a5274856ee965ec`，代码身份 `2d81e541dae47d7ff71d9515920f31d914c70f9f`；每个作业均有资产守卫。free 的模拟作业墙钟 8.70 秒（含烘焙导出），不是冷启动时间。
+
+P10 原判据的初步报告位于 `Balance/out/calibration/full-free/d558f4ffdf8d04fc/` 和 `Balance/out/calibration/full-checkpoint/04b46460ab802222/`。free 的 T03、T04、T06、T09、T12、T14、T16 失败；checkpoint 的 T03、T04、T06、T09、T14、T16、T17 失败。两者 T05、T07 尚 pending，T08、T15、T19、T20 未由该报告计算；T20 的硬筛使用逐事件检查。不能把这些初步报告当成第 3 阶段完整验收或放宽登记。free 的 X4 对 717 个刷怪点新 HP/Damage 全部逐位相等、无 mismatch；这不是 T19 的有信息量子集对 A 的外部验证。
+
+T03 分组目前 `n` 已按实际生成的单元数计算；新测试覆盖模拟早期行多于随包行时 `n_ok ≤ n`。这里 baseline 记录 57/60。先前提及的 61/60 问题在当前 `metrics.evaluate` 实现中没有复现，未擅自改变计算定义。
+
+**未完成**：T05/T07/T15 首次运行棘轮及逐项放宽登记、完整训练/持出报告与 T19、连续参数区间复核、完整黄金回归及 `golden accept`、校准参数层与新进程资产导入、冷运行预算。不得将这次初步比较用于发布参数或声称闭环通过。
+
+T19 初步外部验证按随包 A 的 R1 信息子集固定成员，再对 free 与 A 分别计数；Python 烘焙与本次 C# 输出的 X4 已逐位核对。Health 子集 608 个，1% 带内 free 138 / A 162，5% 带内 383 / 469，均低于 A 的 95%，**不通过**；Damage 子集按 A 的 DefenseData 非零固定为 503 个，1% 为 326 / 144、5% 为 433 / 366，均通过。T19 整体不通过，闭环可信度不能据此成立。分钟制未在此完成报告。计算代码 `stage_full.t19` 和结果 `out/calibration/full/preflight/t19.json`，未改变任何原版黄金阈值。
+
+冷启动独立默认 `golden-405`：`python -m tufu_balance.unity run --preset golden-405 --force`，launcher 21.5 秒、job_wall_s 8.5835 秒、退出 0；运行键 `4fb5da3a064115cf63943fe8f982be199e23b72879615b500caac576f9376aa1`（完整键以 `Balance/out/calibration/full/preflight/cold.log` 为准）。这是默认参数预设的预算测量，尚不能代替发布后的 calibrated 层验收。
