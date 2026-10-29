@@ -288,6 +288,9 @@ namespace Codebase.Simulation.Systems
 			{
 				CalculateSimulationData();
 				RebuildApplyReplayCaches();
+				// G20 observes shipped days only. Interpolated Location is the right bracket,
+				// so its unobserved RPM must not raise the maximum carried to the next sample.
+				if (RebuildReplayRpmDay.Snapshot.TimeChunkIndex != timeChunkIndex) return;
 				CalculateSoulRPMValues();
 				foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
 				return;
@@ -297,6 +300,7 @@ namespace Codebase.Simulation.Systems
 				CalculateRPMValueTimeChunk();
 				return;
 			}
+			if (RebuildReplayRpmDay != null && RebuildReplayRpmDay.Snapshot.TimeChunkIndex != timeChunkIndex) return;
 			RebuildPerFrameCaches();
 			CalculateSpawnerData(true);
 			CalculateSoulRPMValues();
