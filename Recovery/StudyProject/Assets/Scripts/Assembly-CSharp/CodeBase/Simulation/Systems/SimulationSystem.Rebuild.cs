@@ -20,6 +20,7 @@ namespace Codebase.Simulation.Systems
 
 		// Replay/checkpoint state for day `day`, right after its forced snapshot (C4, .Replay.cs).
 		partial void RebuildApplyDayOverride(int day);
+		partial void RebuildApplyDayOverrideBeforeRpm(int day);
 
 		// Stored DpsData/DefenseData caches after CalculateSimulationData (C4, .Replay.cs).
 		partial void RebuildApplyReplayCaches();

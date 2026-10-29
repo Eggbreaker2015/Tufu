@@ -109,8 +109,10 @@ namespace Codebase.Simulation.Systems
 				RebuildApplyProbeGrants();
 				currentBoss = RebuildFindBoss(playerModel.LastUnlockedLocation.Number);
 				UpdateInterpolationStatModifier();
+				RebuildApplyDayOverrideBeforeRpm(0);
 				playerModel.Unit.CurrentHealth = GetForecastStatValue(StatType.Health);
-				CalculateRPMValueTimeChunk();
+				if (RebuildReplayRpmDay != null) RecalculateChunkRpmValues();
+				else CalculateRPMValueTimeChunk();
 				MakeSnapshot(true);
 				RebuildApplyDayOverride(0);
 				RebuildTraceDayStart();
@@ -255,6 +257,8 @@ namespace Codebase.Simulation.Systems
 			timeChunkIndex = day;
 			spawnerChargesUsage.Clear();
 			ResetCooldowns();
+			RebuildApplyDayOverrideBeforeRpm(day);
+			if (RebuildStopped) return;
 			if (RebuildParams.DpsCacheProvenance == DpsCacheProvenance.ModifierFirst)
 			{
 				UpdateInterpolationStatModifier();
@@ -280,6 +284,14 @@ namespace Codebase.Simulation.Systems
 		[SimulationRebuild(Provenance.Inferred, "pending:simulation.day_change_order")]
 		private void RecalculateChunkRpmValues()
 		{
+			if (RebuildReplayRpmDay != null && RebuildParams.DpsCacheProvenance != DpsCacheProvenance.StaleTickCache)
+			{
+				CalculateSimulationData();
+				RebuildApplyReplayCaches();
+				CalculateSoulRPMValues();
+				foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+				return;
+			}
 			if (RebuildParams.DpsCacheProvenance != DpsCacheProvenance.StaleTickCache)
 			{
 				CalculateRPMValueTimeChunk();
