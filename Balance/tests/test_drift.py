@@ -58,6 +58,39 @@ def test_base_coordinates_file_and_range_matches(history):
     assert next(h for h in hits if h["id"] == "stats.whole")["refs"][0]["match"] == "file_unbounded"
 
 
+def test_git_color_always_preserves_line_hits(history):
+    repo, path, base, head = history
+    git(repo, "config", "color.ui", "always")
+    changes = D.changed_lines(repo, base, head)
+    assert changes[path.relative_to(repo).as_posix()] == [(0, 0), (5, 1), (20, 2)]
+    files = set(git(repo, "ls-tree", "-r", "--name-only", base).splitlines())
+    hits, _, _ = D.match_formulas(catalog()["formulas"], files, changes)
+    assert {h["id"] for h in hits if h["line_hit"]} == {"stats.five", "stats.twenty", "stats.multi"}
+
+
+@pytest.mark.parametrize("worktree", [False, True])
+def test_modified_existing_file_without_hunks_is_an_error(history, worktree):
+    repo, path, _, base = history
+    git(repo, "config", "core.filemode", "true")
+    path.chmod(0o755)
+    head = "worktree" if worktree else commit(repo, "mode-only change")
+    with pytest.raises(ValueError, match="modified C# file has no diff hunks"):
+        D.changed_lines(repo, base, head)
+
+
+def test_empty_new_and_deleted_files_do_not_require_hunks(history):
+    repo, path, _, _ = history
+    empty = path.parent / "Empty.cs"
+    empty.touch()
+    base = commit(repo, "empty file")
+    empty.unlink()
+    added = path.parent / "NewEmpty.cs"
+    added.touch()
+    head = commit(repo, "replace empty file")
+    changes = D.changed_lines(repo, base, head)
+    assert changes == {empty.relative_to(repo).as_posix(): [], added.relative_to(repo).as_posix(): []}
+
+
 @pytest.mark.parametrize("start,count,expected", [(9, 0, False), (10, 0, True), (19, 0, True),
                                                     (20, 0, False), (9, 1, False), (9, 2, True),
                                                     (20, 1, True), (21, 1, False)])

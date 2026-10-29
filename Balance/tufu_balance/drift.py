@@ -79,7 +79,7 @@ def overlaps(ranges, hunks):
 
 
 def changed_lines(repo: Path, base: str, head: str):
-    args = ["diff", "--no-ext-diff", "--no-textconv", "--no-renames"]
+    args = ["diff", "--no-color", "--no-ext-diff", "--no-textconv", "--no-renames"]
     revisions = [base] if head == "worktree" else [base, head]
     names = git(repo, *args, "--name-only", "-z", *revisions, "--", CODEBASE).split("\0")
     out = {}
@@ -88,6 +88,12 @@ def changed_lines(repo: Path, base: str, head: str):
             continue
         diff = git(repo, *args, "-U0", *revisions, "--", path)
         out[path] = [(int(m[1]), int(m[2] or 1)) for m in HUNK.finditer(diff)]
+        if not out[path]:
+            in_base = bool(git(repo, "ls-tree", "--name-only", base, "--", path).strip())
+            in_head = (repo / path).exists() if head == "worktree" else bool(
+                git(repo, "ls-tree", "--name-only", head, "--", path).strip())
+            if in_base and in_head:
+                raise ValueError(f"modified C# file has no diff hunks: {path}")
     if head == "worktree":
         # New untracked files have no old coordinates, but still belong in the file inventory.
         for path in git(repo, "ls-files", "--others", "--exclude-standard", "-z", "--", CODEBASE).split("\0"):

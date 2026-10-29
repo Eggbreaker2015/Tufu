@@ -15,7 +15,7 @@ python -m tufu_balance.drift --repo /Users/joyfort/MyProjects/Tufu-stage5 --head
 - 文件范围是 `Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/**/*.cs`。工作区模式比较 base 与工作区最终内容，包括已提交、暂存、未暂存、删除，以及未跟踪的新 C# 文件。
 - `code_refs` 支持单行、闭区间和逗号分隔的多个区间；有完整仓库前缀或 `CodeBase/` 前缀也能解析。先移去错误的开头 `../`，再规范化并确认文件存在于 base 的 CodeBase 目录；无法解析的单列，不能静默丢掉。
 - 行号全部属于 `--base`，不使用目标版本的行号。默认 base 是目录引用对应的 `6af011f`；如另选 base，调用者须保证引用行号也对应它。
-- `git diff -U0 --no-renames` 的旧行段与引用区间相交才是行段命中。纯插入位于旧行 n 与 n+1 之间，仅在引用内部计入（`lo ≤ n < hi`）；在首行前或末行后插入只计同文件改动。删除按被删旧行计；重命名按旧路径删除、新路径新增处理，避免漏掉旧引用。
+- `git diff --no-color -U0 --no-renames` 的旧行段与引用区间相交才是行段命中，不受 `color.ui=always` 影响。两端均存在的已修改文件如果没有可解析行段（包括仅模式变化、二进制差异），抛出 ValueError，CLI 返回 2，避免静默降级为仅文件命中。纯插入位于旧行 n 与 n+1 之间，仅在引用内部计入（`lo ≤ n < hi`）；在首行前或末行后插入只计同文件改动。删除按被删旧行计；重命名按旧路径删除、新路径新增处理，避免漏掉旧引用。
 - 无行号的引用标为 `file_unbounded`，只计文件级，不假装精确命中某个公式。一个公式的多个引用合并计一次。
 - 报告列出公式状态、子系统、当前 Python registry 的实现、目标版本的 C# `[SimulationRebuild]` 成员；未登记明确写出。DP/X/G 重跑建议按子系统保守展开，不等于逐公式覆盖证明。
 - 默认命中只报告；`--strict` 有任意文件级命中返回 1。签名锁失败无论是否 strict 都返回非零；工具或 git 错误返回 2。无法解析引用单独报告，不等同于已证明命中。
@@ -44,6 +44,8 @@ python -m tufu_balance.refresh --level 2 --rev HEAD
 
 `--dry-run` 列出全部命令，不创建目录或启动 Unity。实际输出 `out/refresh/<UTC时间戳>/summary.md`、`summary.json` 和每步的 `.log`；`--out` 可选，但必须是本工作树 `Balance/out` 内尚不存在的新目录。逐步执行，失败立即停止并保留原退出码；后续未执行的步骤也列在汇总中。CURRENT 的内容哈希每步前后核对。
 
+`summary.json` 的总计和每个步骤在 `seconds` 旁记录 `load_start`、`load_end`：包含 1/5/15 分钟的 `load_average` 和 `cpu_count`，用于解释共享机器负载下的耗时；不因负载自动放宽或改变退出码。旧验收报告没有采集负载，不能事后补造。
+
 | 级别 | 累积步骤 |
 |---|---|
 | L0 | 私有数据库完整抽取；graph build 与目录文档生成；`pytest -m 'not unity'`；完整 cscheck（双编译、签名、禁用 API）；工作区 drift；golden guard；当前基线差异 |
@@ -54,12 +56,13 @@ python -m tufu_balance.refresh --level 2 --rev HEAD
 
 ### 与设计的明确差异及后续交接
 
-1. 6.8 的抽取、graph 和 render_catalog 产物写入刷新私有目录，不覆盖 `out/balance.sqlite`，也不改 Z1 所有的文档。后续检查通过 `TUFU_BALANCE_DB` 使用刚抽取的私有库，共享只读库不打开为可写。LFS 场景通过 `git lfs smudge` 从本工作树的对象生成到私有 assets 覆盖层，其余文件只读链接；不读运行工作树的资产，不依赖运行车道当前检出哪个并行单元。
-2. 2.8 的 cscheck 在 6.8 的步骤表中遗漏，已纳入 L0。验收按 7.3 更严格的 60 秒预算记录（2.8 表为 90 秒）。
+1. 6.8 的抽取、graph 和 render_catalog 产物写入刷新私有目录，不覆盖 `out/balance.sqlite`，也不改 Z1 所有的文档。后续检查通过 `TUFU_BALANCE_DB` 使用刚抽取的私有库，共享只读库不打开为可写。LFS 场景先用 `git lfs ls-files --json` 按路径和指针 OID 确认 `downloaded=true`；对象不在本地时明确报错，绝不下载。随后 `git lfs smudge` 仅从本地对象生成到私有 assets 覆盖层，并把 LFS URL 限定为本次输出目录中不存在的 `file://` 端点、关闭远端自动探测，使检查后对象消失也不能回退到网络。其余文件只读链接；不读运行工作树的资产，不依赖运行车道当前检出哪个并行单元。
+2. 2.8 的 cscheck 在 6.8 的步骤表中遗漏，已纳入 L0。验收按 7.3 更严格的 60 秒预算记录（2.8 表为 90 秒）。两处预算冲突及负载影响交 Z1 统一，不将实测超时自动改成通过。
 3. 当前没有 K3 的 `tests/golden/current/sim_run/*.csv`；刷新明确报告 0 个模拟 CSV 基线，而非声称已比较。已有静态与 differential 套件仍严格比较 CURRENT。K3/Z1 提供 CSV 后自动逐字节检查；支持 `sim_run/<preset>/`，golden-405 也兼容 3.2 的平铺布局（405 天基线不能当作 11 天基线）。
 4. `unity probe` 尚无独立 CLI 子命令；使用 C2 已有的 `pytest --unity tests/unity/test_differential.py -m unity`，会通过 launcher 真正运行编辑和 Play 探针并严格比较当前基线，避免重复启动。未新增该命令或跨单元修改 unity/__main__.py。
 5. L2 的全部 Unity 测试包含故意失败的守卫测试；若主检出的用户编辑器正在改真实存档，按 Runbook 的归属规则可能失败，P13 不操作该编辑器。P13 只要求实际验收 L1；L2 的计划及失败传播有单元测试，未声称已实际通过 L2。
 6. 原样串行运行完整静态 pytest，实测 162 秒，整次 L0 为 178 秒（888 通过、5 个 perf 跳过）。因此 L0 先用 `pytest --collect-only -m 'not unity'` 收集完整节点，再按模块分批交给最多六个独立 pytest 进程；每个节点恰好执行一次，不排除 slow 测试。C# 编译夹具集中在同一进程，等待假编辑器的两个模块、参数加载及静态流水线模块各拆成两批。各进程使用隔离临时目录，共用一个 `TUFU_GOLDEN_RUN`，P1 的文件锁负责同套件结果合并。无需 xdist 或新增环境依赖。该实现是对原设计单进程命令的性能调整，不缩减检查集合；最终仍另跑完整串行 `pytest -q`。
+7. 明确偏差：为避免基于不完整的前序产物继续检查，保留 fail-fast，前序失败后不再运行 `baseline-smoke-11` 或 `golden-current-differences` 等后续只读比较。因此失败的 L1 不保证完成 2.8 的当前基线比较；汇总列出未执行步骤并写明「前序步骤失败，未比较」，保留首个失败退出码。未将这些比较改成失败后的 report-only 步骤。
 
 ## 验收记录
 
@@ -88,3 +91,18 @@ python -m tufu_balance.refresh --level 2 --rev HEAD
 启动器的两个成功运行都通过沙箱/资产守卫。smoke 作业 `after_job.ok = true`、`not_restored = []`、`changed_on_disk = []`；通过 `unity status` 确认运行工作树 `clean = true`，锁为空，无 Unity 进程或常驻服务。本轮失败是 Python X2 检查，不是用户主编辑器活动导致的真实存档守卫失败。
 
 Z1 应把上述性能实现差异、宠物分支移动及 L1 阻塞折回设计；K3 提供按预设分目录的模拟 CSV 基线（或平铺 golden-405 基线）后，再运行 L1/L2。L2 仅做了计划/失败传播测试，本单元没有实际验收 L2。
+
+## 复核修正记录
+
+本轮仅修改 P13 的五个所属文件，不改变引擎、C#、基线、运行预设或刷新顺序。
+
+- 退出码保护：通过 `main` / `run_step` 测试静态 shard 的首个非零码、pytest worker、launcher、crosscheck、`--step` 的 ValueError 和总入口的 execute 结果；对复核指出的六处退出码变异逐一注入，6/6 均由对应断言杀死。脚本与日志在 `out/fix-round/check_mutations.py`、`mutations.json`、`mutation-*.log`。
+- 漂移：增加 `color.ui=always` 和两端均存在却无行段的临时历史测试，保留空文件新增/删除的合法情况。强制颜色的真实 `--head 72d5640` 复跑仍为 105/41；当前 `feature/pet-system`（仍为 `ec3058a`）为 132/48；均 8 个规范化引用、0 无法解析、签名 0 违规。记录在 `out/fix-round/drift-design-color/` 与 `drift-tip/`。
+- LFS：测试本地对象缺失时在 smudge 前失败、对象存在时正常抽取、离线 smudge 失败时停止；路径与 OID 必须匹配库存。未下载、删除或修改共享 LFS 对象。
+- 负载与偏差：汇总的总耗时和每步耗时均带开始/结束负载及 CPU 数；保留上述第 7 条 fail-fast 偏差，60/90 秒预算冲突交 Z1。
+- `pytest -q tests/test_drift.py tests/test_refresh.py --basetemp out/fix-round/pytest-p13`：46 通过，3.60 秒。完整 `pytest -q --durations=10 --basetemp out/fix-round/pytest-full`：905 通过、276 跳过（270 Unity、6 perf），158.16 秒，日志 `out/fix-round/pytest-full.log`。
+- `tests/golden/fixtures/generate.py --check`：identical（保留既有 provenance 提示）；`golden guard`：19 个套件、0 违规。`refresh --level 0 --dry-run` 仍列出 8 步。
+- 实际 `refresh --level 0 --out out/refresh/fix-round-l0`：8 步全部退出 0，80.219 秒，CURRENT 未变。功能检查 PASS，本轮 7.3 的 ≤60 秒预算 FAIL（仍在 2.8 的 ≤90 秒内，不替换原预算）；10 CPU，总计开始负载 1/5/15 分钟为 `6.65/8.08/10.27`，结束为 `40.63/17.72/13.69`。`summary.json` 保存原始精度和每步负载；抽取 9.784 秒、静态测试 62.019 秒。911 个节点分到 39 个 shard、恰好各一次，906 通过、5 perf 跳过、0 失败/错误。未为追求 60 秒重复运行或缩减检查。
+- 此次 L0 完整 cscheck：双编译 0 错误、既有警告 3707/8；无 UNITY_EDITOR 编译 0 错误、0 新错误；签名 0 违规、禁用 API 0，步骤耗时 4.527 秒。前后 `tests/golden/current/` 内容哈希完全一致，共享库仍为 444、SHA-256 `a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098`；记录在 `out/fix-round/integrity-{before,after}.json`。
+
+本轮未再次启动 Unity；原 L1 的 X2 阻塞及 L2 未实际运行的状态不变，仍按上节交接处理。

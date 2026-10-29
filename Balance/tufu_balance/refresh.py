@@ -120,15 +120,21 @@ def fingerprint(root: Path):
             for p in sorted(root.rglob("*")) if p.is_file()}
 
 
+def system_load():
+    return {"load_average": list(os.getloadavg()), "cpu_count": os.cpu_count()}
+
+
 def execute(steps, out: Path, *, env=None, run=subprocess.run, current=None):
     """Fail fast, retain command logs and baseline-difference output, check CURRENT after each step."""
     out.mkdir(parents=True, exist_ok=True)
     current = Path(current or BALANCE / "tests/golden/current")
     before = fingerprint(current)
     results = []
+    load_start = system_load()
     started = time.monotonic()
     for step in steps:
         print(f"refresh: {step.name}", flush=True)
+        step_load_start = system_load()
         t = time.monotonic()
         try:
             p = run(step.command, cwd=BALANCE, env=env, capture_output=True, text=True)
@@ -140,13 +146,15 @@ def execute(steps, out: Path, *, env=None, run=subprocess.run, current=None):
             output += "\nFAIL: tests/golden/current changed during this step\n"
         (out / f"{step.name}.log").write_text(output, encoding="utf-8")
         result = {"name": step.name, "command": list(step.command), "exit_code": code,
-                  "seconds": time.monotonic() - t}
+                  "seconds": time.monotonic() - t,
+                  "load_start": step_load_start, "load_end": system_load()}
         results.append(result)
         print(f"  exit {code}, {result['seconds']:.2f}s", flush=True)
         if code:
             print(output[-6000:], flush=True)
             break
     summary = {"steps": results, "planned_steps": len(steps), "seconds": time.monotonic() - started,
+               "load_start": load_start, "load_end": system_load(),
                "exit_code": next((r["exit_code"] for r in results if r["exit_code"]), 0),
                "current_unchanged": fingerprint(current) == before}
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
@@ -180,7 +188,18 @@ def extract(out: Path):
             target.mkdir(exist_ok=True)
             continue
         if entry.is_file() and entry.suffix == ".unity" and entry.read_bytes().startswith(b"version https://git-lfs.github.com/spec/"):
-            p = subprocess.run(["git", "lfs", "smudge"], input=entry.read_bytes(), cwd=REPO,
+            pointer = entry.read_bytes()
+            rel = entry.relative_to(REPO).as_posix()
+            inventory = subprocess.run(["git", "--no-pager", "lfs", "ls-files", "--json", f"--include={rel}"],
+                                       cwd=REPO, capture_output=True, text=True, check=True)
+            oid = next((line.removeprefix("oid sha256:") for line in pointer.decode().splitlines()
+                        if line.startswith("oid sha256:")), None)
+            if not any(f["name"] == rel and f.get("oid") == oid and f.get("downloaded")
+                       for f in json.loads(inventory.stdout)["files"]):
+                raise ValueError(f"LFS scene object missing locally: {rel} ({oid}); refresh never downloads LFS objects")
+            # Keep even a cache-disappearance race offline; never use the shared remote endpoint.
+            p = subprocess.run(["git", "--no-pager", "-c", f"lfs.url={(out / 'offline-lfs').as_uri()}",
+                                "-c", "lfs.remote.autodetect=false", "lfs", "smudge"], input=pointer, cwd=REPO,
                                capture_output=True, env={**os.environ, "GIT_LFS_SKIP_SMUDGE": "0"})
             if p.returncode or p.stdout.startswith(b"version https://git-lfs.github.com/spec/"):
                 raise ValueError(f"LFS scene not available: {entry.name}; {p.stderr.decode(errors='replace')}")
