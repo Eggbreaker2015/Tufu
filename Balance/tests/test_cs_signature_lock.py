@@ -66,6 +66,8 @@ MODULES = {
               "GetUnlockTimingLogData"],
 }
 PARTIAL_FILES = sorted([*MODULES, "Rebuild", "Replay", "Trace"])  # Trace: C3c's daily records, events, digests
+# Crosscheck: P11's DP8 export of spawnerData after an override (called from .Replay.cs)
+PARTIAL_FILES = sorted([*PARTIAL_FILES, "Crosscheck"])
 CONFIG_STUBS = {"ResetCombatConfigValues", "Tick", "ResetAmuletLevelBalance", "SetAmuletLevelBalance",
                 "GetTrimmedTimeChunkSnapshots"}
 # Design 4.1 "debug" rows; every other empty method starts as Provenance.Null.
@@ -473,6 +475,7 @@ def test_new_files_have_unique_meta():
            # C7
            *(SIM_DIR / "Rebuild" / f for f in ("SimulationRebuildParams.SlowPolicy.cs", "SimulationSlowPolicyState.cs")),
            SIM_DIR / "Harness" / "SimulationRunRequest.SlowPolicy.cs",
+           SIM_DIR / "Harness" / "SimulationCrosscheck.cs",  # P11
            PROJECT / "Assets" / "Editor" / "Simulation" / "SimulationParamsImporter.cs",
            # C5
            SIM_DIR / "Rebuild" / "SimulationRebuildParams.FastTick.cs", SIM_DIR / "Harness" / "SimulationRunRequest.FastTick.cs",

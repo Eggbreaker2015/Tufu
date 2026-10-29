@@ -1,0 +1,314 @@
+{
+ "expectations": {
+  "csv_files": {
+   "kind": "set",
+   "note": "",
+   "source": "design 7.3 P11",
+   "value": [
+    "DP8.csv",
+    "DP8_rpm.csv",
+    "X1.csv",
+    "X2.csv",
+    "X3.csv",
+    "X4.csv",
+    "X5.csv",
+    "X6.csv",
+    "X7.csv",
+    "export_text.csv"
+   ]
+  },
+  "dp8.fields": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP8",
+   "value": 328626
+  },
+  "dp8.fields_bit_equal": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "",
+   "source": "DP8",
+   "value": 328626
+  },
+  "dp8.fields_max_rel_diff": {
+   "better": "lower",
+   "kind": "exact",
+   "note": "",
+   "source": "DP8",
+   "value": 0.0
+  },
+  "dp8.g20_matches": {
+   "kind": "exact",
+   "note": "C# RpmFirst RPM over the 46 overridden states, G20 cell test",
+   "source": "G20",
+   "value": [
+    1380,
+    1380
+   ]
+  },
+  "dp8.g20_replay_bit_equal": {
+   "better": "higher",
+   "kind": "exact",
+   "note": "C# RPM bit-equal to simcalc.replay_day_gpm",
+   "source": "G20",
+   "value": 1380
+  },
+  "dp8.order_differs": {
+   "kind": "exact",
+   "note": "spawnerData positions differing from the oracle's (scene, file_id) tie order",
+   "source": "DP8",
+   "value": 0
+  },
+  "dp8.rows": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP8",
+   "value": {
+    "items": 38170,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "dp8.spawner_rows": {
+   "kind": "exact",
+   "note": "(state, spawner) pairs, both K(d) and RpmFirst",
+   "source": "DP8",
+   "value": 36514
+  },
+  "dp8.states": {
+   "kind": "exact",
+   "note": "",
+   "source": "DP8",
+   "value": 46
+  },
+  "flat405.text_repairs": {
+   "better": "lower",
+   "kind": "exact",
+   "note": "values C1 wrote as a 15-digit text Mono misreads; confirmed by the bit digest",
+   "source": "C1 text defect",
+   "value": 1
+  },
+  "flat405.x2": {
+   "kind": "exact",
+   "note": "",
+   "source": "X2",
+   "value": {
+    "items": 4740,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "flat405.x2_k2_lag_discriminating_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "X2",
+   "value": 317
+  },
+  "flat405.x7": {
+   "kind": "exact",
+   "note": "",
+   "source": "X7",
+   "value": {
+    "items": 12180,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "golden405.X1": {
+   "kind": "exact",
+   "note": "status, items, mismatches",
+   "source": "X",
+   "value": {
+    "items": 56880,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "golden405.X2": {
+   "kind": "exact",
+   "note": "status, items, mismatches",
+   "source": "X",
+   "value": {
+    "items": 4740,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "golden405.X3": {
+   "kind": "exact",
+   "note": "status, items, mismatches",
+   "source": "X",
+   "value": {
+    "items": 12180,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "golden405.X4": {
+   "kind": "exact",
+   "note": "status, items, mismatches",
+   "source": "X4",
+   "value": {
+    "items": 0,
+    "mismatches": 0,
+    "status": "vacuous"
+   }
+  },
+  "golden405.X5": {
+   "kind": "exact",
+   "note": "status, items, mismatches",
+   "source": "X",
+   "value": {
+    "items": 4,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "golden405.X6": {
+   "kind": "exact",
+   "note": "status, items, mismatches",
+   "source": "X",
+   "value": {
+    "items": 15574,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "golden405.X7": {
+   "kind": "exact",
+   "note": "status, items, mismatches",
+   "source": "X",
+   "value": {
+    "items": 12180,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "golden405.vacuous_parts": {
+   "kind": "exact",
+   "note": "parts with nothing to check on a null policy",
+   "source": "design 7.3 P11",
+   "value": {
+    "X2": [
+     "forecast_order",
+     "k2_lag",
+     "rewards_in_tick"
+    ],
+    "X3": [
+     "armor_tie_selection",
+     "missing_health",
+     "running_max"
+    ],
+    "X4": [
+     "report"
+    ],
+    "X5": [
+     "armor_tie_selection",
+     "fast_days_without_planning",
+     "fast_phase"
+    ],
+    "X6": [
+     "charges",
+     "dafc",
+     "unlocks",
+     "values_rewards"
+    ],
+    "X7": [
+     "armor_tie_selection",
+     "missing_health",
+     "running_max"
+    ]
+   }
+  },
+  "golden405.x4_oracle_spawners": {
+   "kind": "exact",
+   "note": "",
+   "source": "X4",
+   "value": 717
+  },
+  "golden405.x5_slow_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "X5",
+   "value": 4
+  },
+  "golden405.x7_modifier_first_cells_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "X7",
+   "value": 3
+  },
+  "smoke11.X1": {
+   "kind": "exact",
+   "note": "",
+   "source": "X1",
+   "value": {
+    "items": 9600,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "smoke11.X2": {
+   "kind": "exact",
+   "note": "",
+   "source": "X2",
+   "value": {
+    "items": 800,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "smoke11.X3": {
+   "kind": "exact",
+   "note": "",
+   "source": "X3",
+   "value": {
+    "items": 360,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "smoke11.X4": {
+   "kind": "exact",
+   "note": "",
+   "source": "X4",
+   "value": {
+    "items": 0,
+    "mismatches": 0,
+    "status": "vacuous"
+   }
+  },
+  "smoke11.X5": {
+   "kind": "exact",
+   "note": "",
+   "source": "X5",
+   "value": {
+    "items": 4,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "smoke11.X6": {
+   "kind": "exact",
+   "note": "",
+   "source": "X6",
+   "value": {
+    "items": 2572,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  },
+  "smoke11.X7": {
+   "kind": "exact",
+   "note": "",
+   "source": "X7",
+   "value": {
+    "items": 360,
+    "mismatches": 0,
+    "status": "pass"
+   }
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "crosscheck"
+}
