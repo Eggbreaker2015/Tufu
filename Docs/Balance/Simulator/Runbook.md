@@ -802,3 +802,100 @@ string s = random.StateText();                                // 进每天的状
 - 请求的部分参数对象仍按字段覆盖代码默认值（见上），没有改成拒绝：C3b 的引擎测试（`modifier-first`、`stale-tick-cache`）就是靠部分对象只改一个字段；正式运行带完整对象，`manifest.params.complete` 可查。是否在批处理里强制完整对象留给 Z1 决定。
 - 设计稿 2.6 写 36 项属性；引擎的快照与摘要都是 `Unit.Stats` 的 30 项（同 16.6）。
 - 改了别的单元的测试：C3a/C3b 的 `tests/test_cs_signature_lock.py`（`PARTIAL_FILES` 加 `Trace`，`NEW_MEMBERS` 加 `RebuildTraceFlush`，新文件的 `.meta` 检查加上本单元的文件）、C3b 的 `tests/test_engine_static.py`（`FromJson` 可以是 public）；C0b 的 `tufu_balance/unity/__init__.py`（导入 `trace` 以登记字段）、`__main__.py`（`params build|import`）。
+
+## 18. 状态覆盖：replay 与 checkpoint（C4）
+
+C4 填了 `Systems/SimulationSystem.Replay.cs` 的两个钩子 `RebuildApplyDayOverride(int)`、`RebuildApplyReplayCaches()`，新建 `Harness/SimulationStateOverride.cs`（读随包快照、构造每天的状态、记录；也实现 `SimulationHarness` 的钩子 `RebuildJobApplyOverride`）和 `Harness/SimulationRunRequest.Override.cs`（请求字段）。Python 一侧是 `tufu_balance/unity/override.py`。测试在 `Balance/tests/unity/test_state_override.py`、`tests/test_state_override_static.py`，黄金套件 `sim_override`。
+
+### 18.1 请求字段 `job.override`
+
+`mode` 为 `replay` 或 `checkpoint` 的作业读它（为 null 时全取默认值）；`free`、`empty` 作业忽略它，manifest 只记 `{"schema", "mode", "active": false}`。
+
+| 字段 | 取值（默认）| 含义 |
+|---|---|---|
+| `from_day` | 整数 ≥ 0 或 null（0）| 从这一天起覆盖 |
+| `econ_caches` | `stored`（默认）、`recomputed` | `stored`：当天的 DpsData/DefenseData 取（插值）快照的值；`recomputed`：由已恢复的 `CalculateDpsData`/`CalculateDefenseData` 从物品和槽位重算 |
+| `replay_items` | `snapshot`（默认）、`recompute` | `snapshot`：每次覆盖都设物品；`recompute`：只在第一次覆盖时设，之后由物品模块（C6）按击杀累积 |
+| `unlock` | `derived`（默认）、`snapshot` | `derived`：岛只由门禁的可杀性解锁（策略）；`snapshot`：解锁到快照的 `Location`（诊断用）|
+| `items_evolved` | `{"<TC>": {"<Key>": true/false/null}}` 或 null | 物品是否已进化，按随包天快照的 TimeChunkIndex 给。缺这一天、缺这件物品或值为 null 时按 `Level != Copies` 判定，并计数（`items_evolved_fallback` 等）|
+| `slots` | `{"<TC>": {"weapon": n, "armor": m}}` 或 null | 武器槽、护甲（头盔+盾）槽的个数；null 表示不动槽位。超出玩家已有槽位数（武器 5、护甲 2）时作业以 5 失败 |
+
+- 键都是**随包天快照**的 TimeChunkIndex（46 个）。某一天用"提供物品的那一侧快照"的键（见 18.2），物品、进化标志和槽数因此总是同一个快照的。
+- Python：`override.default_override(con, **选项)` 填好 P4 的 `items_evolved`（`items_evolved_default`，未定的记为未进化）和夹具 `stage4_slot_schedule.json` 的 `slots`（`slots_fixture`，拟合值）；`slots_p12(con)` 给闭式 P12 规则下各快照 Location 的槽数（设计稿 1.4.2 的 `slots_rule = "p12"` 就用它代替，C# 不另设字段）。`override_job(job_id, mode, override, probe=…, **make_job 参数)` 生成作业；`request.validate` 经 `register_job_check` 做与 C# 相同的检查（未知字段、取值、键的写法、槽数非负）。
+- 典型请求（第 4–405 天开环重放，空策略）：
+
+```python
+from tufu_balance.unity import engine, override as ov, request as req
+o = ov.default_override(con, from_day=4)
+job = ov.override_job("replay-405", "replay", o, probe=engine.engine_probe(null_policy=True), day=405)
+request = req.make_request([job])
+```
+
+### 18.2 每天做什么
+
+覆盖在第 d 天的强制快照**之后**生效（C3b 的顺序，16.6），第 0 天在快照 0 之后。哪些天：
+
+- `replay`：每个 d ≥ `from_day`。状态取 `config.SimulationData.GetByTimeChunkIndex(d)`（已恢复代码，随包资产的 46 个天快照）。
+- `checkpoint`：只在随包天快照所在的 d（≥ `from_day`），状态就是那个快照本身；两次之间闭环照跑。
+
+同一天只覆盖一次（再调用记 `repeat_day_calls`，不做事）。每次覆盖依次：
+
+1. `unlock = snapshot`：对每个新岛 n，打开所有通向 n 的门禁（`GatesModel`），打开这些门禁刷怪点的 `SlotReward` 槽位，再 `RebuildUnlockLocation(n)`（C3b 的解锁不开槽，16.2）。
+2. 槽位：按 `slots` 把武器槽、护甲槽的解锁个数设成给定值（非 VIP 优先、按配置顺序；关槽前先卸下装备）。
+3. 物品：玩家物品变成快照的物品，**顺序也相同**（`CalculateDpsData` 的平局按列表顺序）：已有的 ItemModel 原地改，新的经 `AddItem(…, applySilently: true)` 加入，多余的卸下后去掉（经反射设 `PlayerModel.Items`，`RemoveItem` 是空方法）。已进化：`Evolved = true`、`Level = 快照 Level`；未进化：`Level = 1`、`Copies = 快照 Copies`（快照的 Level 是有效等级）。
+   - **提供物品的那一侧**：`GetByTimeChunkIndex` 不插值物品，返回 `left.Items`。所以插值日取左侧快照的物品；恰好落在随包天快照 k（不是第一个或最后一个）时，t = 1，属性是 k 的，物品却是前一个快照的；d ≥ 405 取最后一个。记录里的 `items_time_chunk` 就是这个快照。
+4. 属性：每项属性去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器以外的全部修饰器，基础值设为快照的 `Value`，于是快照 Value 逐位等于它；当天的 K2/K3 修饰器（换天时已换成 K(d)）保留，TotalValue 由 Value 与 K(d) 合成。
+5. 血量回满（`CurrentHealth = Health`）。
+6. 缓存与 RPM：`CalculateSimulationData()` → `RebuildApplyReplayCaches()` → `CalculateSoulRPMValues()` 与每项属性的 `CalculateRPMValueTimeChunk`。换天时的 RPM 是覆盖之前、按上一天状态算的（C3b 的换天不在覆盖之后重算），所以覆盖自己再算一遍，当天的 `RPMCalculatedValue` 对应覆盖后的状态（`stored` 时在存储的缓存上算）。
+
+`RebuildApplyReplayCaches`（`econ_caches = stored` 且当天有存储的缓存时）：用快照的 DpsData/DefenseData 替换 `currentDpsData`/`currentDefenseData`，再 `UpdateDpsDataCache`、`RebuildPerFrameCaches`（防御缓存与战斗乘数）、`CalculateSpawnerData(true)`。它在 `Tick` 与（C5 的）FastTick 规划轮每次 `CalculateSimulationData` 之后被调用；`replay` 每天都有存储的缓存，`checkpoint` 只在重置的那一天有。
+
+注意：
+
+- 第 d 天的强制快照在覆盖之前拍，记录的是上一天覆盖之后的状态（空策略下就是第 d−1 天的插值状态，DpsData 是换天时按物品重算的值，不是存储值）。要看覆盖后的状态读 `override_days.jsonl`。
+- 交互运行（没有批处理作业）与 `free` 作业里两个钩子直接返回。
+
+### 18.3 输出
+
+- manifest `override`（`tufu.sim.override/1`）：`mode`、`active`、`from_day`、`econ_caches`、`replay_items`、`unlock`、`items_evolved`（`request` 或 `level_ne_copies`）、`slots`（`request` 或 `unchanged`）、`shipped_asset`、`shipped_time_chunks`、`file`、`calls`（钩子被调用的天数）、`applied`（实际覆盖的天数）、`first_day`、`last_day`、`error`、`counters`（`cache_applications`、`items_added`、`items_removed`、`items_reordered`、`unlocks`、`gates_opened`、`slot_rewards_opened`、`slots_missing`、`items_evolved_*`、`removed_modifiers_source_<n>` 等）。引擎计数器另有 `day_overrides`。
+- `override_days.jsonl`（输出开关 `override_days`，replay/checkpoint 默认开）：每次覆盖一行，覆盖完成后引擎的状态。double/float 写成十六进制位（`SimulationRuntimeProbes.D/F`），`override.read_days` 解码。字段：`day`、`time_chunk_index`、`kind`、`snapshot_time_chunk`/`snapshot_location`（`GetByTimeChunkIndex` 返回的）、`left`/`right`/`t`（插值区间，端点外为 −1/null）、`items_time_chunk`、`items_set`、`slots_set`、`stored_caches`、`location_before`、`location`、`current_boss`、`weapon_slots`、`armor_slots`、`removed_modifiers`、`k2`/`k3`/`modifier_day`、`current_health`、`stats`（每项 `[Key, 快照 Value, Stat.FastValue, GetForecastStatValue]`）、`items`（`[Key, Level, Copies, Evolved, EffectiveLevel]`）、`dps`/`dps_cache`/`defense`/`defense_cache`、`rpm`。文件在作业运行中逐行追加。
+- 预言机 `override.expected_day(shipped, mode, day, items_evolved)`：用 `model.snapshots` 独立给出某天应设的快照、物品来源和进化标志。
+
+### 18.4 验收记录（设计稿 7.3 C4）
+
+在提交 `79bcf84`（C# 与最终提交相同）上 `pytest --unity tests/unity/test_state_override.py`：一次 Unity 运行跑 7 个作业（全部空策略），另有一次失败型运行。
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| `replay` + `stored`：每天覆盖后 DpsData/DefenseData 缓存（列表与字典）与插值快照逐位相等 | 通过：第 4–405 天 402 天，Values、四个缓存、物品、槽位全部逐位，0 天不符 | `test_replay_once_per_day_with_the_interpolated_state` |
+| 属性 TotalValue 与快照一致（逐位，最差 1 ulp）| 引擎的 `Stat.FastValue`（游戏顺序 K3·(1+K2)·Value）对 `(Value·(1+K2))·K3`（`double_all` 的 K(d)）：12060 个格子里 251 个差 1 ulp，其余逐位；随包天快照所在的天对随包 TotalValue 全部逐位（0 ulp）；插值日对插值快照的 TotalValue 最大相对差 1.98%——快照 TotalValue 是线性插值的，K2/K3 不是，这一项不可能逐位，只记录。引擎记录的 K2/K3 与 Python 的 K(d) 逐位相同 | 同上，黄金 `replay405.total_value_*` |
+| 物品取提供物品的那一侧，`Evolved` 取请求值 | 通过：物品（Key、有效等级、Copies、Evolved）与预言机的左侧快照逐天相同，ItemModel 的 Level 未进化时为 1；P4 的标志覆盖全部物品（没有回退计数）| 同上 |
+| 每天恰好一次覆盖 | 通过：记录的天正好是 4..405 各一次；`calls` = 406（第 0 天加 405 次换天），`applied` = `day_overrides` = 402，没有 `repeat_day_calls` | 同上 |
+| 第 4–405 天空策略重放 < 2 分钟 | 通过：作业 0.85 秒（`timings.json` 的 `job_wall_s`；FastTick p50 1.5 毫秒，含每天的覆盖与 RPM 重算）| `test_replay_405_runs_in_under_two_minutes` |
+| 覆盖的状态带到下一天 | 通过：第 d+1 天的强制快照（覆盖之前）的 Values 与物品（有效等级）等于第 d 天的记录 | `test_replay_state_carries_to_the_next_forced_snapshot` |
+| `checkpoint`：随包天快照处 Value 与物品等于随包值，之后闭环 | 通过：46 个天快照（0..405）各覆盖一次，Values、物品、缓存、槽位逐位；下一天强制快照的 Values/物品仍是随包值，DpsData/DefenseData 等于 `model.simcalc` 按物品、槽位、K2/K3(d)、时刻 d+1 重算的值（逐位，44 天与存储值不同），两次检查点之间不再覆盖 | `test_checkpoint_resets_at_shipped_day_snapshots`、`test_checkpoint_continues_closed_loop` |
+| `econ_caches` 可切换 | `recomputed`：第 4–30 天四个缓存都等于 `simcalc.calculate_dps_data`/`calculate_defense_data` 的重算值（逐位），27 天里 27 天与存储值不同（R2 的重算误差），没有 `cache_applications` | `test_econ_caches_recomputed` |
+| `replay_items` 可切换 | `recompute`：只有第一次覆盖设物品，之后物品不变（空策略不掉落），属性仍每天覆盖 | `test_replay_items_recompute_sets_items_once` |
+| `unlock` 可切换 | `snapshot`（不给 `slots`）：每天 Location 等于插值快照的 Location（第 30 天为 9 岛），`currentBoss` 等于 P6 `boss_for_location`，槽数按 P6 的 `SlotReward`（weapon_2 在 2 岛、helmet_1 在 5 岛、shield_1 在 6 岛）；解锁 8 次、开门 16 个、开槽 3 个，没有重复解锁 | `test_unlock_snapshot_opens_islands_slots_and_boss` |
+| 三个选项记进 manifest | 通过 | `test_options_are_echoed_in_the_manifest` |
+| 慢阶段每个 Tick 都用存储的缓存 | 通过：从第 0 天重放到第 6 天，每个非强制的早期快照的 DpsData 等于当天插值快照的 DpsData | `test_stored_caches_hold_through_slow_ticks` |
+| `free` 作业忽略 `override` | 通过 | `test_free_job_ignores_the_override` |
+| 槽数超出时作业失败 | 通过：退出码 5，`error` 含 "exceed" | `test_slots_beyond_the_player_fail_the_job` |
+
+### 18.5 与设计稿不同的地方
+
+- 快照 `Items` 的 Level 改为 `EffectiveLevel`（C3b 的 `.Snapshot.cs` 写的是 `item.Level`，未进化时恒为 1，与设计稿 4.5"有效等级"和随包数据 `Level == Copies` 不符；空策略下只有 knife 1/1，看不出来）。`items_ext.csv` 的 `level` 同样改为有效等级，`evolution_level` 仍是 `Level`（已进化时）。改的是 C3b 的文件。
+- 覆盖之后重算当天的 RPM（设计稿 4.6 没有说）；换天时的 RPM 与强制快照的 DpsData 仍按覆盖之前的状态（C3b 的顺序不变）。
+- 4.6 表里"清掉奖励修饰器"实现为：去掉两个 `__simulation*` 和装备以外的**全部**修饰器（非奖励来源的按来源计数 `removed_modifiers_source_<n>`；新档上一个也没有）。
+- `slots` 的键是随包天快照的 TimeChunkIndex，某天取提供物品的那个快照的槽数；`slots_rule = "p12"` 不进请求，由 Python 的 `slots_p12` 展开成 `slots`。
+- `items_evolved` 缺失时回退到 `Level != Copies`，并计数。
+- 请求里的 `override` 对 `free` 作业不报错，只是不生效（设计稿 1.4.2 的示例就是 `free` 作业带 `override`）。
+- `checkpoint` 的 `econ_caches = stored` 只在重置的那一天用存储的缓存；`from_day` 对 `replay` 同样生效。
+- 两个钩子的出处标为 `Provenance.DebugOnly`、公式 id `pending:simulation.state_override`：它们是校准用的教师强制，不是游戏行为。
+
+### 18.6 交给后续单元
+
+- P11（DP8）：46 个随包天快照状态用 `checkpoint` 作业设好（`override_days.jsonl` 的记录是覆盖之后、RPM 重算之后的状态）。注意 DP8 按 `RpmFirst` 口径要 K2/K3(d−1) 下的 RPM，而覆盖后重算的 RPM 用的是 K(d)；需要滞后口径时在 P11 自己的探针里调用 `CalculateRPMValueTimeChunk`。
+- C5：FastTick 每个规划轮在 `CalculateSimulationData()` 之后调用 `RebuildApplyReplayCaches()`（设计稿 4.4），`replay` + `stored` 才会在存储的缓存上规划。换天的 `RecalculateChunkRpmValues` 不调用它。
+- C6：`replay_items = recompute` 时物品只在第一次覆盖时设，之后靠 `ProcessInventory`；覆盖用 `AddItem(…, applySilently: true)` 加新物品，会自动装备到空槽。快照 `Items` 的 Level 现在是有效等级。
+- C7：覆盖后 `CurrentHealth` 回满；`unlock = snapshot` 会打开门禁（`GatesModel`），被打开的门禁刷怪点不会再触发解锁。

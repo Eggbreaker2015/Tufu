@@ -29,8 +29,9 @@ namespace Codebase.Simulation.Systems
 			var items = new List<SimulationItemData>();
 			foreach (ItemModel item in playerModel.Items)
 			{
-				items.Add(new SimulationItemData { Key = item.Config.Key, Level = item.Level, Copies = item.Copies });
-				ext.Items.Add(new SimulationExport.ItemExt { Key = item.Config.Key, Level = item.Level, Copies = item.Copies, Evolved = item.Evolved, EvolutionLevel = item.Evolved ? item.Level : 0 });
+				// Level is the effective level (Copies until evolved), as in the shipped data (design 4.5).
+				items.Add(new SimulationItemData { Key = item.Config.Key, Level = item.EffectiveLevel, Copies = item.Copies });
+				ext.Items.Add(new SimulationExport.ItemExt { Key = item.Config.Key, Level = item.EffectiveLevel, Copies = item.Copies, Evolved = item.Evolved, EvolutionLevel = item.Evolved ? item.Level : 0 });
 			}
 			List<SimulationStatData> stats = RebuildSnapshotStats();
 			if (early)
