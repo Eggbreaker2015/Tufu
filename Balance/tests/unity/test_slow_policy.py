@@ -69,12 +69,19 @@ def run(unity_run):
 GATES = {"gate-same-as-fast": "SameAsFast", "gate-current-health": "CurrentHealth", "gate-none": "None"}
 
 
+# CutDamageFlat granted before day 0 (engine_probe.grant_flat): without C6's ProcessInventory the closed loop keeps
+# the starting knife only, and the island-3 gate's fightTime stays above 300 s (dropped by the bot filter); the
+# shipped TC3 state has 1143 Cut DpsData from seven weapons. The grant gives a comparable Cut DPS.
+GATE_GRANT = {8: 1200.0}
+
+
 def _gate_jobs():
     """Islands 2-3 open from the start (engine_probe.unlock_through, no slot rewards): currentBoss is the island-3
     gate (OT 240), which passes the bot filter once P >= 240, late on day 3, as in the shipped run (TC3)."""
     return [spol.slow_job(job_id, day=DAY, max_wall_seconds=600.0,
                           params=_params({"SlowLethalityGate": spol.SLOW_LETHALITY_GATE[gate]}),
-                          engine_probe=engine.engine_probe(unlock_through=3)) for job_id, gate in GATES.items()]
+                          engine_probe=engine.engine_probe(unlock_through=3, grant_flat=GATE_GRANT))
+            for job_id, gate in GATES.items()]
 
 
 @pytest.fixture(scope="module")
@@ -274,7 +281,8 @@ def _island3_gate(events):
 def test_lethality_gate_at_the_island3_gate(gate_run, gate_traces):
     """On day 3 the island-3 gate (OT 240) passes the bot filter but is lethal (shipped TC3 state: loss/H 4.16):
     SameAsFast and CurrentHealth never pick it, None does (and the player dies); the recorded predicates are the
-    design's. The state is the closed loop's with islands 2-3 open (the shipped TC3 state needs C4's replay)."""
+    design's. The state is the closed loop's with islands 2-3 open and GATE_GRANT (the shipped TC3 state needs C4's
+    replay and C6's items; tests/test_slow_policy_static.py checks the shipped state with the oracle)."""
     first = {}
     for job, gate in GATES.items():
         gates = _island3_gate(_events(gate_traces, job, "slow_gate"))

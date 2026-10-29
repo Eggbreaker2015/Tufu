@@ -9,6 +9,8 @@ import re
 import pytest
 
 from tufu_balance.calibrate import params as P
+from tufu_balance.model import simcalc as sc
+from tufu_balance.model.data import load_simulation_data
 from tufu_balance.unity import engine, request as req, schema, slow_policy as spol
 
 SYSTEMS = P.SIMULATION_SCRIPTS / "Systems"
@@ -90,3 +92,25 @@ def test_policy_sources_use_engine_hooks_only():
     body = fight[fight.index("private void SimulateFightWithSpawner("):fight.index("private double CalcDifficultSpawner(")]
     assert fight.count("RebuildApplyClear(") == body.count("RebuildApplyClear(") == 1
     assert engine.engine_defaults().keys().isdisjoint(spol.slow_policy_defaults())
+
+
+def test_island3_gate_at_the_shipped_tc3_state(db, load_fixture):
+    """Design 4.5: at the shipped TC3 state (P8's port of CalculateSpawnerData) the island-3 gate passes the
+    fightTime < 300 filter with loss/H about 4.16 (fixture l3_gate_lethality), so SameAsFast (L = 1) and
+    CurrentHealth (at full health) refuse it and only None would pick it; on day 5 it is no longer lethal."""
+    ctx = sc.load_simcalc_context(db)
+    shipped = load_simulation_data(db)
+    gate = next(s for s in ctx.spawners if s.d.key.startswith("Spawner_boss_cut_rare"))
+    probe = next(p for p in load_fixture("forensics_killdays")["l3_gate_lethality"]["probes"] if p["key_prefix"] == "Spawner_boss_cut_rare")
+    for row in probe["days"]:
+        if row["day"] not in (3, 5):
+            continue
+        state = sc.snapshot_state(shipped.get_by_time_chunk_index(row["day"]), ctx)
+        data = sc.spawner_data(ctx, state, gate)
+        h = state.stat(1)
+        assert sc.keeps_fight_time(data)
+        if row["day"] == 3:  # day 5 differs with the oracle's K2/K3 lag (0.31 against 0.21), still not lethal
+            assert data.loss / h == pytest.approx(row["lossfrac"], rel=0.01)
+        same_as_fast = 1.0 * h < data.loss
+        current_health = data.loss >= h
+        assert same_as_fast == current_health == (row["day"] == 3)
