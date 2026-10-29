@@ -585,7 +585,8 @@ def _launch(method, args, out_dir: Path, report_file: str, *, project: Path, run
     real_problems = [p for p in problems if p.startswith("real ")]
     main_editors = sorted(main_before & launcher.main_checkout_editors())
     report["main_checkout_editors"] = main_editors
-    foreign = others_seen or launcher.unity_processes(runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR)
+    foreign = (others_seen or launcher.unity_processes(runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR)
+               or launcher.other_editors(project))
     restored = []
     if real_problems:
         if (main_editors and unity_exit == 0 and not others_seen and len(real_problems) == len(problems)

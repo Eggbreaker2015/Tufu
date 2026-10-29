@@ -16,10 +16,10 @@ MonoBehaviour:
     KillState: 0
     KillLossMultiplier: 1
     KillLossFromAb: 0
-    ActiveMinutesModel: 0
-    Kappa: 0.245
-    TourA: 1.018
-    TourB: 0.78
+    ActiveMinutesModel: 1
+    Kappa: 0.25644097
+    TourA: 1.013373
+    TourB: 0.7881691
     Tours: 3
     PlanNewIslandsSameDay: 1
     DiagnosticDisableKillPredicate: 0
@@ -28,17 +28,15 @@ MonoBehaviour:
     EmissionModel: 0
     PreferredMapping: 0
     EvolutionTrigger: 0
-    WeaponSlotUnlockLocations:
-    - 4
-    - 8
+    WeaponSlotUnlockLocations: 0400000008000000i
     DayChangeInventoryOrder: 0
     SlotRpmOrder: 0
     WeaponHeuristicTypeMultipliers:
-    - 1.0
+    - 1
     - 0.8
     - 0.573
     WeaponHeuristicRarityMultipliers:
-    - 1.0
+    - 1
     - 1.25
     - 1.5
     - 1.875
@@ -50,7 +48,7 @@ MonoBehaviour:
     PriorityFamily: 1
     SmartPath: 1
     SmartPathRadius: 5
-    TimeModel: 0
+    TimeModel: 1
     CMove: 1
     CRegen: 1
     SlowLethalityGate: 0

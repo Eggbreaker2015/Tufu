@@ -236,8 +236,15 @@ def run_preset(out, name, rev):
     from .unity import launcher, request
     req = request.preset(name)
     if name == "golden-405":
+        from .calibrate import params
         from .unity.bake_report import bake_outputs
+        layer = params.PARAMS_ROOT / "calibrated.json"
         for job in req["jobs"]:
+            if layer.exists():
+                resolved = params.resolve(["defaults", "calibrated"])
+                job["params"] = resolved.params
+                job["params_hash"] = resolved.params_hash
+                job["outputs"]["inventory"] = True
             bake_outputs(job)
     result = launcher.run(req, rev=rev)
     print(result.describe())

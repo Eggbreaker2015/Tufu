@@ -33,6 +33,15 @@ def pytest_configure(config):
         os.environ["TUFU_GOLDEN_RUN"] = uuid.uuid4().hex
 
 
+@pytest.fixture(autouse=True)
+def _no_other_editors(request, monkeypatch):
+    """Unit tests must not see whatever Unity editors happen to be open on this machine."""
+    if "unity" in request.keywords:
+        return
+    from tufu_balance.unity import launcher
+    monkeypatch.setattr(launcher, "_editor_processes", lambda: [])
+
+
 def pytest_runtest_setup(item):
     if "perf" in item.keywords:
         load, cpus = os.getloadavg()[0], os.cpu_count() or 1

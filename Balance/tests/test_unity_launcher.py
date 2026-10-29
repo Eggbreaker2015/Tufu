@@ -612,3 +612,16 @@ def test_sandbox_hooks_fall_back_to_the_original_code():
     editor_only = sandbox[sandbox.index("#if UNITY_EDITOR"):sandbox.index("#endif")]
     assert sandbox.count("RuntimeInitializeOnLoadMethod") == editor_only.count("RuntimeInitializeOnLoadMethod") == 2
     assert sandbox.count("active = true") == editor_only.count("active = true") == 1
+
+
+def test_editors_on_other_copies_of_the_game_count_as_the_users(monkeypatch):
+    """An editor on another worktree (Tufu-rpg) writes the same real save: it is the user's, never restored over."""
+    run = runner.run_worktree() / runner.PROJECT_SUBDIR
+    monkeypatch.setattr(launcher, "_editor_processes", lambda: [
+        (11, "Unity -projectpath /Users/joyfort/MyProjects/Tufu-rpg/Recovery/StudyProject"),
+        (12, "Unity -batchMode -projectPath /Users/joyfort/MyProjects/Tufu-rpg/Recovery/StudyProject -name AssetImportWorker0"),
+        (13, f"Unity -batchmode -projectPath {run}"),
+        (14, "Unity -projectpath /Users/joyfort/MyProjects/OtherGame")])
+    assert [pid for pid, _ in launcher.other_editors(run)] == [11, 14]
+    editors = launcher.main_checkout_editors()
+    assert 11 in editors and 14 not in editors

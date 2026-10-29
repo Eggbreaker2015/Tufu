@@ -33,7 +33,7 @@ from ..model.simcalc import gpm_matches
 from . import targets as T
 
 TOLERANCES = Path(__file__).with_name("tolerances.yaml")
-TARGET_IDS = ("T01", "T02", "T03", "T04", "T05", "T06", "T07", "T09", "T10", "T11", "T12", "T13", "T14", "T16",
+TARGET_IDS = ("T01", "T02", "T03", "T04", "T05", "T06", "T07", "T09", "T10", "T11", "T12", "T13", "T14", "T15", "T16",
               "T17", "T18")
 MODES = ("open", "closed")
 FAST_FROM_TC = 4  # FastTickStartChunkOffset (shipped config)
@@ -219,6 +219,20 @@ def t05(sim: T.Series, tg: T.Targets) -> list[Cell]:
                             split=_split(a.tc)))
     return out
 
+
+
+def t15(sim: T.Series, tg: T.Targets) -> list[Cell]:
+    out = []
+    for ref in tg.shipped.tc:
+        snap = sim.day(ref.tc)
+        period = "early" if ref.tc < 25 else "mid" if ref.tc < 100 else "late"
+        for kind in ("dps", "defense"):
+            for stat, expected in getattr(ref, kind).items():
+                actual = getattr(snap, kind).get(stat) if snap is not None else None
+                out.append(Cell("T15", f"{period}_{kind}", f"{ref.tc:03d}|{stat}", actual, expected,
+                                _diff(actual, expected), _rel(actual, expected), stat=stat, tc=ref.tc,
+                                split="train" if ref.tc < 25 else "holdout"))
+    return out
 
 def t06(sim: T.Series, tg: T.Targets) -> list[Cell]:
     out = []
@@ -547,7 +561,7 @@ def t18(sim: T.Series, tg: T.Targets) -> list[Cell]:
 
 
 COMPUTE = {"T01": t01, "T02": t02, "T03": t03, "T04": t04, "T05": t05, "T06": t06, "T07": t07, "T09": t09,
-           "T10": t10, "T11": t11, "T12": t12, "T13": t13, "T14": t14, "T16": t16, "T17": t17, "T18": t18}
+           "T10": t10, "T11": t11, "T12": t12, "T13": t13, "T14": t14, "T15": t15, "T16": t16, "T17": t17, "T18": t18}
 
 
 def compute(sim: T.Series, tg: T.Targets, ids: Iterable[str] = TARGET_IDS) -> list[Cell]:
@@ -642,7 +656,7 @@ def _rule_text(rule: Mapping[str, Any]) -> str:
     return ", ".join(f"{k}={v}" for k, v in sorted(rule.items()) if k != "note")
 
 
-def _group_status(tid: str, group: str, cells: list[Cell], rule: Any) -> GroupResult:
+def _group_status(tid: str, group: str, cells: list[Cell], rule: Any, cell_spec: Mapping[str, Any] | None = None) -> GroupResult:
     oks = [c.ok for c in cells if c.ok is not None]
     n_ok = sum(oks) if oks else None
     if all(not c.available for c in cells):
@@ -686,6 +700,12 @@ def _group_status(tid: str, group: str, cells: list[Cell], rule: Any) -> GroupRe
             return GroupResult(tid, group, "report", len(cells), n_ok, _rule_text(rule),
                                "; ".join(details) + "; limit frozen at the first run")
         ok &= failing <= limit
+    if "min_in_range" in rule:
+        ranges = cell_spec["ranges"]
+        count = sum(c.sim is not None and _interval_distance(c.sim, ranges[int(c.key.split()[-1])]) == 0
+                    for c in cells)
+        details.append(f"{count}/{len(cells)} in range")
+        ok &= count >= rule["min_in_range"]
     if ok and "pending_clause" in rule:  # the rest of the rule holds; a clause set by a later unit is open
         details.append(f"pending: {rule['pending_clause']}")
         return GroupResult(tid, group, "pending", len(cells), n_ok, _rule_text(rule), "; ".join(details))
@@ -716,7 +736,7 @@ def evaluate(cells: Sequence[Cell], tolerances: Mapping[str, Any], mode: str) ->
     groups = []
     status: dict[str, list[str]] = {}
     for (tid, group), members in sorted(by_group.items()):
-        g = _group_status(tid, group, members, _group_rule(specs[tid], mode, group))
+        g = _group_status(tid, group, members, _group_rule(specs[tid], mode, group), (specs[tid].get("cells") or {}).get(group))
         groups.append(g)
         status.setdefault(tid, []).append(g.status)
     targets = {}

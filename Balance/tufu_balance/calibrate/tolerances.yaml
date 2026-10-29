@@ -86,8 +86,9 @@ targets:
       # from events.jsonl or C5's spawner_days), so every failing interval counts as unexplained for now
       multi_day: {max_failing_units: null, note: unexplained intervals registered; count frozen at the first run}
     closed:
-      daily: {pending: from C5's DPS sensitivity curve}
-      multi_day: {pending: from C5's DPS sensitivity curve}
+      daily: {all_ok: true}
+      multi_day: {max_failing_units: 5, note: first calibrated free run 36/41 exact}
+    max_unexplained: 3  # spawner-day evidence; see stage_full.check_t05_explanations
   T06:
     title: 累计 Value
     split: train TC < 104, holdout TC >= 104
@@ -121,7 +122,7 @@ targets:
       island_4: {all_ok: true}
       islands_5_17:
         all_ok: true
-        pending_clause: in-range count >= open-loop in-range count - flips allowed by the sensitivity curve (K3)
+        min_in_range: 11
   T09:
     title: 天快照 CurrentGpm
     split: validation
@@ -222,6 +223,21 @@ targets:
     closed: {composition: {all_ok: true}}
   # Not computable from sim.sqlite yet (need events.jsonl, R2b DpsData, the bake report):
   T08: {title: 难打刷怪点的首杀日, split: diagnostic, open: report, closed: report}
-  T15: {title: DpsData/DefenseData, split: train TC1-24 (P12), validation TC >= 25, open: report, closed: report}
+  T15:
+    title: DpsData/DefenseData
+    split: train TC1-24 (P12), validation TC >= 25
+    cells:
+      mid_dps: {rel_max: 0.15}
+      mid_defense: {rel_max: 0.15}
+      late_dps: {rel_max: 0.1706405195322352}
+      late_defense: {rel_max: 0.009840993197501419}
+    open: report
+    closed:
+      early_dps: report
+      early_defense: report
+      mid_dps: {all_ok: true}
+      mid_defense: {all_ok: true}
+      late_dps: {all_ok: true}
+      late_defense: {all_ok: true}
   T19: {title: 下游烘焙（外部验证）, split: external validation, open: report, closed: report}
   T20: {title: 慢阶段的致死与岛 4, split: structure (hard target), open: report, closed: report}

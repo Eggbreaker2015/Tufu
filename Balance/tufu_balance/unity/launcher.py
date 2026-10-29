@@ -346,10 +346,33 @@ def sandbox_proven(run_dir: Path, identity: str, pid: int, real_save_dir: Path, 
             and sb.get("sandbox_product") == identity)
 
 
+def _editor_processes() -> list[tuple[int, str]]:
+    """Every Unity editor process on this machine that opens a project (import workers included)."""
+    proc = subprocess.run(["pgrep", "-fl", "Unity.app/Contents/MacOS/Unity"], capture_output=True, text=True)
+    found = []
+    for line in proc.stdout.splitlines():
+        pid_text, _, cmd = line.strip().partition(" ")
+        if pid_text.isdigit() and int(pid_text) != os.getpid() and re.search(r"-projectpath", cmd, re.I):
+            found.append((int(pid_text), cmd))
+    return found
+
+
+def other_editors(run_project: Path | None = None) -> list[tuple[int, str]]:
+    """Unity editors open on any project but ``run_project`` (import workers excluded). Every worktree or copy of
+    the game (Tufu-rpg, the main checkout, ...) shares the real save and PlayerPrefs, so each counts as the user's."""
+    skip = str(Path(run_project)).rstrip("/").lower() if run_project else None
+    return [(pid, cmd) for pid, cmd in _editor_processes()
+            if "AssetImportWorker" not in cmd and not (skip and skip in cmd.lower())]
+
+
 def main_checkout_editors() -> set[int]:
-    """Unity editors the user has open on the main checkout (their import workers excluded)."""
+    """Unity editors the user has open on the main checkout or any other copy of the game (import workers
+    excluded): all of them write the same real save and PlayerPrefs. Editors on unrelated projects only block
+    the restore (``other_editors``); they never explain a change of this game's save."""
     project = runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR
-    return {pid for pid, cmdline in unity_processes(project) if "AssetImportWorker" not in cmdline}
+    main = {pid for pid, cmdline in unity_processes(project) if "AssetImportWorker" not in cmdline}
+    copy = f"/{runner.PROJECT_SUBDIR.as_posix()}".lower()
+    return main | {pid for pid, cmd in other_editors() if copy in cmd.lower()}
 
 
 def _is_editor_analytics(problem: str) -> bool:
@@ -735,7 +758,7 @@ def _launch_and_check(r: dict, run_dir: Path, *, project: Path, worktree: Path, 
     main_editors = sorted(main_editors_before & main_checkout_editors())
     report["main_checkout_editors"] = main_editors
     if real_changed:
-        foreign = others_seen or [p for p in unity_processes(runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR)]
+        foreign = others_seen or unity_processes(runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR) or other_editors(project)
         if foreign:
             report["restore_skipped"] = f"other Unity processes were running: {foreign}"
         else:
@@ -1021,7 +1044,7 @@ def serve_stop(*, run_tree: Path | None = None, opts: Options | None = None, wai
     if status.strip():
         problems.append("run worktree not clean after serve: " + " | ".join(status.splitlines()[:10]))
     restored = []
-    if any(p.startswith("real ") for p in problems + analytics) and not unity_processes(runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR):
+    if any(p.startswith("real ") for p in problems + analytics) and not (unity_processes(runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR) or other_editors(project)):
         restored = restore_real(paths, Path(state["serve_dir"]) / "_real_backup", save=any("save file" in p for p in problems + analytics),
                                 prefs=any("PlayerPrefs" in p for p in problems))
     report_path = Path(state["serve_dir"]) / "serve_report.json"

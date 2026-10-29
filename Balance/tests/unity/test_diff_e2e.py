@@ -29,7 +29,7 @@ def test_patch_a_csharp_leaves_and_crosschecks(comparison):
     first, _, _, _ = comparison
     assert first.consistency["identical"]
     assert first.consistency["python"] == first.consistency["csharp"] > 0
-    assert first.manifest["simulation_label"] == "uncalibrated"
+    assert first.manifest["simulation_label"] == "calibrated"
     for record in first.simulation["crosschecks"]:
         assert record["checks"]["X4"]["items"] > 0
         assert record["checks"]["X4"]["status"] == "pass"
@@ -48,7 +48,7 @@ def test_baseline_cache_and_identical_reports(comparison, tmp_path):
     a, b = tmp_path / "first", tmp_path / "second"
     assert {p.relative_to(a): p.read_bytes() for p in a.rglob("*") if p.is_file()} == {
         p.relative_to(b): p.read_bytes() for p in b.rglob("*") if p.is_file()}
-    assert "uncalibrated" in (a / "report.md").read_text()
+    assert "uncalibrated" not in (a / "report.md").read_text()
 
 
 def test_empty_patch_simulation_has_no_changed_rows(db_path, unity_rev, unity_opts):
