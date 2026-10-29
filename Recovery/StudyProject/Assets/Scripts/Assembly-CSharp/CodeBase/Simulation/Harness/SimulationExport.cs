@@ -24,6 +24,7 @@ namespace Codebase.Simulation.Harness
 		public const string TimeChunkFullFile = "timechunk_full.json";
 		public const string SnapshotsExtFile = "snapshots_ext.csv";
 		public const string ItemsExtFile = "items_ext.csv";
+		public const string SlowTickBasisFile = "slow_tick_basis.csv";
 		public const string ShippedDir = "shipped";
 
 		public const string ListSnapshots = "Snapshots";
@@ -56,7 +57,10 @@ namespace Codebase.Simulation.Harness
 			public int UnlockedArmorSlots;
 			public double CurrentHealth;
 			public List<ItemExt> Items = new List<ItemExt>();
+			public Dictionary<int, double> SlowTickBasis;
 		}
+
+		internal static Dictionary<int, double> SlowTickBasis;
 
 		private static readonly Dictionary<string, SortedDictionary<int, SnapshotExt>> recorded = new Dictionary<string, SortedDictionary<int, SnapshotExt>>();
 
@@ -77,6 +81,7 @@ namespace Codebase.Simulation.Harness
 		public static void ResetRecorder()
 		{
 			recorded.Clear();
+			SlowTickBasis = null;
 		}
 
 		public static int RecordedCount => recorded.Values.Sum(x => x.Count);
@@ -291,6 +296,23 @@ namespace Codebase.Simulation.Harness
 			return Finish(path, sb.ToString(), new ExportedFile { Rows = rows });
 		}
 
+		// Exact GetForecastStatValue results at slow-tick cache time, before combat rewards.
+		public static ExportedFile WriteSlowTickBasis(string path)
+		{
+			var sb = new StringBuilder("list,index,stat,value_hex\n");
+			int rows = 0;
+			if (recorded.TryGetValue(ListSnapshots, out var snapshots))
+				foreach (var entry in snapshots)
+					if (entry.Value.SlowTickBasis != null)
+						foreach (var stat in entry.Value.SlowTickBasis.OrderBy(x => x.Key))
+						{
+							sb.Append(ListSnapshots).Append(',').Append(entry.Key).Append(',').Append(stat.Key).Append(',')
+								.Append(BitConverter.DoubleToInt64Bits(stat.Value).ToString("x16", CultureInfo.InvariantCulture)).Append('\n');
+							rows++;
+						}
+			return Finish(path, sb.ToString(), new ExportedFile { Rows = rows });
+		}
+
 		// items_ext.csv: one row per item of every snapshot (Key, Level, Copies from the snapshot); Evolved
 		// and EvolutionLevel come from the engine's record and are empty without one.
 		public static ExportedFile WriteItemsExt(string path, IList<SimulationSnapshot> snapshots, IList<SimulationSnapshot> timeChunks, List<string> problems,
@@ -419,7 +441,10 @@ namespace Codebase.Simulation.Harness
 				if (exported == null) problems.Add("trimmed TimeChunkSnapshots are not an ordered subsequence of the full list");
 				files[SimulationExport.SimulationDataFile] = SimulationExport.WriteSnapshots(Path.Combine(jobDir, SimulationExport.SimulationDataFile), snapshots, trimmed).ToJson();
 				if (SimulationExport.OutputEnabled(current, "snapshots_ext"))
+				{
 					files[SimulationExport.SnapshotsExtFile] = SimulationExport.WriteSnapshotsExt(Path.Combine(jobDir, SimulationExport.SnapshotsExtFile), snapshots, full, exported).ToJson();
+					files[SimulationExport.SlowTickBasisFile] = SimulationExport.WriteSlowTickBasis(Path.Combine(jobDir, SimulationExport.SlowTickBasisFile)).ToJson();
+				}
 			}
 			if (SimulationExport.OutputEnabled(current, "timechunk_full"))
 			{

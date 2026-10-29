@@ -125,6 +125,7 @@ CSV_SCHEMAS: dict[str, list[tuple[str, str]]] = {
                           ("playtime", "float"), ("total_playtime", "float"), ("location", "int"),
                           ("unlocked_weapon_slots", "int?"), ("unlocked_armor_slots", "int?"),
                           ("current_health", "float?")],
+    "slow_tick_basis.csv": [("list", "str"), ("index", "int"), ("stat", "int"), ("value_hex", "hex64")],
     "items_ext.csv": [("list", "str"), ("index", "int"), ("item_index", "int"), ("key", "str"), ("level", "int"),
                       ("copies", "int"), ("evolved", "bool01?"), ("evolution_level", "int?")],
     # C0b: the readiness table (SimulationHarness.Remedy)
@@ -144,7 +145,7 @@ CSV_SCHEMAS: dict[str, list[tuple[str, str]]] = {
                     ("sha256", "sha256")],
 }
 
-SIDE_TABLES = {"snapshots_ext.csv": "sim_snapshots_ext", "items_ext.csv": "sim_items_ext",
+SIDE_TABLES = {"slow_tick_basis.csv": "sim_slow_tick_basis", "snapshots_ext.csv": "sim_snapshots_ext", "items_ext.csv": "sim_items_ext",
                "ready_spawners.csv": "sim_ready_spawners", "daily.csv": "sim_daily", "digests.csv": "sim_digests"}
 
 
@@ -186,11 +187,15 @@ def _parser(kind: str):
             if not _SHA.fullmatch(text):
                 raise ValueError("not a sha256")
             return text
+        if base == "hex64":
+            if not re.fullmatch(r"[0-9a-f]{16}", text):
+                raise ValueError("not an IEEE binary64 hex word")
+            return text
         if base == "str":
             return text
         raise ValueError(f"unknown column type {kind}")
 
-    if base not in ("int", "float", "bool01", "sha256", "str"):
+    if base not in ("int", "float", "bool01", "sha256", "hex64", "str"):
         raise ValueError(f"unknown column type {kind}")
     return parse
 
@@ -314,7 +319,7 @@ EXPORT_KEYS = {"schema": "str", "files": "object", "time_chunk_trim": "str", "sn
 EXPORT_FILE_KEYS = {"sha256": "sha256", "bytes": "int", "rows": "int", "doubles": "int", "floats": "int", "nans": "int",
                     "bits_sha256": "sha256"}
 EXPORT_BITS_KEYS = ("doubles", "floats", "nans", "bits_sha256")  # required for a .json entry; "rows" for a .csv one
-EXPORT_FILES = ("simulation_data.json", "timechunk_full.json", "snapshots_ext.csv", "items_ext.csv",
+EXPORT_FILES = ("slow_tick_basis.csv", "simulation_data.json", "timechunk_full.json", "snapshots_ext.csv", "items_ext.csv",
                 "shipped/simulation_data.json", "shipped/snapshots_ext.csv", "shipped/items_ext.csv")
 # export.shipped_probe (SimulationExport.ShippedProbe): the side-file writers run on the shipped lists with a
 # synthetic engine record and a trimmed TimeChunkSnapshots, so their columns are checked before C3b exists.

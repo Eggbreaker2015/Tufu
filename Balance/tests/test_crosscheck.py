@@ -418,3 +418,52 @@ def test_x4_c8_format_report_and_one_ulp_fault(env, shipped, tmp_path):
     path.write_text(json.dumps({"snapshots": "run", "spawners": rows}))
     r = bake.check_x4(run, env)
     assert r.status == "fail" and r.mismatches == 1 and r.examples[0]["spawner"] == row["id"]
+
+
+def test_x2_slow_tick_basis_catches_postfight_and_previous_tick_stats(env, shipped):
+    from tufu_balance.crosscheck import dps
+
+    snap = copy.deepcopy(shipped.snapshots[1])
+    s = X.Snap("Snapshots", 1, snap, {"unlocked_weapon_slots": 1, "unlocked_armor_slots": 1}, [])
+    # Two unrecorded ticks may lie between snapshots. Neither the preceding snapshot nor the
+    # post-fight snapshot describes the cache basis of this tick.
+    basis = dps.forecast_stats(snap, env, s.tc)
+    basis[8], basis[16] = 2.0, 4.0
+    s.slow_tick_basis = basis
+    calc, defense = dps.recompute(s, env, s.tc, stats=basis)
+    snap.dps_data[:], snap.defense_data[:] = calc, defense
+    run = _run([s], [], daily=[{"clears": 1}])
+    good = dps.check_x2(run, env)
+    assert good.status == "pass" and good.items == 10
+    for bad_basis in ({**basis, 8: 1.0, 16: 3.0},
+                      dps.forecast_stats(snap, env, s.tc),
+                      dps.forecast_stats(shipped.snapshots[0], env, s.tc), None,
+                      {k: v for k, v in basis.items() if k != 8}):
+        s.slow_tick_basis = bad_basis
+        bad = dps.check_x2(run, env)
+        assert bad.status == "fail" and bad.mismatches > 0
+        assert bad.vacuous == good.vacuous
+    # Defense as well as damage must use the captured basis.
+    s.slow_tick_basis = {**basis, 16: 5.0}
+    bad = dps.check_x2(run, env)
+    assert bad.mismatches == 1 and bad.examples[0]["kind"] == "DefenseData"
+
+
+def test_shipped_day_zero_dps_uses_the_recorded_postfight_stats(env, shipped):
+    from tufu_balance.crosscheck import dps
+
+    # Day zero avoids the later K/slot/evolution ambiguity. One weapon before island 2,
+    # two afterwards; every early snapshot has exactly the recorded post-reward cache.
+    early = [s for s in shipped.snapshots if s.time_chunk_index == 0]
+    assert len(early) == 25
+    previous_off = 0
+    for i, snap in enumerate(early):
+        s = X.Snap("Snapshots", i, snap,
+                   {"unlocked_weapon_slots": 1 if snap.location == 1 else 2, "unlocked_armor_slots": 1}, [])
+        calc, _ = dps.recompute(s, env, 0)
+        assert all(X.same(a, b) for (_, a), (_, b) in zip(calc, snap.dps_data)), i
+        if i:
+            before = dps.forecast_stats(early[i - 1], env, 0)
+            old, _ = dps.recompute(s, env, 0, stats=before)
+            previous_off += any(not X.same(a, b) for (_, a), (_, b) in zip(old, snap.dps_data))
+    assert previous_off == 15

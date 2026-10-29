@@ -25,6 +25,7 @@ namespace Codebase.Simulation.Systems
 				UnlockedWeaponSlots = playerModel.UnlockedWeaponSlots,
 				UnlockedArmorSlots = playerModel.UnlockedArmorSlots,
 				CurrentHealth = playerModel.Unit.CurrentHealth,
+				SlowTickBasis = force ? null : SimulationExport.SlowTickBasis,
 			};
 			var items = new List<SimulationItemData>();
 			foreach (ItemModel item in playerModel.Items)

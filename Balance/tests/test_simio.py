@@ -486,3 +486,26 @@ def test_expected_table_refuses_a_spawner_that_never_registers(db):
     ready[m.unregistered()[0].spawner_id] = next(iter(ready.values()))
     with pytest.raises(ValueError, match="does not register at runtime"):
         spawner_map.expected_ready_csv(db, "A", ready=ready, identity=m)
+
+
+def test_slow_tick_basis_ingests_exact_hex_and_loads_into_crosscheck(shipped_json, tmp_path):
+    from tufu_balance import crosscheck as X
+
+    job = _job(tmp_path, shipped_json)
+    name = "slow_tick_basis.csv"
+    text = "list,index,stat,value_hex\nSnapshots,1,8,4008000000000001\nSnapshots,1,16,8000000000000000\n"
+    _add_csv(job, name, text, 2)
+    sim = simio.ingest(job)
+    with sqlite3.connect(sim) as con:
+        rows = con.execute("SELECT list, [index], stat, value_hex FROM sim_slow_tick_basis ORDER BY rowid").fetchall()
+    assert rows == [("Snapshots", 1, 8, "4008000000000001"), ("Snapshots", 1, 16, "8000000000000000")]
+    run = X.load_run(job)
+    assert _bits(run.early[1].slow_tick_basis[8]) == "4008000000000001"
+    assert _bits(run.early[1].slow_tick_basis[16]) == "8000000000000000"
+    assert run.early[0].slow_tick_basis is None
+    _add_csv(job, name, text + "Snapshots,1,8,4008000000000001\n", 3)
+    with pytest.raises(simio.SimioError, match="duplicate"):
+        X.load_run(job)
+    for word in ("400800000000000", "z" * 16, "0" * 17):
+        with pytest.raises(schema.SchemaError, match="hex"):
+            schema.read_csv(name, "list,index,stat,value_hex\nSnapshots,1,8," + word + "\n")

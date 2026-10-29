@@ -142,6 +142,7 @@ namespace Codebase.Simulation.Systems
 		private void Tick()
 		{
 			CalculateSimulationData();
+			SimulationExport.SlowTickBasis = playerModel.Unit.Stats.ToDictionary(stat => (int)stat.Type, stat => GetForecastStatValue(stat.Type));
 			RebuildApplyReplayCaches();
 			CalculateSpawnerData(false);
 			RebuildTraceEligible();
