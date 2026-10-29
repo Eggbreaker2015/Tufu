@@ -262,3 +262,20 @@ def test_extract_requires_local_lfs_object_and_keeps_smudge_offline(tmp_path, mo
     else:
         R.extract(out)
         assert extracted == [b"scene"]
+
+
+def test_golden_preset_uses_calibrated_layer(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from tufu_balance.calibrate import params
+    from tufu_balance.unity import launcher
+
+    observed = {}
+    def fake_run(req, rev):
+        observed.update(req['jobs'][0])
+        return SimpleNamespace(run_dir=tmp_path, exit_code=0, describe=lambda: 'ok')
+    monkeypatch.setattr(launcher, 'run', fake_run)
+    assert R.run_preset(tmp_path, 'golden-405', 'rev') == 0
+    resolved = params.resolve(['defaults', 'calibrated'])
+    assert observed['params'] == resolved.params
+    assert observed['params_hash'] == resolved.params_hash
+    assert observed['outputs']['inventory'] and observed['outputs']['bake_report']
