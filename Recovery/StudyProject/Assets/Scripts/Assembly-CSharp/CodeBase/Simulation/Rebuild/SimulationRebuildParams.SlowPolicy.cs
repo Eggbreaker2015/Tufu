@@ -50,7 +50,8 @@ namespace Codebase.Simulation.Rebuild
 	public enum StatBenefitModel
 	{
 		Constant = 0,
-		MarginalKillTime = 1
+		MarginalKillTime = 1,
+		RpmNormalized = 2
 	}
 
 	// Slow-phase policy parameters (unit C7); defaults mirror Balance/sim/params/defaults/slow_policy.json.

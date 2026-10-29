@@ -30,3 +30,15 @@ K1 round-2 口径修正：T09 1380/1380 使用 G20 的1e-4单元测试，逐位1
 | 留出 | 训练0.400236331、持出0.151476760，比例0.378468291 | PASS，≤1.5；不能用它冲销单项失败 |
 
 本单元科学验收**未通过**：T03/T04/T16/岛3/物品数仍失败；没有用持出、到岛时刻或物品数挑另一个参数，没有更换P06/P12、没有继续增加SmartPath半径/收益权重等候选。K3应以此为未通过的慢阶段输入，完整闭环只验证；需重新拟合时先登记结构假设。原版5%/3%/一次清怪阈值、固定夹具、所有既有ORIGINAL均不改。calib_slow将以明确的放宽登记冻结这些观测作为回归，不能把回归通过改称设计通过。
+
+### K2 第二轮：回退与预登记（运行新网格之前）
+
+Q34 后备已尝试并拒绝：六个系数点训练分数并列，CMove 不可识别；与单位系数 slow-06 相比，没有任何目标由失败变成通过。故恢复 slow-06：FarmedTimeMoveByDistance、Dynamic、SmartPath、SameAsFast、SkipSpawner，CMove=CRegen=1。两种恢复的时间模型均失败的主要证据是策略结构：HealthRegen 和 MovementSpeed 的收益估值不足，day 0 的死亡丢失一次 minisaw，而 idle 越过 session 终点；改变时间系数不修复这些格。48 个原始组合中 Static/Dynamic 在 Constant 下完全相同，故只有 24 个不同策略，PriorityFamily 在该条件下不可辨识。后备的首个非同分训练结果是单位系数 slow-06（0.433569664，持出 0.184810093）；六个并列最优系数点的训练为 0.400236331。上述后备排序仅作历史证据，不选择系数。
+
+以下为 5.5 的封闭假设清单，均为 Inferred，登记于任何新拟合运行之前。训练仅用 T16 TC1/2，T20 硬筛；TC3/4 持出及其余目标仅报告，不参与排序；不扩大网格。
+
+1. H1（优先级 1）：Dynamic 的 StatBenefitModel 使用现有 MarginalKillTime，或新增 RPM 归一化 `mean(CurrentGpm)/CurrentGpm[s]`，每 session 计算一次；静态臂因 Constant 下退化而移除。目标：day 0 HealthRegen/MovementSpeed、岛 3 到达 P 和 TC2/3 物品。
+2. H2（优先级 2）：新增 HealthModel，默认 RegenRate；RegenToFull 在存活且时间模型计入 avRegenTime 后将 CurrentHealth 设为 forecast Health。与 H1 联合测试，目标为 day 0 死亡、minisaw、TC1 Cutting DPS 和 boss 损血比；T20 不放宽。
+3. H3（优先级 3）：新增默认关闭的 idle 终点约束，正剩余时间时将 RebuildIdleMinutes 限于 lifeCyclePeriodEnd − CurrentPlaytime；另可在顺路战斗后到达下一快照或 session 终点时结束链。目标 T04 day 0–3、T03 cadence 和 boss 前的 session 相位。测试 H3 单独以及与 H1/H2 组合的边际效果。
+
+交叉文件所有权偏离：H1 修改 C7 Targeting 与枚举，H2 修改 C7 Fight，H3 修改 C3b Run（及可选 Fight）；仅新开关选择新行为，默认保持原值。每项切换只由 slow.json 显式选用。

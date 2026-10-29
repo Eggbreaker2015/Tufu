@@ -1,0 +1,5 @@
+{
+  "HealthModel": 0,
+  "CapIdleAtSessionEnd": false,
+  "BreakEnRouteAtBoundary": false
+}

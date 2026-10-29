@@ -56,3 +56,20 @@ def test_legacy_daily_counter_is_missing_not_zero():
     # Removing a real pre-existing field cannot take the legacy path.
     with pytest.raises(schema.SchemaError):
         schema.read_csv('daily.csv', legacy.replace('offline_minutes,',''))
+
+
+def test_evaluate_splits_items_and_normalization(monkeypatch):
+    from types import SimpleNamespace
+    series = SimpleNamespace(early=[], tc=[], day=lambda d: SimpleNamespace(items=[None] * [4, 5, 7, 8][d-1]))
+    monkeypatch.setattr(S, 'read_series', lambda _: series)
+    monkeypatch.setattr(S.trace, 'read', lambda _: SimpleNamespace(events=[], daily=[]))
+    monkeypatch.setattr(M, 't03', lambda *_: [])
+    monkeypatch.setattr(M, 't04', lambda *_: [])
+    monkeypatch.setattr(M, 't16', lambda *_: [M.Cell('T16', 'main', str(tc), 90, 100, -10, rel=.1, tc=tc, ok=False) for tc in range(1, 5)])
+    def evaluate(cells, *_):
+        return SimpleNamespace(cells=cells, targets={'T03': 'pass', 'T04': 'pass', 'T16': 'fail'}, groups=[])
+    monkeypatch.setattr(M, 'evaluate', evaluate)
+    ev, detail = S.evaluate(None, None)
+    assert [c.split for c in ev.cells if c.target == 'T16'] == ['train', 'train', 'holdout', 'holdout']
+    assert detail['scores'] == {'train': 2.0, 'holdout': 2.0}
+    assert detail['item_counts'] == [4, 5, 7, 8] and 'items' in detail['failures']

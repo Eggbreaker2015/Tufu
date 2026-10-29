@@ -78,6 +78,8 @@ namespace Codebase.Simulation.Systems
 					return;
 				}
 				currentPosition = data.spawner.transform.position;
+                if (RebuildParams.BreakEnRouteAtBoundary && !target &&
+                    (config.CurrentPlaytime >= RebuildNextSnapshotDue() || config.CurrentPlaytime >= lifeCyclePeriodEnd)) return;
 			}
 		}
 
@@ -159,7 +161,13 @@ namespace Codebase.Simulation.Systems
 			config.CurrentPlaytime = (float)(config.CurrentPlaytime + r.Seconds / 60.0);
 			config.CurrentTotalPlaytime = (float)(config.CurrentTotalPlaytime + r.Seconds / 60.0);
 			RebuildAdvanceCooldowns((float)r.Seconds);
-			if (!r.Died) ApplyRegen(r.Seconds);
+			if (!r.Died)
+            {
+                ApplyRegen(r.Seconds);
+                if (RebuildParams.HealthModel == HealthModel.RegenToFull && data.avRegenTime > 0.0 &&
+                    (RebuildParams.TimeModel == TimeModel.FarmedTime || RebuildParams.TimeModel == TimeModel.FarmedTimeMoveByDistance || RebuildParams.CRegen > 0f))
+                    playerModel.Unit.CurrentHealth = r.MaxHealth;
+            }
 			r.HealthAfterFight = playerModel.Unit.CurrentHealth;
 			totalFightTime += data.fightTime * fraction;
 			totalMoveTime += r.MoveSeconds;

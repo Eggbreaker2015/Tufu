@@ -598,7 +598,6 @@ def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_roo
         "bit_exact": sum(bits(c.ref) == bits(c.sim) for c in t09_cells),
         "max_ulp": max(abs(bits(c.ref)-bits(c.sim)) for c in t09_cells),
         "non_tc_contract": "0 changed is by construction: sampled-TC maximum only",
-        "review_counterfactual": {"all_days_non_tc_raised_cells": 5336, "g20_hits": 1380},
         "counterfactual_source": "review_K1_r2.json; independent all-406-days replay maximum",
     }
     detail["t12_daily"]["allowance_basis"] = (
