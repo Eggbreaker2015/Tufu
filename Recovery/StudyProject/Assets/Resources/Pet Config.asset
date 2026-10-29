@@ -21,6 +21,7 @@ MonoBehaviour:
   FollowSpeedMultiplier: 1.2
   PlayerBaseAttack: 10
   OwnAttackScale: 0.6
+  HealthScale: 0.5
   LevelRatioGrowth: 0.02
   RarityRatioFactor:
   - 1

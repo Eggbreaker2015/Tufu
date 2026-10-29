@@ -488,6 +488,96 @@ MonoBehaviour:
       ImpactVfxScale: 0.6
       DamageMultiplier: 1
       RequireLineOfFire: 1
+  - OwnerKind: 0
+    Key: all_buck_boss
+    Skills:
+    - SkillKey: slam
+      Level: 1
+  - OwnerKind: 0
+    Key: cut_buck_boss
+    Skills:
+    - SkillKey: cleave
+      Level: 1
+  - OwnerKind: 0
+    Key: pier_cut_boss 1
+    Skills:
+    - SkillKey: sp_coolpike
+      Level: 1
+  - OwnerKind: 0
+    Key: 1 quest boss
+    Skills:
+    - SkillKey: slam
+      Level: 1
+  - OwnerKind: 0
+    Key: 2 quest boss
+    Skills:
+    - SkillKey: cleave
+      Level: 1
+  - OwnerKind: 0
+    Key: 3 quest boss
+    Skills:
+    - SkillKey: sp_coolpike
+      Level: 1
+  - OwnerKind: 0
+    Key: 4 quest boss
+    Skills:
+    - SkillKey: sp_abyss_reaver
+      Level: 1
+  - OwnerKind: 0
+    Key: 5 quest boss
+    Skills:
+    - SkillKey: bone_rain
+      Level: 1
+  - OwnerKind: 0
+    Key: event boss
+    Skills:
+    - SkillKey: sp_abyss_reaver
+      Level: 1
+  - OwnerKind: 0
+    Key: event grand boss dragon
+    Skills:
+    - SkillKey: bone_rain
+      Level: 1
+  - OwnerKind: 0
+    Key: Boss_Slime_Big
+    Skills:
+    - SkillKey: stomp
+      Level: 1
+  - OwnerKind: 0
+    Key: Boss_Vampire
+    Skills:
+    - SkillKey: sp_vampire_blade
+      Level: 1
+  - OwnerKind: 1
+    Key: lava_crab
+    Skills:
+    - SkillKey: tower_crab_slam
+      Level: 1
+  - OwnerKind: 1
+    Key: hydra
+    Skills:
+    - SkillKey: tower_lich_blast
+      Level: 1
+  - OwnerKind: 1
+    Key: vikings
+    Skills:
+    - SkillKey: tower_viking_cleave
+      Level: 1
+  - OwnerKind: 1
+    Key: berserker
+    Skills:
+    - SkillKey: tower_viking_cleave
+      Level: 1
+  - OwnerKind: 1
+    Key: vampire_king
+    Skills:
+    - SkillKey: tower_vampire_slash
+      Level: 1
+  - OwnerKind: 1
+    Key: lich
+    Skills:
+    - SkillKey: tower_lich_blast
+      Level: 1
   Vfx:
   - Key: slam_smash
     Prefab: {fileID: 198099118695303065, guid: 913affe3ff74f544296f22351f56d02f, type: 3}

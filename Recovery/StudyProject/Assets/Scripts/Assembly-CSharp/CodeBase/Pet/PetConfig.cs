@@ -56,6 +56,9 @@ namespace Codebase.Pet
 		// Share of the weapon's damage a pet keeps as its own attack.
 		public float OwnAttackScale = 0.6f;
 
+		// Global scale for pet health, regen, and flat lifesteal.
+		public float HealthScale = 0.5f;
+
 		// Ratio growth per effective level above 1.
 		public float LevelRatioGrowth = 0.02f;
 

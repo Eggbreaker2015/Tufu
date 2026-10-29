@@ -124,7 +124,7 @@ namespace Codebase.Pet
 			float scale = rarityFactor * (1f + growth * (Math.Max(1, effectiveLevel) - 1));
 			return new PetStatRatios
 			{
-				Health = (definition != null ? definition.HealthRatio : 1f) * scale,
+				Health = (definition != null ? definition.HealthRatio : 1f) * scale * (config != null ? config.HealthScale : 0.5f),
 				Attack = (definition != null ? definition.AttackRatio : 1f) * scale,
 				Defence = (definition != null ? definition.DefenceRatio : 1f) * scale,
 				MoveSpeed = definition != null ? definition.MoveSpeedRatio : 1f
