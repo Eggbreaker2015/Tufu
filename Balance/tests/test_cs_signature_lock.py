@@ -404,7 +404,7 @@ def test_hooks_declared_in_rebuild_file(current):
         k: f"SimulationSystem.{f}.cs" for k, f in HOOKS.items() if f is not None}
     for m in impls.values():
         if m["file"] == "SimulationSystem.Replay.cs":
-            assert m["statements"] == [], f"{m['key']} is an empty placeholder until C4"
+            assert m["statements"], f"{m['key']} is filled by C4"
 
 
 def test_cross_module_call_sites_in_place(current):
