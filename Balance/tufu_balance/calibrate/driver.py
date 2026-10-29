@@ -44,19 +44,20 @@ class BatchBackend:
     name = "batch"
 
     def __init__(self, rev: str | None = None, *, opts: launcher.Options | None = None, worktree: Path | None = None,
-                 run_tree: Path | None = None, out_root: Path | None = None, paths=None, log=print):
+                 run_tree: Path | None = None, out_root: Path | None = None, paths=None, readiness_db=None, log=print):
         self.opts = opts or launcher.Options()
         self.worktree = Path(worktree or runner.WORKTREE)
         self.run_tree = Path(run_tree or runner.run_worktree())
         self.rev = runner.resolve(self.worktree, rev or "HEAD")
         self.out_root, self.paths, self.log = out_root, paths, log
+        self.readiness_db = readiness_db
 
     def identity(self) -> CodeIdentity:
         return CodeIdentity.of(self.rev, worktree=self.worktree, run_tree=self.run_tree, opts=self.opts)
 
     def submit(self, request: dict) -> launcher.RunResult:
         return launcher.run(request, rev=self.rev, opts=self.opts, worktree=self.worktree, run_tree=self.run_tree,
-                            out_root=self.out_root, paths=self.paths, log=self.log)
+                            out_root=self.out_root, paths=self.paths, readiness_db=self.readiness_db, log=self.log)
 
 
 class ServeBackend:

@@ -524,3 +524,27 @@ def test_params_resolve_against_the_csharp_class():
     cs = P.read_csharp_params()
     for over in VARIANTS.values():
         assert P.check_against_csharp(_params(over), cs) == []
+
+
+def test_early_snapshot_caches_include_own_postfight_state(run, db):
+    from tufu_balance import crosscheck as X
+    from tufu_balance.crosscheck import dps
+
+    data = X.load_run(run.job_dir("slow-default"))
+    env = X.Env.load(db)
+    forced = dps.forced_keys(data)
+    checked = changed = 0
+    with X.mono_arithmetic():
+        for i, s in enumerate(data.early):
+            if (float(s.snapshot.playtime), float(s.snapshot.total_playtime), s.tc) in forced:
+                continue
+            calc, defense = dps.recompute(s, env, s.tc)
+            assert all(X.same(a, b) for (_, a), (_, b) in zip(calc, s.snapshot.dps_data)), i
+            assert all(X.same(a, b) for (_, a), (_, b) in zip(defense, s.snapshot.defense_data)), i
+            assert s.slow_tick_basis == dps.forecast_stats(s.snapshot, env, s.tc)
+            checked += 1
+            if i and s.tc == 0:
+                before = dps.forecast_stats(data.early[i - 1].snapshot, env, s.tc)
+                old, _ = dps.recompute(s, env, s.tc, stats=before)
+                changed += any(not X.same(a, b) for (_, a), (_, b) in zip(old, calc))
+    assert checked > 40 and changed > 0

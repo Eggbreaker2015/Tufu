@@ -591,11 +591,11 @@ def expected_ready_table(variant: str, db: Path | None = None) -> tuple[str, str
     return _expected_tables[cache_key]
 
 
-def write_side_inputs(r: Mapping, run_dir: Path) -> None:
+def write_side_inputs(r: Mapping, run_dir: Path, *, db: Path | None = None) -> None:
     """Files the request names relative to out_dir (the auto readiness table)."""
     name = r["sandbox"].get("expected_ready_spawners")
     if name and name.startswith("ready_spawners.expected.") and not Path(name).is_absolute():
-        resolved = expected_ready_table(r["sandbox"].get("ab_variant", "A"))
+        resolved = expected_ready_table(r["sandbox"].get("ab_variant", "A"), db=db)
         if resolved[0] != name:
             raise LauncherError(f"readiness table changed since the request was prepared ({name} -> {resolved[0]})")
         (Path(run_dir) / name).write_text(resolved[1], encoding="utf-8")
@@ -628,7 +628,7 @@ def prepare_request(request: Mapping, *, project: Path, worktree: Path, run_tree
 def run(request: Mapping | None = None, *, preset: str | None = None, rev: str | None = None, dev: bool = False,
         force: bool = False, archive_previous: bool = False, validate: bool = True, method: str = "Run",
         opts: Options | None = None, out_root: Path | None = None, worktree: Path | None = None,
-        run_tree: Path | None = None, paths: ProtectedPaths | None = None, log=print) -> RunResult:
+        run_tree: Path | None = None, paths: ProtectedPaths | None = None, readiness_db: Path | None = None, log=print) -> RunResult:
     """Run a request (or preset) in the run worktree at ``rev`` (default: this worktree's HEAD)."""
     opts = opts or Options()
     worktree = Path(worktree or runner.WORKTREE)
@@ -672,7 +672,7 @@ def run(request: Mapping | None = None, *, preset: str | None = None, rev: str |
                 shutil.rmtree(run_dir)
         run_dir.mkdir(parents=True)
         (run_dir / "request.json").write_text(req.dumps(r))
-        write_side_inputs(r, run_dir)
+        write_side_inputs(r, run_dir, db=readiness_db)
         return _launch_and_check(r, run_dir, project=project, worktree=worktree, dev=dev, method=method, opts=opts,
                                  material={**material, "dll_status": dll_status}, paths=paths, log=log)
     finally:

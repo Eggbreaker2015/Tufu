@@ -292,56 +292,18 @@ def test_simulation_rejects_tampered_csharp_leaves(cached_sim):
         cached_sim.run()
 
 
-@pytest.mark.parametrize("check", ["X1", "X3"])
+@pytest.mark.parametrize("check", ["X1", "X2", "X3", "X4", "X5", "X6", "X7"])
 def test_simulation_rejects_other_crosscheck_failures(cached_sim, check):
     cached_sim.failures = {check: 1}
     with pytest.raises(ValueError, match=f"crosscheck failed.*{check}"):
         cached_sim.run()
 
 
-@pytest.mark.parametrize("change,mixed", [
-    ({"case": "day_change"}, False), ({"case": "day_change"}, True),
-    ({"kind": "DefenseData"}, False), ({"weapon_type": "order"}, False),
-    ({"oracle": 9.0}, False), ({"index": 99}, False), ({"oracle": float("inf")}, False),
-])
-def test_simulation_rejects_unexplained_x2(cached_sim, change, mixed):
-    cached_sim.x2_rows = ([cached_sim.row] if mixed else []) + [{**cached_sim.row, **change}]
-    cached_sim.failures = {"X2": len(cached_sim.x2_rows)}
-    with pytest.raises(ValueError, match="crosscheck failed.*X2"):
-        cached_sim.run()
-
-
-def test_simulation_rejects_x2_without_same_tick_fight(cached_sim):
-    cached_sim.fight = False
+def test_slow_tick_x2_is_fatal_even_with_same_tick_fight(cached_sim):
     cached_sim.x2_rows = [cached_sim.row]
     cached_sim.failures = {"X2": 1}
     with pytest.raises(ValueError, match="crosscheck failed.*X2"):
         cached_sim.run()
-
-
-def test_temporary_x2_gap_uncalibrated_warning(cached_sim):
-    cached_sim.x2_rows = [cached_sim.row]
-    cached_sim.failures = {"X2": 1}
-    c = cached_sim.run()
-    warnings = [w for w in c.warnings if w["code"] == "uncalibrated_crosscheck"]
-    assert len(warnings) == 2 and all("临时 P11" in w["message"] for w in warnings)
-    assert all(r["checks"]["X2"]["status"] == "fail" for r in c.simulation["crosschecks"])
-    assert all(j["status"] == "cached" and j["attempts"] == 0 for j in c.simulation["jobs"])
-
-
-def test_temporary_x2_gap_calibrated_is_fatal(cached_sim, monkeypatch, tmp_path):
-    from tufu_balance.calibrate import params
-    root = tmp_path / "params"
-    shutil.copytree(params.PARAMS_ROOT, root)
-    (root / "calibrated.json").write_text("{}")
-    monkeypatch.setattr(params, "PARAMS_ROOT", root)
-    resolve = params.resolve
-    monkeypatch.setattr(params, "resolve", lambda *a, **kw: resolve(*a, root=root, **kw))
-    cached_sim.x2_rows = [cached_sim.row]
-    cached_sim.failures = {"X2": 1}
-    patch = replace(cached_sim.patch, simulate={"params": "calibrated", "stop_day": 6})
-    with pytest.raises(ValueError, match="crosscheck failed.*X2"):
-        cached_sim.run(patch)
 
 
 @pytest.mark.parametrize("empty", [True, False])
@@ -378,11 +340,17 @@ def test_simulated_cached_reports_are_byte_identical(cached_sim, tmp_path):
 
 
 def test_explicit_db_simulation_without_environment(cached_sim, monkeypatch, cfg):
-    from tufu_balance.unity.spawner_map import expected_ready_csv
+    from tufu_balance.unity import launcher
+    from tufu_balance.unity.spawner_map import expected_ready_csv, expected_ready_file_name
     monkeypatch.delenv("TUFU_BALANCE_DB", raising=False)
     cached_sim.run()
     table = Path(cached_sim.driver.template["sandbox"]["expected_ready_spawners"])
-    assert table.is_absolute() and table.read_text() == expected_ready_csv(cfg.source, "A")
+    text = expected_ready_csv(cfg.source, "A")
+    assert not table.is_absolute() and table.name == expected_ready_file_name(text)
+    out = cached_sim.dirs[0] / "side-inputs"
+    out.mkdir()
+    launcher.write_side_inputs(cached_sim.driver.template, out, db=C.source_path(cfg))
+    assert (out / table).read_text() == text
 
 
 def test_db_environment_conflict_fails_early(cfg, monkeypatch, tmp_path):
@@ -412,3 +380,10 @@ def test_editor_only_leaves_never_claim_csharp_pass(island, tmp_path):
     editor = [r for r in rows if r["node"].startswith("SpawnerRelativeOptimumTimeTool.")]
     assert len(editor) == 2 and all(r["csharp"] == "仅 Python（编辑器工具，C# 不应用）" for r in editor)
     assert "117/119" in text
+
+
+def test_readiness_request_is_independent_of_output_location(cached_sim, cfg, tmp_path):
+    cached_sim.run()
+    first = dict(cached_sim.driver.template["sandbox"])
+    run(cfg, cached_sim.patch, driver=cached_sim.driver, out_root=tmp_path / "different-checkout" / "sim")
+    assert cached_sim.driver.template["sandbox"] == first

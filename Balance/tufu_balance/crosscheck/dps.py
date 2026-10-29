@@ -7,9 +7,9 @@ day d). Which modifiers the stats carry depends on when the caches were last com
 
 * day snapshots and their early copies (the forced snapshot of a slow day): at the day change, before the modifier
   moves (``RpmFirst``), so K2/K3(d-1);
-* other early snapshots: at the start of their slow tick (``CalculateSimulationData``), so K2/K3(d). A fight in the
-  same tick changes Values after that; slow_tick_basis.csv carries the exact GetForecastStatValue results
-  at cache time. Legacy empty-policy outputs retain the snapshot-based recomputation.
+* other early snapshots: after the fight/idle and before MakeSnapshot, so their own stats/items/slots at
+  K2/K3(d). slow_tick_basis.csv independently records GetForecastStatValue at that refresh point; it must
+  equal the snapshot-derived stats and is never used as the recomputation input.
 
 Bit for bit (not R2's approximation: slots and evolved flags are exported). ``k2_lag_discriminating`` counts the
 day snapshots whose caches differ between K2(d-1) and K2(d): when it is 0 (no flat damage/defence stat yet, as on
@@ -104,7 +104,13 @@ def check_x2(run: RunData, env: Env, out_dir: str | Path | None = None) -> Check
                        kind="cache_basis", weapon_type="", csharp=str(sorted(basis or {})),
                        oracle=str(sorted(expected_keys)), rel_diff="")
                 continue
-        dps, defense = recompute(s, env, k_day, c, stats=basis)
+        if basis is not None:
+            own = forecast_stats(s.snapshot, env, k_day)
+            for key in sorted(own):
+                c.item(same(basis[key], own[key]), list=s.list, index=s.index, time_chunk_index=s.tc,
+                       case=case, k_day=k_day, kind="cache_basis", weapon_type=str(key),
+                       csharp=num(basis[key]), oracle=num(own[key]), rel_diff=num(rel_diff(basis[key], own[key])))
+        dps, defense = recompute(s, env, k_day, c)
         ok = _compare(c, run, s, case, k_day, dps, list(s.snapshot.dps_data), "DpsData")
         ok &= _compare(c, run, s, case, k_day, defense, list(s.snapshot.defense_data), "DefenseData")
         c.count(f"snapshots_{case}")

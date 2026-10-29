@@ -420,33 +420,31 @@ def test_x4_c8_format_report_and_one_ulp_fault(env, shipped, tmp_path):
     assert r.status == "fail" and r.mismatches == 1 and r.examples[0]["spawner"] == row["id"]
 
 
-def test_x2_slow_tick_basis_catches_postfight_and_previous_tick_stats(env, shipped):
+def test_x2_slow_tick_basis_checks_own_postfight_stats(env, shipped):
     from tufu_balance.crosscheck import dps
 
     snap = copy.deepcopy(shipped.snapshots[1])
     s = X.Snap("Snapshots", 1, snap, {"unlocked_weapon_slots": 1, "unlocked_armor_slots": 1}, [])
-    # Two unrecorded ticks may lie between snapshots. Neither the preceding snapshot nor the
-    # post-fight snapshot describes the cache basis of this tick.
     basis = dps.forecast_stats(snap, env, s.tc)
-    basis[8], basis[16] = 2.0, 4.0
     s.slow_tick_basis = basis
-    calc, defense = dps.recompute(s, env, s.tc, stats=basis)
+    calc, defense = dps.recompute(s, env, s.tc)
     snap.dps_data[:], snap.defense_data[:] = calc, defense
     run = _run([s], [], daily=[{"clears": 1}])
     good = dps.check_x2(run, env)
-    assert good.status == "pass" and good.items == 10
-    for bad_basis in ({**basis, 8: 1.0, 16: 3.0},
-                      dps.forecast_stats(snap, env, s.tc),
-                      dps.forecast_stats(shipped.snapshots[0], env, s.tc), None,
+    assert good.status == "pass" and good.items == 10 + len(basis)
+    previous = dps.forecast_stats(shipped.snapshots[0], env, s.tc)
+    for bad_basis in ({**basis, 8: basis[8] + 1.0}, previous, None,
                       {k: v for k, v in basis.items() if k != 8}):
         s.slow_tick_basis = bad_basis
         bad = dps.check_x2(run, env)
         assert bad.status == "fail" and bad.mismatches > 0
         assert bad.vacuous == good.vacuous
-    # Defense as well as damage must use the captured basis.
-    s.slow_tick_basis = {**basis, 16: 5.0}
-    bad = dps.check_x2(run, env)
-    assert bad.mismatches == 1 and bad.examples[0]["kind"] == "DefenseData"
+    # A cache computed from pre-fight / previous-tick / wrong stats must fail even with a good basis.
+    s.slow_tick_basis = basis
+    for wrong in (previous, {**basis, 8: basis[8] + 1.0}, {**basis, 8: basis[16], 16: basis[8]}):
+        snap.dps_data[:], snap.defense_data[:] = dps.recompute(s, env, s.tc, stats=wrong)
+        bad = dps.check_x2(run, env)
+        assert bad.status == "fail" and any(e["kind"] != "cache_basis" for e in bad.examples)
 
 
 def test_shipped_day_zero_dps_uses_the_recorded_postfight_stats(env, shipped):
@@ -467,3 +465,45 @@ def test_shipped_day_zero_dps_uses_the_recorded_postfight_stats(env, shipped):
             old, _ = dps.recompute(s, env, 0, stats=before)
             previous_off += any(not X.same(a, b) for (_, a), (_, b) in zip(old, snap.dps_data))
     assert previous_off == 15
+
+
+def test_x6_rounds_each_modifier_write_and_keeps_double_base(env, shipped):
+    from types import SimpleNamespace
+    from tufu_balance.model.f32 import f32
+
+    big, small = "big", "small"
+    spawners = [SimpleNamespace(spawner_id=sid, d=SimpleNamespace(count=1),
+                   stat_rewards=[SimpleNamespace(stat_type=8, value=value)])
+                for sid, value in ((big, 16777216.0), (small, 1.0))]
+    test_env = SimpleNamespace(ctx=replace(env.ctx, spawners=spawners), con=env.con,
+                               runtime_id=lambda sid: sid, spawner_id=lambda rid: rid)
+    base = invariants.base_values(env)
+    day0 = shipped.time_chunk_snapshots[0]
+    days = []
+    for i in range(3):
+        # Two writes 2**24, 1 in the slow phase lose 1; the next fast flush also loses 1.
+        # BaseValue 3.4 and the independent probe modifier must retain their double composition.
+        value = float(f32(0.1)) + (16777216.0 if i else 0.0)
+        stats = [replace(st, value=value if st.key == 8 else base.get(st.key, 0.0)) for st in day0.stats]
+        days.append(X.Snap("TimeChunkSnapshots", i, replace(day0, stats=stats, time_chunk_index=i), None, []))
+    run = _run([], days, daily=[{"clears": 3}])
+    run.manifest["job"] = {"engine_probe": {"grant_flat": {"8": 0.1}},
+                           "config_overrides": {"FastTickStartChunkOffset": 1}}
+    run.trace.events = [{"type": "slow_fight", "day": 0, "cleared": True, "spawner": rid}
+                        for rid in (big, small)]
+    run.digests = {0: {}, 1: {"charges_closed.day": "0", "charges_closed.big": "1", "charges_closed.small": "1"},
+                   2: {"charges_closed.day": "1", "charges_closed.small": "1"}}
+    def check():
+        c = X.Check("X6", "values", invariants.COLUMNS)
+        invariants._values(c, run, test_env)
+        return c.result()
+    good = check()
+    assert good.status == "pass" and good.counts["values_exact_cells"] == 90
+    # A double-sum oracle or a missing slow write must fail this independent literal fixture.
+    st = next(st for st in days[2].snapshot.stats if st.key == 8)
+    days[2].snapshot.stats[days[2].snapshot.stats.index(st)] = replace(st, value=st.value + 1.0)
+    bad = check()
+    assert bad.status == "fail" and bad.mismatches == 1
+    days[2].snapshot.stats[days[2].snapshot.stats.index(next(x for x in days[2].snapshot.stats if x.key == 8))] = st
+    run.trace.events.pop()
+    assert check().status == "fail"

@@ -1,4 +1,4 @@
-"""X2fix: full-policy slow caches use the captured tick-start stats, never the post-fight snapshot."""
+"""X2fix: full-policy slow caches use their own post-fight state and independently recorded refresh basis."""
 
 import copy
 import sqlite3
@@ -26,7 +26,7 @@ def test_full_policy_x2_cache_basis_and_planted_faults(full_policy_run, db, job)
     job_dir = full_policy_run.run_dir / job
     run = X.load_run(job_dir)
     assert not run.null_policy and run.trace and sum(int(r["clears"]) for r in run.trace.daily) > 0
-    rs = X.run_checks(job_dir, db, checks=("X2",))
+    rs = X.run_checks(job_dir, db, checks=("X1", "X2", "X3", "X4", "X5", "X6", "X7"))
     assert all(r.status != "fail" for r in rs.values()), {k: r.examples for k, r in rs.items()}
     r = rs["X2"]
     assert r.status == "pass" and r.mismatches == 0
@@ -38,12 +38,24 @@ def test_full_policy_x2_cache_basis_and_planted_faults(full_policy_run, db, job)
     with sqlite3.connect(sim) as con:
         assert con.execute("SELECT count(*) FROM sim_slow_tick_basis").fetchone()[0] == sum(len(s.slow_tick_basis) for s in slow)
     env = X.Env.load(db)
+    for s in slow:
+        assert s.slow_tick_basis == dps.forecast_stats(s.snapshot, env, s.tc)
+    # Plant pre-fight stats in the caches while leaving the recorded refresh basis intact.
     bad = copy.deepcopy(run)
-    for s in bad.early:
-        if s.slow_tick_basis is not None:
-            s.slow_tick_basis = dps.forecast_stats(s.snapshot, env, s.tc)
-    postfight = dps.check_x2(bad, env)
-    assert postfight.status == "fail" and postfight.mismatches > 0
+    previous = {}
+    with X.mono_arithmetic():
+        for s in bad.early:
+            if s.slow_tick_basis is not None and s.tc in previous:
+                calc, defense = dps.recompute(s, env, s.tc, stats=previous[s.tc])
+                s.snapshot.dps_data[:], s.snapshot.defense_data[:] = calc, defense
+            previous[s.tc] = dps.forecast_stats(s.snapshot, env, s.tc)
+        prefight = dps.check_x2(bad, env)
+    assert prefight.status == "fail" and prefight.mismatches > 0
+    # A wrong stat in the refresh basis must also fail.
+    bad = copy.deepcopy(run)
+    victim = next(s for s in bad.early if s.slow_tick_basis is not None)
+    victim.slow_tick_basis[8] += 1.0
+    assert dps.check_x2(bad, env).status == "fail"
     # Shift only within a day so failure cannot be attributed to the day modifier.
     bad = copy.deepcopy(run)
     previous = {}

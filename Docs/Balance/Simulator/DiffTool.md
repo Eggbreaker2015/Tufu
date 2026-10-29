@@ -83,9 +83,11 @@ sqlite3 -readonly "$TUFU_BALANCE_DB" "SELECT scene, file_id, Key, go_name, Locat
 5. **模拟**：逐日 Value、TotalValue、Gpm、DPS/防御、到岛日、物品首次出现与进化、活跃分钟、首杀见 `sim/`。`rpm.csv` 使用快照里的 CurrentGpm，等同导出所用的 RPM 缓存口径，不代表重新拟合。`baseline/` 与 `patched/` 保存两侧完整表。到岛日超过该岛起始日（第 L 岛用 ITD[L−2]，第 1 岛为 0）两天、loss/H 在 1 的 ±3% 附近发生变化会警告。两侧都没有事件，或只有初始化的刀而没有物品成长时，对应表标「两侧均无数据：当前重建未模拟…」，不作「无变化」结论；触及物品/进化输入会同时给出 `sim_not_modelled` 警告。
 6. **警告**：未建模字段会列出直接读取它的公式；没有公式的字段明确写「目录里没有公式读取这个字段」。静态表没变化不等于游戏没有影响，例如 `SimulationConfig.TimeChunkDurationMinutes` 不影响机器人模拟，但其它运行逻辑会读取它。
 
-旁路文件 `patch_report.json` 保留展开操作；`operations.csv` 是逐条操作的命中统计，`overrides.csv` 是逐叶子的旧值/新值与 C# 校验状态。编辑器工具叶子标「仅 Python（编辑器工具，C# 不应用）」，示例 A 为 117/119 叶子参与 C# 比较。`validation.json` 记录 X1–X7 检查结果及 vacuous 部分。检查失败会停止。唯一的**临时**例外限于未校准阶段 X2：全部失败行必须是 `slow_tick` 的 `DpsData`，武器顺序相同，有限数值满足 oracle ≥ C#，且该快照同 Tick 有成功的 `slow_fight`（p_after/t_after 与快照时刻按 float32 一致，日号相同）。DefenseData、顺序不符、换天行、混合失败、缺少战斗证据均停止。
+旁路文件 `patch_report.json` 保留展开操作；`operations.csv` 是逐条操作的命中统计，`overrides.csv` 是逐叶子的旧值/新值与 C# 校验状态。编辑器工具叶子标「仅 Python（编辑器工具，C# 不应用）」，示例 A 为 117/119 叶子参与 C# 比较。`validation.json` 记录 X1–X7 检查结果及 vacuous 部分。检查失败会停止，X2 的 slow_tick 失败也始终致命（包括 uncalibrated）。
 
-P11 已记录慢阶段快照拍在战斗后、DPS 缓存在 Tick 开头，导出没有前置状态，不能以战斗后状态验证该缓存。这种观察缺口保留为失败诊断和警告，不能当成通过；已有 405 天输出两侧各 75 项，其余 X1、X3–X7 全部通过。calibrated 层不享有该例外，因此 K3 的 calibrated 对比在 P11 修复落地前可能停止。P11/C1/C7 正在另行修复 Tick 起始状态的导出与核对，合入后应移除此临时例外。
+Enginefix 根据随包数据把非强制早期快照的缓存刷新移到战斗/空闲之后，X2 使用快照自身属性、物品和槽位重算，并额外核对刷新点的 basis；原 Tick 起始状态临时豁免已删除。三项豁免子条件测试随之不再适用，测试直接锁定 X1–X7 任一失败必须停止。
+
+就绪表使用 `ready_spawners.expected.<内容哈希>.csv` 相对名；启动器从当前配置的只读 DB 写旁路输入。请求与缓存键不含工作树或 out_root 的绝对路径。
 
 传入 `--db` 时，就绪表也从同一数据库生成，无需额外设置环境变量；若已设的 `TUFU_BALANCE_DB` 指向另一份数据库，模拟前会报错，须统一两者。
 

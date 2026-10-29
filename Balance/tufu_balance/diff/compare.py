@@ -119,17 +119,14 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
     if resolved.params.get("KillLossFromAb"):
         comp.warnings.append({"code": "policy_extrapolation", "message": "KillLossFromAb 已开启：策略外推"})
     # Resolve readiness from this config's DB, including when --db is used without an environment variable.
-    from ..unity.spawner_map import expected_ready_csv, expected_ready_file_name
+    from ..unity import launcher
     template = getattr(driver, "template", None) or req.make_request([])
     sandbox = dict(template["sandbox"])
-    ready = expected_ready_csv(cfg.source, sandbox.get("ab_variant", "A"))
-    ready_path = (out_root / "inputs" / expected_ready_file_name(ready)).resolve()
-    ready_path.parent.mkdir(parents=True, exist_ok=True)
-    ready_path.write_text(ready, encoding="utf-8")
-    sandbox["expected_ready_spawners"] = str(ready_path)
+    ready_name, _ = launcher.expected_ready_table(sandbox.get("ab_variant", "A"), db=C.source_path(cfg))
+    sandbox["expected_ready_spawners"] = ready_name
     template = {**template, "sandbox": sandbox}
     if driver is None:
-        driver = D.Driver(D.BatchBackend(rev=rev, out_root=out_root), cache=runcache.RunCache(out_root), template=template)
+        driver = D.Driver(D.BatchBackend(rev=rev, out_root=out_root, readiness_db=C.source_path(cfg)), cache=runcache.RunCache(out_root), template=template)
     else:
         driver.template = template
     smap = patcher.spawner_map(cfg.source, out_root / "inputs")
@@ -161,17 +158,8 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
             checks = run_checks(res.job_dir, con, checks=("X1", "X2", "X3", "X4", "X5", "X6", "X7"),
                                 out_dir=out_root / "diff_checks" / res.job_key)
             bad = [k for k, c in checks.items() if c.status == "fail"]
-            x2_failed = [r for r in tables.read_csv(out_root / "diff_checks" / res.job_key / "X2.csv") if r.get("ok") == 0]
-            slow_tick_gap = not calibrated and x2_failed and len(x2_failed) == checks["X2"].mismatches and _temporary_tick_start_gap(
-                x2_failed, res.job_dir)
-            fatal = [k for k in bad if not (k == "X2" and slow_tick_gap)]
-            if fatal:
-                raise ValueError(f"crosscheck failed ({res.job_key}): {fatal}")
             if bad:
-                comp.warnings.append({"code": "uncalibrated_crosscheck", "message": "临时 P11 Tick 起始状态观察缺口：仅保留同 Tick 有 slow_fight、顺序一致且 oracle ≥ C# 的 slow_tick DpsData 不符；uncalibrated 诊断，不能视为通过",
-                                      "side": i, "iteration": iteration + 1,
-                                      "checks": {k: {"items": checks[k].items, "mismatches": checks[k].mismatches,
-                                                      "examples": checks[k].examples[:3]} for k in bad}})
+                raise ValueError(f"crosscheck failed ({res.job_key}): {bad}")
             comp.simulation.setdefault("crosschecks", []).append({"side": i, "iteration": iteration + 1,
                 "checks": {k: {"status": c.status, "items": c.items, "mismatches": c.mismatches,
                                "vacuous": c.vacuous} for k, c in checks.items()}})
@@ -190,30 +178,6 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
     _sim_tables(comp, *[r.job_dir for r in results])
     if not calibrated:
         comp.warnings.append({"code": "uncalibrated", "message": "模拟为 uncalibrated：当前重建策略尚未完成 K1–K3 校准"})
-
-
-def _temporary_tick_start_gap(rows, directory):
-    """Temporary P11 observation-gap exemption; remove after tick-start states are exported."""
-    from ..crosscheck import load_run
-    from ..model.enums import WeaponType
-    from ..model.f32 import f32
-    run = load_run(directory)
-    events = _events(directory)
-    for row in rows:
-        if row.get("case") != "slow_tick" or row.get("kind") != "DpsData" or row.get("weapon_type") == "order":
-            return False
-        oracle, stored = row.get("oracle"), row.get("csharp")
-        if not all(isinstance(v, (int, float)) and math.isfinite(v) for v in (oracle, stored)) or oracle < stored:
-            return False
-        snap = next((s for s in run.early if s.list == row.get("list") and s.index == row.get("index")), None)
-        if snap is None or row.get("weapon_type") not in {WeaponType(w).name for w, _ in snap.snapshot.dps_data}:
-            return False
-        if not any(e.get("type") == "slow_fight" and e.get("cleared") is True and e.get("day") == snap.tc
-                   and e.get("p_after") is not None and e.get("t_after") is not None
-                   and float(f32(e["p_after"])) == float(snap.snapshot.playtime)
-                   and float(f32(e["t_after"])) == float(snap.snapshot.total_playtime) for e in events):
-            return False
-    return True
 
 
 def _events(directory):

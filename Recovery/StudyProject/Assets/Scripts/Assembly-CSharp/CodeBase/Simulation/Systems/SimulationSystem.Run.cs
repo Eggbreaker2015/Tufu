@@ -142,7 +142,6 @@ namespace Codebase.Simulation.Systems
 		private void Tick()
 		{
 			CalculateSimulationData();
-			SimulationExport.SlowTickBasis = playerModel.Unit.Stats.ToDictionary(stat => (int)stat.Type, stat => GetForecastStatValue(stat.Type));
 			RebuildApplyReplayCaches();
 			CalculateSpawnerData(false);
 			RebuildTraceEligible();
@@ -154,7 +153,15 @@ namespace Codebase.Simulation.Systems
 			}
 			if (best != null) SimulateFightWithSpawner(best);
 			else RebuildIdle(RebuildIdleMinutes());
+			if (config.CurrentPlaytime >= RebuildNextSnapshotDue())
+			{
+				// Shipped early snapshots include the rewards of this tick.
+				CalculateSimulationData();
+				SimulationExport.SlowTickBasis = playerModel.Unit.Stats.ToDictionary(stat => (int)stat.Type, stat => GetForecastStatValue(stat.Type));
+				RebuildApplyReplayCaches();
+			}
 			MakeSnapshot();
+			SimulationExport.SlowTickBasis = null;
 			CheckLifeCycle();
 			ProcessSimulateAds();
 			UpdateSpawnerChargesChunk();
