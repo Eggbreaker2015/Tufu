@@ -66,11 +66,12 @@ class ServeBackend:
     name = "serve"
 
     def __init__(self, *, opts: launcher.Options | None = None, worktree: Path | None = None,
-                 run_tree: Path | None = None, out_root: Path | None = None, log=print):
+                 run_tree: Path | None = None, out_root: Path | None = None, readiness_db=None, log=print):
         self.opts = opts or launcher.Options()
         self.worktree = Path(worktree or runner.WORKTREE)
         self.run_tree = Path(run_tree or runner.run_worktree())
         self.out_root, self.log = out_root, log
+        self.readiness_db = readiness_db
         status = launcher.serve_status(run_tree=self.run_tree)
         if not status.get("running"):
             raise launcher.LauncherError("no resident editor is serving")
@@ -81,7 +82,7 @@ class ServeBackend:
 
     def submit(self, request: dict) -> launcher.RunResult:
         return launcher.serve_submit(request, run_tree=self.run_tree, worktree=self.worktree, opts=self.opts,
-                                     out_root=self.out_root, log=self.log)
+                                     out_root=self.out_root, readiness_db=self.readiness_db, log=self.log)
 
 
 def default_backend(*, rev: str | None = None, opts: launcher.Options | None = None, worktree: Path | None = None,

@@ -607,6 +607,8 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 
 依据独立评审 `review_X2fix.json` 与 `review_X2fix/dps0.py`：随包日 0 的快照 0–13，Cutting DPS 等于每张快照自身的 `c·(CutDamageFlat + 12·knifeLevel)`；第 3、11 次转移只有一次属性奖励且超过到期时刻，缓存若来自 Tick 开头分别应为 11.538462、38.461540，实际为 12.307693、40.000001。这排除了 Tick 开头缓存。`tests/test_crosscheck.py::test_shipped_day_zero_dps_uses_the_recorded_postfight_stats` 还验证全部 25 张日 0 快照逐位重算；`tests/unity/test_slow_policy.py::test_early_snapshot_caches_include_own_postfight_state` 对重建慢 Tick 的自身状态逐位重算。
 
+`StaleTickCache`（P07=2）消融的语义也随之改变：到期慢 Tick 留下的是战斗后缓存，若随后换天，其 `currentDefenseData` 会被 `RecalculateChunkRpmValues` 复用；非到期 Tick 仍留下 Tick 开头缓存。这是 Enginefix 刷新位置带来的消融变化，不能把该模式的历史测量当作未变的基线。默认 `RpmFirst` 不走此复用分支。Postmerge 补跑 C4 override 套件验证 stored replay 缓存覆盖。
+
 ### 16.3 每 Tick 耗时（空策略）与预算
 
 运行工作树、有图形、`SimulationSpeed = 500`。整个第 0–30 天的空策略作业 91 个 Tick 在一帧里跑完，约 0.06 秒。

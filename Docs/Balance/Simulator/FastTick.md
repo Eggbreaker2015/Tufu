@@ -1,6 +1,6 @@
 # 快阶段（C5）
 
-本单元填写 `SimulationSystem.FastTick.cs` 的规划、累积、冲刷和活跃分钟；不改 `RebuildAdvanceFastDay`、已恢复的方法或设计稿。默认开环是 `replay` + `stored`，从第 4 天覆盖属性与经济缓存，解锁由门禁推导。慢阶段仍是 C7 尚未填写的骨架，所以岛 2、3 在第 4 天才打开；这些结果不能当作闭环校准。
+本单元填写 `SimulationSystem.FastTick.cs` 的规划、累积、冲刷和活跃分钟；不改 `RebuildAdvanceFastDay`、已恢复的方法或设计稿。默认开环是 `replay` + `stored`，从第 4 天覆盖属性与经济缓存，解锁由门禁推导。C7 合入后，岛 2 在慢阶段第 1 天打开（随包早期表在 TC0、天表在 TC1；T07 的 day_ranges {2: [0, 0]}、slack 1 允许此偏差），其余解锁日不变。快阶段只打开岛 3–17，共 15 个；总计仍为 16 个且无重复。岛 3 重建第 4 天、随包第 1 天是 K2 校准交接，不能通过改测试掩盖。
 
 ## 实现与默认值
 
@@ -46,7 +46,7 @@ T04 按原式 `κ * Σ(clears * farmedTime) / 60` 实现。新增测试独立核
 - `spawner_days.csv.gz`（`outputs.spawner_days = true`）：每一规划轮的机器人数据各一行，包含 `day,round,spawner,location,dafc,killable,fights,fight_time,farmed_time,loss,max_health,count,charge_limit,charges_before,charges_after`。每一天一个 gzip member，一个总表头。`spawner` 为 C1 的层级路径与 Key，映射回 `(scene,file_id)`。
 - Python `unity.fasttick.read_spawner_days` 读取新表并兼容恢复前的 11 列表。`kill_days` 求首次实际清怪日；`charge_counts` 保留原 API，返回清怪次数；**`charge_usage` 返回实际充能单位**（写入后的用量减之前的用量），不需要再乘 Count。老输出缺少充能列时该函数明确报错。
 - T05 闭环阈值由 `calibrate.sensitivity.closed_loop_exact_min(curve, e)` 推出，例如 DPS 误差 2% 对应 ≥35/41；不要把报告值 37/41 当闭环硬阈值。T07/T05 的结构规则均为事后推断。
-- 开环 T05 应用 `sensitivity.interval_results(shipped_days, sensitivity.daily_gains(fast_days))` 比较每天实际冲刷的奖励；replay 的强制快照前后夹着教师覆盖，不能直接用模拟快照差值代替奖励。C7 填写慢阶段后，应重测当前由空慢阶段导致的岛 2/3 解锁与次日规划诊断差异，不能无记录地改冻结值。
+- 开环 T05 应用 `sensitivity.interval_results(shipped_days, sensitivity.daily_gains(fast_days))` 比较每天实际冲刷的奖励；replay 的强制快照前后夹着教师覆盖，不能直接用模拟快照差值代替奖励。Postmerge 按合入的 C7 慢阶段重测岛 2/3 与次日规划诊断；岛 2 的 t07.unlock_days["2"] 从 4 接受为 1，其余解锁日不变，接受记录引用本说明与 T07 slack。t05.next_day_bad 及 spans 单独复测并记录，不能随解锁键一起无证据接受。岛 3 第 4 天相对随包第 1 天留给 K2。
 - C6 需填写物品函数并接入 P18；当前参考冲刷的物品路径也没有非零份数，C6 应重跑参考冲刷验收。C5 没有改 Inventory 的方法体。
 - `refresh --level 1` 尚不存在（P13 后续单元）；本单元以全仓 pytest、C5 Unity 验收、fixture 检查、cscheck 和 golden guard 分别验证，不能声称已运行 refresh。
 

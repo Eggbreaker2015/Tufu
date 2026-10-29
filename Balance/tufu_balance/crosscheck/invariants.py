@@ -7,7 +7,7 @@
   against the digest. Fast days make one float32 reward write per stat at the flush. Each write rounds both
   the reward and the merged modifier to float32, as StatBase.AddModifier does. BaseValue is double and
   __probeGrant is a separate modifier: neither belongs in the merged Devoured accumulator. Values are
-  bit-exact on both phases; pending fast rewards are compared on both sides without committing a write.
+  bit-exact on both phases; forced day snapshots must have no pending fast rewards.
 * ``charges``: no usage (``charges``, ``charges_closed`` in the digests) above ``GetSpawnerChargesLimit``.
 * ``clock``: P and T never decrease along each list and ``daily.csv``; the day list's T strictly increases.
 * ``time_chunk``: TC = floor((float)(T / SpawnerChargesChunkMinutes)) on every snapshot (the editor's double
@@ -83,6 +83,12 @@ def closed_rewards(env: Env, fields: dict[str, str]) -> tuple[int | None, dict[i
 def _values(c: Check, run: RunData, env: Env) -> None:
     base = base_values(env)
     extra = grants(run)
+    for s in run.full:
+        for key, value in run.digests.get(s.tc, {}).items():
+            if key.startswith("fast.stat."):
+                pending = _float_bits(value.split(",")[3])
+                c.item(pending == 0.0, invariant="values", where=f"day {s.tc} {key}",
+                       csharp=num(pending), oracle="0", detail="forced snapshot follows fast reward flush")
     clears = total_clears(run)
     if clears == 0:
         for s in run.early + run.full:
@@ -130,10 +136,9 @@ def _values(c: Check, run: RunData, env: Env) -> None:
             writes = list(rewards.items())
         for k, v in writes:
             cumulative[k] = float(f32(cumulative.get(k, 0.0) + float(f32(v))))
-        pending = {int(k.split(".")[2]): _float_bits(v.split(",")[3]) for k, v in fields.items() if k.startswith("fast.stat.")}
         for st in s.snapshot.stats:
-            got = st.value + pending.get(st.key, 0.0)
-            want = base.get(st.key, 0.0) + (extra.get(st.key, 0.0) + cumulative.get(st.key, 0.0)) + pending.get(st.key, 0.0)
+            got = st.value
+            want = base.get(st.key, 0.0) + (extra.get(st.key, 0.0) + cumulative.get(st.key, 0.0))
             c.item(same(got, want), invariant="values", where=f"day {d} {stat_name(st.key)}", csharp=num(got),
                    oracle=num(want), detail="bit-exact float32 modifier writes; double base + grants")
             c.count("values_exact_cells")

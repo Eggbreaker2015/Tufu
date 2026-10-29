@@ -938,7 +938,7 @@ def serve_status(*, run_tree: Path | None = None) -> dict:
 
 def serve_submit(request: Mapping, *, run_tree: Path | None = None, worktree: Path | None = None,
                  opts: Options | None = None, out_root: Path | None = None, timeout_s: float | None = None,
-                 log=print) -> RunResult:
+                 readiness_db: Path | None = None, log=print) -> RunResult:
     """Queue a request with the resident editor and wait for its result."""
     opts = opts or Options()
     run_tree = Path(run_tree or runner.run_worktree())
@@ -958,7 +958,7 @@ def serve_submit(request: Mapping, *, run_tree: Path | None = None, worktree: Pa
         shutil.rmtree(run_dir)
     run_dir.mkdir(parents=True)
     (run_dir / "request.json").write_text(req.dumps(r))
-    write_side_inputs(r, run_dir)
+    write_side_inputs(r, run_dir, db=readiness_db)
     queue = Path(state["queue_dir"])
     stem = f"{int(time.time() * 1000)}-{r['run_key'][:12]}"
     tmp = queue / f".{stem}.tmp"
