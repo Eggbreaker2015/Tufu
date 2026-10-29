@@ -673,3 +673,79 @@ Loadout 里的 prefab 名在 LFS 场景中，【未核实】。
 8. **宠物界面**：弹窗第一行是种类技能（图标、名字、描述、"主动 · 冷却 N 秒"），摘要行图标多一个、数量加一；背包小卡和图鉴同样；控制台没有缺键日志。
 9. **关闭宠物模式**：没有任何宠物技能和种类技能行；主角身上来自宠物的 Buff 立即消失；主角技能配置为空时主角行为和以前一样。
 10. **回归**：敌人施法、预警圈、施法条和第二期一样；加载时没有 `[Skills] Duplicate`/`Unknown` 警告。
+
+## 12. 第三期实现记录（2026-10-29）
+
+规格见 [Phase3Spec.md](Phase3Spec.md)。两个程序集编译通过（`check_final.sh` 与 `check_final.sh editor` 都是 exit=0），两个技能库的跨文件 YAML 检查（`SKILL_LIBS="Species Skills.asset|Enemy Skills.asset"`）和本地化检查通过，**没有在 Play 模式和 Unity 编辑器里验证过**。
+
+### 12.1 做了什么
+
+- **P1 位移效果**（`CB/Skills/Effects/`）：
+  - `KnockbackEffect{Area, Distance, Duration, FromPoint}`、`PullEffect{Area, Distance, Duration}`、`BlinkEffect{Mode, Distance}`（新枚举 `BlinkMode`：BehindTarget/ToPoint/AwayFromTarget）、`DashEffect{Distance, Speed, StopAtFirstHit, Width, Power, PassThrough, Filter, [SerializeReference] OnHit}`。
+  - 统一由 Morpeh 组件 `SkillForcedMovementComponent` + `SkillForcedMovement` 推进，`SkillAutoCastSystem.OnUpdate` 里调用 `SkillService.TickForcedMovement`，`SystemsInstaller` 没改。新位移覆盖旧位移；每步 `NavMesh.Raycast`/`SamplePosition`，失败停在边缘；地面单位用 `agent.Move`，飞行单位只做水平位移；敌人和宠物位移期间停寻路，结束后恢复 AI。
+  - 免疫：`EnemyUnit.ImmuneToDisplacement` = `IsStatic`、`IsDummy`、`IsEliteBoss`、`IsBossFightPart`（小兵除外）、竞技场 Boss、寻路半径 × 缩放 > 1.2 米。主角和宠物只接受敌人施加的位移，和眩晕共用 `IsHostileSourceOnFriendlyTarget`；友方来源 `WarnOnce` 后忽略。对主角的单次位移最远 3 米。
+  - 冲锋：施法者沿锁定方向移动，路径上每个单位只伤害一次并执行 `OnHit`。`PassThrough=false` 时路上任何活着的身体都会挡住；`StopAtFirstHit` 撞到第一个命中目标就停。冲锋期间 `IsCasting` 为真（不普攻、不开新技能）；施法者死亡、回收（`OnDisable`、`InstallForEnemy`、`CancelCast`/`ResetCaster`）或被眩晕时中止；目标死亡时中止加在它身上的位移；宠物死亡两者都清。被推着的单位不能开新技能，击退和拉近不打断正在进行的施法或引导。
+- **P2 引导**：`SkillDef.ChannelDuration`、`ChannelTickInterval`、`[SerializeReference] OnChannelTick`。顺序：前摇 → `Effects` 一次 → 第 k×间隔 秒执行 `OnChannelTick` → 后摇。间隔 ≤ 0 时只在结束时跳一次，最小间隔 0.05 秒。眩晕、沉默、死亡和主角/宠物"能否行动"检查会打断。敌人引导时预警圈满进度并锁定（`SkillTelegraphView.LockPosition`）；主角和敌人引导时不动；`EnemySkillStatusView` 引导阶段进度条由满到空。
+- **技能等级**：`PetStats.GetSkillLevel(item)` = `1 + floor((item.Level - 1) / 3)`，进化后 +2，限制在 1～10（`MaxSkillLevel`）。`item.Level` 是进化等级（未进化为 1），所以未进化宠物是 Lv 1，进化 1～3/4～6/7～9/10～12/13～15 级分别是 Lv 3/4/5/6/7。`SkillDef.GetLevelScale` 在 `LevelScale` 为空时用默认曲线 `1 + 0.08 × (等级 - 1)`；`SkillService.Install(..., levelOverride)` 给宠物所有槽位统一等级，`SetSkillLevel(unit, level)` 只改等级、不重装、不重置冷却。`PetModel.SkillLevel` 记录已应用的等级，`PetSpawnSystem` 每帧比较，变了就刷新。宠物弹窗主动技能行显示"主动 · Lv N · 冷却 X 秒"。敌人、Boss、主角仍用 `slotDef.Level`（资产里全是 1）。
+- **编辑器**（`A/Editor/Skills/`，全部新建）：
+  - `SkillLibraryEditorWindow`（`Tools/技能/技能库编辑器`）：选库、刷新、定位、保存、校验；技能/Buff/配置/特效/召唤五页，可搜索（技能页也按中英文名和效果类型名）；新建、复制（新 rid）、删除（确认）；底部校验结果可筛选，点击跳到对应库、页、条目和字段。
+  - `ManagedReferenceGUI`：`[SerializeReference]` 字段和列表的类型下拉（`TypeCache`，按命名空间分组），增删、上下移、换类型（同名字段带过去），嵌套列表自动支持；丢失类型显示红框和"移除"。普通类列表也能增删移动。
+  - `SkillLibraryValidator`（窗口按钮和 `Tools/技能/校验技能库`）：空 Key、文件内和跨文件重复、未知 Buff/Vfx/Summon/Skill 引用、Loadout 对不上 prefab（需有 `EnemyUnit`）/`BossTowerConfig`（警告）/`PetConfig.ItemKey`/`hero`、缺 `SKILL_NAME_`（警告）和 `SKILL_DESC_`（宠物或主角用的技能警告，其余提示）、丢失类型和空元素。
+  - `SkillLibraryInspector`：打开编辑器、校验按钮和各页条数，下面用同一套绘制器。
+- **其他**：`AbilityIcons` 也看 `OnChannelTick`，`sp_mage` 仍是伤害图标。
+
+### 12.2 内容更新
+
+| 技能 | 改动 |
+|---|---|
+| `sp_chainsaw` | rid 2102 改为 `DashEffect`：8 米、速度 18、宽 1.5、Power 1.8、PassThrough、Filter 65；`OnHit` 击退 1.5 米 / 0.2 秒。预警线 8×1.5 不变 |
+| `sp_ghost` | 先 `BlinkEffect`（目标身后 0.5 米）再单体伤害 Power 2.5；Range 和距离条件 3.5 → 5 |
+| `sp_hammer` | 伤害之后 3 米内击退 2 米 / 0.25 秒 |
+| `sp_mage` | `Effects: []`，引导 2 秒、间隔 0.4 秒，`OnChannelTick` 每次一支直线飞弹 Power 0.6（共 5 支，合计 3.0，原来一支 1.8） |
+| `charge`（新，`Zombie_Boss`） | Range 7、前摇 1.0、后摇 0.5、冷却 12 / 初始 6、直线预警 7×1.5、Priority 13；目标 3～7 米才放；`DashEffect` 7 米、速度 16、撞到第一个就停、Power 2.0；`OnHit` 击退 2 米 |
+
+本地化：四个种类技能的 `SKILL_DESC_` 更新，新增 `SKILL_NAME_charge`（Charge / 冲撞），13 列。
+
+### 12.3 有意没做的
+
+- **Boss 塔原有机制不迁到技能层**（`BossSpawnService.ApplyBehaviors` 的狂战士、熔岩蟹、巫妖等）：这些战斗已调好，迁移收益小、回归风险大。需要时用 `Boss` 类型 Loadout 额外加技能，原机制不动。
+- **数值模型和模拟器不接技能**：在 `Balance/`，是另一条进行中的工作，按规定不碰。模拟器不读位移、引导和技能等级。
+
+### 12.4 与规格不同的地方
+
+- **技能等级**：先按宠物等级（`PetStats.GetLevel`，按收集份数算）实现，审查发现约 28 份就封顶、进化 +2 永远不生效，已改回规格的 `item.Level`（进化等级）。代价是升级（加份数）不改变技能等级，只有进化会；实际最高 Lv 7，上限 10 只是保险。
+- **冲锋命中宽度**：有直线预警时，命中半径不超过预警半宽（与 `SkillLinearMissiles` 同规则），身体接触只有在这个宽度内才算命中，宽度外只挡路。冲锋不命中 `IsStatic`（树）和 `IsFar` 的敌人，它们只参与挡路。
+- **友方引导每跳重新瞄准**：主角和宠物引导时每跳朝活着的目标重新算方向和落点，目标死了就按自动施法规则在射程内另找一个（宠物同时转身）；敌人引导仍锁定方向，和预警一致（规格只要求敌人锁定）。
+- **`SkillService.CancelCast` 也取消 `EnemyCastSystem` 状态**（只对激活的敌人）。被击退的主角和宠物仍可普攻，只是不接受摇杆、不开新技能。
+- **`sp_ghost` 射程放大到 5**，`charge` 的速度、冷却、3 米最小距离、Priority 都是自定的；敌人技能没有 `SKILL_DESC_`，所以没加 `SKILL_DESC_charge`。
+- 编辑器的可选检查（技能没有效果、Buff 设了 `TickInterval` 但没有 `OnTick`）没做。
+
+### 12.5 已知问题
+
+- 全部没有在 Play 模式和编辑器里看过：位移手感、撞墙和台阶边缘、引导节奏、窗口布局。
+- `Species Skills.asset` 里装了这四个技能的敌人也会用新版本：`cut_cut_knight` 冲锋、`ghost` 闪到主角身后、`buck_buck_boss` 把主角击退 2 米、`mage` 引导飞弹。战役难度需要复查。
+- 冲锋每帧扫一遍全部敌人（`Contains` 是 O(n²)）并分配一个小列表，有性能问题再优化。
+- 高空飞行敌人闪现时 1.5 米的导航网格采样可能失败，闪现不生效。
+- 编辑器"保存"会让 Unity 重新序列化 YAML，rid 和格式可能变化；有人手改 YAML 时不要在编辑器里保存。增删、换类型推迟到绘制结束执行，偶尔可能有一次布局警告。
+- `AbilityIcons` 不单独识别位移效果（这几个技能都带伤害，所以仍是伤害图标）；`PetAbilitySummaryRow` 不显示等级；物品能力里放的技能仍是 1 级。
+- 宠物弹窗冷却仍显示 `SkillDef.Cooldown` 原值。
+
+### 12.6 要测的
+
+**Play 模式**（进入方式同 11.6 第 1 步）：
+1. **冲锋**：`chainsaw` 宠物沿直线冲 8 米，每个敌人只挨一次并被推 1.5 米；Boss、静态、假人、大体型不被推；穿过树林时树不掉血。
+2. **闪现**：`ghost` 宠物闪到目标身后再打；靠墙或网格边缘时不穿出去。
+3. **震地**：`hammer` 宠物把 3 米内敌人推开 2 米。
+4. **引导**：`mage` 宠物 2 秒发 5 支飞弹，目标横向移动时后面的飞弹跟着改方向，目标死了转打射程内另一个；被眩晕时停止。
+5. **Zombie_Boss 冲撞**：1 秒直线预警，冲出、撞到主角就停，主角被推 ≤ 3 米；站在预警框外（哪怕只差一点）不挨打；冲撞途中眩晕或打死它，冲锋立即停。
+6. **位移恢复**：宠物被推后恢复跟随和追击；敌人冲锋途中被回收，再出场没有残留状态；宠物施加的位移落在主角身上无效。
+7. **技能等级**：1 级、未进化宠物伤害和改动前一样；升级不变，第一次进化后弹窗显示 Lv 3、伤害 ×1.16、冷却没被重置；进化到 4 级显示 Lv 4。敌人技能伤害不变。
+8. **敌人引导**：带引导的敌人技能预警圈保持显示，施法条由满到空。
+9. **关闭宠物模式**：没有宠物技能；主角技能配置为空时和以前一样。
+
+**编辑器**：
+1. 打开 `Tools/技能/技能库编辑器`，两个库都能列出，切页、搜索正常。
+2. 在 `sp_mage` 上"添加…"效果（能看到新位移效果），换类型、上下移、删除、Ctrl+Z；在 `MissileEffect.OnImpact` 里嵌套添加。
+3. 复制一个技能并保存，YAML 里复制品是新 rid。
+4. 点"校验"无错误；故意改错一个 `BuffKey` 会报错，点击结果能跳转。
+5. 选中库资源，Inspector 有按钮和类型下拉。

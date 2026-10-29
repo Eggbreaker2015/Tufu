@@ -15,7 +15,7 @@ using UnityEngine.UI;
 
 namespace Codebase.UI.World
 {
-	// Under an enemy health bar: a cast bar (localized skill name + wind-up fill, casts with CastPoint >= 0.3 s only)
+	// Under an enemy health bar: a cast bar (localized skill name + wind-up/channel fill, casts or channels >= 0.3 s)
 	// and up to 3 buff icons (debuffs ringed red). Built in code once per pooled bar, no extra canvas target;
 	// HealthBar.Initialize unbinds it and EnemyHealthBarSystem binds it to the unit on every spawn.
 	public class EnemySkillStatusView : MonoBehaviour
@@ -162,8 +162,8 @@ namespace Codebase.UI.World
 			}
 
 			ref SkillCastingComponent cast = ref castingStash.Get(entity, out bool casting);
-			SkillDef def = casting && !cast.Fired && cast.Slot != null ? cast.Slot.Def : null;
-			if (def == null || !(def.CastPoint >= MinCastPoint))
+			SkillDef def = casting && (!cast.Fired || cast.Channeling) && cast.Slot != null ? cast.Slot.Def : null;
+			if (def == null || !(def.CastPoint >= MinCastPoint || def.ChannelDuration >= MinCastPoint))
 				HideCast();
 			else
 			{
@@ -175,7 +175,7 @@ namespace Codebase.UI.World
 					SetActive(skillName.gameObject, !string.IsNullOrEmpty(name));
 					shownDef = def;
 				}
-				float progress = Mathf.Clamp01(cast.Elapsed / def.CastPoint);
+				float progress = cast.Channeling ? 1f - Mathf.Clamp01(cast.ChannelElapsed / def.ChannelDuration) : (def.CastPoint > 0f ? Mathf.Clamp01(cast.Elapsed / def.CastPoint) : 1f);
 				if (shownProgress != progress)
 				{
 					shownProgress = progress;

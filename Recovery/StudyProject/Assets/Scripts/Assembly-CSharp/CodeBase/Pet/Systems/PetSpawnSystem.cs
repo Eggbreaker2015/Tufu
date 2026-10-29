@@ -71,6 +71,18 @@ namespace Codebase.Pet.Systems
 					continue;
 				Spawn(slot, order, player);
 			}
+
+			foreach (PetModel pet in petsModel.Pets)
+			{
+				if (pet.Unit == null)
+					continue;
+				int level = PetStats.GetSkillLevel(pet.Item);
+				if (level == pet.SkillLevel)
+					continue;
+				if (GameContext.Has<SkillService>())
+					GameContext.Get<SkillService>().SetSkillLevel(pet.Unit, level);
+				pet.SkillLevel = level;
+			}
 		}
 
 		private void Spawn(ItemSlotModel slot, int slotOrder, PlayerUnit player)
@@ -103,8 +115,10 @@ namespace Codebase.Pet.Systems
 			petTagStash.Set(unit.EntityProvider.Entity);
 			Injector.InjectInto(unit);
 			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, item.Key);
+			int skillLevel = PetStats.GetSkillLevel(item);
 			if (loadout != null && GameContext.Has<SkillService>())
-				GameContext.Get<SkillService>().Install(unit, unit.EntityProvider.Entity, loadout);
+				GameContext.Get<SkillService>().Install(unit, unit.EntityProvider.Entity, loadout, levelOverride: skillLevel);
+			pet.SkillLevel = skillLevel;
 			pet.Unit = unit;
 			petsModel.Pets.Add(pet);
 			petsModel.RestoreDeath(pet);

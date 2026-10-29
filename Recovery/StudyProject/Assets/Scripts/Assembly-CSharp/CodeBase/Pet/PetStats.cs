@@ -82,6 +82,8 @@ namespace Codebase.Pet
 	// The one place pet ratios and own attack are computed (sync, damage, movement, UI).
 	public static class PetStats
 	{
+		public const int MaxSkillLevel = 10;
+
 		private const float DefaultOwnAttackScale = 0.6f;
 
 		private const float DefaultLevelRatioGrowth = 0.02f;
@@ -148,6 +150,21 @@ namespace Codebase.Pet
 			if (!item.Evolved)
 				return item.Copies;
 			return GetConsumedCopies(item.IsArmor, item.Config.Rarity, item.Level) + item.Copies + item.Level;
+		}
+
+		// Phase3Spec section 2: 1 + floor((item.Level - 1) / 3), evolved +2, capped at 10. item.Level is the
+		// evolution level (1 before the first evolution, then 1..MaxEvolutionLevel), not GetLevel, which counts
+		// every copy and would reach the cap at about 28 copies. Unevolved pets stay at 1; evolution levels
+		// 1-3/4-6/7-9/10-12/13-15 give 3/4/5/6/7.
+		public static int GetSkillLevel(ItemModel item)
+		{
+			if (item == null)
+				return 1;
+			int itemLevel = Math.Max(1, item.Level);
+			int level = 1 + (itemLevel - 1) / 3;
+			if (item.Evolved)
+				level += 2;
+			return Math.Min(MaxSkillLevel, Math.Max(1, level));
 		}
 
 		private static int GetConsumedCopies(bool isArmor, Rarity rarity, int evolutionLevel)

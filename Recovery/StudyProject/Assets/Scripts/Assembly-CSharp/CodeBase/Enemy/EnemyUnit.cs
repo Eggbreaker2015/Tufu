@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Codebase.Player.Inventory;
+using Codebase.BossTower.Components;
 using Codebase.UI.World;
 using Codebase.Unit;
 using UniMob;
@@ -76,6 +77,20 @@ namespace Codebase.Enemy
 			get
 			{
 				return config.IsStatic;
+			}
+		}
+
+		public bool ImmuneToDisplacement
+		{
+			get
+			{
+				World world = World.Default;
+				bool valid = world != null && EntityProvider != null && !world.IsDisposed(EntityProvider.Entity);
+				bool minion = valid && world.GetStash<BossMinionUnitMarker>().Has(EntityProvider.Entity);
+				bool arenaBoss = valid && world.GetStash<BossArenaUnitTag>().Has(EntityProvider.Entity) && !minion;
+				// Scaled agent radius above 1.2 m is a large body, independent of visual scale.
+				return config != null && (config.IsStatic || config.IsDummy || config.IsEliteBoss || config.IsBossFightPart && !minion) ||
+					arenaBoss || Agent != null && Agent.radius * Mathf.Abs(transform.lossyScale.x) > 1.2f;
 			}
 		}
 
@@ -196,6 +211,15 @@ namespace Codebase.Enemy
 			// Skills: every spawn path ends here; also resets the previous pooled life's cast and buffs.
 			if (GameContext.Has<global::Codebase.Skills.SkillService>())
 				GameContext.Get<global::Codebase.Skills.SkillService>().InstallForEnemy(this, config);
+		}
+
+		private void OnDisable()
+		{
+			if (World.Default != null && GameContext.Has<global::Codebase.Skills.SkillService>())
+			{
+				GameContext.Get<global::Codebase.Skills.SkillService>().ClearForcedMovement(this);
+				GameContext.Get<global::Codebase.Skills.SkillService>().CancelCast(this);
+			}
 		}
 
 		public void ResetRangedState(global::Codebase.Skills.RangedAttackDef ranged)

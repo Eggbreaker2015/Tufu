@@ -87,6 +87,7 @@ MonoBehaviour:
     LevelScale: []
     Effects:
     - rid: 2032
+    - rid: 2034
     - rid: 2033
   - Key: sp_mace
     IconKey:
@@ -545,7 +546,7 @@ MonoBehaviour:
   - Key: sp_ghost
     IconKey:
     TargetType: 1
-    Range: 3.5
+    Range: 5
     CastPoint: 0.4
     Backswing: 0.3
     Cooldown: 10
@@ -565,6 +566,7 @@ MonoBehaviour:
       - rid: 2241
     LevelScale: []
     Effects:
+    - rid: 2244
     - rid: 2242
     - rid: 2243
   - Key: sp_abyss_reaver
@@ -673,6 +675,10 @@ MonoBehaviour:
     Range: 9
     CastPoint: 0.8
     Backswing: 0.3
+    ChannelDuration: 2
+    ChannelTickInterval: 0.4
+    OnChannelTick:
+    - rid: 2292
     Cooldown: 8
     InitialCooldown: 3
     AnimationBool:
@@ -689,8 +695,7 @@ MonoBehaviour:
       UseWhen:
       - rid: 2291
     LevelScale: []
-    Effects:
-    - rid: 2292
+    Effects: []
   - Key: sp_dark_treant
     IconKey:
     TargetType: 2
@@ -1407,6 +1412,20 @@ MonoBehaviour:
         Anchor: 0
         Scale: 1.714
         HeightOffset: 0.2
+    - rid: 2034
+      type: {class: KnockbackEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 3
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Distance: 2
+        Duration: 0.25
+        FromPoint: 0
     - rid: 2041
       type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
       data:
@@ -1580,20 +1599,17 @@ MonoBehaviour:
         Min: 0
         Max: 8
     - rid: 2102
-      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      type: {class: DashEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
       data:
-        Area:
-          Mode: 5
-          Radius: 0
-          Angle: 90
-          Filter: 65
-          MaxTargets: 0
-          Length: 8
-          Width: 1.5
+        Distance: 8
+        Speed: 18
+        StopAtFirstHit: 0
+        Width: 1.5
         Power: 1.8
-        OverrideDamageType: 0
-        DamageType: 0
-        Undodgeable: 1
+        PassThrough: 1
+        Filter: 65
+        OnHit:
+        - rid: 2104
     - rid: 2103
       type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
       data:
@@ -1601,6 +1617,20 @@ MonoBehaviour:
         Anchor: 0
         Scale: 1
         HeightOffset: 0.2
+    - rid: 2104
+      type: {class: KnockbackEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Distance: 1.5
+        Duration: 0.2
+        FromPoint: 0
     - rid: 2111
       type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
       data:
@@ -1963,7 +1993,7 @@ MonoBehaviour:
       type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
       data:
         Min: 0
-        Max: 3.5
+        Max: 5
     - rid: 2242
       type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
       data:
@@ -1986,6 +2016,11 @@ MonoBehaviour:
         Anchor: 1
         Scale: 0.6
         HeightOffset: 0.2
+    - rid: 2244
+      type: {class: BlinkEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Mode: 0
+        Distance: 0.5
     - rid: 2251
       type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
       data:
@@ -2114,7 +2149,7 @@ MonoBehaviour:
         Range: 10
         Radius: 0.35
         Pierce: 0
-        Power: 1.8
+        Power: 0.6
         OverrideDamageType: 0
         DamageType: 0
         Filter: 65

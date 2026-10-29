@@ -11,6 +11,16 @@ namespace Codebase.Skills
 			return unit != null && GameContext.Has<SkillService>() && GameContext.Get<SkillService>().IsCasting(unit);
 		}
 
+		public static bool IsChanneling(UnitCore unit)
+		{
+			return unit != null && GameContext.Has<SkillService>() && GameContext.Get<SkillService>().IsChanneling(unit);
+		}
+
+		public static bool IsDisplaced(UnitCore unit)
+		{
+			return unit != null && GameContext.Has<SkillService>() && GameContext.Get<SkillService>().IsDisplaced(unit);
+		}
+
 		public static bool IsStunned(UnitCore unit)
 		{
 			return unit != null && GameContext.Has<SkillService>() && GameContext.Get<SkillService>().IsStunned(unit);

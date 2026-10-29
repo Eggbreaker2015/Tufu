@@ -180,6 +180,11 @@ namespace Codebase.Pet
 			if (unit == null)
 				return;
 			unit.CurrentTarget = null;
+			if (GameContext.Has<SkillService>())
+			{
+				GameContext.Get<SkillService>().ClearForcedMovement(unit);
+				GameContext.Get<SkillService>().CancelCast(unit);
+			}
 			Entity entity = unit.EntityProvider.Entity;
 			World world = World.Default;
 			world.GetStash<UnitDeadMarker>().Set(entity);

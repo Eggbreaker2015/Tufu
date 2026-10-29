@@ -167,6 +167,7 @@ namespace Codebase.UI.Pets
 			PetStatsText.SetText(layout.Title, name + " 技能");
 			List<int> indices = GetAbilityIndices(item);
 			IReadOnlyList<SkillDef> skills = GetSpeciesSkills(item);
+			int skillLevel = skills.Count > 0 ? PetStats.GetSkillLevel(item) : 1;
 			int count = skills.Count + indices.Count;
 			bool changed = visibleCount != count;
 			while (rows.Count < count) rows.Add(CreateRow());
@@ -188,7 +189,7 @@ namespace Codebase.UI.Pets
 					unlocked = true;
 					title = GetSkillText("SKILL_NAME_" + skill.Key, skill.Key);
 					description = GetSkillText("SKILL_DESC_" + skill.Key, string.Empty);
-					stars = "<color=#7CE3FF>主动 · 冷却 " + skill.Cooldown.ToString("0.#", CultureInfo.InvariantCulture) + " 秒</color>";
+					stars = "<color=#7CE3FF>主动 · Lv " + skillLevel + " · 冷却 " + skill.Cooldown.ToString("0.#", CultureInfo.InvariantCulture) + " 秒</color>";
 					icon = AbilityIcons.Get(skill);
 				}
 				else

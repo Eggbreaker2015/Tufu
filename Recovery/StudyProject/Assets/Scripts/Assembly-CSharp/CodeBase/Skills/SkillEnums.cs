@@ -2,6 +2,13 @@ using System;
 
 namespace Codebase.Skills
 {
+	public enum BlinkMode
+	{
+		BehindTarget = 0,
+		ToPoint = 1,
+		AwayFromTarget = 2
+	}
+
 	public enum SkillTargetType
 	{
 		NoTarget = 0,

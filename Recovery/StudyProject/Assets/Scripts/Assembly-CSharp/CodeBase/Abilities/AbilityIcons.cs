@@ -151,7 +151,8 @@ namespace Codebase.Abilities
 		{
 			if (def == null || depth > MaxClassificationDepth) return -1;
 			if (!string.IsNullOrEmpty(def.IconKey) && TryGetCategory(def.IconKey, out AbilityIconCategory category)) return (int)category;
-			return ClassifyEffects(def.Effects, false, depth);
+			// Channel skills may keep Effects empty and do their work in OnChannelTick.
+			return Best(ClassifyEffects(def.Effects, false, depth), ClassifyEffects(def.OnChannelTick, false, depth));
 		}
 
 		private static int Classify(BuffDef def, int depth)

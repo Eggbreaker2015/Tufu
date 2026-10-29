@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Codebase.Skills.Systems
 {
-	// Runs before EnemyCastSystem: pending missiles, cast progress (cast point -> effects -> backswing), cooldowns,
+	// Runs before EnemyCastSystem: pending missiles, cast progress (cast point -> effects -> channel -> backswing), cooldowns,
 	// passive aura pulses and the AI think (every ThinkInterval, staggered per unit).
 	public class SkillAutoCastSystem : SystemBase
 	{
@@ -85,6 +85,7 @@ namespace Codebase.Skills.Systems
 					skillService.ResetCaster(hero);
 				heroWasDown = down;
 			}
+			skillService.TickForcedMovement(deltaTime);
 			skillService.TickMissiles(deltaTime);
 			skillService.TickSummons();
 			UpdateCasts(deltaTime);
@@ -138,7 +139,7 @@ namespace Codebase.Skills.Systems
 
 		private bool CanThink(Entity entity, UnitCore unit)
 		{
-			if (stunStash.Has(entity) || castingStash.Has(entity) || skillService.IsSilenced(entity))
+			if (stunStash.Has(entity) || castingStash.Has(entity) || skillService.IsDisplaced(unit) || skillService.IsSilenced(entity))
 				return false;
 			if (unit is EnemyUnit enemy)
 			{
@@ -246,7 +247,7 @@ namespace Codebase.Skills.Systems
 				unit.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
 			}
 			Vector3 point = GetPoint(unit, def, target);
-			float duration = Mathf.Max(0f, def.CastPoint) + Mathf.Max(0f, def.Backswing);
+			float duration = Mathf.Max(0f, def.CastPoint) + Mathf.Max(0f, def.ChannelDuration) + Mathf.Max(0f, def.Backswing);
 			if (duration <= 0f)
 			{
 				Fire(unit, slot, target, point, direction);
@@ -267,7 +268,7 @@ namespace Codebase.Skills.Systems
 			SkillTelegraphView telegraph = null;
 			bool anchored = target != null && (def.TargetType == SkillTargetType.Point || def.Telegraph != null && def.Telegraph.AnchorOnTarget);
 			// Hostile skills only; friendly skills are not drawn.
-			if (def.CastPoint > 0f && unit is EnemyUnit && def.Telegraph != null)
+			if ((def.CastPoint > 0f || def.ChannelDuration > 0f) && unit is EnemyUnit && def.Telegraph != null)
 			{
 				TelegraphDef warning = def.Telegraph;
 				switch (warning.Shape)
@@ -286,68 +287,130 @@ namespace Codebase.Skills.Systems
 			{
 				ref SkillCastingComponent cast = ref castingStash.Get(entity);
 				cast.Fired = true;
+				cast.Channeling = def.ChannelDuration > 0f;
+				if (cast.Telegraph != null)
+				{
+					cast.Telegraph.SetProgress(1f);
+					cast.Telegraph.LockPosition();
+				}
 				Fire(unit, slot, target, point, direction);
 			}
+		}
+
+		private bool Interrupted(Entity entity, in SkillCastingComponent cast)
+		{
+			UnitCore unit = cast.Caster;
+			if (unit == null || unit.IsDead || !unit.gameObject.activeInHierarchy || unit.EntityProvider == null ||
+				!unit.EntityProvider.Entity.Equals(entity) || cast.Slot == null || deadStash.Has(entity)) return true;
+			if (unit is PlayerUnit dying && dying.IsDying || unit is PetUnit && !PetConfig.Enabled) return true;
+			if (cast.Fired && !cast.Channeling) return false;
+			return stunStash.Has(entity) || skillService.IsSilenced(entity) ||
+				unit is PetUnit && !CanFriendlyAct(playerModel.Unit) || unit is PlayerUnit hero && !CanFriendlyAct(hero);
 		}
 
 		private void UpdateCasts(float deltaTime)
 		{
 			foreach (Entity entity in castingFilter)
 			{
-				ref SkillCastingComponent cast = ref castingStash.Get(entity);
-				UnitCore unit = cast.Caster;
-				if (unit == null || unit.IsDead || !unit.gameObject.activeInHierarchy || cast.Slot == null)
-				{
-					skillService.CancelCast(entity);
-					continue;
-				}
-				if (unit is PetUnit && (!PetConfig.Enabled || deadStash.Has(entity)))
-				{
-					skillService.CancelCast(entity);
-					continue;
-				}
-				if (!cast.Fired && (unit is PetUnit && !CanFriendlyAct(playerModel.Unit) || unit is PlayerUnit hero && !CanFriendlyAct(hero)))
+				// Effects can resize stashes or cancel this cast; never retain a ref across resolution.
+				SkillCastingComponent cast = castingStash.Get(entity);
+				if (Interrupted(entity, cast))
 				{
 					skillService.CancelCast(entity);
 					continue;
 				}
 				SkillDef def = cast.Slot.Def;
-				// Interrupted: stunned or silenced at any point before the cast point; the enemy cast state ends with it.
-				if (!cast.Fired && (stunStash.Has(entity) || skillService.IsSilenced(entity)))
-				{
-					skillService.CancelCast(entity);
-					if (unit is EnemyUnit)
-						enemyCastSystem.CancelCast(entity);
-					continue;
-				}
+				float castPoint = Mathf.Max(0f, def.CastPoint);
+				float channelDuration = Mathf.Max(0f, def.ChannelDuration);
 				cast.Elapsed += deltaTime;
+				castingStash.Set(entity, cast);
 				if (!cast.Fired)
 				{
-					if (cast.Telegraph != null)
-						cast.Telegraph.SetProgress(def.CastPoint > 0f ? cast.Elapsed / def.CastPoint : 1f);
-					if (cast.Elapsed < def.CastPoint)
-						continue;
+					if (cast.Telegraph != null) cast.Telegraph.SetProgress(castPoint > 0f ? cast.Elapsed / castPoint : 1f);
+					if (cast.Elapsed < castPoint) continue;
 					cast.Fired = true;
-					if (cast.Telegraph != null)
+					cast.Channeling = channelDuration > 0f;
+					if (!cast.Channeling) DespawnTelegraph(ref cast);
+					else if (cast.Telegraph != null)
 					{
-						cast.Telegraph.Despawn();
-						cast.Telegraph = null;
+						cast.Telegraph.SetProgress(1f);
+						cast.Telegraph.LockPosition();
 					}
-					SkillSlot slot = cast.Slot;
+					castingStash.Set(entity, cast);
 					UnitCore target = SkillTargetQuery.IsAlive(cast.Target) ? cast.Target : null;
 					bool anchored = def.TargetType == SkillTargetType.Point || def.Telegraph != null && def.Telegraph.AnchorOnTarget;
-					Vector3 point = anchored ? cast.Point : GetPoint(unit, def, target);
-					float total = def.CastPoint + def.Backswing;
-					Vector3 direction = cast.Direction;
-					Fire(unit, slot, target, point, direction);
-					// Effects may add components elsewhere; re-read before touching this entity again.
-					if (castingStash.Has(entity) && castingStash.Get(entity).Elapsed >= total)
-						castingStash.Remove(entity);
-					continue;
+					Vector3 point = anchored ? cast.Point : GetPoint(cast.Caster, def, target);
+					Fire(cast.Caster, cast.Slot, target, point, cast.Direction);
+					if (World.IsDisposed(entity) || !castingStash.Has(entity)) continue;
+					cast = castingStash.Get(entity);
 				}
-				if (cast.Elapsed >= def.CastPoint + def.Backswing)
-					castingStash.Remove(entity);
+				if (cast.Channeling)
+				{
+					cast.ChannelElapsed = Mathf.Clamp(cast.Elapsed - castPoint, 0f, channelDuration);
+					if (cast.Telegraph != null) cast.Telegraph.SetProgress(1f);
+					float interval = def.ChannelTickInterval > 0f ? Mathf.Max(0.05f, def.ChannelTickInterval) : channelDuration;
+					while ((def.ChannelTickInterval > 0f || cast.ChannelTicks == 0) && (cast.ChannelTicks + 1) * interval <= channelDuration + 0.0001f &&
+						(cast.ChannelTicks + 1) * interval <= cast.ChannelElapsed + 0.0001f)
+					{
+						if (Interrupted(entity, cast)) break;
+						cast.ChannelTicks++;
+						UnitCore target = SkillTargetQuery.IsAlive(cast.Target) ? cast.Target : null;
+						if (!(cast.Caster is EnemyUnit) && cast.Target != cast.Caster)
+							target = ReaimChannel(ref cast, def, target);
+						castingStash.Set(entity, cast);
+						SkillCastContext context = skillService.CreateContext(cast.Caster, def, cast.Slot.Level, 1f, target, cast.Point, null);
+						context.Direction = cast.Direction;
+						SkillService.Execute(def.OnChannelTick, context);
+						if (World.IsDisposed(entity) || !castingStash.Has(entity)) break;
+						cast = castingStash.Get(entity);
+						if (def.ChannelTickInterval <= 0f) break;
+					}
+					if (World.IsDisposed(entity) || !castingStash.Has(entity)) continue;
+					if (Interrupted(entity, cast))
+					{
+						skillService.CancelCast(entity);
+						continue;
+					}
+					if (cast.ChannelElapsed >= channelDuration)
+					{
+						cast.Channeling = false;
+						DespawnTelegraph(ref cast);
+					}
+					castingStash.Set(entity, cast);
+				}
+				float total = castPoint + channelDuration + Mathf.Max(0f, def.Backswing);
+				if (cast.Elapsed >= total && !skillService.IsDashing(cast.Caster)) castingStash.Remove(entity);
 			}
+		}
+
+		// Friendly channels draw no telegraph, so each tick re-aims at the live target, or at the next one
+		// in range when it died. Enemy channels keep the direction locked to match their telegraph.
+		private UnitCore ReaimChannel(ref SkillCastingComponent cast, SkillDef def, UnitCore target)
+		{
+			if (target == null)
+			{
+				UnitCore next = Pick(cast.Caster, def);
+				if (next != null && next != cast.Caster && (def.Range <= 0f || SkillTargetQuery.FlatDistance(cast.Caster, next) <= def.Range))
+					target = next;
+			}
+			if (target == null || target == cast.Caster)
+				return target;
+			Vector3 aim = SkillTargetQuery.GetFlatDirection(cast.Caster, target);
+			if (aim.sqrMagnitude <= 0.0001f)
+				return target;
+			cast.Target = target;
+			cast.Direction = aim;
+			cast.Point = GetPoint(cast.Caster, def, target);
+			if (!(cast.Caster is PlayerUnit))
+				cast.Caster.transform.rotation = Quaternion.LookRotation(aim, Vector3.up);
+			return target;
+		}
+
+		private static void DespawnTelegraph(ref SkillCastingComponent cast)
+		{
+			if (cast.Telegraph == null) return;
+			cast.Telegraph.Despawn();
+			cast.Telegraph = null;
 		}
 
 		private void Fire(UnitCore unit, SkillSlot slot, UnitCore target, Vector3 point, Vector3 direction)

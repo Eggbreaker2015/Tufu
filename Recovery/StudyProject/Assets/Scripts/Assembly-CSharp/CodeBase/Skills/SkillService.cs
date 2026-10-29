@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Enemy;
+using Codebase.Enemy.Systems;
 using Codebase.Pet;
 using Codebase.Player;
 using Codebase.Player.Inventory;
@@ -61,6 +62,8 @@ namespace Codebase.Skills
 
 		private readonly SkillLinearMissiles linearMissiles = new SkillLinearMissiles();
 
+		private readonly SkillForcedMovement forcedMovement = new SkillForcedMovement();
+
 		private readonly SkillSummons summons = new SkillSummons();
 
 		private int modifierCounter;
@@ -108,6 +111,7 @@ namespace Codebase.Skills
 			Entity entity = enemy.EntityProvider.Entity;
 			if (current.IsDisposed(entity))
 				return;
+			forcedMovement.Stop(entity);
 			if (castingStash.Has(entity))
 				CancelCast(entity);
 			if (buffsStash.Has(entity))
@@ -171,7 +175,7 @@ namespace Codebase.Skills
 				casterStash.Remove(entity);
 		}
 
-		public void Install(UnitCore unit, Entity entity, UnitSkillLoadout loadout)
+		public void Install(UnitCore unit, Entity entity, UnitSkillLoadout loadout, int levelOverride = 0)
 		{
 			World current = CurrentWorld;
 			var slots = new List<SkillSlot>(loadout.Skills != null ? loadout.Skills.Count : 0);
@@ -182,7 +186,7 @@ namespace Codebase.Skills
 					if (def == null)
 						continue;
 					float auraInterval = GetAuraInterval(def);
-					slots.Add(new SkillSlot { Def = def, Level = Mathf.Max(1, slotDef.Level), Cooldown = def.InitialCooldown, AuraTimer = UnityEngine.Random.Range(0f, auraInterval) });
+					slots.Add(new SkillSlot { Def = def, Level = levelOverride > 0 ? levelOverride : Mathf.Max(1, slotDef.Level), Cooldown = def.InitialCooldown, AuraTimer = UnityEngine.Random.Range(0f, auraInterval) });
 				}
 			if (slots.Count == 0)
 			{
@@ -191,6 +195,19 @@ namespace Codebase.Skills
 				return;
 			}
 			casterStash.Set(entity, new SkillCasterComponent { Owner = unit, Slots = slots, NextThinkTime = Time.time + UnityEngine.Random.Range(0f, ThinkInterval), Engaged = false });
+		}
+
+		public void SetSkillLevel(UnitCore unit, int level)
+		{
+			if (unit == null || unit.EntityProvider == null)
+				return;
+			World current = CurrentWorld;
+			Entity entity = unit.EntityProvider.Entity;
+			if (current.IsDisposed(entity) || !casterStash.Has(entity))
+				return;
+			List<SkillSlot> slots = casterStash.Get(entity).Slots;
+			for (int i = 0; i < slots.Count; i++)
+				slots[i].Level = Mathf.Max(1, level);
 		}
 
 		private static UnitSkillLoadout FindEnemyLoadout(EnemyUnit enemy, EnemySpawnerConfig config)
@@ -352,6 +369,76 @@ namespace Codebase.Skills
 		// One enemy stun on the hero lasts at most this long.
 		private const float HeroStunCap = 1.5f;
 
+		private const float HeroDisplacementCap = 3f;
+
+		// Shared by control buffs and displacement; friendly sources cannot control friendly units.
+		private static bool IsHostileSourceOnFriendlyTarget(UnitCore source, UnitCore target)
+		{
+			return source is EnemyUnit && !(target is EnemyUnit);
+		}
+
+		public bool IsDisplaced(UnitCore unit)
+		{
+			return forcedMovement.Has(unit);
+		}
+
+		public bool IsDashing(UnitCore unit)
+		{
+			return forcedMovement.Has(unit, true);
+		}
+
+		public void ClearForcedMovement(UnitCore unit)
+		{
+			if (unit != null && unit.EntityProvider != null) forcedMovement.Stop(unit.EntityProvider.Entity);
+		}
+
+		public void TickForcedMovement(float deltaTime)
+		{
+			forcedMovement.Tick(this, deltaTime);
+		}
+
+		public void Displace(in SkillCastContext context, UnitCore target, float distance, float duration, bool pull, bool fromPoint)
+		{
+			if (!SkillTargetQuery.IsAlive(target) || target is EnemyUnit enemy && enemy.ImmuneToDisplacement)
+				return;
+			if ((target is PlayerUnit || target is PetUnit) && !IsHostileSourceOnFriendlyTarget(context.Source, target))
+			{
+				string key = context.Skill != null ? context.Skill.Key : context.Buff != null ? context.Buff.Key : "none";
+				SkillLibrary.WarnOnce("friendly-stat:" + key + ":Displacement:none", "[Skills] '" + key + "': displacement is ignored on the hero and pets for this source");
+				return;
+			}
+			if (context.Caster == null) return;
+			distance = Mathf.Max(0f, distance);
+			if (target is PlayerUnit) distance = Mathf.Min(distance, HeroDisplacementCap);
+			Vector3 origin = fromPoint ? context.Point : context.Caster.transform.position;
+			Vector3 direction = target.transform.position - origin;
+			direction.y = 0f;
+			if (pull)
+			{
+				float contact = SkillTargetQuery.GetUnitRadius(context.Caster) + SkillTargetQuery.GetUnitRadius(target);
+				distance = Mathf.Min(distance, Mathf.Max(0f, direction.magnitude - contact));
+				direction = -direction;
+			}
+			if (direction.sqrMagnitude < 0.0001f) direction = context.Direction;
+			direction.y = 0f;
+			if (direction.sqrMagnitude < 0.0001f) direction = SkillTargetQuery.GetFlatDirection(context.Caster, null);
+			forcedMovement.Start(context, target, pull ? SkillForcedMovement.Kind.Pull : SkillForcedMovement.Kind.Knockback, direction, distance, distance / Mathf.Max(0.001f, duration));
+		}
+
+		public void Dash(in SkillCastContext context, DashEffect def)
+		{
+			if (def == null || context.Caster == null) return;
+			Vector3 direction = context.Direction;
+			direction.y = 0f;
+			if (direction.sqrMagnitude < 0.0001f) direction = SkillTargetQuery.GetFlatDirection(context.Caster, context.PrimaryTarget);
+			forcedMovement.Start(context, context.Caster, SkillForcedMovement.Kind.Dash, direction, Mathf.Max(0f, def.Distance), Mathf.Max(0f, def.Speed), def);
+		}
+
+		public void Blink(in SkillCastContext context, BlinkEffect def)
+		{
+			if (def != null) forcedMovement.Blink(context, def);
+		}
+
 		public void ApplyBuff(UnitCore target, BuffDef def, UnitCore source, float power = 1f)
 		{
 			if (def == null || !SkillTargetQuery.IsAlive(target) || target.EntityProvider == null)
@@ -361,7 +448,7 @@ namespace Codebase.Skills
 			if (current.IsDisposed(entity))
 				return;
 			bool friendlyTarget = target is PlayerUnit || target is PetUnit;
-			bool restricted = source is EnemyUnit && !(target is EnemyUnit);
+			bool restricted = IsHostileSourceOnFriendlyTarget(source, target);
 			if (friendlyTarget || restricted)
 			{
 				if (def.StatMods != null)
@@ -515,6 +602,7 @@ namespace Codebase.Skills
 		public void ClearBuffs(Entity entity)
 		{
 			World current = CurrentWorld;
+			forcedMovement.Stop(entity);
 			if (current.IsDisposed(entity))
 				return;
 			UnitCore owner = buffsStash.Has(entity) ? buffsStash.Get(entity).Owner : null;
@@ -684,12 +772,17 @@ namespace Codebase.Skills
 				return false;
 			World current = CurrentWorld;
 			Entity entity = unit.EntityProvider.Entity;
-			return !current.IsDisposed(entity) && castingStash.Has(entity);
+			return !current.IsDisposed(entity) && (castingStash.Has(entity) || IsDashing(unit));
+		}
+
+		public bool IsChanneling(UnitCore unit)
+		{
+			return IsCasting(unit) && castingStash.Has(unit.EntityProvider.Entity) && castingStash.Get(unit.EntityProvider.Entity).Channeling;
 		}
 
 		public bool IsInCastPoint(UnitCore unit)
 		{
-			return IsCasting(unit) && !castingStash.Get(unit.EntityProvider.Entity).Fired;
+			return IsCasting(unit) && castingStash.Has(unit.EntityProvider.Entity) && !castingStash.Get(unit.EntityProvider.Entity).Fired;
 		}
 
 		public void ResetCaster(UnitCore unit)
@@ -700,6 +793,7 @@ namespace Codebase.Skills
 			Entity entity = unit.EntityProvider.Entity;
 			if (current.IsDisposed(entity))
 				return;
+			forcedMovement.Stop(entity);
 			CancelCast(entity);
 			if (!casterStash.Has(entity))
 				return;
@@ -726,8 +820,13 @@ namespace Codebase.Skills
 		public void CancelCast(Entity entity)
 		{
 			World current = CurrentWorld;
+			if (current.IsDisposed(entity)) return;
+			forcedMovement.Stop(entity, true);
 			if (!castingStash.Has(entity))
 				return;
+			// Inactive (pooled) enemies keep the old behaviour: EnemyCastSystem times its own state out, no animator calls.
+			if (castingStash.Get(entity).Caster is EnemyUnit castingEnemy && castingEnemy != null && castingEnemy.gameObject.activeInHierarchy && GameContext.Has<EnemyCastSystem>())
+				GameContext.Get<EnemyCastSystem>().CancelCast(entity);
 			SkillTelegraphView telegraph = castingStash.Get(entity).Telegraph;
 			if (telegraph != null)
 				telegraph.Despawn();

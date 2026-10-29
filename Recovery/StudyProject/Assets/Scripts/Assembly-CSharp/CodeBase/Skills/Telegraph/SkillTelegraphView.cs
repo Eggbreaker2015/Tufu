@@ -110,6 +110,12 @@ namespace Codebase.Skills
 			inner.localScale = GetScale(Mathf.Clamp01(progress));
 		}
 
+		public void LockPosition()
+		{
+			// Channels keep the warning where the wind-up finished, even if pushed.
+			follow = null;
+		}
+
 		public void Despawn()
 		{
 			if (!active)

@@ -73,6 +73,12 @@ namespace Codebase.Pet.Systems
 				if (!pet.IsAlive)
 					continue;
 				PetUnit unit = pet.Unit;
+				if (skillService.IsDisplaced(unit))
+				{
+					pet.PathFailTimer = 0f;
+					unit.SetWalking(false);
+					continue;
+				}
 				NavMeshAgent agent = unit.Agent;
 				if (agent == null || !agent.enabled)
 					continue;

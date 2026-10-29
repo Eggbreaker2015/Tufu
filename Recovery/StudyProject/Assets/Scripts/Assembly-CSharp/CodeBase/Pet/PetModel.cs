@@ -13,6 +13,9 @@ namespace Codebase.Pet
 
 		public PetUnit Unit;
 
+		// Species skill level last applied to the installed slots; 0 = none.
+		public int SkillLevel;
+
 		public PetState State;
 
 		public float ReviveAt;

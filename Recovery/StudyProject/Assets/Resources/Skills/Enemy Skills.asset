@@ -261,6 +261,33 @@ MonoBehaviour:
     LevelScale: []
     Effects:
     - rid: 1113
+  - Key: charge
+    IconKey:
+    TargetType: 1
+    Range: 7
+    CastPoint: 1.0
+    Backswing: 0.5
+    ChannelDuration: 0
+    ChannelTickInterval: 0
+    OnChannelTick: []
+    Cooldown: 12
+    InitialCooldown: 6
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 7
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 1.5
+    AutoCast:
+      Priority: 13
+      Pick: 0
+      UseWhen:
+      - rid: 1121
+    LevelScale: []
+    Effects:
+    - rid: 1122
   Buffs:
   - Key: slow_30
     IconKey:
@@ -362,6 +389,8 @@ MonoBehaviour:
     - SkillKey: cleave
       Level: 1
     - SkillKey: stomp
+      Level: 1
+    - SkillKey: charge
       Level: 1
   - OwnerKind: 0
     Key: Skeleton_Medium
@@ -865,3 +894,34 @@ MonoBehaviour:
         Anchor: 1
         Scale: 0.6
         HeightOffset: 1.2
+    - rid: 1121
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 3
+        Max: 7
+    - rid: 1122
+      type: {class: DashEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Distance: 7
+        Speed: 16
+        StopAtFirstHit: 1
+        Width: 1.5
+        Power: 2.0
+        PassThrough: 1
+        Filter: 65
+        OnHit:
+        - rid: 1123
+    - rid: 1123
+      type: {class: KnockbackEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        Distance: 2
+        Duration: 0.25
+        FromPoint: 0

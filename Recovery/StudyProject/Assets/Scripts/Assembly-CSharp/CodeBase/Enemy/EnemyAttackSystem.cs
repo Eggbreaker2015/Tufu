@@ -90,6 +90,15 @@ namespace Codebase.Enemy
 
 		private void HandleGroundEnemy(EnemyUnit enemy, Entity entity, PlayerModel player, float deltaTime)
 		{
+			if (FriendlyDebuffs.IsDisplaced(enemy) || FriendlyDebuffs.IsChanneling(enemy))
+			{
+				if (enemy.Agent != null && enemy.Agent.enabled && enemy.Agent.isOnNavMesh)
+				{
+					enemy.Agent.isStopped = true;
+					enemy.Agent.updateRotation = false;
+				}
+				return;
+			}
 			if (vampireSpiritTagStash.Has(entity))
 				return;
 			if (escapeMarkerStash.Has(entity))
@@ -279,6 +288,15 @@ namespace Codebase.Enemy
 
 		private void HandleFlyingEnemy(EnemyUnit enemy, Entity entity, PlayerModel player, float deltaTime)
 		{
+			if (FriendlyDebuffs.IsDisplaced(enemy) || FriendlyDebuffs.IsChanneling(enemy))
+			{
+				if (enemy.Agent != null && enemy.Agent.enabled && enemy.Agent.isOnNavMesh)
+				{
+					enemy.Agent.isStopped = true;
+					enemy.Agent.updateRotation = false;
+				}
+				return;
+			}
 			if (escapeMarkerStash.Has(entity))
 			{
 				HandleEscapingFlyingEnemy(enemy, entity, player, deltaTime);
