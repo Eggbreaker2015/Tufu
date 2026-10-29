@@ -29,6 +29,10 @@ namespace RecoveryTools
         [SerializeField] private int gearLevel = 10;
         [SerializeField] private int gearCopies = 100;
         [SerializeField] private bool evolveGear;
+        [SerializeField] private int petIndex;
+        [SerializeField] private int petLevel = 1;
+        [SerializeField] private int petCopies = 1;
+        [SerializeField] private bool petEquip = true;
         [SerializeField] private Vector2 scroll;
         private bool busy;
         private string result;
@@ -190,6 +194,32 @@ namespace RecoveryTools
             {
                 Button("按伤害/护甲自动装备", StudyQuickTestActions.EquipStrongest);
                 Button("打开背包", StudyQuickTestActions.OpenInventory);
+            }
+            DrawPets();
+        }
+
+        private void DrawPets()
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("宠物", EditorStyles.boldLabel);
+            var species = StudyQuickTestActions.GetPetSpecies();
+            if (species.Length == 0) { EditorGUILayout.HelpBox("没有找到 Pet Config 或宠物物品。", MessageType.Info); return; }
+            petIndex = Mathf.Clamp(petIndex, 0, species.Length - 1);
+            petIndex = EditorGUILayout.Popup("宠物种类", petIndex, species.Select(s => s.Label).ToArray());
+            petLevel = EditorGUILayout.IntField("等级", petLevel);
+            petCopies = EditorGUILayout.IntField("副本数", petCopies);
+            petEquip = EditorGUILayout.Toggle("发放后出战", petEquip);
+            EditorGUILayout.LabelField("已拥有的宠物会追加副本，等级取较高值。", EditorStyles.miniLabel);
+            string key = species[petIndex].Key;
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                Button("发放选中宠物", () => StudyQuickTestActions.GivePet(key, petLevel, petCopies, petEquip));
+                Button("补齐全部宠物", () => StudyQuickTestActions.GiveAllPets(petLevel, petCopies));
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                Button("万能碎片 +100", () => StudyQuickTestActions.AddPetShards(100));
+                Button("万能碎片 +1,000", () => StudyQuickTestActions.AddPetShards(1000));
             }
         }
 

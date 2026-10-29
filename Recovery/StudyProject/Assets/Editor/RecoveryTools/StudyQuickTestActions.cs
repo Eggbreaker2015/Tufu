@@ -141,6 +141,76 @@ namespace RecoveryTools
             return Save("已补齐 " + added + " 件装备，已有装备保留。");
         }
 
+        private static readonly string[] RarityNames = { "普通", "优秀", "稀有", "史诗", "传说", "神化", "神话" };
+
+        // Pet species in rarity order, as (item key, label) for the quick-test popup.
+        public static (string Key, string Label)[] GetPetSpecies()
+        {
+            var petConfig = Codebase.Pet.PetConfig.Instance;
+            if (petConfig == null || !GameContext.Has<ItemsProvider>()) return Array.Empty<(string, string)>();
+            var items = GameContext.Get<ItemsProvider>().Items;
+            return petConfig.Species
+                .Select(d => (Def: d, Config: items.FirstOrDefault(c => c != null && c.Key == d.ItemKey)))
+                .Where(p => p.Config != null)
+                .OrderBy(p => (int)p.Config.Rarity)
+                .Select(p => (p.Def.ItemKey, "[" + RarityNames[Mathf.Clamp((int)p.Config.Rarity, 0, RarityNames.Length - 1)] + "] " + p.Def.DisplayName + " (" + p.Def.ItemKey + ")"))
+                .ToArray();
+        }
+
+        // Owned pets get the copies added and the level raised; new ones are created silently like GiveAllEquipment.
+        public static string GivePet(string key, int level, int copies, bool equip)
+        {
+            RequireTestProfile();
+            var player = GameContext.Get<PlayerModel>();
+            var config = GameContext.Get<ItemsProvider>().Items.FirstOrDefault(c => c != null && c.Key == key);
+            if (config == null) throw new InvalidOperationException("找不到宠物物品 " + key + "。");
+            var item = GrantPet(player, config, level, copies, out bool created);
+            string message = (created ? "已发放 " : "已追加 ") + config.Key + "：等级 " + item.Level + "，副本 " + item.Copies + "。";
+            if (equip && !player.EquippedItems.Contains(item))
+                message += player.EquipItem(item) ? " 已出战。" : " 没有空的已解锁槽，未出战。";
+            if (!Codebase.Pet.PetConfig.Enabled) message += " 注意：宠物模式当前关闭。";
+            return Save(message);
+        }
+
+        public static string GiveAllPets(int level, int copies)
+        {
+            RequireTestProfile();
+            var player = GameContext.Get<PlayerModel>();
+            var items = GameContext.Get<ItemsProvider>().Items;
+            int added = 0;
+            foreach (var (key, _) in GetPetSpecies())
+            {
+                var config = items.FirstOrDefault(c => c != null && c.Key == key);
+                if (config == null || player.Items.Any(i => i.Key == key)) continue;
+                GrantPet(player, config, level, copies, out _);
+                added++;
+            }
+            return Save("已补齐 " + added + " 种宠物，已有宠物保留。");
+        }
+
+        public static string AddPetShards(int amount)
+        {
+            RequireTestProfile();
+            Codebase.Pet.PetEconomy.AddShards(amount);
+            return Save("万能碎片 +" + amount.ToString("N0") + "，当前 " + Codebase.Pet.PetEconomy.Shards.ToString("N0") + "。");
+        }
+
+        private static ItemModel GrantPet(PlayerModel player, ItemConfig config, int level, int copies, out bool created)
+        {
+            int maxLevel = GameContext.Get<CombatBalanceConfig>().MaxEvolutionLevel;
+            copies = Mathf.Clamp(copies, 1, 100000);
+            var item = player.Items.FirstOrDefault(i => i.Key == config.Key);
+            created = item == null;
+            if (created)
+            {
+                item = new ItemModel(player.Lifetime, config) { Copies = copies };
+                player.AddItem(item, applySilently: true);
+            }
+            else item.Copies = Mathf.Clamp(item.Copies + copies, 1, 100000);
+            item.Level = Mathf.Clamp(Mathf.Max(item.Level, level), 1, maxLevel);
+            return item;
+        }
+
         public static string UpgradeEquipment(int levels, int copies, bool evolve)
         {
             RequireTestProfile();
