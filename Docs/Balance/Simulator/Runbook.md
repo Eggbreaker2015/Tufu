@@ -908,7 +908,7 @@ K1 round 2 修正：`replay + econ_caches=stored` 从 `from_day` 起在 RPM **�
 
 注意：
 
-- stored replay 第 d 天强制快照的 Value / Items / DpsData 已是第 d 天被覆盖的状态；`override_days.jsonl` 是之后恢复规划 TotalValue 的记录，RPM 与同日强制快照相同。`replay_items=recompute` 仍只在首次覆盖设物品，之后真实掉落、进化继续；只覆盖属性并不倒退或冻结物品。
+- stored replay 第 d 天强制快照的 Value / Items 已是第 d 天被覆盖的状态；snapshot items 路径的 DpsData 也是第 d 天 stored，recompute items 路径则保留覆盖 stored 之前独立重算的 DpsData/DefenseData 作物品拟合观测；RPM 仍一律使用 stored，规划前恢复 stored。不能用注入的缓存给 P18 打分，否则四组合都成零残差；`override_days.jsonl` 是之后恢复规划 TotalValue 的记录，RPM 与同日强制快照相同。`replay_items=recompute` 仍只在首次覆盖设物品，之后真实掉落、进化继续；只覆盖属性并不倒退或冻结物品。
 - T09 / P07 使用从日 0 开始、snapshot items、stored caches、`unlock=snapshot`、`rpm_after_override=skip`、**null_policy** 的重放。空战斗策略防止真实门禁把 Location 推到随包状态之前（完整规划会在 day 26 打开岛 9，而随包 TC27 仍是岛 8）；它不注入 CurrentGpm。46 个强制快照的 1380 格逐格对随包值；非 TC 日逐格断言 running max 不变。
 - 旧版可复现诊断为 `exported(d)=max(X(d−1), G(pre-override state d))`，X 为 `override_days.jsonl` 的 RPM。评审在 TC≥5 核对 1230/1230、其中 1070 格等于 X 单独值。下面 19.4–19.5 的旧计数是修正前历史；新结果见 24.7。不得再用旧顺序解释当前 stored replay。
 - 交互与 free 两个钩子直接返回。checkpoint 的两个采样点之间仍按原有进化转移继续闭环。
@@ -1277,5 +1277,7 @@ mace 的独立定位：`Scenes/Main.unity:57815`，岛 4 `Spawner_1_epic_buck`�
 P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept**；SlotRpmOrder 才是选择。KillState 和 P12 的留出分数各候选完全相同；到 TC25 P12 均已开放同样槽位，所以该持出段 **non-discriminating**，1.5× 仅作 sanity check，不算确认假设。Q25 若 day5 仍无解继续 unresolved。
 
 `measure()` 首次 timing 文件用排他创建，重跑写 attempt-2、attempt-3…，从不覆盖 initial.timing.json；归档自动纳入每个 attempt，不再手工重构计时。
+
+首轮诊断提交 7a296e2 和采样网格限制 81fb78c 的 full-policy P07 均为 1375/1380。随后逐日记录定位：剩余五格是完整规划 day26 已打开岛9，TC27 的实际 Location=9、随包仍=8；并非仅加采样网格限制就解决。改用无战斗的完整随包状态契约后 1380/1380。451b843 又修复 item-recompute 的可观测性：生成的 DpsData/DefenseData 不被 stored 注入遮盖，RPM 仍在 stored 上计算；全部矩阵在该提交重跑，前一轮试验只留诊断、不作为最终拟合或黄金依据。
 
 本轮最终数字、命令、用时与审计摘要补记于此节末。

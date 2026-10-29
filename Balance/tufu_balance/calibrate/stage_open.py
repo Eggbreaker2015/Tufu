@@ -590,6 +590,13 @@ def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_roo
                                "max": max(c.rel for c in t04_cells), "n": len(t04_cells)}
     t09_cells = [c for c in cells if c.target == "T09"]
     detail["t09_exported"] = {"hits": sum(sc.gpm_matches(c.ref, c.sim) for c in t09_cells), "cells": len(t09_cells)}
+    rpm_series = read_series(paths["p07-RpmFirst"])
+    observed = set(targets.shipped.tc_days)
+    interpolated = [s for s in rpm_series.full if s.tc not in observed]
+    detail["t09_interpolated_max"] = {
+        "days": len(interpolated), "cells": sum(len(s.stats) for s in interpolated),
+        "changed_cells": sum(s.stats[k]["CurrentGpm"] != rpm_series.day(s.tc-1).stats[k]["CurrentGpm"]
+                             for s in interpolated for k in s.stats)}
     t05 = t05_evidence(db, kill, shipped)
     detail["t05"] = t05
     detail["mace_eligibility"] = mace_eligibility(db, kill)
@@ -650,7 +657,9 @@ def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_roo
             (out / (name + ".csv")).write_text(report.csv_text(tuple(rows[0]), rows))
     write_json(out / "evidence.json", detail)
     write_json(out / "open.json", changes)
-    for name in ("initial.json", "selected.json", *(p.name for p in sorted(workspace.glob("*.timing.json")))):
+    for name in ("initial.json", "selected.json", *(p.name for p in sorted(workspace.glob("*.timing.json"))),
+                 *(p.name for p in sorted(workspace.glob("*.audit.json"))),
+                 *(p.name for p in sorted(workspace.glob("*.diagnosis.txt")))):
         source = workspace / name
         if source.exists():
             (out / name).write_bytes(source.read_bytes())

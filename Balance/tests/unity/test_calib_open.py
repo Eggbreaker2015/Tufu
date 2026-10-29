@@ -18,7 +18,7 @@ SUITE = 'calib_open'
 
 @pytest.fixture(scope='module')
 def calibration(unity_rev):
-    workspace = S.BALANCE / 'out/calibration/open-round2-work'
+    workspace = S.BALANCE / 'out/calibration/open-round2-final-work'
     assert S.main(['--rev', unity_rev, '--workspace', str(workspace)]) == 0
     latest = json.loads((workspace / 'latest.json').read_text())
     directory = Path(latest['report'])
@@ -80,11 +80,13 @@ def test_t09_distinguishes_export_from_g20(calibration):
     exported = e['t09_exported']
     assert exported['hits'] == exported['cells'] == 1380
     assert e['raw_export_status']['T09'] == 'pass'
+    assert e['t09_interpolated_max'] == {'days': 360, 'cells': 10800, 'changed_cells': 0}
     assert e['p07']['RpmFirst']['hits'] > e['p07']['ModifierFirst']['hits']
     assert e['p07']['RpmFirst']['hits'] > e['p07']['StaleTickCache']['hits']
     check(SUITE, {'t09.g20_hits': exact(oracle['hits'], source='G20 replay on shipped states', original=1380),
                   't09.exported': exact(exported, source='raw exported path; explicitly not G20 acceptance'),
-                  'p07': exact(e['p07'], source='P07 both real C# ablations')})
+                  'p07': exact(e['p07'], source='P07 both real C# ablations'),
+                  't09.interpolated_max': exact(e['t09_interpolated_max'], source='non-TC days never raise sampled RPM max')})
 
 
 def test_p18_q25_and_every_failed_criterion_remain_visible(calibration):
