@@ -10,6 +10,7 @@ namespace Codebase.Enemy.Systems
 		[Inject]
 		private Stash<UnitComponent> unitStash;
 		private const double HEAL_PER_SECOND = 0.05;
+		private const double EVADE_HEAL_PER_SECOND = 0.25;
 		private const int NO_DAMAGE_TIME_TO_HEAL = 5;
 		public override void OnAwake()
 		{
@@ -24,7 +25,8 @@ namespace Codebase.Enemy.Systems
 				var enemy = unit as EnemyUnit;
 				double maxHealth = unit.GetStatValue(Codebase.Unit.StatType.Health);
 				double regen = unit.GetStatValue(Codebase.Unit.StatType.HealthRegen);
-				double idleRegen = (enemy == null || !enemy.IsReturningHome) && unit.LastDamageGet + NO_DAMAGE_TIME_TO_HEAL <= UnityEngine.Time.time ? maxHealth * HEAL_PER_SECOND : 0.0;
+				double idleRegen = enemy != null && enemy.IsReturningHome ? maxHealth * EVADE_HEAL_PER_SECOND :
+					unit.LastDamageGet + NO_DAMAGE_TIME_TO_HEAL <= UnityEngine.Time.time ? maxHealth * HEAL_PER_SECOND : 0.0;
 				unit.CurrentHealth = System.Math.Min(unit.CurrentHealth + (regen + idleRegen) * deltaTime, maxHealth);
 			}
 		}

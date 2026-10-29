@@ -111,6 +111,8 @@ namespace Codebase.Enemy
 			}
 		}
 
+		public float LeashDistance => Mathf.Max(18f, AggroRange * 2.5f) + Mathf.Max(config.SpawnArea.x, config.SpawnArea.y) * 0.5f;
+
 		public float AggroDuration
 		{
 			get

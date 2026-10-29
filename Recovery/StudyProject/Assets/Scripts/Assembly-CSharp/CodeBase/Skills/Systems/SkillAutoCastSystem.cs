@@ -129,12 +129,12 @@ namespace Codebase.Skills.Systems
 			SkillService.Execute(slot.Def.Effects, context);
 		}
 
-		// Enemies only act on skills in combat (aggro window or targeted by the hero); anything else always.
+		// Enemies only act on skills in combat, never while evading; anything else always.
 		private bool IsEngaged(UnitCore unit)
 		{
 			if (!(unit is EnemyUnit enemy))
 				return true;
-			return enemy.AggroTimer > 0f || playerModel.Unit != null && playerModel.Unit.CurrentTarget == enemy;
+			return !enemy.IsReturningHome && (enemy.AggroTimer > 0f || playerModel.Unit != null && playerModel.Unit.CurrentTarget == enemy);
 		}
 
 		private bool CanThink(Entity entity, UnitCore unit)

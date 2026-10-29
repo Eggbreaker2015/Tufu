@@ -90,6 +90,7 @@ namespace Codebase.Enemy
 
 		private void HandleGroundEnemy(EnemyUnit enemy, Entity entity, PlayerModel player, float deltaTime)
 		{
+			CheckLeash(enemy, entity);
 			if (FriendlyDebuffs.IsDisplaced(enemy) || FriendlyDebuffs.IsChanneling(enemy))
 			{
 				if (enemy.Agent != null && enemy.Agent.enabled && enemy.Agent.isOnNavMesh)
@@ -118,7 +119,7 @@ namespace Codebase.Enemy
 				return;
 			}
 
-			enemy.Agent.speed = (float)enemy.GetStatValue(StatType.MovementSpeed) * (enemy.RetreatTimer > 0f ? 2f : 1f);
+			enemy.Agent.speed = (float)enemy.GetStatValue(StatType.MovementSpeed) * (enemy.IsReturningHome || enemy.RetreatTimer > 0f ? 2f : 1f);
 			enemy.RetreatTimer -= deltaTime;
 			if (enemy.AttackCooldown > 0f)
 				enemy.AttackCooldown -= deltaTime;
@@ -130,12 +131,18 @@ namespace Codebase.Enemy
 				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
 			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
 			bool retreat = (distanceSquared > enemy.AggroRange * enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
-			if (retreat || playerUnavailable || waitingMarkerStash.Has(entity))
+			if (enemy.IsReturningHome || retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
 				if (enemy.InCombat)
 				{
-					enemy.IsReturningHome = !bossArenaUnitStash.Has(entity);
 					enemy.InCombat = false;
+					if (!bossArenaUnitStash.Has(entity) && !vampireSpiritTagStash.Has(entity))
+						BeginEvade(enemy);
+				}
+				if (enemy.IsReturningHome)
+				{
+					enemy.AggroTimer = 0f;
+					enemy.Agent.speed = (float)enemy.GetStatValue(StatType.MovementSpeed) * 2f;
 				}
 				ClearAggroTarget(enemy);
 				enemy.RangedHolding = false;
@@ -159,6 +166,8 @@ namespace Codebase.Enemy
 				{
 					enemy.Agent.updateRotation = false;
 					enemy.Agent.isStopped = true;
+					if (enemy.IsReturningHome)
+						enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
 					enemy.IsReturningHome = false;
 				}
 
@@ -205,6 +214,25 @@ namespace Codebase.Enemy
 					enemy.LastDestination = target;
 				}
 			}
+		}
+
+		private void CheckLeash(EnemyUnit enemy, Entity entity)
+		{
+			if (!enemy.InCombat || bossArenaUnitStash.Has(entity) || escapeMarkerStash.Has(entity) || vampireSpiritTagStash.Has(entity))
+				return;
+			Vector3 offset = enemy.transform.position - enemy.PatrolCenter;
+			offset.y = 0f;
+			if (offset.sqrMagnitude > enemy.LeashDistance * enemy.LeashDistance)
+				BeginEvade(enemy);
+		}
+
+		private static void BeginEvade(EnemyUnit enemy)
+		{
+			enemy.IsReturningHome = true;
+			enemy.InCombat = false;
+			enemy.AggroTimer = 0f;
+			enemy.AggroTarget = null;
+			enemy.LastDestination = null;
 		}
 
 		private void HandleEscapingGroundEnemy(EnemyUnit enemy, Entity entity, PlayerModel player, float deltaTime)
@@ -296,6 +324,7 @@ namespace Codebase.Enemy
 
 		private void HandleFlyingEnemy(EnemyUnit enemy, Entity entity, PlayerModel player, float deltaTime)
 		{
+			CheckLeash(enemy, entity);
 			if (FriendlyDebuffs.IsDisplaced(enemy) || FriendlyDebuffs.IsChanneling(enemy))
 			{
 				if (enemy.Agent != null && enemy.Agent.enabled && enemy.Agent.isOnNavMesh)
@@ -327,14 +356,20 @@ namespace Codebase.Enemy
 			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
 			bool retreat = (distance > enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
 			Vector3 target;
-			if (retreat || playerUnavailable || waitingMarkerStash.Has(entity))
+			if (enemy.IsReturningHome || retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
 				if (enemy.InCombat)
 				{
-					enemy.IsReturningHome = !bossArenaUnitStash.Has(entity);
 					enemy.InCombat = false;
+					if (!bossArenaUnitStash.Has(entity) && !vampireSpiritTagStash.Has(entity))
+						BeginEvade(enemy);
 				}
+				if (enemy.IsReturningHome)
+					enemy.AggroTimer = 0f;
 				ClearAggroTarget(enemy);
+				enemy.RangedHolding = false;
+				enemy.RangedKiteTimer = 0f;
+				enemy.LineOfFireTimer = 0f;
 				target = enemy.CurrentSpawnerPatrolPoint;
 			}
 			else
@@ -347,12 +382,13 @@ namespace Codebase.Enemy
 				target = attackRange > distance + 0.5f ? enemy.transform.position : aggroTarget.transform.position;
 			}
 
+			bool evading = enemy.IsReturningHome;
 			Vector3 position = enemy.transform.position;
 			float remaining = Vector3.Distance(position, target);
 			if (remaining > 0.1f)
 			{
 				Vector3 direction = (target - position).normalized;
-				float step = (enemy.RetreatTimer > 0f ? 2f : 1f) * (float)movementSpeed * deltaTime;
+				float step = (enemy.IsReturningHome || enemy.RetreatTimer > 0f ? 2f : 1f) * (float)movementSpeed * deltaTime;
 				enemy.transform.position = step > remaining ? target : position + direction * step;
 				direction.y = 0f;
 				if (direction != Vector3.zero)
@@ -360,9 +396,12 @@ namespace Codebase.Enemy
 			}
 
 			if (enemy.IsReturningHome && Vector3.Distance(enemy.transform.position, target) <= 0.1f)
+			{
 				enemy.IsReturningHome = false;
+				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
+			}
 			enemy.LastDestination = target;
-			if (distance < attackRange)
+			if (!evading && distance < attackRange)
 				Attack(enemy);
 		}
 
