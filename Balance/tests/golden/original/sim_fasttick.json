@@ -62,6 +62,18 @@
     "n": 34
    }
   },
+  "t04.max_rel_cap": {
+   "kind": "max",
+   "note": "design limit missed; registered C5 deviation, see FastTick.md",
+   "source": "T04",
+   "value": 0.08
+  },
+  "t04.median_rel_cap": {
+   "kind": "max",
+   "note": "design limit missed; registered C5 deviation, see FastTick.md",
+   "source": "T04",
+   "value": 0.02
+  },
   "t04.nntour": {
    "kind": "exact",
    "note": "",

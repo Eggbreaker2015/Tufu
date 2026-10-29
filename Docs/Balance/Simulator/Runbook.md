@@ -956,3 +956,41 @@ request = req.make_request([job])
 - C6：`replay_items = recompute` 时物品只在第一次覆盖时设，之后靠 `ProcessInventory`；覆盖用 `AddItem(…, applySilently: true)` 加新物品，会自动装备到空槽。快照 `Items` 的 Level 现在是有效等级。装备变化（`ApplyEquippedItemsToUnit`）会去掉 TotalValue 校正，当天剩下的时间回到 K(d) 合成值。`items_removed`（玩家有、快照没有的物品被去掉）与 `items_reordered` 要等 C6 让玩家得到快照外的物品后才测得到。注意：去掉物品是卸下后经反射重设 `PlayerModel.Items`，`AddItem` 建的存档条目 `Data.Items` 不删、顺序也不改；若之后从存档重建（`LoadItems`），去掉的物品会回来、顺序会变回去。C6 测去掉与重排时要连同存档条目一起测，或在去掉时删掉绑定的条目。
 - C9：`checkpoint` 加 K 补丁时 TotalValue 应是补丁后的 K 合成值（`total_value` 解析为 `compose`）；请在 C9 的补丁钩子接上后补这个 Unity 测试。
 - C7：覆盖后 `CurrentHealth` 回满；`unlock = snapshot` 会打开门禁（`GatesModel`），被打开的门禁刷怪点不会再触发解锁。
+
+## 19. 快阶段（C5）
+
+实现、黄金结果、与调研脚本的差异和 P10 的充能数据接口见 [FastTick.md](FastTick.md)。验收代码提交为 `3f7f8282aa5391a355608014dea7cdb1285d74f3`；此后的提交只接受黄金结果并补文档。
+
+### 19.1 第 4–405 天的耗时
+
+运行键 `3367f41746c8fc42c47153bbf3ba2e511e654c1863adc26d5b5cc25ffd6e3f32`：18 个作业，一次启动器运行 308.51 秒。B 组单独运行键 `648627465d06f6e13f0a2ddca6abb16ee93814a04e7d6540907b7ae85e7d920d`，15.29 秒。两次 Unity 与启动器都以 0 退出，`guard_problems = []`，日志扫描 `error_like_lines = 0`，启动器核对运行工作树干净；没有写回场景或随包资产。
+
+两个 405 天作业都实跑第 4…404 天的 401 个 FastTick，第 405 天拍强制快照后停止。表来自各作业 `timings.json.fast_tick_ms`，含规划、冲刷、离线、换天、快照与输出。
+
+| 作业 | FastTick 样本 | p50 / 均值 / p95 / 最大值（毫秒）| 中位数预算 |
+|---|---|---|---|
+| `fast-405`，replay + stored、κ = 0.245，逐刷怪点导出开启 | 401 | 33.94 / 37.16 / 49.30 / 60.75 | 33.94 ≤ 50，通过 |
+| `free-405`，当前 C6/C7 尚为空，逐刷怪点导出开启 | 401 | 16.26 / 16.37 / 20.66 / 40.37 | 16.26 ≤ 50，通过 |
+
+机器有 10 核，测量期间 load 约 4–8；不是空闲测量。`perf` 测试因 load 超过 2.5 自动跳过，但上述原始中位数另行逐项检查均在 16.3 节的 50 毫秒预算内。均值与 p95 一并记录，不把最大值当中位数预算。C6/C7 集成后应在空闲机器重测，尤其不能把当前 free 作业的较低耗时当作完整闭环策略的成本。
+
+### 19.2 验收命令与结果
+
+在本单元 `Balance/` 下，解释器为开发工作树的 `.venv/bin/python`，`TUFU_BALANCE_DB` 指向只读共享数据库：
+
+```bash
+TUFU_UNITY_REV=3f7f8282aa5391a355608014dea7cdb1285d74f3 python -m pytest -q --unity tests/unity/test_fasttick.py
+python -m pytest -q
+python tests/golden/fixtures/generate.py --check
+python -m tufu_balance.cscheck --worktree /Users/joyfort/MyProjects/Tufu-s5-C5
+python -m tufu_balance.golden guard
+```
+
+- 新 C5 Unity 验收在首次记录两个 T04 上限键之前，仅 `test_t04_active_minutes` 因这两个新键没有 CURRENT 而失败，其余 17 个通过，1 个 perf 跳过；全部实际 Unity 作业均成功。经 `golden accept sim_fasttick --keys t04.median_rel_cap t04.max_rel_cap --loosen --reason ...` 显式登记偏离，保留 ORIGINAL 的 0.02 / 0.08。
+- 接受后重跑 C5 Unity 验收：18 通过、1 个 perf 跳过，120.39 秒；复用上述成功运行，包含等待共享运行锁的时间，没有再启动 Unity。静态 C5 测试 10 通过。
+- 全仓 pytest：774 通过、130 跳过，154.90 秒；跳过包括未带 `--unity` 的 Unity 测试、繁忙机器的 perf 和 LFS 场景检查。
+- fixture：`identical`（来源模块的 provenance 变化单列）；cscheck：编辑器与非编辑器都编译成功，0 新警告、签名 0 违规、禁用 API 0；golden guard：16 套件、0 违规。
+- C4 的交接补测通过：checkpoint 非检查点规划轮的 `stored_caches_other_day > 0`，只有检查点当天应用存储缓存。参考冲刷两种门禁规划模式都与默认冲刷摘要、完整天快照逐字节一致。
+- `refresh --level 1` 不能运行：本分支还没有 P13 的 `tufu_balance.refresh` 模块（命令报 `No module named tufu_balance.refresh`）。以上分项检查不等同于声称运行了 refresh。
+
+**T04 原阈值仍未通过**：实际中位误差 4.292634%、最大 8.585590%，登记黄金放宽仅冻结已知缺口。诊断数值与设计稿不同的原因、C6 的非零物品冲刷尚未覆盖的路径见 FastTick.md，交 Z1/K3/C6 后续处理。

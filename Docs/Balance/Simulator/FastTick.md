@@ -38,12 +38,15 @@ T04 按原式 `κ * Σ(clears * farmedTime) / 60` 实现。新增测试独立核
 
 `t04.median_rel_cap` / `t04.max_rel_cap` 的 ORIGINAL 保留设计 0.02 / 0.08，CURRENT 接受实际测量，并经 `--loosen` 写明偏离原因。此前首次测量的完整字典保留，不重写 ORIGINAL。该放宽只冻结已知失败，不代表 T04 满足设计；Z1/K3 需处理阈值与调研次数错误。
 
+恢复后的完整验收代码为 `3f7f828`，18 个作业运行键 `3367f41746c8fc42c47153bbf3ba2e511e654c1863adc26d5b5cc25ffd6e3f32`，B 组运行键 `648627465d06f6e13f0a2ddca6abb16ee93814a04e7d6540907b7ae85e7d920d`。首次冻结的所有键均复现；新增的充能与 farmedTime 预言机检查也通过。主 replay 导出 238456 行、417 轮、401 天，清过的 DAFC 25 个；实际充能用量合计 1132830，free 为 993734。耗时及命令见 [Runbook 第 19 节](Runbook.md#19-快阶段c5)。
+
 ## P10 / C6 / K3 交接
 
 - `fasttick_days.jsonl`（输出开关 `fasttick_days`，默认开）：每一天的规划轮、清怪次数、击杀数、活跃分钟、属性/物品/灵魂累积、两阶段的解锁岛、冲刷修饰器数。浮点用 C2 的 IEEE 十六进制编码。
 - `spawner_days.csv.gz`（`outputs.spawner_days = true`）：每一规划轮的机器人数据各一行，包含 `day,round,spawner,location,dafc,killable,fights,fight_time,farmed_time,loss,max_health,count,charge_limit,charges_before,charges_after`。每一天一个 gzip member，一个总表头。`spawner` 为 C1 的层级路径与 Key，映射回 `(scene,file_id)`。
 - Python `unity.fasttick.read_spawner_days` 读取新表并兼容恢复前的 11 列表。`kill_days` 求首次实际清怪日；`charge_counts` 保留原 API，返回清怪次数；**`charge_usage` 返回实际充能单位**（写入后的用量减之前的用量），不需要再乘 Count。老输出缺少充能列时该函数明确报错。
 - T05 闭环阈值由 `calibrate.sensitivity.closed_loop_exact_min(curve, e)` 推出，例如 DPS 误差 2% 对应 ≥35/41；不要把报告值 37/41 当闭环硬阈值。T07/T05 的结构规则均为事后推断。
+- 开环 T05 应用 `sensitivity.interval_results(shipped_days, sensitivity.daily_gains(fast_days))` 比较每天实际冲刷的奖励；replay 的强制快照前后夹着教师覆盖，不能直接用模拟快照差值代替奖励。C7 填写慢阶段后，应重测当前由空慢阶段导致的岛 2/3 解锁与次日规划诊断差异，不能无记录地改冻结值。
 - C6 需填写物品函数并接入 P18；当前参考冲刷的物品路径也没有非零份数，C6 应重跑参考冲刷验收。C5 没有改 Inventory 的方法体。
 - `refresh --level 1` 尚不存在（P13 后续单元）；本单元以全仓 pytest、C5 Unity 验收、fixture 检查、cscheck 和 golden guard 分别验证，不能声称已运行 refresh。
 
