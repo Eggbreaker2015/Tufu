@@ -116,3 +116,8 @@ inventory.json 改经 SimulationJson.WriteFile/Write 的 JsonDouble 路径序列
 - `python -m tufu_balance.unity status`：运行工作树 clean=true，锁为空，无运行工作树 Unity 进程。
 
 新批处理默认重放 FastTick 的 p50/均值/p95/最大为 44.3902/49.0619/71.4368/81.8719 ms（401 次，中位数 ≤50 ms）；free 为 17.6695/19.7178/42.3140/49.6111 ms。慢 Tick 中位数分别为 1.2359/0.7847 ms。仍是与全仓测试并行的繁忙机器测量。
+
+
+## K1 round 2 更正（mace 交接）
+
+早期 Epic 的 +6 份不是可由 K1 KillState / KillLossMultiplier 校准解决的选择。K1 复查原版 6af011f 过滤、只读场景数据、就绪表、实际充能及 model.simcalc.eligible_spawners：岛4 Spawner_1_epic_buck（file_id 57815，OT=10天，Count=1，limit=2）在 day10–12 均 eligible；day10 loss/H=0.525824，禁用 kill predicate 也 day10 首杀。岛4 day5 已由门禁打开，derived override 不注入解锁。随包从 day13 才开始产生 mace，相差三天×2=6，正是 mace18/12、Epic68/62。没有 C5 过滤移植差异的证据；交 K3 的闭环成长/配置状态 A/B 诊断，撤回“用 K1 kill gate 参数解决”的建议。T12 日整数5%不可行与 pre-roll 噪声 allowance 见 Runbook 24.7；阶段检查继续保留失败。

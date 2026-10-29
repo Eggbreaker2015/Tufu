@@ -412,6 +412,36 @@ def t12(sim: T.Series, tg: T.Targets) -> list[Cell]:
     return out
 
 
+def t12_expected(expected_daily: Mapping[int, Mapping[str, float]], tg: T.Targets) -> list[Cell]:
+    """Pre-roll copies vs shipped integers, with one copy per active item stream of noise.
+
+    A carry stream's count over an interval differs from its real expectation by less
+    than one. Keep the 5% structural allowance in addition; phase checks stay unchanged.
+    Missing trace days produce missing cells, never a zero-residual success.
+    """
+    out = []
+    for d in range(FAST_FROM_TC, 11):
+        ref = _gains(tg.shipped, tg, d, d + 1) or {}
+        totals: dict[tuple[str, str], float] = {}
+        streams: dict[tuple[str, str], int] = {}
+        amounts = expected_daily.get(d)
+        for key, value in (amounts or {}).items():
+            item = tg.items[key]
+            group = ("armor" if item.is_armor else "weapon", item.rarity)
+            totals[group] = totals.get(group, 0.0) + value
+            if value > 0:
+                streams[group] = streams.get(group, 0) + 1
+        for key in sorted(set(ref) | set(totals)):
+            r = ref.get(key, 0)
+            pred = totals.get(key, 0.0) if amounts is not None else None
+            noise = streams.get(key, 0)
+            out.append(Cell("T12", "daily_expected", f"{d:03d}->{d+1:03d}|{key[0]}|{key[1]}",
+                            pred, r, _diff(pred, r), _rel(pred, r), tc=d+1, split="train",
+                            bound=noise + .05*abs(r),
+                            note=f"pre-roll expectation; {noise} active item streams, <1 copy/stream integer noise + 5%"))
+    return out
+
+
 def evolution_first_reached(series: T.Series, items: Mapping[str, T.ItemInfo] | None = None
                             ) -> dict[tuple[str, int], int]:
     """(item, level) -> first day snapshot at that evolution level or above."""

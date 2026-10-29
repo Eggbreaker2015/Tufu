@@ -590,7 +590,7 @@ C3b 填了 `SimulationSystem.Run.cs`、`.Lifecycle.cs`、`.Snapshot.cs`、`.Amul
 ### 16.2 实现要点
 
 - **时钟**：P、T 都是 float32，每一步写成 `(float)(x + m)`。慢阶段没有目标时空闲到下一个早期快照的到期时刻，最多 `TimeStep/60`（5 分钟）；到期规则写成 `P ≥ last + interval(P)`（`interval` 取 P06 的分段，P < 20 时 1 分钟，之后 5 分钟），与"`P − last ≥ interval`"数学上等价，但不会因舍入出现零步长。会话：`P ≥ lifeCyclePeriodEnd` 时离线 230 分钟，`lifeCyclePeriodEnd = P + 10`（G22）。快阶段：`RebuildAdvanceFastDay` 冲刷、加活跃分钟，然后每步 120 分钟离线直到天序号变化。
-- **换天**只在 `UpdateSpawnerChargesChunk`：天序号是 `Mathf.Floor((float)(T / 1440))`；用量清零、冷却清零（`+∞` 除外）、`RpmFirst`（`RecalculateChunkRpmValues` → `UpdateInterpolationStatModifier` → 停用模块 → 强制快照 → `RebuildApplyDayOverride`）。覆盖在强制快照之后，与第 0 天相同（见 16.6）；覆盖之后 `RPMCalculatedValue` 不会重算，C4 的覆盖如果要让当天的 RPM 反映覆盖后的状态，要在覆盖里自己调用 `CalculateRPMValueTimeChunk`（每个 Tick 开头的 `CalculateSimulationData` 已经会重建战斗数据）。`ModifierFirst` 先换修饰器；`StaleTickCache` 不重算 DpsData/DefenseData，只用 GPM 模式重建 `spawnerData` 再算 RPM（最小 FastTick 下 DpsData 停在最后一个慢阶段 Tick 的值）。
+- **换天**（K1 round 2 后，stored replay 的例外见 19.2）：只在 `UpdateSpawnerChargesChunk`：天序号是 `Mathf.Floor((float)(T / 1440))`；用量清零、冷却清零（`+∞` 除外）、`RpmFirst`（`RecalculateChunkRpmValues` → `UpdateInterpolationStatModifier` → 停用模块 → 强制快照 → `RebuildApplyDayOverride`）。覆盖在强制快照之后，与第 0 天相同（见 16.6）；覆盖之后 `RPMCalculatedValue` 不会重算，C4 的覆盖如果要让当天的 RPM 反映覆盖后的状态，要在覆盖里自己调用 `CalculateRPMValueTimeChunk`（每个 Tick 开头的 `CalculateSimulationData` 已经会重建战斗数据）。`ModifierFirst` 先换修饰器；`StaleTickCache` 不重算 DpsData/DefenseData，只用 GPM 模式重建 `spawnerData` 再算 RPM（最小 FastTick 下 DpsData 停在最后一个慢阶段 Tick 的值）。
 - **快照**：`Value` 是去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器后按 `StatBase.CalculateValue` 原顺序重算的值；SFF/PM 是修饰器当时的 K2/K3；`TotalFlatValue = Value·(1+K2)`，直接属性 `TotalValue = TotalFlatValue·K3`（G11 的顺序，见 16.6）。早期列表的 CurrentGpm 是对上一个早期快照的 ΔValue/ΔP（ΔP = 0 为 NaN，第一个为 0），天列表是 `RPMCalculatedValue`。每个快照追加后调用 `SimulationExport.RecordSnapshot`（槽数、当前血量、物品的 `Evolved` 与 `EvolutionLevel`；未进化时 `EvolutionLevel` 记 0），`PrepareSimulationRun` 调用 `ResetRecorder`。导出按 `GetTrimmedTimeChunkSnapshots` 裁剪（第 0 天起 `max(i+1, ceil((float)(1.1f·i)))`）。
 - **写入点** `RebuildApplyClear(spawner, clears, accumulate)`：次数先截到剩余充能允许的次数——与机器人过滤一致，只要 `用量 < 上限` 就还能清一次（最后一次可以越过上限），即 `ceil((上限 − 用量)/Count)`，多出来的记 `charge_clamped`，截成 0 时什么也不做；然后用量 `+= Count·clears`（不超过上限），冷却 `= BaseCooldown`，DAFC 次数截成 1、冷却 `+∞`；立即模式发属性（`(float)(Value·Count·clears)`，经 `Stat.AddModifier`，平坦 Health 同时加当前血量）、物品（`GetSpawnerItemRewardCopies` 的份数记进 `RebuildPendingItemCopies`，然后 `ProcessInventory`）、灵魂与货币（只记录）、门禁；累积模式只调用 `AccumulateFastTickSpawnerRewards`。
 - **门禁与解锁**：刷怪点的每个 Gate 只开一次（`GatesModel`），开出的岛去重后逐个处理：岛号不大于已解锁岛的（回头门：岛 4→1、11→8、12→7、13→2，或指向已开岛的前进门）记 `back_gate_noops`，不做事；其余调用 `RebuildUnlockLocation`。`SlotReward` 在同一处打开对应槽位。`RebuildUnlockLocation(n)`：`UnlockLocation`、`AdvanceBossProgressLocation`、`currentBoss = RebuildFindBoss(n)`、`UnlockSimulationWeaponSlot(n)`；n 不大于已解锁岛（`UnlockLocation` 取最大值，所以就是"已开放"）时记 `repeat_unlocks`、不做事。门禁不会走到这一支，只有直接调用（C4 的 unlock 覆盖、探针）会。
@@ -871,7 +871,7 @@ C4 填了 `Systems/SimulationSystem.Replay.cs` 的两个钩子 `RebuildApplyDayO
 | `replay_items` | `snapshot`（默认）、`recompute` | `snapshot`：每次覆盖都设物品；`recompute`：只在第一次覆盖时设，之后由物品模块（C6）按击杀累积 |
 | `unlock` | `derived`（默认）、`snapshot` | `derived`：岛只由门禁的可杀性解锁（策略）；`snapshot`：解锁到快照的 `Location`（诊断用）|
 | `total_value` | `snapshot`、`compose` 或 null（`replay` 取 `snapshot`，`checkpoint` 取 `compose`）| `snapshot`：属性的 TotalValue（`Stat.FastValue`）等于快照自己的 TotalValue（插值日是插值值）；`compose`：由 Value 与当天 K2/K3 修饰器合成（与强制快照的写法相同）。`checkpoint` 给 `snapshot` 时请求被拒：校正修饰器会留到闭环的后几天（K2/K3 已经变了，C9 的 K 补丁也会被拉回随包值）|
-| `rpm_after_override` | `recompute`（默认）、`skip` | `recompute`：覆盖之后在新状态上再算一遍当天的 RPM（19.2 第 6 步）；`skip`：不算，`RPMCalculatedValue` 只有换天时算的值 |
+| `rpm_after_override` | `recompute`（默认）、`skip` | stored replay 均等效 skip，RPM 在覆盖后、K(d−1) 下算且在观测日更新；其余模式 recompute 仍覆盖后重算、skip 保留换天值（19.2）|
 | `items_evolved` | `{"<TC>": {"<Key>": true/false/null}}` 或 null | 物品是否已进化，按随包天快照的 TimeChunkIndex 给。缺这一天、缺这件物品或值为 null 时按 `Level != Copies` 判定，并计数（`items_evolved_fallback` 等）|
 | `slots` | `{"<TC>": {"weapon": n, "armor": m}}` 或 null | 武器槽、护甲（头盔+盾）槽的个数；null 表示不动槽位。超出玩家已有槽位数（武器 5、护甲 2）时作业以 5 失败 |
 
@@ -888,7 +888,7 @@ request = req.make_request([job])
 
 ### 19.2 每天做什么
 
-覆盖在第 d 天的强制快照**之后**生效（C3b 的顺序，16.6），第 0 天在快照 0 之后。哪些天：
+K1 round 2 修正：`replay + econ_caches=stored` 从 `from_day` 起在 RPM **之前**加载第 d 天状态（包括第 0 天），当时 K2/K3(d−1) 仍在；随后 RPM → K(d) → 强制快照。最后的覆盖钩子只恢复当天规划用的 TotalValue、满血与缓存、写记录，不重算 RPM。`checkpoint` 与 `replay + recomputed` 仍在强制快照之后覆盖；free 无覆盖。哪些天：
 
 - `replay`：每个 d ≥ `from_day`。状态取 `config.SimulationData.GetByTimeChunkIndex(d)`（已恢复代码，随包资产的 46 个天快照）。
 - `checkpoint`：只在随包天快照所在的 d（≥ `from_day`），状态就是那个快照本身；两次之间闭环照跑。
@@ -899,17 +899,19 @@ request = req.make_request([job])
 2. 槽位：按 `slots` 把武器槽、护甲槽的解锁个数设成给定值（非 VIP 优先、按配置顺序；关槽前先卸下装备）。计数 `slots_opened`、`slots_closed`、`slot_unequips`；记录里的 `slot_states` 给出每个槽位。
 3. 物品：玩家物品变成快照的物品，**顺序也相同**（`CalculateDpsData` 的平局按列表顺序）：已有的 ItemModel 原地改，新的经 `AddItem(…, applySilently: true)` 加入，多余的卸下后去掉（经反射设 `PlayerModel.Items`，`RemoveItem` 是空方法）。已进化：`Evolved = true`、`Level = 快照 Level`；未进化：`Level = 1`、`Copies = 快照 Copies`（快照的 Level 是有效等级）。
    - **提供物品的那一侧**：`GetByTimeChunkIndex` 不插值物品，返回 `left.Items`。所以插值日取左侧快照的物品；恰好落在随包天快照 k（不是第一个或最后一个）时，t = 1，属性是 k 的，物品却是前一个快照的；d ≥ 405 取最后一个。记录里的 `items_time_chunk` 就是这个快照。
-4. 属性：每项属性去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器以外的全部修饰器（以及上一次覆盖的 TotalValue 校正），基础值设为快照的 `Value`，于是快照 Value 逐位等于它；当天的 K2/K3 修饰器（换天时已换成 K(d)）保留，TotalValue 先由 Value 与 K(d) 合成。
+4. 属性：每项属性去掉两个 `__simulation*` 修饰器和装备（`Item`）修饰器以外的全部修饰器（以及上一次覆盖的 TotalValue 校正），基础值设为快照的 `Value`，于是快照 Value 逐位等于它；现有 K2/K3 修饰器保留；stored replay 算 RPM 时仍是 K(d−1)，规划前才变 K(d)。
    - `total_value = snapshot`（默认）：再把 `Stat.FastValue` 校正到快照自己的 TotalValue。插值日的 TotalValue 是线性插值的，K2/K3 不是，合成值与它最多差 1.98%（Health；风险 18 说可杀性边界 ±3% 内有 30 多个刷怪点/天）。校正用两个 `Item` 来源的 `PreAdditivePostMultiplicative` 修饰器（名字 `__rebuildReplayTotalValue1/2`）：`Item` 修饰器不进快照 Value，Value 仍逐位；`StatModifier.Value` 是 float，两个 float 在 double 里相加，第二个在相邻 float 里挑误差最小的，结果最多差 1 ulp。计数 `total_value_corrections`、`total_value_corrections_inexact`（差 1 ulp 的格子）。当天之后装备一变（`ApplyEquippedItemsToUnit` 去掉全部 `Item` 修饰器）校正就没了。
 5. 血量回满（`CurrentHealth = Health`）。
-6. 缓存与 RPM：`CalculateSimulationData()` → `RebuildApplyReplayCaches()`；`rpm_after_override = recompute`（默认）时再 `CalculateSoulRPMValues()` 与每项属性的 `CalculateRPMValueTimeChunk`。换天时的 RPM 是覆盖之前、按上一天状态算的（C3b 的换天不在覆盖之后重算），所以覆盖自己再算一遍，当天的 `RPMCalculatedValue` 对应覆盖后的状态（K(d)，`stored` 时在存储的缓存上算）。已恢复的 `CalculateRPMValueTimeChunk` 保留最大值（`Math.Max(value, RPMCalculatedValue[t])`），所以这个值会**带到下一天**：第 d+1 天换天算出的 RPM 与它取大，第 d+1 天强制快照的 `CurrentGpm` = max(第 d 天覆盖后的 RPM, 换天自己的重算值)。`replay-405` 里 1604 个非零格子有 750 个严格取了覆盖的值；`checkpoint` 检查点的下一天 179 个格子里 0 个（`skip` 时 0 个）。`checkpoint` 的闭环因此以检查点那天 K(d) 下的 RPM 为下限，直到更大的值出现（属于本单元的偏离，19.5）。
+6. 缓存与 RPM：stored replay 先 `state.Applied(s)`，`CalculateSimulationData()` 后马上 `RebuildApplyReplayCaches()`，再在存储的 DpsData(d)/DefenseData(d) 上算 RPM（P07 ModifierFirst 先换 K；StaleTickCache 保留前一 Tick 缓存作消融）。只在随包 46 个观测天更新 `RPMCalculatedValue`；非 TC 日的插值状态不向观测网格的 running max 添加峰值。强制快照后才施加 `total_value=snapshot` 的校正，恢复规划时的 K(d) 状态；`rpm_after_override` 对 stored replay 一律等效 skip（仍原样回显请求）。其他覆盖模式仍按该选项选择是否覆盖后重算，原有 checkpoint 行为保留。
 
 `RebuildApplyReplayCaches`（`econ_caches = stored` 且当天有存储的缓存时）：用快照的 DpsData/DefenseData 替换 `currentDpsData`/`currentDefenseData`，再 `UpdateDpsDataCache`、`RebuildPerFrameCaches`（防御缓存与战斗乘数）、`CalculateSpawnerData(true)`。它在 `Tick` 与（C5 的）FastTick 规划轮每次 `CalculateSimulationData` 之后被调用；`replay` 每天都有存储的缓存，`checkpoint` 只在重置的那一天有。
 
 注意：
 
-- 第 d 天的强制快照在覆盖之前拍，记录的是上一天覆盖之后的状态（空策略下就是第 d−1 天的插值状态）。它的 DpsData/DefenseData **总是**换天时重算的值：C3b 的换天（`RecalculateChunkRpmValues` → `CalculateSimulationData`）不调用 `RebuildApplyReplayCaches`，而且那时天已经换了，存储的缓存只对覆盖的那一天有效。重算用的是第 d−1 天覆盖后的属性（RpmFirst：K2/K3(d−1) 加校正，即 `override_days.jsonl` 里那天的 `GetForecastStatValue`）、物品、槽位，时刻 d；402 天里 401 天与第 d−1 天的存储值不同（黄金 `replay405.forced_dps_differs_from_stored`）。换天的 RPM 也是在这些重算的缓存上算的，但它与前一天覆盖后的 RPM 取大（第 6 步），所以 `CurrentGpm` 不是单纯的换天重算值；`rpm_after_override = skip` 时才只剩游戏自己的取大。要看覆盖后的状态读 `override_days.jsonl`。
-- 交互运行（没有批处理作业）与 `free` 作业里两个钩子直接返回。
+- stored replay 第 d 天强制快照的 Value / Items / DpsData 已是第 d 天被覆盖的状态；`override_days.jsonl` 是之后恢复规划 TotalValue 的记录，RPM 与同日强制快照相同。`replay_items=recompute` 仍只在首次覆盖设物品，之后真实掉落、进化继续；只覆盖属性并不倒退或冻结物品。
+- T09 / P07 使用从日 0 开始、snapshot items、stored caches、`unlock=snapshot`、`rpm_after_override=skip`、**null_policy** 的重放。空战斗策略防止真实门禁把 Location 推到随包状态之前（完整规划会在 day 26 打开岛 9，而随包 TC27 仍是岛 8）；它不注入 CurrentGpm。46 个强制快照的 1380 格逐格对随包值；非 TC 日逐格断言 running max 不变。
+- 旧版可复现诊断为 `exported(d)=max(X(d−1), G(pre-override state d))`，X 为 `override_days.jsonl` 的 RPM。评审在 TC≥5 核对 1230/1230、其中 1070 格等于 X 单独值。下面 19.4–19.5 的旧计数是修正前历史；新结果见 24.7。不得再用旧顺序解释当前 stored replay。
+- 交互与 free 两个钩子直接返回。checkpoint 的两个采样点之间仍按原有进化转移继续闭环。
 
 ### 19.3 输出
 
@@ -966,8 +968,8 @@ request = req.make_request([job])
 Postmerge Round 2 已补验 C6 合入后的语义：`engine_probe.null_policy` 只停战斗 / 快阶段规划，快日冲刷仍处理到期进化。覆盖记录本身必须逐位符合请求；下一个强制快照及 checkpoint 之间的物品，则按随包目标时间、碎片表和原版 `EvolveItemCommandRunner` 转移核对，不能假定份数和有效等级不变。C4 的跨日测试现在独立重算这些转移及其 DPS / DefenseData，没有冻结物品模块。
 
 - P11（DP8）：46 个随包天快照状态用 `checkpoint` 作业设好（`override_days.jsonl` 的记录是覆盖之后、RPM 重算之后的状态）。**必须**给 `unlock: "snapshot"`：默认的 `derived` 不动 Location，空策略下玩家一直在岛 1，`spawnerData` 与 RPM 就不是随包状态的；槽数用夹具（`default_override` 的默认）或 `slots_p12`。注意 DP8 按 `RpmFirst` 口径要 K2/K3(d−1) 下的 RPM，而覆盖后重算的 RPM 用的是 K(d)，且与之前的 RPM 取大；需要滞后口径时给 `rpm_after_override: "skip"`，在 P11 自己的探针里调用 `CalculateRPMValueTimeChunk`。
-- P11、K 单元（T09"重放精确 1380/1380"）：`replay` 作业导出的强制快照的 DpsData/DefenseData 是按物品**重算**的（19.2 的注意），拿不到 stored 口径；换天 RPM 与 `CurrentGpm` 在重算的缓存上算，再与前一天覆盖后的 RPM（K(d)、stored 缓存）取大，`replay-405` 的 1604 个非零格子里 750 个是后者。要 stored 口径：要么由 Z1/C3b 在换天的 `CalculateSimulationData` 之后也接一个用前一天存储缓存的钩子（`TryStoredCaches` 现在按当天匹配，那时天已经换了），要么直接用 `override_days.jsonl`（覆盖后、stored 缓存上的状态与 RPM）或自己的探针。
-- C5：FastTick 每个规划轮在 `CalculateSimulationData()` 之后调用 `RebuildApplyReplayCaches()`（设计稿 4.4），`replay` + `stored` 才会在存储的缓存上规划。换天的 `RecalculateChunkRpmValues` 不调用它。接上之后请补一个测试：`checkpoint` 下非检查点那天的规划轮不得用到存储的缓存（`TryStoredCaches` 的按天判断现在测不到）：断言 `stored_caches_other_day` > 0，且 `cache_applications` 只出现在检查点那天。
+- P11、K 单元（T09）：采用 19.2 的 day-0 stored 空策略重放，不能用重生成物品或 day-4 起步的运行冒充 G20。P07 三作业共用同一契约。正常完整 FastTick 的解锁与奖励另测，不能为了评分禁止它清门禁。
+- C5：规划轮继续每次 CalculateSimulationData 后调用 RebuildApplyReplayCaches；K1 修正另在 stored replay 的换天 RPM 前接同一缓存钩子。checkpoint 只在重置当天使用 stored，非重置日仍重算；相应测试保持。
 - C6：`replay_items = recompute` 时物品只在第一次覆盖时设，之后靠 `ProcessInventory`；覆盖用 `AddItem(…, applySilently: true)` 加新物品，会自动装备到空槽。快照 `Items` 的 Level 现在是有效等级。装备变化（`ApplyEquippedItemsToUnit`）会去掉 TotalValue 校正，当天剩下的时间回到 K(d) 合成值。`items_removed`（玩家有、快照没有的物品被去掉）与 `items_reordered` 要等 C6 让玩家得到快照外的物品后才测得到。注意：去掉物品是卸下后经反射重设 `PlayerModel.Items`，`AddItem` 建的存档条目 `Data.Items` 不删、顺序也不改；若之后从存档重建（`LoadItems`），去掉的物品会回来、顺序会变回去。C6 测去掉与重排时要连同存档条目一起测，或在去掉时删掉绑定的条目。
 - C9：`checkpoint` 加 K 补丁时 TotalValue 应是补丁后的 K 合成值（`total_value` 解析为 `compose`）；请在 C9 的补丁钩子接上后补这个 Unity 测试。
 - C7：覆盖后 `CurrentHealth` 回满；`unlock = snapshot` 会打开门禁（`GatesModel`），被打开的门禁刷怪点不会再触发解锁。
@@ -1262,3 +1264,18 @@ recomputed 缓存桥使用随包物品和闭式 P12（R2b 口径）：stored / r
 | cscheck / refresh L1 | N/A | 没有改 C# 或 Unity 项目文件；`git diff 5ec5ee1 -- Recovery/StudyProject` 为空，不额外启动 Unity |
 
 确认批 401 天 FastTick 的 p50：selected-kill **44.3701 ms**、selected-items **43.7327 ms**、selected-recomputed **37.8628 ms**，都在既有 50 ms 中位预算内；均值为 44.965 / 44.226 / 39.016 ms。未用最大值代替中位数。
+
+
+### 24.7 Round 2：评审修正、科学边界与验收
+
+本轮授权 K1 修 C3b/C4 的换天钩子；不改 Design.md、C# 默认参数或参数资产。旧版诊断恒等式与当前契约见 19.2。新 P07 三作业从 day 0 开始 stored/snapshot/null_policy，禁止插值日把无独立观测的 RPM 加进 running max；free/closed-loop 的二进制输出以 Enginefix 式审计逐文件核对。
+
+T12 日整数总量的 5% 检查不可行：copies-Chain-Swapped、Chain-Direct、Greedy、slots-3-8、selected-items 均为 **18/29** 格超限，绝对残差和 **25**。Uncommon 武器的逐日 pre-roll 期望为 **14.06–14.72**，随包却是 **15,14,15,12,12,14,14**。在 1–18 份的小总量上，一份就超过 5%；物品映射、进化、P12 不改变这些单元。保留旧 daily 整数单元及 5% verdict 作报告；正式逐日组改为 `daily_expected`：快阶段账本的取整前期望，与随包整数比较，允许 **5% + 每个活跃物品流 <1 份** 的整数观测误差（同一 carry 流区间两端累计余数相减，绝对值 <1）。逐流计数来自正期望的物品 key，不拟合系数，不按日手填 allowance；缺 trace 天给 missing/fail。阶段 5%/7% 与后期平台 2% 原样保留。此为明确放宽，登记在 calib_open，ORIGINAL 不重写。仍保留 68/62 的早期 Epic 阶段失败，不用噪声理由遮盖系统性的 +6。
+
+mace 的独立定位：`Scenes/Main.unity:57815`，岛 4 `Spawner_1_epic_buck`，OT=10（天制）、Count=1、充能上限=2、非 DAFC。原版 6af011f CalculateSpawnerData(false) 只比较 `OT > timeChunkIndex`，没有额外 +3 天的相对窗口；就绪表 AnyoneAlive=IsEnabled=bootstrap_complete=1，Prepare 和换天把非 DAFC 冷却归零。原版的充能与岛门禁过滤、Python eligible_spawners 对随包 day 10/11/12 均判 eligible；day 9 因 OT 不合格。day10 fight=11.994738 秒，loss=49916.034、H=94929.157、loss/H=0.525824；day11 为 0.0208176，day12 为 0。C5 实际各日从 charges 0 清两次到 2，逐项吻合。默认 derived override 不打开岛，岛 4 由 day5 门禁打开；snapshot override 也不会把它延迟到 day13。θ=∞ / kill-none 仍 day10 首次掉 mace；θ=0.5 才晚到 day11，不能解释 day13。随包 TC13 尚无 mace、TC15 有4份，按每天2份相当于 day13 开始；多的 day10–12 ×2 就是 68−62 全部差值。**未发现 C5 与已恢复过滤或预言机不符，不修改 C5；明确交 K3 检查闭环成长/配置状态 A/B，使 day10 的可杀性不同或说明随包生成条件。不能据此调 θ 或增加 C6 参数。**
+
+P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept**；SlotRpmOrder 才是选择。KillState 和 P12 的留出分数各候选完全相同；到 TC25 P12 均已开放同样槽位，所以该持出段 **non-discriminating**，1.5× 仅作 sanity check，不算确认假设。Q25 若 day5 仍无解继续 unresolved。
+
+`measure()` 首次 timing 文件用排他创建，重跑写 attempt-2、attempt-3…，从不覆盖 initial.timing.json；归档自动纳入每个 attempt，不再手工重构计时。
+
+本轮最终数字、命令、用时与审计摘要补记于此节末。

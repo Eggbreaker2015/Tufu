@@ -10,8 +10,8 @@ using Newtonsoft.Json.Linq;
 namespace Codebase.Simulation.Harness
 {
 	// Replay and checkpoint state of a job (design 4.6; unit C4). The harness hook RebuildJobApplyOverride starts it
-	// before the run; the engine (SimulationSystem.Replay.cs) asks it for the state of each day right after the
-	// day's forced snapshot and writes what it set back here:
+	// before the run; stored replay loads each day before RPM, other modes after the forced snapshot.
+	// The engine writes the restored planning state back here:
 	//   replay      every day d >= from_day: SimulationData.GetByTimeChunkIndex(d) of the shipped asset (recovered
 	//               code): stat Values, the items of the snapshot side that provides them, stored DpsData/DefenseData
 	//   checkpoint  every shipped day snapshot d >= from_day: that snapshot itself; closed loop in between

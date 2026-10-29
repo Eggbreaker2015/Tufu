@@ -20,7 +20,7 @@ import numpy as np
 from . import driver, fit, metrics as M, params as P, report, sensitivity as S, targets as T
 from ..model import data, items, simcalc as sc, spawners as sp
 from ..model.enums import StatType, BalanceInterpolationType as K
-from ..unity import fasttick as ft, inventory, override as ov, request as req, simio, spawner_map
+from ..unity import engine, fasttick as ft, inventory, override as ov, request as req, simio, spawner_map
 
 BALANCE = Path(__file__).resolve().parents[2]
 THETAS = (.5, .75, .9, 1.1)
@@ -30,12 +30,15 @@ P18 = (("StatsThenItems", "SlotBeforeRpm"), ("ItemsThenStats", "SlotBeforeRpm"),
        ("StatsThenItems", "SlotAfterRpm"), ("ItemsThenStats", "SlotAfterRpm"))
 
 
-def make_job(db, name, changes=None, *, recompute_items=False, econ="stored", day=405, rows=False):
-    override = ov.default_override(db, from_day=0 if recompute_items else 4,
+def make_job(db, name, changes=None, *, recompute_items=False, econ="stored", day=405, rows=False, rpm_validation=False):
+    override = ov.default_override(db, from_day=0 if recompute_items or rpm_validation else 4,
                                    replay_items="recompute" if recompute_items else "snapshot",
-                                   econ_caches=econ, slots=None if recompute_items else ov.slots_p12(db))
+                                   econ_caches=econ, slots=None if recompute_items else ov.slots_p12(db),
+                                   unlock="snapshot" if rpm_validation else "derived",
+                                   rpm_after_override="skip" if rpm_validation else "recompute")
     return ft.fast_job(name, override=override, params=changes, day=day,
-                       max_wall_seconds=600.0, spawner_days=rows, outputs={"inventory": True})
+                       max_wall_seconds=600.0, spawner_days=rows, outputs={"inventory": True},
+                       probe=engine.engine_probe(null_policy=True) if rpm_validation else None)
 
 
 def initial_jobs(db):
@@ -52,8 +55,8 @@ def initial_jobs(db):
           for emission in ("Chain", "E1") for mapping in ("Swapped", "Direct")),
         *(make_job(db, f"evolution-{trigger}", {"EvolutionTrigger": trigger}, recompute_items=True)
           for trigger in ("Timed", "Greedy", "TimedLag")),
-        *(make_job(db, f"p07-{order}", {"DpsCacheProvenance": order})
-          for order in ("ModifierFirst", "StaleTickCache")),
+        *(make_job(db, f"p07-{order}", {"DpsCacheProvenance": order}, rpm_validation=True)
+          for order in ("RpmFirst", "ModifierFirst", "StaleTickCache")),
         *(make_job(db, f"p18-{i}", {"DayChangeInventoryOrder": a, "SlotRpmOrder": b},
                    recompute_items=True, day=12) for i, (a, b) in enumerate(P18)),
         *(make_job(db, f"slots-{a}-{b}", {"WeaponSlotUnlockLocations": [a, b]}, recompute_items=True)
@@ -84,8 +87,13 @@ def measure(jobs, drv, path):
               "jobs": len(jobs), "cached": sum(r.status == "cached" for r in results),
               "submitted": drv.submitted, "code_rev": drv.backend.identity().code_rev}
     timing_path = path.with_suffix(".timing.json")
-    write_json(path.with_suffix(".cache-timing.json") if timing_path.exists() and all(r.status == "cached" for r in results)
-               else timing_path, timing)
+    attempt = 1
+    while timing_path.exists():
+        attempt += 1
+        timing_path = path.with_suffix(f".attempt-{attempt}.timing.json")
+    # Exclusive creation also protects the first attempt from concurrent/retry writers.
+    with timing_path.open("x") as f:
+        f.write(json.dumps(timing, indent=2, sort_keys=True) + "\n")
     if not all(r.ok for r in results):
         raise RuntimeError(f"failed jobs: {[r.job_id for r in results if not r.ok]}; see {path}")
     return {r.job_id: r.job_dir for r in results}
@@ -278,7 +286,8 @@ def choose(db, paths, targets):
                             "rel": abs(r.pred[k]-v)/max(1, abs(v)),
                             "split": "train" if r.b <= 104 else "holdout"}
                            for r in rs for k, v in r.obs.items()]
-    rank = ranking("KillState", scores, post_hoc=False, segment="T05: TC4-103 / TC104-404; T08 diagnostic")
+    rank = ranking("KillState", scores, post_hoc=False, segment="T05: TC4-103 / TC104-404; T08 diagnostic",
+                   note="Holdout is non-discriminating; 1.5x is a sanity check, not confirmation")
     hypotheses += rank
     chosen_kill = "StartOfDay" if rank[0]["hypothesis"] == "kill-start" else "AfterPass"
     changes, active, active_rows = active_fit(db, paths, shipped)
@@ -333,11 +342,18 @@ def choose(db, paths, targets):
                                    "ref": v, "rel": abs(series[f"p18-{i}"].day(ref.tc).dps[k]/v-1),
                                    "split": "train" if ref.tc <= 7 else "holdout"}
                                   for ref in targets.shipped.tc if 4 <= ref.tc <= 11 for k, v in ref.dps.items() if v]
-    p18_rank = ranking("P18", p18_scores, post_hoc=False, segment="DPS only: TC4-7 fit / TC8-11 holdout; never T05")
+    p18_rank = ranking("P18", p18_scores, post_hoc=False, segment="DPS only: TC4-7 fit / TC8-11 holdout; never T05",
+                       note="DayChangeInventoryOrder tied / not identified; default kept. SlotRpmOrder selected")
     hypotheses += p18_rank
-    changes["DayChangeInventoryOrder"], changes["SlotRpmOrder"] = P18[int(p18_rank[0]["hypothesis"])]
+    # An exact tie cannot identify the inventory order. Keep the declared default explicitly.
+    best = p18_rank[0]["score_train"]
+    tied = [int(r["hypothesis"]) for r in p18_rank if r["score_train"] == best]
+    default_order = "StatsThenItems"
+    winner = next((i for i in tied if P18[i][0] == default_order), tied[0])
+    changes["DayChangeInventoryOrder"], changes["SlotRpmOrder"] = P18[winner]
     scores, slot_rows = p12_scores(db, targets)
-    slot_rank = ranking("P12", scores, post_hoc=False, segment="R2b stored inputs: TC1-24 fit; TC>=25 holdout (not fitted fixture)")
+    slot_rank = ranking("P12", scores, post_hoc=False, segment="R2b stored inputs: TC1-24 fit; TC>=25 holdout (not fitted fixture)",
+                        note="Holdout is non-discriminating: all candidates have the same slots by TC25; sanity check only")
     hypotheses += slot_rank
     changes["WeaponSlotUnlockLocations"] = list(map(int, slot_rank[0]["hypothesis"].split(",")))
     residuals["p12"] = slot_rows
@@ -347,6 +363,10 @@ def choose(db, paths, targets):
                               "all": dps_scores(series[f"p18-{i}"], targets, 4, 11),
                               "day5": dps_scores(series[f"p18-{i}"], targets, 5, 5)} for i in range(4)}
     detail["Q25"] = "unresolved" if all(v["day5"] > 2e-5 for v in detail["p18"].values()) else "candidate matches day5; investigate independently"
+    detail["non_discriminating_holdout"] = [family for family in ("KillState", "P12")
+        if len({r["score_holdout"] for r in hypotheses if r["family"] == family}) == 1]
+    detail["p18_inventory_order"] = ("tie: not identified; default kept" if len({P18[i][0] for i in tied}) > 1
+                                      else "identified on training segment")
     detail["rpm_oracle"] = rpm_oracle(db, shipped)
     detail["holdout"] = {r["family"]: {"train": r["score_train"], "holdout": r["score_holdout"],
                                      "pass": r["score_holdout"] <= 1.5*r["score_train"]}
@@ -489,12 +509,48 @@ def coefficient_ablation(db, directory, targets):
     return rows, platform
 
 
+def mace_eligibility(db, directory):
+    """Compare C5's first item-only Epic spawner with the unchanged original bot filter."""
+    import csv
+    ctx = sc.load_simcalc_context(db)
+    shipped = data.load_simulation_data(db)
+    target = next(x for x in ctx.spawners if x.d.go_name == "Spawner_1_epic_buck" and x.d.location == 4)
+    rt = spawner_map.runtime_id(spawner_map.runtime_path(target.d.scene, target.d.go_path), target.d.key)
+    rows = ft.read_spawner_days((directory / ft.SPAWNER_DAYS_FILE).read_bytes())
+    actual = {r.day: r for r in rows if r.spawner == rt and r.round == 1}
+    out = []
+    for day in range(9, 14):
+        snap = ov.expected_day(shipped, "replay", day, None).snapshot
+        state = sc.snapshot_state(snap, ctx, order=sc.MODIFIER_FIRST, day=day)
+        bot = sc.calculate_spawner_data(ctx, state, for_gpm_bot=False)
+        eligible = sc.eligible_spawners(ctx, state)
+        row = {"day": day, "snapshot_location": state.unlocked_location,
+               "oracle_bot": target.spawner_id in bot, "oracle_eligible": target.spawner_id in eligible,
+               "csharp": dataclasses.asdict(actual[day]) if day in actual else None}
+        if target.spawner_id in bot:
+            x = bot[target.spawner_id]
+            row.update(oracle_fight_seconds=x.fight_time, oracle_loss=x.loss,
+                       oracle_health=state.stat(StatType.Health))
+        out.append(row)
+    with (directory / "ready_spawners.csv").open() as f:
+        ready = next(r for r in csv.DictReader(f) if r["key"] == target.d.key)
+    return {"spawner": [target.d.scene, target.d.file_id], "runtime_id": rt,
+            "OT": target.d.optimum_time, "is_days": target.d.is_days, "count": target.d.count,
+            "charge_limit": ctx.charges_limit(target), "ready": ready, "days": out,
+            "island4_unlock": S.unlock_days(events(directory)).get(4),
+            "override_unlock": json.loads((directory / "manifest.json").read_text())["job"]["override"]["unlock"],
+            "handoff": "K3: original C# and oracle agree days 10-12 eligible; shipped first mace TC15 implies day13. Three days x2 copies = entire +6. No C5 defect or permissible theta fit demonstrated."}
+
+
 def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_root, workspace):
     targets = T.build(db, slot_schedule=T.load_slot_schedule())
     shipped = data.load_simulation_data(db).time_chunk_snapshots
     kill, item, bridge = (selected[n] for n in ("selected-kill", "selected-items", "selected-recomputed"))
     series = read_series(item)
-    cells = [c for c in M.compute(series, targets) if c.target not in ("T04", "T05")]
+    cells = [c for c in M.compute(series, targets) if c.target not in ("T04", "T05", "T09")]
+    expected = {d.day: d.items for d in fast_days(item)}
+    cells += M.t12_expected(expected, targets)
+    cells += M.t09(read_series(paths["p07-RpmFirst"]), targets)
     cells += trace_cells(kill, targets)
     for ref in targets.shipped.tc:
         snap = series.day(ref.tc)
@@ -508,9 +564,25 @@ def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_roo
     # Raw exported snapshot evaluation is kept independently; never disguise it as G20.
     ev = M.evaluate(cells, M.load_tolerances(), "open")
     detail["raw_export_status"] = ev.targets
+    detail["t12_daily"] = {
+        "integer_5pct": [dataclasses.asdict(c) for c in ev.cells if c.target == "T12" and c.group == "daily"],
+        "pre_roll": [dataclasses.asdict(c) for c in ev.cells if c.target == "T12" and c.group == "daily_expected"],
+        "contract": "pre-roll expected copies: 5% + <1 integer copy per active item stream; phase limits unchanged",
+        "evidence": "review: identical 18/29 integer failures across Chain mappings, Greedy, slots-3-8 and selected-items; U expectation 14.06-14.72 vs shipped 15,14,15,12,12,14,14; no theta fitting",
+    }
+    detail["t12_daily"]["hypothesis_integer_checks"] = {}
+    for name, directory in ((n, paths[n]) for n in ("copies-Chain-Swapped", "copies-Chain-Direct",
+                                                   "evolution-Greedy", "slots-3-8")):
+        daily = [c for c in M.t12(read_series(directory), targets) if c.group == "daily" and c.ref]
+        detail["t12_daily"]["hypothesis_integer_checks"][name] = {
+            "cells": len(daily), "failures": sum(c.rel > .05 for c in daily),
+            "sum_absolute_residual": sum(abs(c.residual) for c in daily)}
+    detail["t12_daily"]["uncommon_weapon_example"] = [
+        {"tc": c.tc, "expected": c.sim, "shipped": c.ref, "allowance": c.bound}
+        for c in ev.cells if c.target == "T12" and c.group == "daily_expected" and c.key.endswith("|weapon|Uncommon")]
     detail["metric_basis"] = {"T04_T05": "selected-kill fast rewards and active minutes; never overwritten snapshot deltas",
                                "T07_T08": "selected-kill unlock / first-kill traces",
-                               "T09_export": "selected-items raw exported CurrentGpm",
+                               "T09_export": "p07-RpmFirst raw export; day0, snapshot items, stored caches, snapshot unlock, post-override RPM skip",
                                "T09_G20": "independent Python oracle on shipped states (not exported run)",
                                "T12_T13_T17": "selected-items (from day 0, recompute items, real slot rule)"}
     t04_cells = [c for c in cells if c.target == "T04" and c.group == "tc_ge_11"]
@@ -520,10 +592,14 @@ def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_roo
     detail["t09_exported"] = {"hits": sum(sc.gpm_matches(c.ref, c.sim) for c in t09_cells), "cells": len(t09_cells)}
     t05 = t05_evidence(db, kill, shipped)
     detail["t05"] = t05
+    detail["mace_eligibility"] = mace_eligibility(db, kill)
+    detail["mace_eligibility"]["first_item_day_by_probe"] = {
+        name: next((d.day for d in fast_days(directory) if d.items.get("mace", 0) > 0), None)
+        for name, directory in paths.items() if name.startswith(("kill-", "theta-", "dps-"))}
     diag_rows, detail["sensitivity"] = diagnostic_rows(paths, shipped)
     detail["t07"] = S.t07(S.unlock_days(events(kill)))
     detail["p07"] = {}
-    for name, directory in (("RpmFirst", paths["kill-start"]),
+    for name, directory in (("RpmFirst", paths["p07-RpmFirst"]),
                             *((o, paths[f"p07-{o}"]) for o in ("ModifierFirst", "StaleTickCache"))):
         cs = M.t09(read_series(directory), targets)
         detail["p07"][name] = {"hits": sum(sc.gpm_matches(c.ref, c.sim) for c in cs), "cells": len(cs),
@@ -574,7 +650,7 @@ def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_roo
             (out / (name + ".csv")).write_text(report.csv_text(tuple(rows[0]), rows))
     write_json(out / "evidence.json", detail)
     write_json(out / "open.json", changes)
-    for name in ("initial.json", "initial.timing.json", "selected.json", "selected.timing.json"):
+    for name in ("initial.json", "selected.json", *(p.name for p in sorted(workspace.glob("*.timing.json")))):
         source = workspace / name
         if source.exists():
             (out / name).write_bytes(source.read_bytes())

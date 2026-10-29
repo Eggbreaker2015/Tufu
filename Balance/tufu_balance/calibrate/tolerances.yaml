@@ -159,21 +159,24 @@ targets:
     # plateau is per charge and needs charge counts (events/spawner_days, C5); it is not checked yet. Cells are
     # per (kind, rarity): design 7.3 K-units name weapon and armor separately.
     cells:
-      daily: {rel_max: 0.05}
+      daily: {rel_max: 0.05}  # retained diagnostic; infeasible on small integer totals
+      daily_expected: {bound: true}  # pre-roll expected copies: 5% + <1 integer copy per active item stream
       phase_4_19: {rel_max: 0.05}
       phase_19_57: {rel_max: 0.05}
       phase_57_104: {rel_max: 0.05}
       phase_104_154: {rel_max: 0.07}
       phase_154_405: {rel_max: 0.07}
     open:
-      daily: {all_ok: true}
+      daily: {report: true, note: integer-noise diagnostic; see Runbook 24.7 and calib_open loosening}
+      daily_expected: {all_ok: true}
       phase_4_19: {all_ok: true}
       phase_19_57: {all_ok: true}
       phase_57_104: {all_ok: true}
       phase_104_154: {all_ok: true}
       phase_154_405: {all_ok: true}
     closed:
-      daily: {all_ok: true}
+      daily: {report: true, note: integer-noise diagnostic; see Runbook 24.7 and calib_open loosening}
+      daily_expected: {all_ok: true}
       phase_4_19: {all_ok: true}
       phase_19_57: {all_ok: true}
       phase_57_104: {all_ok: true}

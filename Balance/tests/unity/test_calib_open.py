@@ -26,7 +26,7 @@ def calibration(unity_rev):
 
 def test_all_hypotheses_and_guards_are_real(calibration, unity_rev):
     directory, evidence = calibration
-    assert len(evidence['jobs']) == 33
+    assert len(evidence['jobs']) == 34
     for job, row in evidence['jobs'].items():
         assert row['code_rev'] == unity_rev, job
         source = Path(row['directory'])
@@ -77,10 +77,10 @@ def test_t09_distinguishes_export_from_g20(calibration):
     oracle = e['rpm_oracle']['RpmFirst']
     assert oracle['cells'] == oracle['hits'] == 1380 and oracle['misses'] == []
     exported = e['t09_exported']
-    assert exported['cells'] == 1380
-    if exported['hits'] < 1380:
-        assert e['raw_export_status']['T09'] == 'fail'
-        assert any(row.startswith('T09.') for row in e['design_failures'])
+    assert exported['hits'] == exported['cells'] == 1380
+    assert e['raw_export_status']['T09'] == 'pass'
+    assert e['p07']['RpmFirst']['hits'] > e['p07']['ModifierFirst']['hits']
+    assert e['p07']['RpmFirst']['hits'] > e['p07']['StaleTickCache']['hits']
     check(SUITE, {'t09.g20_hits': exact(oracle['hits'], source='G20 replay on shipped states', original=1380),
                   't09.exported': exact(exported, source='raw exported path; explicitly not G20 acceptance'),
                   'p07': exact(e['p07'], source='P07 both real C# ablations')})
@@ -97,3 +97,22 @@ def test_p18_q25_and_every_failed_criterion_remain_visible(calibration):
                   'design_failures': exact(e['design_failures'], source='unaltered design limits; report, not acceptance'),
                   'late_platform': exact(e['late_platform'], source='T12 actual charge units, TC206-404'),
                   'bridge': exact(e['bridge'], source='stored/recomputed cache bridge; P12 slots')})
+
+
+def test_t12_contract_mace_and_unidentified_rules(calibration):
+    _, e = calibration
+    assert e['non_discriminating_holdout'] == ['KillState', 'P12']
+    assert e['p18_inventory_order'] == 'tie: not identified; default kept'
+    cells = e['t12_daily']['pre_roll']
+    assert cells and all(c['ok'] for c in cells)
+    mace = e['mace_eligibility']
+    assert mace['OT'] == 10 and mace['charge_limit'] == 2
+    for r in mace['days']:
+        if 10 <= r['day'] <= 12:
+            assert r['oracle_eligible'] and r['csharp']['fights'] == 2
+    check(SUITE, {
+        't12.daily_contract': exact(e['t12_daily']['contract'], original='daily integer copy totals within 5%',
+            source='K1 round2 review integer-noise evidence; Runbook 24.7'),
+        't12.daily_expected': exact(cells, source='pre-roll trace with integer-noise allowance'),
+        't12.mace': exact(mace, source='original bot filters and model.simcalc vs C5 trace'),
+    })
