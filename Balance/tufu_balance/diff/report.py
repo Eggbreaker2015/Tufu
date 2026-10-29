@@ -28,8 +28,10 @@ def write(comp, out_dir, *, timings=None):
     for path, rows in comp.comparisons.items():
         tables.write(out / path, rows, tables.CHANGE_COLUMNS)
     tables.write(out / "touched_formulas.csv", comp.formulas, impact.COLUMNS)
+    csharp_addresses = {x.address() for x in comp.static.report.csharp_leaves()}
     leaves = [{"node": x.node, "selector": x.row, "index": x.index, "base": x.old, "patched": x.new,
-               "csharp": "PASS" if comp.consistency and comp.consistency["identical"] else "未运行"}
+               "csharp": ("仅 Python（编辑器工具，C# 不应用）" if x.address() not in csharp_addresses else
+                          "PASS" if comp.consistency and comp.consistency["identical"] else "未运行")}
               for x in comp.static.report.leaves]
     leaves += [{"node": x.node, "selector": x.where, "index": x.index, "base": None, "patched": x.arg,
                 "csharp": "仅 C#；Python 未建模"} for x in comp.static.report.passthrough]
@@ -78,15 +80,21 @@ def write(comp, out_dir, *, timings=None):
             columns = sorted({k for r in rows for k in r}) or ["key"]
             tables.write(out / "sim" / side / f"{name}.csv", rows, columns)
     lines = [f"# 数值改动对比：{comp.patch.name}", "", comp.patch.description, "",
-             "## 1. 补丁摘要与校验", "", "有变化。" if comp.changed else "无变化。所有对比表都没有变化行。",
+             "## 1. 补丁摘要与校验", "", "有变化。" if comp.changed else (
+                 "有效比较数据无变化；缺少数据的模拟表不作结论，见第 5 节。" if comp.simulation.get("vacuous_tables")
+                 else "无变化。所有对比表都没有变化行。"),
              f"覆盖 {len(comp.patch.overrides)} 条；展开后 {len(comp.static.report.leaves)} 个叶子。",
-             "两侧一致性：" + ("PASS（逐叶子一致）" if comp.consistency and comp.consistency["identical"] else "未运行 C#（静态预言机）"),
+             "两侧一致性：" + (f"PASS（{comp.consistency['python']}/{len(comp.static.report.leaves)} 个 Python 叶子参与 C# 逐叶子比较；编辑器工具叶子不应用）"
+                        if comp.consistency and comp.consistency["identical"] else "未运行 C#（静态预言机）"),
              "", "比较基线和补丁使用同一套模型；场景天制数值来自未知状态 B，原始残差只在 model_floor.csv 作背景。",
              "", "## 2. 受影响公式与实现覆盖", ""]
     unique = {r["id"]: r for r in comp.formulas}
     counts = Counter(r["status"] for r in unique.values())
     missing = sum(r["implementers"] == ["未建模"] for r in unique.values())
-    lines += [f"触及 {len(unique)} 条公式；状态 {dict(sorted(counts.items()))}；未建模 {missing} 条。", ""]
+    coverage = {name: sum(name in r["coverage"] for r in unique.values())
+                for name in ("Python", "C# 重建", "C# 原生")}
+    lines += [f"触及 {len(unique)} 条公式；状态 {dict(sorted(counts.items()))}；实现覆盖 {coverage}；未建模 {missing} 条。",
+              "实现类别可重叠。C# 原生表示目录中已有恢复源码（含 reconstructed），不表示本次运行覆盖了该分支。", ""]
     for scope, _, _ in impact.SCOPES:
         lines += [f"### {scope}", ""]
         lines += [f"- `{r['id']}`：{r['name']}（{', '.join(r['provenance']) or '未建模'}）"
@@ -119,7 +127,9 @@ def write(comp, out_dir, *, timings=None):
                   "关键天的 DPS/防御见 sim/combat.csv；逐日属性、Gpm、物品与进化、到岛日、首杀、活跃分钟见 sim/。", ""]
         for path, rows in comp.comparisons.items():
             if path.startswith("sim/"):
-                lines += [f"### {path}：{len(rows)} 个变化单元格", "", *_preview(rows, top), ""]
+                vacuous = comp.simulation.get("vacuous_tables", {}).get(path)
+                lines += ([f"### {path}：无有效比较数据", "", vacuous, ""] if vacuous else
+                          [f"### {path}：{len(rows)} 个变化单元格", "", *_preview(rows, top), ""])
     lines += ["", "## 6. 警告", ""]
     for w in sorted(comp.warnings, key=tables.text):
         lines.append(f"- `{w.get('code')}`：{w.get('message', '')} "

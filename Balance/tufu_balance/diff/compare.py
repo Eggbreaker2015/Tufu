@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import hashlib
 import json
+import math
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -50,6 +52,10 @@ def git(*args, worktree=REPO):
 
 def run(cfg, patch, *, skip_sim=False, driver=None, rev=None, out_root=None):
     patchfile.validate(patch)
+    if not skip_sim and (patch.simulate or {}).get("enabled", True):
+        source, env_db = C.source_path(cfg), os.environ.get("TUFU_BALANCE_DB")
+        if source and env_db and Path(source).resolve() != Path(env_db).resolve():
+            raise ValueError("--db/config source and TUFU_BALANCE_DB differ; use the same database")
     result = pipeline.run(cfg, patch)
     nodes = [o.node for o in patch.overrides] + [leaf.node for leaf in result.report.leaves]
     formulas, extra = impact.affected(cfg, nodes)
@@ -112,7 +118,20 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
                          kill_loss_multiplier=resolved.params["KillLossMultiplier"])
     if resolved.params.get("KillLossFromAb"):
         comp.warnings.append({"code": "policy_extrapolation", "message": "KillLossFromAb 已开启：策略外推"})
-    driver = driver or D.Driver(D.BatchBackend(rev=rev, out_root=out_root), cache=runcache.RunCache(out_root))
+    # Resolve readiness from this config's DB, including when --db is used without an environment variable.
+    from ..unity.spawner_map import expected_ready_csv, expected_ready_file_name
+    template = getattr(driver, "template", None) or req.make_request([])
+    sandbox = dict(template["sandbox"])
+    ready = expected_ready_csv(cfg.source, sandbox.get("ab_variant", "A"))
+    ready_path = (out_root / "inputs" / expected_ready_file_name(ready)).resolve()
+    ready_path.parent.mkdir(parents=True, exist_ok=True)
+    ready_path.write_text(ready, encoding="utf-8")
+    sandbox["expected_ready_spawners"] = str(ready_path)
+    template = {**template, "sandbox": sandbox}
+    if driver is None:
+        driver = D.Driver(D.BatchBackend(rev=rev, out_root=out_root), cache=runcache.RunCache(out_root), template=template)
+    else:
+        driver.template = template
     smap = patcher.spawner_map(cfg.source, out_root / "inputs")
     configs = [cfg, comp.static.config]
     overrides = [[], comp.static.report.expanded]
@@ -142,16 +161,14 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
             checks = run_checks(res.job_dir, con, checks=("X1", "X2", "X3", "X4", "X5", "X6", "X7"),
                                 out_dir=out_root / "diff_checks" / res.job_key)
             bad = [k for k, c in checks.items() if c.status == "fail"]
-            # P11 documents that early snapshots are post-fight but their DPS cache is pre-fight.
-            # Keep this known observation gap visible; every other failure remains fatal.
             x2_failed = [r for r in tables.read_csv(out_root / "diff_checks" / res.job_key / "X2.csv") if r.get("ok") == 0]
-            slow_tick_gap = not calibrated and x2_failed and len(x2_failed) == checks["X2"].mismatches and all(
-                r.get("case") == "slow_tick" for r in x2_failed)
+            slow_tick_gap = not calibrated and x2_failed and len(x2_failed) == checks["X2"].mismatches and _temporary_tick_start_gap(
+                x2_failed, res.job_dir)
             fatal = [k for k in bad if not (k == "X2" and slow_tick_gap)]
             if fatal:
                 raise ValueError(f"crosscheck failed ({res.job_key}): {fatal}")
             if bad:
-                comp.warnings.append({"code": "uncalibrated_crosscheck", "message": "uncalibrated 重建的交叉检查失败，按诊断保留；不能视为已验证的预测",
+                comp.warnings.append({"code": "uncalibrated_crosscheck", "message": "临时 P11 Tick 起始状态观察缺口：仅保留同 Tick 有 slow_fight、顺序一致且 oracle ≥ C# 的 slow_tick DpsData 不符；uncalibrated 诊断，不能视为通过",
                                       "side": i, "iteration": iteration + 1,
                                       "checks": {k: {"items": checks[k].items, "mismatches": checks[k].mismatches,
                                                       "examples": checks[k].examples[:3]} for k in bad}})
@@ -173,6 +190,34 @@ def _simulate(comp, cfg, *, driver, rev, out_root):
     _sim_tables(comp, *[r.job_dir for r in results])
     if not calibrated:
         comp.warnings.append({"code": "uncalibrated", "message": "模拟为 uncalibrated：当前重建策略尚未完成 K1–K3 校准"})
+
+
+def _temporary_tick_start_gap(rows, directory):
+    """Temporary P11 observation-gap exemption; remove after tick-start states are exported."""
+    from ..crosscheck import load_run
+    from ..model.enums import WeaponType
+    from ..model.f32 import f32
+    run = load_run(directory)
+    events = _events(directory)
+    for row in rows:
+        if row.get("case") != "slow_tick" or row.get("kind") != "DpsData" or row.get("weapon_type") == "order":
+            return False
+        oracle, stored = row.get("oracle"), row.get("csharp")
+        if not all(isinstance(v, (int, float)) and math.isfinite(v) for v in (oracle, stored)) or oracle < stored:
+            return False
+        snap = next((s for s in run.early if s.list == row.get("list") and s.index == row.get("index")), None)
+        if snap is None or row.get("weapon_type") not in {WeaponType(w).name for w, _ in snap.snapshot.dps_data}:
+            return False
+        if not any(e.get("type") == "slow_fight" and e.get("cleared") is True and e.get("day") == snap.tc
+                   and e.get("p_after") is not None and e.get("t_after") is not None
+                   and float(f32(e["p_after"])) == float(snap.snapshot.playtime)
+                   and float(f32(e["t_after"])) == float(snap.snapshot.total_playtime) for e in events):
+            return False
+    return True
+
+
+def _events(directory):
+    return [json.loads(line) for line in (directory / "events.jsonl").read_text().splitlines() if line.strip()]
 
 
 def _bake_rows(report, con):
@@ -238,7 +283,7 @@ def _sim_tables(comp, base, head):
                 first_items.setdefault(item.key, snap.tc)
                 items.append({"day": snap.tc, "item": item.key, "level": item.level, "copies": item.copies})
         daily = tables.read_csv(directory / "daily.csv")
-        events = [json.loads(line) for line in (directory / "events.jsonl").read_text().splitlines() if line.strip()]
+        events = _events(directory)
         kills = [{"spawner": e.get("spawner"), "day": e.get("day"), "playtime": e.get("playtime")}
                  for e in events if e.get("type") == "first_kill"]
         evolves = [{"sequence": i, **e} for i, e in enumerate(e for e in events if e.get("type") == "evolve")]
@@ -259,15 +304,43 @@ def _sim_tables(comp, base, head):
                          "evolution": (evolves, ("sequence",))})
     for name, (rows, keys) in datasets[0].items():
         comp.comparisons[f"sim/{name}.csv"] = tables.compare_rows(rows, datasets[1][name][0], keys)
+    _mark_vacuous(comp, datasets)
     for side, ds in zip(("baseline", "patched"), datasets):
         comp.simulation[side] = {name: rows for name, (rows, _) in ds.items()}
     itd = comp.static.config.value(pipeline.ITD)
-    late = [r for r in datasets[1]["island_arrival"][0] if r["island"] > 17 or
-            0 < r["island"] <= len(itd) and r["day"] > itd[r["island"] - 1] + 2]
+    late = _late_arrivals(datasets[1]["island_arrival"][0], itd)
     if late:
         comp.warnings.append({"code": "arrival_extrapolation", "message": "到岛日超过目标 2 天或超过第 17 岛", "rows": late})
     if comp.comparisons["sim/boundary.csv"]:
         comp.warnings.append({"code": "kill_boundary_changed", "message": f"loss/H 在 L={threshold!r} 的 ±3% 范围内的集合或数值变化；详见 sim/boundary.csv"})
+
+
+def _late_arrivals(rows, itd):
+    from ..model.timeline import island_start_day
+    return [r for r in rows if r["island"] > 17 or
+            0 < r["island"] <= len(itd) + 1 and r["day"] > island_start_day(itd, r["island"]) + 2]
+
+
+def _mark_vacuous(comp, datasets):
+    vacuous = {}
+    for name in datasets[0]:
+        if not any(ds[name][0] for ds in datasets):
+            vacuous[f"sim/{name}.csv"] = f"两侧均无数据：当前重建未模拟或本次轨迹未发生 {name}。"
+    no_evolves = not any(ds["evolution"][0] for ds in datasets)
+    # The starting knife alone is initialization, not evidence of simulated item rewards.
+    no_drops = all({r["item"] for r in ds["item_first"][0]} <= {"knife"} and all(
+        r["item"] == "knife" and r["level"] == 1 and r["copies"] == 1 for r in ds["items"][0]) for ds in datasets)
+    if no_evolves:
+        vacuous["sim/evolution.csv"] = "两侧均无数据：当前重建未模拟进化或本次轨迹未发生进化（等待 C6）。"
+    if no_drops:
+        for name in ("items", "item_first"):
+            vacuous[f"sim/{name}.csv"] = "两侧均无数据：当前重建未模拟物品掉落或本次轨迹未发生掉落（仅有初始物品，等待 C6）。"
+    comp.simulation["vacuous_tables"] = vacuous
+    nodes = sorted({o.node for o in comp.patch.overrides} | {x.node for x in comp.static.report.leaves})
+    touched = [n for n in nodes if any(s in n.lower() for s in ("item", "evolution", "emission", "shard"))]
+    if touched and (no_evolves or no_drops):
+        comp.warnings.append({"code": "sim_not_modelled", "message": "物品/进化输入改变，但两侧轨迹未发生掉落或进化；空比较不能说明改动没有效果（等待 C6）",
+                              "nodes": touched, "tables": sorted(vacuous)})
 
 
 def asset_patch(cfg, *, base="HEAD", worktree=REPO, scratch=None):
@@ -287,6 +360,8 @@ def asset_patch(cfg, *, base="HEAD", worktree=REPO, scratch=None):
     changed.update(git("ls-files", "--others", "--exclude-standard", "--", ASSET_PREFIX,
                        worktree=worktree).splitlines())
     files = sorted(p for p in changed if p.endswith((".asset", ".unity", ".prefab", ".meta")))
+    ignored_meta = [p for p in files if p.endswith(".meta") and _unchanged_nonconfig_guid(p, ref, worktree)]
+    files = [p for p in files if p not in ignored_meta]
     unsupported = [p for p in files if not p.endswith(".asset")]
     if unsupported:
         raise ValueError("asset mode cannot safely translate scene/prefab/identity edits into config leaves: "
@@ -370,5 +445,19 @@ def asset_patch(cfg, *, base="HEAD", worktree=REPO, scratch=None):
     patch = P.parse_patch({"name": "asset-worktree", "description": f"资产版本 {ref[:12]} → worktree",
                            "overrides": head_sets})
     return base_cfg, patch, {"asset_base_ref": ref, "asset_files": files, "raw_diff": raw_diffs,
+                             "ignored_meta": ignored_meta,
                              "baseline_overlay_leaves": len(base_sets),
                              "warnings": warnings}
+
+
+def _unchanged_nonconfig_guid(path, ref, worktree):
+    asset = worktree / path.removesuffix(".meta")
+    if not asset.is_file() or asset.suffix.lower() in (".asset", ".unity", ".prefab", ".cs", ".dll"):
+        return False
+    try:
+        before = git("show", f"{ref}:{path}", worktree=worktree)
+        after = (worktree / path).read_text(encoding="utf-8")
+    except (subprocess.CalledProcessError, OSError):
+        return False
+    guid = lambda s: re.findall(r"(?m)^guid: ([0-9a-f]{32})$", s)
+    return len(guid(before)) == 1 and guid(before) == guid(after)

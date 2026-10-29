@@ -8,7 +8,7 @@ from .. import graph as G
 from ..model import registry as R
 from ..model.patch import _ancestors
 
-COLUMNS = ("id", "name", "status", "layer", "scope", "depth", "previous", "implementers", "provenance")
+COLUMNS = ("id", "name", "status", "layer", "scope", "depth", "previous", "implementers", "provenance", "coverage")
 SCOPES = (("immediate", True, ("combat", "progress")), ("progression", True, ("combat",)),
           ("full", False, ()))
 
@@ -40,10 +40,16 @@ def affected(cfg, nodes):
             fid = node.removeprefix("formula:")
             formula = g.formulas[fid]
             py = R.REGISTRY.implementers(fid)
-            native = [a for a in cs if a.formula_id == fid]
+            rebuilt = [a for a in cs if a.formula_id == fid]
+            # Catalog recovery describes implementation availability, not per-run branch coverage.
+            native = formula["status"] == "recovered_native" or fid == "stats.raw_value_aggregation"
+            implementers = [f"{i.module}.{i.qualname}" for i in py] + [f"{a.type_name}.{a.member}" for a in rebuilt]
+            if native:
+                implementers += ["C# 原生：" + ref for ref in formula.get("code_refs", [])]
             rows.append({"id": fid, "name": formula["name"], "status": formula["status"],
                          "layer": formula["subsystem"], "scope": scope, "depth": depth, "previous": previous,
-                         "implementers": sorted([f"{i.module}.{i.qualname}" for i in py]
-                                                + [f"{a.type_name}.{a.member}" for a in native]) or ["未建模"],
-                         "provenance": sorted({i.provenance for i in py} | {a.provenance for a in native if a.provenance})})
+                         "implementers": sorted(implementers) or ["未建模"],
+                         "coverage": (["Python"] if py else []) + (["C# 重建"] if rebuilt else []) + (["C# 原生"] if native else []),
+                         "provenance": sorted({i.provenance for i in py} | {a.provenance for a in rebuilt if a.provenance}
+                                              | ({"C# 原生"} if native else set()))})
     return rows, warnings
