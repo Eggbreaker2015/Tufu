@@ -53,6 +53,12 @@ internal static class Program
 					["doubles"] = new JArray(command["doubles"].Select(h => (object)SimulationCanonicalJson.FormatDouble(BitConverter.Int64BitsToDouble(unchecked((long)ulong.Parse((string)h, NumberStyles.HexNumber))))).ToArray()),
 					["floats"] = new JArray(command["floats"].Select(h => (object)SimulationCanonicalJson.FormatFloat(BitConverter.Int32BitsToSingle(unchecked((int)uint.Parse((string)h, NumberStyles.HexNumber))))).ToArray()),
 				};
+            case "export-format":
+                return new JObject { ["texts"] = new JArray(command["doubles"].Select(h => (object)Codebase.Simulation.Harness.SimulationJson.JsonDouble(
+                    BitConverter.Int64BitsToDouble(unchecked((long)ulong.Parse((string)h, NumberStyles.HexNumber))))).ToArray()) };
+            case "runtime-double-parse":
+                return new JObject { ["bits"] = new JArray(command["texts"].Select(t => (object)BitConverter.DoubleToInt64Bits(
+                    double.Parse((string)t, NumberStyles.Float, CultureInfo.InvariantCulture)).ToString("x16")).ToArray()) };
 			case "params":
 				return Params(command);
 			case "request":
