@@ -31,11 +31,14 @@ def t19(db, job):
     run = bake_report.bake_context(job, db)
     armors = D.load_armor_configs(db)
     rows = []
+    minute = []
     for row in D.load_spawner_rows(db):
         sp = D.spawner_input_from_row(row, armors)
-        if not sp.is_days or str(row['go_name']).startswith('BossTower') or row['go_name'] == 'Spawner_Dummy':
-            continue
-        rows.append((sp, B.bake_spawner(shipped, sp), B.bake_spawner(run, sp)))
+        triple = (sp, B.bake_spawner(shipped, sp), B.bake_spawner(run, sp))
+        if not sp.is_days:
+            minute.append(triple)
+        elif not (str(row['go_name']).startswith('BossTower') or row['go_name'] == 'Spawner_Dummy'):
+            rows.append(triple)
     def within(a, b, tol):
         if math.isinf(a) and math.isinf(b):
             return True
@@ -50,6 +53,11 @@ def t19(db, job):
                 'A': sum(within(getattr(s, scene), getattr(a, pred), tol) for s, a, b in subset),
                 'free': sum(within(getattr(s, scene), getattr(b, pred), tol) for s, a, b in subset)}
         result[field] = counts
+    result['minute'] = {'n': len(minute),
+        'health_exact_A': sum(s.health_base == a.new_health for s, a, b in minute),
+        'health_exact_free': sum(s.health_base == b.new_health for s, a, b in minute),
+        'damage_exact_A': sum(s.damage_base == a.new_damage for s, a, b in minute),
+        'damage_exact_free': sum(s.damage_base == b.new_damage for s, a, b in minute)}
     return result
 
 
