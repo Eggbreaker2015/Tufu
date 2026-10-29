@@ -6,16 +6,19 @@
    "source": "unlock events; exact ranges independently reported",
    "value": {
     "2": {
-     "day": 0,
-     "p": 36.4415512
+     "p_range": [
+      31.2,
+      37.4
+     ]
     },
     "3": {
-     "day": 2,
-     "p": 128.836319
+     "p_range": [
+      110.2,
+      115.3
+     ]
     },
     "4": {
-     "day": 5,
-     "p": 268.338684
+     "day": 5
     }
    }
   },
