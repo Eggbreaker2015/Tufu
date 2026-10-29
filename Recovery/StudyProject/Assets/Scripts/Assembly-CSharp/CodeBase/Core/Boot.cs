@@ -78,6 +78,7 @@ namespace Codebase.Core
             GameContext.Set(new CommandFactory());
             GameContext.Set(new global::Codebase.Abilities.Vfx.AbilityVfxService());
             GameContext.Set(new global::Codebase.Vfx.WorldVfxService());
+            GameContext.Set(new global::Codebase.Skills.SkillService());
             GameContext.Set(new global::Codebase.Unit.StatModifierPool());
             var shop = new global::Codebase.Shop.ShopLotRepository(Lifetime);
             RegisterModel(shop);

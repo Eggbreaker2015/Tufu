@@ -115,6 +115,24 @@ namespace Codebase.Enemy.Systems
 			castingStash.Set(entity, data);
 		}
 
+		// Skill interrupts (stun/silence): end the cast now; the processor then cancels the pending run.
+		public void CancelCast(Entity entity)
+		{
+			if (!castingStash.Has(entity))
+				return;
+			EnemyCastingState cast = castingStash.Get(entity);
+			EnemyUnit enemy = unitStash.Has(entity) ? unitStash.Get(entity).Core as EnemyUnit : null;
+			if (enemy != null)
+			{
+				if (!string.IsNullOrEmpty(cast.AnimationBool) && enemy.Animator != null)
+					enemy.Animator.SetBool(cast.AnimationBool, false);
+				if (!string.IsNullOrEmpty(cast.AnimationTrigger) && enemy.Animator != null)
+					enemy.Animator.ResetTrigger(cast.AnimationTrigger);
+				enemy.IsCasting = false;
+			}
+			castingStash.Remove(entity);
+		}
+
 		public bool IsCasting(Entity entity)
 		{
 			return castingStash.Has(entity);
@@ -187,7 +205,7 @@ namespace Codebase.Enemy.Systems
 						visual.Sequencer.SetProgress(0f, false);
 					}
 
-					EnemyCastingState cast = castingStash.Get(entity);
+					EnemyCastingState cast = castingStash.Has(entity) ? castingStash.Get(entity) : default;
 					if (enemy != null)
 					{
 						if (!string.IsNullOrEmpty(cast.AnimationBool) && enemy.Animator != null)

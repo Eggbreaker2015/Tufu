@@ -1,0 +1,297 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd6a91af1da48d4a0b61e418e84517c, type: 3}
+  m_Name: Enemy Skills
+  m_EditorClassIdentifier:
+  Skills:
+  - Key: slam
+    TargetType: 0
+    Range: 3.5
+    CastPoint: 1.2
+    Backswing: 0.6
+    Cooldown: 8
+    InitialCooldown: 3
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 1
+      Radius: 3.5
+      Angle: 0
+      AnchorOnTarget: 0
+    AutoCast:
+      Priority: 10
+      Pick: 0
+      UseWhen:
+      - rid: 1011
+    LevelScale: []
+    Effects:
+    - rid: 1012
+    - rid: 1013
+    - rid: 1014
+  - Key: bone_volley
+    TargetType: 1
+    Range: 9
+    CastPoint: 0.6
+    Backswing: 0.4
+    Cooldown: 6
+    InitialCooldown: 0
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 3
+      Radius: 9
+      Angle: 0
+      AnchorOnTarget: 0
+    AutoCast:
+      Priority: 5
+      Pick: 0
+      UseWhen:
+      - rid: 1021
+    LevelScale: []
+    Effects:
+    - rid: 1022
+  - Key: enrage
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.8
+    Backswing: 0
+    Cooldown: 20
+    InitialCooldown: 0
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+    AutoCast:
+      Priority: 20
+      Pick: 3
+      UseWhen:
+      - rid: 1031
+      - rid: 1032
+    LevelScale: []
+    Effects:
+    - rid: 1033
+  - Key: heal_aura
+    TargetType: 3
+    Range: 0
+    CastPoint: 0
+    Backswing: 0
+    Cooldown: 0
+    InitialCooldown: 0
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+    AutoCast:
+      Priority: 0
+      Pick: 3
+      UseWhen: []
+    LevelScale: []
+    Effects:
+    - rid: 1041
+  Buffs:
+  - Key: slow_30
+    Duration: 2
+    IsDebuff: 1
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 0
+      ModifierType: 2
+      ValuePerStack: 0.7
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: enrage
+    Duration: 8
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods:
+    - StatType: 3
+      ModifierType: 2
+      ValuePerStack: 1.5
+    - StatType: 5
+      ModifierType: 2
+      ValuePerStack: 0.6
+    Stun: 0
+    Silence: 0
+    TickInterval: 0
+    OnTick: []
+  - Key: aura_regen
+    Duration: 1
+    IsDebuff: 0
+    Stack: 0
+    MaxStacks: 0
+    StatMods: []
+    Stun: 0
+    Silence: 0
+    TickInterval: 1
+    OnTick:
+    - rid: 1051
+  Loadouts:
+  - OwnerKind: 0
+    Key: Zombie_Medium+
+    Skills:
+    - SkillKey: slam
+      Level: 1
+  - OwnerKind: 0
+    Key: Zombie_Boss
+    Skills:
+    - SkillKey: slam
+      Level: 1
+    - SkillKey: enrage
+      Level: 1
+  - OwnerKind: 0
+    Key: Skeleton_Medium
+    Skills:
+    - SkillKey: bone_volley
+      Level: 1
+  - OwnerKind: 0
+    Key: Skeleton_Boss
+    Skills:
+    - SkillKey: enrage
+      Level: 1
+    - SkillKey: heal_aura
+      Level: 1
+  Vfx:
+  - Key: slam_smash
+    Prefab: {fileID: 198099118695303065, guid: 913affe3ff74f544296f22351f56d02f, type: 3}
+    Lifetime: 1.5
+    Scale: 1
+  - Key: bone_arrow
+    Prefab: {fileID: 198703437598541787, guid: 88e464211aebcb14d8e110e1b67d96c2, type: 3}
+    Lifetime: 3
+    Scale: 1
+  TelegraphTexture: {fileID: 2800000, guid: 800be693e225496499369c254e62c299, type: 3}
+  references:
+    version: 2
+    RefIds:
+    - rid: 1011
+      type: {class: EnemiesInRadiusCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 3.5
+        Min: 1
+    - rid: 1012
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 3.5
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+        Power: 2.5
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 1
+    - rid: 1013
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 3.5
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+        BuffKey: slow_30
+    - rid: 1014
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 2
+        HeightOffset: 0.2
+    - rid: 1021
+      type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Min: 4
+        Max: 9
+    - rid: 1022
+      type: {class: MissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: 
+        Speed: 12
+        Count: 3
+        Spread: 0.4
+        Area:
+          Mode: 3
+          Radius: 6
+          Angle: 90
+          Filter: 65
+          MaxTargets: 3
+        OnImpact:
+        - rid: 1023
+        - rid: 1024
+    - rid: 1023
+      type: {class: DamageEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 1
+          Radius: 0
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+        Power: 0.8
+        OverrideDamageType: 0
+        DamageType: 0
+        Undodgeable: 0
+    - rid: 1024
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: bone_arrow
+        Anchor: 1
+        Scale: 1
+        HeightOffset: 1.2
+    - rid: 1031
+      type: {class: SelfHealthBelowCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Percent: 0.5
+    - rid: 1032
+      type: {class: HasBuffCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Key: enrage
+        Invert: 1
+        OnTarget: 0
+    - rid: 1033
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+        BuffKey: enrage
+    - rid: 1041
+      type: {class: AuraEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Radius: 5
+        Filter: 66
+        BuffKey: aura_regen
+        Interval: 0.5
+    - rid: 1051
+      type: {class: HealEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 0
+          Radius: 0
+          Angle: 90
+          Filter: 68
+          MaxTargets: 0
+        PercentMaxHp: 0.02

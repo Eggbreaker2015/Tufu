@@ -59,7 +59,8 @@ namespace Codebase.Vfx
 			world.GetStash<WorldVfxForceFieldComponent>().Set(entity, new WorldVfxForceFieldComponent { ParticleSystem = particle, ForceField = force, Lifetime = lifetime });
 		}
 
-		public void SpawnTracking(ParticleSystem prefab, Vector3 startPosition, Transform target, Vector3 offset, float speed, Action onArrived = null)
+		// lifetime > 0: despawned after that many seconds without arriving (onArrived is not called).
+		public void SpawnTracking(ParticleSystem prefab, Vector3 startPosition, Transform target, Vector3 offset, float speed, Action onArrived = null, float lifetime = 0f)
 		{
 			if (prefab == null || target == null)
 				return;
@@ -68,7 +69,7 @@ namespace Codebase.Vfx
 			particle.Play(true);
 			World world = World.Default;
 			Entity entity = world.CreateEntity();
-			world.GetStash<WorldVfxTravelComponent>().Set(entity, new WorldVfxTravelComponent { ParticleSystem = particle, Target = target, Offset = offset, Speed = speed, OnArrived = onArrived });
+			world.GetStash<WorldVfxTravelComponent>().Set(entity, new WorldVfxTravelComponent { ParticleSystem = particle, Target = target, Offset = offset, Speed = speed, OnArrived = onArrived, Lifetime = lifetime });
 		}
 	}
 }

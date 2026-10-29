@@ -1782,6 +1782,21 @@ MonoBehaviour:
     - Bu silahın $Saldırı Hızını$ düşmandaki her $İşaret$ için {value_percent} artırır<br><br>+{max_marks} maks. $İşaret$ yükü kazanır
     - Збільшує $Швидкість атаки$ цієї зброї на {value_percent} за кожну $Мітку$ на ворогові<br><br>Отримує +{max_marks} до макс. зарядів $Мітки$
     - 敌人身上每层$印记$提升此武器的$攻击速度${value_percent}<br><br>获得 +{max_marks} 最大$印记$层数
+  - key: ABILITY_DESCRIPTION_pet_skill_golem_slam
+    values:
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - 'Every 8 s on hit: slams the ground, damaging nearby enemies (slam power {value_percent}) and slowing them by $30%$ for 2 s'
+    - '命中时每 8 秒触发一次：猛击地面，对周围敌人造成伤害（震地威力 {value_percent}），并使其减速 $30%$，持续 2 秒'
   - key: ABILITY_DESCRIPTION_pet_treant_ability_1
     values:
     - '{chance} chance to apply $Stun$ to target for ${value}s$'
@@ -5037,6 +5052,21 @@ MonoBehaviour:
     - İşaret Temposu
     - Темп міток
     - 印记节奏
+  - key: ABILITY_NAME_pet_skill_golem_slam
+    values:
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - 'Ground Slam'
+    - '震地猛击'
   - key: ABILITY_NAME_pet_treant_ability_1
     values:
     - Heavy Stun

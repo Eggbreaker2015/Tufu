@@ -31,6 +31,9 @@ namespace Codebase.Pet.Systems
 		[Inject]
 		private PetsModel petsModel;
 
+		[Inject]
+		private global::Codebase.Skills.SkillService skillService;
+
 		public override void OnAwake()
 		{
 		}
@@ -45,6 +48,10 @@ namespace Codebase.Pet.Systems
 			PetConfig config = PetConfig.Instance;
 			bool paused = !playerModel.CanMove || player.IsDying || player.IsSleeping;
 			float playerSpeed = (float)player.GetStatSpecificValue(StatType.MovementSpeed);
+			// Skill slows on the hero are its own (felt speed scales by exactly that factor); pets only take their own below.
+			float heroSkillFactor = skillService.GetMoveSpeedFactor(player);
+			if (heroSkillFactor > 0.01f)
+				playerSpeed /= heroSkillFactor;
 			// Following keeps up with the player; only chasing a target uses the pet's move speed ratio.
 			float followSpeed = playerSpeed * config.FollowSpeedMultiplier;
 			Transform owner = player.transform;
@@ -80,6 +87,8 @@ namespace Codebase.Pet.Systems
 				}
 
 				agent.speed = target != null ? playerSpeed * PetStats.GetRatios(pet.Item, pet.Definition).MoveSpeed : followSpeed;
+				// Skills: pets move off the hero's speed, so skill slows on the pet itself apply here.
+				agent.speed *= skillService.GetMoveSpeedFactor(unit);
 				bool moving;
 				if (target != null)
 					moving = Chase(unit, agent, target, deltaTime);

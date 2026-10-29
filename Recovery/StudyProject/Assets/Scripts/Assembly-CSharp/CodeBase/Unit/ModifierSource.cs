@@ -23,6 +23,7 @@ namespace Codebase.Unit
 		Quest = 18,
 		Cashback = 19,
 		PetCollection = 20,
-		PetSynergy = 21
+		PetSynergy = 21,
+		Skill = 22
 	}
 }

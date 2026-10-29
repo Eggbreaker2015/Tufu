@@ -66,8 +66,8 @@ namespace Codebase.Unit.Systems
 
 		private void UpdateStuns(float deltaTime)
 		{
-			// Native ELF VA 0x15cd31c; original enemy-only cast retained.
-			foreach(Entity entity in stunFilter){ref BuffStunComponent stun=ref stunStash.Get(entity);stun.Duration-=deltaTime;if(stun.Duration<=0f){stunStash.Remove(entity);((EnemyUnit)unitStash.Get(entity).Core).ApplyStunAnimation(false);}}
+			// Native ELF VA 0x15cd31c. Skills: tolerate non-enemy holders instead of the original enemy-only cast.
+			foreach(Entity entity in stunFilter){ref BuffStunComponent stun=ref stunStash.Get(entity);stun.Duration-=deltaTime;if(stun.Duration<=0f){stunStash.Remove(entity);(unitStash.Get(entity).Core as EnemyUnit)?.ApplyStunAnimation(false);}}
 		}
 	}
 }

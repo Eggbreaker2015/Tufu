@@ -705,10 +705,10 @@ namespace Codebase.Player.Models
 			}
 		}
 
-		// Pet collection/synergy bonuses are re-applied by their systems every session.
+		// Pet collection/synergy bonuses are re-applied by their systems every session; skill buffs are timed.
 		private static bool IsRuntimeOnlySource(ModifierSource source)
 		{
-			return source == ModifierSource.PetCollection || source == ModifierSource.PetSynergy;
+			return source == ModifierSource.PetCollection || source == ModifierSource.PetSynergy || source == ModifierSource.Skill;
 		}
 
 		private void SavePosition()

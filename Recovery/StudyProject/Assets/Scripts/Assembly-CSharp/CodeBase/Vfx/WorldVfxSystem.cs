@@ -43,7 +43,8 @@ namespace Codebase.Vfx
 			foreach (Entity entity in travelFilter)
 			{
 				ref WorldVfxTravelComponent travel = ref travelStash.Get(entity);
-				if (travel.Target == null)
+				travel.Elapsed += deltaTime;
+				if (travel.Target == null || travel.Lifetime > 0f && travel.Elapsed >= travel.Lifetime)
 				{
 					ObjectPoolUtility<ParticleSystem>.Despawn(travel.ParticleSystem);
 					World.RemoveEntity(entity);

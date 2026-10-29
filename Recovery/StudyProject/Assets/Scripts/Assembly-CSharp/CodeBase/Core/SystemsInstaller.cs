@@ -43,6 +43,7 @@ namespace Codebase.Core
 			RegisterSystem(new global::Codebase.BossTower.Systems.HydraDeathSystem());
 			RegisterSystem(new global::Codebase.BossTower.Systems.HydraPendingSpawnSystem());
 			RegisterSystem(new global::Codebase.BossTower.Systems.AssassinIllusionSystem());
+			RegisterSystem(new global::Codebase.Skills.Systems.SkillAutoCastSystem());
 			RegisterSystem(new global::Codebase.Enemy.Systems.EnemyCastSystem());
 			RegisterSystem(new global::Codebase.BossTower.Systems.LavaCrabExplosionSystem());
 			RegisterSystem(new global::Codebase.BossTower.Systems.FireElementalAreaSystem());
@@ -63,6 +64,7 @@ namespace Codebase.Core
 			RegisterSystem(new global::Codebase.BossTower.Systems.BossRaidSystem());
 			RegisterSystem(new global::Codebase.Player.Systems.UnstackSystem());
 			RegisterSystem(new global::Codebase.Analytics.Systems.AppPauseTimeSkipSystem());
+			RegisterSystem(new global::Codebase.Skills.Systems.SkillBuffSystem());
 			RegisterSystem(new global::Codebase.Unit.Systems.UnitBuffSystem());
 			RegisterSystem(new global::Codebase.Unit.Systems.UnitDamageSystem());
 			RegisterSystem(new global::Codebase.Enemy.Systems.CreeperExplosionSystem());

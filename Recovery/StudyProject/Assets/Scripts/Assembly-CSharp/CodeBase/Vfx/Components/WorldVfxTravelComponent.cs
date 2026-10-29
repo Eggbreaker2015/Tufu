@@ -15,5 +15,10 @@ namespace Codebase.Vfx.Components
 		public float Speed;
 
 		public Action OnArrived;
+
+		// 0 = until arrival.
+		public float Lifetime;
+
+		public float Elapsed;
 	}
 }

@@ -313,6 +313,12 @@ namespace Codebase.Unit.Systems
 
 		private void ApplyDamageToEnemy(WeaponHitEvent data)
 		{
+			// Skills: weaponless hits (SkillService.DealDamage) never reached this path before (it dereferences Weapon).
+			if (data.Weapon == null)
+			{
+				ApplySkillDamageToEnemy(data);
+				return;
+			}
 			// Native ELF VA 0x15cd840; original outgoing path does not apply HasFixedDamage.
 			// Pet mode: OnPreHit and OnOneshot carry the attacker (data.Source).
 			EnemyUnit enemy = (EnemyUnit)data.Target;
@@ -361,6 +367,46 @@ namespace Codebase.Unit.Systems
 			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnOneshot, Target = enemy, Damage = damage, Item = data.Weapon, Attacker = data.Source });
 			ApplyPlayerLifesteal(data, entity);
 			playerDamageEventsViewSystem.Create(data, result);
+		}
+
+		// Skill damage: FixedDamage x (1 - typed resist) x (1 - universal defence %). No OnPreHit/OnHit/crit/lifesteal/reflection,
+		// so item abilities cannot recurse through skills; death still goes through ProcessEnemyDeath (OnDied, spawner OnKill).
+		private void ApplySkillDamageToEnemy(WeaponHitEvent data)
+		{
+			EnemyUnit enemy = (EnemyUnit)data.Target;
+			if (enemy.IsDead || data.Source == null)
+				return;
+			Entity entity = enemy.EntityProvider.Entity;
+			if (World.GetStash<VampireSpiritTag>().Has(entity))
+				return;
+			float resist = 0f;
+			if (enemy.ArmorConfig != null && enemy.ArmorConfig.Armors != null)
+				foreach (Armor armor in enemy.ArmorConfig.Armors)
+					if (armor.Type == data.DamageType)
+					{
+						resist = armor.Resist;
+						break;
+					}
+			double damage = data.FixedDamage * (1.0 - resist) * Math.Max(0.0, 1.0 - enemy.GetStatValue(StatType.UniversalDefencePercent));
+			if (cheatsModel.OneHitMode) damage = enemy.GetStatValue(StatType.Health) * 0.9;
+			if (cheatsModel.OneDamageMode) damage = 1.0;
+			damage = Math.Round(Math.Max(0.0, damage));
+			if (damage <= 0.0) return;
+			enemy.ApplyHitAnimation();
+			waitingMarkerStash.Remove(entity);
+			if (unitDamageViewSystem != null) unitDamageViewSystem.Create(data, damage, resist);
+			ref DummyTargetTag dummy = ref dummyStash.Get(entity, out bool isDummy);
+			if (isDummy)
+			{
+				dummy.Data.RecordHit(damage);
+				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
+				return;
+			}
+			bool wasDead = enemy.IsDead;
+			enemy.CurrentHealth -= damage;
+			enemy.LastDamageGet = Time.time;
+			data.Source.LastDamageDealt = Time.time;
+			ProcessEnemyDeath(enemy, wasDead, unitDiedEvent);
 		}
 
 		private void ApplyPlayerLifesteal(WeaponHitEvent data, Entity targetEntity)

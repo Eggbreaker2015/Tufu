@@ -269,7 +269,8 @@ namespace Codebase.Enemy
 				return;
 			}
 
-			if (stunStash.Has(entity))
+			// Skills: casting holds flying enemies in place too (ground enemies already check IsCasting).
+			if (stunStash.Has(entity) || enemy.IsCasting)
 				return;
 			enemy.RetreatTimer -= deltaTime;
 			if (enemy.AttackCooldown > 0f)

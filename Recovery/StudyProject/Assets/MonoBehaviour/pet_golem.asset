@@ -116,6 +116,22 @@ MonoBehaviour:
     AffectsChance: 0
     AffectsStacks: 0
     LevelScaling: []
+  - Key: pet_skill_golem_slam
+    Trigger: 2
+    Conditions:
+    - rid: 8412736450918273641
+    - rid: 8412736450918273642
+    Effects:
+    - rid: 8412736450918273643
+    ConditionMode: 0
+    UnlockLevel: 0
+    Value: 0.6
+    Chance: 0
+    StackLimit: 0
+    AffectsValue: 0
+    AffectsChance: 0
+    AffectsStacks: 0
+    LevelScaling: []
   PetOnly: 1
   references:
     version: 2
@@ -157,3 +173,16 @@ MonoBehaviour:
         ScalingStat: 0
         UseDailyProcLimit: 0
         DailyProcLimit: 1
+    - rid: 8412736450918273641
+      type: {class: PetModeCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data: {}
+    - rid: 8412736450918273642
+      type: {class: CooldownCondition, ns: Codebase.Abilities.Conditions, asm: Assembly-CSharp}
+      data:
+        Cooldown: 8
+        ScaleByValue: 0
+    - rid: 8412736450918273643
+      type: {class: CastSkillEffect, ns: Codebase.Abilities.Effects, asm: Assembly-CSharp}
+      data:
+        SkillKey: slam
+        Level: 1

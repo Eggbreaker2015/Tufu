@@ -56,6 +56,8 @@ namespace Codebase.Pet
 				case ModifierSource.Crystal:
 				// Pet-only; applied through PetStatsSyncSystem, never inherited from the player.
 				case ModifierSource.PetSynergy:
+				// Skill buffs belong to the unit they were cast on.
+				case ModifierSource.Skill:
 					return false;
 				case ModifierSource.Item:
 				case ModifierSource.AbilityPermanent:

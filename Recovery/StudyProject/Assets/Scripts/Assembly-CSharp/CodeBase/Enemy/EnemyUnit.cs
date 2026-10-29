@@ -183,6 +183,9 @@ namespace Codebase.Enemy
 				animator.applyRootMotion = false;
 			HasSoul = false;
 			HasEmptyAmulet = false;
+			// Skills: every spawn path ends here; also resets the previous pooled life's cast and buffs.
+			if (GameContext.Has<global::Codebase.Skills.SkillService>())
+				GameContext.Get<global::Codebase.Skills.SkillService>().InstallForEnemy(this, config);
 		}
 
 		public void Tick(float deltaTime)
@@ -240,6 +243,24 @@ namespace Codebase.Enemy
 			float x = config.SpawnArea.x * UnityEngine.Random.Range(-0.5f, 0.5f);
 			float z = config.SpawnArea.y * UnityEngine.Random.Range(-0.5f, 0.5f);
 			CurrentSpawnerPatrolPoint = patrolCenter + Quaternion.Euler(0f, config.SpawnAreaRotation, 0f) * new Vector3(x, 0f, z);
+		}
+
+		// Skill casts without their own animation: stand idle instead of looping walk/attack while Tick skips the animator.
+		public void StopLocomotionAnimation()
+		{
+			if (!hasAnimator || disableAnimations)
+				return;
+			animator.speed = isStunned ? 0f : 1f;
+			if (isDragon)
+			{
+				animator.SetBool(DragonIsWalking, false);
+				animator.ResetTrigger(DragonIsAttacking);
+			}
+			else
+			{
+				animator.SetBool(IsWalking, false);
+				animator.SetBool(IsAttacking, false);
+			}
 		}
 
 		public void ApplyStunAnimation(bool isStunned)
