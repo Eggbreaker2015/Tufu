@@ -41,6 +41,19 @@ namespace Codebase.Localization
 			ApplyToTree(root);
 		}
 
+		// For a text created at runtime next to an already-localized one: take over that text's original
+		// font and material, so a later locale switch restores both to the same font.
+		public static void RegisterLike(TMP_Text text, TMP_Text source)
+		{
+			if (source != null && origins.TryGetValue(source, out var origin))
+			{
+				text.font = origin.Font;
+				text.fontSharedMaterial = origin.Material;
+			}
+			var config = GetSettings();
+			if (config != null) ApplyToText(text, config);
+		}
+
 		public static void Unregister(GameObject root)
 		{
 			roots.Remove(root);

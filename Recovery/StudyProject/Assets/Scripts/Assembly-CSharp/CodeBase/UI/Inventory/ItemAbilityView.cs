@@ -18,6 +18,8 @@ namespace Codebase.UI.Inventory
 	{
 		private const string DailyLimitReachedColorHex = "D98B8B";
 
+		private static readonly Color LockedIconTint = new Color(0.45f, 0.45f, 0.45f, 0.8f);
+
 		[SerializeField]
 		private GameObject withStarsAbilityLocker;
 
@@ -125,6 +127,11 @@ namespace Codebase.UI.Inventory
 			withStarsAbilityLocker.SetActive(!unlocked); noStarsAbilityLocker.SetActive(!unlocked);
 			SetLabel(noStarsName, title); SetLabel(noStarsDescription, text);
 			if (hasStars) { SetLabel(withStarsName, title); SetLabel(withStarsDescription, text); Injector.InjectInto(starsView); if(starsView != null) starsView.Setup(model,abilityIndex); }
+			// Effect-category icon in front of the name; greyed out while the ability is locked.
+			Sprite icon = AbilityIcons.Get(def);
+			Color tint = unlocked ? Color.white : LockedIconTint;
+			TextLeadingIcon.GetOrCreate(noStarsName).Set(icon, tint);
+			if (hasStars) TextLeadingIcon.GetOrCreate(withStarsName).Set(icon, tint);
 		}
 
 		// Pet mode: the pet abilities' zh texts need the CJK fallback font, reapplied on every render (locale reapply resets it).

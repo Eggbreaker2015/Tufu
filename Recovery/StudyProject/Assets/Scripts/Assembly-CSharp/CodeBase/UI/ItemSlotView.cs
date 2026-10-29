@@ -186,9 +186,9 @@ namespace Codebase.UI
 
 		private bool abilityDurationVisible;
 
-		private bool levelVisible;
+		private AbilityBuffIconsView buffIcons;
 
-		private bool stackLevelVisible;
+		private bool levelVisible;
 
 		private bool typeAndRarityVisible;
 
@@ -210,6 +210,7 @@ namespace Codebase.UI
 			levelDefaultColor = levelField.color;
 			abilityVisualsDirty = true;
 			iconStyleConfig = GameContext.Get<IconStyleConfig>();
+			if (buffIcons == null) CreateBuffIcons();
 			button.onClick.RemoveAllListeners();
 			button.onClick.AddListener(() => {
 			    if (!this.model.IsEquipped) return;
@@ -232,33 +233,36 @@ namespace Codebase.UI
 
 		private void UpdateAbilityVisuals()
 		{
-			// Native ELF VA 0x15f5eb8; first active duration/cooldown/stack state in original order.
+			// Native ELF VA 0x15f5eb8; first cooldown state in original order. Buffs are drawn by buffIcons.
 			ItemModel item = model.ItemModel;
 			// Pet mode: a dead pet's slot shows its revive countdown instead.
-			if (PetConfig.Enabled && TryRenderPetRevive(item)) return;
-			if (item == null || !item.HasAbility) { ApplyOverlayVisibility(false, false); ApplyLevelAndRarityVisibility(item, null, false); return; }
-			AbilityState active = null, cooling = null, stacks = null;
-			float current = 0f, max = 0f;
+			if (PetConfig.Enabled && TryRenderPetRevive(item)) { buffIcons.Clear(); return; }
+			if (item == null || !item.HasAbility) { ApplyOverlayVisibility(false, false); buffIcons.Clear(); ApplyLevelAndRarityVisibility(item, false); return; }
+			// Every timed or stacked buff gets its own icon above the slot (the single yellow bar showed only the first one).
+			AbilityState cooling = null;
+			bool anyTimed = false;
+			buffIcons.Begin();
 			foreach (AbilityState state in item.AbilityStates)
 			{
-			    if (active == null && TryGetActiveDuration(state, out float c, out float m)) { active = state; current = c; max = m; }
+			    bool timed = TryGetActiveDuration(state, out float c, out float m);
+			    bool stacked = state.GetStackLimit() > 0 && state.Stacks > 0;
+			    if (timed || stacked) buffIcons.Add(state.Def, timed ? (m > 0f ? c / m : 1f) : -1f, stacked ? state.Stacks : 0);
+			    anyTimed |= timed;
 			    if (cooling == null && state.Cooldown > 0f) cooling = state;
-			    if (stacks == null && state.GetStackLimit() > 0 && state.Stacks > 0) stacks = state;
 			}
-			if (active != null) { ApplyOverlayVisibility(false, true); abilityDurationSlider.value = max > 0f ? current / max : 0f; }
-			else if (cooling != null)
+			buffIcons.End();
+			if (cooling != null)
 			{
-			    ApplyOverlayVisibility(true, false);
 			    if (cooldownIcon.sprite != item.CurrentIcon) cooldownIcon.sprite = item.CurrentIcon;
 			    float cd = GetMaxCooldown(cooling);
 			    cooldownFill.fillAmount = cd > 0f ? cooling.Cooldown / cd : 0f;
 			    // Original FRINTP/FCVTPS: ceiling, not truncation.
 			    int value = (int)Math.Ceiling(cooling.Cooldown);
 			    if (displayedCooldown != value || abilityVisualsDirty) { displayedCooldown = value; cooldownText.text = value.ToString(); }
-
+			    ApplyOverlayVisibility(true, anyTimed);
 			}
-			else ApplyOverlayVisibility(false, false);
-			ApplyLevelAndRarityVisibility(item, stacks, active != null || cooling != null);
+			else ApplyOverlayVisibility(false, anyTimed);
+			ApplyLevelAndRarityVisibility(item, cooling != null);
 		}
 
 		private bool TryRenderPetRevive(ItemModel item)
@@ -274,7 +278,7 @@ namespace Codebase.UI
 			cooldownFill.fillAmount = total > 0f ? Mathf.Clamp01(remaining / total) : 0f;
 			int value = (int)Math.Ceiling(remaining);
 			if (displayedCooldown != value || abilityVisualsDirty) { displayedCooldown = value; cooldownText.text = value.ToString(); }
-			ApplyLevelAndRarityVisibility(item, null, true);
+			ApplyLevelAndRarityVisibility(item, true);
 			return true;
 		}
 
@@ -285,23 +289,30 @@ namespace Codebase.UI
 			if (abilityDurationVisible != showAbilityDuration || abilityVisualsDirty) { abilityDurationVisible = showAbilityDuration; abilityDuration.SetActive(showAbilityDuration); }
 		}
 
-		private void ApplyLevelAndRarityVisibility(ItemModel item, AbilityState stackState, bool isOverlayActive)
+		private void ApplyLevelAndRarityVisibility(ItemModel item, bool isOverlayActive)
 		{
-			// Native ELF VA 0x15f640c.
-			bool stack = item != null && stackState != null;
+			// Native ELF VA 0x15f640c. Stacks used to replace the level number here; they now sit on the buff icons.
 			bool type = item != null && !isOverlayActive && item.Rarity != Rarity.Mythical;
 			bool vip = model.IsVip && !model.IsUnlocked && !isOverlayActive;
-			if (item != null)
-			{
-			    int value = stackState != null ? stackState.Stacks : item.DisplayLevel;
-			    if (displayedLevel != value || stackLevelVisible != stack || abilityVisualsDirty) { displayedLevel = value; levelField.text = value.ToString(); }
-			}
-			if (stackLevelVisible != stack || abilityVisualsDirty) { stackLevelVisible = stack; levelField.color = stack ? StacksTextColor : levelDefaultColor; }
-			bool level = stack || (item != null && !isOverlayActive);
+			if (item != null && (displayedLevel != item.DisplayLevel || abilityVisualsDirty)) { displayedLevel = item.DisplayLevel; levelField.text = displayedLevel.ToString(); }
+			if (abilityVisualsDirty) levelField.color = levelDefaultColor;
+			bool level = item != null && !isOverlayActive;
 			if (levelVisible != level || abilityVisualsDirty) { levelVisible = level; levelField.enabled = level; }
 			if (typeAndRarityVisible != type || abilityVisualsDirty) { typeAndRarityVisible = type; typeAndRarity.enabled = type; }
 			if (vipTextVisible != vip || abilityVisualsDirty) { vipTextVisible = vip; vipText.enabled = vip; }
 			abilityVisualsDirty = false;
+		}
+
+		private void CreateBuffIcons()
+		{
+			// The old duration bar only fits one buff: hide it and put the icon row where it was.
+			Transform bar = abilityDuration.transform.Find("Bar");
+			Vector2 position = new Vector2(0f, 95f);
+			if (bar != null) { position = ((RectTransform)bar).anchoredPosition; bar.gameObject.SetActive(false); }
+			buffIcons = AbilityBuffIconsView.Create((RectTransform)transform, position, levelField, StacksTextColor);
+			// Draw under the pin marker and the hold-to-pin ring, which overlap the row's area.
+			Transform pinRoot = pin.transform.parent;
+			if (pinRoot != null && pinRoot.parent == transform) buffIcons.transform.SetSiblingIndex(pinRoot.GetSiblingIndex());
 		}
 
 		private float GetMaxCooldown(AbilityState state)
