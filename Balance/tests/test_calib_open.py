@@ -54,3 +54,15 @@ def test_p12_fit_uses_stored_inputs_not_fitted_slot_fixture(db):
     assert min(scores, key=lambda n: scores[n][0]) == '4,8'
     assert all(r['tc'] <= 24 for r in rows if r['split'] == 'train')
     assert all(r['tc'] >= 25 for r in rows if r['split'] == 'holdout')
+
+
+
+def test_t13_censoring_preserves_measured_targets_and_missing_runs():
+    from tufu_balance.calibrate import metrics as M
+    measured = [M.Cell('T13', 'train', 'a', 20, 10, 1),
+                M.Cell('T13', 'holdout', 'b', 40, 20, 1)]
+    extra = M.Cell('T13', 'holdout', 'unobserved', 405, None, None)
+    assert S.evolution_score(measured, [0, 10, 20, 40, 405]) == (1, 1)
+    assert S.evolution_score(measured+[extra], [0, 10, 20, 40, 405]) == (1, 1)
+    missing_run = M.Cell('T13', 'holdout', 'not_reached', None, 20, None)
+    assert S.evolution_score(measured+[extra, missing_run], [0, 10, 20, 40, 405]) == (1, 2)

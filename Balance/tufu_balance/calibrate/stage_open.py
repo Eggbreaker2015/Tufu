@@ -217,6 +217,14 @@ def dps_scores(series, targets, lo=1, hi=24):
     return mean(values)
 
 
+
+def evolution_score(cells, tc_days):
+    """Mean arrival-position error on observed targets; missing simulated arrivals are lower bounds."""
+    def score(group):
+        return mean(abs(c.residual) if c.residual is not None else len(tc_days)-M._position(tc_days, c.ref)
+                    for c in cells if c.group == group and c.ref is not None)
+    return score("train"), score("holdout")
+
 def p12_scores(db, targets):
     """R2b on identical stored items, disentangling the slot rule from copy errors."""
     ctx = sc.load_simcalc_context(db)
@@ -311,10 +319,10 @@ def choose(db, paths, targets):
         name = f"evolution-{trigger}"
         cells = M.t13(series[name], targets)
         residuals[name] = [dataclasses.asdict(c) for c in cells]
-        # Missing levels count as beyond the last possible interval, never disappear from the score.
-        score = lambda group: mean(abs(c.residual) if c.residual is not None else len(targets.shipped.tc)
-                                   for c in cells if c.group == group)
-        evo_scores[trigger] = (score("train"), score("holdout"))
+        # A simulated-only arrival has no reference time: retain it in the CSV as censored.
+        # A reference arrival that the run has not reached has a lower-bound error beyond day 405.
+        detail.setdefault("evolution_censored", {})[trigger] = [c.key for c in cells if c.ref is None]
+        evo_scores[trigger] = evolution_score(cells, targets.shipped.tc_days)
     evo_rank = ranking("EvolutionTrigger", evo_scores, post_hoc=False, segment="T13 C/U/R fit; E/L holdout")
     hypotheses += evo_rank
     changes["EvolutionTrigger"] = evo_rank[0]["hypothesis"]
