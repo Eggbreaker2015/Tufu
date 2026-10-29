@@ -75,3 +75,15 @@ T03 分组目前 `n` 已按实际生成的单元数计算；新测试覆盖模�
 T19 初步外部验证按随包 A 的 R1 信息子集固定成员，再对 free 与 A 分别计数；Python 烘焙与本次 C# 输出的 X4 已逐位核对。Health 子集 608 个，1% 带内 free 138 / A 162，5% 带内 383 / 469，均低于 A 的 95%，**不通过**；Damage 子集按 A 的 DefenseData 非零固定为 503 个，1% 为 326 / 144、5% 为 433 / 366，均通过。T19 整体不通过，闭环可信度不能据此成立。分钟制未在此完成报告。计算代码 `stage_full.t19` 和结果 `out/calibration/full/preflight/t19.json`，未改变任何原版黄金阈值。
 
 冷启动独立默认 `golden-405`：`python -m tufu_balance.unity run --preset golden-405 --force`，launcher 21.5 秒、job_wall_s 8.5835 秒、退出 0；运行键 `4fb5da3a064115cf63943fe8f982be199e23b72879615b500caac576f9376aa1`（完整键以 `Balance/out/calibration/full/preflight/cold.log` 为准）。这是默认参数预设的预算测量，尚不能代替发布后的 calibrated 层验收。
+
+### K3 第二轮已完成的补充与尚缺项
+
+已发布的 `calibrated.json` 是 K1 open 与 K2 slow 的合并，保留 full 选择 baseline；没有新增拟合参数。参数资产由新进程 `unity params import --layers calibrated --float32` 导入，参数层以 float32 最短十进制规范化；资产与参数层的完整哈希均为 `be166b02ce65885d7908cb6a386ae8f5731159dafca504d09de9503d3aee90e0`。有活动的连续拟合参数 2 个：TourA=1.013373，90% 区间 [0.979642,1.053451]；TourB=0.7881691，区间 [0.743317,0.826590]。非活动备选 κ=0.25644096，区间 [0.253514,0.259145]；三者均来自 K1 的 TC 区间块自助法，1000 次、seed=0，详见 Runbook §24。CMove/CRegen 固定为 1，未作为拟合参数；先前 CMove 的并列候选不能辨识。后期可杀性、Swapped、Chain、平台和换天顺序为 post-hoc；活跃分钟系数、P12、P18 和慢阶段离散选项为阶段 5 拟合，Q25 仍未解决。所有本节运行使用 A 组。
+
+分钟制 T19 只报告：108 个刷怪点，场景 HP 精确相等 A/free 为 79/9，Damage 为 104/43。天制有信息量子集 Health 在 1% 与 5% 的 138/162、383/469 均低于 A 的 95%；Damage 的 326/144、433/366 均高于阈值。**T19 失败，不能认定闭环可信。** X4 对 717 个点的输出逐位吻合，仅证明烘焙计算一致，不证明模拟轨迹正确。
+
+首次 free 和 checkpoint 报告与候选、计时、X4、T19 已汇集到 `Balance/out/calibration/full/first-run-e8054e8/`，`archive_manifest.json` 按文件列 SHA256；原有两份报告分别保留 `free/` 和 `checkpoint/`。这仍是部分归档：T05/T07 棘轮需要实际 DPS 误差与敏感性口径，T15 尚未计算，原报告的敏感性及进化余量表不完整，不能当成完整验收。
+
+free 的主要失败及线索：T03 cadence 57/60，延续 K2 的慢阶段路径与会话边界；T04 day0–3 为 3/4、TC≥11 为 33/34，前者 day2 误差 4.66% 对 3%，后者仍受 K1 活跃分钟模型及闭环轨迹影响；TC4–10 为 K1 已知失败。T06 TC≥24 为 390/435，最大相对误差 50%，表明部分早期属性的闭环奖励偏移；T09 非零 477/575 对要求 90%，与闭环成长和重算缓存差异一致（K1 stored/recomputed 桥已有差异）。T12 第4–19天 6/7，Epic 武器 68 对 62，K1 已定位 mace day10–12 提前各两份，A/B 状态或策略可能造成，不改变过滤或臆造修正。T14 Level 1052/1296（81.17%，要求90%），与份数和进化时机误差一致；Copies 1068/1296（82.41%，通过80%）。T16 主属性 8/12，HealthRegen 与 MovementSpeed 的早期收益低估及 K2 死亡/路径结构是可能原因；TC1 的 5% 带比一次清怪还细，是设计问题。岛3在 day2、P=127.47 对随包 day1、P=110.2–115.3；TC1–4物品为 4/5/7/8 对 4/7/8/8，均为 K2 交接失败。上述是结构线索而非已证明的唯一原因。
+
+checkpoint 从 day4 设置随包状态：T03 57/60、T04 早期 3/4、T06 TC5–23 179/180、TC≥24 428/435 但最大 11.713%、T09 501/575、T14 Level 1124/1296、T16 主属性 8/12、T17 早期护甲 5/9；不可将 checkpoint 结果与 free 合并。T05/T07 仍 pending，T15 未计算；失败尚未逐项登记 loosening，科学和流程验收均未完成。

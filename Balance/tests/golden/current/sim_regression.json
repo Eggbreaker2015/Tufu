@@ -1,0 +1,12 @@
+{
+ "expectations": {
+  "params_hash": {
+   "kind": "exact",
+   "note": "",
+   "source": "calibrated free run",
+   "value": "be166b02ce65885d7908cb6a386ae8f5731159dafca504d09de9503d3aee90e0"
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "sim_regression"
+}
