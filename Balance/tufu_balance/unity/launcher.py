@@ -367,10 +367,12 @@ def other_editors(run_project: Path | None = None) -> list[tuple[int, str]]:
 
 def main_checkout_editors() -> set[int]:
     """Unity editors the user has open on the main checkout or any other copy of the game (import workers
-    excluded): all of them write the same real save and PlayerPrefs."""
+    excluded): all of them write the same real save and PlayerPrefs. Editors on unrelated projects only block
+    the restore (``other_editors``); they never explain a change of this game's save."""
     project = runner.MAIN_CHECKOUT / runner.PROJECT_SUBDIR
     main = {pid for pid, cmdline in unity_processes(project) if "AssetImportWorker" not in cmdline}
-    return main | {pid for pid, _ in other_editors()}
+    copy = f"/{runner.PROJECT_SUBDIR.as_posix()}".lower()
+    return main | {pid for pid, cmd in other_editors() if copy in cmd.lower()}
 
 
 def _is_editor_analytics(problem: str) -> bool:

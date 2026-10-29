@@ -620,6 +620,8 @@ def test_editors_on_other_copies_of_the_game_count_as_the_users(monkeypatch):
     monkeypatch.setattr(launcher, "_editor_processes", lambda: [
         (11, "Unity -projectpath /Users/joyfort/MyProjects/Tufu-rpg/Recovery/StudyProject"),
         (12, "Unity -batchMode -projectPath /Users/joyfort/MyProjects/Tufu-rpg/Recovery/StudyProject -name AssetImportWorker0"),
-        (13, f"Unity -batchmode -projectPath {run}")])
-    assert [pid for pid, _ in launcher.other_editors(run)] == [11]
-    assert 11 in launcher.main_checkout_editors()
+        (13, f"Unity -batchmode -projectPath {run}"),
+        (14, "Unity -projectpath /Users/joyfort/MyProjects/OtherGame")])
+    assert [pid for pid, _ in launcher.other_editors(run)] == [11, 14]
+    editors = launcher.main_checkout_editors()
+    assert 11 in editors and 14 not in editors
