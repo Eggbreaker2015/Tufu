@@ -12,6 +12,12 @@
    "source": "design 4.6",
    "value": 44
   },
+  "checkpoint405.rpm_cells_equal_fresh": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.6",
+   "value": 1656
+  },
   "checkpoint405.state_mismatch_days": {
    "kind": "exact",
    "note": "",
@@ -23,6 +29,16 @@
    "note": "",
    "source": "design 7.3 C4",
    "value": 0.0
+  },
+  "checkpoint_from20.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": {
+    "cache_applications": 4,
+    "items_added": 28,
+    "slots_opened": 5
+   }
   },
   "recomputed.days_dps_differs_from_stored": {
    "kind": "exact",
@@ -44,6 +60,18 @@
    "note": "one override per day 4..405",
    "source": "design 7.3 C4",
    "value": 402
+  },
+  "replay405.forced_dps_differs_from_stored": {
+   "kind": "exact",
+   "note": "days d whose day d+1 forced-snapshot DpsData (day change recompute) differs from day d's stored one",
+   "source": "design 4.6",
+   "value": 401
+  },
+  "replay405.rpm_cells_equal_fresh": {
+   "kind": "exact",
+   "note": "RPMCalculatedValue after the override == model.simcalc on the recorded state (others are kept maxima)",
+   "source": "design 4.6",
+   "value": 14472
   },
   "replay405.state_mismatch_days": {
    "kind": "exact",
@@ -74,6 +102,31 @@
    "note": "vs the shipped TotalValue on shipped day-snapshot days",
    "source": "design 7.3 C4",
    "value": 0.0
+  },
+  "replay405.total_value_snapshot_cells_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": 633
+  },
+  "replay405.total_value_snapshot_max_ulp": {
+   "kind": "exact",
+   "note": "total_value = snapshot: Stat.FastValue vs the interpolated snapshot's TotalValue",
+   "source": "design 7.3 C4",
+   "value": 1.0
+  },
+  "slots_down.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.6",
+   "value": {
+    "cache_applications": 4,
+    "items_added": 8,
+    "slot_unequips": 4,
+    "slots_closed": 6,
+    "slots_missing": 1,
+    "slots_opened": 6
+   }
   },
   "unlock_snapshot.counters": {
    "kind": "exact",

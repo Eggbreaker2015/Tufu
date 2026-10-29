@@ -298,8 +298,7 @@ def test_replay_once_per_day_with_the_interpolated_state(run, shipped, interp, c
     check("sim_override", {
         "replay405.days": exact(len(recs), source="design 7.3 C4", original=402, note="one override per day 4..405"),
         "replay405.state_mismatch_days": exact(len(bad), source="design 7.3 C4", original=0,
-                                               note="Values, DpsData/DefenseData and their caches, items, slots, "
-                                                    "currentBoss bit for bit"),
+                                               note="Values, DpsData/DefenseData and their caches, items, slots bit for bit"),
         "replay405.total_value_snapshot_max_ulp": exact(totals.snapshot_ulps, source="design 7.3 C4",
                                                         note="total_value = snapshot: Stat.FastValue vs the "
                                                              "interpolated snapshot's TotalValue"),
