@@ -87,11 +87,12 @@ namespace Codebase.Enemy
 			}
 		}
 
+		// Ranged enemies (skill loadout RangedAttack) stay engaged out to their shooting distance.
 		public float AggroRange
 		{
 			get
 			{
-				return config.AggroRange;
+				return Ranged != null ? Mathf.Max(config.AggroRange, Ranged.AggroRange) : config.AggroRange;
 			}
 		}
 
@@ -118,6 +119,15 @@ namespace Codebase.Enemy
 		public float AttackCooldown { get; set; }
 		public double ReflectionDamage { get; set; }
 		public bool IsCasting { get; set; }
+		// Skills: ranged basic attack from the skill loadout (null = melee); set on every spawn by SkillService.InstallForEnemy.
+		public global::Codebase.Skills.RangedAttackDef Ranged { get; private set; }
+		// EnemyAttackSystem ranged state: holding at range, step-back timers and the cached line-of-fire result.
+		public bool RangedHolding { get; set; }
+		public float RangedKiteTimer { get; set; }
+		public float RangedKiteCooldown { get; set; }
+		public float LineOfFireTimer { get; set; }
+		public bool HasLineOfFire { get; set; }
+		public UnitCore LineOfFireTarget { get; set; }
 		public Vector3 CurrentSpawnerPatrolPoint { get; private set; }
 
 		public Vector3 PatrolCenter
@@ -186,6 +196,17 @@ namespace Codebase.Enemy
 			// Skills: every spawn path ends here; also resets the previous pooled life's cast and buffs.
 			if (GameContext.Has<global::Codebase.Skills.SkillService>())
 				GameContext.Get<global::Codebase.Skills.SkillService>().InstallForEnemy(this, config);
+		}
+
+		public void ResetRangedState(global::Codebase.Skills.RangedAttackDef ranged)
+		{
+			Ranged = ranged;
+			RangedHolding = false;
+			RangedKiteTimer = 0f;
+			RangedKiteCooldown = 0f;
+			LineOfFireTimer = 0f;
+			HasLineOfFire = true;
+			LineOfFireTarget = null;
 		}
 
 		public void Tick(float deltaTime)

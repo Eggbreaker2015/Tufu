@@ -60,16 +60,17 @@ namespace Codebase.Vfx
 		}
 
 		// lifetime > 0: despawned after that many seconds without arriving (onArrived is not called).
-		public void SpawnTracking(ParticleSystem prefab, Vector3 startPosition, Transform target, Vector3 offset, float speed, Action onArrived = null, float lifetime = 0f)
+		public ParticleSystem SpawnTracking(ParticleSystem prefab, Vector3 startPosition, Transform target, Vector3 offset, float speed, Action onArrived = null, float lifetime = 0f)
 		{
 			if (prefab == null || target == null)
-				return;
+				return null;
 			ParticleSystem particle = ObjectPoolUtility<ParticleSystem>.Spawn(prefab, startPosition);
 			particle.Clear(true);
 			particle.Play(true);
 			World world = World.Default;
 			Entity entity = world.CreateEntity();
 			world.GetStash<WorldVfxTravelComponent>().Set(entity, new WorldVfxTravelComponent { ParticleSystem = particle, Target = target, Offset = offset, Speed = speed, OnArrived = onArrived, Lifetime = lifetime });
+			return particle;
 		}
 	}
 }

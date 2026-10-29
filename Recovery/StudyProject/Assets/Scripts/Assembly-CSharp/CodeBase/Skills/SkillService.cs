@@ -5,6 +5,7 @@ using Codebase.Enemy;
 using Codebase.Pet;
 using Codebase.Player;
 using Codebase.Player.Inventory;
+using Codebase.Player.Models;
 using Codebase.Skills.Components;
 using Codebase.Unit;
 using Codebase.Unit.Components;
@@ -30,6 +31,12 @@ namespace Codebase.Skills
 
 		private const float MissileFlightMargin = 0.5f;
 
+		// Ranged basic attacks start this far in front of the shooter.
+		private const float RangedLaunchForward = 0.5f;
+
+		// A ranged hit whose visual never arrived (flight cap ran out) still lands only if the visual ended this close to the target.
+		private const float RangedCapHitRadius = 1.5f;
+
 		private class PendingMissile
 		{
 			public SkillCastContext Context;
@@ -39,6 +46,14 @@ namespace Codebase.Skills
 			public List<ISkillEffect> OnImpact;
 
 			public float Remaining;
+
+			// Ranged basic attack: resolved as a plain enemy hit instead of OnImpact.
+			public RangedAttackDef Ranged;
+
+			// Tracking visual (null = timer-only missile) and whether it reached the target before the flight cap.
+			public ParticleSystem Visual;
+
+			public bool Arrived;
 		}
 
 		private readonly List<PendingMissile> pendingMissiles = new List<PendingMissile>();
@@ -78,7 +93,10 @@ namespace Codebase.Skills
 		// EnemyUnit.Initialize (every spawn path, pool reuse included): drop the previous life's cast and buffs, then install by kind.
 		public void InstallForEnemy(EnemyUnit enemy, EnemySpawnerConfig config)
 		{
-			if (enemy == null || enemy.EntityProvider == null)
+			if (enemy == null)
+				return;
+			enemy.ResetRangedState(null);
+			if (enemy.EntityProvider == null)
 				return;
 			World current = CurrentWorld;
 			Entity entity = enemy.EntityProvider.Entity;
@@ -89,6 +107,8 @@ namespace Codebase.Skills
 			if (buffsStash.Has(entity))
 				ClearBuffs(entity);
 			UnitSkillLoadout loadout = SkillLibrary.HasLoadouts ? FindEnemyLoadout(enemy, config) : null;
+			if (loadout != null && loadout.RangedAttack != null && loadout.RangedAttack.Enabled)
+				enemy.ResetRangedState(loadout.RangedAttack);
 			if (loadout == null)
 			{
 				if (casterStash.Has(entity))
@@ -474,6 +494,32 @@ namespace Codebase.Skills
 
 		public void LaunchMissile(in SkillCastContext context, UnitCore target, string vfxKey, float speed, Vector3 startOffset, List<ISkillEffect> onImpact)
 		{
+			LaunchMissile(context, target, vfxKey, speed, startOffset, onImpact, null);
+		}
+
+		// Ranged basic attack (EnemyAttackSystem.Attack): a tracked projectile whose impact is the normal enemy hit.
+		public void LaunchRangedAttack(EnemyUnit caster, UnitCore target, RangedAttackDef def)
+		{
+			if (caster == null || def == null || caster.IsDead || !SkillTargetQuery.IsAlive(target))
+				return;
+			var context = new SkillCastContext
+			{
+				Caster = caster,
+				CasterEntity = caster.EntityProvider != null ? caster.EntityProvider.Entity : default,
+				Instigator = caster,
+				PrimaryTarget = target,
+				Point = target.transform.position,
+				Level = 1,
+				Power = 1f
+			};
+			Vector3 direction = target.transform.position - caster.transform.position;
+			direction.y = 0f;
+			Vector3 offset = direction.sqrMagnitude > 0.0001f ? direction.normalized * RangedLaunchForward : Vector3.zero;
+			LaunchMissile(context, target, def.ProjectileVfxKey, def.ProjectileSpeed, offset, null, def);
+		}
+
+		private void LaunchMissile(in SkillCastContext context, UnitCore target, string vfxKey, float speed, Vector3 startOffset, List<ISkillEffect> onImpact, RangedAttackDef ranged)
+		{
 			if (context.Caster == null || !SkillTargetQuery.IsAlive(target))
 				return;
 			SkillCastContext impact = context;
@@ -482,13 +528,22 @@ namespace Codebase.Skills
 			speed = Mathf.Max(0.1f, speed);
 			float travel = Vector3.Distance(start, target.transform.position + Vector3.up * MissileHeight) / speed;
 			// No visual: resolve after the travel time.
-			var missile = new PendingMissile { Context = impact, Target = target, OnImpact = onImpact, Remaining = travel };
+			var missile = new PendingMissile { Context = impact, Target = target, OnImpact = onImpact, Remaining = travel, Ranged = ranged };
 			SkillVfxEntry vfx = string.IsNullOrEmpty(vfxKey) ? null : SkillLibrary.FindVfx(vfxKey);
-			if (vfx != null && vfx.Prefab != null && GameContext.Has<WorldVfxService>())
+			// Prefab, or the runtime projectile built from ProjectileTexture.
+			ParticleSystem prefab = vfx == null ? null : vfx.Prefab != null ? vfx.Prefab : SkillProjectileView.GetTemplate(vfx);
+			if (prefab != null && GameContext.Has<WorldVfxService>())
 			{
 				// The impact is always resolved here: arrival lands it early, the flight cap bounds it (visual despawns with it).
 				missile.Remaining = travel * MissileFlightSlack + MissileFlightMargin;
-				GameContext.Get<WorldVfxService>().SpawnTracking(vfx.Prefab, start, target.transform, Vector3.up * MissileHeight, speed, () => missile.Remaining = 0f, missile.Remaining);
+				ParticleSystem visual = GameContext.Get<WorldVfxService>().SpawnTracking(prefab, start, target.transform, Vector3.up * MissileHeight, speed, () =>
+				{
+					missile.Arrived = true;
+					missile.Remaining = 0f;
+				}, missile.Remaining);
+				missile.Visual = visual;
+				if (visual != null && visual.TryGetComponent(out SkillProjectileView view))
+					view.Aim(target.transform.position + Vector3.up * MissileHeight - start);
 			}
 			pendingMissiles.Add(missile);
 		}
@@ -502,7 +557,10 @@ namespace Codebase.Skills
 				if (missile.Remaining > 0f)
 					continue;
 				pendingMissiles.RemoveAt(i);
-				Impact(missile.Context, missile.Target, missile.OnImpact);
+				if (missile.Ranged != null)
+					RangedImpact(missile);
+				else
+					Impact(missile.Context, missile.Target, missile.OnImpact);
 			}
 		}
 
@@ -514,6 +572,35 @@ namespace Codebase.Skills
 			context.PrimaryTarget = target;
 			context.Point = target.transform.position;
 			Execute(onImpact, context);
+		}
+
+		// Same WeaponHitEvent as the melee basic attack (EnemyAttackSystem), so dodge, block, defence, thorns and lifesteal all apply.
+		private void RangedImpact(PendingMissile missile)
+		{
+			UnitCore target = missile.Target;
+			if (!SkillTargetQuery.IsAlive(target) || !(missile.Context.Caster is EnemyUnit source) || !SkillTargetQuery.IsAlive(source))
+				return;
+			// Flight cap ran out before the visual arrived (target teleported, switched area...): only a near miss still lands.
+			if (missile.Visual != null && !missile.Arrived)
+			{
+				Vector3 aim = target.transform.position + Vector3.up * MissileHeight;
+				if ((missile.Visual.transform.position - aim).sqrMagnitude > RangedCapHitRadius * RangedCapHitRadius)
+					return;
+			}
+			// Same gate as the melee attack: a sleeping, dying or frozen (dialogue, cutscene) hero is not hit.
+			if (target is PlayerUnit playerUnit)
+			{
+				PlayerModel player = GameContext.Has<PlayerModel>() ? GameContext.Get<PlayerModel>() : null;
+				if (playerUnit.IsSleeping || playerUnit.IsDying || player != null && !player.CanMove)
+					return;
+			}
+			World current = CurrentWorld;
+			RangedAttackDef def = missile.Ranged;
+			float multiplier = Mathf.Max(0f, def.DamageMultiplier);
+			bool special = Mathf.Abs(multiplier - 1f) > 0.001f;
+			hitEvent.NextFrame(new WeaponHitEvent { Source = source, Target = target, DamageType = source.DamageType, HasSpecialMultiplier = special, SpecialMultiplier = multiplier });
+			if (!string.IsNullOrEmpty(def.ImpactVfxKey))
+				SpawnVfx(def.ImpactVfxKey, target.transform.position + Vector3.up * MissileHeight, Quaternion.identity, def.ImpactVfxScale > 0f ? def.ImpactVfxScale : 1f);
 		}
 
 		public ParticleSystem SpawnVfx(string key, Vector3 position, Quaternion rotation, float scale)

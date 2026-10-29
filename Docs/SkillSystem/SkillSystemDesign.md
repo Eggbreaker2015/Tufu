@@ -378,8 +378,8 @@ Loadout 里的 prefab 名在 LFS 场景中，【未核实】。
 - **打断**：施法者死亡、回收、被眩晕或沉默时立即取消施法（新增 `EnemyCastSystem.CancelCast`）。没有施法动画的敌人施法时停止走路/攻击动画。
 - **slam 射程 3.5**：地面敌人停在约 3.2～3.3 米，射程 3 几乎不会触发。
 - **宠物施放的技能是瞬发**，没有前摇和预警圈。
-- **飞弹**：所有飞弹都有超时（`travel×1.5+0.5` 秒），施法者死亡后飞弹作废；`WorldVfxService.SpawnTracking` 新增可选 `lifetime` 参数。项目里没有合适的飞行弹道特效，骨箭目前不显示弹道，只在命中时播放 RoundHitYellow。
-- **bone_volley 最小距离 4 米**：骷髅普攻射程 3.3，仇恨范围 5，所以实际只在 4～5 米的窄窗口里射箭。要拉开"远射近砍"需要调整 AI 的接敌距离（待定）。
+- **飞弹**：所有飞弹都有超时（`travel×1.5+0.5` 秒），施法者死亡后飞弹作废；`WorldVfxService.SpawnTracking` 新增可选 `lifetime` 参数。（已补：骨箭改用运行时生成的 `bone_bolt` 弹道，见第 9 节。）
+- ~~bone_volley 最小距离 4 米~~：已改为 0～9 米，骷髅改成纯远程，见第 9 节。
 - **只画圆形预警圈**，扇形和线形在第 2 期，所以骨箭没有预警。
 
 ### 8.3 进 Play 要测的
@@ -387,14 +387,109 @@ Loadout 里的 prefab 名在 LFS 场景中，【未核实】。
 1. 没配技能的敌人、宠物战斗、Boss 塔：行为不变，控制台没有新报错。
 2. `Zombie_Medium+`：进战约 3 秒后出现红圈，1.2 秒长满后砸地；站在圈里吃 2.5 倍不可闪避伤害并减速 30% 2 秒，提前走出圈外能躲开。
 3. `Zombie_Boss`：血量低于 50% 时狂暴 8 秒，期间不重复施放。
-4. `Skeleton_Medium`：4～9 米射 3 支箭，近身普攻。
+4. `Skeleton_Medium`：见 9.4（纯远程，不再近身普攻）。
 5. `Skeleton_Boss`：附近受伤的骷髅每秒回 2% 生命；低血狂暴。
 6. 石魔像宠物：约每 8 秒一次砸地，伤害并减速周围敌人，不触发命中连锁，原有招牌技照常。
 7. 施法中击杀、眩晕敌人：预警圈消失、施法取消；对象池复用的敌人状态干净；减速期间存档不会存下移速修正。
 
 ### 8.4 已知问题
 
-- 骨箭需要一个真正的飞行弹道特效。
+- ~~骨箭需要一个真正的飞行弹道特效。~~ 已在第 9 节解决。
 - 同屏超过 6 个预警圈时，多出来的砸地没有预警（实际很难出现）。
 - 石魔像现在有 4 个技能，详情页可能被行数上限截掉一个；`CastSkillEffect` 还没有对应的分类图标。
 - 数值模型和模拟器还不知道敌人技能。
+
+## 9. 远程普攻（2026-10-29）
+
+需求：骷髅改成**纯远程**，在远处站定射箭，普攻也是飞行的骨箭，不再走到脸上近砍。做成通用能力：任何敌人在技能表的装配（Loadout）里加一段 `RangedAttack` 就能变成远程，没加的敌人行为完全不变。编译通过，**没有在 Play 模式里验证过**。
+
+### 9.1 行为
+
+- **接敌**：有效仇恨范围 = max(刷怪点的 AggroRange, `RangedAttack.AggroRange`)。骷髅原来只有 5 米，现在 10 米，所以在远处就进战、计技能冷却，也不会因为目标离开 5 米就回家。
+- **站位**：地面敌人走到 `AttackRange` 以内、并且视线没被挡住时就停下、转向目标并射击；已经站定后允许目标再远 1 米才重新追，避免在边缘走走停停。视线用 `NavMesh.Raycast` 判断（墙会切开导航网格），每 0.25 秒算一次；3 米以内不检查视线，避免两边导航网格不连通时卡在原地不打。
+- **后撤（可选）**：目标进到 `MinRange` 以内时，最多每 `KiteCooldown` 秒向远离目标的方向退 `KiteDistance` 米（遇到导航网格边缘、悬崖就停在边缘），后撤途中不射击。`MinRange: 0` 表示不后撤、原地射击。
+- **普攻**：攻击间隔仍是原来的 `AttackCooldown` 属性，攻击动画不变。每次普攻发射一支追踪弹道，命中时发出与近战普攻**完全相同**的 `WeaponHitEvent`，所以闪避、格挡、防御、反伤、吸血都照常；`DamageMultiplier ≠ 1` 时才走 `SpecialMultiplier`。没有近战兜底。
+- **目标**：开宠物模式时打它正在仇恨的单位（主角或宠物），否则打主角。
+- **飞行敌人**：同样生效。射程取 max(属性射程, `AttackRange`)，移动沿用原逻辑（到射程就悬停），不做视线检查。
+- **安全性**：弹道都有超时（飞行时间×1.5+0.5 秒）；目标或射手在飞行途中死亡/回收，这一发作废。对象池复用时，远程状态在每次 `EnemyUnit.Initialize` 里按装配重新设置。
+- **技能不受影响**：施法（如 bone_volley）期间照常停下；施法结束后继续站桩射击。
+
+### 9.2 配置字段（`UnitSkillLoadout.RangedAttack`）
+
+| 字段 | 骷髅的值 | 说明 |
+|---|---|---|
+| `Enabled` | 1 | 0 或不写这一段 = 近战（原样） |
+| `AttackRange` | 7.5 | 站定射击距离；实际 = max(属性射程, 这个值) |
+| `AggroRange` | 10 | 实际仇恨范围 = max(刷怪点配置, 这个值) |
+| `MinRange` | 2.5 | 目标近于此距离时后撤；0 = 不后撤 |
+| `KiteDistance` | 3 | 每次后撤的距离（米） |
+| `KiteCooldown` | 4 | 两次后撤的最短间隔（秒） |
+| `ProjectileVfxKey` | `bone_bolt` | 飞行外观，`Vfx` 表里的键；空 = 不显示，按飞行时间结算 |
+| `ProjectileSpeed` | 14 | 米/秒，7.5 米约 0.5 秒命中 |
+| `ImpactVfxKey` | `bone_arrow` | 命中特效（RoundHitYellow），可空 |
+| `ImpactVfxScale` | 0.6 | 命中特效缩放 |
+| `DamageMultiplier` | 1 | 1 = 与近战普攻同伤害 |
+| `RequireLineOfFire` | 1 | 仅地面敌人：视线被挡时继续靠近 |
+
+**弹道外观**：`Vfx` 表的条目可以不填 `Prefab`，改填 `ProjectileTexture`，运行时会生成一个"沿飞行方向、始终朝向镜头的贴图面片 + 拖尾"，并和其他特效一样走对象池（`CB/Skills/SkillProjectileView.cs`）。可调字段：`ProjectileLength`、`ProjectileWidth`、`ProjectileTint`、`TrailTime`、`TrailWidth`、`TrailColor`，`Scale` 整体缩放。贴图要求横向、箭头朝右、透明背景。`bone_bolt` 用的贴图是 `Assets/Resources/Skills/bone_bolt.png`（Codex 生成的骨箭，512×160）。着色器用 `Sprites/Default`（在 Always Included 列表里）。`MissileEffect.VfxKey` 也能用这种条目，所以 bone_volley 的三支箭现在也能看到。
+
+**示例**（`Enemy Skills.asset` 里 `Skeleton_Medium` 的装配）：
+
+```yaml
+  - OwnerKind: 0
+    Key: Skeleton_Medium
+    Skills:
+    - SkillKey: bone_volley
+      Level: 1
+    RangedAttack:
+      Enabled: 1
+      AttackRange: 7.5
+      AggroRange: 10
+      MinRange: 2.5
+      KiteDistance: 3
+      KiteCooldown: 4
+      ProjectileVfxKey: bone_bolt
+      ProjectileSpeed: 14
+      ImpactVfxKey: bone_arrow
+      ImpactVfxScale: 0.6
+      DamageMultiplier: 1
+      RequireLineOfFire: 1
+```
+
+### 9.3 哪些敌人用了
+
+- `Skeleton_Medium`（15 号岛，7 个刷怪点）：远程普攻 + bone_volley。bone_volley 的距离条件从 4～9 米改成 0～9 米，弹道改为 `bone_bolt`。
+  - 这 7 个刷怪点是场景里名字带 `pierce` 的持盾/戴盔骷髅：`Spawner_15_medium_common_pierce_helm`、`..._common_pierce_shield`、`..._uncommon_pierce_helm`、`..._uncommon_pierce_shield`、`..._rare_pierce_shield`、`..._epic_pierce_helmet`、`..._epic_pierce_shield`。
+- **15 号岛上其他骷髅仍是近战（有意不改）**：装配按 prefab 名精确匹配，下面这些 prefab 没有装配，所以不射箭、也不放 bone_volley。测试时在 15 号岛会遇到不少走过来近砍的骷髅，这是正常的，不是远程失效。
+  - `Skeleton_Medium+`（骑士骷髅）：`Spawner_15_knight (1)`～`(6)`，6 个刷怪点。
+  - `Skeleton_Easy`：`Spawner_15_easy` ×3。
+  - `Skeleton_Elite`：`Spawner_15_elite (1)`～`(3)`。
+  - `skeleton dragon`：`Spawner_15_medium_legendary_pierce_helm` / `..._shield`（名字带 pierce，但 prefab 是骨龙，不是 `Skeleton_Medium`）。
+  - Boss 塔召唤的 `Skeleton_Medium_Summoned`、`Skeleton_Medium+_Summoned`。
+  - 想让它们也射箭，只需在 `Enemy Skills.asset` 里为对应 prefab 名加一段同样的装配（`RangedAttack`，可选 bone_volley）。
+- `Skeleton_Boss` **没有**改：它的治疗光环只覆盖身边 5 米，狂暴也是近战加成，远程站桩会让这两个技能失去意义，而且 Boss 伤害高，远程化是较大的平衡改动。要改只需在它的装配里加同样一段 `RangedAttack`。
+
+### 9.4 怎么测
+
+1. 进 Play，按 **F8**（或菜单 **Tools > 学习测试 > 快速测试**），点「从正常进度建立测试副本并进入」；在「地图与任务」页选「第 15 岛 · 诅咒之地」，点「传送并开放沿途入口」；在「战斗」页只开「无敌」（不要用「一键战斗体验」「快速击杀」，它们开一击必杀，敌人来不及出手）。
+2. 走近**持盾/戴盔的 `Skeleton_Medium` 骷髅**（9.3 列出的 7 个 pierce 刷怪点；骑士、easy、elite 骷髅和骨龙仍是近战，见 9.3）：约 10 米时进战，它停在约 7.5 米处转身射箭；能看到骨箭从它身前飞向主角并带浅蓝拖尾，命中时有黄色命中闪光并结算伤害。
+3. 继续贴近到 2.5 米以内：骷髅每 4 秒最多后退约 3 米一次，其余时间原地射击，不会近砍。
+4. 隔着墙或障碍：骷髅会绕到能看到你的位置再射。
+5. 关掉无敌，确认伤害和原来近战普攻相当，闪避/格挡/反伤正常。
+6. 宠物模式：骷髅打离它最近的单位，射宠物时弹道飞向宠物。
+7. 跑出 10 米并等 5 秒，骷髅回刷怪点；再次进战正常。
+8. 其他敌人仍是近战，行为不变：僵尸，以及 15 号岛的骑士骷髅（`Skeleton_Medium+`）、easy/elite 骷髅、骨龙和 Boss 塔召唤骷髅（见 9.3）；控制台没有新报错。
+
+### 9.5 在哪里能看到 4 个示例技能
+
+| 技能 | 敌人（prefab 名） | 地点 | 表现 |
+|---|---|---|---|
+| 砸地 slam | `Zombie_Medium+`、`Zombie_Boss` | 16 号岛「夜森」（Nightwood），6 个刷怪点 + 岛上 Boss | 进战约 3 秒后脚下红圈，1.2 秒后砸地，伤害 + 减速 |
+| 骨箭齐射 bone_volley | `Skeleton_Medium` | 15 号岛「诅咒之地」（Land of the Damned），7 个 pierce 刷怪点（持盾/戴盔骷髅；同岛的骑士、easy、elite 骷髅和骨龙不放） | 0～9 米同时射 3 支可见骨箭，约 6 秒一次；平时用远程普攻 |
+| 狂暴 enrage | `Zombie_Boss`、`Skeleton_Boss` | 16 号岛 Boss、15 号岛 Boss | 血量低于 50% 时触发，持续 8 秒 |
+| 治疗光环 heal_aura | `Skeleton_Boss` | 15 号岛 Boss | 身边 5 米内受伤的骷髅每秒回 2% 生命 |
+
+- 游戏里敌人头上不显示名字，本地化表里也没有敌人名，只能按岛屿和外形（骷髅/僵尸）辨认；15 号岛只有持盾/戴盔的 `Skeleton_Medium` 会射箭，靠过来近砍的是其他骷髅 prefab（9.3）；岛名来自 `ISLAND_NAME_15` / `ISLAND_NAME_16`。
+- 配置文件：`Recovery/StudyProject/Assets/Resources/Skills/Enemy Skills.asset`（技能、增益、装配、特效表都在这里）。
+- 调试入口：游戏内作弊面板已被剥离，用编辑器窗口 **F8 / Tools > 学习测试 > 快速测试**（`Assets/Editor/RecoveryTools/StudyQuickTestWindow.cs`），步骤同 9.4 第 1 条，传送目标选 15 或 16 号岛。
+

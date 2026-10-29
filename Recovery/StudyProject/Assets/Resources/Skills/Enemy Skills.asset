@@ -162,6 +162,19 @@ MonoBehaviour:
     Skills:
     - SkillKey: bone_volley
       Level: 1
+    RangedAttack:
+      Enabled: 1
+      AttackRange: 7.5
+      AggroRange: 10
+      MinRange: 2.5
+      KiteDistance: 3
+      KiteCooldown: 4
+      ProjectileVfxKey: bone_bolt
+      ProjectileSpeed: 14
+      ImpactVfxKey: bone_arrow
+      ImpactVfxScale: 0.6
+      DamageMultiplier: 1
+      RequireLineOfFire: 1
   - OwnerKind: 0
     Key: Skeleton_Boss
     Skills:
@@ -178,6 +191,17 @@ MonoBehaviour:
     Prefab: {fileID: 198703437598541787, guid: 88e464211aebcb14d8e110e1b67d96c2, type: 3}
     Lifetime: 3
     Scale: 1
+  - Key: bone_bolt
+    Prefab: {fileID: 0}
+    Lifetime: 3
+    Scale: 1
+    ProjectileTexture: {fileID: 2800000, guid: 0c7ed0cac8f84967ae30f2ec41d5a964, type: 3}
+    ProjectileLength: 1.2
+    ProjectileWidth: 0.36
+    ProjectileTint: {r: 1, g: 1, b: 1, a: 1}
+    TrailTime: 0.2
+    TrailWidth: 0.22
+    TrailColor: {r: 0.75, g: 0.95, b: 1, a: 0.65}
   TelegraphTexture: {fileID: 2800000, guid: 800be693e225496499369c254e62c299, type: 3}
   references:
     version: 2
@@ -220,12 +244,12 @@ MonoBehaviour:
     - rid: 1021
       type: {class: TargetDistanceCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
       data:
-        Min: 4
+        Min: 0
         Max: 9
     - rid: 1022
       type: {class: MissileEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
       data:
-        VfxKey: 
+        VfxKey: bone_bolt
         Speed: 12
         Count: 3
         Spread: 0.4

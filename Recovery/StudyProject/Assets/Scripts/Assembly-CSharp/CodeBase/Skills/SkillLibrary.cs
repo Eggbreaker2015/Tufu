@@ -15,6 +15,22 @@ namespace Codebase.Skills
 		public float Lifetime = 2f;
 
 		public float Scale = 1f;
+
+		// Runtime projectile (used for missiles when Prefab is empty): a camera-facing textured quad along the flight
+		// direction plus a trail, built once by SkillProjectileView. Texture points to +X (right); Scale multiplies the size.
+		public Texture2D ProjectileTexture;
+
+		public float ProjectileLength = 1.2f;
+
+		public float ProjectileWidth = 0.36f;
+
+		public Color ProjectileTint = Color.white;
+
+		public float TrailTime = 0.2f;
+
+		public float TrailWidth = 0.2f;
+
+		public Color TrailColor = new Color(0.8f, 0.95f, 1f, 0.6f);
 	}
 
 	// Hand-edited YAML assets under Resources/Skills; several files are merged (first key wins, duplicates warn).
