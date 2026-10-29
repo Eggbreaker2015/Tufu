@@ -789,7 +789,7 @@ if LocationNumber >= EarlySpawnerOptimumTimeOffsetStartLocation (11) and Relativ
 Early-spawner offset active when the scene was baked (L >= 11 and Rel < 0.5).
 ```
 
-吻合情况：182 shifted spawners: HP/Damage within 5% = 147/177 with the shift vs 13/16 without.
+吻合情况：Among 182 shifted spawners, HP within 5%: 147 with shift, 13 without; Damage within 5%: 177 with shift, 16 without.
 
 **配置参数**：`Simulation Config.EarlySpawnerOptimumTimeOffsetStartLocation`；`Simulation Config.EarlySpawnerOptimumTimeOffsetRelativePart`；`Simulation Config.EarlySpawnerOptimumTimeOffsetMultiplier`；`Combat Balance Config.IslandTargetDays`
 

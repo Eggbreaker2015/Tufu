@@ -28160,7 +28160,7 @@
    "generation_rule": {
     "kind": "fitted_rule",
     "rule": "Early-spawner offset active when the scene was baked (L >= 11 and Rel < 0.5).",
-    "evidence": "182 shifted spawners: HP/Damage within 5% = 147/177 with the shift vs 13/16 without.",
+    "evidence": "Among 182 shifted spawners, HP within 5%: 147 with shift, 13 without; Damage within 5%: 177 with shift, 16 without.",
     "doc": "Generation/BakeCheck.md"
    }
   },
