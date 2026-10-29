@@ -7,15 +7,22 @@ phase: ``Chain(1) = 1``). :func:`decompose` turns each increment into kill count
 (spawners with the same rewards cannot be told apart) with a small integer program: exact where possible,
 otherwise the smallest residual in units of one clear, then the fewest kills. Only spawners the bot filter
 could admit count (island open at either end, ``OptimumTime <= P`` at the end, no event/VIP/dummy), each at
-most once per cooldown and per its daily charges within the interval.
+most once per cooldown and per its daily charges within the interval; a DisableAfterFirstClear spawner once in
+all, and a category of only such spawners no more often over all intervals than it has members (a mixed category
+is bounded per interval only).
 
 :func:`clear_times` compares the active seconds of each interval with the clear time of the time models of
 design 4.5, evaluated per kill on the state of the interval's first snapshot (``simcalc.spawner_data``):
-``farmedTime`` (``TimeModel.FarmedTime``) and its parts (fight, the constant ``70/speed`` move, the regen wait).
-Per category it gives the mean active seconds per clear next to the mean ``farmedTime`` (the per-spawner
-comparison of design 7.3 C7); :func:`fit_parts` fits ``dP = a*fight + b*move + c*regen`` (non-negative) over
-the intervals with kills. Intervals that end exactly on the snapshot cadence end with an idle step, so their
-time is an upper bound; the per-category means use the others when they have any.
+``farmedTime`` (``TimeModel.FarmedTime``) and its parts (fight, the constant ``70/speed`` move, the regen wait),
+plus the fight and regen sums on the state of the interval's last snapshot (``fight_end``, ``regen_end``: with
+the smaller of the two regen sums, lower bounds of the in-interval times as long as rewards do not lengthen
+fights or regen waits). The snapshots only give an interval's total, so each
+interval's active seconds are allocated to its kills evenly (``active_seconds / total_kills``): categories
+killed in the same interval get the same time per clear, and the per-category comparison (design 7.3 C7 asks
+per spawner) is a per-interval allocation, not a measurement per spawner. Per category it gives the mean
+allocated seconds per clear next to the mean ``farmedTime``; :func:`fit_parts` fits ``dP = a*fight + b*move +
+c*regen`` (non-negative) over the intervals with kills. Intervals that end exactly on the snapshot cadence end
+with an idle step, so their time is an upper bound; the per-category means use the others when they have any.
 
 Diagnostics for K2 (closed-loop targets T03/T16 and the ``TimeModel`` choice); the golden suite ``sim_slow``
 keeps the residuals and the per-category comparison as a ratchet (``tests/test_killseq.py``).
@@ -67,6 +74,8 @@ class Interval:
     fight: float = 0.0
     move: float = 0.0
     regen: float = 0.0
+    fight_end: float = 0.0  # fight and regen sums on the state of the interval's last snapshot
+    regen_end: float = 0.0
 
     @property
     def active_seconds(self) -> float:
@@ -106,10 +115,10 @@ def _max_clears(ctx: sc.SimCalcContext, s: sc.SimSpawner, seconds: float) -> int
     day's charges (``ceil(limit / Count)``)."""
     cooldown = float(sp.base_cooldown(s.d, ctx.cooldowns, ctx.meta))
     by_cooldown = 1 + (int(seconds // cooldown) if cooldown > 0 else 10**6)
+    if s.d.dafc:
+        return 1
     limit = ctx.charges_limit(s)
     per_day = max(1, -(-limit // max(1, s.d.count))) if limit > 0 else 1
-    if s.d.dafc:
-        per_day = 1
     days = 1 + int(seconds // (ctx.time_axis.spawner_charges_chunk_minutes * 60.0))
     return min(by_cooldown, per_day * days)
 
@@ -178,6 +187,7 @@ def eligible(ctx: sc.SimCalcContext, s0: SimulationSnapshot, s1: SimulationSnaps
 def decompose(ctx: sc.SimCalcContext, early: Sequence[SimulationSnapshot]) -> list[Interval]:
     """One :class:`Interval` per consecutive pair of early snapshots of the slow phase with any change in P."""
     out = []
+    dafc_used: dict[tuple, int] = defaultdict(int)  # all-DAFC category members -> clears so far
     for i in range(1, len(early)):
         s0, s1 = early[i - 1], early[i]
         if int(s1.time_chunk_index) >= FAST_FROM_DAY:
@@ -200,7 +210,13 @@ def decompose(ctx: sc.SimCalcContext, early: Sequence[SimulationSnapshot]) -> li
         by_id = {s.spawner_id: s for s in members}
         seconds = (iv.t1 - iv.t0) * 60.0
         bounds = [sum(_max_clears(ctx, by_id[sid], seconds) for sid in c.members) for c in cats]
+        all_dafc = [all(by_id[sid].d.dafc for sid in c.members) for c in cats]
+        bounds = [max(0, min(b, len(c.members) - dafc_used[c.members])) if d else b
+                  for b, c, d in zip(bounds, cats, all_dafc)]
         kills, residual, exact = _solve(delta, item_delta, cats, bounds)
+        for c, k, d in zip(cats, kills, all_dafc):
+            if d:
+                dafc_used[c.members] += k
         iv.kills = {c.key: k for c, k in zip(cats, kills) if k}
         iv.residual, iv.exact = residual, exact
         out.append(iv)
@@ -232,7 +248,8 @@ def _state(ctx: sc.SimCalcContext, snapshot: SimulationSnapshot) -> sc.PlayerSta
 
 def clear_times(ctx: sc.SimCalcContext, early: Sequence[SimulationSnapshot], intervals: Sequence[Interval]
                 ) -> dict[str, CategoryTime]:
-    """Fills each interval's model sums (farmed, fight, move, regen) and returns the per-category comparison."""
+    """Fills each interval's model sums (farmed, fight, move, regen, fight_end) and returns the per-category
+    comparison (per-interval allocation, see the module docstring)."""
     by_id = {s.spawner_id: s for s in ctx.spawners}
     acc: dict[str, dict] = {}
     for iv in intervals:
@@ -240,6 +257,8 @@ def clear_times(ctx: sc.SimCalcContext, early: Sequence[SimulationSnapshot], int
             continue
         state = _state(ctx, early[iv.index - 1])
         caches = sc.combat_caches(ctx, state)
+        end = _state(ctx, early[iv.index])
+        end_caches = sc.combat_caches(ctx, end)
         k_total = iv.total_kills
         per_kill = iv.active_seconds / k_total
         cats = categories(ctx, [by_id[sid] for sid in _members_of(ctx, early, iv)])
@@ -253,6 +272,9 @@ def clear_times(ctx: sc.SimCalcContext, early: Sequence[SimulationSnapshot], int
             iv.fight += n * fight
             iv.move += n * move
             iv.regen += n * regen
+            ends = [sc.spawner_data(ctx, end, by_id[sid], end_caches) for sid in c.members]
+            iv.fight_end += n * sum(d.fight_time for d in ends) / len(ends)
+            iv.regen_end += n * sum(d.av_regen_time for d in ends) / len(ends)
             a = acc.setdefault(key, {"members": c.members, "kills": 0, "intervals": 0, "farmed": 0.0, "fight": 0.0,
                                      "move": 0.0, "regen": 0.0, "time": [0.0, 0], "time_idle": [0.0, 0]})
             a["kills"] += n
@@ -326,7 +348,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         res = "" if iv.exact else f" residual {iv.residual}"
         print(f"{iv.index:2d} d{iv.day} L{iv.location} P {iv.p0:8.3f}->{iv.p1:8.3f} ({iv.active_seconds:6.1f} s"
               f"{' idle' if iv.idle_end else ''}) kills {iv.total_kills:2d} farmed {iv.farmed:7.1f} s"
-              f" fight {iv.fight:6.1f} s {dict(sorted(iv.kills.items()))}{res}")
+              f" fight {iv.fight:6.1f}/{iv.fight_end:6.1f} s move {iv.move:6.1f} s regen {iv.regen:6.1f} s"
+              f" {dict(sorted(iv.kills.items()))}{res}")
     print("category: kills, mean clear s, mean farmedTime s, ratio")
     for key, t in times.items():
         print(f"  {key:40s} {t.kills:3d} {t.clear_seconds:8.1f}{'+' if t.upper_bound else ' '} {t.farmed_seconds:8.1f} "

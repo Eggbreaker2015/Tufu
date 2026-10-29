@@ -23,8 +23,10 @@ def analysis(db):
 
 def test_first_interval_is_every_ot0_spawner_once(analysis):
     """The shipped first early snapshot (P = 1.1656, Health +15, Cut +3) is the six OT = 0 spawners of island 1,
-    each once, in 69.9 active seconds: far less than their farmedTime (232 s) and than rpm.Item3 * fightTime alone
-    (79.8 s), so no time form with the recovered fight factor 2 reaches it (Runbook 19)."""
+    each once, in 69.9 active seconds. Neither recovered time form reaches it (Runbook 19.3): FarmedTime spends
+    more on the constant move alone (6 * 70/speed), FarmedTimeMoveByDistance more on the regen wait plus
+    rpm.Item3 * fightTime, both bounded below by the interval's end state (the +3 Cut shortens fights). A
+    fight-only form with factor 2 is not excluded: 2 * fightTime on the end state is below 69.9 s."""
     ctx, early, intervals, _ = analysis
     first = intervals[0]
     assert first.index == 1 and first.delta == {1: 15.0, 8: 3.0} and first.exact
@@ -33,7 +35,10 @@ def test_first_interval_is_every_ot0_spawner_once(analysis):
     assert sorted(s.d.optimum_time for s in members) == [0.0] * 6
     assert first.active_seconds == pytest.approx(69.94, abs=0.01)
     assert first.farmed == pytest.approx(232.09, abs=0.01)
-    assert 2.0 * first.fight > first.active_seconds > first.fight
+    assert first.move > first.active_seconds  # FarmedTime: the constant move alone
+    assert min(first.regen, first.regen_end) + 2.0 * first.fight_end > first.active_seconds  # by distance (move >= 0)
+    assert first.fight_end <= first.fight and first.regen_end <= first.regen
+    assert 2.0 * first.fight_end < first.active_seconds < 2.0 * first.fight
 
 
 def test_categories_merge_identical_rewards(analysis):
@@ -63,12 +68,16 @@ def test_decomposition_and_clear_times_ratchet(analysis):
         "killseq.first.active_s": exact(round(intervals[0].active_seconds, 3), source="design 7.3 C7"),
         "killseq.first.farmed_s": exact(round(intervals[0].farmed, 3), source="design 7.3 C7"),
         "killseq.first.fight_s": exact(round(intervals[0].fight, 3), source="design 7.3 C7"),
+        "killseq.first.parts_s": exact({"move": round(intervals[0].move, 3), "regen": round(intervals[0].regen, 3),
+                                        "fight_end": round(intervals[0].fight_end, 3),
+                                        "regen_end": round(intervals[0].regen_end, 3)}, source="design 7.3 C7",
+                                       note="sums over the six first kills: start-state move/regen, end-state fight/regen"),
         "killseq.fit": exact({"fight": round(fit.fight, 4), "move": round(fit.move, 4), "regen": round(fit.regen, 4),
                               "rms_s": round(fit.rms_seconds, 2), "intervals": fit.intervals,
                               "kappa": round(fit.kappa, 4)}, source="design 4.5",
                              note="dP = a*fight + b*move + c*regen over intervals ending on a fight"),
     }
-    for key, t in times.items():
+    for key, t in times.items():  # allocation per interval (killseq docstring), not a per-spawner measurement
         results[f"killseq.clear_time.{key}"] = exact(
             {"kills": t.kills, "intervals": t.intervals, "members": len(t.members), "clear_s": round(t.clear_seconds, 2),
              "farmed_s": round(t.farmed_seconds, 2), "ratio": round(t.ratio, 4), "upper_bound": t.upper_bound},
