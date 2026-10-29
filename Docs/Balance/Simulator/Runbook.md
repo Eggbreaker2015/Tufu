@@ -1171,3 +1171,94 @@ python -m tufu_balance.golden guard
 | K3 | 4–6 个完整作业 | 20.36–32.46 秒 | 1.4–3.3 分钟 |
 
 常驻启动/关闭另加约 7.5 秒；全部阶段含分析约 23–35 分钟，低于 3 小时，无需 S1。采用 P10 Driver、每批最多 12、serve、逐作业缓存，实际墙钟另记。假设清单在 stage_open.py 封闭；P18 预先切 TC4–7 训练、TC8–11 留出，只有 DPS 进入评分。活动模型按设计以留出 AIC 比较；同时明确该段参与模型选择，因此不是额外独立外部验证。其余离散候选只按训练排名；持出失败保留为失败，不追加候选或改原版阈值。
+
+### 24.2 实验与归档
+
+C# / 资产代码固定为本分支的 `5ec5ee1ede9c63890c11fe18b71eb001b664f2eb`；后续提交只改 Python、参数层、测试和文档，Unity 项目树与它相同。先执行 `python -m tufu_balance.unity serve start --rev 5ec5ee1 --idle-timeout 1800`，再用 P10 Driver（batch_size=12、逐作业 RunCache）运行 `python -m tufu_balance.calibrate.stage_open --rev 5ec5ee1 --write-layer`。初始 30 个作业分 12/12/6，确认与缓存桥再跑 3 个；全部为 `replay`、`reenter_play`、AB A、Frozen，默认 `stored`。物品候选从日 0 开始 `replay_items=recompute`，不注入拟合槽数夹具；可杀性轨迹从日 4 覆盖、物品取随包输入、槽数由闭式 P12 给出。P18 只到日 12，其余到 405。θ 和 DPS 缩放是诊断，不进入参数选择。
+
+初始批运行键：`f3bc8298a06b9a5b12cc4ee65039733f48885205ffab2d26ea612288e79e40c6`、`e812706cb8ed3533311d75a27b437dd665ea0ff9bc6c0f9aa9cbcd38d7a4b2be`、`46c77c71356d…`；确认批 `3a0268d3e949eff6c04f7037f8796d18a517cae96c95fba750a273e083aab4b6`。启动器墙钟分别 **242.830 / 235.016 / 75.581 秒**（合计 **553.428 秒**），确认批 Driver **71.970 秒**。初始 Driver 计时被一次缓存重跑覆盖，已从原始 launcher.json 的 wall_s 恢复合计，明确不含 Driver 开销；原始 launcher 保留。全部 33 个作业 manifest / editor / launcher 退出 0、资产守卫通过，无真实资产写回。完整 stage 命令从缓存加载初始矩阵、拟合、确认、导出用 **101.754 秒**。冷启动与关闭单列；不是把缓存耗时宣称成 Unity 计算耗时。
+
+最终归档为 `Balance/out/calibration/open/f20ca48427bbdfb8/`，`Balance/out/calibration/open-work/latest.json` 指向它。P10 的七个标准文件（targets / residuals / params / hypotheses / sensitivity / evolution_margin / manifest）齐全，另有每个候选逐单元 CSV、evidence.json、open.json、逐作业缓存索引及计时；manifest 的 evidence_files 为新增证据登记 SHA256。运行原始目录也保留。只写 `Balance/sim/params/open.json`，没有改 C# 初值或参数资产。
+
+T04 / T05 用 fasttick_days 的活跃分钟与实际奖励账本，不能用每天覆盖后的 P / Value 快照差值。T12 / T13 用从日 0 重新生成物品的真实导出；T07 / T08 用事件与逐刷怪点轨迹。T09 的**原始导出路径**和**随包状态上的独立 G20 预言机**分开登记，不能用后者冒充前者通过。
+
+### 24.3 选择、第二名与持出
+
+下表残差为平均相对误差；进化是平均到达区间位置绝对误差。所有候选在运行前封闭；连续系数只用训练段。结构性的 Chain / Swapped / 掉落系数是 post-hoc，只作报告。活动模型按设计在持出段以 AIC 选择，因此该段参与了模型选择，不是独立外部验证。
+
+| 参数 / 数据段 | 首选，训练 / 持出残差 | 第二名，训练 / 持出残差 | 出处与判定 |
+|---|---|---|---|
+| KillState，T05 TC4–103 / TC104–404 | StartOfDay，0.00180920 / 0.000234316 | AfterPass，0.00222072 / 0.000234316 | stage-5 fit；持出/训练 0.130，通过 |
+| 活跃分钟，T04 TC11–103 / TC104–404 | NnTour，0.0192254 / 0.00807080，持出 AIC −16.6152 | FarmedTime，0.0237216 / 0.0250031，AIC 9.01712 | stage-5 fit；NnTour 比值 0.420，通过 |
+| 份数，TC4–11 按稀有度 | Chain × Swapped，0.104892（后期全阶段 0.00832567） | E1 × Swapped，0.274661（0.0513132） | post-hoc；早期系数不能识别 K0/K7 形式 |
+| PreferredMapping，只取 K7>0 的完整区间 TC57–405 | Swapped，0.00486613 | Direct，0.0171879 | post-hoc；不宣称留出验证 |
+| EvolutionTrigger，C/U/R / E/L 的已观测到达 | Timed，0.0510204 / 0.0526316 | Greedy，0.0714286 / 0.140351（TimedLag 为 0.112245 / 0.0877193） | stage-5 fit；比值 1.032，通过 |
+| P12，随包物品上的 R2b，TC1–24 / TC≥25 DPS | 岛 4/8，0.0305887 / 0.0144933 | 岛 4/7，0.0773418 / 0.0144933（岛 3/8 为 0.0923327） | stage-5 fit；比值 0.474，通过；没有拿槽位夹具验证 |
+| P18，DPS TC4–7 / TC8–11 | StatsThenItems × SlotBeforeRpm，0.110491 / 0.0431415 | ItemsThenStats × SlotBeforeRpm，完全同分 | stage-5 fit；比值 0.390，通过；属性/物品顺序不可识别，按预设枚举序保留默认 |
+
+NnTour 从逐刷怪点轨迹和抽取坐标在 Python 重新求最近邻开放路径，起点为原点、不返回原点；与 C# 特征的最大相对差 **1.8782e−8**（坐标 float32 差异，守卫容差 2e−6）。训练最小二乘得到 `TourA=1.01337298094`、`TourB=0.788169056841`、Tours 固定 3；open.json 写入 float32 的 `1.0133730173110962 / 0.7881690859794617`。区间块 bootstrap（1000 次、seed=0）的 90% 区间分别 `[0.979642,1.053451]`、`[0.743317,0.826590]`，均未跨零。FarmedTime 的 κ=`ΣAF/ΣF²` 为 **0.256440958624**，float32 为 **0.2564409673213959**，90% 区间 `[0.253514,0.259145]`；作为第二模型的可复用拟合值保留在 open.json。
+
+进化评分的审计修正（74dfeae）：paddle L9 与 doubleaxe L5 只在模拟 TC405 出现，随包没有这一级的到达时间。初次实现给未观察到的参考到达强行填 46 个区间，错误制造了 0.284264 / 0.844828 和 2.97× 的失败。修正为只对存在参考到达的目标计到达误差；如果参考有到达而模拟未到达，则计到观测终点的误差下界；模拟独有的右删失行仍完整保留。没有改候选、参数、切分或 1.5 倍阈值。初次黄金 ORIGINAL 保留，CURRENT 的评分修正单独登记；不是重新拟合到持出数据。P10 的 T13 容差仍保留这两个未配对行，原始逐格计数为训练 196/197、持出 57/58，都超过 90%。
+
+### 24.4 消融、已知未命中与设计差异
+
+| θ（仅消融，L 固定 1）| 0.5 | 0.75 | 0.9 | 1.0 | 1.1 | ∞ / 关闭门槛 |
+|---|---|---|---|---|---|---|
+| T05 坏区间 | 28 | 20 | 14 | 4 | 7 | 16 |
+
+DPS 缩放 `{.95,.98,.99,1,1.01,1.02,1.05}` 的坏区间为 `{7,6,5,4,3,2,3}`；岛 5–17 的区间内判定在该网格中翻转数全部为 **0**。因此 e=2% 时闭环 T05 精确数下界为 **35/41**；其他 e 由曲线取包络，不直接沿用 35。关闭门槛实际是 **25/41** 精确，不是设计引用的 26/41；θ=1.1 实测 7 坏，不是引用的 6。导出 238456 个刷怪点行没有 `loss == H`，故 `<` 与 `≤` 在本轨迹上不改变 37/41。
+
+T05 逐日 7/7 精确，总体 37/41；坏区间仍为 17→19、24→27、37→41、140→154。除 24→27 外都能由首杀 ±1 日解释，首次冻结的**未解释上限为 1**（calib_open 的 t05.unexplained）。T07 岛 5–17 全部落区间或 ±1 日，12/13 在区间内；岛 9 是日 26，早 1 天；岛 4 由门禁推得日 5。T08 全部满足 ±1 日/区间诊断。
+
+| P07 C# 真实消融（原始导出路径）| RpmFirst | ModifierFirst | StaleTickCache |
+|---|---|---|---|
+| CurrentGpm 命中 / 1380 | 859 | 863 | 874 |
+| 非零格平均相对残差 | 0.0129761 | 0.0131437 | 0.0178910 |
+
+这张表不是选择换天顺序的依据。相同随包状态上的独立 G20 是 RpmFirst **1380/1380、空未命中集**，ModifierFirst **1376/1380**，四个未命中仍为 TC1 Health、TC30 CritDamagePercent、TC94 Health/StabDamageFlat。真实 harness 在强制快照后才做覆盖、还保留 RPM running max，因此“真实路径重放必得 G20”不成立。最终 selected-items 原始导出为 **889/1380**，T09 的全部开环容差**失败**；没有调整参数来掩盖该语义差别，没有改引擎/覆盖调用点。
+
+| P18 | Stats/Before | Items/Before | Stats/After | Items/After |
+|---|---|---|---|---|
+| TC4–11 平均 DPS 相对残差 | 0.0768160 | 0.0768160 | 0.206994 | 0.206994 |
+| TC5 残差 | 0.116989 | 0.116989 | 0.266141 | 0.266141 |
+
+**Q25 保持 unresolved**。四个组合都解释不了第 5 天，不能再添加参数凑它。
+
+T12 的早期 Chain / E1 逐稀有度平均残差（武器/护甲有观测的格）：Common **4.64% / 37.35%**，Uncommon **9.49% / 32.24%**，Rare **8.28% / 16.28%**，Epic **26.67% / 16.67%**；早期 Legendary 没有观测，不虚构验证。Chain 整体更近，Epic 单项 E1 较好不能作为另一个特例参数。原始整数份数的 TC4–11 **18/29** 格超 5%，另 TC4–19 Epic 武器 **68 vs 62（9.68%）**；后者仍全部来自 C6 已报告的 mace，首清日 10 对随包约 13。早期单份整数差就可超过 5%，没有把阈值偷偷换成取整容差。后期所有阶段容差通过；TC206–404 每充能平台为 2.5 / 4.30000019（普通非偏好/偏好）、2.79999995 / 4.59999990（传奇），最大相对差 4.44e−8，小于 2%。K0>0.1 段的 full / 去掉 K0/K6 系数消融平均相对残差为 **0.64248% / 39.5442%**，逐格见 coefficient.csv，后者只是同一清怪轨迹上的 post-hoc 诊断。
+
+T04 的 C# 确认有 **34** 个 TC≥11 区间，中位 **1.08516%**、最大 **5.63527%**，满足未经放宽的 2% / 8%。这限定了 C5“原阈值不可达”的结论：FarmedTime 训练拟合后中位 2.30477%、最大 7.84637%；**按 5.3 预先规定的两参数 NnTour 训练拟合可以达到原阈值**，没有新增模型或逐天修正。TC4–10 仍单列报告，不进入拟合。
+
+TC4–10 的 NnTour 确认（只报告、没有参与拟合）：
+
+| 日区间 | 4→5 | 5→6 | 6→7 | 7→8 | 8→9 | 9→10 | 10→11 |
+|---|---|---|---|---|---|---|---|
+| 活跃分钟（模拟 / 随包）| 13.792 / 10.853 | 20.550 / 16.617 | 19.745 / 16.752 | 16.846 / 13.525 | 25.536 / 21.937 | 25.623 / 22.260 | 24.510 / 20.927 |
+| 相对误差 | 27.09% | 23.67% | 17.87% | 24.55% | 16.41% | 15.11% | 17.12% |
+
+recomputed 缓存桥使用随包物品和闭式 P12（R2b 口径）：stored / recomputed 的 T05 坏区间 **4 / 17**，T04 TC≥11 平均相对残差 **1.46322% / 2.47260%**。这说明缓存从 A 转到重算状态不能视作已经校准好的闭环；交给 K2/K3，不以桥结果反调开环参数。
+
+### 24.5 交接与所有权
+
+- K2：使用 open 层的 NnTour、StartOfDay、Chain/Swapped、Timed、岛 4/8 槽位与默认 P18；仍须先验证 T20 再拟合慢策略。NnTour 只改快阶段活跃分钟，不能拿它弥补慢阶段时钟。岛 3 的闭环日 2 对随包日 1、C6 后慢清怪翻倍仍归 K2。
+- K3：T05 未解释 cap=1、T07 open 在区间内 12/13、DPS 网格翻转=0；闭环 T05/T07 的 pending_clause 需按实际闭环 DPS e 和曲线冻结，不在 K1 预先设闭环阈值。通用 P10 的 tolerances.yaml 仍按快照差值，不适用于 replay 的奖励增量解释；K1 的 trace_cells/evidence 与黄金 cap 是正式交接，不能只改 YAML 的 null 数字而漏掉解释语义。没有修改 P10 的通用代码或阈值测试。
+- K3/Z1：当前 K1 的**全开环容差验收未通过**，阻塞为 T09 原始路径和 T12 早期份数；Q25 仍未解决。T10 是 1740 个有限格 + 60 NaN 全通过，T17 TC9 前护甲 9/9 为 0，T18 3210/3210 精确；T15 的原始 DPS / DEF 逐格仍报告，并以 P12 的 R2b 独立残差作参照。T17 武器拟合夹具只作对照（45/46），不宣称验证。
+- 所有权偏离：新增离线 tests/test_stage_open.py 检查实验闭包、训练/持出不泄漏、开放 NN 路径、P12 不依赖拟合槽位夹具与 T13 删失规则；按工作单追加 Runbook。没有改 Design.md、任何 C#、默认参数文件、参数资产、共享 DB、随包夹具或其他分支。没有新增连续参数，选 NnTour 后连续参数为 2 个（κ 是非活跃备选）。
+
+### 24.6 最终验收（K1）
+
+| 设计 7.3 验收项 | 判定 | 命令 / 证据 |
+|---|---|---|
+| 开始前重算 5.4 | PASS | 24.1 随 5ec5ee1 在首个 Unity 作业前提交；依据 C0a/C0b/C3b/C5/C6/C7/Postmerge 实测 |
+| 5.3 第 1 阶段全矩阵与归档 | PASS | `python -m tufu_balance.calibrate.stage_open --rev 5ec5ee1 --write-layer`；30 初始 + 3 确认/桥；f20ca48427bbdfb8，32 个报告/证据文件（验收日志另追加）；33/33 guarded |
+| 全部选择、第二名、出处、识别段 | PASS / DEVIATION | 24.3、hypotheses.csv；P18 的 Stats/Items 同分且不可识别，保留预设顺序；活动模型按设计用持出 AIC 选择，明确不称外部验证 |
+| P07 / P18 与 Q25 | PASS | 24.4；两个 P07 C# 消融与四个 P18 全跑；Q25 unresolved |
+| stage-5 fit 持出 ≤1.5× | PASS | KillState / NnTour / Evolution / P12 / P18 的比值 0.130 / 0.420 / 1.032 / 0.474 / 0.390；74dfeae 修复删失评分，没有换参数或改阈值 |
+| 5.1 全部开环容差、真实导出 T09=1380/1380 | **FAIL** | T09 原始 selected-items 为 **889/1380**；T12 daily **11/29** 通过、TC4–19 **6/7** 通过。独立 G20=1380 只证明公式，不替代真实导出验收。其余指标见上文 |
+| 本单元离线 + Unity 回归 | PASS | `TUFU_UNITY_REV=5ec5ee1 pytest -q --unity tests/test_stage_open.py tests/unity/test_calib_open.py --junitxml=out/calibration/open-work/unit-final.xml`：**11 passed，27.98 秒**；33 作业全部命中缓存，报告重新计算 |
+| 全仓 pytest | PASS | `TUFU_BALANCE_DB=… pytest -q --basetemp=out/calibration/open-work/pytest-tmp --junitxml=out/calibration/open-work/pytest-final.xml`：**975 passed、302 skipped、24 warnings，201.50 秒**；跳过包含未启用的 Unity、繁忙机器 perf、LFS 条件项 |
+| W0 不变 | PASS | `python tests/golden/fixtures/generate.py --check`：**identical**；只提示已有 provenance-only 模块变化 |
+| 黄金守卫 | PASS | `python -m tufu_balance.golden guard`：**21 suites、0 violations**；新套件 16 键，首次 seed；删失评分修正的两条 CURRENT 登记保留原始 ORIGINAL，没有放宽设计阈值 |
+| 编辑器与运行树清理 | PASS | `python -m tufu_balance.unity serve stop`：editor exit **0**、guard_problems=[]、workers_left=[]；launcher 检查运行树干净。没有操作仍打开的主检出编辑器 |
+| cscheck / refresh L1 | N/A | 没有改 C# 或 Unity 项目文件；`git diff 5ec5ee1 -- Recovery/StudyProject` 为空，不额外启动 Unity |
+
+确认批 401 天 FastTick 的 p50：selected-kill **44.3701 ms**、selected-items **43.7327 ms**、selected-recomputed **37.8628 ms**，都在既有 50 ms 中位预算内；均值为 44.965 / 44.226 / 39.016 ms。未用最大值代替中位数。

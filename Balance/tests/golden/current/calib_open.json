@@ -1,0 +1,292 @@
+{
+ "expectations": {
+  "active.aic": {
+   "kind": "exact",
+   "note": "",
+   "source": "P03 holdout AIC (selection, not external validation)",
+   "value": [
+    {
+     "aic": -16.615163297544782,
+     "delta": 0.0,
+     "k": 2,
+     "n": 14,
+     "name": "NnTour",
+     "rss": 3.210881999194756,
+     "weight": 0.9999972834404917
+    },
+    {
+     "aic": 9.017119999154305,
+     "delta": 25.632283296699086,
+     "k": 1,
+     "n": 14,
+     "name": "FarmedTime",
+     "rss": 23.110341161846087,
+     "weight": 2.716559508415138e-06
+    }
+   ]
+  },
+  "bridge": {
+   "kind": "exact",
+   "note": "",
+   "source": "stored/recomputed cache bridge; P12 slots",
+   "value": {
+    "recomputed_bad": 17,
+    "recomputed_t04_mean_rel": 0.024726012564181193,
+    "stored_bad": 4,
+    "stored_t04_mean_rel": 0.014632238760682877
+   }
+  },
+  "choices": {
+   "kind": "exact",
+   "note": "",
+   "source": "K1: fixed grid and trace fit",
+   "value": {
+    "ActiveMinutesModel": "NnTour",
+    "DayChangeInventoryOrder": "StatsThenItems",
+    "DpsCacheProvenance": "RpmFirst",
+    "EmissionModel": "Chain",
+    "EvolutionTrigger": "Timed",
+    "Kappa": 0.2564409673213959,
+    "KillState": "StartOfDay",
+    "PreferredMapping": "Swapped",
+    "SlotRpmOrder": "SlotBeforeRpm",
+    "TourA": 1.0133730173110962,
+    "TourB": 0.7881690859794617,
+    "Tours": 3,
+    "WeaponSlotUnlockLocations": [
+     4,
+     8
+    ]
+   }
+  },
+  "design_failures": {
+   "kind": "exact",
+   "note": "",
+   "source": "unaltered design limits; report, not acceptance",
+   "value": [
+    "T09.nonzero: 491 cells out of tolerance",
+    "T12.daily: 18 cells out of tolerance",
+    "T12.phase_4_19: 1 cells out of tolerance"
+   ]
+  },
+  "holdout": {
+   "kind": "exact",
+   "note": "",
+   "source": "5.5; failed ratios remain failed",
+   "value": {
+    "ActiveMinutesModel": {
+     "holdout": 0.008070795191335476,
+     "pass": true,
+     "train": 0.019225355430191528
+    },
+    "EvolutionTrigger": {
+     "holdout": 0.05263157894736842,
+     "pass": true,
+     "train": 0.05102040816326531
+    },
+    "KillState": {
+     "holdout": 0.00023431594926706276,
+     "pass": true,
+     "train": 0.0018091972614632408
+    },
+    "P12": {
+     "holdout": 0.014493328756655148,
+     "pass": true,
+     "train": 0.030588710692924685
+    },
+    "P18": {
+     "holdout": 0.043141470512124094,
+     "pass": true,
+     "train": 0.11049053987236454
+    }
+   }
+  },
+  "late_platform": {
+   "kind": "exact",
+   "note": "",
+   "source": "T12 actual charge units, TC206-404",
+   "value": {
+    "legendary=False,preferred=False": {
+     "charges": 83580,
+     "ref": 2.5,
+     "rel": 0.0,
+     "sim": 2.5
+    },
+    "legendary=False,preferred=True": {
+     "charges": 41790,
+     "ref": 4.3,
+     "rel": 4.4356945005930015e-08,
+     "sim": 4.300000190734863
+    },
+    "legendary=True,preferred=False": {
+     "charges": 1592,
+     "ref": 2.8,
+     "rel": 1.7029898491394135e-08,
+     "sim": 2.799999952316284
+    },
+    "legendary=True,preferred=True": {
+     "charges": 796,
+     "ref": 4.6,
+     "rel": 2.073205029873293e-08,
+     "sim": 4.599999904632568
+    }
+   }
+  },
+  "p07": {
+   "kind": "exact",
+   "note": "",
+   "source": "P07 both real C# ablations",
+   "value": {
+    "ModifierFirst": {
+     "cells": 1380,
+     "hits": 863,
+     "mean_rel": 0.013143692642530673
+    },
+    "RpmFirst": {
+     "cells": 1380,
+     "hits": 859,
+     "mean_rel": 0.012976139774168508
+    },
+    "StaleTickCache": {
+     "cells": 1380,
+     "hits": 874,
+     "mean_rel": 0.017890953732324966
+    }
+   }
+  },
+  "p18": {
+   "kind": "exact",
+   "note": "",
+   "source": "P18 TC4-7 fit, TC8-11 holdout; DPS only",
+   "value": {
+    "0": {
+     "all": 0.07681600519224432,
+     "day5": 0.11698876543625092,
+     "holdout": 0.043141470512124094,
+     "train": 0.11049053987236454
+    },
+    "1": {
+     "all": 0.07681600519224432,
+     "day5": 0.11698876543625092,
+     "holdout": 0.043141470512124094,
+     "train": 0.11049053987236454
+    },
+    "2": {
+     "all": 0.20699431928079343,
+     "day5": 0.2661412177035136,
+     "holdout": 0.15977279860281765,
+     "train": 0.2542158399587692
+    },
+    "3": {
+     "all": 0.20699431928079343,
+     "day5": 0.2661412177035136,
+     "holdout": 0.15977279860281765,
+     "train": 0.2542158399587692
+    }
+   }
+  },
+  "sensitivity": {
+   "kind": "exact",
+   "note": "",
+   "source": "P01/DPS diagnostic; no tuning",
+   "value": {
+    "closed_t05_min_e002": 35,
+    "dps_bad": {
+     "0.95": 7,
+     "0.98": 6,
+     "0.99": 5,
+     "1.0": 4,
+     "1.01": 3,
+     "1.02": 2,
+     "1.05": 3
+    },
+    "t07_flips": {
+     "0.95": 0,
+     "0.98": 0,
+     "0.99": 0,
+     "1.0": 0,
+     "1.01": 0,
+     "1.02": 0,
+     "1.05": 0
+    }
+   }
+  },
+  "t04.max": {
+   "kind": "max",
+   "note": "",
+   "source": "T04 original open tolerance",
+   "value": 0.05635268110269265
+  },
+  "t04.median": {
+   "kind": "max",
+   "note": "",
+   "source": "T04 original open tolerance",
+   "value": 0.010851564788526447
+  },
+  "t05.exact": {
+   "kind": "exact",
+   "note": "",
+   "source": "T05 report; all 41 post-hoc intervals",
+   "value": 37
+  },
+  "t05.explanations": {
+   "kind": "exact",
+   "note": "",
+   "source": "T05 first-kill day +/-1",
+   "value": {
+    "017->019": {
+     "day": 18,
+     "shift": -1,
+     "spawners": [
+      "Main:Factories/EnemyFactory/island (7)/spawners/Spawner_elite cut|Spawner_elite cut_3bb4617c1b65bdf4080bbbacce72af23"
+     ]
+    },
+    "024->027": null,
+    "037->041": {
+     "day": 38,
+     "shift": -1,
+     "spawners": [
+      "Main:Factories/EnemyFactory/island (10)/spawners/Spawner_elite pierce|Spawner_elite pierce_e2799eda5ed1d294ea2908171e611179"
+     ]
+    },
+    "140->154": {
+     "day": 151,
+     "shift": -1,
+     "spawners": [
+      "Main:Factories/EnemyFactory/island (16)/spawners/Spawner_16_boss|Spawner_16_boss_363f4c1b3ec9c0940b186ed4c9748835",
+      "Main:Factories/EnemyFactory/island (17)/resources/tree_17 (1)|tree_17 (1)_5e1eaa0a50018844eb77eb0f0868962a",
+      "Main:Factories/EnemyFactory/island (17)/resources/tree_17 (11)|tree_17 (11)_13edc592e8d45174a97afc7968510c91",
+      "Main:Factories/EnemyFactory/island (17)/resources/tree_17 (13)|tree_17 (13)_782850567c75fad40a83df7dd8fbba76",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_easy (3)|Spawner_17_easy (3)_1acbed3f60245d744b6fbd5fafe0832c",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_elite (3)|Spawner_17_elite (3)_2aaff8158661bb348b8ce0e99c4b58c0",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_common_helm (3)|Spawner_17_medium_cut_common_helm (3)_6ae429f836d033e4c96bf10970aabf04",
+      "Main:Factories/EnemyFactory/island (17)/spawners/Spawner_17_medium_cut_common_shield (1)|Spawner_17_medium_cut_common_shield (1)_ec73427c7e9250042b1a0bdf6cd85a11"
+     ]
+    }
+   }
+  },
+  "t05.unexplained": {
+   "kind": "max",
+   "note": "",
+   "source": "T05 first measured cap",
+   "value": 1
+  },
+  "t09.exported": {
+   "kind": "exact",
+   "note": "",
+   "source": "raw exported path; explicitly not G20 acceptance",
+   "value": {
+    "cells": 1380,
+    "hits": 889
+   }
+  },
+  "t09.g20_hits": {
+   "kind": "exact",
+   "note": "",
+   "source": "G20 replay on shipped states",
+   "value": 1380
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "calib_open"
+}
