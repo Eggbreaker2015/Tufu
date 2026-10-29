@@ -1,6 +1,7 @@
 """Cumulative plans, real child exit propagation, and baseline preservation."""
 
 import json
+from pathlib import Path
 import subprocess
 import sys
 from types import SimpleNamespace
@@ -104,7 +105,9 @@ def test_refresh_uses_private_extracted_db_and_pins_unity_rev(tmp_path, monkeypa
     assert R.main(["--out", str(dest), "--rev", "abc123"]) == exit_code
     assert seen["TUFU_BALANCE_DB"] == str(dest / "extracted/balance.sqlite")
     assert seen["TUFU_UNITY_REV"] == "abc123"
-    assert seen["TMPDIR"] == str(dest / "tmp")
+    private_tmp = Path(seen["TMPDIR"])
+    assert private_tmp.parent == R.BALANCE / "out" and private_tmp.is_dir()
+    assert len(private_tmp.name) <= 14 and not private_tmp.is_relative_to(dest)
 
 
 def test_outside_out_is_rejected():

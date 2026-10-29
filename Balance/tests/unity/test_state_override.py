@@ -670,6 +670,7 @@ def test_unlock_snapshot_opens_islands_slots_and_boss(run, db, shipped, evolved,
         loc = ov.expected_day(shipped, "replay", r.day, evolved).snapshot.location
         boss = sp.boss_for_location(loc, registered)
         weapons = 1 + sum(1 for k, n in rewards.items() if k.startswith("weapon") and loc >= n)
+        weapons += sum(loc >= n for n in sc.P12_WEAPON_SLOT_LOCATIONS.values())
         armors = sum(1 for k, n in rewards.items() if not k.startswith("weapon") and loc >= n)
         got = (r.raw["location"], r.raw["current_boss"], r.raw["weapon_slots"], r.raw["armor_slots"])
         if got != (loc, None if boss is None else ident[boss.spawner_id], weapons, armors):

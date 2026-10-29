@@ -14,6 +14,7 @@ from pathlib import Path
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 
@@ -343,8 +344,9 @@ def main(argv=None):
     env["TUFU_BALANCE_DB"] = str(out / "extracted/balance.sqlite")
     env["TUFU_EXTRACT_ASSETS"] = str(out / "assets")
     env["TUFU_UNITY_REV"] = a.rev
-    (out / "tmp").mkdir(parents=True)
-    env["TMPDIR"] = str(out / "tmp")
+    out.mkdir(parents=True)
+    # Bee appends a named-pipe path; macOS limits the complete socket path to 104 bytes.
+    env["TMPDIR"] = tempfile.mkdtemp(prefix="rt-", dir=BALANCE / "out")
     result = execute(steps, out, env=env)
     print(out / "summary.md")
     return result["exit_code"]
