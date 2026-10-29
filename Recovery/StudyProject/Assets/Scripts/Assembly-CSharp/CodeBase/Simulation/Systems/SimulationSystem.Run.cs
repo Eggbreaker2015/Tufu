@@ -287,11 +287,25 @@ namespace Codebase.Simulation.Systems
 			if (RebuildReplayRpmDay != null && RebuildParams.DpsCacheProvenance != DpsCacheProvenance.StaleTickCache)
 			{
 				CalculateSimulationData();
+				bool generatedItems = !SimulationStateOverride.For(SimulationHarness.CurrentJob).ItemsEveryDay;
+				var generatedDps = generatedItems ? currentDpsData.ToList() : null;
+				var generatedDefense = generatedItems ? currentDefenseData.ToList() : null;
 				RebuildApplyReplayCaches();
 				// Only observed shipped samples enter the G20 running maximum.
-				if (RebuildReplayRpmDay.Snapshot.TimeChunkIndex != timeChunkIndex) return;
-				CalculateSoulRPMValues();
-				foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+				if (RebuildReplayRpmDay.Snapshot.TimeChunkIndex == timeChunkIndex)
+				{
+					CalculateSoulRPMValues();
+					foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+				}
+				// Item fitting must observe its generated caches, never the injected reference caches.
+				// The post-snapshot hook restores stored caches before any planning round.
+				if (generatedItems)
+				{
+					currentDpsData.Clear();
+					currentDpsData.AddRange(generatedDps);
+					currentDefenseData.Clear();
+					currentDefenseData.AddRange(generatedDefense);
+				}
 				return;
 			}
 			if (RebuildParams.DpsCacheProvenance != DpsCacheProvenance.StaleTickCache)

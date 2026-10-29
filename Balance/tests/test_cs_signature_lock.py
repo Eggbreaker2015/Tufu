@@ -76,6 +76,7 @@ DEBUG_ONLY = {"GetNextLocationInterpolationTiming", "GetBestSpawnerForInfo", "Tr
 # Design 7.4: hook -> file of its (single) implementation, None while no unit has implemented it.
 HOOKS = {
     "RebuildApplyDayOverride(int)": "Replay",
+    "RebuildApplyDayOverrideBeforeRpm(int)": "Replay",
     "RebuildApplyReplayCaches()": "Replay",
     "RebuildOnTickCompleted()": "Rebuild",
     "RebuildResetForJob(ref bool)": None,
@@ -83,6 +84,7 @@ HOOKS = {
 NEW_MEMBERS = {
     "method:RebuildFinishInventory(bool)": "internal",
     "method:RebuildApplyDayOverride(int)": "private",
+    "method:RebuildApplyDayOverrideBeforeRpm(int)": "private",
     "method:RebuildApplyReplayCaches()": "private",
     "method:RebuildOnTickCompleted()": "private",
     "method:RebuildResetForJob(ref bool)": "private",
@@ -138,6 +140,8 @@ FILLED_CONFIG = {"Tick": "Inferred", "GetTrimmedTimeChunkSnapshots": "Inferred"}
 # Design 7.4: every cross-module call site (caller -> callee), placed by C3b.
 CALL_SITES = [
     ("PrepareSimulationRun", "RebuildApplyDayOverride"), ("UpdateSpawnerChargesChunk", "RebuildApplyDayOverride"),
+    ("PrepareSimulationRun", "RebuildApplyDayOverrideBeforeRpm"),
+    ("UpdateSpawnerChargesChunk", "RebuildApplyDayOverrideBeforeRpm"),
     ("Tick", "RebuildApplyReplayCaches"), ("Tick", "CalculateStatBenefit"), ("Tick", "FindBestSpawner"),
     ("Tick", "SimulateFightWithSpawner"), ("SimulateFightWithSpawner", "RebuildApplyClear"),
     ("SimulateFightWithSpawnerFast", "RebuildApplyClear"), ("RebuildApplyClear", "GetSpawnerItemRewardCopies"),
@@ -352,7 +356,7 @@ def test_partial_files_hold_only_methods():
     others = [m for m in doc["members"] if m["kind"] != "MethodDeclaration"]
     assert {m["kind"] for m in others} <= {"FieldDeclaration", "PropertyDeclaration"}
     for m in others:
-        assert m["file"] in ("SimulationSystem.Rebuild.cs", "SimulationSystem.Inventory.cs"), m["key"]
+        assert m["file"] in ("SimulationSystem.Rebuild.cs", "SimulationSystem.Inventory.cs", "SimulationSystem.Replay.cs"), m["key"]
         assert all(name.strip().startswith("Rebuild") for name in m["name"].split(",")), m["key"]
     assert len(doc["types"]) == len(PARTIAL_FILES)
     for t in doc["types"]:
@@ -439,13 +443,12 @@ def test_cross_module_call_sites_in_place(current):
 
 
 def test_day_override_follows_the_forced_snapshot(current):
-    """Design 4.6: the replay/checkpoint override of day d takes effect after day d's forced snapshot, on day 0
-    as on every day change (the 4.4 pseudo-code has it before; the deviation is in Runbook 16.6)."""
+    """C4 has before-RPM loading for stored replay and post-snapshot restoration for every mode."""
     by_name = {m["name"]: m["invocations"] for m in methods(current, "SimulationSystem")}
     for caller in ("PrepareSimulationRun", "UpdateSpawnerChargesChunk"):
         calls = by_name[caller]
         assert calls.count("RebuildApplyDayOverride") == 1 and calls.count("MakeSnapshot") == 1, caller
-        assert calls.index("MakeSnapshot") < calls.index("RebuildApplyDayOverride"), caller
+        assert calls.index("RebuildApplyDayOverrideBeforeRpm") < calls.index("MakeSnapshot") < calls.index("RebuildApplyDayOverride"), caller
     calls = by_name["UpdateSpawnerChargesChunk"]
     last_modifier = max(i for i, c in enumerate(calls) if c in ("RecalculateChunkRpmValues", "UpdateInterpolationStatModifier"))
     assert last_modifier < calls.index("MakeSnapshot")

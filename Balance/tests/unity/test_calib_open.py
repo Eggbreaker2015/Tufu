@@ -18,8 +18,9 @@ SUITE = 'calib_open'
 
 @pytest.fixture(scope='module')
 def calibration(unity_rev):
-    assert S.main(['--rev', unity_rev]) == 0
-    latest = json.loads((S.BALANCE / 'out/calibration/open-work/latest.json').read_text())
+    workspace = S.BALANCE / 'out/calibration/open-round2-work'
+    assert S.main(['--rev', unity_rev, '--workspace', str(workspace)]) == 0
+    latest = json.loads((workspace / 'latest.json').read_text())
     directory = Path(latest['report'])
     return directory, json.loads((directory / 'evidence.json').read_text())
 
