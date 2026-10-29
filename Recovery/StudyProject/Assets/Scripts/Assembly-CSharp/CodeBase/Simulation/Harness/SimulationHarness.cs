@@ -72,6 +72,9 @@ namespace Codebase.Simulation.Harness
 		private int phaseFrames;
 		private SimulationConfig config;
 		private int speedCap, speedMin, speedMax;
+		// SimulationSpeed before the job: restored at the end, so the in-memory config the asset guard digests
+		// does not depend on the requested speed or on wall-clock frame pacing (C3d).
+		private int? speedBeforeJob;
 		private readonly JObject manifest = new JObject();
 		private readonly JObject timings = new JObject();
 		private readonly List<string> readyRows = new List<string>();
@@ -575,6 +578,7 @@ namespace Codebase.Simulation.Harness
 			config.TargetDay = job.Stop.Day ?? 0;
 			config.StopAtLocation = job.Stop.Location.HasValue;
 			config.TargetLocationNumber = job.Stop.Location ?? 0;
+			speedBeforeJob = config.SimulationSpeed;
 			config.SimulationSpeed = request.Unity.SimulationSpeed;
 			speedCap = Math.Max(1, request.Unity.SimulationSpeed) * 16;
 			speedMin = speedMax = config.SimulationSpeed;
@@ -768,6 +772,7 @@ namespace Codebase.Simulation.Harness
 			Error = error;
 			manifest["exit_code"] = code;
 			manifest["error"] = error;
+			if (config != null && speedBeforeJob.HasValue) config.SimulationSpeed = speedBeforeJob.Value;
 			timings["log_errors"] = logErrors;
 			timings["log_exceptions"] = logExceptions;
 			timings["t_done"] = clock.Elapsed.TotalSeconds;
