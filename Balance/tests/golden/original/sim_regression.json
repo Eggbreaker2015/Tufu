@@ -24,6 +24,12 @@
    "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
    "value": 0
   },
+  "T06.tc_ge_24.max_rel": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop T06; Calibration.md K3",
+   "value": 0.02
+  },
   "T09.nonzero.excess_failures": {
    "kind": "max",
    "note": "",

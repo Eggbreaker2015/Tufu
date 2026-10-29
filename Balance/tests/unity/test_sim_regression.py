@@ -53,6 +53,8 @@ def test_scientific_failures_are_recorded(calibrated_run, db):
         allowed = {'T06': int(g.n * .05), 'T09': int(g.n * .10), 'T14': int(g.n * .10)}.get(target, 0)
         checks[f'{target}.{group}.excess_failures'] = at_most(max(0, g.n - g.n_ok - allowed), original=0,
             source='5.1 closed-loop cell-count tolerance; Calibration.md K3')
+    worst = max(c.rel for c in evaluation.cells if c.target == 'T06' and c.group == 'tc_ge_24')
+    checks['T06.tc_ge_24.max_rel'] = at_most(worst, original=.02, source='5.1 closed-loop T06; Calibration.md K3')
     check('sim_regression', checks)
 
 

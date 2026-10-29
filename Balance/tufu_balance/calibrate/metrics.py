@@ -656,7 +656,7 @@ def _rule_text(rule: Mapping[str, Any]) -> str:
     return ", ".join(f"{k}={v}" for k, v in sorted(rule.items()) if k != "note")
 
 
-def _group_status(tid: str, group: str, cells: list[Cell], rule: Any) -> GroupResult:
+def _group_status(tid: str, group: str, cells: list[Cell], rule: Any, cell_spec: Mapping[str, Any] | None = None) -> GroupResult:
     oks = [c.ok for c in cells if c.ok is not None]
     n_ok = sum(oks) if oks else None
     if all(not c.available for c in cells):
@@ -701,7 +701,7 @@ def _group_status(tid: str, group: str, cells: list[Cell], rule: Any) -> GroupRe
                                "; ".join(details) + "; limit frozen at the first run")
         ok &= failing <= limit
     if "min_in_range" in rule:
-        ranges = rule["in_range_ranges"]
+        ranges = cell_spec["ranges"]
         count = sum(c.sim is not None and _interval_distance(c.sim, ranges[int(c.key.split()[-1])]) == 0
                     for c in cells)
         details.append(f"{count}/{len(cells)} in range")
@@ -736,7 +736,7 @@ def evaluate(cells: Sequence[Cell], tolerances: Mapping[str, Any], mode: str) ->
     groups = []
     status: dict[str, list[str]] = {}
     for (tid, group), members in sorted(by_group.items()):
-        g = _group_status(tid, group, members, _group_rule(specs[tid], mode, group))
+        g = _group_status(tid, group, members, _group_rule(specs[tid], mode, group), (specs[tid].get("cells") or {}).get(group))
         groups.append(g)
         status.setdefault(tid, []).append(g.status)
     targets = {}

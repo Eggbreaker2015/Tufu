@@ -123,7 +123,6 @@ targets:
       islands_5_17:
         all_ok: true
         min_in_range: 11
-        in_range_ranges: {5: [8, 8], 6: [11, 12], 7: [15, 16], 8: [21, 23], 9: [27, 29], 10: [34, 36], 11: [44, 45], 12: [57, 62], 13: [71, 76], 14: [90, 93], 15: [110, 114], 16: [130, 139], 17: [150, 153]}
   T09:
     title: 天快照 CurrentGpm
     split: validation
@@ -231,7 +230,7 @@ targets:
       mid_dps: {rel_max: 0.15}
       mid_defense: {rel_max: 0.15}
       late_dps: {rel_max: 0.1706405195322352}
-      late_defense: {rel_max: 0.009840993197501424}
+      late_defense: {rel_max: 0.009840993197501419}
     open: report
     closed:
       early_dps: report

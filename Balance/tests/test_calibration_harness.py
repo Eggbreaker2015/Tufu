@@ -256,7 +256,7 @@ DESIGN_5_1 = {
                      "island_4": {"report": True, "note": "a result only once derived from the island-3 gate"},
                      "islands_5_17": ALL},
             "closed": {"by_playtime": ALL, "island_4": ALL,
-                       "islands_5_17": {"all_ok": True, "min_in_range": 11, "in_range_ranges": {5: [8, 8], 6: [11, 12], 7: [15, 16], 8: [21, 23], 9: [27, 29], 10: [34, 36], 11: [44, 45], 12: [57, 62], 13: [71, 76], 14: [90, 93], 15: [110, 114], 16: [130, 139], 17: [150, 153]}}}},
+                       "islands_5_17": {"all_ok": True, "min_in_range": 11}}},
     "T09": {"cells_open": {"nonzero": {"g20": 1.0e-4}, "zero": {"g20": 1.0e-4}},
             "cells_closed": {"nonzero": {"rel_max": 0.01}},
             "open": {"nonzero": ALL, "zero": ALL}, "closed": {"nonzero": {"frac_ok_min": 0.9}, "zero": "report"}},
@@ -277,7 +277,7 @@ DESIGN_5_1 = {
     "T14": {"cells": {"level": {"exact": True}, "copies": {"rel_max": 0.05}},
             "open": "n/a", "closed": {"level": {"frac_ok_min": 0.9}, "copies": {"frac_ok_min": 0.8}}},
     "T15": {"cells": {"mid_dps": {"rel_max": 0.15}, "mid_defense": {"rel_max": 0.15},
-                        "late_dps": {"rel_max": 0.1706405195322352}, "late_defense": {"rel_max": 0.009840993197501424}},
+                        "late_dps": {"rel_max": 0.1706405195322352}, "late_defense": {"rel_max": 0.009840993197501419}},
             "open": "report", "closed": {"early_dps": "report", "early_defense": "report", "mid_dps": ALL,
                                             "mid_defense": ALL, "late_dps": ALL, "late_defense": ALL}},
     "T16": {"cells": {"main": {"rel_max": 0.05}, "small": {"bound": True}},
@@ -1811,3 +1811,61 @@ def test_t05_unexplained_ratchet(tolerances):
     assert not check_t05_explanations({"unexplained": ["a", "b", "c", "d"]}, tolerances)
     with pytest.raises(ValueError):
         check_t05_explanations({"unexplained": ["a", "a"]}, tolerances)
+
+
+def test_full_ratchet_values_match_measured_golden(tolerances):
+    import json
+    from pathlib import Path
+    gold = json.loads((Path(__file__).parent / 'golden/original/sim_regression.json').read_text())['expectations']
+    specs = tolerances['targets']
+    assert specs['T05']['closed']['multi_day']['max_failing_units'] == 41 - gold['ratchet.T05.exact']['value']
+    assert specs['T05']['max_unexplained'] == gold['ratchet.T05.unexplained']['value']
+    assert specs['T07']['closed']['islands_5_17']['min_in_range'] == gold['ratchet.T07.in_range']['value']
+    for group in ('late_dps', 'late_defense'):
+        assert specs['T15']['cells'][group]['rel_max'] == gold['ratchet.T15.' + group]['value']
+
+
+def test_full_ratchet_exact_boundaries(tg, shipped_db, tolerances):
+    import math
+    cells = M.compute(_series(shipped_db), tg, ['T05', 'T07', 'T15'])
+    units = sorted({c.unit for c in cells if c.target == 'T05' and c.group == 'multi_day'})[:5]
+    changed = []
+    for c in cells:
+        if c.target == 'T05' and c.unit in units and c.stat == 'Health':
+            c = replace(c, residual=1e20, rel=1.0)
+        if c.target == 'T07' and c.key in ('island 05', 'island 06'):
+            limits = tolerances['targets']['T07']['cells']['islands_5_17']['ranges'][int(c.key[-2:])]
+            c = replace(c, sim=[limits[1]+1, limits[1]+1])
+        changed.append(c)
+    ev = M.evaluate(changed, tolerances, 'closed')
+    assert next(g for g in ev.groups if (g.target,g.group)==('T05','multi_day')).status == 'pass'
+    assert next(g for g in ev.groups if (g.target,g.group)==('T07','islands_5_17')).status == 'pass'
+    for group in ('late_dps','late_defense'):
+        limit = tolerances['targets']['T15']['cells'][group]['rel_max']
+        target = next(c for c in cells if c.target == 'T15' and c.group == group)
+        test = [replace(c, rel=math.nextafter(limit, math.inf)) if c is target else c for c in cells]
+        ev = M.evaluate(test, tolerances, 'closed')
+        assert next(g for g in ev.groups if (g.target,g.group)==('T15',group)).status == 'fail'
+
+
+def test_full_archive_rebuilds_from_cached_jobs(tmp_path, db):
+    import hashlib, json
+    from pathlib import Path
+    from tufu_balance.calibrate.stage_full import archive
+    from tufu_balance.calibrate.stage_open import BALANCE, load_results
+    workspace = BALANCE/'out/calibration/full/first-run-e8054e8'
+    if not (workspace/'full_jobs.json').exists():
+        pytest.skip('historical cached runs are not available')
+    paths = load_results(workspace/'full_jobs.json')
+    if not all(p.exists() for p in paths.values()):
+        pytest.skip('historical cached job directories are not available')
+    out = archive(db, paths, workspace, tmp_path)
+    manifest = json.loads((out/'manifest.json').read_text())
+    for name, digest in manifest['files'].items():
+        assert hashlib.sha256((out/name).read_bytes()).hexdigest() == digest
+    assert manifest['status']['free']['T19'] == 'fail'
+    assert manifest['status']['free']['T20'] == 'pass'
+    assert set(manifest['modes']) == {'free', 'checkpoint', 'seed-1', 'seed-2'}
+    existing = BALANCE/'out/calibration/full/calibrated-round4/manifest.json'
+    if existing.exists():
+        assert manifest['files'] == json.loads(existing.read_text())['files']
