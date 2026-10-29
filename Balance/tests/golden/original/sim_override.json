@@ -1,5 +1,11 @@
 {
  "expectations": {
+  "checkpoint405.day_change_gpm_carried": {
+   "kind": "exact",
+   "note": "day after each checkpoint",
+   "source": "design 4.6",
+   "value": 0
+  },
   "checkpoint405.days": {
    "kind": "exact",
    "note": "",
@@ -40,6 +46,76 @@
     "slots_opened": 5
    }
   },
+  "evolved_flip.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.6",
+   "value": {
+    "cache_applications": 5,
+    "items_added": 20,
+    "slots_opened": 4,
+    "total_value_corrections": 18,
+    "total_value_corrections_inexact": 3,
+    "unevolved_level_ne_copies": 2
+   }
+  },
+  "evolved_flip.items": {
+   "kind": "exact",
+   "note": "knife (Key, Level, Copies, Evolved, EffectiveLevel) per day 17..21",
+   "source": "design 4.6",
+   "value": [
+    [
+     17,
+     [
+      "knife",
+      1,
+      90,
+      false,
+      90
+     ]
+    ],
+    [
+     18,
+     [
+      "knife",
+      117,
+      117,
+      true,
+      117
+     ]
+    ],
+    [
+     19,
+     [
+      "knife",
+      117,
+      117,
+      true,
+      117
+     ]
+    ],
+    [
+     20,
+     [
+      "knife",
+      1,
+      86,
+      false,
+      86
+     ]
+    ],
+    [
+     21,
+     [
+      "knife",
+      1,
+      86,
+      false,
+      86
+     ]
+    ]
+   ]
+  },
   "recomputed.days_dps_differs_from_stored": {
    "kind": "exact",
    "note": "R2's recompute error on days 4-30, fixture slots",
@@ -54,6 +130,18 @@
     "cache_applications": 402,
     "items_added": 44
    }
+  },
+  "replay405.day_change_gpm_carried": {
+   "kind": "exact",
+   "note": "cells where day d+1's CurrentGpm is day d's override RPM, above the day change's own",
+   "source": "design 4.6",
+   "value": 750
+  },
+  "replay405.day_change_gpm_cells": {
+   "kind": "exact",
+   "note": "nonzero CurrentGpm cells of forced snapshots 5..405",
+   "source": "design 4.6",
+   "value": 1604
   },
   "replay405.days": {
    "kind": "exact",
@@ -114,6 +202,12 @@
    "note": "total_value = snapshot: Stat.FastValue vs the interpolated snapshot's TotalValue",
    "source": "design 7.3 C4",
    "value": 1.0
+  },
+  "rpm_skip.day_change_gpm_carried": {
+   "kind": "exact",
+   "note": "rpm_after_override = skip, days 5..30: the game's own max",
+   "source": "design 4.6",
+   "value": 0
   },
   "slots_down.counters": {
    "kind": "exact",
