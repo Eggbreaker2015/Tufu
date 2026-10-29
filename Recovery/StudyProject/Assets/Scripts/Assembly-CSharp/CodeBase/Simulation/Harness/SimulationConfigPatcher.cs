@@ -90,6 +90,7 @@ namespace Codebase.Simulation.Harness
 		private readonly Dictionary<string, List<Row>> rowCache = new Dictionary<string, List<Row>>();
 		private readonly Dictionary<Type, List<(string Path, Object Asset)>> assetCache = new Dictionary<Type, List<(string, Object)>>();
 		private readonly SortedSet<string> abTests = new SortedSet<string>(StringComparer.Ordinal);
+		private readonly HashSet<string> detached = new HashSet<string>(StringComparer.Ordinal);
 		private Dictionary<string, (string Scene, long FileId)> spawnerIds;
 		private readonly SortedSet<string> unmappedSpawners = new SortedSet<string>(StringComparer.Ordinal);
 		private bool restored;
@@ -1020,6 +1021,36 @@ namespace Codebase.Simulation.Harness
 			AfterWrite(spec, row);
 		}
 
+		// A UnitySerializedDictionary holding the leaf is swapped for a copy before the first write and the original
+		// object put back by the undo: rebuilding a dictionary in place changes its internal version and layout,
+		// which the asset guard's digest sees even when the entries are restored.
+		private void Detach(NodeSpec spec, Row row)
+		{
+			if (spec.LeafPath == null || spec.LeafPath.Length < 2) return;
+			string[] parentPath = spec.LeafPath.Take(spec.LeafPath.Length - 1).ToArray();
+			string key = row.OwnerKey + "\n" + row.IdKey + "\n" + string.Join(".", parentPath);
+			object original = GetPath(row.Get(), parentPath);
+			if (original == null || !IsSerializedDictionary(original.GetType()) || !detached.Add(key)) return;
+			object copy = Activator.CreateInstance(original.GetType());
+			foreach (string name in new[] { "keyData", "valueData" })
+			{
+				FieldInfo f = FindField(original.GetType(), name);
+				var list = (IList)Activator.CreateInstance(f.FieldType);
+				foreach (object v in (IList)f.GetValue(original)) list.Add(v);
+				f.SetValue(copy, list);
+			}
+			((ISerializationCallbackReceiver)copy).OnAfterDeserialize();
+			object item = row.Get();
+			SetPath(item, parentPath, copy);
+			row.Put(item);
+			undo.Add(() =>
+			{
+				object current = row.Get();
+				SetPath(current, parentPath, original);
+				row.Put(current);
+			});
+		}
+
 		// keyData/valueData of a UnitySerializedDictionary feed the dictionary only on deserialization: rebuild it.
 		private static void AfterWrite(NodeSpec spec, Row row)
 		{
@@ -1068,6 +1099,7 @@ namespace Codebase.Simulation.Harness
 			string key = spec.Node + "\n" + row.IdKey;
 			if (touched.ContainsKey(key)) return;
 			if (!owners.ContainsKey(row.OwnerKey)) owners[row.OwnerKey] = new OwnerState { Owner = row.Owner, Before = Digest(row.Owner) };
+			Detach(spec, row);
 			var t = new Touched { Spec = spec, Row = row };
 			if (!spec.IsArray)
 			{
