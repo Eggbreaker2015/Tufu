@@ -321,34 +321,8 @@ def archive(workspace, paths, candidates, tg, out_root, pre):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--rev')
-    ap.add_argument('--workspace', type=Path, default=BALANCE/'out/calibration/slow-work')
-    ap.add_argument('--out', type=Path, default=report.DEFAULT_ROOT)
-    for flag in ('preflight-only', 'analyze-only', 'write-layer'):
-        ap.add_argument('--'+flag, action='store_true')
-    args = ap.parse_args(argv)
-    started = time.monotonic()
-    with T.connect_ro(os.environ['TUFU_BALANCE_DB']) as db:
-        pre = preflight(db, args.workspace)
-        if args.preflight_only:
-            print(json.dumps(pre, indent=2)); return 0
-        drv = driver.Driver(driver.default_backend(rev=args.rev), batch_size=12)
-        if args.rev and drv.backend.identity().code_rev != runner.resolve(runner.WORKTREE, args.rev):
-            raise RuntimeError('resident editor differs from --rev')
-        path = args.workspace/'initial.json'
-        paths = load_results(path) if args.analyze_only else measure(initial_jobs(), drv, path)
-        candidates = {f'slow-{i:02d}': c for i, c in enumerate(GRID)}
-        tg = T.build(db)
-        paths, candidates, protocol = fallback(args.workspace, paths, candidates, tg, drv, analyze_only=args.analyze_only)
-        pre['fallback'] = protocol
-        confirm_effective_params(args.workspace, paths, candidates, tg, drv, analyze_only=args.analyze_only)
-        out, detail = archive(args.workspace, paths, candidates, tg, args.out, pre)
-        if args.write_layer:
-            (P.PARAMS_ROOT/'slow.json').write_bytes((out/'slow.json').read_bytes())
-    print(json.dumps(dict(report=str(out), selected=detail['selected'], failures=detail['design_failures'],
-                         holdout_ratio=detail['holdout'], wall_s=time.monotonic()-started), indent=2))
-    return 0
+    from .stage_slow_round2 import main as run_structural
+    return run_structural(argv)
 
 
 if __name__ == '__main__':

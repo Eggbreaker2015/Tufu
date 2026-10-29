@@ -24,15 +24,18 @@ ARMS = {
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument('--rev', required=True)
+    ap.add_argument('--rev')
     ap.add_argument('--workspace', type=Path, default=S.BALANCE/'out/calibration/slow-round2')
     ap.add_argument('--analyze-only', action='store_true')
+    ap.add_argument('--preflight-only', action='store_true')
     ap.add_argument('--write-layer', action='store_true')
     args = ap.parse_args(argv)
     start = time.monotonic()
     with T.connect_ro(os.environ['TUFU_BALANCE_DB']) as db:
         pre = S.preflight(db, args.workspace)
         pre['registered_arms'] = ARMS
+        if args.preflight_only:
+            print(json.dumps(pre, indent=2)); return 0
         candidates = {n: dict(BASE, **c) for n,c in ARMS.items()}
         index = args.workspace/'structural.json'
         drv = driver.Driver(driver.default_backend(rev=args.rev), batch_size=12)
@@ -69,6 +72,7 @@ def main(argv=None):
         if args.write_layer:
             (S.P.PARAMS_ROOT/'slow.json').write_bytes((out/'slow.json').read_bytes())
     print(json.dumps(dict(report=str(out), selected=chosen, failures=detail['design_failures'], wall_s=time.monotonic()-start), indent=2))
+    return 0
 
 
 if __name__ == '__main__':
