@@ -16,6 +16,7 @@ import time
 from . import driver, killseq, metrics as M, params as P, report, targets as T
 from .stage_open import BALANCE, load_results, measure, read_series, write_json
 from ..unity import inventory, request, runner, trace
+from ..model.f32 import f32
 
 GRID = tuple(dict(zip(('PriorityFamily', 'SmartPath', 'TimeModel', 'SlowLethalityGate', 'DeathPolicy'), v))
     for v in itertools.product(('Dynamic', 'Static'), (True, False),
@@ -100,6 +101,25 @@ def evaluate(directory, tg):
     ratio = scores['holdout']/scores['train'] if scores['train'] else (0 if not scores['holdout'] else math.inf)
     if ratio > 1.5:
         failures.append('holdout')
+    # These K2-only targets are not computed by P10 from sim.sqlite.
+    extra = [M.Cell('T20', 'hard', 'premature_location4', len(early4), 0, len(early4), ok=not early4),
+             M.Cell('T20', 'hard', 'day3_deaths', len(day3), 0, len(day3), ok=not day3)]
+    for loc, lo, hi in ((2, 31.2, 37.4), (3, 110.2, 115.3)):
+        p = arrivals.get(str(loc), {}).get('p')
+        extra.append(M.Cell('T07', 'early_arrival', f'island{loc}.P', p, [lo, hi],
+            None if p is None else max(lo-p, p-hi, 0.), ok=p is not None and lo <= p <= hi))
+    for key, value, ref in (('island4.unlock_day', arrivals.get('4', {}).get('day'), 5), ('island4.first_tc', first4, 6)):
+        extra.append(M.Cell('T07', 'early_arrival', key, value, ref,
+            None if value is None else value-ref, ok=value==ref))
+    extra += [M.Cell('T11', 'early_item_count', f'TC{d}', n, r, n-r, tc=d, ok=n==r)
+              for d, (n, r) in enumerate(zip(counts, (4, 7, 8, 8)), 1)]
+    ev.cells.extend(extra)
+    for target, group in (('T20', 'hard'), ('T07', 'early_arrival'), ('T11', 'early_item_count')):
+        members = [c for c in extra if c.target==target]
+        ok = sum(c.ok for c in members)
+        ev.targets[target] = 'pass' if ok==len(members) else 'fail'
+        ev.groups.append(M.GroupResult(target, group, ev.targets[target], len(members), ok,
+                                      'K2 original criterion; no loosening'))
     return ev, dict(scores=scores, holdout_ratio=ratio, t20_ok=not early4 and not day3,
         premature_location4=early4, day3_deaths=day3, countRespawn=respawns, arrivals=arrivals,
         first_location4_tc=first4, item_counts=counts, early_rows=len(series.early), failures=failures,
@@ -127,6 +147,84 @@ def choose(paths, tg, candidates):
     return ranked, hypotheses, evaluations, details
 
 
+# Q34 fallback, fixed before its first run. The endpoint fit suggested subunit
+# movement and near-zero regen; no day/point coefficients or fight multiplier.
+COEFFICIENT_GRID = (0., .25, .5, .75, 1.)
+
+
+def fallback(workspace, initial, candidates, tg, drv, *, analyze_only=False):
+    ranked, _, evs, details = choose(initial, tg, candidates)
+    by_model = {}
+    for model in ('FarmedTime', 'FarmedTimeMoveByDistance'):
+        names = [n for n in initial if candidates[n]['TimeModel']==model and details[n]['t20_ok']]
+        by_model[model] = dict(candidates=len(names),
+            training_t16_pass=sum(all(c.ok for c in evs[n].cells if c.target=='T16' and c.split=='train') for n in names),
+            joint_t16_t03_pass=sum(evs[n].targets['T16']=='pass' and evs[n].targets['T03']=='pass' for n in names))
+    # Trigger with training failures, not holdout errors. T03 is also reported.
+    if any(x['training_t16_pass'] for x in by_model.values()):
+        return initial, candidates, dict(used=False, recovered_models=by_model)
+    base = dict(candidates[ranked[0]])
+    base['TimeModel'] = 'DecomposedMoveByDistance' if 'Distance' in base['TimeModel'] else 'Decomposed'
+    protocol = dict(used=True, recovered_models=by_model, base_from_training=ranked[0], base=base,
+        grid=COEFFICIENT_GRID, bounds=[0., 1.], simplex_maxiter=12, simplex_maxfev=24,
+        objective='T20 hard filter then T16 TC1/2 normalized mean; no holdout feedback',
+        registration='Calibration.md Q34; no modification of defaults or original tolerances')
+    write_json(workspace/'fallback_protocol.json', protocol)
+    coarse = {f'coef-{i:02d}': dict(base, CMove=m, CRegen=r) for i,(m,r) in
+              enumerate(itertools.product(COEFFICIENT_GRID, repeat=2))}
+    coarse_path = workspace/'coarse.json'
+    coarse_paths = load_results(coarse_path) if analyze_only else measure(
+        [make_job(n,c) for n,c in coarse.items()], drv, coarse_path)
+    paths = {**initial, **coarse_paths}
+    candidates = {**candidates, **coarse}
+    ranked, _, _, _ = choose(paths, tg, candidates)
+    seed = candidates[ranked[0]]
+    if seed['TimeModel'] not in ('Decomposed', 'DecomposedMoveByDistance'):
+        seed = dict(base, CMove=1., CRegen=1.)
+    if analyze_only:
+        fine = json.loads((workspace/'simplex_candidates.json').read_text())
+        fine_paths = load_results(workspace/'simplex.json')
+    else:
+        import numpy as np
+        from scipy.optimize import minimize
+        fine, fine_paths, memo = {}, {}, {}
+        def point(x):
+            return tuple(float(f32(min(1., max(0., v)))) for v in x)
+        for n,p in paths.items():
+            c = candidates[n]
+            if c['TimeModel']==base['TimeModel']:
+                _, d = evaluate(p,tg)
+                memo[(c['CMove'], c['CRegen'])] = d['scores']['train'] if d['t20_ok'] else 1e6+d['scores']['train']
+        def batch(points):
+            fresh = [x for x in dict.fromkeys(map(point,points)) if x not in memo]
+            additions = {}
+            for x in fresh:
+                n = f'simplex-{len(fine):02d}'
+                fine[n] = dict(base, CMove=x[0], CRegen=x[1])
+                additions[n] = fine[n]
+            if additions:
+                index = len(list(workspace.glob('simplex-step-*.json')))
+                result = measure([make_job(n,c) for n,c in additions.items()], drv,
+                                 workspace/f'simplex-step-{index:02d}.json')
+                fine_paths.update(result)
+                for n,p in result.items():
+                    _, d = evaluate(p,tg)
+                    c = additions[n]
+                    memo[(c['CMove'],c['CRegen'])] = d['scores']['train'] if d['t20_ok'] else 1e6+d['scores']['train']
+            return [memo[point(x)] for x in points]
+        x0 = np.array([seed.get('CMove',1.), seed.get('CRegen',1.)])
+        simplex = [x0, x0+[-.125 if x0[0]>=.875 else .125,0], x0+[0,-.125 if x0[1]>=.875 else .125]]
+        batch(simplex)
+        result = minimize(lambda x: batch([x])[0], x0, method='Nelder-Mead', bounds=((0,1),(0,1)),
+            options=dict(initial_simplex=np.array(simplex), maxiter=12, maxfev=24, xatol=.015625, fatol=.001))
+        protocol['optimizer'] = dict(x=list(map(float,result.x)), fun=float(result.fun),
+            nit=result.nit, nfev=result.nfev, success=bool(result.success), message=str(result.message))
+        write_json(workspace/'simplex_candidates.json', fine)
+        write_json(workspace/'simplex.json', [dict(job_id=n,job_dir=str(p)) for n,p in fine_paths.items()])
+        write_json(workspace/'fallback_protocol.json', protocol)
+    return {**paths, **fine_paths}, {**candidates, **fine}, protocol
+
+
 def archive(workspace, paths, candidates, tg, out_root, pre):
     ranked, hypotheses, evaluations, details = choose(paths, tg, candidates)
     chosen = ranked[0]
@@ -146,8 +244,13 @@ def archive(workspace, paths, candidates, tg, out_root, pre):
     write_json(out/'slow.json', {'_stage': 'K2; empirical candidate, acceptance status in Runbook section 25', **changes})
     rows = [dict(candidate=n, **r) for n, ev in evaluations.items() for r in report.residual_rows([ev])]
     (out/'all_residuals.csv').write_text(report.csv_text(('candidate',)+report.RESIDUAL_COLUMNS, rows))
+    daily = [dict(candidate=n, **r) for n,d in details.items() for r in d['countRespawn']]
+    (out/'countRespawn.csv').write_text(report.csv_text(tuple(daily[0]), daily))
+    deaths = [dict(candidate=n, **r) for n,d in details.items() for r in d['day3_deaths']]
+    (out/'day3_deaths.csv').write_text(report.csv_text(
+        ('candidate', 'type', 'day', 'playtime', 'total_playtime', 'spawner', 'location'), deaths))
     for p in workspace.iterdir():
-        if p.name in ('killseq_times.csv', 'killseq_intervals.csv', 'preflight.json') or p.name.endswith('.timing.json'):
+        if p.name in ('killseq_times.csv', 'killseq_intervals.csv', 'preflight.json', 'fallback_protocol.json', 'simplex_candidates.json') or p.name.endswith('.timing.json'):
             (out/p.name).write_bytes(p.read_bytes())
     manifest = json.loads((out/'manifest.json').read_text())
     manifest['evidence_files'] = {p.name: report.sha256_file(p) for p in sorted(out.iterdir())
@@ -176,7 +279,10 @@ def main(argv=None):
         path = args.workspace/'initial.json'
         paths = load_results(path) if args.analyze_only else measure(initial_jobs(), drv, path)
         candidates = {f'slow-{i:02d}': c for i, c in enumerate(GRID)}
-        out, detail = archive(args.workspace, paths, candidates, T.build(db), args.out, pre)
+        tg = T.build(db)
+        paths, candidates, protocol = fallback(args.workspace, paths, candidates, tg, drv, analyze_only=args.analyze_only)
+        pre['fallback'] = protocol
+        out, detail = archive(args.workspace, paths, candidates, tg, args.out, pre)
         if args.write_layer:
             (P.PARAMS_ROOT/'slow.json').write_bytes((out/'slow.json').read_bytes())
     print(json.dumps(dict(report=str(out), selected=detail['selected'], failures=detail['design_failures'],
