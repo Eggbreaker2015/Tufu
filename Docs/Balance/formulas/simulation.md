@@ -1494,7 +1494,7 @@ Intended: copies per simulated clear = RollFractionalCount(baseCount * GetItemEm
 
 **输出**：Simulated item copies, which drive simulated evolution timing
 
-**代码**：[Simulation/Systems/SimulationSystem.cs:546](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L546)；[Simulation/Systems/SimulationSystem.cs:551](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L551)；[Simulation/Systems/SimulationSystem.cs:1](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L1)
+**代码**：[Simulation/Systems/SimulationSystem.cs:546](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L546)；[Simulation/Systems/SimulationSystem.cs:551](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L551)；Simulation/Systems/SimulationSystem.Inventory.cs:215-233
 
 **状态依据**：All five methods return default constants. Stage 5 rebuild implements part of this rule; see realization links.
 

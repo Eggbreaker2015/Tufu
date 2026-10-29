@@ -37724,7 +37724,7 @@
    "code_refs": [
     "Simulation/Systems/SimulationSystem.cs:546",
     "Simulation/Systems/SimulationSystem.cs:551",
-    "Simulation/Systems/SimulationSystem.cs:1"
+    "Simulation/Systems/SimulationSystem.Inventory.cs:215-233"
    ],
    "native_va": "",
    "status": "reconstructed",

@@ -13,7 +13,7 @@ from tufu_balance import refresh as R
 
 def test_levels_are_cumulative_and_complete(tmp_path):
     plans = [[s.name for s in R.plan(n, tmp_path)] for n in range(3)]
-    assert plans[0] == ["extract", "graph", "render_catalog", "pytest-static", "cscheck", "drift",
+    assert plans[0] == ["extract", "graph", "render_catalog", "rebuild-coverage", "pytest-static", "cscheck", "drift",
                         "golden-guard", "golden-current-differences"]
     assert set(plans[0]) <= set(plans[1]) <= set(plans[2])
     assert {"unity-probe-edit-play", "smoke-11", "ingest-smoke-11", "crosscheck-smoke-11", "baseline-smoke-11"} <= set(plans[1])
