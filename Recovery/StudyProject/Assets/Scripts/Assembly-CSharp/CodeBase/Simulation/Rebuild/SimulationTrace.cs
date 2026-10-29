@@ -23,7 +23,7 @@ namespace Codebase.Simulation.Rebuild
 		public const string DailyFile = "daily.csv", EventsFile = "events.jsonl", DigestsFile = "digests.csv", DigestTextFile = "digests.txt";
 
 		public const string DailyHeader = "day,time_chunk_index,playtime,total_playtime,active_minutes,offline_minutes,kills,clears,"
-			+ "fight_time_sum,farmed_time_sum,eligible_count,eligible_signature,location,unlocked_location,ticks,offline_steps,complete";
+			+ "fight_time_sum,farmed_time_sum,eligible_count,eligible_signature,location,unlocked_location,ticks,offline_steps,complete,countRespawn";
 
 		public const string DigestsHeader = "day,time_chunk_index,playtime,total_playtime,sha256";
 
@@ -58,7 +58,7 @@ namespace Codebase.Simulation.Rebuild
 		internal int DayIndex = -1;
 		internal int DaySnapshotIndex = -1;
 		internal float DayStartPlaytime;
-		internal long DayStartKills, DayStartClears;
+		internal long DayStartKills, DayStartClears, DayStartRespawns;
 		internal double FightTimeSum, FarmedTimeSum;
 		internal int EligibleCount = -1;
 		internal string EligibleSignature = "";
@@ -83,7 +83,7 @@ namespace Codebase.Simulation.Rebuild
 			public int DayIndex, SnapshotIndex;
 			public float Playtime, TotalPlaytime;
 			public double ActiveMinutes, OfflineMinutes, FightTimeSum, FarmedTimeSum;
-			public long Kills, Clears;
+			public long Kills, Clears, Respawns;
 			public int EligibleCount;
 			public string EligibleSignature;
 			public int Location, UnlockedLocation, Ticks, OfflineSteps;
@@ -101,7 +101,8 @@ namespace Codebase.Simulation.Rebuild
 				.Append(d.EligibleCount.ToString(CultureInfo.InvariantCulture)).Append(',').Append(d.EligibleSignature ?? "").Append(',')
 				.Append(d.Location.ToString(CultureInfo.InvariantCulture)).Append(',').Append(d.UnlockedLocation.ToString(CultureInfo.InvariantCulture)).Append(',')
 				.Append(d.Ticks.ToString(CultureInfo.InvariantCulture)).Append(',').Append(d.OfflineSteps.ToString(CultureInfo.InvariantCulture)).Append(',')
-				.Append(d.Complete ? '1' : '0').Append('\n');
+				.Append(d.Complete ? '1' : '0').Append(',')
+				.Append(d.Respawns.ToString(CultureInfo.InvariantCulture)).Append('\n');
 			dailyRows++;
 			if (d.Complete) completeDays++;
 		}

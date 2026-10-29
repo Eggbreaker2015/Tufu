@@ -84,6 +84,15 @@ namespace Codebase.Simulation.Systems
 			RebuildCount("stat_benefit_evals");
 			foreach (StatType type in statsBenefitKeys) statsBenefit[type] = 1f;
 			int candidates = RebuildParams.StatBenefitModel == StatBenefitModel.MarginalKillTime ? RebuildMarginalStatBenefit(state) : 0;
+            if (RebuildParams.StatBenefitModel == StatBenefitModel.RpmNormalized)
+            {
+                var positive = statsBenefitKeys.Where(k => RPMCalculatedValue.TryGetValue(k, out double v) && v > 0.0 && !double.IsInfinity(v) && !double.IsNaN(v)).ToList();
+                if (positive.Count > 0)
+                {
+                    double mean = positive.Average(k => RPMCalculatedValue[k]);
+                    foreach (StatType type in positive) statsBenefit[type] = (float)(mean / RPMCalculatedValue[type]);
+                }
+            }
 			var text = new StringBuilder();
 			foreach (StatType type in statsBenefitKeys)
 				if (statsBenefit[type] != 1f)

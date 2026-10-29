@@ -55,7 +55,7 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 | 验收项 | 判定与证据 |
 |---|---|
 | 四个份数组合、TC4–11 每日五稀有度 | PASS。35 个独立稀有度/日样本均在要求的 5% 带内；另用逐刷怪点轨迹重算全部实际快奖励。Common 日 4–7 为 5.695327，日 10 为 5.965106；Uncommon 为 4.685590–4.907539；Rare 为 3.439000–3.601900；Epic 为 1.900000–1.990000；Legendary 为 1。E1 的各稀有度残差入黄金；TC4–19 武器 C/U/R/E/L 为 +37.86%/+29.15%/+16.05%/+17.74%/0%，不能把设计的“约 25%”当作本次测量。 |
-| T12 武器 ≤5% | DEVIATION。按稀有度/阶段取最大值，TC4–19 Epic 为 68 对 62，即 +9.677419%；其它武器阶段 ≤3.67%。逐物品为 coolpike 24/24、doubleaxe 26/26、mace 18/12，全部多出的 6 份来自 mace。其唯一早期来源为岛 4 Epic 的 Spawner_1_epic_buck（Count=1、2 次充能）：重放第 10 天已合格并清两次，loss/H≈0.53；随包 mace 到 TC13 仍为 0、TC15 为 4，推断约第 13 天首杀。单日约 1.99–2.26 份一致，差异指向 C5 快阶段可杀性/资格（pending:simulation.fast_kill_gate），交 K1/C5。四组合的 mace 均为 18 或 19（E1 为 19），P18 无法改变此刷怪点在第 10 天的合格性。没有调参数消掉 6 份差异。ORIGINAL 保持 0.05，CURRENT 接受 0.0967741935483871，并有单独放宽登记；这不是原阈值通过。 |
+| T12 武器 ≤5% | **历史归因已被 K1 round-2 修正取代，见文末修正及 Runbook §24.7；C5/预言机/原版过滤一致，当前交 K3。** DEVIATION。按稀有度/阶段取最大值，TC4–19 Epic 为 68 对 62，即 +9.677419%；其它武器阶段 ≤3.67%。逐物品为 coolpike 24/24、doubleaxe 26/26、mace 18/12，全部多出的 6 份来自 mace。其唯一早期来源为岛 4 Epic 的 Spawner_1_epic_buck（Count=1、2 次充能）：重放第 10 天已合格并清两次，loss/H≈0.53；随包 mace 到 TC13 仍为 0、TC15 为 4，推断约第 13 天首杀。单日约 1.99–2.26 份一致，差异指向 C5 快阶段可杀性/资格（pending:simulation.fast_kill_gate），交 K1/C5。四组合的 mace 均为 18 或 19（E1 为 19），P18 无法改变此刷怪点在第 10 天的合格性。没有调参数消掉 6 份差异。ORIGINAL 保持 0.05，CURRENT 接受 0.0967741935483871，并有单独放宽登记；这不是原阈值通过。 |
 | T12 护甲 ≤7%、后期 ≤2% | PASS。护甲阶段最大 3.472222%；TC154–405 全部阶段单元最大 1.012430%。TC206–404 每充能平台为 2.5/4.3000001907，传奇 2.7999999523/4.5999999046，最大相对误差 4.4357e−8。均标 post-hoc。 |
 | 映射、掉落系数的辨识范围 | PASS。只在整个区间 K7>0 时比较映射；Chain Swapped 的武器/护甲加权残差 0.3296%/0.1506%，Direct 为 0.3576%/0.7008%。有/无 K0/K6 仅在整个区间 K0>0.1 时比较，逐单元值入黄金。 |
 | P18 四组合 | PASS（可选择与打分）。40 个 TC4–11 DPS 单元，SlotBeforeRpm 平均/最大 7.6816%/25.3182%，SlotAfterRpm 为 20.6994%/47.1887%。Frozen 下 StatsThenItems 与 ItemsThenStats 同分；默认保持 StatsThenItems × SlotBeforeRpm。四组合没有解释 TC5，Q25 仍交 K1，不能称为已解决。 |
@@ -87,7 +87,7 @@ P10 所需槽数已经由 C3b/C1 写入 snapshots_ext.csv，`simio.ingest` 导�
 
 ## 后续交接
 
-- K1：四组合和辨识范围、P18 分数、P12 训练/验证分开记录在 sim_inventory。保留 TC5/Q25 未解决；T12 早期 Epic 的 6 份差异保留（mace 18/12；coolpike 24/24、doubleaxe 26/26），与 C5 跟进岛 4 Spawner_1_epic_buck 的首杀资格：重放 day 10，随包约 day 13；不再增加 C6 参数。Direct 的后期拷贝累计误差小也会因碎片阈值导致更大的进化时间偏差。
+- **历史 K1/C5 归因已被 K1 round-2 修正取代（见文末及 Runbook §24.7）；当前交 K3，不能据此修改 C5。** K1：四组合和辨识范围、P18 分数、P12 训练/验证分开记录在 sim_inventory。保留 TC5/Q25 未解决；T12 早期 Epic 的 6 份差异保留（mace 18/12；coolpike 24/24、doubleaxe 26/26），与 C5 跟进岛 4 Spawner_1_epic_buck 的首杀资格：重放 day 10，随包约 day 13；不再增加 C6 参数。Direct 的后期拷贝累计误差小也会因碎片阈值导致更大的进化时间偏差。
 - C4/C7（K2 知悉）：只有 day-0 override + derived unlock 的 replay 在 TC1 少 weapon_2；free/checkpoint 均为 2 槽、岛 2，不能据此断言一般慢门禁偏迟。weapon_2 是 pier boss 的 SlotReward；不要通过 C6 的 P12 槽 3/4 规则补偿。free 与 checkpoint 的进化超带项目、headroom 可定位阈值耦合。
 - P10：直接读取已有 sim_snapshots_ext 槽数；inventory.json 提供逐 Key 整数奖励和期望、碎片余量。checkpoint 的快照含重置，不能把跨重置差值当作奖励；用 rewards 账本。
 - C1/P11/Z1：C1 格式缺陷已在 b78aa49 修复，并有全文件摘要确认；后续 text_repairs 应降为 0。新增 Inventory、CBC 的 pending 公式 id 需 Z1 登记；固定 P5 启发值参数、所有权偏离和 T12/T17/Q25 差异需合回设计。
@@ -123,3 +123,5 @@ inventory.json 改经 SimulationJson.WriteFile/Write 的 JsonDouble 路径序列
 早期 Epic 的 +6 份不是可由 K1 KillState / KillLossMultiplier 校准解决的选择。K1 复查原版 6af011f 过滤、只读场景数据、就绪表、实际充能及 model.simcalc.eligible_spawners：岛4 Spawner_1_epic_buck（file_id 57815，OT=10天，Count=1，limit=2）在 day10–12 均 eligible；day10 loss/H=0.525824，禁用 kill predicate 也 day10 首杀。岛4 day5 已由门禁打开，derived override 不注入解锁。随包从 day13 才开始产生 mace，相差三天×2=6，正是 mace18/12、Epic68/62。没有 C5 过滤移植差异的证据；交 K3 的闭环成长/配置状态 A/B 诊断，撤回“用 K1 kill gate 参数解决”的建议。T12 日整数5%不可行与 pre-roll 噪声 allowance 见 Runbook 24.7；阶段检查继续保留失败。
 
 额外控制：K1 的未覆盖完整 free 405天作业（fb2afc6，engine.audit.json 指向其产物）同样 day10 首次有 mace。因此不能假定去掉 replay 覆盖就会延迟到 day13；K3 需对随包生成时的配置状态 A/B、闭环状态或未恢复策略给出解释。当前 free 与 replay 的现有门槛都不支持把 +6 当作可调 θ。
+
+K2 补充 K3 的策略线索：原版 `6af011f SimulationSystem.cs:671` 有 `health * 0.5 < -data.healthDelta` 时 `data.playerRPS *= 0.2f` 的降权。mace day10 loss/H≈0.526 正触发此阈值；这是检查未恢复策略/状态 A/B 的线索，不是延期 OT 或调整可杀性 L 的证据。

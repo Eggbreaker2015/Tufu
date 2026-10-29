@@ -590,6 +590,19 @@ def archive(db, paths, selected, changes, hypotheses, detail, residuals, out_roo
                                "max": max(c.rel for c in t04_cells), "n": len(t04_cells)}
     t09_cells = [c for c in cells if c.target == "T09"]
     detail["t09_exported"] = {"hits": sum(sc.gpm_matches(c.ref, c.sim) for c in t09_cells), "cells": len(t09_cells)}
+    # K1 round-2 review: G20's cell test is not bit equality.
+    import struct
+    bits = lambda x: struct.unpack(">Q", struct.pack(">d", x))[0]
+    detail["t09_precision"] = {
+        "cell_test": "G20 gpm_matches: absolute/relative 1e-4 cell test",
+        "bit_exact": sum(bits(c.ref) == bits(c.sim) for c in t09_cells),
+        "max_ulp": max(abs(bits(c.ref)-bits(c.sim)) for c in t09_cells),
+        "non_tc_contract": "0 changed is by construction: sampled-TC maximum only",
+        "counterfactual_source": "review_K1_r2.json; independent all-406-days replay maximum",
+    }
+    detail["t12_daily"]["allowance_basis"] = (
+        "simulator Carry rounding (C3c), not a statistical model of the shipped generator; "
+        "weakly discriminating (absorbs day-10 mace +2); unchanged phase checks bind")
     rpm_series = read_series(paths["p07-RpmFirst"])
     observed = set(targets.shipped.tc_days)
     interpolated = [s for s in rpm_series.full if s.tc not in observed]

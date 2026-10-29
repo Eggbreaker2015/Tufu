@@ -44,6 +44,9 @@ MonoBehaviour:
     - 1.875
     - 2.5
     ArmorHeuristicMultiplier: 0.8
+    HealthModel: 0
+    CapIdleAtSessionEnd: 0
+    BreakEnRouteAtBoundary: 0
     PriorityFamily: 1
     SmartPath: 1
     SmartPathRadius: 5

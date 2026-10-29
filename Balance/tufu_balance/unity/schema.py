@@ -209,6 +209,11 @@ def read_csv(file: str, text: str) -> list[dict[str, Any]]:
     if not rows:
         raise SchemaError(f"{file}: empty (no header)")
     header, expected = rows[0], [n for n, _ in schema]
+    # K2 adds a measured counter. Preserve archived pre-K2 traces without inventing
+    # a zero observation; all other missing/unknown/reordered columns still fail.
+    if file == "daily.csv" and expected[-1:] == ["countRespawn"] and header == expected[:-1]:
+        rows = [rows[0] + ["countRespawn"]] + [row + [""] for row in rows[1:]]
+        header = rows[0]
     if header != expected:
         unknown = [h for h in header if h not in expected]
         missing = [h for h in expected if h not in header]

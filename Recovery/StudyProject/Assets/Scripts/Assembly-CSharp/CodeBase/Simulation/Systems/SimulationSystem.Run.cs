@@ -185,7 +185,10 @@ namespace Codebase.Simulation.Systems
 		{
 			float step = config.TimeStep / 60f;
 			float untilSnapshot = (float)(RebuildNextSnapshotDue() - config.CurrentPlaytime);
-			return untilSnapshot > 0f && untilSnapshot < step ? untilSnapshot : step;
+			if (untilSnapshot > 0f && untilSnapshot < step) step = untilSnapshot;
+            float untilEnd = (float)(lifeCyclePeriodEnd - config.CurrentPlaytime);
+            if (RebuildParams.CapIdleAtSessionEnd && untilEnd > 0f && untilEnd < step) step = untilEnd;
+            return step;
 		}
 
 		// The policy-independent part of a fast day (design 4.4): flush, active minutes, 120-minute offline steps
