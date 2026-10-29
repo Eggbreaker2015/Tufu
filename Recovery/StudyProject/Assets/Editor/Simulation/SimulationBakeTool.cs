@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Codebase.Enemy;
@@ -31,6 +32,9 @@ namespace Codebase.Simulation.EditorTools
 	//   SelfTest -tufuSimBakeOut <dir>: the plan and write-back logic on a scene made with
 	//            EditorSceneManager.NewScene that is never saved, Undo/Redo, and every refusal of the guard.
 	// Only Health/Damage of ordinary spawners are written; SpawnerBakeInfos is left alone (Q13).
+	// [InitializeOnLoad]: the Play hook is registered at every domain load, not first use, so a Play entry before
+	// any call into this class is still recorded (same guard as SimulationParamsImporter).
+	[InitializeOnLoad]
 	public static class SimulationBakeTool
 	{
 		public const string PlanSchema = "tufu.sim.bake-plan/1";
@@ -90,10 +94,10 @@ namespace Codebase.Simulation.EditorTools
 			return null;
 		}
 
-		// The scene must be tracked and unmodified in git (worktree and index).
-		public static string GitRefusal(string assetPath)
+		// The scene must be tracked and unmodified in git (worktree and index). repoDir: the project by default.
+		public static string GitRefusal(string assetPath, string repoDir = null)
 		{
-			string project = ProjectDir();
+			string project = repoDir ?? ProjectDir();
 			(int code, string output, string error) = Git(project, "status --porcelain -uall -- \"" + assetPath + "\"");
 			if (code != 0) return "refused: git status failed for " + assetPath + ": " + error.Trim();
 			if (output.Trim().Length > 0) return "refused: " + assetPath + " is not clean in git: " + output.Trim();
@@ -577,6 +581,12 @@ namespace Codebase.Simulation.EditorTools
 			File.WriteAllText(FullPath(untracked), "x");
 			Check("git_untracked_refused", GitRefusal(untracked) != null, GitRefusal(untracked));
 			File.Delete(FullPath(untracked));
+			SelfTestGitRepo(Check);
+			Check("initialize_on_load", typeof(SimulationBakeTool).IsDefined(typeof(InitializeOnLoadAttribute), false));
+			FieldInfo hookField = typeof(EditorApplication).GetField("playModeStateChanged", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+			var hooks = hookField?.GetValue(null) as Delegate;
+			Check("play_hook_registered", hooks != null && hooks.GetInvocationList().Any(h => h.Method.DeclaringType == typeof(SimulationBakeTool) && h.Method.Name == nameof(OnPlayModeStateChanged)),
+				hookField == null ? "EditorApplication.playModeStateChanged field not found" : null);
 
 			// Plan and write-back on a scene that is never saved
 			Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -640,6 +650,37 @@ namespace Codebase.Simulation.EditorTools
 			report["checks"] = checks;
 			report["ok"] = all;
 			return all ? SimulationBatch.ExitOk : SimulationBatch.ExitException;
+		}
+
+		// GitRefusal on a throwaway repository under Temp/: clean, modified, staged-then-reverted, untracked, ignored.
+		private static void SelfTestGitRepo(Action<string, bool, object> check)
+		{
+			string repo = FullPath("Temp/TufuSimBake/repo");
+			if (Directory.Exists(repo)) Directory.Delete(repo, true);
+			Directory.CreateDirectory(repo);
+			const string commit = "-c user.name=t -c user.email=t@t -c commit.gpgsign=false -c core.hooksPath=/dev/null commit -q -m scene";
+			string scene = Path.Combine(repo, "a.unity");
+			File.WriteAllText(scene, "scene\n");
+			File.WriteAllText(Path.Combine(repo, ".gitignore"), "ignored.unity\n");
+			bool ready = Git(repo, "init -q").Item1 == 0 && Git(repo, "add -A").Item1 == 0 && Git(repo, commit).Item1 == 0;
+			check("git_repo_ready", ready, null);
+			if (!ready) return;
+			string r = GitRefusal("a.unity", repo);
+			check("git_repo_clean_allowed", r == null, r);
+			File.WriteAllText(scene, "scene\nedit\n");
+			r = GitRefusal("a.unity", repo);
+			check("git_modified_refused", r != null && r.Contains("not clean"), r);
+			Git(repo, "add a.unity");
+			File.WriteAllText(scene, "scene\n");
+			r = GitRefusal("a.unity", repo);
+			check("git_staged_refused", r != null && r.Contains("not clean"), r);
+			Git(repo, "reset -q");
+			File.WriteAllText(Path.Combine(repo, "ignored.unity"), "x");
+			r = GitRefusal("ignored.unity", repo);
+			check("git_ignored_untracked_refused", r != null && r.Contains("not tracked"), r);
+			r = GitRefusal("a.unity", repo);
+			check("git_repo_clean_again", r == null, r);
+			Directory.Delete(repo, true);
 		}
 
 		// ---- helpers ----

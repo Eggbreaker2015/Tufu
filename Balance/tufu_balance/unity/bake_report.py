@@ -9,17 +9,20 @@ Simulation Data instead (DP5's inputs, but in Play). ``bake_report.json`` has ev
 their sha256 and counts.
 
 **X4.** :func:`compare_x4` runs ``model.bake`` on the same snapshots (``load_bake_context(con, simulation_data=...)``
-with the run's ``Snapshots`` and ``timechunk_full.json``) and compares NewHealth/NewDamage bit for bit,
-intermediates to 1e-12 relative. :func:`compare_dp5` compares a shipped report with the edit-mode DP5 report.
+with the run's exact ``Snapshots`` and day list from the report's ``inputs``) and compares NewHealth/NewDamage bit for
+bit, the DP5 intermediates to 1e-12 relative and the three report-only fields (``DefenseFromSnapshot``,
+``PlayerBlockChanceRaw``, ``PlayerBlockAmountRaw``) bit for bit. :func:`compare_dp5` compares a shipped report with the
+edit-mode DP5 report. On the shipped and the 405-day data the ``double_tail`` and ``double_all`` interpolation
+roundings give the same X4 result; the rounding is not identified here (C2 identified it).
 
 **Write-back** (``ED/SimulationBakeTool.cs``, a fresh batch editor on the run worktree each time):
 
 * :func:`plan` -- ``bake --plan``: ``bake_plan.json`` with old -> new Health/Damage per scene spawner and skip
   reasons (event, vip, boss_tower, dummy, hand_balance, non_finite, not_in_report, report_error, no_stat,
   duplicate_id). Nothing in the project may change (checked after the editor exits).
-* :func:`apply` -- ``bake --apply --token sha256(plan)``: refused unless the caller is the explicit CLI (no refresh,
-  no CI), the token is the plan file's sha256 and the destination scene is tracked, clean, not an LFS pointer and
-  byte-equal to the planned file; the editor checks its own guard again (never entered Play, edit mode, scene
+* :func:`apply` -- ``bake --apply --token sha256(plan)``: refused unless the caller is the explicit CLI (``caller="cli"``
+  passed by ``__main__``; no default, no refresh, no CI), the token is the plan file's sha256 and the destination scene is tracked, clean, not an LFS pointer and
+  byte-equal to the planned file and outside the run worktree; the editor checks its own guard again (never entered Play, edit mode, scene
   clean in git, token, caller). The written scene is copied to the destination, the run worktree restored.
 * :func:`selftest` -- the plan and write-back logic on an unsaved ``EditorSceneManager.NewScene`` scene.
 """
@@ -241,6 +244,8 @@ def compare_x4(job_dir: str | Path, con: sqlite3.Connection, rounding=None, repo
     from .spawner_map import load_identity_map
     from ..model import bake as B
     from ..model import data as MD
+    from ..model.enums import StatType
+    from ..model.f32 import f32
 
     report = report if report is not None else read_report(job_dir)
     ctx = ctx or bake_context(job_dir, con, report, rounding)
@@ -252,7 +257,7 @@ def compare_x4(job_dir: str | Path, con: sqlite3.Connection, rounding=None, repo
                            "intermediate_bits_equal": 0, "intermediate_rel_ok": 0, "new_health_raw_explained_by_mono": 0,
                            "new_health_raw_rel_diff_max": 0.0, "snapshot_source_equal": 0, "errors_both": [],
                            "mismatches": [], "non_finite": [], "minute_n": 0, "day_n": 0, "hp_exact_minute": [],
-                           "interpolated_day": 0}
+                           "interpolated_day": 0, "report_only_values": 0, "report_only_bits_equal": 0}
     fingerprint = hashlib.sha256()
     seen = set()
     for c in report["spawners"]:
@@ -314,6 +319,15 @@ def compare_x4(job_dir: str | Path, con: sqlite3.Connection, rounding=None, repo
             res["intermediate_bits_equal"] += P._same(cv, ov)
             ok = P._rel_ok(cv, ov)
             res["intermediate_rel_ok"] += ok
+            if not ok:
+                bad.append(field)
+        # Fields DP5 does not carry: the defence copy and the two raw block reads of the snapshot the bake read.
+        snap = ctx.snapshot_for_bake(f32(o.recalc_optimum_time), sp.is_days)
+        for field, ov in (("DefenseFromSnapshot", o.defense), ("PlayerBlockChanceRaw", snap.total(StatType.BlockChance)),
+                          ("PlayerBlockAmountRaw", snap.total(StatType.BlockAmount))):
+            res["report_only_values"] += 1
+            ok = P._same(P.doubles(rep[field])[0], float(ov))
+            res["report_only_bits_equal"] += ok
             if not ok:
                 bad.append(field)
         o_src = f"{'t' if sp.is_days else 's'}:{o.snapshot_source_index}" if o.snapshot_source_index is not None else None
@@ -559,9 +573,12 @@ def _launch(method, args, out_dir: Path, report_file: str, *, project: Path, run
             report["after"] = after(project)
         except (OSError, ValueError) as e:
             problems.append(f"after the editor: {e}")
-    if scene_changed:
-        runner.git(run_tree, "checkout", "--quiet", "HEAD", "--", scene_git)
+    if status:
+        expected = {scene_git} if allow_scene_change else set()
+        report["run_worktree_changes_kept"] = _restore_run_tree(run_tree, out_dir / "run_worktree_changes", expected)
     report["run_worktree_restored"] = not runner.porcelain(run_tree).strip()
+    if not report["run_worktree_restored"]:
+        problems.append("run worktree could not be restored to HEAD")
 
     # The tool never enters Play: a change of the real save while the user's editor on the main checkout ran
     # for the whole call is that editor's (Runbook 13, 17).
@@ -591,6 +608,36 @@ def _launch(method, args, out_dir: Path, report_file: str, *, project: Path, run
     log(f"unity bake {method.lower()}: exit {exit_code} ({launcher.EXIT_NAMES.get(exit_code, '?')})"
         + (f", {'; '.join(problems[:3])}" if problems else "") + f" in {report['process_wall_s']:.1f} s")
     return EntryResult(exit_code, out_dir, report, tool)
+
+
+def _restore_run_tree(run_tree: Path, keep_dir: Path, expected: set[str]) -> list[str]:
+    """Put the run worktree back to HEAD after the editor (the shared run worktree must stay usable): every changed
+    or new file other than ``expected`` is copied to ``keep_dir`` first (evidence; such a change is already a guard
+    problem), then the index is reset, changed tracked files are checked out and untracked files removed."""
+    entries = runner.git(run_tree, "status", "--porcelain", "-uall", "-z").split("\0")
+    kept, i = [], 0
+    while i < len(entries):
+        entry, i = entries[i], i + 1
+        if not entry:
+            continue
+        paths = [entry[3:]]
+        if "R" in entry[:2] or "C" in entry[:2]:  # -z: the source path follows as its own entry
+            paths.append(entries[i])
+            i += 1
+        for path in paths:
+            src = run_tree / path
+            if path not in expected and src.is_file():
+                (keep_dir / path).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, keep_dir / path)
+                kept.append(path)
+    runner.git(run_tree, "reset", "--quiet")
+    tracked = [p for p in runner.git(run_tree, "diff", "--name-only", "-z", "HEAD").split("\0") if p]
+    if tracked:
+        runner.git(run_tree, "checkout", "--quiet", "HEAD", "--", *tracked)
+    for p in runner.git(run_tree, "ls-files", "--others", "--exclude-standard", "-z").split("\0"):
+        if p:
+            (run_tree / p).unlink(missing_ok=True)
+    return sorted(set(kept))
 
 
 def _scene_blob(tree: Path, rev: str) -> str:
@@ -663,8 +710,8 @@ def selftest(*, rev: str | None = None, out_dir: str | Path | None = None, opts:
                   paths=paths, timeout_s=timeout_s, log=log)
 
 
-def apply_refusal(plan_path: str | Path, token: str | None, *, dest: Path, caller: str,
-                  environ: Mapping[str, str] | None = None) -> str | None:
+def apply_refusal(plan_path: str | Path, token: str | None, *, dest: Path, caller: str | None,
+                  environ: Mapping[str, str] | None = None, run_tree: Path | None = None) -> str | None:
     """Why ``bake --apply`` must not start (None: it may). Checked before Unity starts; the editor checks the
     process, the caller, the token and the scene again."""
     environ = os.environ if environ is None else environ
@@ -686,6 +733,8 @@ def apply_refusal(plan_path: str | Path, token: str | None, *, dest: Path, calle
         return f"refused: {dest} does not exist"
     if dest.read_bytes()[:len(LFS_POINTER)] == LFS_POINTER:
         return f"refused: {dest} is an LFS pointer (smudge it first)"
+    if run_tree is not None and dest.resolve().is_relative_to(Path(run_tree).resolve()):
+        return f"refused: {dest} is inside the run worktree, which is restored after the write-back"
     top = Path(runner.git(dest.parent, "rev-parse", "--show-toplevel").strip())
     rel = dest.resolve().relative_to(top.resolve()).as_posix()
     if runner.git(top, "status", "--porcelain", "-uall", "--", rel).strip():
@@ -697,20 +746,19 @@ def apply_refusal(plan_path: str | Path, token: str | None, *, dest: Path, calle
     return None
 
 
-def apply(plan_path: str | Path, token: str | None, *, dest: str | Path | None = None, caller: str = CALLER_CLI,
+def apply(plan_path: str | Path, token: str | None, *, dest: str | Path | None = None, caller: str | None = None,
           out_dir: str | Path | None = None, opts: launcher.Options | None = None, worktree: Path | None = None,
           run_tree: Path | None = None, paths: launcher.ProtectedPaths | None = None, out_root: Path | None = None,
           timeout_s: float = 900.0, log=print) -> EntryResult:
     """``bake --apply --token T``: write the plan into Main.unity in a fresh editor on the run worktree at the plan's
-    commit, then copy the written scene to ``dest`` (default: this worktree's Main.unity)."""
+    commit, then copy the written scene to ``dest`` (default: this worktree's Main.unity). ``caller`` has no
+    default: only ``__main__``'s ``bake --apply`` passes ``"cli"``, and it is forwarded to the editor's own check."""
     worktree = Path(worktree or runner.WORKTREE)
     dest = Path(dest) if dest else runner.project_dir(worktree) / MAIN_SCENE
     run_tree = Path(run_tree or runner.run_worktree())
-    refusal = apply_refusal(plan_path, token, dest=dest, caller=caller)
+    refusal = apply_refusal(plan_path, token, dest=dest, caller=caller, run_tree=run_tree)
     if refusal:
         raise BakeToolError(refusal)
-    if dest.resolve().is_relative_to(run_tree.resolve()):
-        raise BakeToolError(f"refused: {dest} is inside the run worktree, which is restored after the write-back")
     plan_doc, token = read_plan(plan_path)
     out_dir = Path(out_dir) if out_dir else Path(out_root or launcher.OUT_ROOT) / "bake" / f"apply-{token[:16]}"
     copied: dict[str, Any] = {}
@@ -725,7 +773,7 @@ def apply(plan_path: str | Path, token: str | None, *, dest: str | Path | None =
         return copied
 
     result = _entry("Apply", ["-tufuSimBakePlan", str(Path(plan_path).resolve()), "-tufuSimBakeToken", token,
-                              "-tufuSimBakeOut", str(out_dir), "-tufuSimBakeCaller", CALLER_CLI],
+                              "-tufuSimBakeOut", str(out_dir), "-tufuSimBakeCaller", str(caller)],
                     out_dir, APPLY_MANIFEST, rev=plan_doc["code_rev"], opts=opts or launcher.Options(), run_tree=run_tree,
                     worktree=worktree, paths=paths, timeout_s=timeout_s, allow_scene_change=True, after=copy_out, log=log)
     result.plan, result.token = Path(plan_path), token

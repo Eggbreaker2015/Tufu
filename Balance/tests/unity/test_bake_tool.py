@@ -72,6 +72,7 @@ def test_run_report_is_the_original_bake_on_this_runs_snapshots(bake_run, db):
     assert not res["mismatches"] and not res["unknown"] and not res["missing"], _short(res)
     assert res["new_bits_equal"] == res["spawners"] - len(res["errors_both"])
     assert res["snapshot_source_equal"] == res["spawners"] - len(res["errors_both"])
+    assert res["report_only_bits_equal"] == res["report_only_values"] == 3 * res["new_bits_equal"]
     assert res["registered"] == block["registered"] == 716 and block["registered_not_in_scenes"] == 0
     # The day list holds every day, so a day-mode spawner reads a stored day only when its bake day is not an
     # integer (t = 1 interpolation otherwise, as on the shipped list: DP4).
@@ -89,6 +90,10 @@ def test_run_report_is_the_original_bake_on_this_runs_snapshots(bake_run, db):
         "run.x4.new_health_raw_explained_by_mono": exact(res["new_health_raw_explained_by_mono"], source="X4",
                                                          note="(double)(1f - usedResist): DifferentialProbes 3"),
         "run.x4.minute_n": exact(res["minute_n"], source="X4"),
+        "run.x4.report_only_bits_equal": exact(res["report_only_bits_equal"], source="X4", better="higher",
+                                               note="DefenseFromSnapshot, PlayerBlockChanceRaw, PlayerBlockAmountRaw"),
+        "run.x4.interpolated_day": exact(res["interpolated_day"], source="X4",
+                                         note="every day-mode bake read an interpolated snapshot: the stored-day path is not exercised"),
         "run.x4.new_values_sha256": exact(res["new_values_sha256"], source="X4",
                                           note="null policy, flat grants, day 405; changes with the engine"),
         "run.new_health_differs_from_shipped": exact(differ, source="X4", note="the bake read this run's snapshots"),
@@ -135,12 +140,15 @@ def test_shipped_report_equals_dp5_and_the_oracle(bake_run, db):
     cmp = BR.compare_dp5(report, dp5)
     res = BR.compare_x4(job, db, report=report)
     assert not res["mismatches"] and res["new_bits_equal"] == res["spawners"], _short(res)
+    assert res["report_only_bits_equal"] == res["report_only_values"] == 3 * res["spawners"]
     check("bake_cs", {
         "shipped.dp5.identical": exact(cmp["identical"], source="DP5", better="higher",
                                        note="Play-mode export on the shipped data vs edit-mode DP5, every field"),
         "shipped.dp5.differ": same_set([d["id"] for d in cmp["differ"]], source="DP5", better="subset"),
         "shipped.dp5.fields_compared": exact(cmp["fields_compared"], source="DP5"),
         "shipped.x4.new_bits_equal": exact(res["new_bits_equal"], source="X4", better="higher"),
+        "shipped.x4.report_only_bits_equal": exact(res["report_only_bits_equal"], source="X4", better="higher",
+                                                   note="the three report fields DP5 does not carry"),
         "shipped.x4.hp_exact_minute": same_set(res["hp_exact_minute"], source="G13", better="superset",
                                                note="G13 anchor on the C# report: 79 minute-mode spawners"),
         "shipped.x4.non_finite": same_set(res["non_finite"], source="DP5", note="BossTower"),

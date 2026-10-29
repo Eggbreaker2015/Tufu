@@ -215,7 +215,7 @@ def _bake(args) -> int:
             plan_file = args.plan_file or (BR.find_plan(args.job_dir) if args.job_dir else None)
             if plan_file is None:
                 raise BR.BakeToolError("--apply needs --plan-file or JOB_DIR")
-            result = BR.apply(plan_file, args.token, dest=args.dest, opts=_options(args))
+            result = BR.apply(plan_file, args.token, dest=args.dest, caller=BR.CALLER_CLI, opts=_options(args))
             print(json.dumps({"exit_code": result.exit_code, "out_dir": str(result.out_dir),
                               "after": result.report.get("after")}, indent=1))
             return result.exit_code
