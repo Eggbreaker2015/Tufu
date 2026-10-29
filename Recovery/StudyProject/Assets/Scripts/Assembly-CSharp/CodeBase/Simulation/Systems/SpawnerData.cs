@@ -77,11 +77,12 @@ namespace Codebase.Simulation.Systems
 			return system.RebuildStaticRewardValue(spawner) * (double)spawner.Config.PriorityMultiplier / (farmedTime - avMoveTime + GetMoveTime(position));
 		}
 
-		// The recovered reward value (weighted by statsBenefit, evaluated now), or the stat's own reward for a stat.
+		// The recovered reward value (weighted by statsBenefit, evaluated now), or the stat's own reward for a stat;
+		// the gate keeps its 1e6 either way (the rebuilt code never sets lastRewardStat).
 		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.slow_priority")]
 		public double GetDynamicPriority(Vector3 position, StatType? statType = null)
 		{
-			double reward = statType.HasValue
+			double reward = statType.HasValue && !system.RebuildIsCurrentBoss(spawner)
 				? system.CalculateSpawnerRewardValue(spawner, statType) * (double)spawner.Config.Count
 				: system.CalculateSpawnerRewardValue(spawner);
 			return reward * (double)spawner.Config.PriorityMultiplier / (farmedTime - avMoveTime + GetMoveTime(position));

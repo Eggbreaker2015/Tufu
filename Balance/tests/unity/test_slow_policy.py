@@ -36,7 +36,12 @@ VARIANTS = {
     "slow-none-retry": {"SlowLethalityGate": spol.SLOW_LETHALITY_GATE["None"], "DeathPolicy": spol.DEATH_POLICY["Retry"]},
     "slow-nosmart": {"SmartPath": False},
     "slow-marginal": {"StatBenefitModel": spol.STAT_BENEFIT_MODEL["MarginalKillTime"]},
+    "slow-decomposed-bydist": {"TimeModel": spol.TIME_MODEL["DecomposedMoveByDistance"]},
+    "slow-factors": {"TimeModel": spol.TIME_MODEL["Decomposed"], "CMove": 0.5, "CRegen": 0.25},
+    "slow-clear-then-respawn": {"SlowLethalityGate": spol.SLOW_LETHALITY_GATE["None"],
+                                "DeathPolicy": spol.DEATH_POLICY["ClearThenRespawn"]},
 }
+FIGHT_FACTOR = sc.RPM_CONFIG[2]  # rpm.Item3
 NULL = engine.engine_probe(null_policy=True)
 ALL = 17
 
@@ -129,6 +134,35 @@ def _slow_phase(fights):
     return [f for f in fights if f["day"] < DAY]
 
 
+def _params_of(job):
+    return _params(VARIANTS.get(job))
+
+
+def _move(f, job):
+    """The move part of a fight: none en route; the target's avMoveTime, or GetMoveTime by distance."""
+    if f["kind"] != "target":
+        return 0.0
+    by_distance = _params_of(job)["TimeModel"] in (spol.TIME_MODEL["FarmedTimeMoveByDistance"],
+                                                   spol.TIME_MODEL["DecomposedMoveByDistance"])
+    return f["distance_time"] if by_distance else f["av_move_time"]
+
+
+def _factors(job):
+    p = _params_of(job)
+    decomposed = p["TimeModel"] in (spol.TIME_MODEL["Decomposed"], spol.TIME_MODEL["DecomposedMoveByDistance"])
+    return (float(f32(p["CMove"])), float(f32(p["CRegen"]))) if decomposed else (1.0, 1.0)
+
+
+def _expected_seconds(f, job):
+    """Design 4.5 TimeModel: CRegen*avRegenTime + (CMove*move + rpm.Item3*fightTime) (unit factors for FarmedTime*);
+    a death: CMove*move + rpm.Item3*(fightTime*CH/loss), no regen wait."""
+    c_move, c_regen = _factors(job)
+    m = _move(f, job)
+    if f["died"]:
+        return c_move * m + FIGHT_FACTOR * (f["fight_time"] * (f["health_before"] / -f["health_delta"]))
+    return c_regen * f["av_regen_time"] + (c_move * m + FIGHT_FACTOR * f["fight_time"])
+
+
 def _reward(s: sc.SimSpawner, stat: int) -> float:
     return sum(float(r.value) * s.d.count for r in s.stat_rewards if r.stat_type == stat)
 
@@ -139,8 +173,9 @@ def _reward(s: sc.SimSpawner, stat: int) -> float:
 def test_first_clears_are_the_ot0_spawners_once_each(traces, by_runtime, ctx, job):
     """Design 7.3 C7: from a new save every OT = 0 spawner is killed once (Health +15, Cut +3) before anything
     else. The active minutes this takes go to the golden suite; the design's "within 1.17 minutes" (the shipped
-    first snapshot) is not reachable by the recovered time forms (killseq: sum of farmedTime 232 s, of
-    rpm.Item3 * fightTime alone 79.8 s, against 69.9 s; Runbook 19)."""
+    first snapshot, 69.9 active seconds) is not reachable by the two recovered time forms: FarmedTime spends
+    6 * avMoveTime (91 s) on the constant move alone, and by distance the regen wait plus rpm.Item3 * fightTime
+    already exceeds it (killseq, Runbook 19.3)."""
     ot0 = {s.spawner_id for s in ctx.spawners if s.d.location == 1 and s.d.optimum_time == 0.0
            and not (s.d.is_event or s.d.is_vip or s.d.is_dummy)}
     assert len(ot0) == 6
@@ -165,6 +200,7 @@ def test_selection_ties_null_and_order(traces):
     assert len(eligible) == 6 and p["sorted_eligible"] == p["eligible"]
     assert p["tie"] == eligible[0] and p["tie_first_last"] == eligible[0]
     assert p["none_allowed_is_null"] and p["empty_is_null"] and p["restored"]
+    assert p["boss_stat_keeps_gate"]  # GetDynamicPriority with a reward stat keeps the gate's 1e6
     first = _events(traces, "slow-default", "slow_fight")[0]
     assert p["best"] in eligible and first["kind"] in ("target", "en_route")
 
@@ -208,27 +244,42 @@ def _p_t_step(f):
 
 
 def test_farmed_time_advances_p_and_t_by_farmed_time(traces):
-    """TimeModel.FarmedTime: a target fight lasts farmedTime, an en-route fight farmedTime - avMoveTime;
-    P and T += seconds / 60 in float32 (one rounding from double, as the editor's Mono evaluates it)."""
+    """TimeModel.FarmedTime: a target fight lasts farmedTime, an en-route fight avMoveTime less (the same
+    expression without the move); P and T += seconds / 60 in float32 (one rounding from double, as the editor's
+    Mono evaluates it)."""
     fights = [f for f in _slow_phase(_events(traces, "slow-default", "slow_fight")) if not f["died"]]
     assert len(fights) > 100
     for f in fights:
-        expected = f["farmed_time"] if f["kind"] == "target" else f["farmed_time"] - f["av_move_time"]
-        assert f["seconds"] == expected, f
+        if f["kind"] == "target":
+            assert f["seconds"] == f["farmed_time"], f
+        assert f["seconds"] == _expected_seconds(f, "slow-default"), f
         assert _p_t_step(f), f
     assert any(f["p_after"] != round(f["p_after"]) for f in fights)  # non-integer P: the float32 rounding is exercised
 
 
+@pytest.mark.parametrize("job", ["slow-default", "slow-bydist", "slow-decomposed", "slow-decomposed-bydist",
+                                 "slow-factors", "slow-none", "slow-clear-then-respawn"])
+def test_fight_seconds_per_time_model(traces, job):
+    """Every fight (won or lost, target or en route) lasts the TimeModel's seconds to the bit; P and T step by
+    them. slow-factors exercises CMove = 0.5, CRegen = 0.25."""
+    fights = _slow_phase(_events(traces, job, "slow_fight"))
+    assert len(fights) > 100
+    for f in fights:
+        assert f["seconds"] == _expected_seconds(f, job), f
+        assert _p_t_step(f), f
+    if job == "slow-factors":
+        assert any(f["av_regen_time"] > 0 and f["kind"] == "target" for f in fights)
+
+
 def test_move_by_distance(traces):
-    """FarmedTimeMoveByDistance: dt = farmedTime - avMoveTime + GetMoveTime(currentPosition); the move is the
-    distance from the previous fight's spawner (the origin at the start and after a death) at MovementSpeed
-    (avMoveTime = 70 / speed)."""
+    """FarmedTimeMoveByDistance: the target's move is GetMoveTime(currentPosition), the distance from the previous
+    fight's spawner (the origin at the start and after a death) at MovementSpeed (avMoveTime = 70 / speed)."""
     fights = _slow_phase(_events(traces, "slow-bydist", "slow_fight"))
     prev = None
     checked = 0
     for f in fights:
         if f["kind"] == "target" and not f["died"]:
-            assert f["seconds"] == f["farmed_time"] - f["av_move_time"] + f["distance_time"], f
+            assert f["seconds"] == f["av_regen_time"] + (f["distance_time"] + FIGHT_FACTOR * f["fight_time"]), f
             assert f["move_time"] == f["distance_time"]
             dist = math.hypot(f["to_x"] - f["from_x"], f["to_z"] - f["from_z"])
             assert math.isclose(f["distance_time"], dist * f["av_move_time"] / 70.0, rel_tol=1e-3, abs_tol=0.05), f
@@ -243,17 +294,27 @@ def test_move_by_distance(traces):
     assert fights[0]["from_x"] == 0.0 and fights[0]["from_z"] == 0.0
 
 
-def test_decomposed_with_unit_factors_is_farmed_time_bit_for_bit(run):
-    """CMove = CRegen = 1: CRegen*avRegenTime + (CMove*avMoveTime + rpm.Item3*fightTime) is farmedTime's own
-    expression, so the whole run is identical."""
-    for name in ("simulation_data.json", "timechunk_full.json", "digests.csv", "daily.csv"):
-        assert run.file("slow-decomposed", name) == run.file("slow-default", name), name
-    assert _counters(run, "slow-decomposed") == _counters(run, "slow-default")
+def _comparable_events(traces, job):
+    return [e for e in traces[job].events if e["type"] != "slow_policy_probe"]
+
+
+@pytest.mark.parametrize("decomposed,farmed", [("slow-decomposed", "slow-default"),
+                                               ("slow-decomposed-bydist", "slow-bydist")])
+def test_decomposed_with_unit_factors_is_farmed_time_bit_for_bit(run, traces, decomposed, farmed):
+    """CMove = CRegen = 1: every time model evaluates CRegen*avRegenTime + (CMove*move + rpm.Item3*fightTime), so
+    each fight (seconds, every health value) and the whole run are identical to the FarmedTime* model."""
+    a, b = _comparable_events(traces, decomposed), _comparable_events(traces, farmed)
+    assert len(a) == len(b) and sum(e["type"] == "slow_fight" for e in a) > 100
+    for x, y in zip(a, b):
+        assert x == y, (x, y)
+    for name in ("simulation_data.json", "timechunk_full.json", "digests.csv", "daily.csv", "snapshots_ext.csv"):
+        assert run.file(decomposed, name) == run.file(farmed, name), name
+    assert _counters(run, decomposed) == _counters(run, farmed)
 
 
 # ---------------------------------------------------------------- health
 
-@pytest.mark.parametrize("job", ["slow-default", "slow-bydist", "slow-none"])
+@pytest.mark.parametrize("job", ["slow-default", "slow-bydist", "slow-none", "slow-factors", "slow-clear-then-respawn"])
 def test_health_changes(traces, by_runtime, job):
     """CurrentHealth += healthDelta, then ApplyRegen over the fight: min(H, CH + regen * seconds); a clear's flat
     Health reward adds to it (RebuildApplyClear); a death refills to H (ProcessDeath)."""
@@ -261,7 +322,7 @@ def test_health_changes(traces, by_runtime, job):
     for f in _slow_phase(_events(traces, job, "slow_fight")):
         if f["died"]:
             assert f["health_before"] + f["health_delta"] <= 0.0
-            assert f["health_after"] >= f["health_after_fight"]
+            assert f["health_after_fight"] == f["health_before"] + f["health_delta"]  # decided before any regen
             continue
         expected = min(f["max_health"], (f["health_before"] + f["health_delta"]) + f["regen"] * f["seconds"])
         assert f["health_after_fight"] == expected, f
@@ -310,27 +371,76 @@ def test_lethality_gate_at_the_island3_gate(gate_run, gate_traces):
     })
 
 
-@pytest.mark.parametrize("job,skip", [("slow-none", True), ("slow-none-retry", False)])
-def test_deaths_count_respawns_by_death_policy(run, traces, job, skip):
-    """ProcessDeath: countRespawn (counter respawns) per death event, full health, back to the origin; SkipSpawner
-    skips the spawner for the rest of the session, Retry does not; a lost fight is no clear."""
-    deaths = [f for f in _events(traces, job, "slow_fight") if f["died"]]
+@pytest.mark.parametrize("job,policy", [("slow-none", "SkipSpawner"), ("slow-none-retry", "Retry"),
+                                        ("slow-clear-then-respawn", "ClearThenRespawn")])
+def test_deaths_count_respawns_by_death_policy(run, traces, by_runtime, job, policy):
+    """ProcessDeath: countRespawn (counter respawns) per death event, full health (the H the death was fought at;
+    under ClearThenRespawn the clear's Health reward may raise it first), back to the origin. SkipSpawner skips the
+    spawner for the rest of the session, Retry does not; a lost fight is a clear only under ClearThenRespawn."""
+    fights = _events(traces, job, "slow_fight")
+    deaths = [f for f in fights if f["died"]]
     assert deaths
     assert _counters(run, job).get("respawns", 0) == len(deaths) == len(_events(traces, job, "death"))
-    assert not any(f["cleared"] for f in deaths)
+    assert all(f["cleared"] == (policy == "ClearThenRespawn") for f in deaths)
+    assert _counters(run, job).get("clears", 0) == sum(f["cleared"] for f in fights)
+    for i, f in enumerate(fights[:-1]):
+        if not f["died"]:
+            continue
+        nxt = fights[i + 1]
+        if f["cleared"]:  # the clear's Health reward raised H before the refill
+            assert nxt["health_before"] >= f["max_health"], (f, nxt)
+        else:
+            assert nxt["health_before"] == f["max_health"], (f, nxt)
+        assert (nxt["from_x"], nxt["from_z"]) == (0.0, 0.0), nxt
     per_session = Counter((f["session"], f["spawner"]) for f in deaths)
-    if skip:
+    if policy == "SkipSpawner":
         assert max(per_session.values()) == 1
     check("sim_slow", {f"deaths.{job}": exact(len(deaths), source="design 4.5 P15")})
 
 
 def test_death_policy_changes_the_run(run):
     """None lets the bot pick lethal fights; SameAsFast still loses fights it starts below full health (its
-    predicate reads maximum health, CurrentHealth's reads the current one)."""
+    predicate reads maximum health); CurrentHealth never loses (its refusal predicate is the death predicate)."""
     assert run.file("slow-none", "digests.csv") != run.file("slow-none-retry", "digests.csv")
     deaths = {job: _counters(run, job).get("respawns", 0) for job in ("slow-default", "slow-current-health", "slow-none")}
-    assert deaths["slow-none"] > deaths["slow-default"] >= deaths["slow-current-health"]
+    assert deaths["slow-none"] > deaths["slow-default"] > deaths["slow-current-health"] == 0
     check("sim_slow", {"deaths.by_gate": exact(deaths, source="design 4.5 P15")})
+
+
+def _kill_loss_multiplier(traces, job):
+    [l] = {g["kill_loss_multiplier"] for g in _events(traces, job, "slow_gate")}
+    return l
+
+
+def test_current_health_gate_holds_at_every_fight(run, traces):
+    """CurrentHealth: every fight, the target after its en-route fights included, starts with loss < CurrentHealth;
+    a target the en-route fights made lethal ends the tick unfought (event slow_target_refused, at the health the
+    en-route fights left)."""
+    job = "slow-current-health"
+    fights = _events(traces, job, "slow_fight")
+    assert fights and all(-f["health_delta"] < f["health_before"] for f in fights)
+    assert not any(f["died"] for f in fights)
+    refused = _events(traces, job, "slow_target_refused")
+    assert len(refused) == _counters(run, job).get("slow_target_refused", 0)
+    for r in refused:
+        assert r["loss"] >= r["current_health"] and r["en_route"] > 0
+    check("sim_slow", {"target_refused_after_en_route": exact(
+        {j: _counters(run, j).get("slow_target_refused", 0) for j in ("slow-default", "slow-current-health")},
+        source="design 4.5")})
+
+
+def test_same_as_fast_reads_maximum_health(traces):
+    """SameAsFast refuses L*H < loss with H the maximum health (L from slow_gate): every fight satisfies
+    L*H >= loss, and some targets start with CurrentHealth <= loss <= L*H (fought, and lost; CurrentHealth would
+    refuse them)."""
+    job = "slow-default"
+    l = _kill_loss_multiplier(traces, job)
+    fights = _events(traces, job, "slow_fight")
+    assert all(l * f["max_health"] >= -f["health_delta"] for f in fights)
+    between = [f for f in fights if f["kind"] == "target" and f["health_before"] <= -f["health_delta"] <= l * f["max_health"]]
+    assert between and all(f["died"] for f in between)
+    for r in _events(traces, job, "slow_target_refused"):
+        assert l * r["max_health"] < r["loss"]
 
 
 # ---------------------------------------------------------------- SmartPath
@@ -341,11 +451,13 @@ def test_smart_path_clears_en_route_spawners(run, traces, by_runtime):
     radius = P.resolve(["defaults"]).params["SmartPathRadius"]
     on = [f for f in _events(traces, "slow-default", "slow_fight") if f["kind"] == "en_route"]
     assert on and _counters(run, "slow-default")["slow_en_route_clears"] == sum(f["cleared"] for f in on)
-    fights = _events(traces, "slow-default", "slow_fight")
+    # a target refused after its en-route fights (slow_target_refused) ends their sequence like a target fight
+    fights = [e for e in traces["slow-default"].events if e["type"] == "slow_target_refused"
+              or (e["type"] == "slow_fight" and e["kind"] == "en_route") or (e["type"] == "slow_fight" and e["kind"] == "target")]
     for i, f in enumerate(fights):
-        if f["kind"] != "en_route":
+        if f["type"] != "slow_fight" or f["kind"] != "en_route":
             continue
-        target = next(t for t in fights[i:] if t["kind"] == "target")
+        target = next(t for t in fights[i:] if t["type"] == "slow_target_refused" or t["kind"] == "target")
         ax, az, bx, bz = target["from_x"], target["from_z"], target["to_x"], target["to_z"]
         px, pz = f["to_x"], f["to_z"]
         L2 = (bx - ax) ** 2 + (bz - az) ** 2
@@ -399,12 +511,12 @@ def test_summary_counters(run):
 @pytest.mark.perf
 def test_full_policy_tick_within_budget(run):
     """Runbook 16.3: with the full policy a slow tick (median) stays within 3x the empty policy at the same unlock
-    state and within 15 ms."""
+    state and within 15 ms. perf-null has fewer slow ticks than slow-default (same start, different states)."""
     t = {job: json.loads(run.file(job, "timings.json"))["slow_tick_ms"]
          for job in ("slow-default", "perf-null", "perf-policy-all", "perf-null-all", "slow-marginal")}
     print(json.dumps(t))
     for policy, empty in (("slow-default", "perf-null"), ("perf-policy-all", "perf-null-all"), ("slow-marginal", "perf-null")):
-        assert t[policy]["p50"] <= max(3.0 * t[empty]["p50"], 0.5) and t[policy]["p50"] <= 15.0, (policy, t)
+        assert t[policy]["p50"] <= 3.0 * t[empty]["p50"] and t[policy]["p50"] <= 15.0, (policy, t)
 
 
 def test_params_resolve_against_the_csharp_class():

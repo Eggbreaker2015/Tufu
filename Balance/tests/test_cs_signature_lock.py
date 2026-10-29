@@ -99,6 +99,7 @@ NEW_MEMBERS = {
     # C7: what SpawnerData's priorities read from the system
     "method:RebuildPriorityFamily()": "internal",
     "method:RebuildStaticRewardValue(Codebase.Enemy.EnemySpawner)": "internal",
+    "method:RebuildIsCurrentBoss(Codebase.Enemy.EnemySpawner)": "internal",
 }
 # Design 4.1: provenance of the empty methods C3b filled (SimulationSystem and SimulationConfig).
 FILLED = {

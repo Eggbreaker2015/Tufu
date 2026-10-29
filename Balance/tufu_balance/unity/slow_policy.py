@@ -4,7 +4,8 @@
   selection checks at the run's first ``FindBestSpawner`` (equal priorities, nothing allowed, nothing eligible)
   and records event ``slow_policy_probe``; tests only, null in real runs.
 * events (``events.jsonl``): ``slow_fight`` per slow fight (en-route fights of SmartPath included),
-  ``slow_gate`` the first boss decision of each session, ``stat_benefit`` per ``CalculateStatBenefit``
+  ``slow_gate`` the first boss decision of each session, ``slow_target_refused`` when the en-route fights left
+  the target refused by the gate (the tick ends before it), ``stat_benefit`` per ``CalculateStatBenefit``
   evaluation, ``slow_policy_probe``.
 * ``sim/params/defaults/slow_policy.json``: the fields of ``SimulationRebuildParams.SlowPolicy.cs``.
 """
@@ -43,7 +44,11 @@ schema.register_event("slow_gate", {
 schema.register_event("stat_benefit", {"session": "int", "model": "int", "candidates": "int", "benefits": "str"})
 schema.register_event("slow_policy_probe", {
     "eligible": "str", "sorted_eligible": "str", "tie": "str", "tie_first_last": "str",
-    "none_allowed_is_null": "bool", "empty_is_null": "bool", "restored": "bool", "best": "str"})
+    "none_allowed_is_null": "bool", "empty_is_null": "bool", "restored": "bool", "best": "str",
+    "boss_stat_keeps_gate": "bool"})
+schema.register_event("slow_target_refused", {
+    "spawner": "str", "session": "int", "loss": "float", "max_health": "float", "current_health": "float",
+    "en_route": "int", "from_x": "float", "from_z": "float", "to_x": "float", "to_z": "float"})
 
 # SimulationRebuildParams.SlowPolicy.cs enums; JSON carries the integers.
 PRIORITY_FAMILY = {"Static": 0, "Dynamic": 1}

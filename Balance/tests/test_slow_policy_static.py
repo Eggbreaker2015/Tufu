@@ -66,7 +66,7 @@ def test_request_field_and_events():
     req.validate(req.make_request([job], out_dir="/tmp/x"))
     with pytest.raises(req.RequestError):
         spol.slow_job("x", probe={"selection": True, "bogus": 1})
-    for kind in ("slow_fight", "slow_gate", "stat_benefit", "slow_policy_probe"):
+    for kind in ("slow_fight", "slow_gate", "stat_benefit", "slow_policy_probe", "slow_target_refused"):
         assert kind in schema.EVENT_TYPES
     fight = (SYSTEMS / "SimulationSystem.Fight.cs").read_text(encoding="utf-8")
     start = fight.index('RebuildTraceEvent("slow_fight", ') + len('RebuildTraceEvent("slow_fight", ')
@@ -75,13 +75,18 @@ def test_request_field_and_events():
 
 
 def test_decomposed_form_is_farmed_times_expression():
-    """CMove = CRegen = 1 is bit-equal to FarmedTime because the decomposed form keeps farmedTime's operation order
-    (CalculateSpawnerData: regenTime + (moveTime + rpm.Item3 * fightTime))."""
+    """CMove = CRegen = 1 is bit-equal to FarmedTime because every time model evaluates one expression in
+    farmedTime's operation order (CalculateSpawnerData: regenTime + (moveTime + rpm.Item3 * fightTime)), with
+    unit factors for FarmedTime*; no model subtracts avMoveTime from farmedTime."""
     recovered = (SYSTEMS / "SimulationSystem.cs").read_text(encoding="utf-8")
     assert "data.farmedTime = regenTime + (moveTime + rpm.Item3 * data.fightTime);" in recovered
     assert "data.avMoveTime = moveTime;" in recovered and "data.avRegenTime = regenTime;" in recovered
     fight = (SYSTEMS / "SimulationSystem.Fight.cs").read_text(encoding="utf-8")
-    assert "(double)RebuildParams.CRegen * data.avRegenTime + (cMove * m + rpm.Item3 * data.fightTime)" in fight
+    body = fight[fight.index("private double RebuildSlowFightSeconds("):fight.index("private SimulationSlowFight RebuildSlowFight(")]
+    assert "return cRegen * data.avRegenTime + (cMove * m + rpm.Item3 * data.fightTime);" in body
+    assert "double cRegen = decomposed ? (double)RebuildParams.CRegen : 1.0;" in body
+    assert "double cMove = decomposed ? (double)RebuildParams.CMove : 1.0;" in body
+    assert "farmedTime" not in body.replace("farmedTime's", "")
 
 
 def test_policy_sources_use_engine_hooks_only():

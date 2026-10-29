@@ -34,9 +34,11 @@ namespace Codebase.Simulation.Systems
 			currentPosition = Vector3.zero;
 		}
 
-		// SmartPath's en-route fights (countNeighbFight), then the target. Each fight: TimeModel's duration (P and T
-		// += dt / 60 in float32), CurrentHealth += healthDelta, cooldowns run down, regen over dt, then the clear.
-		// A death ends the sequence (ProcessDeath); only DeathPolicy.ClearThenRespawn still clears that spawner.
+		// SmartPath's en-route fights (countNeighbFight), then the target. Each fight is checked against the gate at
+		// the health it starts with (the target too, after the en-route fights). Each fight: TimeModel's duration
+		// (P and T += dt / 60 in float32), CurrentHealth += healthDelta, cooldowns run down, regen over dt, then the
+		// clear. A death (decided before regen) ends the sequence (ProcessDeath); only DeathPolicy.ClearThenRespawn
+		// still clears that spawner.
 		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.slow_fight")]
 		private void SimulateFightWithSpawner(SpawnerData bestSpawner)
 		{
@@ -49,7 +51,13 @@ namespace Codebase.Simulation.Systems
 			foreach (SpawnerData data in fights)
 			{
 				bool target = data == bestSpawner;
-				if (!target && !RebuildSlowAllowed(state, data)) continue;
+				if (!RebuildSlowAllowed(state, data))
+				{
+					if (!target) continue;
+					// The en-route fights left the target refused (gate at the current state): the tick ends here.
+					RebuildSlowTargetRefused(data, from, fights.Count - 1);
+					return;
+				}
 				SimulationSlowFight fight = RebuildSlowFight(data, target ? targetMove : 0.0, target);
 				currentSpawner = data.spawner;
 				bool cleared = !fight.Died || RebuildParams.DeathPolicy == DeathPolicy.ClearThenRespawn;
@@ -112,9 +120,11 @@ namespace Codebase.Simulation.Systems
 			return fights;
 		}
 
-		// Seconds of one slow fight (design 4.5, TimeModel). An en-route fight has no move of its own; the target's
-		// move starts at `from` (the position before the en-route fights). A death lasts the move plus the part of
-		// the fight the health covered, without regen.
+		// Seconds of one slow fight (design 4.5, TimeModel): CRegen*avRegenTime + (CMove*move + rpm.Item3*fightTime),
+		// farmedTime's own expression, with unit factors for the FarmedTime* models (so Decomposed* with unit factors
+		// is the same to the bit). The move is avMoveTime or GetMoveTime (by distance) for the target, from `from`
+		// (the position before the en-route fights); an en-route fight has none. A death lasts the move plus the part
+		// of the fight the health covered, without regen.
 		private double RebuildSlowFightSeconds(SpawnerData data, double move, bool target, double fightFraction)
 		{
 			var rpm = GetRPMConfig();
@@ -122,16 +132,9 @@ namespace Codebase.Simulation.Systems
 			bool decomposed = RebuildParams.TimeModel == TimeModel.Decomposed || RebuildParams.TimeModel == TimeModel.DecomposedMoveByDistance;
 			double m = !target ? 0.0 : byDistance ? move : data.avMoveTime;
 			double cMove = decomposed ? (double)RebuildParams.CMove : 1.0;
+			double cRegen = decomposed ? (double)RebuildParams.CRegen : 1.0;
 			if (fightFraction < 1.0) return cMove * m + rpm.Item3 * (data.fightTime * fightFraction);
-			switch (RebuildParams.TimeModel)
-			{
-				case TimeModel.FarmedTime:
-					return target ? data.farmedTime : data.farmedTime - data.avMoveTime;
-				case TimeModel.FarmedTimeMoveByDistance:
-					return data.farmedTime - data.avMoveTime + m;
-				default:
-					return (double)RebuildParams.CRegen * data.avRegenTime + (cMove * m + rpm.Item3 * data.fightTime);
-			}
+			return cRegen * data.avRegenTime + (cMove * m + rpm.Item3 * data.fightTime);
 		}
 
 		private SimulationSlowFight RebuildSlowFight(SpawnerData data, double distanceSeconds, bool target)
@@ -164,6 +167,15 @@ namespace Codebase.Simulation.Systems
 			RebuildCount(r.Died ? "slow_deaths" : "slow_fights");
 			RebuildTraceFight(data.fightTime, data.farmedTime);
 			return r;
+		}
+
+		private void RebuildSlowTargetRefused(SpawnerData data, Vector3 from, int enRoute)
+		{
+			RebuildCount("slow_target_refused");
+			RebuildTraceEvent("slow_target_refused", ("spawner", RebuildTraceId(data.spawner)), ("session", lifeCycleIndex),
+				("loss", -data.healthDelta), ("max_health", GetForecastStatValue(StatType.Health)),
+				("current_health", playerModel.Unit.CurrentHealth), ("en_route", enRoute), ("from_x", from.x), ("from_z", from.z),
+				("to_x", data.spawner.transform.position.x), ("to_z", data.spawner.transform.position.z));
 		}
 
 		private void RebuildSlowFightEvent(SimulationSlowFight r, SpawnerData data, Vector3 from, bool target, bool cleared, object priority, int enRoute)

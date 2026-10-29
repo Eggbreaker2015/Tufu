@@ -140,6 +140,12 @@ namespace Codebase.Simulation.Systems
 			return RebuildParams.PriorityFamily;
 		}
 
+		// For SpawnerData.GetDynamicPriority.
+		internal bool RebuildIsCurrentBoss(EnemySpawner spawner)
+		{
+			return spawner != null && spawner == currentBoss;
+		}
+
 		// CalculateSpawnerRewardValue(spawner) with every benefit at 1 (the boss 1e6, an item 1e4, else the stat
 		// rewards), times Count: SpawnerData.GetStaticPriority.
 		internal double RebuildStaticRewardValue(EnemySpawner spawner)
@@ -309,11 +315,16 @@ namespace Codebase.Simulation.Systems
 			SpawnerData cleared = RebuildFindBest(state);
 			foreach (SpawnerData data in ordered) spawnerData[data.spawner] = data;
 			var registered = sortedSpawners.Where(saved.Contains).Select(RebuildTraceId);
+			// The gate's priority with a reward stat (lastRewardStat) keeps the gate's 1e6: `first` posing as the gate.
+			EnemySpawner boss = currentBoss;
+			currentBoss = first?.spawner;
+			bool bossStat = first != null && first.GetPriority(currentPosition, StatType.Health) == first.GetPriority(currentPosition);
+			currentBoss = boss;
 			RebuildTraceEvent("slow_policy_probe", ("eligible", string.Join("\n", saved.Select(RebuildTraceId))),
 				("sorted_eligible", string.Join("\n", registered)), ("tie", RebuildTraceId(tie?.spawner)),
 				("tie_first_last", RebuildTraceId(tieEnds?.spawner)), ("none_allowed_is_null", none == null),
 				("empty_is_null", cleared == null), ("restored", spawnerData.Keys.SequenceEqual(saved)),
-				("best", RebuildTraceId(RebuildFindBest(state)?.spawner)));
+				("best", RebuildTraceId(RebuildFindBest(state)?.spawner)), ("boss_stat_keeps_gate", bossStat));
 		}
 	}
 }
