@@ -1,0 +1,8 @@
+name: where_float32
+description: >-
+  where on a float field compares in binary32 (the widened float of 4.4 matches the stored 4.4) and an enum field
+  without a __name column matches by member name (C9)
+overrides:
+  - node: EnemySpawnerConfig.AverageFightTime
+    where: {OptimumTime: 4.400000095367432, WeaponType: Stabbing}
+    mul: 2

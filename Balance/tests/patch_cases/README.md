@@ -26,8 +26,10 @@ Python（`tufu_balance.model.patch`，P9）与 C#（`SimulationConfigPatcher`，
 
 - 覆盖按顺序执行，每条作用在前一条的结果上；`base` 补丁的覆盖排在最前面（来源记为 `base:<名字>`）。
 - 选行：单个资产不用选择器。其它表必须给 `where`（字段等值；枚举也可写成员名，bool 可写 0/1；`where: {}` 表示全部行），列表表也可用 `index` 选列表下标。命中 0 行是错误。
+  - 等值按字段的 C# 类型比较（C9 加，C# 比较的是内存里的字段值）：`float` 字段按 binary32（`f32(单元格) == f32(值)`，库里存的 4.4 与 float32 扩成 double 的 4.400000095367432 都命中 4.4f），`double` 按 double，int/bool/枚举按数值；枚举字段也可写成员名，库里没有 `__name` 列的枚举字段也一样（刷怪点的 `WeaponType`）；字符串值永远不匹配 float/double 字段。用例 `22_where_float32`、`errors/where_string_on_float`。
+  - 不在 `config` 声明里的选择列（`Key`、`go_name`、`DamageType` 等）照旧：数字按数值、字符串按 `str()` 相等、有 `__name` 列的按成员名。
 - 数组字段：`index` 选元素（整数或 `"a:b"`，左闭右开，`"a:"` 到末尾）；不给 `index` 时 `add`/`mul` 作用于每个元素，`set` 需要一个列表并整体替换（长度可以变）。
-- 算术一律先用 double 计算，再存成字段类型：`float` 字段 `(float)((double)old + arg)`、`(float)((double)old * arg)`；`double` 字段直接用 double；`int` 字段只接受整数结果（否则报 `bad_type`）。`set` 把值换成字段类型（用例 20：`set: 0.1` 存成 float32 的 0.10000000149011612）。结果在字段类型下不是有限数（`1e39` 存成 float、`mul: .inf`）报 `bad_type`；原本存的 inf 做 `add`/`mul` 仍是 inf。`bool`、字符串、资产引用和枚举只能 `set`；资产引用必须指向存在的资产；插值的 `IslandPoints`/`TimingPoints`/`CoefPoints` 必须是 `;` 分隔的有限数。
+- 算术一律先用 double 计算，再存成字段类型：`float` 字段 `(float)((double)old + arg)`、`(float)((double)old * arg)`；`double` 字段直接用 double；`int` 字段只接受整数结果（否则报 `bad_type`；NaN、±inf 与溢出成 inf 的结果也是 `bad_type`，用例 `errors/int_nan`、`errors/int_inf`）。`set` 把值换成字段类型（用例 20：`set: 0.1` 存成 float32 的 0.10000000149011612）。结果在字段类型下不是有限数（`1e39` 存成 float、`mul: .inf`）报 `bad_type`；原本存的 inf 做 `add`/`mul` 仍是 inf。`bool`、字符串、资产引用和枚举只能 `set`；枚举的值是成员名或整数值的数（`3`、`3.0` 可以，`true`、`1.5`、不是成员的数都是 `bad_type`，用例 `errors/enum_bool`、`errors/enum_fraction`）；资产引用必须指向存在的资产；插值的 `IslandPoints`/`TimingPoints`/`CoefPoints` 必须是 `;` 分隔的有限数。
 - `base` 与本补丁的 `regenerate` 按键合并，本补丁的键优先（用例 21）。
 - AB 的 `overridesByLocation`：`keyData`/`valueData` 是两个数组字段。删掉某个键（两个数组同时去掉该元素）后，游戏里该岛回落到 C# 字段初始化器里的类覆盖值，不是 `defaultValue`（Newtonsoft 把资产合并到 `new T()` 的类默认字典上，见 `model/ab.py`），用例 12、13。**C9 的做法**：把 AB 叶子改在 `ABTestDataConfig` 资产对象上，然后重走一遍 JSON 往返（`ABTestDataConfig.BuildDataJson` → `ABTestDataGroup.ApplyRemote`，即 `ABTestInitializer.ApplyDevelopTests` 的路径），再进入 `PrepareSimulationRun`。不能在往返之后直接改运行时字典：那时删掉的键会落到 `defaultValue`（30/180），而不是类默认值（28/150）。
 - 节点在 `data_dictionary` 里、但 Python 模型不持有的，原样交给 C#，并给出 `not_python_patchable` 警告（列出读取它的公式）。Python 仍按字典的来源表（`data_dictionary.tables`）解析它的 `where`：字段不存在报 `bad_where`，命中 0 行报 `no_match`，多行表不给选择器报 `bad_selector`；值按该列已存的单元格检查类型（数值、整数、0/1、字符串、JSON 数组）。这类覆盖在 `PatchReport` 里没有叶子，只在 `passthrough` 里列出。
@@ -54,5 +56,13 @@ Python（`tufu_balance.model.patch`，P9）与 C#（`SimulationConfigPatcher`，
 ## C9 的核对方式
 
 对每个用例，C# 应用 `PatchReport.expanded`（不跑生成步骤），写出的 `applied_patch.json` 与 `leaves` 去掉 `python_only` 节点后逐叶子相同（`PatchReport.csharp_leaves()`）。`tests/test_config_patch.py::test_expanded_patch_reproduces_the_leaves` 在 Python 一侧做同样的检查。`errors/` 下的用例 C# 也必须拒绝，错误代码相同。
+
+Unity 里的核对是 `tests/unity/test_patcher_parity.py`（`tufu_balance.unity.patcher.compare`：叶子地址相同，旧值、新值的 JSON 类型相同、浮点逐位相同）。C# 一侧的细节（`SimulationConfigPatcher.cs`，运行手册第 18 节）：
+
+- C# 按反射在内存对象上找字段，节点形如 `<根>.<路径>[.<列表>[].<路径>]`；根是 `CombatBalanceConfig`、`AmuletConfig`、`SimulationConfig`、`LocationsConfig`、`ABTestDataConfig`（游戏在用的那一份资产）、`ItemConfig`、`ArmorConfig`（该类型的全部资产，行 `{"asset"}`）、`EnemySpawnerConfig`（场景里全部刷怪点组件，含没注册的，行经 C1 的身份映射写成 `{"scene", "file_id"}`）。`passthrough` 节点只要 C# 字段存在就能改。
+- C# 找不到的节点（Python 不认识的、只在 Python 的 `SpawnerRelativeOptimumTimeTool`、刷怪点下的第二层列表 `StatRewards[]` 等）报 `unknown_node`，错误里列出全部这类节点名。C# 在改任何值之前先查完全部节点，所以一份同时有别的错误的补丁，C# 报的可能是 `unknown_node`，Python 报的是排在前面的那条错误。
+- `where` 里的名字：字段路径（可带点，如 `data.nonElite.charges.defaultValue`），列表行另有 `idx`，按资产的表另有 `asset`、`asset_name`，刷怪点另有 `scene`、`file_id`、`go_path`、`go_name`、`Stats[<属性>]`/`stat.<属性>`。C# 允许元素类型的任何字段，Python 只允许声明过的字段和选择列；Python 拒绝的补丁不会发给 C#。
+- 刷怪点缺某项属性时，`Stats[<属性>]` 的 `set` 在 C# 里也报 `missing_value`（C# 不新建属性；Python 会写出旧值为 null 的叶子）。
+- AB 的 `keyData`/`valueData` 改在资产的 `UnitySerializedDictionary` 私有列表上，改完立即按 `OnAfterDeserialize` 重建字典；全部覆盖做完后重走 `BuildDataJson` → `ABTestData.ApplyRemoteAll`，`applied_patch.json` 的 `ab_roundtrip` 记下各组的版本号与生效值（用例 12、13 与 `model.ab` 在补丁后配置上的值逐位相同）。
 
 P12 逐叶子比较时：`passthrough` 节点在 Python 一侧没有叶子，C# 写出的这些节点的叶子单独列出（只核对节点、行数与值类型），不参与逐叶子相等；`python_only` 节点只在 Python 一侧有叶子，同样不参与。

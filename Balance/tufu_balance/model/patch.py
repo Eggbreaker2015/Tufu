@@ -20,13 +20,15 @@ Semantics shared with the C# patcher (C9; cases in ``tests/patch_cases``):
 * Overrides apply in order, each to the result of the previous one. ``base`` overrides come first.
 * Rows: a single-asset config needs no selector. Other tables need ``where`` (field equality; enums
   also match by member name, bools by 0/1; ``where: {}`` = every row) or, for list tables, ``index``
-  (list positions). Zero matching rows is an error.
+  (list positions). Zero matching rows is an error. On a typed field the equality is in its C# type:
+  float fields compare as binary32, a string never matches a float/double field (C9).
 * Array fields: ``index`` selects elements (int or ``"a:b"``); without ``index``, ``add``/``mul`` touch
   every element and ``set`` takes a whole list (length may change; added/removed elements are leaves
   with ``old``/``new`` null).
 * Arithmetic is done in double and stored as the field's C# type: ``float`` fields
   ``(float)((double)old + arg)`` / ``(float)((double)old * arg)``, ``double`` fields in double, ``int``
-  fields only when the result is integral. ``set`` converts the value to the field type. A result that
+  fields only when the result is integral (NaN/inf: ``bad_type``). ``set`` converts the value to the field
+  type; an enum takes a member name or an integral number (not a bool). A result that
   is not finite as the field type (``1e39`` as a float, ``mul: .inf``) is an error; a stored inf stays
   inf. ``bool``, ``string``, ``ref`` and ``enum`` fields take ``set`` only (enums by int or member name;
   refs must name an existing asset; interpolation point lists must be ``;``-separated numbers).
@@ -292,6 +294,11 @@ def _is_number(x) -> bool:
     return isinstance(x, (int, float)) and not isinstance(x, bool)
 
 
+def _integral(x) -> bool:
+    """A number with an integer value (NaN and inf are not)."""
+    return isinstance(x, int) or (math.isfinite(x) and x == math.floor(x))
+
+
 def _ref_names(cfg: C.GameConfig, f: C.FieldSpec) -> set[str]:
     sql = {"ArmorConfig": "c_ArmorConfig__Armors", "ItemReward": "c_ItemConfig"}[f.column]
     return {Path(str(r["asset"])).stem for r in cfg.tables[sql].rows}
@@ -304,7 +311,7 @@ def _coerce(cfg: C.GameConfig, f: C.FieldSpec, value, i: int):
             raise PatchError("bad_type", f"{t} field needs a finite number, got {value!r}", override=i, node=f.node)
         return _finite(f, _to_float(value) if t == "float" else float(value), value, i)
     if t == "int":
-        if not _is_number(value) or float(value) != int(value):
+        if not _is_number(value) or not _integral(value):
             raise PatchError("bad_type", f"int field needs an integer, got {value!r}", override=i, node=f.node)
         v = int(value)
         if not INT32[0] <= v <= INT32[1]:
@@ -315,9 +322,12 @@ def _coerce(cfg: C.GameConfig, f: C.FieldSpec, value, i: int):
             return bool(value)
         raise PatchError("bad_type", f"bool field needs true/false, got {value!r}", override=i, node=f.node)
     if t == "enum":
+        if not isinstance(value, str) and not (_is_number(value) and _integral(value)):
+            raise PatchError("bad_type", f"enum field needs a member name or an integer, got {value!r}", override=i,
+                             node=f.node)
         try:
             return C.enum_value(f, value)
-        except (ValueError, C.ConfigError):
+        except (ValueError, OverflowError, C.ConfigError):
             raise PatchError("bad_type", f"{value!r} is not a {f.enum}", override=i, node=f.node) from None
     if value is not None and not isinstance(value, str):
         raise PatchError("bad_type", f"{t} field needs a string, got {value!r}", override=i, node=f.node)
@@ -357,7 +367,7 @@ def _arith(f: C.FieldSpec, op: str, old, arg, i: int):
     if f.type in ("float", "double"):
         r = _to_float(r) if f.type == "float" else r
         return _finite(f, r, f"{op} {arg!r}", i) if math.isfinite(float(old)) else r  # stored inf/NaN stay
-    if r != math.floor(r) or not INT32[0] <= r <= INT32[1]:
+    if not _integral(r) or not INT32[0] <= r <= INT32[1]:
         raise PatchError("bad_type", f"int field result {r!r} is not an int32", override=i, node=f.node)
     return int(r)
 
@@ -386,18 +396,37 @@ def _parse_index(index, n: int, i: int, node: str) -> list[int]:
     return list(range(lo, hi))
 
 
-def _matches(spec: C.TableSpec, row: Mapping, column: str, want) -> bool:
+def _matches(row: Mapping, column: str, want, f: C.FieldSpec | None = None) -> bool:
+    """``where`` equality of one cell. On a typed field (``f``) the comparison is in the field's C# type, as the C#
+    patcher compares the live value: float fields as binary32 (``f32(cell) == f32(want)``), enum fields also by
+    member name; a string never matches a float/double field."""
     cell = row.get(column)
-    if isinstance(want, str) and f"{column}__name" in row and not isinstance(cell, str):
-        return row[f"{column}__name"] == want
+    kind = f.type if f is not None and not f.is_array else None
+    if isinstance(want, str):
+        if f"{column}__name" in row and not isinstance(cell, str):
+            return row[f"{column}__name"] == want
+        if kind == "enum" and cell is not None:
+            member = C.ENUMS[f.enum].__members__.get(want)
+            return member is not None and int(cell) == int(member)
+        if kind in ("float", "double"):
+            return False
     if want is None or cell is None:
         return want is None and cell is None
     if _is_number(want) or isinstance(want, bool):
         try:
+            if kind == "float":
+                return _to_float(float(cell)) == _to_float(float(want))
             return float(cell) == float(want)
         except (TypeError, ValueError):
             return False
     return str(cell) == str(want)
+
+
+def _column_field(sql: str, column: str) -> C.FieldSpec | None:
+    spec = C.TABLE_BY_SQL.get(sql)
+    if spec is not None:
+        return next((f for f in spec.fields if f.column == column), None)
+    return C.FIELDS.get(C.dictionary_node(sql, column) or "")
 
 
 def _select_rows(spec: C.TableSpec, rows: Sequence[dict], ov: Override, f: C.FieldSpec, i: int) -> list[int]:
@@ -421,7 +450,8 @@ def _select_rows(spec: C.TableSpec, rows: Sequence[dict], ov: Override, f: C.Fie
         column = spec.column_of(str(name))
         if column is None:
             raise PatchError("bad_where", f"{spec.prefix} has no field {name!r}", override=i, node=ov.node)
-        selected = [p for p in selected if _matches(spec, rows[p], column, want)]
+        typed = _column_field(spec.sql, column)
+        selected = [p for p in selected if _matches(rows[p], column, want, typed)]
     if not selected:
         raise PatchError("no_match", f"selector {ov.to_json()} matches no {spec.prefix} row", override=i, node=ov.node)
     return selected
@@ -618,7 +648,8 @@ def check_passthrough(cfg: C.GameConfig, ov: Override, i: int) -> int | None:
                 selected = []
                 continue
             known.add(str(name))
-            selected = [r for r in selected if _matches(None, r, c, want)]
+            typed = _column_field(sql, c)
+            selected = [r for r in selected if _matches(r, c, want, typed)]
         hits += len(selected)
     if not found:
         return None

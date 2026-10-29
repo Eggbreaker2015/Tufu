@@ -957,3 +957,43 @@ request = req.make_request([job])
 - C6：`replay_items = recompute` 时物品只在第一次覆盖时设，之后靠 `ProcessInventory`；覆盖用 `AddItem(…, applySilently: true)` 加新物品，会自动装备到空槽。快照 `Items` 的 Level 现在是有效等级。装备变化（`ApplyEquippedItemsToUnit`）会去掉 TotalValue 校正，当天剩下的时间回到 K(d) 合成值。`items_removed`（玩家有、快照没有的物品被去掉）与 `items_reordered` 要等 C6 让玩家得到快照外的物品后才测得到。注意：去掉物品是卸下后经反射重设 `PlayerModel.Items`，`AddItem` 建的存档条目 `Data.Items` 不删、顺序也不改；若之后从存档重建（`LoadItems`），去掉的物品会回来、顺序会变回去。C6 测去掉与重排时要连同存档条目一起测，或在去掉时删掉绑定的条目。
 - C9：`checkpoint` 加 K 补丁时 TotalValue 应是补丁后的 K 合成值（`total_value` 解析为 `compose`）；请在 C9 的补丁钩子接上后补这个 Unity 测试。
 - C7：覆盖后 `CurrentHealth` 回满；`unlock = snapshot` 会打开门禁（`GatesModel`），被打开的门禁刷怪点不会再触发解锁。
+
+## 20. 配置补丁（C9）
+
+C9 加了 `CB/Simulation/Harness/SimulationConfigPatcher.cs`（实现钩子 `RebuildJobApplyPatch`）和 `SimulationRunRequest.Patch.cs`。Python 一侧是 `tufu_balance/unity/patcher.py`（请求字段、刷怪点身份映射的旁路文件、`applied_patch.json` 与 `PatchReport` 的逐叶子比较）。测试：`tests/test_patcher.py`（不需要 Unity）、`tests/unity/test_patcher_parity.py`。补丁语义见 `Balance/tests/patch_cases/README.md`（P9 与 C9 共用）。
+
+### 20.1 请求与输出
+
+- `job.patch`：覆盖列表，通常是 `PatchReport.expanded`（照写的覆盖加生成步骤展开的显式 `set`）。C# 在 `StartJob` 里、`IsRunning` 之前（也在 C4 的 `RebuildJobApplyOverride` 之前）应用。数字不用 Newtonsoft 读出的值：C# 经 `Temp/TufuSimulation/active_request.json` 找到请求原文，用 `SimulationCanonicalJson.Parse` 重读本作业的 `patch`（理由同 17.1：Mono 会把一些字面量读偏 1 ulp）。
+- `job.patch_spawner_map`：`{"path", "sha256"}`，C1 身份映射（`spawners` 表全部 717 行的 `scene`、`file_id`、运行时路径、`Key`）写成的 JSON，由 `patcher.spawner_map(db)` 按内容命名写到 `Balance/out/sim/inputs/`。用到刷怪点节点时必须给；C# 核对 sha256。
+- `job.patch_on_error`：`fail`（缺省）时补丁出错，作业以退出码 5 失败（`error` 为 `patch: [<代码>] …`，`StartJob` 在 `IsRunning` 之前中止）；`record` 只允许 `empty` 作业，把错误写进 `applied_patch.json`、作业照常结束，用来在一次启动里跑完全部错误用例。三个字段都是 null 时不出现在 manifest 回显的请求里。
+- `<作业>/applied_patch.json`（`tufu.sim.applied_patch/1`）：`ops`（每条覆盖的 `rows`、`leaves`）、`leaves`（净变化，`model.patch` 的叶子格式；浮点写成 float32 扩成的 double，按 `R` 往返）、`verified_leaves`（读回核对过的叶子数）、`error`（`code`、`message`、`override`、`node`，`unknown_node` 另有 `nodes`）、`spawners`（映射文件、选中但不在映射里的刷怪点，应为空）、`ab_roundtrip`（改了 AB 资产时：各组往返前后的版本号与生效值）、`restore`。manifest 加 `patch` 摘要（文件名、覆盖数、叶子数、错误代码、是否做了 AB 往返）。
+
+### 20.2 恢复
+
+- 每个被改的对象（资产或刷怪点的 `EnemySpawnerConfig`）在第一次改动前记一个摘要（Unity 会序列化的字段，加字典条目；资产引用记实例 id）。每个叶子第一次改动前记下旧值或旧数组（连同原数组对象）。
+- 退出 Play 时（`EditorApplication.playModeStateChanged` 的 `ExitingPlayMode`，后备 `Application.quitting`）按相反顺序写回，再算一次摘要，把 `restore`（`when`、`ok`、每个对象的 `before`/`patched`/`after`）写回 `applied_patch.json`。补丁出错时当场恢复（`when = error`）。
+- AB 的 `overridesByLocation` 是 `UnitySerializedDictionary`：第一次改它之前换上一个副本（复制 `keyData`/`valueData` 再 `OnAfterDeserialize`），改的都是副本，恢复时把原对象放回去。原地重建字典会改 `Dictionary` 内部的版本号，资产守卫的摘要看得到它（第一轮实测：条目都恢复了，守卫仍报 ABTest Data Config 变了，靠 `UnloadAsset` 恢复）。
+- 资产守卫照常在作业后核对；补丁作业的 `changed_in_memory` 与不改任何对象的作业相同（只有 Player Config、Simulation Config，见 11.4）。
+
+### 20.3 验收记录（设计稿 7.3 C9）
+
+在提交 `5dbfb5f` 上，`pytest --unity tests/unity/test_patcher_parity.py`：73 通过，用时 268 秒。两次启动：44 个作业的一次 253 秒（22 个正向用例、20 个错误用例、1 个不支持节点的作业，都是 5 帧的 `empty` 作业；1 个带补丁、跑到第 2 天的 `free` 作业），退出码 0；补丁出错的一次 13.5 秒，Unity 与启动器都是 5。期间用户主检出的编辑器开着（pid 73951），真实存档没有变化。
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 每个用例的 `applied_patch.json` 与 `PatchReport` 逐叶子相同 | 通过：22 个用例共 118 个叶子，地址、旧值、新值、JSON 类型都相同，浮点逐位相同；每条覆盖选中的行数与叶子数与 Python 相同，生成的显式 `set` 各选 1 行，透传节点（用例 17 的 `AggroRange`）的行数等于 Python 在来源表上的命中数 | `test_case_leaves_identical_to_the_patch_report`、`test_case_ops_match_rows_and_leaves`、`test_passthrough_leaves_are_listed_apart` |
+| 错误用例 C# 也拒绝，代码相同 | 通过：20 个（含新增的 5 个）| `test_error_case_rejected_with_the_same_code` |
+| 不支持的节点报错并列出节点名 | 通过：`SpawnerRelativeOptimumTimeTool.Islands[].IsDays`、`EnemySpawnerConfig.StatRewards[].Value` 一起列在 `unknown_node` 里，中间那条有效覆盖没有执行 | `test_unsupported_nodes_are_listed` |
+| 作业结束后内存中的配置恢复原值 | 通过：每个作业每个被改对象 `after == before`（`patched` 与之不同），资产守卫通过且看到的变化与不改对象的作业相同；第 2 天的 `free` 作业也一样 | `test_config_restored_after_every_job`、`test_patched_objects_were_changed_while_the_job_ran`、`test_free_run_with_a_patch` |
+| AB 资产改后的 JSON 往返 | 通过：用例 12、13 的生效值与 `model.ab` 在补丁后配置上的值逐位相同，删掉的岛回落到类默认值（13 岛 28 分钟、精英 4 岛 150 分钟）| `test_ab_round_trip_gives_the_class_default_for_removed_keys` |
+| 补丁出错时作业以 5 失败 | 通过 | `test_patch_error_fails_the_job_with_exit_5` |
+
+### 20.4 与设计稿不同的地方
+
+- 设计稿 6.2 说刷怪点"在 `EnemiesModel.Spawners` 上按 `where` 匹配"。C# 用的是场景里全部 `EnemySpawner` 组件（717 个，含没注册的 1 个），与 Python 的 `spawners` 表一一对应，否则 `where` 命中的行数会不同。
+- 钩子的位置由 C0b 定在 `StartJob`（就绪、冻结、清零冷却之后，`IsRunning` 之前），`PrepareSimulationRun` 在其后，符合 6.2；但游戏初始化时已经从配置算好的量不会随补丁变。已知的：刷怪点的 `ItemReward`/`HasItemReward` 在 `EnemySpawner` 初始化时从 `Config.ItemReward` 复制（`EnemySpawner.cs:492`），刷怪点的 `ChargesTotal`/`BaseCooldown` 在就绪时已按 AB 数据算好；补丁改这些来源，模拟是否反应取决于 C5/C6/C7 读的是哪一份。交给 P12 与相应单元。
+- 新增作业字段 `patch_spawner_map`、`patch_on_error`（设计稿 1.4.2 只有 `patch`）。身份映射用旁路文件而不是放进请求：717 行会随请求两次回显进每个 manifest。
+- `model.patch`（P9）为一致性改了三处，并在共用 README 里写明：`where` 按字段的 C# 类型比较（float 按 binary32；枚举字段也认成员名，包括没有 `__name` 列的；字符串不匹配 float/double）；int 字段的 NaN/inf 与溢出成 inf 的结果报 `bad_type`（以前是未捕获的异常）；枚举的 `set` 拒绝布尔与非整数（以前 `true` 读成 1、`1.5` 读成 1）。新增用例 `22_where_float32` 与错误用例 `int_nan`、`int_inf`、`enum_bool`、`enum_fraction`、`where_string_on_float`。
+- C# 先查完全部节点再改任何值；一份同时有别的错误的补丁，C# 报 `unknown_node`，Python 报排在前面的那条（README 里写明）。刷怪点缺某项属性时 `Stats[<属性>]` 的 `set` 在 C# 报 `missing_value`，Python 写出旧值为 null 的叶子。
+- C0b 的 `tufu_balance/unity/__init__.py` 加一行导入 `patcher`（登记字段与 manifest 键）。
