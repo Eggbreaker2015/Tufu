@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Codebase.Enemy;
@@ -57,9 +56,13 @@ namespace Codebase.Simulation.EditorTools
 		private const string LogTag = "[TufuSim] ";
 		private static readonly string[] Fields = { "health", "damage" };
 
+		// The stack of the static constructor: [InitializeOnLoad] runs it from ProcessInitializeOnLoadAttributes.
+		private static readonly string RegisteredFrom;
+
 		static SimulationBakeTool()
 		{
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+			RegisteredFrom = new StackTrace().ToString();
 		}
 
 		private static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -583,10 +586,11 @@ namespace Codebase.Simulation.EditorTools
 			File.Delete(FullPath(untracked));
 			SelfTestGitRepo(Check);
 			Check("initialize_on_load", typeof(SimulationBakeTool).IsDefined(typeof(InitializeOnLoadAttribute), false));
-			FieldInfo hookField = typeof(EditorApplication).GetField("playModeStateChanged", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-			var hooks = hookField?.GetValue(null) as Delegate;
-			Check("play_hook_registered", hooks != null && hooks.GetInvocationList().Any(h => h.Method.DeclaringType == typeof(SimulationBakeTool) && h.Method.Name == nameof(OnPlayModeStateChanged)),
-				hookField == null ? "EditorApplication.playModeStateChanged field not found" : null);
+			bool atLoad = RegisteredFrom.Contains("ProcessInitializeOnLoadAttributes");
+			Check("play_hook_registered_at_load", atLoad, atLoad ? null : RegisteredFrom);
+			OnPlayModeStateChanged(PlayModeStateChange.ExitingEditMode);
+			Check("play_hook_marks_entered_play", ProcessRefusal() != null, ProcessRefusal());
+			SessionState.SetBool(EnteredPlayKey, false);
 
 			// Plan and write-back on a scene that is never saved
 			Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
