@@ -9,6 +9,10 @@
     python -m tufu_balance.unity spawner-map [--out CSV]          # SpawnerId <-> path|Key (C1)
     python -m tufu_balance.unity params build [--layers L ...] [--set K=JSON ...] [--float32] [--out FILE]   # (C3c)
     python -m tufu_balance.unity params import [--layers L ...] [--set K=JSON ...] [--float32] [--rev REV] [--dest PATH]
+    python -m tufu_balance.unity bake JOB_DIR                     # X4: the job's C# bake report against model.bake (C8)
+    python -m tufu_balance.unity bake JOB_DIR --plan [--rev REV]  # bake_plan.json in a fresh editor; touches no asset
+    python -m tufu_balance.unity bake [JOB_DIR] --apply --token SHA256 [--plan-file P] [--dest SCENE]
+    python -m tufu_balance.unity bake --selftest [--rev REV]      # write-back logic on an unsaved temporary scene
 
 Exit status is the run's exit code (0 ok, 2 guard, 3 timeout, 4 not ready, 5 bad request, 6 self-check,
 7 dev worktree changed, 8 ready check).
@@ -85,7 +89,21 @@ def main(argv=None) -> int:
     p.add_argument("--dest", help="import: where the written asset goes (default: this worktree's asset)")
     p.add_argument("--float32", action="store_true", help="round float fields to float32 values (fitted doubles)")
     p.add_argument("--nographics", action="store_true")
+    p = sub.add_parser("bake", help="bake report check (no Unity), plan, guarded write-back, self-test")
+    p.add_argument("job_dir", nargs="?")
+    mode = p.add_mutually_exclusive_group()
+    mode.add_argument("--plan", action="store_true", help="write bake_plan.json (old -> new, skip reasons); no asset changes")
+    mode.add_argument("--apply", action="store_true", help="write the plan into Main.unity (needs --token)")
+    mode.add_argument("--selftest", action="store_true", help="write-back logic on an unsaved temporary scene")
+    p.add_argument("--token", help="apply: sha256 of the plan file")
+    p.add_argument("--plan-file", help="apply: the plan (default: the one plan made from JOB_DIR's report)")
+    p.add_argument("--dest", help="apply: scene file to update (default: this worktree's Main.unity)")
+    p.add_argument("--rev", help="plan/selftest: commit to check out in the run worktree")
+    p.add_argument("--nographics", action="store_true")
     args = ap.parse_args(argv)
+
+    if args.cmd == "bake":
+        return _bake(args)
 
     if args.cmd == "ingest":
         from . import simio
@@ -181,6 +199,45 @@ def main(argv=None) -> int:
     except (launcher.LauncherError, req.RequestError) as e:
         print(f"error: {e}", file=sys.stderr)
         return getattr(e, "code", launcher.EXIT_BAD_REQUEST)
+    except runner.WorktreeError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return launcher.EXIT_GUARD
+
+
+def _bake(args) -> int:
+    from . import bake_report as BR
+    try:
+        if args.selftest:
+            result = BR.selftest(rev=args.rev, opts=_options(args))
+            print(result.out_dir)
+            return result.exit_code
+        if args.apply:
+            plan_file = args.plan_file or (BR.find_plan(args.job_dir) if args.job_dir else None)
+            if plan_file is None:
+                raise BR.BakeToolError("--apply needs --plan-file or JOB_DIR")
+            result = BR.apply(plan_file, args.token, dest=args.dest, caller=BR.CALLER_CLI, opts=_options(args))
+            print(json.dumps({"exit_code": result.exit_code, "out_dir": str(result.out_dir),
+                              "after": result.report.get("after")}, indent=1))
+            return result.exit_code
+        if not args.job_dir:
+            raise BR.BakeToolError("JOB_DIR is required")
+        if args.plan:
+            result = BR.plan(args.job_dir, rev=args.rev, opts=_options(args))
+            print(json.dumps({"exit_code": result.exit_code, "plan": str(result.plan) if result.plan else None,
+                              "token": result.token, "counts": (result.tool or {}).get("counts")}, indent=1))
+            return result.exit_code
+        con = sqlite3.connect(f"file:{launcher.balance_db()}?mode=ro", uri=True)
+        con.row_factory = sqlite3.Row
+        res = BR.compare_x4(args.job_dir, con)
+        res["mismatches"] = res["mismatches"][:20]
+        print(json.dumps(res, indent=1))
+        return 0 if res["new_bits_equal"] == res["spawners"] - len(res["errors_both"]) and not res["mismatches"] else 1
+    except (BR.BakeToolError, schema.SchemaError, OSError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        return launcher.EXIT_GUARD if str(e).startswith("refused") else launcher.EXIT_BAD_REQUEST
+    except launcher.LauncherError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return e.code
     except runner.WorktreeError as e:
         print(f"error: {e}", file=sys.stderr)
         return launcher.EXIT_GUARD
