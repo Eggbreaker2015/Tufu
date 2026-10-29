@@ -3,7 +3,7 @@ import csv
 import json
 from pathlib import Path
 import pytest
-from tufu_balance.calibrate import stage_slow as S, params as P, report
+from tufu_balance.calibrate import stage_slow as S, params as P, report, runcache
 from tufu_balance.golden import at_most, check, exact
 from tufu_balance.unity import trace
 
@@ -25,8 +25,10 @@ def test_real_modules_and_archived_inputs(calibration, unity_rev):
     for name, row in e['jobs'].items():
         assert row['code_rev'] == unity_rev
         source = Path(row['directory'])
+        assert runcache.run_ok(source.parent)
         m = json.loads((source/'manifest.json').read_text())
         j = m['job']
+        assert P.resolve(['defaults', 'open'], row['requested_changes']).params == j['params']
         assert j['mode'] == 'free' and j['stop']['day'] == 6
         assert not any(j.get(k) for k in ('override', 'engine_probe', 'test'))
         assert m['engine']['counters']['slow_fights'] > 0
@@ -74,6 +76,8 @@ def test_training_choice_and_holdout_are_separate(calibration):
     assert rows[0]['hypothesis']==e['selected'] and rows[1]['hypothesis']==e['runner_up']
     assert all(float(a['score_train']) <= float(b['score_train']) for a,b in zip(rows, rows[1:]))
     check(SUITE, {'choices': exact(changes, source='T20 filter then training-only rank'),
+                  'p14.CMove': exact(changes['CMove'], original=1., source='P14; Q34 registered fallback'),
+                  'p14.CRegen': exact(changes['CRegen'], original=1., source='P14; Q34 registered fallback'),
                   'holdout.ratio': at_most(e['holdout'], original=1.5, source='5.5; train 0-1, holdout 2-3')})
 
 
@@ -92,5 +96,10 @@ def test_unaltered_scientific_limits_remain_visible(calibration):
                   't04.max_rel': at_most(max(r['rel'] for r in c['t04']), original=.03, source='T04 days 0-3'),
                   'items': exact(c['item_counts'], original=[4,7,8,8], source='TC1-4 item counts'),
                   'arrivals': exact(c['arrivals'], source='unlock events; exact ranges independently reported'),
+                  't07.early_interval_miss': at_most(max(max(lo-c['arrivals'].get(str(loc),{}).get('p',1e9),
+                      c['arrivals'].get(str(loc),{}).get('p',1e9)-hi, 0.)
+                      for loc,lo,hi in ((2,31.2,37.4),(3,110.2,115.3))), original=0., source='T07 original P ranges'),
+                  't07.island4_day': exact(c['arrivals'].get('4',{}).get('day'), original=5, source='T07 day5 unlock'),
+                  't20.first_location4_tc': exact(c['first_location4_tc'], original=6, source='T20 first visible TC6'),
                   'design_failures': exact(e['design_failures'], source='failures are not design acceptance')})
     assert e['accepted'] == (not e['design_failures'])

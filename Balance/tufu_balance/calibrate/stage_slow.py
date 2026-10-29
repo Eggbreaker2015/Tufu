@@ -120,7 +120,8 @@ def evaluate(directory, tg):
         ev.targets[target] = 'pass' if ok==len(members) else 'fail'
         ev.groups.append(M.GroupResult(target, group, ev.targets[target], len(members), ok,
                                       'K2 original criterion; no loosening'))
-    return ev, dict(scores=scores, holdout_ratio=ratio, t20_ok=not early4 and not day3,
+    return ev, dict(scores=scores, day_scores={str(d): statistics.mean(normalized(c) for c in values if c.tc==d+1)
+        for d in range(4)}, holdout_ratio=ratio, t20_ok=not early4 and not day3,
         premature_location4=early4, day3_deaths=day3, countRespawn=respawns, arrivals=arrivals,
         first_location4_tc=first4, item_counts=counts, early_rows=len(series.early), failures=failures,
         t16=dict(hits=sum(c.ok for c in values), cells=len(values), main_max_rel=max(c.rel for c in values if c.group=='main')),
@@ -169,7 +170,14 @@ def fallback(workspace, initial, candidates, tg, drv, *, analyze_only=False):
         grid=COEFFICIENT_GRID, bounds=[0., 1.], simplex_maxiter=12, simplex_maxfev=24,
         objective='T20 hard filter then T16 TC1/2 normalized mean; no holdout feedback',
         registration='Calibration.md Q34; no modification of defaults or original tolerances')
-    write_json(workspace/'fallback_protocol.json', protocol)
+    if analyze_only:
+        recorded = json.loads((workspace/'fallback_protocol.json').read_text())
+        if 'optimizer' not in recorded:
+            raise RuntimeError('fallback protocol is missing its recorded optimizer result')
+        assert {k:v for k,v in recorded.items() if k != 'optimizer'} == protocol
+        protocol = recorded
+    else:
+        write_json(workspace/'fallback_protocol.json', protocol)
     coarse = {f'coef-{i:02d}': dict(base, CMove=m, CRegen=r) for i,(m,r) in
               enumerate(itertools.product(COEFFICIENT_GRID, repeat=2))}
     coarse_path = workspace/'coarse.json'
@@ -225,6 +233,31 @@ def fallback(workspace, initial, candidates, tg, drv, *, analyze_only=False):
     return {**paths, **fine_paths}, {**candidates, **fine}, protocol
 
 
+def bootstrap_coefficients(chosen, candidates, details):
+    """Conditional two-training-day block bootstrap over already measured candidates."""
+    import numpy as np
+    base = candidates[chosen]
+    fields = ('PriorityFamily', 'SmartPath', 'TimeModel', 'SlowLethalityGate', 'DeathPolicy')
+    names = [n for n,c in candidates.items() if details[n]['t20_ok'] and
+             all(c[k]==base[k] for k in fields)]
+    selected = []
+    tie_rng = np.random.default_rng(20261030)
+    for days in np.random.default_rng(20261029).integers(0,2,(1000,2)):
+        losses = {n: sum(details[n]['day_scores'][str(d)] for d in days) for n in names}
+        tied = [n for n in names if abs(losses[n]-min(losses.values())) <= 1e-12]
+        selected.append(tied[int(tie_rng.integers(len(tied)))])
+    tied = [n for n in names if abs(details[n]['scores']['train']-details[chosen]['scores']['train'])<=1e-12]
+    return dict(blocks=2, samples=1000, level=.9, conditional_on_discrete_policy=True,
+        training_ties=tied, identified=len(tied)==1,
+        parameters={k: dict(lo=float(np.quantile([candidates[n].get(k,1.) for n in selected],.05)),
+                            hi=float(np.quantile([candidates[n].get(k,1.) for n in selected],.95)))
+                    for k in ('CMove','CRegen')},
+        selected_counts=dict(sorted(Counter(selected).items())),
+        crosses_behaviors=len({json.dumps((details[n]['item_counts'], details[n]['countRespawn']), sort_keys=True)
+                               for n in selected}) > 1,
+        note='tie-aware bootstrap over only two training blocks; nonsmooth objective; not parameter identification')
+
+
 def archive(workspace, paths, candidates, tg, out_root, pre):
     ranked, hypotheses, evaluations, details = choose(paths, tg, candidates)
     chosen = ranked[0]
@@ -233,10 +266,12 @@ def archive(workspace, paths, candidates, tg, out_root, pre):
     for name, directory in paths.items():
         m = json.loads((directory/'manifest.json').read_text())
         jobs[name] = dict(directory=str(directory), code_rev=m['code_rev'],
-            asset_guard_sha256=report.sha256_file(directory/'asset_guard.json'), params_hash=m['params']['hash'])
+            asset_guard_sha256=report.sha256_file(directory/'asset_guard.json'), params_hash=m['params']['hash'],
+            requested_changes=candidates[name])
     detail = dict(selected=chosen, runner_up=ranked[1], choices=changes, split=SPLIT, preflight=pre,
         candidates=details, jobs=jobs, design_failures=details[chosen]['failures'],
-        holdout=details[chosen]['holdout_ratio'], accepted=not details[chosen]['failures'])
+        holdout=details[chosen]['holdout_ratio'], accepted=not details[chosen]['failures'],
+        bootstrap=bootstrap_coefficients(chosen, candidates, details))
     out = report.write(out_root, 'slow', evaluations=[evaluations[chosen]],
         params=P.resolve(['defaults', 'open'], changes), hypotheses=hypotheses,
         inputs=dict(jobs=jobs, selection=chosen, split=SPLIT, preflight=pre))

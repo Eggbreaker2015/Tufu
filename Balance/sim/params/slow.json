@@ -1,0 +1,10 @@
+{
+  "CMove": 0.953125,
+  "CRegen": 1.0,
+  "DeathPolicy": "SkipSpawner",
+  "PriorityFamily": "Dynamic",
+  "SlowLethalityGate": "SameAsFast",
+  "SmartPath": true,
+  "TimeModel": "DecomposedMoveByDistance",
+  "_stage": "K2; empirical candidate, acceptance status in Runbook section 25"
+}

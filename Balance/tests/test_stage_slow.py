@@ -42,3 +42,17 @@ def test_residual_normalization_preserves_zero_bound_failure():
     assert S.normalized(c) == float('inf')
     c.sim = 0
     assert S.normalized(c) == 0
+
+
+def test_legacy_daily_counter_is_missing_not_zero():
+    from tufu_balance.unity import schema
+    columns = schema.CSV_SCHEMAS['daily.csv']
+    assert columns[-1] == ('countRespawn', 'int?')
+    cells = ['' if kind.rstrip('?')=='str' else '0' for _,kind in columns]
+    legacy = ','.join(n for n,_ in columns[:-1])+'\n'+','.join(cells[:-1])+'\n'
+    assert schema.read_csv('daily.csv',legacy)[0]['countRespawn'] is None
+    modern = ','.join(n for n,_ in columns)+'\n'+','.join(cells)+'\n'
+    assert schema.read_csv('daily.csv',modern)[0]['countRespawn'] == 0
+    # Removing a real pre-existing field cannot take the legacy path.
+    with pytest.raises(schema.SchemaError):
+        schema.read_csv('daily.csv', legacy.replace('offline_minutes,',''))

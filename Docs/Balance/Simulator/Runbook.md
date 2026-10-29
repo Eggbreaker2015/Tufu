@@ -1354,7 +1354,7 @@ P18 的 DayChangeInventoryOrder 为精确 tie、**not identified，default kept*
 
 ### 25.2 诊断所有权偏离
 
-为补齐 T20，跨 C3c 的 SimulationTrace / SimulationSystem.Trace 与 Python trace schema 添加 `daily.csv.countRespawn`（累计 ProcessDeath 调用数的逐日差，包括0；不受会话局部计数复位影响），每一天与 death 事件独立核对。修复 C7 的 slow_fight.boss 采样点：在 RebuildApplyClear 推进 currentBoss 之前记录。仅轨迹变更，无策略/成长/时钟改动；既有方法签名及原生方法不变，交 Z1 记所有权偏离。
+为补齐 T20，跨 C3c 的 SimulationTrace / SimulationSystem.Trace 与 Python trace schema 添加 `daily.csv.countRespawn`（累计 ProcessDeath 调用数的逐日差，包括0；不受会话局部计数复位影响），每一天与 death 事件独立核对。修复 C7 的 slow_fight.boss 采样点：在 RebuildApplyClear 推进 currentBoss 之前记录。旧17列的daily读取为countRespawn=None（未知），不伪造0，保留旧归档分析接口；K2仍要求新运行每个日计数与事件完全一致。仅轨迹变更，无策略/成长/时钟改动；既有方法签名及原生方法不变，交 Z1 记所有权偏离。
 
 ### 25.3 Q34 后备预登记（尚未运行后备时写入）
 
