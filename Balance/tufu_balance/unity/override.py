@@ -2,7 +2,9 @@
 
 * ``job.override`` (C# ``SimulationRunRequest.Override.cs``), read by ``replay`` and ``checkpoint`` jobs:
   ``from_day`` (null = 0), ``econ_caches`` (``stored`` | ``recomputed``), ``replay_items`` (``snapshot`` |
-  ``recompute``), ``unlock`` (``derived`` | ``snapshot``), ``total_value`` (``snapshot`` | ``compose``), ``items_evolved`` (``{"<TC>": {"<Key>": bool|null}}``,
+  ``recompute``), ``unlock`` (``derived`` | ``snapshot``), ``total_value`` (``snapshot`` | ``compose``; null =
+  snapshot for replay, compose for checkpoint, which rejects snapshot), ``rpm_after_override`` (``recompute`` |
+  ``skip``), ``items_evolved`` (``{"<TC>": {"<Key>": bool|null}}``,
   P4's :func:`tufu_balance.model.items.items_evolved_override`) and ``slots`` (``{"<TC>": {"weapon": n,
   "armor": m}}``, by default the stage-4 fixture; :func:`slots_p12` gives the closed-form P12 rule). Keys are
   shipped day-snapshot TimeChunkIndexes; a day takes the entry of the snapshot that provides its items.
@@ -33,9 +35,11 @@ ECON_CACHES = ("stored", "recomputed")
 REPLAY_ITEMS = ("snapshot", "recompute")
 UNLOCK = ("derived", "snapshot")
 TOTAL_VALUE = ("snapshot", "compose")
+RPM_AFTER_OVERRIDE = ("recompute", "skip")
 
 OVERRIDE_FIELDS = {"from_day": (int, None), "econ_caches": (str,), "replay_items": (str,), "unlock": (str,),
-                   "total_value": (str,), "items_evolved": (dict, None), "slots": (dict, None)}
+                   "total_value": (str, None), "rpm_after_override": (str,), "items_evolved": (dict, None),
+                   "slots": (dict, None)}
 
 req.register_fields("job", {"override": (dict, None)})
 req.register_fields("override", OVERRIDE_FIELDS)
@@ -58,9 +62,12 @@ def check_override(job: Mapping[str, Any], where: str = "job") -> None:
     if o.get("from_day") is not None and o["from_day"] < 0:
         raise req.RequestError(f"{w}.from_day must be >= 0")
     for name, allowed in (("econ_caches", ECON_CACHES), ("replay_items", REPLAY_ITEMS), ("unlock", UNLOCK),
-                          ("total_value", TOTAL_VALUE)):
-        if name in o and o[name] not in allowed:
+                          ("total_value", TOTAL_VALUE), ("rpm_after_override", RPM_AFTER_OVERRIDE)):
+        if o.get(name) is not None and o[name] not in allowed:
             raise req.RequestError(f"{w}.{name} must be one of {allowed}")
+    if o.get("total_value") == "snapshot" and job.get("mode") == "checkpoint":
+        raise req.RequestError(f"{w}.total_value = snapshot is for replay only (checkpoint composes TotalValue from "
+                               "K2/K3 through the closed loop)")
     for key, per in (o.get("items_evolved") or {}).items():
         if not _day_key(key):
             raise req.RequestError(f"{w}.items_evolved key {key!r} is not a TimeChunkIndex")
@@ -110,11 +117,17 @@ def slots_p12(con: sqlite3.Connection) -> dict[str, dict[str, int]]:
     return out
 
 
+def resolved_total_value(mode: str, override: Mapping | None) -> str:
+    """``OverrideOptions.ResolvedTotalValue``: null means snapshot for replay, compose for checkpoint."""
+    given = (override or {}).get("total_value")
+    return given if given is not None else ("compose" if mode == "checkpoint" else "snapshot")
+
+
 def override_options(*, from_day: int | None = None, econ_caches: str = "stored", replay_items: str = "snapshot",
-                     unlock: str = "derived", total_value: str = "snapshot", items_evolved: Mapping | None = None,
-                     slots: Mapping | None = None) -> dict:
+                     unlock: str = "derived", total_value: str | None = None, rpm_after_override: str = "recompute",
+                     items_evolved: Mapping | None = None, slots: Mapping | None = None) -> dict:
     o = {"from_day": from_day, "econ_caches": econ_caches, "replay_items": replay_items, "unlock": unlock,
-         "total_value": total_value,
+         "total_value": total_value, "rpm_after_override": rpm_after_override,
          "items_evolved": None if items_evolved is None else {k: dict(v) for k, v in items_evolved.items()},
          "slots": None if slots is None else {k: dict(v) for k, v in slots.items()}}
     check_override({"override": o})
@@ -184,13 +197,15 @@ class ExpectedDay:
     day: int
     snapshot: Any  # model.snapshots.SimulationSnapshot (interpolated or shipped)
     items_time_chunk: int
-    items: list[tuple[str, int, int, bool]]  # (Key, snapshot Level, Copies, Evolved)
+    items: list[tuple[str, int, int, bool]]  # (Key, effective level, Copies, Evolved)
 
 
 def expected_day(shipped, mode: str, day: int, items_evolved: Mapping[str, Mapping[str, bool | None]] | None) -> ExpectedDay | None:
     """What the override of ``day`` sets, from ``model.snapshots`` (independent of the C# code): replay takes
     ``GetByTimeChunkIndex(day)`` and the items of the snapshot whose list it returns (the left side), checkpoint the
-    shipped snapshot of that day (None when there is none)."""
+    shipped snapshot of that day (None when there is none). Item levels are the effective levels the engine holds:
+    the snapshot Level when evolved, Copies when not (they differ only where ``items_evolved`` overrules
+    ``Level != Copies``)."""
     snaps: Sequence = shipped.time_chunk_snapshots
     if mode == "replay":
         s = shipped.get_by_time_chunk_index(day)
@@ -211,5 +226,6 @@ def expected_day(shipped, mode: str, day: int, items_evolved: Mapping[str, Mappi
     items = []
     for it in src.items:
         flag = per.get(it.key) if per is not None else None
-        items.append((it.key, it.level, it.copies, it.level != it.copies if flag is None else bool(flag)))
+        evolved = it.level != it.copies if flag is None else bool(flag)
+        items.append((it.key, it.level if evolved else it.copies, it.copies, evolved))
     return ExpectedDay(day, s, src.time_chunk_index, items)

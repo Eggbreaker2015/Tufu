@@ -58,6 +58,7 @@ namespace Codebase.Simulation.Harness
 		public bool ItemsEveryDay { get; private set; }
 		public bool UnlockFromSnapshot { get; private set; }
 		public bool TotalValueFromSnapshot { get; private set; }
+		public bool RecomputeRpm { get; private set; }
 		// Set when the job cannot run its override (the engine fails the job with exit code 5 on day 0).
 		public string Error { get; private set; }
 
@@ -91,7 +92,8 @@ namespace Codebase.Simulation.Harness
 				StoredCaches = o.EconCaches == "stored",
 				ItemsEveryDay = o.ReplayItems == "snapshot",
 				UnlockFromSnapshot = o.Unlock == "snapshot",
-				TotalValueFromSnapshot = o.TotalValue == "snapshot",
+				TotalValueFromSnapshot = o.ResolvedTotalValue(job.Mode) == "snapshot",
+				RecomputeRpm = o.RpmAfterOverride == "recompute",
 				options = o,
 				shipped = config != null ? config.SimulationData : null,
 			};
@@ -113,7 +115,8 @@ namespace Codebase.Simulation.Harness
 				["econ_caches"] = o.EconCaches,
 				["replay_items"] = o.ReplayItems,
 				["unlock"] = o.Unlock,
-				["total_value"] = o.TotalValue,
+				["total_value"] = o.ResolvedTotalValue(job.Mode),
+				["rpm_after_override"] = o.RpmAfterOverride,
 				["items_evolved"] = o.ItemsEvolved != null ? "request" : "level_ne_copies",
 				["slots"] = o.Slots != null ? "request" : "unchanged",
 				["shipped_asset"] = state.shipped != null ? state.shipped.name : null,
@@ -212,8 +215,10 @@ namespace Codebase.Simulation.Harness
 		}
 
 		// Stored caches hold for the day they were set on (replay: every day; checkpoint: the checkpoint day only).
+		// A call on a later day is counted (stored_caches_other_day) and leaves the recomputed caches.
 		public bool TryStoredCaches(int day, out List<SimulationDpsData> dps, out List<SimulationDpsData> defense)
 		{
+			if (cachesDay >= 0 && cachesDay != day) Count("stored_caches_other_day");
 			bool hit = cachesDay >= 0 && cachesDay == day && cachedDps != null;
 			dps = hit ? cachedDps : null;
 			defense = hit ? cachedDefense : null;

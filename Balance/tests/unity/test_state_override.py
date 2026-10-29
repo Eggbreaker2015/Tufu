@@ -69,6 +69,17 @@ def spawners(db):
 GRANT = {int(StatType.Health): 500.0, int(StatType.StabDamageFlat): 3.0}
 # day 4 takes the items of TC 3, day 5 of TC 4, day 6 of TC 5; day 7 (TC 6) has no entry and keeps its slots
 SLOTS_DOWN = {"3": {"weapon": 5, "armor": 2}, "4": {"weapon": 2, "armor": 1}, "5": {"weapon": 1, "armor": 0}}
+# items_evolved against Level != Copies, one flip each way: knife at TC 17 (117/117) evolved, at TC 19 (1/86) not;
+# days 18-19 take the items of TC 17, days 20-21 those of TC 19
+FLIPS = {"17": {"knife": True}, "19": {"knife": False}}
+FLIP_DAYS = (17, 21)
+
+
+def _flipped(evolved):
+    out = {k: dict(v) for k, v in evolved.items()}
+    for tc, per in FLIPS.items():
+        out[tc].update(per)
+    return out
 
 
 def _jobs(db):
@@ -91,6 +102,11 @@ def _jobs(db):
                         max_wall_seconds=300.0),
         ov.override_job("replay-slots-down", "replay", {**full, "slots": SLOTS_DOWN}, probe=NULL, day=7,
                         max_wall_seconds=300.0),
+        ov.override_job("replay-rpm-skip", "replay", {**full, "rpm_after_override": "skip"}, probe=NULL, day=SHORT,
+                        max_wall_seconds=300.0),
+        ov.override_job("replay-evolved-flip", "replay",
+                        {**full, "from_day": FLIP_DAYS[0], "items_evolved": _flipped(full["items_evolved"])}, probe=NULL,
+                        day=FLIP_DAYS[1], max_wall_seconds=300.0),
         ov.override_job("free-ignores-override", "free", full, probe=NULL, day=6, max_wall_seconds=300.0),
     ]
 
@@ -252,6 +268,33 @@ def _rpm_check(ctx, recs):
     return bad, equal, cells
 
 
+def _day_change_rpm(ctx, recs, full):
+    """CurrentGpm of day d+1's forced snapshot against ``model.simcalc``: the day change's CalculateRPMValueTimeChunk
+    on day d's recorded state (forecast stats at K2/K3(d), RpmFirst; location, items), the DpsData/DefenseData that
+    snapshot carries, day d+1, starting from the RPMCalculatedValue of the record (RPM keeps its maximum: an
+    override's recompute carries into the next day). Returns (violations, nonzero cells, cells whose value is the
+    record's, above the day change's own)."""
+    bad, cells, carried = [], 0, 0
+    for r in recs:
+        f = full.get(r.day + 1)
+        if f is None:
+            continue
+        state = sc.PlayerState(stats=_forecast(r), dps_data={x["WeaponType"]: x["Value"] for x in f["DpsData"]},
+                               defense_data={x["WeaponType"]: x["Value"] for x in f["DefenseData"]},
+                               unlocked_location=r.raw["location"], day=r.day + 1,
+                               item_keys=frozenset(k for k, *_ in r.items))
+        want, _, _ = sc.calculate_rpm_value_time_chunk(ctx, state, rpm=r.rpm)
+        own, _, _ = sc.calculate_rpm_value_time_chunk(ctx, state)
+        for st in f["Stats"]:
+            k = st["Key"]
+            if _bits(st["CurrentGpm"]) != _bits(want.get(k, 0.0)):
+                bad.append((r.day + 1, k))
+            if st["CurrentGpm"] != 0.0:
+                cells += 1
+                carried += r.rpm.get(k, 0.0) > own.get(k, 0.0)
+    return bad, cells, carried
+
+
 def _values(snapshot_json):
     return {st["Key"]: st["Value"] for st in snapshot_json["Stats"]}
 
@@ -377,6 +420,86 @@ def test_replay_405_runs_in_under_two_minutes(run):
     assert t["job_wall_s"] < 120.0
 
 
+# ---------------------------------------------------------------- RPM after the override
+
+def test_day_change_rpm_keeps_the_override_rpm(run, ctx):
+    """rpm_after_override = recompute (default): the override's RPM (K(d), stored caches) stays in RPMCalculatedValue,
+    so day d+1's forced-snapshot CurrentGpm is max(that, the day change's own recompute); skip: the override leaves
+    RPM alone (the record equals day d's forced CurrentGpm) and only the game's own maximum carries."""
+    numbers = {}
+    for job, label in (("replay-405", "replay405"), ("replay-rpm-skip", "rpm_skip"), ("checkpoint-405", "checkpoint405")):
+        recs = _days(run, job)
+        full = {s["TimeChunkIndex"]: s for s in _full(run, job)}
+        bad, cells, carried = _day_change_rpm(ctx, recs, full)
+        print(f"{job}: day-change CurrentGpm {len(bad)} mismatches; {carried}/{cells} nonzero cells carry the record's RPM")
+        assert bad == [] and cells > 0, (job, bad[:5])
+        numbers[label] = (cells, carried)
+    skip = _days(run, "replay-rpm-skip")
+    o = run.manifest("replay-rpm-skip")["override"]
+    assert o["rpm_after_override"] == "skip" and [r.day for r in skip] == list(range(4, SHORT + 1))
+    full = {s["TimeChunkIndex"]: s for s in _full(run, "replay-rpm-skip")}
+    assert all(_same([r.rpm.get(st["Key"], 0.0) for st in full[r.day]["Stats"]],
+                     [st["CurrentGpm"] for st in full[r.day]["Stats"]]) for r in skip)
+    plain = {r.day: r for r in _days(run, "replay-405")}
+    raised = sum(1 for r in skip if any(plain[r.day].rpm[k] > v for k, v in r.rpm.items()))
+    assert raised > 0 and numbers["replay405"][1] > 0  # the recompute raises RPM, and that carries
+    check("sim_override", {
+        "replay405.day_change_gpm_cells": exact(numbers["replay405"][0], source="design 4.6",
+                                                note="nonzero CurrentGpm cells of forced snapshots 5..405"),
+        "replay405.day_change_gpm_carried": exact(numbers["replay405"][1], source="design 4.6",
+                                                  note="cells where day d+1's CurrentGpm is day d's override RPM, "
+                                                       "above the day change's own"),
+        "rpm_skip.day_change_gpm_carried": exact(numbers["rpm_skip"][1], source="design 4.6",
+                                                 note="rpm_after_override = skip, days 5..30: the game's own max"),
+        "checkpoint405.day_change_gpm_carried": exact(numbers["checkpoint405"][1], source="design 4.6",
+                                                      note="day after each checkpoint"),
+    })
+
+
+# ---------------------------------------------------------------- evolved flags
+
+def test_evolved_flags_come_from_the_request(run, shipped, evolved, slots):
+    """items_evolved overrules Level != Copies both ways: an item with Level == Copies flagged evolved keeps Level and
+    is evolved; one with Level != Copies flagged unevolved gets Level 1 and Copies as its effective level. The next
+    day's forced snapshot carries the effective level."""
+    flags = _flipped(evolved)
+    by_tc = {s.time_chunk_index: s for s in shipped.time_chunk_snapshots}
+    for tc, per in FLIPS.items():  # each flip contradicts the fallback, so the test tells them apart
+        for key, flag in per.items():
+            it = next(x for x in by_tc[int(tc)].items if x.key == key)
+            assert (it.level != it.copies) != flag and evolved[tc][key] == (it.level != it.copies)
+    recs = _days(run, "replay-evolved-flip")
+    o = run.manifest("replay-evolved-flip")["override"]
+    assert [r.day for r in recs] == list(range(FLIP_DAYS[0], FLIP_DAYS[1] + 1))
+    bad, seen = {}, set()
+    for r in recs:
+        e = ov.expected_day(shipped, "replay", r.day, flags)
+        diff = _check_state(r, e, slots)
+        for key, flag in FLIPS.get(str(e.items_time_chunk), {}).items():
+            it = next(x for x in by_tc[e.items_time_chunk].items if x.key == key)
+            got = next(x for x in r.items if x[0] == key)
+            want = (key, it.level, it.copies, True, it.level) if flag else (key, 1, it.copies, False, it.copies)
+            if got != want:
+                diff.append((key, got))
+            seen.add(e.items_time_chunk)
+        if diff:
+            bad[r.day] = diff
+    assert bad == {} and seen == {int(tc) for tc in FLIPS}
+    full = {s["TimeChunkIndex"]: s for s in _full(run, "replay-evolved-flip")}
+    for r in recs[:-1]:
+        assert _snapshot_items(full[r.day + 1]) == [(k, lv, c) for k, lv, c, _ in _items(r)]
+    unevolved_ne = sum(1 for r in recs for tc in [ov.expected_day(shipped, "replay", r.day, flags).items_time_chunk]
+                       for it in by_tc[tc].items if it.level != it.copies and flags[str(tc)].get(it.key) is False)
+    assert unevolved_ne > 0 and o["counters"].get("unevolved_level_ne_copies") == unevolved_ne
+    assert not any(k.startswith("items_evolved_") for k in o["counters"])
+    check("sim_override", {
+        "evolved_flip.items": exact([[r.day] + [list(x) for x in r.items if x[0] in {k for p in FLIPS.values() for k in p}]
+                                     for r in recs], source="design 4.6",
+                                    note="knife (Key, Level, Copies, Evolved, EffectiveLevel) per day 17..21"),
+        "evolved_flip.counters": exact(o["counters"], source="design 4.6"),
+    })
+
+
 # ---------------------------------------------------------------- reward modifiers
 
 def test_override_removes_reward_modifiers(run, shipped, interp, evolved):
@@ -435,7 +558,8 @@ def test_checkpoint_resets_at_shipped_day_snapshots(run, shipped, interp, ctx, e
     tcs = [s.time_chunk_index for s in shipped.time_chunk_snapshots]
     assert [r.day for r in recs] == tcs
     assert m["override"]["applied"] == len(tcs) and m["override"]["calls"] == LAST + 1
-    assert not any(k.startswith("total_value_") for k in m["override"]["counters"])  # shipped TotalValue composes exactly
+    assert m["override"]["total_value"] == "compose"  # checkpoint default: no correction outlives the day
+    assert not any(k.startswith("total_value_") for k in m["override"]["counters"])
     registered, ident = spawners
     boss = ident[sp.boss_for_location(1, registered).spawner_id]
     totals = _Totals(interp, set(tcs))
@@ -626,13 +750,15 @@ def test_free_job_ignores_the_override(run):
 
 def test_options_are_echoed_in_the_manifest(run):
     for job in ("replay-405", "replay-405-compose", "checkpoint-405", "replay-recomputed", "replay-items-recompute",
-                "replay-unlock-snapshot", "replay-grant", "checkpoint-from-20", "replay-slots-down"):
+                "replay-unlock-snapshot", "replay-grant", "checkpoint-from-20", "replay-slots-down", "replay-rpm-skip",
+                "replay-evolved-flip"):
         m = run.manifest(job)
         given = m["job"]["override"]
         o = m["override"]
-        assert (o["mode"], o["from_day"], o["econ_caches"], o["replay_items"], o["unlock"], o["total_value"]) == \
+        assert (o["mode"], o["from_day"], o["econ_caches"], o["replay_items"], o["unlock"], o["total_value"],
+                o["rpm_after_override"]) == \
             (m["mode"], given["from_day"] or 0, given["econ_caches"], given["replay_items"], given["unlock"],
-             given["total_value"])
+             ov.resolved_total_value(m["mode"], given), given["rpm_after_override"])
         assert o["file"] == ov.DAYS_FILE and o["error"] is None and o["shipped_time_chunks"] == 46
 
 

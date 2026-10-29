@@ -15,6 +15,7 @@ namespace Codebase.Simulation.Harness
 		public static readonly string[] ReplayItemsValues = { "snapshot", "recompute" };
 		public static readonly string[] UnlockValues = { "derived", "snapshot" };
 		public static readonly string[] TotalValueValues = { "snapshot", "compose" };
+		public static readonly string[] RpmAfterOverrideValues = { "recompute", "skip" };
 
 		public partial class Job
 		{
@@ -36,8 +37,14 @@ namespace Codebase.Simulation.Harness
 			// (diagnostic).
 			[JsonProperty("unlock")] public string Unlock = "derived";
 			// snapshot: Stat TotalValue = the (interpolated) snapshot's TotalValue; compose: Value composed with the
-			// day's K2/K3 modifiers (what the forced snapshots write).
-			[JsonProperty("total_value")] public string TotalValue = "snapshot";
+			// day's K2/K3 modifiers (what the forced snapshots write). Null: snapshot for replay, compose for
+			// checkpoint (which rejects snapshot: its correction would outlive the day in the closed loop).
+			[JsonProperty("total_value")] public string TotalValue;
+			// recompute: the day's RPM again after the override (at K(d), on the override's caches; RPM keeps its
+			// maximum, so it carries into later days); skip: only the day change's RPM.
+			[JsonProperty("rpm_after_override")] public string RpmAfterOverride = "recompute";
+
+			public string ResolvedTotalValue(string mode) => TotalValue ?? (mode == "checkpoint" ? "compose" : "snapshot");
 			// {"<shipped TimeChunkIndex>": {"<item Key>": true | false | null}} (tufu_balance.model.items
 			// .items_evolved_override). Null or a missing/null entry: evolved iff Level != Copies (counted).
 			[JsonProperty("items_evolved")] public Dictionary<string, Dictionary<string, bool?>> ItemsEvolved;
@@ -69,7 +76,9 @@ namespace Codebase.Simulation.Harness
 			else if (!EconCachesValues.Contains(o.EconCaches)) error = where + "econ_caches must be one of " + string.Join(", ", EconCachesValues);
 			else if (!ReplayItemsValues.Contains(o.ReplayItems)) error = where + "replay_items must be one of " + string.Join(", ", ReplayItemsValues);
 			else if (!UnlockValues.Contains(o.Unlock)) error = where + "unlock must be one of " + string.Join(", ", UnlockValues);
-			else if (!TotalValueValues.Contains(o.TotalValue)) error = where + "total_value must be one of " + string.Join(", ", TotalValueValues);
+			else if (o.TotalValue != null && !TotalValueValues.Contains(o.TotalValue)) error = where + "total_value must be one of " + string.Join(", ", TotalValueValues);
+			else if (o.TotalValue == "snapshot" && job.Mode == "checkpoint") error = where + "total_value = snapshot is for replay only (checkpoint composes TotalValue from K2/K3 through the closed loop)";
+			else if (!RpmAfterOverrideValues.Contains(o.RpmAfterOverride)) error = where + "rpm_after_override must be one of " + string.Join(", ", RpmAfterOverrideValues);
 			if (error != null) return;
 			if (o.ItemsEvolved != null)
 				foreach (var pair in o.ItemsEvolved)

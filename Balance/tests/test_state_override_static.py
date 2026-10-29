@@ -29,14 +29,32 @@ def test_csharp_fields_and_values_match_python():
     assert _class_fields(text, "SlotCounts") == {"weapon", "armor"}
     for cs_name, values in (("OverrideModes", ov.OVERRIDE_MODES), ("EconCachesValues", ov.ECON_CACHES),
                             ("ReplayItemsValues", ov.REPLAY_ITEMS), ("UnlockValues", ov.UNLOCK),
-                            ("TotalValueValues", ov.TOTAL_VALUE)):
+                            ("TotalValueValues", ov.TOTAL_VALUE), ("RpmAfterOverrideValues", ov.RPM_AFTER_OVERRIDE)):
         found = re.search(cs_name + r" = \{(.*?)\};", text).group(1)
         assert tuple(re.findall(r'"(\w+)"', found)) == values, cs_name
     defaults = dict(re.findall(r'public string (\w+) = "(\w+)";', text))
-    assert defaults == {"EconCaches": "stored", "ReplayItems": "snapshot", "Unlock": "derived", "TotalValue": "snapshot"}
+    assert defaults == {"EconCaches": "stored", "ReplayItems": "snapshot", "Unlock": "derived",
+                        "RpmAfterOverride": "recompute"}
+    assert "public string TotalValue;" in text
+    assert 'TotalValue ?? (mode == "checkpoint" ? "compose" : "snapshot")' in text
     assert ov.override_options() == {"from_day": None, "econ_caches": "stored", "replay_items": "snapshot",
-                                     "unlock": "derived", "total_value": "snapshot", "items_evolved": None,
-                                     "slots": None}
+                                     "unlock": "derived", "total_value": None, "rpm_after_override": "recompute",
+                                     "items_evolved": None, "slots": None}
+    assert [ov.resolved_total_value(m, ov.override_options()) for m in ov.OVERRIDE_MODES] == ["snapshot", "compose"]
+    assert ov.resolved_total_value("checkpoint", ov.override_options(total_value="compose")) == "compose"
+
+
+def test_checkpoint_rejects_the_total_value_correction():
+    """The correction modifiers last until the next override or equipment change; in checkpoint that is the closed
+    loop, where K2/K3 move on (and a K patch would be pulled back to the shipped TotalValue)."""
+    text = CS_OVERRIDE.read_text(encoding="utf-8")
+    assert 'o.TotalValue == "snapshot" && job.Mode == "checkpoint"' in text
+    ok = {"job_id": "j", "mode": "checkpoint", "override": ov.override_options(total_value="compose")}
+    ov.check_override(ok)
+    ov.check_override({**ok, "override": ov.override_options()})
+    with pytest.raises(req.RequestError, match="replay only"):
+        ov.check_override({**ok, "override": ov.override_options(total_value="snapshot")})
+    ov.check_override({**ok, "mode": "replay", "override": ov.override_options(total_value="snapshot")})
 
 
 def _job(**override):
@@ -52,6 +70,8 @@ def _job(**override):
     ({"replay_items": "none"}, "replay_items"),
     ({"unlock": "always"}, "unlock"),
     ({"total_value": "interpolated"}, "total_value"),
+    ({"rpm_after_override": "never"}, "rpm_after_override"),
+    ({"rpm_after_override": None}, "must not be null"),
     ({"items_evolved": {"x": {}}}, "TimeChunkIndex"),
     ({"items_evolved": {"04": {}}}, "TimeChunkIndex"),
     ({"items_evolved": {"4": []}}, "must be an object"),
@@ -113,6 +133,10 @@ def test_expected_day_takes_the_item_side_of_get_by_time_chunk_index(db):
     assert e.items_time_chunk == 19 and e.snapshot is by_tc[19] and ("knife", 1, 86, True) in e.items
     # without items_evolved: evolved iff Level != Copies (the C# fallback)
     assert ("knife", 1, 86, True) in ov.expected_day(shipped, "checkpoint", 19, None).items
+    # a request flag overrules Level != Copies; unevolved items hold their Copies as the effective level
+    flipped = ov.expected_day(shipped, "checkpoint", 19, {"19": {"knife": False}}).items
+    assert ("knife", 86, 86, False) in flipped
+    assert ("knife", 117, 117, True) in ov.expected_day(shipped, "checkpoint", 17, {"17": {"knife": True}}).items
 
 
 def test_engine_marks_the_day_applied_before_it_reads_the_stored_caches():
@@ -120,7 +144,8 @@ def test_engine_marks_the_day_applied_before_it_reads_the_stored_caches():
     body = text[text.index("partial void RebuildApplyDayOverride(int day)"):text.index("partial void RebuildApplyReplayCaches()")]
     order = [body.index(s) for s in ("state.Resolve(day)", "RebuildReplaySetSlots", "RebuildReplaySetItems(",
                                      "RebuildReplaySetStats(", "RebuildReplaySetTotalValues(", "state.Applied(s)", "CalculateSimulationData();",
-                                     "RebuildApplyReplayCaches();", "CalculateRPMValueTimeChunk(type)", "state.Record(")]
+                                     "RebuildApplyReplayCaches();", "if (state.RecomputeRpm)", "CalculateRPMValueTimeChunk(type)",
+                                     "state.Record(")]
     assert order == sorted(order)
 
 

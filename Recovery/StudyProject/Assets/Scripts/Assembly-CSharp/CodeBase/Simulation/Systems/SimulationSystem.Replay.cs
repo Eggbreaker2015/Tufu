@@ -20,8 +20,9 @@ namespace Codebase.Simulation.Systems
 		// interactive runs have no SimulationStateOverride and pass through. Order: unlock (unlock = snapshot), slots,
 		// items, stat Values (base value = snapshot Value, every modifier but the two __simulation* ones and
 		// equipment's removed, so TotalValue composes from Value and the day's K2/K3), TotalValue (total_value =
-		// snapshot: corrected to the snapshot's own), full health, then the caches and the day's RPM under the new
-		// state (C3b's day change computed them before the override).
+		// snapshot: corrected to the snapshot's own), full health, then the caches and (rpm_after_override =
+		// recompute) the day's RPM under the new state (C3b's day change computed them before the override; RPM keeps
+		// its maximum, so this value carries into the next day's forced snapshot).
 		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.state_override")]
 		partial void RebuildApplyDayOverride(int day)
 		{
@@ -46,8 +47,11 @@ namespace Codebase.Simulation.Systems
 				state.Applied(s);
 				CalculateSimulationData();
 				RebuildApplyReplayCaches();
-				CalculateSoulRPMValues();
-				foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+				if (state.RecomputeRpm)
+				{
+					CalculateSoulRPMValues();
+					foreach (StatType type in Enum.GetValues(typeof(StatType))) CalculateRPMValueTimeChunk(type);
+				}
 				RebuildCount("day_overrides");
 				state.Record(RebuildReplayRecord(state, s, locationBefore, removed));
 			}
