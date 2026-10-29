@@ -66,7 +66,7 @@ def test_request_field_and_events():
     req.validate(req.make_request([job], out_dir="/tmp/x"))
     with pytest.raises(req.RequestError):
         spol.slow_job("x", probe={"selection": True, "bogus": 1})
-    for kind in ("slow_fight", "slow_gate", "stat_benefit", "slow_policy_probe", "slow_target_refused"):
+    for kind in ("slow_fight", "slow_gate", "slow_selection", "stat_benefit", "slow_policy_probe", "slow_target_refused"):
         assert kind in schema.EVENT_TYPES
     fight = (SYSTEMS / "SimulationSystem.Fight.cs").read_text(encoding="utf-8")
     start = fight.index('RebuildTraceEvent("slow_fight", ') + len('RebuildTraceEvent("slow_fight", ')

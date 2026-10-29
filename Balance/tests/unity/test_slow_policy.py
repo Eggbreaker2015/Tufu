@@ -2,7 +2,7 @@
 selection (gate, ties, null), the time models, health, the lethality gate around the island-3 gate, deaths,
 SmartPath, CalculateStatBenefit's cadence, and the per-tick cost.
 
-Every job is a free run of days 0-3 (stop after day 4's forced snapshot; FastTick is still C3b's minimal one) with
+Every job is a free run of days 0-3 (stop after day 4's forced snapshot) with
 the resolved default parameters (``calibrate.params.resolve``) plus one override. Per-fight facts come from the
 ``slow_fight`` events (``tufu_balance.unity.slow_policy``), checked against the recovered formulas and the
 database, never against values of the code under test.
@@ -53,7 +53,7 @@ def _params(overrides=None):
 
 def _jobs():
     jobs = [spol.slow_job(job_id, day=DAY, max_wall_seconds=600.0, params=_params(over),
-                          probe={"selection": True} if job_id == "slow-default" else None)
+                          probe={"selection": True})
             for job_id, over in VARIANTS.items()]
     jobs += [
         spol.slow_job("perf-null", day=DAY, max_wall_seconds=600.0, params=_params(), engine_probe=NULL),
@@ -75,17 +75,18 @@ def run(unity_run):
 GATES = {"gate-same-as-fast": "SameAsFast", "gate-current-health": "CurrentHealth", "gate-none": "None"}
 
 
-# CutDamageFlat granted before day 0 (engine_probe.grant_flat): without C6's ProcessInventory the closed loop keeps
-# the starting knife only, and the island-3 gate's fightTime stays above 300 s (dropped by the bot filter); the
-# shipped TC3 state has 1143 Cut DpsData from seven weapons. The grant gives a comparable Cut DPS.
+# The grant keeps fightTime below the bot's 300 s cap. C6's drops shortened fights enough that the old clock
+# ended the slow phase at P=236; a test-only doubled move cost gives a qualifying lethal fight at P>=240.
+# This exercises the gate predicates, not the default time model or K2 calibration.
 GATE_GRANT = {8: 1200.0}
+GATE_CLOCK = {"TimeModel": spol.TIME_MODEL["Decomposed"], "CMove": 2.0}
 
 
 def _gate_jobs():
     """Islands 2-3 open from the start (engine_probe.unlock_through, no slot rewards): currentBoss is the island-3
-    gate (OT 240), which passes the bot filter once P >= 240, late on day 3, as in the shipped run (TC3)."""
+    gate (OT 240), which passes the bot filter once P >= 240, late on day 3."""
     return [spol.slow_job(job_id, day=DAY, max_wall_seconds=600.0,
-                          params=_params({"SlowLethalityGate": spol.SLOW_LETHALITY_GATE[gate]}),
+                          params=_params({**GATE_CLOCK, "SlowLethalityGate": spol.SLOW_LETHALITY_GATE[gate]}),
                           engine_probe=engine.engine_probe(unlock_through=3, grant_flat=GATE_GRANT))
             for job_id, gate in GATES.items()]
 
@@ -121,6 +122,12 @@ def ident(db):
 def by_runtime(ctx, ident):
     by_id = {s.spawner_id: s for s in ctx.spawners}
     return {e.runtime_id: by_id.get(e.spawner_id) for e in ident.entries}
+
+
+@pytest.fixture(scope="module")
+def priority_multipliers(db):
+    return {(r[0], r[1]): float(f32(r[2])) for r in
+            db.execute('SELECT scene, file_id, PriorityMultiplier FROM spawners')}
 
 
 def _events(traces, job, kind):
@@ -216,12 +223,39 @@ def test_idle_only_when_nothing_is_allowed(run, job):
 
 
 @pytest.mark.parametrize("job", ["slow-default", "slow-bydist", "slow-nosmart", "slow-current-health"])
-def test_the_gate_is_chosen_whenever_it_is_allowed(run, traces, job):
-    """currentBoss's reward value 1e6: whenever the gate passes the bot filter and the lethality gate, it is the
-    pick (counted every tick; until then the gate refuses it). The unlock days are closed-loop results for K2
-    (shipped: island 2 on day 0, island 3 on day 1)."""
+def test_gate_selection_is_the_allowed_priority_argmax(run, traces, by_runtime, priority_multipliers, job):
+    """The boss competes with all allowed candidates using reward/cost, with the first winning ties.
+    Its 1e6 reward need not beat a very cheap ordinary fight. Unlock days remain closed-loop K2 diagnostics."""
     c = _counters(run, job)
-    assert c.get("slow_boss_allowed_not_chosen", 0) == 0
+    picks = _events(traces, job, "slow_selection")
+    assert len(picks) == sum(c.get(k, 0) for k in
+                            ("slow_boss_chosen", "slow_boss_refused", "slow_boss_allowed_not_chosen")) > 0
+    decisions = Counter()
+    for pick in picks:
+        candidates = json.loads(pick["candidates"])
+        assert pick["boss"] in {x["spawner"] for x in candidates}
+        ranked = []
+        boss_allowed = False
+        for x in candidates:
+            refused = (x["loss"] >= pick["current_health"] if job == "slow-current-health"
+                       else pick["kill_loss_multiplier"] * pick["max_health"] < x["loss"])
+            allowed = not (x["skipped"] or refused)
+            if x["spawner"] == pick["boss"]:
+                boss_allowed = allowed
+            if not allowed:
+                continue
+            s = by_runtime[x["spawner"]]
+            reward = (1e6 if x["spawner"] == pick["boss"] else
+                      (1e4 if s.d.item_reward else sum(float(v.value) for v in s.stat_rewards)) * s.d.count)
+            priority = reward * priority_multipliers[s.spawner_id] / (x["farmed_time"] - x["av_move_time"] + x["distance_time"])
+            if not math.isnan(priority):
+                ranked.append((priority, x["spawner"]))
+        best = max(ranked, key=lambda x: x[0])[1] if ranked else ""
+        assert pick["best"] == best, (job, pick)
+        decisions["slow_boss_refused" if not boss_allowed else
+                  "slow_boss_chosen" if best == pick["boss"] else "slow_boss_allowed_not_chosen"] += 1
+    assert all(c.get(k, 0) == decisions[k] for k in
+               ("slow_boss_chosen", "slow_boss_refused", "slow_boss_allowed_not_chosen"))
     assert c.get("slow_boss_chosen", 0) >= 1 and c.get("slow_boss_refused", 0) > 0
     unlocks = {e["location"]: e["day"] for e in _events(traces, job, "unlock")}
     assert 2 in unlocks
@@ -344,8 +378,8 @@ def _island3_gate(events):
 def test_lethality_gate_at_the_island3_gate(gate_run, gate_traces):
     """On day 3 the island-3 gate (OT 240) passes the bot filter but is lethal (shipped TC3 state: loss/H 4.16):
     SameAsFast and CurrentHealth never pick it, None does (and the player dies); the recorded predicates are the
-    design's. The state is the closed loop's with islands 2-3 open and GATE_GRANT (the shipped TC3 state needs C4's
-    replay and C6's items; tests/test_slow_policy_static.py checks the shipped state with the oracle)."""
+    design's. The fixture uses islands 2-3 open, GATE_GRANT and GATE_CLOCK;
+    tests/test_slow_policy_static.py independently checks loss/H=4.16 on the shipped TC3 state."""
     first = {}
     for job, gate in GATES.items():
         gates = _island3_gate(_events(gate_traces, job, "slow_gate"))
@@ -367,7 +401,7 @@ def test_lethality_gate_at_the_island3_gate(gate_run, gate_traces):
     g = first["gate-same-as-fast"]
     check("sim_slow", {
         "island3_gate.first_loss_per_h": exact(round(g["loss"] / g["max_health"], 3), source="design 4.5",
-                                               note=f"closed loop, islands 2-3 open; shipped TC3 state {ISLAND3_GATE_LOSS_PER_H}"),
+                                               note=f"closed loop, islands 2-3 open, test-only CMove=2; shipped TC3 state {ISLAND3_GATE_LOSS_PER_H}"),
         "island3_gate.first_p": exact(round(float(f32(g["playtime"])), 3), source="design 4.5"),
         "island3_gate.none_gate_deaths": exact(len(gate_deaths), source="design 4.5 P15"),
     })

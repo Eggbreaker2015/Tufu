@@ -1,7 +1,7 @@
 """Replay and checkpoint state override in Unity (design 4.6, 7.3 C4).
 
-Every job runs under the empty policy (``engine_probe.null_policy``: no FindBestSpawner, C3b's minimal FastTick),
-so nothing but the override changes the state and each check isolates it. Expected values come from the Python
+Every job runs under the empty combat policy (``engine_probe.null_policy``: no FindBestSpawner or fast clears).
+C6 still processes timed evolutions at fast-day flushes. Expected values come from the Python
 oracle (``model.snapshots`` for GetByTimeChunkIndex, ``model.simcalc`` for DpsData, P4/P6 for evolved flags and
 bosses); ``override_days.jsonl`` holds the state the engine has right after each override.
 """
@@ -15,7 +15,7 @@ import struct
 import pytest
 
 from tufu_balance.golden import check, exact
-from tufu_balance.model import simcalc as sc, snapshots as ss, spawners as sp
+from tufu_balance.model import evolution_gen as eg, items as mi, simcalc as sc, snapshots as ss, spawners as sp
 from tufu_balance.model.data import load_interpolations, load_simulation_data
 from tufu_balance.model.enums import ItemSlotType, StatType
 from tufu_balance.model.items import ItemState
@@ -51,6 +51,11 @@ def ctx(db):
 @pytest.fixture(scope="module")
 def evolved(db):
     return ov.items_evolved_default(db)
+
+
+@pytest.fixture(scope="module")
+def evolution(db):
+    return eg.load_evolution_config(db)
 
 
 @pytest.fixture(scope="module")
@@ -152,6 +157,21 @@ def _items(rec):
 
 def _snapshot_items(s):
     return [(it["Key"], it["Level"], it["Copies"]) for it in s["Items"]]
+
+
+def _timed_items(items, day, config):
+    """No drops: apply shipped timings and P4's original evolve transition at the fast-day flush."""
+    out = []
+    for key, level, copies, evolved in items:
+        item = config.items[key]
+        state = ItemState.from_snapshot(level, copies, evolved)
+        timings = config.target_timings.get(item.kind, {}).get(item.rarity, ())
+        while state.next_evolution_level <= len(timings):
+            if day < timings[state.next_evolution_level - 1] or not mi.can_evolve(item, state, config.tables):
+                break
+            state = mi.evolve(item, state, config.tables)
+        out.append((key, state.effective_level, state.copies, state.evolved))
+    return out
 
 
 def _fast_value(key: int, value: float, k2: float, k3: float) -> float:
@@ -388,25 +408,27 @@ def test_replay_compose_total_value(run, shipped, interp, evolved, slots):
     })
 
 
-def test_replay_state_carries_to_the_next_forced_snapshot(run, shipped, ctx, evolved):
+def test_replay_state_carries_to_the_next_forced_snapshot(run, shipped, ctx, evolved, evolution):
     """Empty policy: day d+1's forced snapshot (taken before its override) shows day d's override: the Values and
-    items (effective level) of the record. Its DpsData/DefenseData are what the day change recomputes from the
-    record's forecast stats (K2/K3(d) and the correction, RpmFirst), items and slots at timing d+1 -- not the
+    items after the day's allowed timed evolutions. Its DpsData/DefenseData are what the day change recomputes from
+    the record's forecast stats (K2/K3(d) and the correction, RpmFirst), evolved items and slots at timing d+1 -- not the
     stored ones: nothing applies the stored caches at the day change."""
     recs = {r.day: r for r in _days(run, "replay-405")}
     full = {s["TimeChunkIndex"]: s for s in _full(run, "replay-405")}
-    bad, differs = [], 0
+    bad, differs, changed = [], 0, 0
     for d in range(4, LAST):
         s, r = full[d + 1], recs[d]
+        items = _timed_items(_items(r), d, evolution)
+        changed += items != _items(r)
         if not _same([st["Value"] for st in s["Stats"]], [r.stats[st["Key"]][0] for st in s["Stats"]]) \
-                or _snapshot_items(s) != [(k, lv, c) for k, lv, c, _ in _items(r)]:
+                or _snapshot_items(s) != [(k, lv, c) for k, lv, c, _ in items]:
             bad.append((d, "state"))
-        dps, defense = _recomputed_dps(ctx, _forecast(r), _items(r), r.raw["weapon_slots"], r.raw["armor_slots"], d + 1)
+        dps, defense = _recomputed_dps(ctx, _forecast(r), items, r.raw["weapon_slots"], r.raw["armor_slots"], d + 1)
         if not _pairs_same([(x["WeaponType"], x["Value"]) for x in s["DpsData"]], dps) \
                 or not _pairs_same([(x["WeaponType"], x["Value"]) for x in s["DefenseData"]], defense):
             bad.append((d, "dps"))
         differs += not _pairs_same(dps, ov.expected_day(shipped, "replay", d, evolved).snapshot.dps_data)
-    assert bad == []
+    assert bad == [] and changed > 0, bad
     check("sim_override", {
         "replay405.forced_dps_differs_from_stored": exact(differs, source="design 4.6",
                                                           note="days d whose day d+1 forced-snapshot DpsData (day "
@@ -458,10 +480,10 @@ def test_day_change_rpm_keeps_the_override_rpm(run, ctx):
 
 # ---------------------------------------------------------------- evolved flags
 
-def test_evolved_flags_come_from_the_request(run, shipped, evolved, slots):
+def test_evolved_flags_come_from_the_request(run, shipped, evolved, slots, evolution):
     """items_evolved overrules Level != Copies both ways: an item with Level == Copies flagged evolved keeps Level and
     is evolved; one with Level != Copies flagged unevolved gets Level 1 and Copies as its effective level. The next
-    day's forced snapshot carries the effective level."""
+    day's forced snapshot carries that state after any allowed timed evolutions."""
     flags = _flipped(evolved)
     by_tc = {s.time_chunk_index: s for s in shipped.time_chunk_snapshots}
     for tc, per in FLIPS.items():  # each flip contradicts the fallback, so the test tells them apart
@@ -487,7 +509,8 @@ def test_evolved_flags_come_from_the_request(run, shipped, evolved, slots):
     assert bad == {} and seen == {int(tc) for tc in FLIPS}
     full = {s["TimeChunkIndex"]: s for s in _full(run, "replay-evolved-flip")}
     for r in recs[:-1]:
-        assert _snapshot_items(full[r.day + 1]) == [(k, lv, c) for k, lv, c, _ in _items(r)]
+        items = _timed_items(_items(r), r.day, evolution)
+        assert _snapshot_items(full[r.day + 1]) == [(k, lv, c) for k, lv, c, _ in items]
     unevolved_ne = sum(1 for r in recs for tc in [ov.expected_day(shipped, "replay", r.day, flags).items_time_chunk]
                        for it in by_tc[tc].items if it.level != it.copies and flags[str(tc)].get(it.key) is False)
     assert unevolved_ne > 0 and o["counters"].get("unevolved_level_ne_copies") == unevolved_ne
@@ -585,13 +608,13 @@ def test_checkpoint_resets_at_shipped_day_snapshots(run, shipped, interp, ctx, e
     })
 
 
-def test_checkpoint_continues_closed_loop(run, shipped, ctx, interp, evolved, slots):
+def test_checkpoint_continues_closed_loop(run, shipped, ctx, interp, evolved, slots, evolution):
     """Between checkpoints the engine runs on, not overridden: every forced snapshot up to the next checkpoint keeps
-    the reset Values and items, and its DpsData/DefenseData are recomputed by the recovered CalculateDpsData at the
+    the reset Values and evolves items using shipped timings and costs. Its DpsData/DefenseData are recomputed at the
     day change (RpmFirst: K2/K3(e-1) on the stats, timing e), no longer the stored ones."""
     full = {s["TimeChunkIndex"]: s for s in _full(run, "checkpoint-405")}
     snaps = shipped.time_chunk_snapshots
-    bad, recomputed_differs, checked = [], 0, 0
+    bad, recomputed_differs, checked, changed = [], 0, 0, 0
     for s, nxt_tc in zip(snaps, [x.time_chunk_index for x in snaps[1:]]):
         a = s.time_chunk_index
         values = {st.key: st.value for st in s.stats}
@@ -599,6 +622,10 @@ def test_checkpoint_continues_closed_loop(run, shipped, ctx, interp, evolved, sl
         w = slots[str(a)]
         for e in range(a + 1, nxt_tc + 1):
             f = full[e]
+            if e - 1 >= 4:
+                after = _timed_items(items, e - 1, evolution)
+                changed += after != items
+                items = after
             if not _same([st["Value"] for st in f["Stats"]], [values[st["Key"]] for st in f["Stats"]]) \
                     or _snapshot_items(f) != [(k, lv, c) for k, lv, c, _ in items]:
                 bad.append((e, "state"))
@@ -611,7 +638,7 @@ def test_checkpoint_continues_closed_loop(run, shipped, ctx, interp, evolved, sl
             if e == a + 1:
                 recomputed_differs += not _pairs_same(dps, s.dps_data)
             checked += 1
-    assert bad == [] and checked == LAST
+    assert bad == [] and checked == LAST and changed > 0, bad
     assert recomputed_differs > 0
     check("sim_override", {
         "checkpoint405.recomputed_dps_differs_from_stored": exact(recomputed_differs, source="design 4.6",
