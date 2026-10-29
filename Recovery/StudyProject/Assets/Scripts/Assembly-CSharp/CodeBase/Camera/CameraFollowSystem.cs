@@ -134,6 +134,8 @@ namespace Codebase.Camera
 
 		public Vector3 PositionOfAttack { get; private set; }
 
+		public bool IsOverriding => followingTransform != null || isOverridingTarget;
+
 		public bool IsShowingGate => isOverridingTarget || ShowingGate;
 
 		public bool ShowingGate { get; set; }
@@ -269,7 +271,7 @@ namespace Codebase.Camera
 			    return;
 			}
 			if (isOverridingTarget) return;
-			Vector3 playerPosition = playerModel.Unit.transform.position;
+			Vector3 playerPosition = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform.position;
 			float targetY = Mathf.Max(playerPosition.y, GameContext.Get<FirecampSystem>().transform.position.y);
 			if (!hasSmoothedTargetY)
 			{
@@ -310,7 +312,7 @@ namespace Codebase.Camera
 		private float CalculateMovementSpeedHeightBonus()
 		{
 			// Native ELF VA 0x154e838.
-			PlayerUnit unit = playerModel?.Unit;
+			UnitCore unit = global::Codebase.Rpg.RpgControl.ControlledUnitOrNull(playerModel);
 			float bonus = unit != null ? (float)unit.GetStatSpecificValue(StatType.MovementSpeed) / 5f : 0f;
 			smoothedMovementSpeedHeightBonus = Mathf.SmoothDamp(smoothedMovementSpeedHeightBonus, bonus, ref smoothedMovementSpeedHeightBonusVelocity, 0.5f, float.PositiveInfinity, Time.deltaTime);
 			return smoothedMovementSpeedHeightBonus;

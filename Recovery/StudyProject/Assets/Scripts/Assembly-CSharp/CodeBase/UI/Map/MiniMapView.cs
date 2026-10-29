@@ -157,7 +157,7 @@ namespace Codebase.UI.Map
 
 		public bool IsZoomed { get; private set; }
 
-		private Transform player => playerModel.Unit != null ? playerModel.Unit.transform : null;
+		private Transform player => global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel) != null ? global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform : null;
 
 		private void Awake()
 		{

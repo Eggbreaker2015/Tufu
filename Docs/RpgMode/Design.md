@@ -9,7 +9,7 @@
 | # | 决定 |
 |---|---|
 | 1 | 长期存档：一个存档一直成长，不按局重置。主线通关后开难度档，反复刷。 |
-| 2 | 玩家只操控一个英雄。每个英雄有一个手动大招，其余技能自动施放，其余英雄由 AI 控制。加仇恨系统。 |
+| 2 | 所有英雄是同一种单位、同一套规则，玩家随时切换操控任意存活英雄，其余英雄由 AI 控制（第 19 节，覆盖原来的"只操控一个英雄"）。每个英雄有一个手动大招，其余技能自动施放。加仇恨系统。 |
 | 3 | 先做 5 个英雄，技能专门设计。稀有度分 3 档，稀有度越低技能越少，暂定 1、2、3 个。 |
 | 4 | 杀怪不再给永久属性，改为经验和金币。吞噬降成次要系统。 |
 | 5 | 刷怪点保留。去掉每日次数，缩短重生冷却，经验按等级差递减。 |
@@ -69,7 +69,7 @@
 
 稀有度三档：普通 1 个技能，稀有 2 个，史诗 3 个。技能数包含大招，所以普通英雄只有一个大招。稀有度只决定技能数量，不改属性比例。
 
-主角就是玩家操控的英雄，按史诗档做，不参与稀有度获取。4 个队友是 2 个普通、2 个稀有。
+主角是英雄之一，按史诗档做，不参与稀有度获取。玩家可以切换操控任何英雄，见第 19 节。4 个队友是 2 个普通、2 个稀有。
 
 | 英雄 | 稀有度 | 技能数 | 定位 | 普攻 | 伤害类型 | 模型（沿用现有敌人） | 加入时间 |
 |---|---|---|---|---|---|---|---|
@@ -436,7 +436,7 @@ level = round(L_start(岛) + rel × (L_end(岛) − L_start(岛)))，限制在 1
 
 | # | 决定 | 没采用的备选 |
 |---|---|---|
-| 1 | 主角就是玩家操控的英雄，按史诗档（3 个技能）做；4 个队友是 2 普通 + 2 稀有 | 主角之外再做 5 个队友，共 6 套技能 |
+| 1 | 主角按史诗档（3 个技能）做；4 个队友是 2 普通 + 2 稀有。操控方式已由第 19 节改为可切换 | 主角之外再做 5 个队友，共 6 套技能 |
 | 2 | 技能数 1、2、3 包含大招，普通英雄只有大招 | 不含大招，即 1+1、2+1、3+1 |
 | 3 | 队伍共享一个等级 | 每个英雄单独等级，新英雄靠追赶机制 |
 | 4 | 切片用主角、坦克、治疗；射手和法师放到第 3 岛以后 | 切片就做齐 5 个 |
@@ -455,3 +455,179 @@ level = round(L_start(岛) + rel × (L_end(岛) − L_start(岛)))，限制在 1
 5. **重建代码**：`EnemyAttackSystem`、`EnemySpawner.HandleDeath/HandleDevour` 和任务流程是重建的，没有原生依据。改之前先读懂现状。
 6. **怪物偏少**：见第 9.5 节。
 7. **素材版权**：不变。只在打算发布时才是问题。
+
+## 19. 统一英雄单位与切换操控（2026-10-29）
+
+> 路径相对于 `CB/` = `Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/`。行号已在 `feature/rpg-mode` 上逐条核对。
+> 本节改写第 1 节决定 2“玩家只操控一个英雄”：改为玩家可以随时切换操控任意存活英雄，其余英雄由 AI 控制。
+
+### 1. 总体做法
+
+以方案一为骨架，吸收方案三的几处细节（输入角度、切换后的瞬移宽限、AI 主角只在目标进入攻击范围时才写 CurrentTarget），以及方案二的“相机覆盖期间禁止切换”。
+
+1. **RPG 叠在宠物模式上。** `RpgModeConfig.Enabled = asset.enabled && PetConfig.Enabled`。队友直接复用已经验证过的宠物单位链路：移动、攻击、受伤、阵亡、15 秒复活、泉水、血条、回血、敌人仇恨、技能自动施放。理由：
+   - `PetModel.Slot` 只在 `Pet/Systems/PetSpawnSystem.cs:59` 和 `Pet/PetsModel.cs:98-104` 被读，所以“不占武器槽的宠物”可以成立。
+   - 宠物模式里敌人选目标 (`Enemy/EnemyAttackSystem.cs:593-612`)、`IsTargetedByAllies` (:615-625)、`Attack` (:449)、`RevivePlayerCommandHandler.cs:36` 的 `ReviveAll`、泉水 (`Buildings/FirecampSystem.cs:62-78`)、`SkillTargetQuery` 的候选，都会自动带上队友。
+   - 如果像方案二、三那样关掉宠物模式，这些分支都要在 RPG 下重写一遍。
+2. **两种身体，一种英雄。** 新增抽象类 `HeroUnit : UnitCore`。`PlayerUnit`（Pudge 预制体）和 `PetUnit`（代码搭建、套敌人模型）都改为继承它。`HeroUnit` 只提升公共部分：
+   - `EnemyUnit CurrentTarget`：现在两边各有一份，见 `Player/PlayerUnit.cs:357`、`Pet/PetUnit.cs:52`；
+   - `bool IsControlled`；
+   - `abstract SetWalking(bool)`。
+
+   `HeroUnit` 不声明 Awake/Start（`UnitCore` 的是 private，见 `Unit/UnitCore.cs:63,70`），也不加序列化字段。原作里只存在 `PlayerUnit` 和 `PetUnit` 两个子类，现有的 `is PlayerUnit` 和 `is PetUnit` 判断一律不动。
+3. **“英雄”是一条记录，不是一个类型。** 每个英雄（包括主角）对应一个 `HeroModel`，放在 `HeroRosterModel` 里。规则层面没有主次之分：同一套属性来源、同一套目标规则、同一套跟随 AI，任何英雄都能被操控。只有身体层不同：主角有吞噬、钩子、原作死亡动画，队友有敌人模型的动画外观。这和 WC3 里各英雄模型不同、规则相同是一回事。
+4. **`PlayerModel.Unit` 永远指向主角身体，从不改指。** 它是属性存档（`Player/Models/PlayerModel.cs:683-706`）、位置存档（:714-721）、Boss 战实体锚点（`BossTower/Systems/BossRaidSystem.cs:257/322/483`），也是几个“单位换了”检测器的对象（`Amulet/Upgrades/UpgradeStatApplySystem.cs:32` 会回满血，`Abilities/Systems/AbilityExecuteEventSystem.cs:331`，`Skills/Systems/SkillAutoCastSystem.cs:67` 会重装技能）。改指会把这些全部触发。`PlayerTag` 同样只留在主角身上。
+
+### 2. “被操控英雄”在代码里的含义
+
+- `HeroRosterModel`：`List<HeroModel> Heroes`、`HeroModel Controlled`、`event ControlledChanged(old, new)`、`bool TrySwitch(HeroModel)`、`void ForceControl(HeroModel)`。
+- `HeroModel`：`Key`、`HeroDefinition`、`HeroUnit Unit`、`PetModel Pet`（主角为 null）、`SlotOrder`、`IsAlive`。主角还带 AI 用的 `PathFailTimer` 和 `AiTarget`。
+- 静态辅助类 `RpgControl`，RPG 关闭时严格等于原表达式：
+  - `UnitCore ControlledUnit(PlayerModel pm)`：`Enabled && roster.Controlled?.Unit != null ? roster.Controlled.Unit : pm.Unit`。
+  - `bool IsControlled(UnitCore u)`：`Enabled ? (u is HeroUnit h && h.IsControlled) : u is PlayerUnit`。
+- 不新增 ECS 标签。第一步没有任何过滤器需要它，以后做仇恨表时再加 `HeroTag`。
+
+### 3. 各类玩家引用怎么处理（普查共 181 处）
+
+| 类别 | 数量 | 处理 |
+|---|---|---|
+| controlled_hero | 29 | **第一步改指向被操控英雄的 13 处**：相机 `Camera/CameraFollowSystem.cs:272,313`；移动 `Unit/UnitMovement.cs:42`，Pudge 不被操控时直接返回；`Player/PlayerUnit.cs:398` 的走路动画；`Player/PlayerAttackSystem.cs:104` 的摇杆系数；`Skills/Systems/SkillAutoCastSystem.cs:243,404` 的转身判断；`Quests/Systems/QuestNpcProximitySystem.cs:131`；`SecretChest/Systems/SecretChestProximitySystem.cs:36`；`UI/Map/MiniMapView.cs:160`；泉水复活触发 `Buildings/FirecampSystem.cs:66`；`Pet/Systems/PetReviveSystem.cs:31` 的复活位置；`Unit/Systems/UnitDamageSystem.cs:333` 的打击音效。**其余 16 处暂时留在主角身上**：各流程的镜头锚点和宝石生成位置、刷怪特效判断、行走距离统计、`Gates/GateLocationTrigger.cs:22`、`Map/Systems/StaticMiniMapPoiSystem.cs:221`、位置存档、`Player/Systems/UnstackSystem.cs:34`、背包属性面板。AI 主角始终被拴在 12 m 内、18 m 外瞬移，所以这些位置最多偏差十来米。 |
+| all_heroes | 68 | 大部分对 PetUnit 已经成立：受伤分支、友方 buff 和眩晕、目标候选、敌人仇恨、泉水回血、复活。约 20 处是物品技能上下文 `AbilityContext.PlayerUnit`（`Abilities/Core/AbilityContext.cs:21`），会继续落在主角身上。队友的攻击物品清空技能，所以这些只会由主角的物品触发，留到装备阶段再统一。水晶、护符、Boss 塔这几处不动。 |
+| pet_only | 32 | 保留，作为队友的实现。RPG 下要关掉或绕开 6 处：`PetSpawnSystem` 按武器槽生成（:58-73）、`PetStatsSyncSystem`（:49）、`PetCollectionBonusSystem`（:42）、`Services/Damage/DamageCalculator.cs:91` 的防御比例、`:138` 的 GetOwnAttack、`Skills/SkillService.cs:315-320` 的宠物攻击加成。`PetMovementSystem`、`PetAttackSystem`、`PetReviveSystem` 改为以被操控英雄为锚。 |
+| any_hero_lookup | 15 | 敌人选目标在宠物模式下已经覆盖队友。以主角为准的距离判断不变：30 m 回满血（`Enemy/EnemyAttackSystem.cs:127-131`）、逃跑（:259,:291,:412,:420）、刷怪点 Far 标记。前提是主角被拴在附近，这一点列为风险。 |
+| player_only_feature | 9 | 全部留在主角身体上：吞噬、原作死亡和泉水流程、武器视图、爪子视图、免死、怒气特效（怒气按第 17 节第 7 条以后关闭）。 |
+| unclear | 28 | `PlayerModel.Unit` 仍是主角，存档、奖励、Boss 塔、界面第一步都不改。奖励的永久属性只会写进 RPG 独立存档，第二步再换算成经验。 |
+
+### 4. 切换流程
+
+- **入口**：电脑 `Tab` 依次切到下一个存活英雄，`1`–`3` 直接选；手机点屏幕右侧的英雄头像（显示血条，阵亡时变灰）。
+- **以下情况拒绝切换**：
+  - `!playerModel.CanMove`（对话、过场、开门、宝箱队列）；
+  - 相机正处于覆盖状态，即 `followingTransform != null || isOverridingTarget`（`CameraFollowSystem.cs:85,91`），需要新增一个只读 getter `IsOverriding`；
+  - 主角 `IsDying` 或 `IsReviving`；
+  - 目标英雄已阵亡、还没生成，或已经是当前操控对象；
+  - 距上次切换不到 0.3 秒。
+- **生效**：每帧在 `HeroControlSystem` 里统一执行一次。
+  1. 旧英雄 `IsControlled = false`，下一帧由 AI 接管。主角第一次交给 AI 时，把 agent 的 `acceleration` 设为 20、`angularSpeed` 设为 720。预制体上是 8 和 120（`Pudge.prefab:3385,3387`），`agent.Move` 从来不用这两个值，但 `SetDestination` 会用。
+  2. 新英雄 `IsControlled = true`，执行 `ResetPath()`、`velocity = Vector3.zero`、`SetWalking(false)`。
+  3. 开始 1 秒宽限：这段时间 AI 英雄不因“离主人超过 18 m”而瞬移。
+  4. 触发 `ControlledChanged`。
+- **相机**：不调用 `Unfollow()`。默认跟随分支改读 `RpgControl.ControlledUnit`，用惯性 Slerp（`CameraFollowSystem.cs:291`）平滑移过去。
+- **输入**：
+  - 操控主角时仍由原生的 `UnitMovement` 驱动，手感不变。
+  - 操控队友时由新的 `HeroControlSystem` 驱动。它是 `UnitMovement.Update/UpdateVisualTarget`（`Unit/UnitMovement.cs:42-95`）的移植，规则相同：`agent.Move`、460°/s 转身、4 m/6 m 滞回的朝向目标、眩晕/位移/引导时不动。不同的地方有三处：
+    - 速度取队友自己的 `MovementSpeed` 乘以 `SkillService.GetMoveSpeedFactor`，因为宠物身上没有真实的速度修饰器（`Skills/SkillService.cs:540`）；
+    - 输入角度改用相机前方向量的水平分量，避免切换后相机还在平移时方向偏斜；
+    - 走路动画看输入大小。
+- **AI 接管**：
+  - 队友由 `PetMovementSystem` 和 `PetAttackSystem` 驱动，锚点改为被操控英雄，并跳过被操控的那个单位。被操控的队友只打攻击范围内的敌人，不自动追击，和原作主角一样。
+  - 主角不被操控时，由新的 `ProtagonistAiSystem` 驱动。它复用宠物的跟随环位、12 m 拴绳、18 m 瞬移、追击和选目标逻辑。目标存在 `HeroModel.AiTarget` 里，进入攻击范围后才写入 `Pudge.CurrentTarget`，这样 `PlayerAttackSystem` 的 0.2 秒保留逻辑（:108-128）不会把目标扔掉。普攻仍由原生的 `PlayerAttackSystem` 打出。走路动画改为看速度（`PlayerUnit.cs:398` 加一个 RPG 分支）。
+- **读档**：总是从操控主角开始，第一步不记住上次操控的是谁。
+
+### 5. 被操控英雄阵亡
+
+- **被操控的队友阵亡**：走宠物流程 `PetsModel.OnPetDied`（`Pet/PetsModel.cs:143-147`），15 秒后以 20% 血复活，或在泉水复活。`HeroControlSystem` 发现当前操控对象 `!IsAlive` 后，自动切到主角；主角不可用时切到第一个存活英雄。
+- **主角阵亡（第一步）**：沿用设计稿第 11 节和原作流程。`ProcessPlayerDeath` 先把 `CanMove` 设为 false，再走泉水流程，最后由 `RevivePlayerCommand` 复活全队。`HeroControlSystem` 在主角 `IsDying` 的第一帧 `ForceControl(主角)`，让相机跟着死亡和跳出动画，复活后继续操控主角。
+- 为什么第一步不做“主角也单独阵亡”：`PlayDeathAnimation` 会写全局 `CanMove = false`（`PlayerUnit.cs:428`），`HandleWalkEnabled` 会解引用可能为空的 `currentPlayerModel`（:514），而敌人、宠物和技能有十几处读主角的 `IsDying`（`EnemyAttackSystem.cs:132,356`；`SkillAutoCastSystem.cs:148-161`；`PetAttackSystem.cs:64`）。要做这件事，得一次改完再统一验证，所以放到第三步，并作为待确认问题。
+
+### 6. 属性来源
+
+- **所有英雄都从同一个基底出发**：`PlayerConfig.Stats` 的基础值，加上宠物模式的 `PlayerBaseAttack`（`PlayerModel.cs:546-552`），再乘 `HeroDefinition` 里的定位比例。
+- **队友**：生成时建一份稳定的 `Stat` 列表，覆盖 `PlayerConfig.Stats` 的全部类型，然后加 `ModifierSource.RpgHero = 23` 的修饰器（Health、Damage 用 PercentMultiplicative，值是比例；防御用 Flat；攻击距离可选覆盖）。RPG 下 `PetStatsSyncSystem` 和 `PetCollectionBonusSystem` 不运行，所以队友属性不再继承主角。
+- **主角**：保留现有的 `Stat` 对象，不替换列表，这样 `SkillService` 等处持有的引用不会失效。第一步主角的比例是 1，不加修饰器。
+- **伤害**：普攻只按 `Damage` 属性计算。RPG 下英雄来源的 `weaponDamage = 0`（`DamageCalculator.cs:135-138`），队友不乘物品防御比例（:91），`SkillService.DealDamage` 不加物品伤害（:315-323）。
+- **存档**：`RpgHero/RpgItem/RpgFirstKill = 23/24/25` 加入 `IsRuntimeOnlySource`（`PlayerModel.cs:709-712`），任何一个都不会写进存档。
+- **攻击物品**：队友攻击物品是 `new ItemModel(lifetime, itemsProvider.Get(def.AttackItemKey))`，用法和 `PlayerModel.cs:733-737` 构建爪子一样。它只提供攻击间隔、出手点和伤害类型。建好后清空 `AbilityStates`，因为物品自带的触发会按 `data.Item` 执行（`AbilityExecuteEventSystem.cs:251`）。它不在任何槽位里，`SlotIndex` 为 0，伤害数字视图（`UI/Damage/PlayerDamageEventsViewSystem.cs:44`）不会越界，爪子物品已经是这样用的。
+- **等级成长**（`1.08^(L−1)`）、升级回满、经验和金币放在第二步。
+
+### 7. 保证原作和宠物模式不变
+
+- **RPG 关闭**（资产缺失、`enabled = 0`，或宠物模式关闭）时：
+  - 所有新系统第一行就返回；
+  - `RpgControl` 返回原表达式；
+  - 对原有文件的改动只能是以下三种之一：
+    1. 用 `if (RpgModeConfig.Enabled)` 包住的插入；
+    2. `HeroUnit` 基类替换，以及把 `CurrentTarget` 提升到基类；
+    3. 换成 `RpgControl` 的等价写法。
+
+  原有代码行不做别的改写。
+- **宠物模式额外改动两处**：
+  - `PetSpawnSystem.Spawn` 的单位搭建代码原样抽到 `PetUnitFactory`；
+  - `PetMovementSystem.lastOwner` 的类型放宽为 `UnitCore`。
+
+  这两处都不改变行为，验收要跑一遍宠物模式。
+- **独立存档**：RPG 下存档目录追加 `Rpg` 子目录（`Core/UserData/GameDataService.cs:156-161`，放在编辑器 StudyTest 覆盖之后），并跳过旧 PlayerPrefs 迁移（:169-174）。第一步不加 `RpgUd`，因此原作存档的结构完全不变。
+
+### 8. 文件改动清单（第一步）
+
+| 文件 | 改动 |
+|---|---|
+| `Rpg/RpgModeConfig.cs` + `.meta`（新），`Assets/Resources/Rpg Mode Config.asset`（新） | 开关和参数，写法同 `PetConfig`（:120-141）。`Enabled` 依赖 `PetConfig.Enabled`。包含 `Heroes`、`StartingHeroKeys`、切换冷却 0.3 秒、宽限 1 秒。 |
+| `Rpg/HeroDefinition.cs`（新） | 字段：Key、IsProtagonist、PetItemKey（外观，通过 `PetConfig` 找到 `PetDefinition`）、AttackItemKey、HealthRatio、AttackRatio、DefenceFlat、AttackRangeOverride、DisplayName、Icon。 |
+| `Rpg/HeroModel.cs`、`Rpg/HeroRosterModel.cs`、`Rpg/RpgControl.cs`（新） | 见第 2 节。 |
+| `Unit/HeroUnit.cs`（新） | 抽象基类。 |
+| `Player/PlayerUnit.cs` | 基类改为 `HeroUnit`，删掉 :357，实现 `SetWalking`。`Update` 加 RPG 分支：不被操控时按速度驱动走路动画。 |
+| `Pet/PetUnit.cs` | 基类改为 `HeroUnit`，删掉 :52，`SetWalking`（:196）改为 override。 |
+| `Pet/PetUnitFactory.cs`（新），`Pet/Systems/PetSpawnSystem.cs` | 原样抽出单位搭建代码。RPG 下 `OnUpdate` 在第一行返回。 |
+| `Pet/Systems/PetStatsSyncSystem.cs`（:49），`Pet/Systems/PetCollectionBonusSystem.cs` | RPG 下提前返回。 |
+| `Rpg/Systems/RpgHeroSpawnSystem.cs`（新） | 先把主角登记为 0 号英雄并设为操控对象，再生成 golem 和 cultist：建无槽位的 `PetModel`，放进 `PetsModel.Pets`，设 `PetTag`，安装宠物技能配置，建好稳定属性。 |
+| `Rpg/HeroStats.cs`（新） | 构建 v0 属性（基底 × 比例）。 |
+| `Unit/ModifierSource.cs`，`Player/Models/PlayerModel.cs:709` | 新增 23、24、25，并标为仅运行时。 |
+| `Services/Damage/DamageCalculator.cs:91,138`，`Skills/SkillService.cs:315-323` | 加 RPG 门控。 |
+| `Rpg/Systems/HeroControlSystem.cs`（新） | 处理切换输入、拒绝条件、生效步骤、队友的摇杆移动、自动切换、主角阵亡时强制切回。 |
+| `Rpg/Systems/ProtagonistAiSystem.cs`（新），`Pet/HeroAi.cs`（新，静态辅助） | AI 主角。从宠物代码里抽出 `MoveTo`、`Chase`、`FlatSqrDistance`、`SelectFollowerTarget`、`FindAggressor`、`FindNearest`，参数改为 `UnitCore` 加领队。 |
+| `Pet/Systems/PetMovementSystem.cs`，`Pet/Systems/PetAttackSystem.cs` | 锚点改为 `RpgControl.ControlledUnit`，跳过被操控单位，RPG 下用自己的速度，被操控时选目标只看攻击范围内。 |
+| `Unit/UnitMovement.cs:42`，`Player/PlayerAttackSystem.cs:104`，`Skills/Systems/SkillAutoCastSystem.cs:243,404`，`Skills/SkillForcedMovement.cs:95,116`，`Unit/Systems/UnitDamageSystem.cs:333` | 加门控，或改用 `RpgControl` 的等价写法。 |
+| `Camera/CameraFollowSystem.cs:272,313` | 改读被操控英雄，并新增 `IsOverriding`。 |
+| `Quests/Systems/QuestNpcProximitySystem.cs:131`，`SecretChest/Systems/SecretChestProximitySystem.cs:36`，`UI/Map/MiniMapView.cs:160`，`Buildings/FirecampSystem.cs:66`，`Pet/Systems/PetReviveSystem.cs:31` | 改用被操控英雄的位置。 |
+| `Rpg/UI/HeroSwitchHudView.cs`（新） | 头像按钮，代码搭建，写法同 `UI/Pet/PetUiBuilder.cs`。 |
+| `Core/UserData/GameDataService.cs` | 独立存档目录，跳过旧数据迁移。 |
+| `Core/Boot.cs:40`，`Core/SystemsInstaller.cs:74-81` | 注册 `HeroRosterModel` 和各个新系统。 |
+
+### 9. 分步计划
+
+1. **第一步 A：基础。** 开关、独立存档、`HeroUnit`、只含主角的名单、`RpgControl`、三个宠物系统在 RPG 下提前返回、修饰器来源。验证：RPG 开启时主角照常移动和战斗，不生成武器槽宠物，存档写进 `Rpg/`。
+2. **第一步 B：队友上阵。** `PetUnitFactory`、golem 和 cultist、v0 属性、伤害门控。验证：三人小队一起战斗，队友能阵亡、复活，泉水和主角的泉水流程会把全队救回来。
+3. **第一步 C：切换操控。** 第 4、5 节的全部内容，加上相机、各处位置判断、头像按钮。验证：可以随意切换，各英雄自动战斗。
+4. **第二步：成长循环。** `RpgUd`（等级、经验）、`rpg.gold`、经验表和等级差、`HandleDeath/HandleDevour` 的奖励替换、取消每日次数、刷怪冷却表、`RpgHero` 等级修饰器作用到所有英雄。
+5. **第三步：真正的英雄平等（需确认）。** 主角也单独阵亡，15 秒复活，只有全队阵亡才走泉水流程；`PartyUnavailable` 代替所有读主角 `IsDying` 的地方；门触发改为看被操控英雄；保存当前操控的英雄。
+6. **之后**：大招按钮（可以和头像合并）、仇恨表、定位 AI、远程普攻、装备、招募。
+
+### 10. 第一步范围与验收
+
+**范围**：上面的 1A、1B、1C，分三次交给 Codex，每次做完我审查一次再合并。开局就上阵主角、石魔像、秘教徒，暂不按剧情招募。不做等级、经验、金币、仇恨、大招。
+
+**验收**：
+
+1. RPG 关、宠物模式关：原作照常，QuickTest 原存档字节比对通过。
+2. RPG 关、宠物模式开：宠物从武器槽生成，跟随、攻击、阵亡、15 秒复活、泉水复活都正常，即 `Docs/PetSystem/Step1Design.md` 的试玩清单通过。
+3. RPG 开：从序章开新档，存档在 `<存档目录>/Rpg/`。玩一局后原 `game_data.bin` 的字节不变。
+4. 石魔像和秘教徒在主角身边生成，用敌人模型；会跟随、攻击、挨打，阵亡后 15 秒以 20% 血复活，泉水也能复活。
+5. `Tab` 和 `1`–`3` 能切换操控，点头像也能。相机平滑移到新英雄，不跳。摇杆和 WASD 只移动被操控的英雄，它的走路动画正常。
+6. 主角不被操控时会跟随、追击、普攻，走路动画跟着速度变化，吞噬钩子照常。
+7. 以下情况切换被拒绝：对话、开门镜头、宝箱队列期间；主角阵亡或复活过程中；目标英雄已阵亡。
+8. 被操控的队友阵亡后，操控自动回到主角。主角阵亡时强制切回主角，播放泉水流程，全队复活，之后 `CanMove` 为 true。
+9. 操控队友时，走到 NPC 旁边能开始对话，宝箱提示会出现，进泉水能复活阵亡的英雄。
+10. 在第 1 岛频繁切换、战斗 10 分钟，控制台没有空引用、类型转换失败或 MissingReference 错误。
+
+### 11. 风险
+
+- **主角阵亡会重置全队。** 正在操控队友时也一样，这和“不分主次”还有差距，留到第三步。
+- **敌人那边的距离判断仍以主角为准。** 30 m 回满血、玩家不可用、逃跑这些判断，都依赖 AI 主角被拴在 12 m、18 m 之内。如果主角卡住或离开导航网格，远处的战斗会被回满血。
+- **门触发只认主角的碰撞体**（`Gates/GateLocationTrigger.cs:22`）。地点和音乐会比被操控的队友晚一点切换。AI 主角追怪退回出口时，地点可能来回变。
+- **基类替换涉及预制体脚本。** `PlayerUnit` 的基类换了，必须确认 Pudge 预制体的引用全部还在。`HeroUnit` 不能有序列化字段，也不能有 Awake/Start。
+- **`AbilityStates` 是 private set**（`ItemModel.cs:489`）。只能清空列表，还要确认 `RebuildAbilityStates` 不会因为等级或进化被再次触发。
+- **`Player/WeaponView.cs:455` 会读 `UnitMovement.VisualTarget`。** 主角不被操控时这个值会过期。宠物模式下武器视图是隐藏的，预计无影响，需要验证。
+- **只分开了存档文件。** `DataVar` 和少数 PlayerPrefs 键仍与原作共用（`Core/DataVar.cs:42-51`、`Services/Time/TimeService.cs:14`）。
+- **宠物模式的界面在 RPG 下仍会出现**（宠物图鉴、物品槽显示宠物）。初始武器会自动装备，给主角加 Item 修饰器（`PlayerModel.cs:739-743`）。第一步先接受，第二步屏蔽。
+- **第一步没有敌人等级。** 所有英雄的属性只按基底乘比例，第 1 岛的强度需要试玩后调整。
+- **切换后可能触发瞬移。** 离新领队超过 18 m 的 AI 英雄会被瞬移，1 秒宽限只能缓解切换那一刻。
+
+### 12. 已确认（2026-10-29）
+
+- 随时可以切换，战斗中也行；被操控的英雄阵亡时，控制权自动交给活着的英雄。
+- 代码层面规则统一、共用 `HeroUnit` 基类，身体分两种（主角预制体、敌人模型搭的队友），不新写一套单位类。
+- 主角阵亡和其他英雄一样单独倒下、15 秒复活、全队倒下才回泉水，这一条放到第三步。第一步主角一死仍全队回泉水。
+- 原作主角是英雄之一。第一步主角一直在队伍里，不能下场；现在 5 个英雄正好全部上阵，所以没有影响。
+- 第一步开局就让主角、石魔像、秘教徒上阵，不按主线招募，方便测试。
+- 被操控的英雄普攻只打攻击范围内的敌人，不自己追，手感和原作主角一样。

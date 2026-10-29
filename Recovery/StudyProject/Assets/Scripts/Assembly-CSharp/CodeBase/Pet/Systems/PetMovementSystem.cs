@@ -37,7 +37,7 @@ namespace Codebase.Pet.Systems
 		[Inject]
 		private global::Codebase.Skills.SkillService skillService;
 
-		private PlayerUnit lastOwner;
+		private UnitCore lastOwner;
 
 		private Vector3 lastOwnerPosition;
 
@@ -61,10 +61,10 @@ namespace Codebase.Pet.Systems
 				playerSpeed /= heroSkillFactor;
 			// Following keeps up with the player; only chasing a target uses the pet's move speed ratio.
 			float followSpeed = playerSpeed * config.FollowSpeedMultiplier;
-			Transform owner = player.transform;
+			Transform owner = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform;
 			Vector3 ownerPosition = owner.position;
-			bool ownerWarped = lastOwner == player && FlatSqrDistance(ownerPosition, lastOwnerPosition) > OwnerWarpDistanceSqr;
-			lastOwner = player;
+			bool ownerWarped = lastOwner == global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel) && FlatSqrDistance(ownerPosition, lastOwnerPosition) > OwnerWarpDistanceSqr;
+			lastOwner = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel);
 			lastOwnerPosition = ownerPosition;
 			float leashSqr = config.LeashRadius * config.LeashRadius;
 			float teleportSqr = config.TeleportDistance * config.TeleportDistance;
@@ -73,6 +73,7 @@ namespace Codebase.Pet.Systems
 				if (!pet.IsAlive)
 					continue;
 				PetUnit unit = pet.Unit;
+				if (global::Codebase.Rpg.RpgModeConfig.Enabled && unit.IsControlled) continue;
 				if (skillService.IsDisplaced(unit))
 				{
 					pet.PathFailTimer = 0f;
@@ -120,7 +121,7 @@ namespace Codebase.Pet.Systems
 						continue;
 					}
 				}
-				if (!agent.isOnNavMesh || ownerDistanceSqr > teleportSqr || pet.PathFailTimer >= PathFailTeleportTime && unit.CurrentTarget == null)
+				if (global::Codebase.Rpg.RpgControl.ShouldTeleport(!agent.isOnNavMesh, ownerDistanceSqr > teleportSqr, pet.PathFailTimer >= PathFailTeleportTime && unit.CurrentTarget == null))
 				{
 					unit.CurrentTarget = null;
 					petsModel.Warp(pet, ownerPosition, owner.eulerAngles.y);
@@ -139,6 +140,12 @@ namespace Codebase.Pet.Systems
 				}
 
 				agent.speed = target != null ? playerSpeed * PetStats.GetRatios(pet.Item, pet.Definition).MoveSpeed : followSpeed;
+				if (global::Codebase.Rpg.RpgModeConfig.Enabled)
+				{
+					float ownSpeed = (float)unit.GetStatSpecificValue(StatType.MovementSpeed);
+					float ownerSpeed = (float)global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).GetStatSpecificValue(StatType.MovementSpeed);
+					agent.speed = target != null ? ownSpeed : Mathf.Max(ownSpeed, ownerSpeed) * config.FollowSpeedMultiplier;
+				}
 				// Skills: pets move off the hero's speed, so skill slows on the pet itself apply here.
 				agent.speed *= skillService.GetMoveSpeedFactor(unit);
 				bool moving;

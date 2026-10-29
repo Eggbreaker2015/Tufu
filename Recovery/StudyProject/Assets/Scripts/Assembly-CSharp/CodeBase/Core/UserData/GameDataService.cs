@@ -157,6 +157,7 @@ namespace Codebase.Core.UserData
 #if UNITY_EDITOR
             saveDirectory = RecoveryCompatibility.StudyTestProfile.SaveDirectory;
 #endif
+            if (global::Codebase.Rpg.RpgModeConfig.Enabled) saveDirectory = Path.Combine(saveDirectory, "Rpg");
             Directory.CreateDirectory(saveDirectory);
             savePath = Path.Combine(saveDirectory, SAVE_FILE_NAME);
             tempPath = Path.Combine(saveDirectory, TEMP_FILE_NAME);
@@ -171,6 +172,7 @@ namespace Codebase.Core.UserData
             // A fresh test slot must not import the normal profile's legacy PlayerPrefs.
             migrateLegacy = !RecoveryCompatibility.StudyTestProfile.IsEnabled;
 #endif
+            if (global::Codebase.Rpg.RpgModeConfig.Enabled) migrateLegacy = false;
             if (migrateLegacy && !IsMigrationComplete()) MigrateFromLegacy();
             StartAutoSave().Forget();
         }

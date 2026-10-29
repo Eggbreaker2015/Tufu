@@ -33,6 +33,11 @@ namespace Codebase.UI
 		private void Update()
 		{
 			// Native ELF VA 0x15d735c; original desktop shortcuts and raycast block.
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
+			{
+				if (Input.GetKeyDown(KeyCode.Alpha4)) PressEquipButton((WeaponType)4, true);
+			}
+			else
 			if (Input.GetKeyDown(KeyCode.Alpha1)) PressEquipButton((WeaponType)1, false);
 			else if (Input.GetKeyDown(KeyCode.Alpha2)) PressEquipButton((WeaponType)0, false);
 			else if (Input.GetKeyDown(KeyCode.Alpha3)) PressEquipButton((WeaponType)3, false);

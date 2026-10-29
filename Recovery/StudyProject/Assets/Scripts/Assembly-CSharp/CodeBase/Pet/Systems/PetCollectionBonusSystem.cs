@@ -32,6 +32,7 @@ namespace Codebase.Pet.Systems
 
 		public override void OnUpdate(float deltaTime)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			PlayerUnit unit = playerModel.Unit;
 			if (unit == null)
 			{

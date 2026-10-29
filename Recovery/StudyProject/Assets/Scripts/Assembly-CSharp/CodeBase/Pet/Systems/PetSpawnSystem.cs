@@ -16,22 +16,11 @@ namespace Codebase.Pet.Systems
 	// One pet per equipped weapon slot; polls the slots like PlayerWeaponView.Update.
 	public class PetSpawnSystem : SystemBase
 	{
-		private const float AgentRadius = 0.5f;
-
-		private const float AgentHeight = 2f;
-
-		private const float AgentAngularSpeed = 720f;
-
-		private const float AgentAcceleration = 20f;
-
 		[Inject]
 		private PlayerModel playerModel;
 
 		[Inject]
 		private PetsModel petsModel;
-
-		[Inject]
-		private Stash<PetTag> petTagStash;
 
 		private readonly List<PetModel> removed = new List<PetModel>();
 
@@ -50,6 +39,8 @@ namespace Codebase.Pet.Systems
 					GameContext.Get<SkillService>().ClearPetSourceBuffs(playerModel.Unit);
 				return;
 			}
+
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 
 			PlayerUnit player = playerModel.Unit;
 			if (player == null)
@@ -93,27 +84,7 @@ namespace Codebase.Pet.Systems
 			Transform owner = player.transform;
 			PetsModel.TrySamplePosition(PetsModel.GetFollowPosition(owner.position, owner.eulerAngles.y, slotOrder), owner.position, out Vector3 position);
 
-			// Order matters: UnitCore.Awake reads the EntityProvider and Start needs the agent.
-			GameObject root = new GameObject("Pet " + item.Key);
-			root.transform.SetPositionAndRotation(position, owner.rotation);
-			root.AddComponent<EntityProvider>();
-			NavMeshAgent agent = root.AddComponent<NavMeshAgent>();
-			agent.radius = AgentRadius;
-			agent.height = AgentHeight;
-			agent.angularSpeed = AgentAngularSpeed;
-			agent.acceleration = AgentAcceleration;
-			agent.speed = (float)player.GetStatSpecificValue(StatType.MovementSpeed) * PetConfig.Instance.FollowSpeedMultiplier;
-			PetUnit unit = root.AddComponent<PetUnit>();
-			Transform healthBarPoint = new GameObject("HealthBarPoint").transform;
-			healthBarPoint.SetParent(root.transform, false);
-			Transform visualSlot = new GameObject("VisualSlot").transform;
-			visualSlot.SetParent(root.transform, false);
-			unit.Setup(item, definition, agent, healthBarPoint, visualSlot);
-			unit.AttachVisual(definition);
-			unit.Stats = new List<Stat>();
-			unit.BuildStatLookup();
-			petTagStash.Set(unit.EntityProvider.Entity);
-			Injector.InjectInto(unit);
+			PetUnit unit = PetUnitFactory.Create(item, definition, position, owner.rotation, (float)player.GetStatSpecificValue(StatType.MovementSpeed) * PetConfig.Instance.FollowSpeedMultiplier);
 			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, item.Key);
 			int skillLevel = PetStats.GetSkillLevel(item);
 			if (loadout != null && GameContext.Has<SkillService>())

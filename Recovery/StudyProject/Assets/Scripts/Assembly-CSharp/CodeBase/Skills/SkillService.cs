@@ -317,9 +317,11 @@ namespace Codebase.Skills
 					if (item == null)
 						item = pet.Item;
 					if (item != null)
+						if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
 						attack += PetStats.GetOwnAttack(item, pet.Definition);
 				}
 				else if (attacker is PlayerUnit && item != null && !item.IsArmor)
+					if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
 					attack += item.Damage;
 				hitEvent.NextFrame(new WeaponHitEvent
 				{

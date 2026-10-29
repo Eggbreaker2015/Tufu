@@ -40,6 +40,7 @@ namespace Codebase.Unit
 			// Native ELF VA 0x15cbf80; ARM64 confirms the vector return values
 			// that the decompiler loses and a rotation rate of 460 degrees/sec.
 			if (!isPlayer) return;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && !GameContext.Get<PlayerModel>().Unit.IsControlled) return;
 			PlayerModel player = GameContext.Get<PlayerModel>();
 			if (player.Unit.IsDying) return;
 			// Control movement owns position and facing; channels hold the hero in place.

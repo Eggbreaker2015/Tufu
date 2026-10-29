@@ -128,7 +128,7 @@ namespace Codebase.Quests.Systems
 			updateTimer += deltaTime;
 			if (updateTimer < UpdateInterval) return;
 			updateTimer = 0f;
-			var player = playerModel.Unit;
+			var player = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel);
 			if (player == null) return;
 			var playerPosition = player.transform.position;
 			foreach (var entity in filter) {

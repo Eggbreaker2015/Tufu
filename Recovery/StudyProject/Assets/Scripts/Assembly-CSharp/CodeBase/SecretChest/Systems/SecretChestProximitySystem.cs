@@ -33,8 +33,8 @@ namespace Codebase.SecretChest.Systems
             updateTimer += deltaTime;
             if (updateTimer < UpdateInterval) return;
             updateTimer = 0f;
-            if (playerModel.Unit == null) return;
-            Vector3 from = playerModel.Unit.transform.position;
+            if (global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel) == null) return;
+            Vector3 from = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform.position;
             foreach (var entity in filter)
             {
                 ref var chest = ref chestStash.Get(entity);

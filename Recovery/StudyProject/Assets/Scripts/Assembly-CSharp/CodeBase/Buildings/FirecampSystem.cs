@@ -62,7 +62,7 @@ namespace Codebase.Buildings
 		private void UpdatePets(PlayerUnit unit)
 		{
 			Vector3 center = transform.position;
-			Transform owner = unit.transform;
+			Transform owner = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform;
 			if (Vector3.Distance(owner.position, center) < Radius)
 				petsModel.ReviveDead(owner.position, owner.eulerAngles.y);
 			foreach (PetModel pet in petsModel.Pets)

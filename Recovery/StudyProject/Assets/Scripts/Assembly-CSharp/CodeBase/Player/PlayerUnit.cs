@@ -20,7 +20,7 @@ using UnityEngine;
 
 namespace Codebase.Player
 {
-	public class PlayerUnit : UnitCore
+	public class PlayerUnit : HeroUnit
 	{
 		[CompilerGenerated]
 		private sealed class _003C_003Ec__DisplayClass53_0
@@ -354,7 +354,7 @@ namespace Codebase.Player
 
 		private PlayerModel currentPlayerModel;
 
-		public EnemyUnit CurrentTarget { get; set; }
+		public override void SetWalking(bool v) => animator.SetBool(IsWalking, v);
 
 		public bool IsSleeping { get; private set; }
 
@@ -393,6 +393,15 @@ namespace Codebase.Player
 		private void Update()
 		{
 			// Native ELF VA 0x1445358. Walking reflects input, with the original 0.15 audio scale.
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && !IsControlled && !IsDying)
+			{
+				float velocity = Agent.enabled ? Agent.velocity.magnitude : 0f;
+				animator.SetBool(IsWalking, Agent.enabled && Agent.velocity.sqrMagnitude > 0.01f);
+				animator.speed = 1f;
+				audioSource.volume = 0.15f * Mathf.Clamp01(velocity / Mathf.Max(Agent.speed, 0.01f));
+				rig.localScale = Vector3.one * 1.35f;
+				return;
+			}
 			if (!IsDying)
 			{
 				float input = GameContext.Get<PlayerModel>().CanMove && !global::Codebase.Skills.FriendlyDebuffs.IsStunned(this) ? GameContext.Get<Joystick>().GetInput().magnitude : 0f;

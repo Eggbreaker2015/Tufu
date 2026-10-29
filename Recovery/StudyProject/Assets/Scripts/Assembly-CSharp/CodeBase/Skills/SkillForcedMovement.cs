@@ -92,7 +92,7 @@ namespace Codebase.Skills
 			if (agent != null && agent.enabled && agent.isOnNavMesh)
 			{
 				agent.updateRotation = state.Rotation;
-				if (unit is EnemyUnit || unit is PetUnit)
+				if (unit is EnemyUnit || unit is PetUnit || global::Codebase.Rpg.RpgControl.IsHero(unit))
 					agent.isStopped = false;
 			}
 		}
@@ -113,7 +113,7 @@ namespace Codebase.Skills
 			if (agent != null && agent.enabled && agent.isOnNavMesh)
 			{
 				agent.updateRotation = false;
-				if (unit is EnemyUnit || unit is PetUnit)
+				if (unit is EnemyUnit || unit is PetUnit || global::Codebase.Rpg.RpgControl.IsAiHero(unit))
 				{
 					agent.isStopped = true;
 					agent.ResetPath();

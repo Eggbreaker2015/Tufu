@@ -330,7 +330,7 @@ namespace Codebase.Unit.Systems
 			if (!result.HasDodged)
 			{
 			    // Pet mode: only the player's own hits play the impact sound, so pet hits do not stack.
-			    if (!PetConfig.Enabled || data.Source is PlayerUnit) PlayPlayerWeaponImpactSound(data);
+			    if (!PetConfig.Enabled || global::Codebase.Rpg.RpgControl.IsControlled(data.Source)) PlayPlayerWeaponImpactSound(data);
 			    data.Target.ApplyHitAnimation();
 			}
 			Entity entity = data.Target.EntityProvider.Entity;

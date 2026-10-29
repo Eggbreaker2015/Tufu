@@ -102,6 +102,7 @@ namespace Codebase.Player
 			bool casting = global::Codebase.Skills.FriendlyDebuffs.IsCasting(PlayerUnit);
 			float interval = global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(PlayerUnit);
 			float speedTarget = stunned ? 0f : GameContext.Get<Joystick>().GetInput().magnitude * (float)PlayerUnit.GetStatSpecificValue(Codebase.Unit.StatType.MovementSpeed) * 0.05f;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && !PlayerUnit.IsControlled) speedTarget = 0f;
 			float coefficient = Mathf.Clamp01(1f - Mathf.Exp(-4f * deltaTime));
 			animationCastPointSpeedCoefficient += (speedTarget - animationCastPointSpeedCoefficient) * coefficient;
 			bool hasTarget;

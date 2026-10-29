@@ -46,6 +46,7 @@ namespace Codebase.Pet.Systems
 
 		public override void OnUpdate(float deltaTime)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			if (!PetConfig.Enabled || playerModel.Unit == null || petsModel.Pets.Count == 0)
 				return;
 			if (inheritance == null)

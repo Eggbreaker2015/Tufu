@@ -708,6 +708,7 @@ namespace Codebase.Player.Models
 		// Pet collection/synergy bonuses are re-applied by their systems every session; skill buffs are timed.
 		private static bool IsRuntimeOnlySource(ModifierSource source)
 		{
+			if (source == ModifierSource.RpgHero || source == ModifierSource.RpgItem || source == ModifierSource.RpgFirstKill) return true;
 			return source == ModifierSource.PetCollection || source == ModifierSource.PetSynergy || source == ModifierSource.Skill;
 		}
 

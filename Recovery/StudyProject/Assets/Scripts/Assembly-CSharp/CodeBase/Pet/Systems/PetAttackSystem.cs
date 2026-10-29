@@ -207,6 +207,18 @@ namespace Codebase.Pet.Systems
 
 		private void SelectTarget(PetModel pet, PlayerUnit player, float engageSqr)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
+			{
+				HeroUnit leader = (HeroUnit)global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel);
+				if (pet.Unit.IsControlled)
+				{
+					float range = (float)pet.Unit.GetStatValue(StatType.AttackRange);
+					EnemyUnit currentTarget = pet.Unit.CurrentTarget;
+					SetTarget(pet, IsValid(currentTarget) && FlatSqrDistance(pet.Unit.transform.position, currentTarget.transform.position) <= range * range ? currentTarget : FindNearest(pet.Unit.transform.position, range * range));
+				}
+				else SetTarget(pet, HeroAi.SelectFollowerTarget(pet.Unit, leader, engageSqr, pet.Unit.CurrentTarget));
+				return;
+			}
 			// Priority: the player's target, then an enemy fighting this pet, then the enemy nearest the player.
 			PetUnit unit = pet.Unit;
 			EnemyUnit current = unit.CurrentTarget;

@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b28bf8ca0faa4d16a39d394665276f37, type: 3}
+  m_Name: Rpg Mode Config
+  m_EditorClassIdentifier:
+  enabled: 1
+  Heroes:
+  - Key: protagonist
+    IsProtagonist: 1
+    PetItemKey:
+    AttackItemKey:
+    HealthRatio: 1
+    AttackRatio: 1
+    DefenceFlat: 0
+    AttackRangeOverride: 0
+    DisplayName: Pudge
+    Icon: {fileID: 0}
+  - Key: golem
+    IsProtagonist: 0
+    PetItemKey: golem
+    AttackItemKey: golem
+    HealthRatio: 1.6
+    AttackRatio: 0.7
+    DefenceFlat: 2
+    AttackRangeOverride: 0
+    DisplayName: Golem
+    Icon: {fileID: 0}
+  - Key: cultist
+    IsProtagonist: 0
+    PetItemKey: cultist
+    AttackItemKey: cultist
+    HealthRatio: 0.8
+    AttackRatio: 0.9
+    DefenceFlat: 0
+    AttackRangeOverride: 0
+    DisplayName: Cultist
+    Icon: {fileID: 0}
+  StartingHeroKeys:
+  - protagonist
+  - golem
+  - cultist
+  SwitchCooldown: 0.3
+  SwitchTeleportGrace: 1
+  AiAcceleration: 20
+  AiAngularSpeed: 720

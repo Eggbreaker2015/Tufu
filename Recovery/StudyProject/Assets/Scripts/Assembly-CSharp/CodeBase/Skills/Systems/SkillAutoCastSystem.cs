@@ -240,7 +240,7 @@ namespace Codebase.Skills.Systems
 			SkillDef def = slot.Def;
 			slot.Cooldown = def.Cooldown;
 			Vector3 direction = SkillTargetQuery.GetFlatDirection(unit, target);
-			if (target != null && target != unit && !(unit is PlayerUnit))
+			if (target != null && target != unit && !global::Codebase.Rpg.RpgControl.IsControlled(unit))
 			{
 				if (unit is EnemyUnit turningEnemy && turningEnemy.Agent != null && turningEnemy.Agent.enabled && turningEnemy.Agent.isOnNavMesh)
 					turningEnemy.Agent.updateRotation = false;
@@ -401,7 +401,7 @@ namespace Codebase.Skills.Systems
 			cast.Target = target;
 			cast.Direction = aim;
 			cast.Point = GetPoint(cast.Caster, def, target);
-			if (!(cast.Caster is PlayerUnit))
+			if (!global::Codebase.Rpg.RpgControl.IsControlled(cast.Caster))
 				cast.Caster.transform.rotation = Quaternion.LookRotation(aim, Vector3.up);
 			return target;
 		}

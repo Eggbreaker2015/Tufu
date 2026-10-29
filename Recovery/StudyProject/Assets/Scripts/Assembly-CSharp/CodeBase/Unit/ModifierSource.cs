@@ -24,6 +24,9 @@ namespace Codebase.Unit
 		Cashback = 19,
 		PetCollection = 20,
 		PetSynergy = 21,
-		Skill = 22
+		Skill = 22,
+		RpgHero = 23,
+		RpgItem = 24,
+		RpgFirstKill = 25
 	}
 }

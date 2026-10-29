@@ -88,6 +88,7 @@ namespace Codebase.Services.Damage
 			    double typedPercent = data.Target.GetStatValue(percentType);
 			    double flatScale = fromSimulation ? simulationFlatDefenceMultiplier : 1.0;
 			    double defence = flatScale * (universalFlat + armor + typedFlat) * typedPercent;
+			    if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
 			    if (petTarget != null && petTarget.Item != null) defence *= PetStats.GetRatios(petTarget.Item, petTarget.Definition).Defence;
 			    // Skills: defence buffs and debuffs on the hero and pets are read here, never in simulations.
 			    if (!fromSimulation) defence *= global::Codebase.Skills.FriendlyDebuffs.DefenceFactor(data.Target);
@@ -136,6 +137,7 @@ namespace Codebase.Services.Damage
 			// Pet mode: a pet hits with its own attack (a scaled share of the weapon damage); the player attack comes in through
 			// its Damage and typed flat stats, which PetStatsSyncSystem scales by the attack ratio.
 			if (PetConfig.Enabled && data.Source is PetUnit petSource) weaponDamage = PetStats.GetOwnAttack(weaponDamage, petSource.Definition, petSource.Item != null ? PetStats.GetLevelProgress(petSource.Item) : 1);
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && data.Source is HeroUnit) weaponDamage = 0.0;
 			double flatDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypeFlat);
 			double percentDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypePercent);
 			double universalDefense = data.Target.GetStatValue(StatType.UniversalDefencePercent);

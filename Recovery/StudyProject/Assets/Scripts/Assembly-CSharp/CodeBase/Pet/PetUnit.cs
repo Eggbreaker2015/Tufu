@@ -8,7 +8,7 @@ using UnityEngine.AI;
 namespace Codebase.Pet
 {
 	// Built at runtime by PetSpawnSystem; must not declare Awake/Start, UnitCore's private ones register the entity.
-	public class PetUnit : UnitCore
+	public class PetUnit : HeroUnit
 	{
 		private const string VisualChildName = "Visual";
 
@@ -48,8 +48,6 @@ namespace Codebase.Pet
 		public ItemModel Item { get; private set; }
 
 		public PetDefinition Definition { get; private set; }
-
-		public EnemyUnit CurrentTarget { get; set; }
 
 		public Animator Animator { get; private set; }
 
@@ -193,7 +191,7 @@ namespace Codebase.Pet
 			}
 		}
 
-		public void SetWalking(bool value)
+		public override void SetWalking(bool value)
 		{
 			if (Animator != null)
 				Animator.SetBool(IsWalkingId, value);

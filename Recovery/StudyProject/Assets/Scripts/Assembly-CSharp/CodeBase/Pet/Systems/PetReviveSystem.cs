@@ -28,7 +28,7 @@ namespace Codebase.Pet.Systems
 			if (player == null || player.IsDead)
 				return;
 			float now = Time.time;
-			Transform owner = player.transform;
+			Transform owner = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform;
 			foreach (PetModel pet in petsModel.Pets)
 				if (pet.State == PetState.Dead && pet.Unit != null && now >= pet.ReviveAt)
 					petsModel.Revive(pet, owner.position, owner.eulerAngles.y);
