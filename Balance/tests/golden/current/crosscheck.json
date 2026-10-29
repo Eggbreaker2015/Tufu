@@ -13,7 +13,8 @@
     "X4.csv",
     "X5.csv",
     "X6.csv",
-    "X7.csv"
+    "X7.csv",
+    "export_text.csv"
    ]
   },
   "dp8.fields": {
@@ -189,13 +190,20 @@
    "source": "design 7.3 P11",
    "value": {
     "X2": [
+     "forecast_order",
      "k2_lag",
      "rewards_in_tick"
+    ],
+    "X3": [
+     "armor_tie_selection",
+     "missing_health",
+     "running_max"
     ],
     "X4": [
      "report"
     ],
     "X5": [
+     "armor_tie_selection",
      "fast_days_without_planning",
      "fast_phase"
     ],
@@ -204,6 +212,11 @@
      "dafc",
      "unlocks",
      "values_rewards"
+    ],
+    "X7": [
+     "armor_tie_selection",
+     "missing_health",
+     "running_max"
     ]
    }
   },

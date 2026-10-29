@@ -30,7 +30,7 @@ pytest --unity tests/unity/test_run_crosscheck.py                               
 
 `counts.running_max_cells` 统计旧 RPM 严格高于当天从零计算的 RPM 的比较格子；`health_states`、`missing_health_states` 统计比较状态及其中 `current_health < Health` 的状态。空策略的 X3/X7 与 DP8 两项计数都是 0，因此明确标记未覆盖。X5 在慢阶段有 3 个缺血状态（新一天的 Health 高于记录的当前血量），但机器人过滤集合的成员只依赖充能、冷却、存活、OT、岛和 `fight_time`，不依赖当前血量；不能据此声称该集合验证了回血数值。
 
-`counts.forecast_data_order_differences` 统计 X2 中游戏顺序与数据顺序产生不同位的预测属性，本次所有标准作业均为 0。`counts.armor_best_ties` 统计检查运行期间实际遇到的最优盔甲平局，本次为 0；X3/X5/X7/DP8 的 `armor_tie_selection` 明确指出数值输出没有分辨平局选择。非 Unity 测试分别用会产生 1 ulp 差异的乘法输入、两种不同类型/抗性的等 DPS 盔甲验证游戏乘法顺序和首次平局优先。
+`counts.forecast_data_order_differences` 统计 X2 中游戏顺序与数据顺序产生不同位的预测属性，本次所有标准作业均为 0。`counts.armor_best_ties` 统计检查运行期间实际遇到的最优盔甲平局，本次为 0；X3/X5/X7/DP8 的 `armor_tie_selection` 在计数为 0 时明确指出本次没有遇到平局选择。非 Unity 测试分别用会产生 1 ulp 差异的乘法输入、两种不同类型/抗性的等 DPS 盔甲验证游戏乘法顺序和首次平局优先。
 
 X 检查的输入一律是 C1 的导出文件，读取时核对 C1 的逐位摘要（第 4 节第 2 条）。
 
@@ -98,3 +98,5 @@ Unity 运行：提交 `b9884ae`（C# 与最终提交相同，之后只改 Python
 - 增加 X2 武器类型顺序、X5 已清 DAFC 排除与签名错误、当天 K 与前一天 K 在 `fight_time = 300` 边界两侧的集合、X6 时钟回退/天列表重复/裁剪/导出索引的故障测试。另用超出随包天数的合成边界验证 TC 的 float32 商舍入。
 - X4 增加 C8 格式报告的非 Unity 测试：717 行全部通过，植入 1 ulp NewHealth 只报出对应一行。C8 尚未合入，因此标准作业的 X4 仍明确 vacuous；没有提前登记 C8 的 manifest 字段或改其它单元的文件。
 - 本轮不改 C#，不新增所有权偏离。原有 DP8 C# 导出及跨所有权调用仍需调度者/Z1 按第 6 节处理。
+
+本轮验收：Unity 在 `74e55df` 上经启动器执行一次五作业运行，`run_key = 41faadab5b30c8e7c277a87436ac4132cb8c0276148178aa3c013feb979458f5`，进程 52.46 秒，Unity/启动器退出码均为 0，守卫问题为空。接受仅涉及 `golden405.vacuous_parts` 和 `csv_files` 的两项披露/产物变更（按 P1 对 exact/set 的规则登记 loosening，原版基线不改），随后 `pytest --unity tests/unity/test_run_crosscheck.py tests/test_crosscheck.py` 28 项通过（复用该运行，10.24 秒）。全仓 `pytest -q` 785 通过、114 跳过（230.83 秒）；夹具检查 identical；cscheck 0 编译错误、0 签名违规、0 禁用 API；黄金守卫 15 套件 0 违规。两个覆盖作业全部检查无失败，DP8 仍为 36514 行/328626 字段逐位相等、G20 1380/1380。

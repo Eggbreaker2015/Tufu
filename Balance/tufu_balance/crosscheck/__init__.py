@@ -429,9 +429,9 @@ def run_checks(job_dir: str | Path, con, *, checks: Iterable[str] = CHECKS, out_
         with mono_arithmetic(coverage):
             result = fns[name]()
         result.counts.update(coverage)
-        if result.items and name in ("X3", "X5", "X7", "DP8"):
+        if result.items and name in ("X3", "X5", "X7", "DP8") and not coverage["armor_best_ties"]:
             result.vacuous["armor_tie_selection"] = (
-                "no numerically discriminating armor tie; armor_best_ties counts observed ties, first-on-tie is tested synthetically")
+                "no armor tie observed; armor_best_ties counts ties, first-on-tie is tested synthetically")
         results[name] = result
     text = {"exact": dict(run.text_exact)}
     if any(not ok for ok in run.text_exact.values()):
