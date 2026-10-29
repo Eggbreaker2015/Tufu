@@ -413,6 +413,7 @@ pytest --unity tests/unity                                  # 环境变量 TUFU_
 - 预设 `smoke-11`、`golden-405`、`slow-5` 自 C3b 起会推进时钟、换天、拍快照；策略模块（C5、C6、C7）填好之前机器人不打怪（第 16 节）。
 - Python API：`tufu_balance.unity.launcher.run(request, rev=…)`、`selftest()`、`serve_*()`；请求由 `tufu_balance.unity.request` 生成和校验（`make_request`、`make_job`、`empty_job`、`preset`、`validate`）。其它单元追加请求字段时用 `request.register_fields`，C# 一侧写自己的 `SimulationRunRequest.<单元>.cs`。
 - 差分探针（C2）：`tufu_balance.unity.probes.probe_job()` 生成一个带 `probes` 字段的 `empty` 作业，编辑模式探针在进入 Play 之前、Play 模式探针在作业结束时运行；`pytest --unity tests/unity/test_differential.py`。见 [DifferentialProbes.md](DifferentialProbes.md)。
+- 烘焙报告与写回（C8）：作业的 `outputs.bake_report = true`（`bake_report.bake_outputs(job)`）在作业结束时写 `bake_report.json/.csv`；`python -m tufu_balance.unity bake JOB_DIR [--plan | --apply --token T | --selftest]`。见 [BakeTool.md](BakeTool.md)。
 
 退出码（C# 与启动器共用）：
 

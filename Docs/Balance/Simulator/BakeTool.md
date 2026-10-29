@@ -34,13 +34,13 @@ pytest --unity tests/unity/test_bake_tool.py
   - `run`（默认）：天制刷怪点读内存里的 `config.TimeChunkSnapshots`，也就是本次运行**不裁剪**的逐日列表；分钟制刷怪点读 `SimulationData.GetByPlayTime`，所以临时建一个装着本次 `Snapshots`（和逐日列表）的 `SimulationData` 实例（`HideAndDontSave`），换进 `config.SimulationData`，烘焙完在 `finally` 里换回并 `DestroyImmediate`。`manifest.bake.swap.restored` 记录换回成功。本次的 `Snapshots` 或逐日列表为空时作业失败（退出码 1）：否则 `GetSnapshotForBake` 会不声不响地读随包数据。`empty` 作业不能用 `run`。
   - `shipped`：把 `config.TimeChunkSnapshots` 临时换成空列表（`OnAwake` 本来就把它清空了），读随包 `Simulation Data`，与 DP5 在编辑模式下的输入相同，只是在 Play 里。
 - 范围：已加载场景里的全部 `EnemySpawner` 组件，包括未激活的（717 个，与 DP5 相同），按场景与层级顺序；每行记是否在 `EnemiesModel.Spawners` 里注册（716 个）。身份是 C1 的"层级路径 + Key"。
-- `bake_report.json`：每个刷怪点的 `SpawnerBakeReportData` 全部字段，数值以 IEEE 位的十六进制表示（与 DP5 同一编码），另加 `SnapshotSource`（读到的是哪个存储快照：天制 `t:<逐日列表下标>`、分钟制 `s:<Snapshots 下标>`，插值得到的为 null）；抛异常的刷怪点记 `error`。`bake_report.csv`：主要字段的往返文本，导入后是 `sim.sqlite` 的 `sim_bake_report` 表。
+- `bake_report.json`：每个刷怪点的 `SpawnerBakeReportData` 全部字段，数值以 IEEE 位的十六进制表示（与 DP5 同一编码），另加 `SnapshotSource`（读到的是哪个存储快照：天制 `t:<逐日列表下标>`、分钟制 `s:<Snapshots 下标>`，插值得到的为 null）；抛异常的刷怪点记 `error`。`run` 时另有 `inputs`：烘焙读到的 `Snapshots` 与逐日列表的全部字段的十六进制（原因见 6.1）。`bake_report.csv`：主要字段的往返文本，导入后是 `sim.sqlite` 的 `sim_bake_report` 表。
 - `manifest.bake`：两个文件的 sha256、字节数、行数，刷怪点数、注册数、出错数、非有限值个数、读到的快照个数、换入说明。烘焙耗时写进 `timings.json` 的 `bake_report_ms`。
 - 钩子 `RebuildJobExportBake` 在 C1 的导出与 C3c 的轨迹之后、`manifest.json` 之前调用。
 
 ## 4. X4 与 DP5
 
-- `compare_x4(job_dir, con)`：用本次导出的 `simulation_data.json`（`Snapshots`）和 `timechunk_full.json`（逐日列表，按导出器的位摘要核对过）构造 `SimulationData`，经 `load_bake_context(con, simulation_data=…)` 交给 `model.bake`，并把 `config_time_chunk_snapshots` 设为逐日列表（与 C# 的 `GetSnapshotForBake` 相同）。NewHealth/NewDamage 逐位；中间量相对 1e-12，`NewHealthRaw` 超出时必须正好是编辑器算术（`probes.mono_new_health_raw`，见 [DifferentialProbes.md](DifferentialProbes.md) 第 3 节）；`SnapshotSource` 相同；两边都抛异常的单列。
+- `compare_x4(job_dir, con)`：用报告的 `inputs`（烘焙读到的 `Snapshots` 与逐日列表，IEEE 十六进制）构造 `SimulationData`，经 `load_bake_context(con, simulation_data=…)` 交给 `model.bake`，并把 `config_time_chunk_snapshots` 设为逐日列表（与 C# 的 `GetSnapshotForBake` 相同）。NewHealth/NewDamage 逐位；中间量相对 1e-12，`NewHealthRaw` 超出时必须正好是编辑器算术（`probes.mono_new_health_raw`，见 [DifferentialProbes.md](DifferentialProbes.md) 第 3 节）；`SnapshotSource` 相同；两边都抛异常的单列。
 - `compare_dp5(report, dp5)`：`shipped` 报告与同一次运行里编辑模式 DP5 的报告逐字段比较（十六进制文本相等即位相等）。
 
 ## 5. 写回
@@ -80,13 +80,32 @@ Python 随后把写好的场景复制到目标，再把运行工作树的场景�
 - 守卫：新进程允许；设上"进入过 Play"的标记后拒绝；调用者 `cli` 允许、`refresh` 与缺省拒绝；三个环境变量各自拒绝；口令相符允许、不符与缺省拒绝；`Main.unity` 干净且已跟踪允许，`Temp/` 下的未跟踪文件拒绝。
 - 用 `EditorSceneManager.NewScene` 建一个**从不保存**的场景，放 16 个刷怪点覆盖每种动作与原因（含嵌套路径、只改 Health、第二个 Health 行、重复身份、报告里多出的行），生成计划并核对每行的动作与原因、计划文本的确定性；过期计划一个都不写；正式写回 3 个、未变 1 个、跳过 12 个，值逐位正确、第二个 Health 行不动；`Undo.PerformUndo` 全部恢复、`PerformRedo` 重新写入；最后 `Main.unity` 的 sha256 不变、临时场景没有路径。
 
-## 6. 验收记录
+## 6. 验收记录（设计稿 7.3 C8）
 
-（见第 7 节之前的表，由测试运行填写。）
+提交 `6d8b171`，运行工作树，有图形。`pytest --unity tests/unity/test_bake_tool.py` 6 项通过；黄金套件 `bake_cs` 首次测量以 `--seed-original` 写入。
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 作业结束时在 Play 里用本次快照跑原版 `BuildSpawnerBakeReport`；天制读 `config.TimeChunkSnapshots`，分钟制换入瞬时 `SimulationData` 再换回 | 通过。`bake-run`：空策略（`null_policy`）加 8 个平坦攻防修饰器各 10（让 DefenseData 不为 0），跑到第 405 天；读到 68 个早期快照、406 个天快照；`swap.restored = true`；717 个刷怪点（注册 716）、0 个出错、1 个非有限值（BossTower）；716 个刷怪点的 NewHealth 与随包数据上的报告不同（确实读的是本次快照） | `test_run_report_is_the_original_bake_on_this_runs_snapshots` |
+| X4：报告与 `model.bake` 在同一快照上逐位相等 | 通过。NewHealth/NewDamage 717/717 逐位；中间量 20076/20076 **逐位**（本次的抗性都让 `(double)(1f - usedResist)` 恰好可表示，所以连 DP5 的 4 个 `NewHealthRaw` 差异也没有出现）；读到的快照 717/717 相同；没有未知或缺失的刷怪点 | 同上，黄金 `run.x4.*` |
+| 用随包数据得到的报告与 DP5 一致 | 通过。同一次运行里编辑模式 DP5 与 Play 模式 `shipped` 导出：717/717 个刷怪点、35850 个字段的十六进制全部相同；X4 在随包数据上 717/717；分钟制 HP 精确的集合仍是 G13 的 79 个 | `test_shipped_report_equals_dp5_and_the_oracle`，黄金 `shipped.*` |
+| `bake --plan` 生成计划、不碰资产 | 通过。717 行：写 697、未变 0、跳过 20（活动 6、VIP 10、BossTower 1（同时非有限）、Dummy 1、`HandBalance` 2）；编辑器报告 `entered_play = false`、`scene_dirty = false`，`Main.unity` 前后 sha256 相同，运行工作树干净、没有守卫问题；口令等于计划文件的 sha256；Python 用抽取的场景独立重算每一行（旧值、新值、动作、原因、计数）全部相同 | `test_plan_touches_nothing_and_matches_the_scene`，黄金 `plan.*` |
+| `bake --apply` 的守卫 | 通过（拒绝路径）。Python 侧：CI/`TUFU_REFRESH`/`GITHUB_ACTIONS`、非 `cli` 调用者、口令错或缺、场景脏、未跟踪、LFS 指针、文件 sha256 不符、非 Main 计划、一行都不写，全部在启动编辑器之前拒绝（替身保证没有启动编辑器）；编辑器侧的同一组检查在自检里逐个验证 | `tests/test_bake_report.py`、`test_tool_self_test_on_an_unsaved_scene` |
+| 写回用 `SerializedObject` 加 Undo，保存前备份，写 manifest；在 `NewScene` 临时场景上验证、不保存 | 通过。自检 29 项全部成立（见 5.3）；临时场景始终没有路径，`Main.unity` 不变 | 同上，黄金 `selftest.*` |
+| 对真实 `Main.unity` 写回 | **按指示没有执行**（任何工作树都没有）。备份与保存两步只在真实写回里运行，未经实测 | — |
+
+耗时：两个作业的运行 26.4 秒（其中烘焙导出 0.06 秒，`bake_report.json` 3.3 MB，含精确输入）；`bake --plan` 9.6 秒（打开 Main 1.9 秒）；自检 8.0 秒；Python 的 X4 比较 0.25 秒。
+
+### 6.1 发现：C1 文本导出有 1 ulp 的偏差
+
+`bake-run` 的 `timechunk_full.json` 过不了 `simio` 的位摘要核对（`ingest` 因此拒绝这个作业）。原因：`SimulationJson.FormatDouble` 先用 Mono 的 `"R"` 输出，再用 **Mono 自己的** `double.Parse` 验证能否读回；Mono 的解析器会把某些 15 位文本读高 1 ulp（C3c 也遇到过），于是一个错的 15 位文本被当作可往返。例：第 147 天的 DefenseData `113.36911604847501` 被写成 `113.369116048475`，正确解析是 `113.369116048475`（低 1 ulp）。这次 90060 个数里有 3 个（都是 DefenseData，−1 ulp）。
+
+所以烘焙报告另带 `inputs`：烘焙实际读到的两个快照列表的 IEEE 十六进制（DP4 的编码），X4 用它构造预言机的快照，不依赖文本往返；`export_text_check` 把 C1 的文本与它逐值比较，作为诊断记进黄金（`run.export_text.*`，只许变少）。修法（C1 的文件，不在本单元范围）：`FormatDouble` 不再信任 Mono 的解析，例如 15 位文本一律改用 G17，或用正确舍入的解析器验证。交给 Z1/C1。
 
 ## 7. 与设计稿不同的地方
 
-- 改了 C0b 的 `tufu_balance/unity/__init__.py`（导入 `bake_report` 以登记请求字段与 manifest 键）与 `__main__.py`（`bake` 子命令）。`bake` 子命令另加了 `--selftest` 与 `--plan-file`、`--dest`；不带选项时做 X4（不需要 Unity）。
+- X4 的预言机输入取报告里的精确快照（`inputs`），不取 C1 导出的 `simulation_data.json`/`timechunk_full.json`：后者的文本有 1 ulp 的偏差（6.1）。
+- 改了 C0b 的 `Runbook.md`（第 10 节加一行指向本文）、`tufu_balance/unity/__init__.py`（导入 `bake_report` 以登记请求字段与 manifest 键）与 `__main__.py`（`bake` 子命令）。`bake` 子命令另加了 `--selftest` 与 `--plan-file`、`--dest`；不带选项时做 X4（不需要 Unity）。
 - 设计稿 1.4.4 说 `bake` 需要 Unity；X4 比较不需要，只有计划、写回、自检需要。
 - 跳过原因比设计稿多四个：`not_in_report`、`report_error`、`no_stat`、`duplicate_id`。`boss_tower` 按对象名判断（场景里只有一个，`Count = 0`，NewHealth 为 +Inf，同时也是 `non_finite`）。
 - 不需要 Unity 的测试放在 `tests/test_bake_report.py`（`tests/unity/` 下的测试没有 `--unity` 时一律跳过）。
