@@ -1,5 +1,95 @@
 {
  "expectations": {
+  "T03.cadence.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T04.day_0_3.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T04.tc_ge_11.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T06.tc_ge_24.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T09.nonzero.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T12.phase_4_19.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T14.level.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T16.main.excess_failures": {
+   "kind": "max",
+   "note": "",
+   "source": "5.1 closed-loop cell-count tolerance; Calibration.md K3",
+   "value": 0
+  },
+  "T19.health.0.01": {
+   "kind": "min",
+   "note": "",
+   "source": "T19 external day-mode Health; Calibration.md K3",
+   "value": 154
+  },
+  "T19.health.0.05": {
+   "kind": "min",
+   "note": "",
+   "source": "T19 external day-mode Health; Calibration.md K3",
+   "value": 446
+  },
+  "island3.minutes_outside": {
+   "kind": "max",
+   "note": "",
+   "source": "K2 island 3 arrival range; Calibration.md K3",
+   "value": 0
+  },
+  "items.TC1.error": {
+   "kind": "max",
+   "note": "",
+   "source": "K2 item counts; Calibration.md K3",
+   "value": 0
+  },
+  "items.TC2.error": {
+   "kind": "max",
+   "note": "",
+   "source": "K2 item counts; Calibration.md K3",
+   "value": 0
+  },
+  "items.TC3.error": {
+   "kind": "max",
+   "note": "",
+   "source": "K2 item counts; Calibration.md K3",
+   "value": 0
+  },
+  "items.TC4.error": {
+   "kind": "max",
+   "note": "",
+   "source": "K2 item counts; Calibration.md K3",
+   "value": 0
+  },
   "params_hash": {
    "kind": "exact",
    "note": "",
