@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Codebase.Balance;
 using Codebase.Enemy;
+using Codebase.Unit;
 using Codebase.Player.Inventory;
 using Codebase.Simulation.Harness;
 using Codebase.Simulation.Rebuild;
@@ -27,10 +28,11 @@ namespace Codebase.Simulation.Systems
         private void RebuildPrepareInventory()
         {
             string error = RebuildParams.RebuildValidateInventory();
-            if (RebuildParams.AutoBalanceMode == AutoBalanceMode.Regenerate && SimulationHarness.CurrentJob != null
-                && SimulationHarness.RebuildResetMode != "reenter_play") error = "Regenerate requires reenter_play";
+            if (RebuildParams.AutoBalanceMode == AutoBalanceMode.Regenerate
+                && (SimulationHarness.CurrentJob == null || SimulationHarness.RebuildResetMode != "reenter_play")) error = "Regenerate requires reenter_play";
             if (error != null) { RebuildFail(SimulationHarness.ExitBadRequest, error); return; }
             RebuildInventoryBalanceBefore = JsonUtility.ToJson(combatBalanceConfig);
+            combatBalanceConfig.RebuildClearCapture();
         }
 
         internal JObject RebuildFinishInventory(bool probe)
@@ -39,6 +41,7 @@ namespace Codebase.Simulation.Systems
             JObject generator = probe ? RebuildInventoryGeneratorProbe() : null;
             if (RebuildInventoryBalanceBefore != null && RebuildParams.AutoBalanceMode == AutoBalanceMode.Regenerate)
                 JsonUtility.FromJsonOverwrite(RebuildInventoryBalanceBefore, combatBalanceConfig);
+            combatBalanceConfig.RebuildClearCapture();
             return new JObject {
                 ["mode"] = (int)RebuildParams.AutoBalanceMode,
                 ["frozen_unchanged"] = RebuildInventoryBalanceBefore == null || after == RebuildInventoryBalanceBefore,
@@ -134,15 +137,21 @@ namespace Codebase.Simulation.Systems
             foreach (ItemModel item in playerModel.Items)
             {
                 TryApplyArmorBaseAutoBalance(item);
+                if ((int)item.Config.Rarity <= (int)Rarity.Legendary)
+                    for (int targetLevel = 1; targetLevel <= combatBalanceConfig.MaxEvolutionLevel; targetLevel++)
+                    {
+                        float targetDay = RebuildInventoryTarget(item, targetLevel);
+                        string targetId = item.Key + ":" + targetLevel;
+                        if (day < targetDay || !RebuildInventoryTargets.Add(targetId)) continue;
+                        int shards = combatBalanceConfig.GetEvolutionShardsRequirement(item.IsArmor, item.Config.Rarity, targetLevel);
+                        RebuildInventoryHeadroom.Add(new JObject { ["key"] = item.Key, ["level"] = targetLevel, ["day"] = day,
+                            ["target"] = targetDay, ["current_level"] = item.Evolved ? item.Level : 0,
+                            ["copies"] = item.Copies, ["shards"] = shards, ["headroom"] = item.Copies - shards });
+                    }
                 while ((int)item.Config.Rarity <= (int)Rarity.Legendary && (!item.Evolved || item.Level < combatBalanceConfig.MaxEvolutionLevel))
                 {
                     int level = item.Evolved ? item.Level + 1 : 1;
                     float target = RebuildInventoryTarget(item, level);
-                    string id = item.Key + ":" + level;
-                    if (day >= target && RebuildInventoryTargets.Add(id))
-                        RebuildInventoryHeadroom.Add(new JObject { ["key"] = item.Key, ["level"] = level, ["day"] = day,
-                            ["target"] = target, ["copies"] = item.Copies, ["shards"] = item.LevelsToEvolve,
-                            ["headroom"] = item.Copies - item.LevelsToEvolve });
                     bool timed = RebuildParams.EvolutionTrigger != EvolutionTrigger.Greedy;
                     float lag = RebuildParams.EvolutionTrigger == EvolutionTrigger.TimedLag ? 1f : 0f;
                     if (timed && day < target + lag) break;
@@ -229,7 +238,32 @@ namespace Codebase.Simulation.Systems
                             ["level"] = row.EvolutionLevel, ["value"] = generated.Value, ["copy_value"] = generated.CopyValue });
                     }
                 }
-                return new JObject { ["rows"] = rows };
+                var examples = new JArray();
+                foreach (Rarity rarity in new[] { Rarity.Common, Rarity.Uncommon, Rarity.Rare, Rarity.Epic, Rarity.Legendary })
+                {
+                    EnemySpawner source = sortedSpawners.First(x => x.Config.ItemReward != null && x.Config.ItemReward.Rarity == rarity && !x.Config.IsVip && !x.Config.IsEvent);
+                    int n = GetSpawnerChargesLimit(source);
+                    for (int day = 4; day < 11; day++)
+                    {
+                        float probability = GetSimulationInterpolationCoefficient(day, BalanceInterpolationType.ItemChainProbability);
+                        float emission = GetItemEmissionCoefficient(day, source.Config.ItemReward);
+                        examples.Add(new JObject { ["day"] = day, ["rarity"] = (int)rarity, ["charges"] = n,
+                            ["chain"] = GetChainedItemBaseCount(n, probability) * emission, ["e1"] = n * (double)emission });
+                    }
+                }
+                var islandDays = new JArray();
+                for (float island = 1f; island <= combatBalanceConfig.IslandTargetDays.Length + 1; island += 0.5f)
+                    islandDays.Add(new JArray(island, combatBalanceConfig.ConvertIslandTimingToDays(island)));
+                Stat stat = playerModel.Unit.Stats.First(x => x.Type == StatType.Health);
+                double snapshotBefore = RebuildSnapshotStats().First(x => x.Key == stat.Type).Value;
+                double totalBefore = stat.FastValue;
+                var equipment = new StatModifier { Name = "__inventory_x6_probe", StatType = stat.Type, Source = ModifierSource.Item, ModifierType = ModifierType.Flat, Value = 37f };
+                stat.AddModifier(equipment);
+                JObject x6;
+                try { x6 = new JObject { ["before"] = snapshotBefore, ["with_equipment"] = RebuildSnapshotStats().First(x => x.Key == stat.Type).Value,
+                    ["total_before"] = totalBefore, ["total_after"] = stat.FastValue }; }
+                finally { stat.RemoveModifier(equipment); }
+                return new JObject { ["rows"] = rows, ["chain_examples"] = examples, ["island_days"] = islandDays, ["x6"] = x6 };
             }
             finally { JsonUtility.FromJsonOverwrite(before, combatBalanceConfig); }
         }

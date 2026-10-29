@@ -260,7 +260,19 @@ namespace Codebase.Simulation.Systems
 		// give the same state digests as the default flush. Engine counters, logs and events are not part of it.
 		private void RebuildReferenceFlush()
 		{
-			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.ItemsThenStats) RebuildFlushInventoryItems();
+            Action items = () =>
+            {
+                foreach (var pair in fastTickChunkItemRewards.OrderBy(p => p.Key.Key, StringComparer.Ordinal))
+                {
+                    RebuildRollStream = pair.Key.Key;
+                    int copies = RollFractionalCount(pair.Value);
+                    RebuildPendingItemCopies.TryGetValue(pair.Key, out int pending);
+                    RebuildPendingItemCopies[pair.Key] = checked(pending + copies);
+                }
+                RebuildInventoryRewardDay = timeChunkIndex;
+                ProcessInventory();
+            };
+			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.ItemsThenStats) items();
 			foreach (var pair in fastTickChunkStatRewards.OrderBy(p => (int)p.Key))
 			{
 				FastTickChunkStatReward reward = pair.Value;
@@ -272,7 +284,7 @@ namespace Codebase.Simulation.Systems
 					|| reward.ModifierType == ModifierType.PreAdditivePostMultiplicative || reward.ModifierType == ModifierType.PostFormulaMultiplicative;
 				if (!percent && reward.StatType == StatType.Health) playerModel.Unit.CurrentHealth += value;
 			}
-			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.StatsThenItems) RebuildFlushInventoryItems();
+			if (RebuildParams.DayChangeInventoryOrder == DayChangeInventoryOrder.StatsThenItems) items();
 			foreach (var pair in fastTickChunkSoulRewards)
 			{
 				RebuildSoulRewards.TryGetValue(pair.Key, out double souls);

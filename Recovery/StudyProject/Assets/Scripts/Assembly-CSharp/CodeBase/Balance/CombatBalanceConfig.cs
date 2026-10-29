@@ -13,6 +13,8 @@ namespace Codebase.Balance
 	{
 		private readonly HashSet<string> RebuildCapturedShards = new HashSet<string>();
 
+        internal void RebuildClearCapture() => RebuildCapturedShards.Clear();
+
 		private const int InitialShardsRequirement = 1000000000;
 
 		private const int EvolutionTimingLevelsCount = 15;
@@ -299,10 +301,13 @@ namespace Codebase.Balance
 
 		public float ConvertIslandTimingToDays(float islandTiming)
 		{
-            if (islandTiming < 1f || islandTiming > IslandTargetDays.Length) throw new ArgumentOutOfRangeException(nameof(islandTiming));
-            int i = (int)Math.Floor(islandTiming) - 1;
-            if (i == IslandTargetDays.Length - 1) return IslandTargetDays[i];
-            return IslandTargetDays[i] + (IslandTargetDays[i + 1] - IslandTargetDays[i]) * (islandTiming - i - 1f);
+            if (float.IsNaN(islandTiming) || float.IsInfinity(islandTiming)) throw new ArgumentOutOfRangeException(nameof(islandTiming));
+            int n = (int)Math.Floor(islandTiming);
+            float fraction = islandTiming - n;
+            if (n < 1 || n > IslandTargetDays.Length + 1 || (n == IslandTargetDays.Length + 1 && fraction != 0f))
+                throw new ArgumentOutOfRangeException(nameof(islandTiming));
+            float previous = n == 1 ? 0f : IslandTargetDays[n - 2];
+            return fraction == 0f ? previous : previous + fraction * (IslandTargetDays[n - 1] - previous);
 		}
 
 		private static List<EvolutionIslandTimingRow> CreateEvolutionIslandTimingRows()
