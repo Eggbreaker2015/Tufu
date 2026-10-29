@@ -17,6 +17,7 @@ namespace Codebase.Simulation.Systems
         private string RebuildRollStream;
         private string RebuildInventoryBalanceBefore;
         private bool RebuildInventoryAfterRpm;
+        private bool RebuildInventoryDeferred;
         private int RebuildInventoryRewardDay = -1;
         private readonly HashSet<int> RebuildInventoryPendingSlots = new HashSet<int>();
         private readonly JArray RebuildInventoryRewards = new JArray();
@@ -37,13 +38,27 @@ namespace Codebase.Simulation.Systems
 
         internal JObject RebuildFinishInventory(bool probe)
         {
-            string after = JsonUtility.ToJson(combatBalanceConfig);
-            JObject generator = probe ? RebuildInventoryGeneratorProbe() : null;
-            if (RebuildInventoryBalanceBefore != null && RebuildParams.AutoBalanceMode == AutoBalanceMode.Regenerate)
-                JsonUtility.FromJsonOverwrite(RebuildInventoryBalanceBefore, combatBalanceConfig);
-            combatBalanceConfig.RebuildClearCapture();
+            string after = null;
+            JObject generator = null;
+            try
+            {
+                if (RebuildInventoryBalanceBefore != null && RebuildParams.AutoBalanceMode == AutoBalanceMode.Regenerate)
+                    combatBalanceConfig.FillRemainingEvolutionsByLastValue();
+                after = JsonUtility.ToJson(combatBalanceConfig);
+                generator = probe ? RebuildInventoryGeneratorProbe() : null;
+            }
+            finally
+            {
+                if (RebuildInventoryBalanceBefore != null && RebuildParams.AutoBalanceMode == AutoBalanceMode.Regenerate)
+                    JsonUtility.FromJsonOverwrite(RebuildInventoryBalanceBefore, combatBalanceConfig);
+                combatBalanceConfig.RebuildClearCapture();
+            }
             return new JObject {
+                ["schema"] = "tufu.sim.inventory/1",
                 ["mode"] = (int)RebuildParams.AutoBalanceMode,
+                ["balance_before_sha256"] = RebuildInventoryBalanceBefore == null ? null : SimulationTrace.Sha256(RebuildInventoryBalanceBefore),
+                ["balance_during_sha256"] = after == null ? null : SimulationTrace.Sha256(after),
+                ["balance_restored_sha256"] = SimulationTrace.Sha256(JsonUtility.ToJson(combatBalanceConfig)),
                 ["frozen_unchanged"] = RebuildInventoryBalanceBefore == null || after == RebuildInventoryBalanceBefore,
                 ["restored"] = RebuildInventoryBalanceBefore == null || JsonUtility.ToJson(combatBalanceConfig) == RebuildInventoryBalanceBefore,
                 ["rewards"] = RebuildInventoryRewards,
@@ -102,8 +117,9 @@ namespace Codebase.Simulation.Systems
             RebuildInventoryAfterRpm = true;
             foreach (int location in RebuildInventoryPendingSlots.OrderBy(x => x)) UnlockSimulationWeaponSlot(location);
             RebuildInventoryPendingSlots.Clear();
-            if (RebuildParams.SlotRpmOrder == SlotRpmOrder.SlotAfterRpm && RebuildPendingItemCopies.Count > 0) ProcessInventory();
+            if (RebuildInventoryDeferred) ProcessInventory();
             RebuildInventoryAfterRpm = false;
+            RebuildInventoryDeferred = false;
             RebuildInventoryRewardDay = -1;
         }
 
@@ -124,7 +140,8 @@ namespace Codebase.Simulation.Systems
         [SimulationRebuild(Provenance.Calibrated, "pending:simulation.process_inventory")]
         private void ProcessInventory()
         {
-            if (RebuildLastTickFast && RebuildParams.SlotRpmOrder == SlotRpmOrder.SlotAfterRpm && !RebuildInventoryAfterRpm) return;
+            if (RebuildLastTickFast && RebuildParams.SlotRpmOrder == SlotRpmOrder.SlotAfterRpm && !RebuildInventoryAfterRpm)
+            { RebuildInventoryDeferred = true; return; }
             foreach (var pair in RebuildPendingItemCopies.OrderBy(p => p.Key.Key, StringComparer.Ordinal))
             {
                 if (pair.Value <= 0) continue;
@@ -177,7 +194,7 @@ namespace Codebase.Simulation.Systems
         private void TryApplyArmorBaseAutoBalance(ItemModel item)
         {
             if (RebuildParams.AutoBalanceMode != AutoBalanceMode.Regenerate || !item.IsArmor) return;
-            combatBalanceConfig.TrySetArmorBaseValue(item.Config.Rarity, (float)(0.8 * GetForecastStatValue(
+            combatBalanceConfig.TrySetArmorBaseValue(item.Config.Rarity, (float)(RebuildParams.ArmorHeuristicMultiplier * GetForecastStatValue(
                 global::Codebase.Services.Damage.DamageCalculator.WeaponTypeToDefence(item.Config.DamageType, false))));
         }
 
@@ -187,9 +204,10 @@ namespace Codebase.Simulation.Systems
             if (RebuildParams.AutoBalanceMode != AutoBalanceMode.Regenerate) return;
             double stat = GetForecastStatValue(item.IsArmor
                 ? global::Codebase.Services.Damage.DamageCalculator.WeaponTypeToDefence(item.Config.DamageType, false) : item.Config.DamageStatTypeFlat);
-            double[] rarity = { 1.0, 1.25, 1.5, 1.875, 2.5 };
-            double type = item.Config.DamageType == WeaponType.Cutting ? 0.8 : item.Config.DamageType == WeaponType.Buckshot ? 0.573 : 1.0;
-            double h = item.IsArmor ? 0.8 * stat : type * rarity[(int)item.Config.Rarity] * item.Config.AttackCooldown * stat;
+            int typeIndex = item.Config.DamageType == WeaponType.Cutting ? 1 : item.Config.DamageType == WeaponType.Buckshot ? 2 : 0;
+            double type = RebuildParams.WeaponHeuristicTypeMultipliers[typeIndex];
+            double h = item.IsArmor ? RebuildParams.ArmorHeuristicMultiplier * stat
+                : type * RebuildParams.WeaponHeuristicRarityMultipliers[(int)item.Config.Rarity] * item.Config.AttackCooldown * stat;
             combatBalanceConfig.ApplyEvolutionAutoBalance(item.IsArmor, item.Config.DamageType, item.Config.Rarity, item.Evolved ? item.Level + 1 : 1, h, stat, timeChunkIndex);
         }
 

@@ -97,6 +97,11 @@ def test_jobs_and_asset_guards(run):
         assert run.file(name, "asset_guard.json")
         d = inv(run, name)
         assert d["restored"], name
+        assert d["balance_before_sha256"] == d["balance_restored_sha256"], name
+        if name != "inventory-regenerate":
+            assert d["balance_before_sha256"] == d["balance_during_sha256"], name
+        else:
+            assert d["balance_before_sha256"] != d["balance_during_sha256"], name
         if name != "inventory-regenerate":
             assert d["frozen_unchanged"], name
         else:
@@ -284,3 +289,63 @@ def test_unobserved_rarities_chain_curve_and_x6(run, db):
     itd = load_island_target_days(db)
     for island, day in probe["island_days"]:
         assert np.isclose(day, float(convert_island_timing_to_days(island, itd)), rtol=1e-7)
+
+
+def test_comparisons_use_only_discriminating_days_and_late_plateau(run, series, targets, db):
+    interp = data.load_interpolations(db)
+    phases = M.T12_PHASES
+    scores = {}
+    for name in ("chain-swapped", "chain-direct", "e1-swapped", "e1-direct"):
+        eligible = {(a, b) for a, b in phases if all(float(interp.get_total_coefficient(d, K.ItemEmissionByType)) > 0 for d in range(a, b))}
+        cells = [c for c in M.t12(series[name], targets) if c.group != "daily" and tuple(map(int, c.key.split('|')[0].split('->'))) in eligible and c.ref > 0]
+        scores[name] = {kind: sum(abs(c.sim - c.ref) for c in cells if kind in c.key) / sum(c.ref for c in cells if kind in c.key)
+                        for kind in ("weapon", "armor")}
+    freeze("mapping.k7_positive_only", scores, "5.5 post-hoc mapping comparison; only full phases with K7>0")
+
+    defs = items.load_item_defs(db)
+    by_asset = {i.asset_name: i for i in defs.values()}
+    by_id = {spawner_map.runtime_id(spawner_map.runtime_path(s.scene, s.go_path), s.key): s for s in sp.registered(sp.load_spawners(db))}
+    locs = {r["Number"]: (r["PreferredWeaponType"], r["PreferredArmorType"]) for r in db.execute('SELECT * FROM c_LocationsConfig__Locations')}
+    days = {d.day: d for d in ft.read_days(run.file("chain-swapped", ft.DAYS_FILE).decode())}
+    no_drop, full = defaultdict(float), defaultdict(float)
+    plateau = defaultdict(lambda: [0., 0])
+    for r in ft.read_spawner_days(run.file("chain-swapped", ft.SPAWNER_DAYS_FILE)):
+        s = by_id[r.spawner]
+        if not r.fights or not s.item_reward:
+            continue
+        it = by_asset[s.item_reward]
+        n = r.count * r.fights
+        probability = float(interp.get_total_coefficient(r.day, K.ItemChainProbability))
+        chain = n if probability == 1 else (1 - probability**n) / (1 - probability)
+        coefficient = float(interp.get_total_coefficient(r.day, K.ItemLegendaryEmission if it.rarity == 4 else K.ItemEmission))
+        k7 = float(interp.get_total_coefficient(r.day, K.ItemEmissionByType))
+        preferred = it.damage_type == locs[days[r.day].rounds[r.round - 1].location][0 if it.is_armor else 1]
+        key = (r.day, it.kind, it.rarity)
+        full[key] += chain * float(np.float32(1 + coefficient + (k7 if preferred else 0)))
+        no_drop[key] += chain * float(np.float32(1 + (k7 if preferred else 0)))
+        if r.day >= 206:
+            group = (it.rarity == 4, preferred)
+            plateau[group][0] += chain * float(np.float32(1 + coefficient + (k7 if preferred else 0)))
+            plateau[group][1] += n
+    coefficient_scores = {}
+    rarity_names = ("Common", "Uncommon", "Rare", "Epic", "Legendary")
+    for a, b in phases:
+        if not all(float(interp.get_total_coefficient(d, K.ItemEmission)) > .1 for d in range(a, b)):
+            continue
+        refs = M._gains(targets.shipped, targets, a, b)
+        for key, ref in refs.items():
+            if not ref:
+                continue
+            kind, rarity = key
+            r = rarity_names.index(rarity)
+            expected = [sum(src.get((d, kind, r), 0) for d in range(a, b)) for src in (full, no_drop)]
+            coefficient_scores[f"{a}->{b}|{kind}|{rarity}"] = {"with_drop_rel": abs(expected[0] - ref) / ref,
+                                                                  "without_drop_rel": abs(expected[1] - ref) / ref}
+    assert coefficient_scores
+    freeze("coefficient.k0_above_point1_only", coefficient_scores, "5.5 full vs no-K0/K6; only phases with K0>0.1")
+    measured = {f"{legendary}|{preferred}": count / charges for (legendary, preferred), (count, charges) in plateau.items()}
+    assert len(measured) == 4
+    expected = {(False, False): 2.5, (False, True): 4.3, (True, False): 2.8, (True, True): 4.6}
+    errors = [abs(count / charges - expected[group]) / expected[group] for group, (count, charges) in plateau.items()]
+    freeze("t12.late_per_charge", measured, "T12 post-hoc TC206-404, nonpreferred/preferred by legendary")
+    _frozen["t12.late_plateau_rel"] = at_most(max(errors), source="T12 post-hoc 2.50/4.30 and 2.80/4.60", original=.02)

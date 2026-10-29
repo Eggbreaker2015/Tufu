@@ -776,6 +776,8 @@ namespace Codebase.Simulation.Harness
 			manifest["error"] = error;
 			if (SimulationSystem.Instance != null && job != null && job.Mode != "empty")
 			{
+                try
+                {
 				bool inventoryProbe = job.Outputs != null && job.Outputs.TryGetValue("inventory", out bool inventoryOn) && inventoryOn;
 				JObject inventory = SimulationSystem.Instance.RebuildFinishInventory(inventoryProbe);
 				if (request != null && inventoryProbe)
@@ -784,6 +786,14 @@ namespace Codebase.Simulation.Harness
 					Directory.CreateDirectory(inventoryDir);
 					SimulationJson.WriteText(Path.Combine(inventoryDir, "inventory.json"), inventory.ToString(Newtonsoft.Json.Formatting.None) + "\n");
 				}
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    ExitCode = ExitException;
+                    manifest["exit_code"] = ExitException;
+                    manifest["error"] = Error = "inventory export: " + e.Message;
+                }
 			}
 			if (config != null && speedBeforeJob.HasValue) config.SimulationSpeed = speedBeforeJob.Value;
 			timings["log_errors"] = logErrors;

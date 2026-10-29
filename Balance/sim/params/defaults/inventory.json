@@ -7,5 +7,18 @@
     8
   ],
   "DayChangeInventoryOrder": 0,
-  "SlotRpmOrder": 0
+  "SlotRpmOrder": 0,
+  "WeaponHeuristicTypeMultipliers": [
+    1.0,
+    0.8,
+    0.573
+  ],
+  "WeaponHeuristicRarityMultipliers": [
+    1.0,
+    1.25,
+    1.5,
+    1.875,
+    2.5
+  ],
+  "ArmorHeuristicMultiplier": 0.8
 }
