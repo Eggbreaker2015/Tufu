@@ -842,3 +842,91 @@ string s = random.StateText();                                // 进每天的状
 - "两次启动的全部输出逐字节相同，其中一次预置 `TimeSkipSeconds`"：预置值在请求里，`request.json` 和 manifest 的请求回显必然不同，所以拆成两项：同一请求的两次启动逐字节相同；预置的那次除请求回显与预置读回外相同。多跑了一次启动。
 - 比较"全部文件"时除去第 10 节本来就说明不能逐字节比较的文件（时间、进程号、日志），见 18.1。
 - 设计稿 2.6 写 36 项属性；摘要是 `Unit.Stats` 的 30 项（同 16.6、17.7）。
+
+## 19. 慢阶段策略（C7）
+
+C7 填了 `SimulationSystem.Targeting.cs`（`FindBestSpawner`、`CalculateStatBenefit`、`CalculateSpawnerPaths` 与三个调试方法）、`.Fight.cs`（`SimulateFightWithSpawner`、`ProcessDeath` 与三个调试方法）、`SpawnerData.cs` 的五个空方法，参数分部 `Rebuild/SimulationRebuildParams.SlowPolicy.cs`（默认值同 `Balance/sim/params/defaults/slow_policy.json`）。另加 `Rebuild/SimulationSlowPolicyState.cs`（策略的运行状态）、`Harness/SimulationRunRequest.SlowPolicy.cs`（测试探针）、`tufu_balance/unity/slow_policy.py`（请求字段、事件、枚举）、`tufu_balance/calibrate/killseq.py`。测试：`tests/unity/test_slow_policy.py`、`tests/test_slow_policy_static.py`、`tests/test_killseq.py`；黄金套件 `sim_slow`。
+
+### 19.1 参数（P13–P15）
+
+| 字段 | 默认 | 取值 |
+|---|---|---|
+| `PriorityFamily` | `Dynamic`（1）| `Static`：刷怪点自身奖励（全部 `statsBenefit` 取 1；门禁 1e6，物品 1e4）×Count；`Dynamic`：选目标时现算的 `CalculateSpawnerRewardValue`（按 `statsBenefit` 加权），给了属性时取该属性的奖励。两者都乘 `PriorityMultiplier`，除以 `farmedTime − avMoveTime + GetMoveTime(当前位置)` |
+| `SmartPath`、`SmartPathRadius` | 开、5（世界单位）| 去目标的线段附近 δ 以内、通过机器人过滤且不被门槛拒绝的刷怪点顺路清掉 |
+| `TimeModel` | `FarmedTime`（0）| `FarmedTime`、`FarmedTimeMoveByDistance`、`Decomposed`（`CRegen·avRegenTime + (CMove·avMoveTime + rpm.Item3·fightTime)`）、`DecomposedMoveByDistance`（同上，移动取 `GetMoveTime`）|
+| `CMove`、`CRegen` | 1、1 | P14：固定为 1，只在 `Decomposed*` 里起作用；战斗系数始终是已恢复的 `rpm.Item3 = 2` |
+| `SlowLethalityGate` | `SameAsFast`（0）| `SameAsFast`：`L·H < loss` 拒绝（L 取 C5 的 `KillLossMultiplier`，C5 合并前为 1.0）；`CurrentHealth`：`loss ≥ CurrentHealth` 拒绝；`None` |
+| `DeathPolicy` | `SkipSpawner`（0）| `SkipSpawner`：输掉的战斗不算清怪，本会话跳过该刷怪点；`Retry`：不跳过；`ClearThenRespawn`：死了也算清怪 |
+| `StatBenefitModel`、`StatBenefitCandidates` | `Constant`、5 | `Constant`：全部 1.0；`MarginalKillTime`：见 19.2 |
+
+### 19.2 实现要点
+
+- **选目标**（`FindBestSpawner`）：在 `Tick` 的机器人过滤 `spawnerData` 上，跳过被致死门槛拒绝的和本会话跳过的，取 `GetPriority(currentPosition, lastRewardStat)` 最大者；`spawnerData` 按 `sortedSpawners` 的顺序填，相等时保留第一个，NaN 不参选；什么都不剩时返回 null，`Tick` 空闲。计数器 `slow_pick_none_eligible`、`slow_pick_none_allowed`；门禁在过滤集合里时每个 Tick 记 `slow_boss_chosen`/`slow_boss_refused`/`slow_boss_allowed_not_chosen`。
+- **战斗**（`SimulateFightWithSpawner`）：先顺路战斗，再打目标。每场：时长按 `TimeModel`（顺路战斗没有自己的移动；目标的移动从出发点算，用本 Tick 规划时的移动速度），`CurrentHealth += healthDelta`；P、T 各 `(float)(x + 秒/60)`；冷却按秒递减；不死时 `ApplyRegen(秒)`；然后 `RebuildApplyClear(…, 1, false)`（全模块唯一的清怪调用处）；位置移到该刷怪点。`CurrentHealth + healthDelta ≤ 0` 是死亡：时长是移动加上血量撑住的那部分战斗（`rpm.Item3·fightTime·CH/loss`，无回血等待），`ProcessDeath` 计 `countRespawn`（计数器 `respawns`、C3c 的 `death` 事件），回满血，回到原点，按 `DeathPolicy` 处理，本 Tick 结束。
+- **SmartPath**：`CalculateSpawnerPaths(A, B)` 把线段 A→B（A 为空时从原点）δ 以内的刷怪点按经过顺序存进原字段 `PathSpawners[(A, B)]`；纯几何，按刷怪点对缓存（计数器 `smart_path_scans`），走的时候再按当前的过滤集合筛，等价于设计稿说的"按合格集合签名缓存"。顺路战斗计入原字段 `countNeighbFight` 和计数器 `slow_en_route_clears`。
+- **`CalculateStatBenefit`**：按（会话序号，天序号）缓存，每对只算一次（计数器 `stat_benefit_evals`，事件 `stat_benefit`）。`MarginalKillTime`：取已开岛上机器人现在还打不了的（不在过滤集合、或被门槛拒绝）非 DAFC 刷怪点，按 OT 取前 `StatBenefitCandidates` 个；对每种奖励属性加一份典型奖励（已开岛上该属性 `Value·Count` 的中位数）的临时修饰器，重算 `CalculateSimulationData`，看候选的 `farmedTime` 之和（`fightTime ≥ 300` 的按上限 `2·300 + 70/速度 + 50` 计）减少多少，归一到平均 1（下限 0.01）；最后撤掉修饰器、重算缓存和机器人过滤集合。
+- **状态**：partial 文件只放方法（C3a 的测试），原字段放不下的状态（跳过集合、`CalculateStatBenefit` 的缓存键、门禁事件、探针）放在 `SimulationSlowPolicyState`，以本次运行的参数对象识别（`PrepareSimulationRun` 每次都新建参数对象）。
+- **事件**（`events.jsonl`，`slow_policy.py` 登记）：`slow_fight`（每场慢阶段战斗：前后的 P/T、秒数、`fightTime`/`farmedTime`/`avMoveTime`/`avRegenTime`、实际移动与按距离的移动、血量的四个值、回血、是否死亡/清怪、优先级、起止位置）、`slow_gate`（每个会话第一次门禁进入过滤集合时：loss、H、当前血量、三个门槛的判定、是否选中）、`stat_benefit`、`slow_policy_probe`。
+- **探针**：作业字段 `slow_policy_probe: {"selection": true}`，在第一次 `FindBestSpawner` 时对当时的 `spawnerData` 做：全部同优先级、首尾并列、全部不允许、清空集合，结果写事件，运行不受影响。
+- **daily.csv** 的 `fight_time_sum`/`farmed_time_sum` 由每场战斗经 `RebuildTraceFight(fightTime, farmedTime)` 上报。
+
+### 19.3 killseq
+
+`python -m tufu_balance.calibrate.killseq [--db …]`：把随包早期快照（第 0–3 天，63 行）相邻两行的属性 Value 增量和物品份数增量分解成"各奖励类别的清怪次数"（奖励相同的刷怪点合成一个类别；整数规划，先使残差最小（以一次清怪为单位），再使清怪次数最少；每个刷怪点在区间内最多按冷却和每日充能清若干次）。随包数据上 60 个区间全部精确分解（残差 0），共 683 次清怪。再把每个区间的活跃秒数按清怪数平摊，与区间开头状态下（P8 的 `spawner_data`）各类别的 `farmedTime` 比较，并拟合 `dP = a·fight + b·move + c·regen`（非负最小二乘，只用以战斗结束的区间）：a = 1.37、b = 0.64、c = 0，κ = 0.88（含空闲，偏大）。逐类别的结果写进黄金套件，作为棘轮。
+
+关键事实（与设计稿 7.3 C7 的第一条验收矛盾）：随包第一个早期快照（P = 1.1656，Health +15、Cut +3）正是岛 1 的 6 个 OT = 0 刷怪点各清一次，用了 69.9 活跃秒；它们的 `farmedTime` 之和是 232.1 秒，仅 `rpm.Item3·fightTime`（2 × 39.9）就有 79.8 秒。所以任何保留已恢复战斗系数 2 的时间形式（两种已恢复形式和 `Decomposed*`）都不可能在 1.17 分钟内清完这 6 个；`fightTime + 按距离移动` 约 72 秒（一次性估算）才对得上。这条交给 K2 用 T03/T16 判定（设计稿 Q34）。
+
+### 19.4 验收记录（设计稿 7.3 C7）
+
+在提交 `7c987fe`（C# 与本单元最后的提交相同；之后只改了测试、黄金文件和文档）上，`TUFU_UNITY_REV=7c987fe pytest --unity tests/test_killseq.py tests/unity/test_slow_policy.py`：45 通过、1 跳过（`perf`，机器负载 4.4/10 核）。两个请求：12 个作业的主请求 77.7 秒，3 个门禁作业 28.0 秒；都是 `free`，停在第 4 天的强制快照之后（第 0–3 天全是慢阶段；C5 未合并，FastTick 仍是最小版）。
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 新档开局每个 OT = 0 的刷怪点各被杀一次（Health +15、Cut +3）| 结构通过：前 6 次清怪正是这 6 个，各一次，奖励合计 +15/+3。**时间不通过**：`FarmedTime`（带 SmartPath）在 P = 3.336 分钟清完，`FarmedTimeMoveByDistance` 2.580 分钟，随包 1.1656 分钟；原因见 19.3 | `test_first_clears_are_the_ot0_spawners_once_each`，黄金 `first_clears.*`、`killseq.first.*` |
+| 门禁通过过滤与门槛时被选中；平局取第一个；没有合格的返回 null | 通过：各作业 `slow_boss_allowed_not_chosen = 0`；探针在第一个 Tick 的 6 个合格刷怪点上，同优先级与首尾并列都取第一个，全部不允许与清空集合都是 null，集合顺序与 `sortedSpawners` 一致且复原；空闲步数恰好等于 null 次数 | `test_the_gate_is_chosen_whenever_it_is_allowed`、`test_selection_ties_null_and_order`、`test_idle_only_when_nothing_is_allowed` |
+| 战斗时间：`FarmedTime` 时 P、T 恰好加 `farmedTime/60`；`FarmedTimeMoveByDistance` 时加 `(farmedTime − avMoveTime + GetMoveTime)/60`；`CMove = CRegen = 1` 的分解形式与 `FarmedTime` 逐位相同 | 通过：每场目标战斗的秒数逐位等于 `farmedTime`（顺路战斗等于 `farmedTime − avMoveTime`），P、T 是 float32 值加 `秒/60` 的一次舍入，逐位相同；按距离时移动 = 平面距离 × `avMoveTime`/70（相对 1e-3），出发点等于上一场的刷怪点或原点；`slow-decomposed` 的 `simulation_data.json`、`timechunk_full.json`、`digests.csv`、`daily.csv` 与计数器和 `slow-default` 逐字节相同 | `test_farmed_time_advances_p_and_t_by_farmed_time`、`test_move_by_distance`、`test_decomposed_with_unit_factors_is_farmed_time_bit_for_bit` |
+| 血量变化正确 | 通过：每场不死的战斗 `min(H, (CH + healthDelta) + regen·秒)` 逐位相等，清怪后再加平坦 Health 奖励（float32）逐位相等 | `test_health_changes` |
+| 致死门槛：TC3 状态下 `SameAsFast` 与 `CurrentHealth` 不选岛 3 门禁，`None` 会选 | 通过（闭环状态）：岛 2–3 开局即开、Cut 平坦 +1200（没有 C6 的物品合并，闭环只有初始 knife，门禁 `fightTime` 一直 ≥ 300、进不了过滤集合）。第 3 天 P = 240.07 门禁第一次进入过滤集合，loss/H = 4.50（随包 TC3 状态 4.16），`fightTime` 56.9 秒；三个作业都记下两种门槛拒绝；`SameAsFast`、`CurrentHealth` 从未选中，`None` 选中并死在门禁上 1 次；三个作业第 3 天都没有解锁岛 4，第 3 天结束 P = 247.2（随包 248.1）。随包 TC3 状态本身用 P8 预言机核对（loss/H 4.16 ± 1%，两种门槛都拒绝）| `test_lethality_gate_at_the_island3_gate`、`tests/test_slow_policy_static.py::test_island3_gate_at_the_shipped_tc3_state`，黄金 `island3_gate.*` |
+| `ProcessDeath` 计 `countRespawn`，按 `DeathPolicy` 处理 | 通过：`respawns` = 死亡的 `slow_fight` 数 = `death` 事件数（`None` 55 次，`None`+`Retry` 548 次）；输掉的战斗不清怪；`SkipSpawner` 下同一会话同一刷怪点最多死一次 | `test_deaths_count_respawns_by_death_policy`、`test_death_policy_changes_the_run` |
+| 清怪结果只经 `SimulateFightWithSpawner` 里的 `RebuildApplyClear` | 通过：静态（C3a 的调用点测试、本单元的源码测试）与运行时（`clears` 计数器 = 清怪的 `slow_fight` 数）| `test_clears_go_through_the_write_point`、`test_policy_sources_use_engine_hooks_only` |
+| `SmartPath` 可切换，顺路战斗计入 `countNeighbFight` | 通过：默认 175 次顺路清怪（= `slow_en_route_clears`），每个顺路刷怪点到线段的平面距离 ≤ δ；关掉后为 0，也没有线段扫描 | `test_smart_path_clears_en_route_spawners` |
+| `CalculateStatBenefit` 每个会话或每天只算一次 | 通过：第 0–3 天 24 次（= 会话数），（会话，天）互不相同，覆盖所有有战斗的（会话，天）；慢阶段 Tick 数是它的 10 倍左右。`MarginalKillTime` 每次有 3–5 个候选、都给出非 1 的权重 | `test_stat_benefit_once_per_session_or_day` |
+| 完整策略下慢阶段每 Tick 不超过 C3b 的预算 | 通过（数字见下表；`perf` 测试因负载跳过，按同一判据手工核对）| `test_full_policy_tick_within_budget` |
+| killseq 的分解残差与逐类别清怪时间写进黄金文件 | 通过：60 个区间全部精确，残差 0；35 个类别的清怪时间与 `farmedTime` 对照 | `tests/test_killseq.py`，黄金 `killseq.*` |
+| 确定性（附带，C3d 的测试在默认策略下重跑）| 通过：`TUFU_UNITY_REV=7c987fe pytest --unity tests/unity/test_determinism.py` 4 通过（7 次启动共 117 秒）：速度 1、9、500 与自动调速的第 0–6 天摘要相同，两次启动逐字节相同，预置 `TimeSkipSeconds` 只差请求回显 | `tests/unity/test_determinism.py` |
+| 新参数通过 P10 的 `resolve()`/`check_against_csharp` | 通过：默认值与枚举名覆盖都解析成完整对象，与 C# 类一致；每个作业的 `params` 都经请求检查和 C# 的哈希检查 | `tests/test_slow_policy_static.py`、`test_params_resolve_against_the_csharp_class` |
+
+每 Tick 耗时（毫秒，p50 / 均值 / p95，机器负载约 5/10 核）：
+
+| 作业 | 慢阶段 Tick | 对照（空策略，同解锁状态）|
+|---|---|---|
+| `slow-default`（只开岛 1 起）| 0.53 / 0.73 / 0.93（n = 236）| `perf-null` 0.33 / 0.38 / 0.92 |
+| `slow-marginal` | 0.55 / 0.96 / 3.12 | 同上 |
+| `perf-policy-all`（17 个岛全开）| 3.29 / 4.27 / 13.02（n = 210）| `perf-null-all` 3.22 / 4.47 / 13.04 |
+
+中位数都在"≤ 空策略 3 倍且 ≤ 15 毫秒"之内。
+
+闭环结果（交给 K2，不是本单元的验收）：默认参数下第 0–3 天岛 2 在第 1 天 P ≈ 68 解锁（随包第 0 天 P ≈ 37），岛 3 在第 3 天结束前没有解锁（随包第 1 天）；没有 C6 的物品合并时玩家只有初始 knife，战力增长远慢于随包。每天活跃 61–86 分钟（随包 61–63）。
+
+### 19.5 与设计稿不同的地方
+
+- 7.3 C7 第一条的"1.17 活跃分钟内"做不到（19.3、19.4），测试只断言结构，分钟数记进黄金文件。
+- 状态放在新文件 `Rebuild/SimulationSlowPolicyState.cs` 的类里，而不是 `SimulationSystem` 的字段：C3a 的测试要求 partial 文件只有方法、引擎状态只在 C3b 的 `.Rebuild.cs`。
+- `SameAsFast` 的 L 通过反射读 C5 将要加的字段 `KillLossMultiplier`，字段不存在时取 1.0（A 组的值）。C5 合并后自动生效，不需要改本单元的文件。
+- 设计稿没给 SmartPath 的 δ：加了参数 `SmartPathRadius`（默认 5 世界单位，连续量，建议 K2 只在少数几个值上做网格）。线段扫描按刷怪点对缓存几何结果，使用时再按过滤集合筛选。顺路战斗用 Tick 开头算的 `spawnerData`（不随前一场战斗后的状态重算）。
+- `TimeModel` 多了 `Decomposed`、`DecomposedMoveByDistance` 两个取值来承载 P14 的分解形式；战斗系数取已恢复的 `rpm.Item3`，不是参数。
+- 死亡的语义设计稿没写全：输掉的战斗默认不算清怪（`SkipSpawner`、`Retry`），`ClearThenRespawn` 是"原版机器人不检查死亡"的读法；死亡的时长只算移动和血量撑住的那部分战斗。
+- `countRespawn` 逐日写进 `daily.csv` 需要改 C3c 的轨迹行，没有做；逐日的死亡数从 `death` 事件（或 `slow_fight` 的 `died`）按天汇总。
+- `Static`/`Dynamic` 的具体写法（19.1）是设计稿公式族的一种实现；`Dynamic` 在选目标时现算奖励值，所以 `statsBenefit` 当个 Tick 就生效。`Constant` 权重下两者完全相同（`slow-static` 与 `slow-default` 逐字节相同）。
+- `GetFightEfficiency`、`GetTotalDPS`、`GetTotalArmor`、`CalculateFarmPotencial`、`ModifyFromItem`、`DrawSquare` 没有用到，保持 `Provenance.Null`/`DebugOnly` 的空方法。
+- 门禁验收用的是闭环状态（岛 2–3 开局即开、Cut 平坦 +1200），不是随包 TC3 状态：后者要 C4 的重放与 C6 的物品，都不在本单元的基础上。随包状态的数字用 P8 预言机核对。
+- 新增 `SimulationSystem` 的 internal 成员 `RebuildPriorityFamily()`、`RebuildStaticRewardValue(EnemySpawner)`（`SpawnerData` 要读）。
+- 改了别的单元的文件：C3a/C3b 的 `tests/test_cs_signature_lock.py`（`FILLED`、`NEW_MEMBERS`、新文件的 `.meta`）、P0 的 `tests/test_cscheck.py`（注入测试先把 `SpawnerData.cs` 换回 `6af011f` 的空方法）、C3c 的 `tests/test_params_hash.py`（字段集合与全部默认值文件的并集比较）、C0b 的 `tufu_balance/unity/__init__.py`（导入 `slow_policy`）、C3c 的参数资产（按新默认值重新生成，`paramsio.asset_text`）。
+
+### 19.6 交接
+
+- K2：killseq 的黄金值、`slow_fight` 事件（逐场的秒数与时间分量）、`slow_gate` 事件是拟合 `TimeModel`/T03/T16/T20 的材料；按 19.3，两种已恢复形式在开局都明显偏慢，是否放开分解形式由 K2 按 Q34 决定（需要的是战斗系数 1、按距离移动，超出 P14 的两个参数）。
+- C4 合并后：在随包 TC3 状态上（`replay`）重跑门禁测试，替代 19.5 的闭环近似。
+- C5：`KillLossMultiplier` 的字段名必须就是这个（反射按名字读）；C5 的 `RebuildTraceEligible`/`RebuildTraceFight` 调用方式与本单元相同。
+- C6：慢阶段每次清怪的物品份数仍经 `RebuildApplyClear` → `GetSpawnerItemRewardCopies`/`ProcessInventory`；合并后闭环战力才会接近随包。
+- Z1：`countRespawn` 的逐日列；`pending:simulation.slow_*`、`smart_path`、`stat_benefit` 公式 id 进目录。
