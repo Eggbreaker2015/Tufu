@@ -40,12 +40,14 @@ pytest --unity tests/unity/test_bake_tool.py
 
 ## 4. X4 与 DP5
 
-- `compare_x4(job_dir, con)`：用报告的 `inputs`（烘焙读到的 `Snapshots` 与逐日列表，IEEE 十六进制）构造 `SimulationData`，经 `load_bake_context(con, simulation_data=…)` 交给 `model.bake`，并把 `config_time_chunk_snapshots` 设为逐日列表（与 C# 的 `GetSnapshotForBake` 相同）。NewHealth/NewDamage 逐位；中间量相对 1e-12，`NewHealthRaw` 超出时必须正好是编辑器算术（`probes.mono_new_health_raw`，见 [DifferentialProbes.md](DifferentialProbes.md) 第 3 节）；`SnapshotSource` 相同；两边都抛异常的单列。
+- `compare_x4(job_dir, con)`：用报告的 `inputs`（烘焙读到的 `Snapshots` 与逐日列表，IEEE 十六进制）构造 `SimulationData`，经 `load_bake_context(con, simulation_data=…)` 交给 `model.bake`，并把 `config_time_chunk_snapshots` 设为逐日列表（与 C# 的 `GetSnapshotForBake` 相同）。NewHealth/NewDamage 逐位；DP5 的中间量相对 1e-12，`NewHealthRaw` 超出时必须正好是编辑器算术（`probes.mono_new_health_raw`，见 [DifferentialProbes.md](DifferentialProbes.md) 第 3 节）；DP5 不带的三个报告字段 `DefenseFromSnapshot`、`PlayerBlockChanceRaw`、`PlayerBlockAmountRaw` 逐位（`report_only_*`，预言机的 `defense` 与烘焙所读快照的两个原始格挡值）；`SnapshotSource` 相同；两边都抛异常的单列。
+- 本单元的数据上，天制刷怪点全部读插值快照（`interpolated_day` = 609），所以 `SnapshotSource` 的 `t:<下标>` 分支没有被真实数据走到；分钟制的 `s:<下标>` 有。插值舍入 `double_tail` 与 `double_all` 在这两组数据上给出相同的 X4 结果，X4 分不出二者（C2 已经确认是 `double_all`）。
 - `compare_dp5(report, dp5)`：`shipped` 报告与同一次运行里编辑模式 DP5 的报告逐字段比较（十六进制文本相等即位相等）。
+- 两个比较器本身由 `tests/test_bake_report.py` 用"预言机写出的报告 + 人为植入的错误"检验：NewHealth/NewDamage 各差 1 ulp、一个中间量、一个整数字段、三个报告独有字段、天制与分钟制的 `SnapshotSource`、单边异常，每一处都必须出现在 `mismatches` 里；DP5 比较同理（改一个字段、改一个整数、单边异常、缺一行）。
 
 ## 5. 写回
 
-三个入口都由 `bake_report.py` 在运行工作树上另起一个批处理编辑器执行，持 Unity 锁；结束后运行工作树必须干净、受保护文件不变（与 `params import` 相同的核对，含用户编辑器改写真实存档时的归属规则）。
+三个入口都由 `bake_report.py` 在运行工作树上另起一个批处理编辑器执行，持 Unity 锁；结束后运行工作树必须干净、受保护文件不变（与 `params import` 相同的核对，含用户编辑器改写真实存档时的归属规则）。编辑器退出后运行工作树一律恢复到 HEAD（共享的运行工作树要保持可用）：除写回允许改动的 `Main.unity` 外，任何改动或新文件先复制到 `<out>/run_worktree_changes/` 留证，算守卫问题（退出码 2，写回不会复制到目标），然后重置索引、检出改动的跟踪文件、删除未跟踪文件。
 
 ### 5.1 计划（`bake --plan`）
 
@@ -59,11 +61,11 @@ pytest --unity tests/unity/test_bake_tool.py
 
 Python 在启动编辑器之前拒绝（`refused: …`，退出码 2）：
 
-- 环境变量 `CI`、`TUFU_REFRESH`、`GITHUB_ACTIONS` 任一非空，或调用者不是命令行（`apply(caller=…)`；refresh 与校准不得以 `cli` 调用）；
+- 环境变量 `CI`、`TUFU_REFRESH`、`GITHUB_ACTIONS` 任一非空，或调用者不是命令行：`apply(caller=…)` 没有默认值，不给即拒绝；只有 `__main__` 的 `bake --apply` 传 `cli`，并原样传给编辑器（`-tufuSimBakeCaller`）再查一遍。refresh 与校准不得以 `cli` 调用；
 - 口令不是计划文件的 sha256；计划不是 `Main.unity` 的、没有 `code_rev`、或一行都不写；
-- 目标场景（默认本工作树的 `Main.unity`）不存在、是 LFS 指针、在 git 里不干净或未跟踪、与计划记录的文件 sha256 不同；目标在运行工作树里。
+- 目标场景（默认本工作树的 `Main.unity`）不存在、是 LFS 指针、在运行工作树里、在 git 里不干净（工作区或索引）或未跟踪（含被忽略的文件）、与计划记录的文件 sha256 不同。单元工作树的 `Main.unity` 是 LFS 指针，所以在单元工作树里不带 `--dest` 的 `--apply` 总是被拒绝；真实写回要给一个已 smudge、干净的场景作 `--dest`。
 
-编辑器（`SimulationBakeTool.Apply`）再查一遍：本进程从未进入 Play（`[InitializeOnLoad]` 记录 `ExitingEditMode`）、不在 Play、是批处理编辑器；调用者与环境；口令；`Main.unity` 在 git 里干净并已跟踪、与计划的 sha256 相同；每个要写的刷怪点在场景里恰好一个、两个属性都在、当前值与计划的旧值逐位相同（否则是过期计划，一个都不写）。然后：
+编辑器（`SimulationBakeTool.Apply`）再查一遍：本进程从未进入 Play（类带 `[InitializeOnLoad]`，每次域加载时静态构造函数就订阅 `playModeStateChanged`，`ExitingEditMode` 时记入 `SessionState`；不依赖本类先被调用过）、不在 Play、是批处理编辑器；调用者与环境；口令；`Main.unity` 在 git 里干净并已跟踪、与计划的 sha256 相同；每个要写的刷怪点在场景里恰好一个、两个属性都在、当前值与计划的旧值逐位相同（否则是过期计划，一个都不写）。然后：
 
 1. 一个 Undo 组里经 `SerializedObject` 写 `config.Stats.Array.data[i].BaseValue`（`ApplyModifiedProperties` 记录 Undo），逐个读回核对；
 2. 场景文件先复制到 `<out>/backup/`，核对 sha256，再 `EditorSceneManager.SaveScene`；
@@ -71,13 +73,13 @@ Python 在启动编辑器之前拒绝（`refused: …`，退出码 2）：
 
 Python 随后把写好的场景复制到目标，再把运行工作树的场景恢复到 HEAD。`SpawnerBakeInfos` 不动（Q13 的另一个选项，未做）。
 
-**本单元从未对任何工作树的真实 `Main.unity` 执行写回**：写回逻辑只在临时场景上验证（5.3），`--apply` 的拒绝路径由不需要 Unity 的测试覆盖（`tests/test_bake_report.py`，含"测试会失败如果启动了编辑器"的替身）。
+**本单元从未对任何工作树的真实 `Main.unity` 执行写回**：写回逻辑只在临时场景上验证（5.3），`--apply` 的拒绝路径由不需要 Unity 的测试覆盖（`tests/test_bake_report.py`，含"测试会失败如果启动了编辑器"的替身，每种拒绝核对理由文字）。Python 一侧的整个写回流程（加锁、检出计划的提交、启动编辑器、核对 manifest、复制到目标、恢复运行工作树、额外改动留证并拒绝）用一个替身编辑器在临时 git 仓库里跑通（`test_apply_flow_*`）。真正的 Unity 一侧的"先备份再 `SaveScene`"从未在真实场景上运行：Unity 不允许把场景存到 `Assets/` 以外，而在运行工作树的 `Assets/` 下存临时场景会碰资产守卫，所以自检不做这一步。第一次真实 `--apply` 应由人看着执行。
 
 ### 5.3 自检（`bake --selftest`）
 
 `SimulationBakeTool.SelfTest` 在新的批处理编辑器里：
 
-- 守卫：新进程允许；设上"进入过 Play"的标记后拒绝；调用者 `cli` 允许、`refresh` 与缺省拒绝；三个环境变量各自拒绝；口令相符允许、不符与缺省拒绝；`Main.unity` 干净且已跟踪允许，`Temp/` 下的未跟踪文件拒绝。
+- 守卫：新进程允许；设上"进入过 Play"的标记后拒绝；类带 `[InitializeOnLoad]`，静态构造函数是从 `ProcessInitializeOnLoadAttributes` 调用的（即在域加载时、而不是第一次使用时订阅了 Play 钩子），直接调用钩子处理 `ExitingEditMode` 后守卫拒绝；调用者 `cli` 允许、`refresh` 与缺省拒绝；三个环境变量各自拒绝；口令相符允许、不符与缺省拒绝；`Main.unity` 干净且已跟踪允许，`Temp/` 下的未跟踪文件拒绝；在 `Temp/` 下临时建的 git 仓库里：干净允许、工作区改动拒绝、改动暂存后工作区还原（字节与提交相同）拒绝、被忽略的未跟踪文件拒绝（"未跟踪"）。
 - 用 `EditorSceneManager.NewScene` 建一个**从不保存**的场景，放 16 个刷怪点覆盖每种动作与原因（含嵌套路径、只改 Health、第二个 Health 行、重复身份、报告里多出的行），生成计划并核对每行的动作与原因、计划文本的确定性；过期计划一个都不写；正式写回 3 个、未变 1 个、跳过 12 个，值逐位正确、第二个 Health 行不动；`Undo.PerformUndo` 全部恢复、`PerformRedo` 重新写入；最后 `Main.unity` 的 sha256 不变、临时场景没有路径。
 
 ## 6. 验收记录（设计稿 7.3 C8）
@@ -102,6 +104,14 @@ Python 随后把写好的场景复制到目标，再把运行工作树的场景�
 
 所以烘焙报告另带 `inputs`：烘焙实际读到的两个快照列表的 IEEE 十六进制（DP4 的编码），X4 用它构造预言机的快照，不依赖文本往返；`export_text_check` 把 C1 的文本与它逐值比较，作为诊断记进黄金（`run.export_text.*`，只许变少）。修法（C1 的文件，不在本单元范围）：`FormatDouble` 不再信任 Mono 的解析，例如 15 位文本一律改用 G17，或用正确舍入的解析器验证。交给 Z1/C1。
 
+### 6.2 评审后的补充（提交 `859356d`、`b4b78ab`）
+
+| 项 | 结果 | 证据 |
+|---|---|---|
+| 编辑器侧"从未进入 Play"是独立的第二层 | 通过。加了 `[InitializeOnLoad]`；自检 38 项全部成立，其中 `initialize_on_load`、`play_hook_registered_at_load`、`play_hook_marks_entered_play` 为新增 | `bake --selftest`，8.1 秒 |
+| 比较器能发现错误 | 通过。植入错误的测试；对评审列出的 17 个变异体（X4 `new_ok` 恒真、只看 `new_ok`、DP5 不比字段或只比 NewHealth、计划不核新值、重复判定改成 `> 2`、原因排序、去掉 porcelain 或 ls-files 检查、口令只比前 8 位、去掉运行工作树检查、去掉 `read_report` 的 sha 检查、去掉快照个数检查、报告独有字段恒真、`caller` 默认 `cli`、不恢复运行工作树、`SnapshotSource` 恒真）逐个运行 `tests/test_bake_report.py`，全部被杀 | `tests/test_bake_report.py` 23 项 |
+| 报告独有的三个字段 | 通过。`bake-run` 与 `bake-shipped` 都是 2151/2151 逐位（717 × 3） | 黄金 `run.x4.report_only_bits_equal`、`shipped.x4.report_only_bits_equal` |
+
 ## 7. 与设计稿不同的地方
 
 - X4 的预言机输入取报告里的精确快照（`inputs`），不取 C1 导出的 `simulation_data.json`/`timechunk_full.json`：后者的文本有 1 ulp 的偏差（6.1）。
@@ -110,4 +120,6 @@ Python 随后把写好的场景复制到目标，再把运行工作树的场景�
 - 跳过原因比设计稿多四个：`not_in_report`、`report_error`、`no_stat`、`duplicate_id`。`boss_tower` 按对象名判断（场景里只有一个，`Count = 0`，NewHealth 为 +Inf，同时也是 `non_finite`）。
 - 不需要 Unity 的测试放在 `tests/test_bake_report.py`（`tests/unity/` 下的测试没有 `--unity` 时一律跳过）。
 - 计划与写回的产物放在 `Balance/out/sim/bake/`，不放进作业目录（作业目录的文件按 `run_key` 缓存、可逐字节比较）。
-- 写回的"不是 refresh 或 CI 调用"用环境变量与调用者参数判定；P13 的 refresh 应设 `TUFU_REFRESH=1`，且不得以 `cli` 调用 `apply`。
+- 写回的"不是 refresh 或 CI 调用"用环境变量与调用者参数判定；`apply` 的调用者没有默认值，P13 的 refresh 应设 `TUFU_REFRESH=1`，且不得以 `cli` 调用 `apply`。
+- 每次编辑器调用之后都把运行工作树恢复到 HEAD（意外改动先留证、仍算守卫问题），设计稿只要求核对干净。
+- 自检不覆盖"先备份再 `SaveScene`"（理由见 5.2）。
