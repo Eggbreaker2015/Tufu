@@ -6,94 +6,94 @@
    "source": "design 7.3 C7",
    "value": {
     "slow-bydist": {
-     "clears": 419,
-     "idle_steps": 8,
+     "clears": 893,
+     "idle_steps": 22,
      "slow_deaths": 3,
-     "slow_en_route_clears": 174,
-     "slow_fights": 419,
-     "slow_ticks": 256,
+     "slow_en_route_clears": 309,
+     "slow_fights": 893,
+     "slow_ticks": 609,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-clear-then-respawn": {
-     "clears": 355,
-     "idle_steps": 2,
-     "slow_deaths": 41,
-     "slow_en_route_clears": 167,
-     "slow_fights": 314,
-     "slow_ticks": 196,
+     "clears": 877,
+     "idle_steps": 16,
+     "slow_deaths": 11,
+     "slow_en_route_clears": 313,
+     "slow_fights": 866,
+     "slow_ticks": 582,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 3
     },
     "slow-current-health": {
-     "clears": 402,
-     "idle_steps": 8,
+     "clears": 861,
+     "idle_steps": 12,
      "slow_deaths": 0,
-     "slow_en_route_clears": 177,
-     "slow_fights": 402,
-     "slow_ticks": 234,
+     "slow_en_route_clears": 302,
+     "slow_fights": 861,
+     "slow_ticks": 572,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-decomposed": {
-     "clears": 403,
-     "idle_steps": 7,
+     "clears": 854,
+     "idle_steps": 12,
      "slow_deaths": 2,
-     "slow_en_route_clears": 175,
-     "slow_fights": 403,
-     "slow_ticks": 237,
+     "slow_en_route_clears": 311,
+     "slow_fights": 854,
+     "slow_ticks": 557,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-decomposed-bydist": {
-     "clears": 419,
-     "idle_steps": 8,
+     "clears": 893,
+     "idle_steps": 22,
      "slow_deaths": 3,
-     "slow_en_route_clears": 174,
-     "slow_fights": 419,
-     "slow_ticks": 256,
+     "slow_en_route_clears": 309,
+     "slow_fights": 893,
+     "slow_ticks": 609,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-default": {
-     "clears": 403,
-     "idle_steps": 7,
+     "clears": 854,
+     "idle_steps": 12,
      "slow_deaths": 2,
-     "slow_en_route_clears": 175,
-     "slow_fights": 403,
-     "slow_ticks": 237,
+     "slow_en_route_clears": 311,
+     "slow_fights": 854,
+     "slow_ticks": 557,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-factors": {
-     "clears": 414,
-     "idle_steps": 10,
-     "slow_deaths": 5,
-     "slow_en_route_clears": 172,
-     "slow_fights": 414,
-     "slow_ticks": 257,
+     "clears": 888,
+     "idle_steps": 33,
+     "slow_deaths": 4,
+     "slow_en_route_clears": 276,
+     "slow_fights": 888,
+     "slow_ticks": 649,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-marginal": {
-     "clears": 447,
-     "idle_steps": 6,
-     "slow_deaths": 3,
-     "slow_en_route_clears": 191,
-     "slow_fights": 447,
-     "slow_ticks": 265,
+     "clears": 861,
+     "idle_steps": 11,
+     "slow_deaths": 2,
+     "slow_en_route_clears": 306,
+     "slow_fights": 861,
+     "slow_ticks": 568,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-none": {
-     "clears": 368,
-     "idle_steps": 6,
-     "slow_deaths": 55,
-     "slow_en_route_clears": 185,
-     "slow_fights": 368,
-     "slow_ticks": 244,
+     "clears": 803,
+     "idle_steps": 14,
+     "slow_deaths": 43,
+     "slow_en_route_clears": 332,
+     "slow_fights": 803,
+     "slow_ticks": 528,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-none-retry": {
      "clears": 41,
@@ -106,24 +106,24 @@
      "unlocks": 0
     },
     "slow-nosmart": {
-     "clears": 301,
-     "idle_steps": 4,
+     "clears": 759,
+     "idle_steps": 6,
      "slow_deaths": 3,
      "slow_en_route_clears": 0,
-     "slow_fights": 301,
-     "slow_ticks": 308,
+     "slow_fights": 759,
+     "slow_ticks": 768,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     },
     "slow-static": {
-     "clears": 403,
-     "idle_steps": 7,
+     "clears": 854,
+     "idle_steps": 12,
      "slow_deaths": 2,
-     "slow_en_route_clears": 175,
-     "slow_fights": 403,
-     "slow_ticks": 237,
+     "slow_en_route_clears": 311,
+     "slow_fights": 854,
+     "slow_ticks": 557,
      "stat_benefit_evals": 24,
-     "unlocks": 1
+     "unlocks": 2
     }
    }
   },
@@ -134,20 +134,20 @@
    "value": {
     "slow-current-health": 0,
     "slow-default": 2,
-    "slow-none": 55
+    "slow-none": 43
    }
   },
   "deaths.slow-clear-then-respawn": {
    "kind": "exact",
    "note": "",
    "source": "design 4.5 P15",
-   "value": 41
+   "value": 11
   },
   "deaths.slow-none": {
    "kind": "exact",
    "note": "",
    "source": "design 4.5 P15",
-   "value": 55
+   "value": 43
   },
   "deaths.slow-none-retry": {
    "kind": "exact",
@@ -169,15 +169,15 @@
   },
   "island3_gate.first_loss_per_h": {
    "kind": "exact",
-   "note": "closed loop, islands 2-3 open; shipped TC3 state 4.163",
+   "note": "closed loop, islands 2-3 open, test-only CMove=2; shipped TC3 state 4.163",
    "source": "design 4.5",
-   "value": 4.501
+   "value": 1.217
   },
   "island3_gate.first_p": {
    "kind": "exact",
    "note": "",
    "source": "design 4.5",
-   "value": 240.072
+   "value": 240.174
   },
   "island3_gate.none_gate_deaths": {
    "kind": "exact",
@@ -745,7 +745,7 @@
    "kind": "exact",
    "note": "",
    "source": "design 4.5",
-   "value": 175
+   "value": 311
   },
   "target_refused_after_en_route": {
    "kind": "exact",
@@ -761,7 +761,8 @@
    "note": "shipped: island 2 on day 0, island 3 on day 1",
    "source": "design 7.3 C7",
    "value": {
-    "2": 1
+    "2": 0,
+    "3": 2
    }
   },
   "unlock_days.slow-current-health": {
@@ -769,7 +770,8 @@
    "note": "shipped: island 2 on day 0, island 3 on day 1",
    "source": "design 7.3 C7",
    "value": {
-    "2": 1
+    "2": 0,
+    "3": 2
    }
   },
   "unlock_days.slow-default": {
@@ -777,7 +779,8 @@
    "note": "shipped: island 2 on day 0, island 3 on day 1",
    "source": "design 7.3 C7",
    "value": {
-    "2": 1
+    "2": 0,
+    "3": 2
    }
   },
   "unlock_days.slow-nosmart": {
@@ -785,7 +788,8 @@
    "note": "shipped: island 2 on day 0, island 3 on day 1",
    "source": "design 7.3 C7",
    "value": {
-    "2": 1
+    "2": 0,
+    "3": 2
    }
   }
  },

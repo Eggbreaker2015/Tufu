@@ -963,6 +963,8 @@ request = req.make_request([job])
 
 ### 19.6 交给后续单元
 
+Postmerge Round 2 已补验 C6 合入后的语义：`engine_probe.null_policy` 只停战斗 / 快阶段规划，快日冲刷仍处理到期进化。覆盖记录本身必须逐位符合请求；下一个强制快照及 checkpoint 之间的物品，则按随包目标时间、碎片表和原版 `EvolveItemCommandRunner` 转移核对，不能假定份数和有效等级不变。C4 的跨日测试现在独立重算这些转移及其 DPS / DefenseData，没有冻结物品模块。
+
 - P11（DP8）：46 个随包天快照状态用 `checkpoint` 作业设好（`override_days.jsonl` 的记录是覆盖之后、RPM 重算之后的状态）。**必须**给 `unlock: "snapshot"`：默认的 `derived` 不动 Location，空策略下玩家一直在岛 1，`spawnerData` 与 RPM 就不是随包状态的；槽数用夹具（`default_override` 的默认）或 `slots_p12`。注意 DP8 按 `RpmFirst` 口径要 K2/K3(d−1) 下的 RPM，而覆盖后重算的 RPM 用的是 K(d)，且与之前的 RPM 取大；需要滞后口径时给 `rpm_after_override: "skip"`，在 P11 自己的探针里调用 `CalculateRPMValueTimeChunk`。
 - P11、K 单元（T09"重放精确 1380/1380"）：`replay` 作业导出的强制快照的 DpsData/DefenseData 是按物品**重算**的（19.2 的注意），拿不到 stored 口径；换天 RPM 与 `CurrentGpm` 在重算的缓存上算，再与前一天覆盖后的 RPM（K(d)、stored 缓存）取大，`replay-405` 的 1604 个非零格子里 750 个是后者。要 stored 口径：要么由 Z1/C3b 在换天的 `CalculateSimulationData` 之后也接一个用前一天存储缓存的钩子（`TryStoredCaches` 现在按当天匹配，那时天已经换了），要么直接用 `override_days.jsonl`（覆盖后、stored 缓存上的状态与 RPM）或自己的探针。
 - C5：FastTick 每个规划轮在 `CalculateSimulationData()` 之后调用 `RebuildApplyReplayCaches()`（设计稿 4.4），`replay` + `stored` 才会在存储的缓存上规划。换天的 `RecalculateChunkRpmValues` 不调用它。接上之后请补一个测试：`checkpoint` 下非检查点那天的规划轮不得用到存储的缓存（`TryStoredCaches` 的按天判断现在测不到）：断言 `stored_caches_other_day` > 0，且 `cache_applications` 只出现在检查点那天。
@@ -1035,6 +1037,8 @@ C7 填了 `SimulationSystem.Targeting.cs`（`FindBestSpawner`、`CalculateStatBe
 - **状态**：partial 文件只放方法（C3a 的测试），原字段放不下的状态（跳过集合、`CalculateStatBenefit` 的缓存键、门禁事件、探针）放在 `SimulationSlowPolicyState`，以本次运行的参数对象识别（`PrepareSimulationRun` 每次都新建参数对象）。
 - **事件**（`events.jsonl`，`slow_policy.py` 登记）：`slow_fight`（每场慢阶段战斗：前后的 P/T、秒数、`fightTime`/`farmedTime`/`avMoveTime`/`avRegenTime`、实际移动与按距离的移动、血量的四个值、回血、是否死亡/清怪、优先级、起止位置）、`slow_gate`（每个会话第一次门禁进入过滤集合时：loss、H、当前血量、三个门槛的判定、是否选中）、`stat_benefit`、`slow_policy_probe`。
 - **探针**：作业字段 `slow_policy_probe: {"selection": true}`，在第一次 `FindBestSpawner` 时对当时的 `spawnerData` 做：全部同优先级、首尾并列、全部不允许、清空集合，结果写事件，运行不受影响。
+
+Postmerge Round 2 扩充这个调试探针：每个门禁进入机器人过滤集合的 Tick 都另写 `slow_selection`，包含按原顺序排列的全部候选、战斗成本、失血、会话跳过标志和实际选择。Python 用随包奖励 / `PriorityMultiplier` 独立计算允许集合的 argmax（相等保留第一个），并与三个门禁决策计数逐项核对；没有打开探针时不写该事件。
 - **daily.csv** 的 `fight_time_sum`/`farmed_time_sum` 由每场战斗经 `RebuildTraceFight(fightTime, farmedTime)` 上报。
 
 ### 21.3 killseq
@@ -1093,7 +1097,8 @@ C7 填了 `SimulationSystem.Targeting.cs`（`FindBestSpawner`、`CalculateStatBe
 - `countRespawn` 逐日写进 `daily.csv` 需要改 C3c 的轨迹行，没有做；逐日的死亡数从 `death` 事件（或 `slow_fight` 的 `died`）按天汇总。
 - `Static`/`Dynamic` 的具体写法（21.1）是设计稿公式族的一种实现；`Dynamic` 在选目标时现算奖励值，所以 `statsBenefit` 当个 Tick 就生效。`Constant` 权重下两者完全相同（`slow-static` 与 `slow-default` 逐字节相同）。
 - `GetFightEfficiency`、`GetTotalDPS`、`GetTotalArmor`、`CalculateFarmPotencial`、`ModifyFromItem`、`DrawSquare` 没有用到，保持 `Provenance.Null`/`DebugOnly` 的空方法。
-- 门禁验收用的是闭环状态（岛 2–3 开局即开、Cut 平坦 +1200），不是随包 TC3 状态：后者要 C4 的重放与 C6 的物品，都不在本单元的基础上。随包状态的数字用 P8 预言机核对。
+- 门禁验收用的是闭环状态（岛 2–3 开局即开、Cut 平坦 +1200），不是随包 TC3 状态；随包状态的 loss/H≈4.16 继续由 P8 预言机独立核对。C6 合入后旧闭环夹具在慢阶段结束时 P≈236，根本没有覆盖 OT=240 的门禁。Postmerge Round 2 只在这个夹具使用 `Decomposed` / `CMove=2`，使第 3 天出现通过机器人过滤且仍致死的门禁；三个门槛逐事件核对，`None` 必须选择、死亡并复活，另两者拒绝，岛 4 都不能打开。此设置不是默认值或校准结果。
+- 设计 4.5 / 7.3 从奖励值 1e6 推导出“门禁只要允许就一定被选中”过强。原版 `CalculateSpawnerRewardValue` 只保证奖励值；原版 `FindBestSpawner` / `SpawnerData.GetPriority` 都是空壳，没有强制门禁优先的原生证据。重建的优先级是奖励除以时间；C6 改变战力和路线后，距离时间变体出现一个允许但输给极便宜普通战斗的门禁。Postmerge Round 2 保留该优先级规则，以全允许集合的 argmax 检查替换无条件门禁优先断言，交 Z1 修订设计中的推论。
 - 新增 `SimulationSystem` 的 internal 成员 `RebuildPriorityFamily()`、`RebuildStaticRewardValue(EnemySpawner)`、`RebuildIsCurrentBoss(EnemySpawner)`（`SpawnerData` 要读）。
 - 改了别的单元的文件：C3a/C3b 的 `tests/test_cs_signature_lock.py`（`FILLED`、`NEW_MEMBERS`、新文件的 `.meta`）、P0 的 `tests/test_cscheck.py`（注入测试先把 `SpawnerData.cs` 换回 `6af011f` 的空方法）、C3c 的 `tests/test_params_hash.py`（字段集合与全部默认值文件的并集比较）、C0b 的 `tufu_balance/unity/__init__.py`（导入 `slow_policy`）、C3c 的参数资产（按新默认值重新生成，`paramsio.asset_text`）。
 

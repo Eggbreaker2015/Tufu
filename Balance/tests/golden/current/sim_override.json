@@ -138,7 +138,7 @@
    "kind": "exact",
    "note": "cells where day d+1's CurrentGpm is day d's override RPM, above the day change's own",
    "source": "design 4.6",
-   "value": 750
+   "value": 730
   },
   "replay405.day_change_gpm_cells": {
    "kind": "exact",
@@ -162,7 +162,7 @@
    "kind": "exact",
    "note": "RPMCalculatedValue after the override == model.simcalc on the recorded state (others are kept maxima)",
    "source": "design 4.6",
-   "value": 14472
+   "value": 14464
   },
   "replay405.state_mismatch_days": {
    "kind": "exact",
