@@ -908,7 +908,7 @@ def armor_sync_cells(rows: Sequence[EG.EvolutionValueRow], levels: int) -> list[
     return out
 
 
-@implements("pending:balance.evolution_armor_sync_by_leader", provenance=Provenance.INFERRED)
+@implements("balance.evolution_armor_sync_by_leader", provenance=Provenance.INFERRED)
 def sync_armor_by_leader(rows: Sequence[EG.EvolutionValueRow], leader: WeaponType,
                          levels: int) -> list[EG.EvolutionValueRow]:
     """``SyncShieldValuesByLeader``: the other used types copy the leader's Value and CopyValue (the shards and

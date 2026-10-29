@@ -102,7 +102,7 @@ namespace Codebase.Simulation.Systems
 
 		internal bool RebuildLastTickWasFast => RebuildLastTickFast;
 
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.tick_heartbeat")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.tick_heartbeat")]
 		partial void RebuildOnTickCompleted()
 		{
 			if (SimulationHarness.OnTickCompleted() && !RebuildStopped)
@@ -150,7 +150,7 @@ namespace Codebase.Simulation.Systems
 
 		// The one place a clear changes the world. Called only from the bodies of SimulateFightWithSpawner (slow,
 		// immediate) and SimulateFightWithSpawnerFast (fast, accumulate); charges and cooldown change at once in both.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.apply_clear")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.apply_clear")]
 		private void RebuildApplyClear(EnemySpawner spawner, int clears, bool accumulate)
 		{
 			if (spawner == null || clears <= 0) return;
@@ -262,7 +262,7 @@ namespace Codebase.Simulation.Systems
 			}
 		}
 
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.unlock_location")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.unlock_location")]
 		private void RebuildUnlockLocation(int number)
 		{
 			// UnlockLocation keeps the maximum, so an island at or below it is open already. Gates never get here
@@ -282,7 +282,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Consumes only the gate set of the fast accumulation, between two planning rounds (design 4.5).
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.same_day_gates")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.same_day_gates")]
 		private void RebuildFlushFastTickGates()
 		{
 			if (fastTickChunkGateRewardSpawners.Count == 0) return;
@@ -293,7 +293,7 @@ namespace Codebase.Simulation.Systems
 
 		// currentBoss: the registered spawner on island `location` with a gate to location + 1, null if none
 		// (island 17); never chosen by largest OT (design 4.5). Several candidates: the first registered, counted.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.current_boss")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.current_boss")]
 		private EnemySpawner RebuildFindBoss(int location)
 		{
 			EnemySpawner found = null;

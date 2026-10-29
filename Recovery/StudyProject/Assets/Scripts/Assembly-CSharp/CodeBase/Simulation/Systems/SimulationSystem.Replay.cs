@@ -20,7 +20,7 @@ namespace Codebase.Simulation.Systems
 
 		// Stored replay loads day d before RPM, with K(d-1) still live. The post-snapshot hook
 		// restores the requested planning TotalValue at K(d), without feeding it into the RPM maximum.
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.state_override")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.state_override")]
 		partial void RebuildApplyDayOverrideBeforeRpm(int day)
 		{
 			SimulationStateOverride state = SimulationStateOverride.For(SimulationHarness.CurrentJob);
@@ -28,7 +28,7 @@ namespace Codebase.Simulation.Systems
 			RebuildReplayApplyState(state, day, true);
 		}
 
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.state_override")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.state_override")]
 		partial void RebuildApplyDayOverride(int day)
 		{
 			SimulationStateOverride state = SimulationStateOverride.For(SimulationHarness.CurrentJob);
@@ -96,7 +96,7 @@ namespace Codebase.Simulation.Systems
 
 		// After CalculateSimulationData (Tick, FastTick planning rounds, the override): the stored DpsData/DefenseData
 		// of the day replace the recomputed ones, then the combat caches and the GPM spawnerData are rebuilt on them.
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.state_override")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.state_override")]
 		partial void RebuildApplyReplayCaches()
 		{
 			SimulationStateOverride state = SimulationStateOverride.For(SimulationHarness.CurrentJob);

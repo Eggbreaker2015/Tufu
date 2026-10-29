@@ -17,7 +17,7 @@ namespace Codebase.Simulation.Systems
 	// (lethality gate, DeathPolicy's skipped spawners) with the highest SpawnerData.GetPriority, the first on ties.
 	public partial class SimulationSystem
 	{
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.slow_priority")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.slow_priority")]
 		public EnemySpawner GetBestSpawnerForInfo()
 		{
 			if (spawnerData == null || spawnerData.Count == 0) return null;
@@ -27,7 +27,7 @@ namespace Codebase.Simulation.Systems
 		// PathSpawners[(A, B)]: the registered spawners within SmartPathRadius of the segment from A (the origin
 		// when null) to B, in the order the player passes them. Pure geometry, cached per pair; eligibility is
 		// applied when the path is walked (equivalent to caching per eligible set, design 4.5).
-		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.smart_path")]
+		[SimulationRebuild(Provenance.Calibrated, "simulation.smart_path")]
 		private void CalculateSpawnerPaths(EnemySpawner A, EnemySpawner B)
 		{
 			Vector3 from = A != null ? A.transform.position : Vector3.zero;
@@ -74,7 +74,7 @@ namespace Codebase.Simulation.Systems
 		// MarginalKillTime: per reward stat, the relative drop of the summed farmedTime of the next
 		// StatBenefitCandidates spawners (OptimumTime order) the bot cannot farm yet when one typical reward of that
 		// stat is added, normalised to mean 1 over the reward stats (at least 0.01).
-		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.stat_benefit")]
+		[SimulationRebuild(Provenance.Calibrated, "simulation.stat_benefit")]
 		private void CalculateStatBenefit()
 		{
 			SimulationSlowPolicyState state = RebuildSlowState();
@@ -113,7 +113,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Tick calls it after CalculateSpawnerData(false) and CalculateStatBenefit; null makes the tick idle.
-		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.slow_priority")]
+		[SimulationRebuild(Provenance.Calibrated, "simulation.slow_priority")]
 		private SpawnerData FindBestSpawner()
 		{
 			SimulationSlowPolicyState state = RebuildSlowState();
@@ -129,7 +129,7 @@ namespace Codebase.Simulation.Systems
 			return best;
 		}
 
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.slow_priority")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.slow_priority")]
 		public bool TryGetSpawnerPriority(EnemySpawner spawner, out string priorityInfo)
 		{
 			priorityInfo = null;

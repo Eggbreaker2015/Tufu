@@ -31,7 +31,7 @@ PARAMS_SOURCE = (BALANCE.parent / "Recovery" / "StudyProject" / "Assets" / "Scri
 DAYS_FILE = "fasttick_days.jsonl"
 SPAWNER_DAYS_FILE = "spawner_days.csv.gz"
 SCHEMA = "tufu.sim.fast_tick/1"
-KILL_GATE_FORMULA = "pending:simulation.fast_kill_gate"
+KILL_GATE_FORMULA = "simulation.fast_kill_gate"
 
 # SimulationRebuildParams.FastTick.cs enums; JSON carries the integers.
 KILL_STATE = {"StartOfDay": 0, "AfterPass": 1}

@@ -312,7 +312,7 @@ def spawner_charges(data: SpawnerCooldownsData, is_elite: bool, location: int, u
     return int(data.group(is_elite).charges.get(location)) * int(unit_count)
 
 
-@implements("pending:ab.enemy_hp_damage_multiplier", provenance=Provenance.PORT,
+@implements("ab.enemy_hp_damage_multiplier", provenance=Provenance.PORT,
             code_ref="CodeBase/ABTests/ABTestService.cs:18-19")
 def enemy_hp_damage_multiplier(data: EnemyHpDamageMultData, location: int):
     """``GetEnemyHpDamageMultiplier``: override for the location, else the default (float32)."""

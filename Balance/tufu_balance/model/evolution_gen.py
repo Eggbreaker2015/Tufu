@@ -228,7 +228,7 @@ def nice_step(x) -> Fraction:
     return st * Fraction(10) ** e
 
 
-@implements("pending:balance.evolution_nice_rounding", provenance=Provenance.RULE)
+@implements("balance.evolution_nice_rounding", provenance=Provenance.RULE)
 def nice(x, tie: str = "even") -> float:
     """Round to the 'nice' grid, computed exactly on the binary value of ``x``.
 
@@ -258,7 +258,7 @@ def is_nice(x) -> bool:
     return x > 0 and nice(x) == float(x)
 
 
-@implements("pending:balance.evolution_reference_stat_percent", provenance=Provenance.RULE)
+@implements("balance.evolution_reference_stat_percent", provenance=Provenance.RULE)
 def reference_stat_percent(value, stat_value, tie: str = "even") -> int:
     """``Math.Round(100.0 * Value / ReferenceStatValue)`` in double (G08)."""
     x = 100.0 * float(value) / float(stat_value)
@@ -325,7 +325,7 @@ def generate_level(prev_value: float, prev_copy_value: float, heuristic: float, 
     return GeneratedLevel(nice(target, tie), max(cv_floor, cv_share), h, target, raw, binding, copy_binding)
 
 
-@implements("pending:balance.evolution_fill_remaining", provenance=Provenance.RULE,
+@implements("balance.evolution_fill_remaining", provenance=Provenance.RULE,
             code_ref=f"{CBC}:115-117,221-223")
 def generate_series(kind: str, start: tuple[float, float], heuristics: Sequence[float | None], shards: Sequence[int],
                     levers: EvolutionLevers, *, previous: Sequence[tuple[float, float]] | None = None,
@@ -368,7 +368,7 @@ def _stored_previous(cfg: EvolutionConfig, kind: str, t: int, r: int) -> list[tu
     return [cfg.start(kind, t, r)] + [(float(x.value), float(x.copy_value)) for x in rows]
 
 
-@implements("pending:balance.evolution_replay_stored_inputs", provenance=Provenance.RULE)
+@implements("balance.evolution_replay_stored_inputs", provenance=Provenance.RULE)
 def replay_stored_inputs(cfg: EvolutionConfig, *, previous: str = "generated", **options) -> dict[Key, GeneratedLevel]:
     """G07: regenerate the 450 Stabbing/Cutting/Buckshot x Common..Legendary rows from the stored ``H`` and
     shards. ``previous="generated"`` chains the recursion; ``"stored"`` feeds each level the stored previous
@@ -418,7 +418,7 @@ def is_universal_placeholder(row: EvolutionValueRow) -> bool:
                 and row.reference_stat_value == 0 and row.reference_heuristic_value == 0)
 
 
-@implements("pending:balance.evolution_data_identities", provenance=Provenance.DATA)
+@implements("balance.evolution_data_identities", provenance=Provenance.DATA)
 def data_identities(cfg: EvolutionConfig) -> dict:
     """G09 and G10 counts on the stored tables."""
     out: dict = {}
@@ -498,7 +498,7 @@ def simulated_rows(cfg: EvolutionConfig) -> list[EvolutionValueRow]:
             if not cfg.row(k, t, r, L).is_filled]
 
 
-@implements("pending:balance.evolution_reference_stat_value", provenance=Provenance.RULE)
+@implements("balance.evolution_reference_stat_value", provenance=Provenance.RULE)
 def reference_stat_type(kind: str, damage_type: int) -> StatType:
     """``ReferenceStatValue`` reads the player's ``<Type>DamageFlat`` (weapons) / ``<Type>DefenceFlat`` (armor)
     ``TotalValue`` at ``ReferenceTimeChunkIndex``."""
@@ -546,7 +546,7 @@ def reference_stat_checks(cfg: EvolutionConfig, day_snapshots: Sequence) -> dict
             "groups": len(groups), "groups_single_valued": sum(len(v) == 1 for v in groups.values())}
 
 
-@implements("pending:balance.evolution_reference_time_chunk", provenance=Provenance.DATA)
+@implements("balance.evolution_reference_time_chunk", provenance=Provenance.DATA)
 def evolved_on_time(row: EvolutionValueRow, target_timing) -> bool:
     """R5: ``ReferenceTimeChunkIndex == ceil(T)`` (the item evolved on the target day)."""
     return row.reference_time_chunk_index == math.ceil(float(target_timing))
@@ -682,7 +682,7 @@ class HeuristicFit:
     envelope: Mapping[tuple[int, int], tuple[int, float]]  # (t, r) -> (level, min H / (cd * sv))
 
 
-@implements("pending:balance.evolution_heuristic_fit", provenance=Provenance.FIT)
+@implements("balance.evolution_heuristic_fit", provenance=Provenance.FIT)
 def fit_heuristic(cfg: EvolutionConfig, rarity_multiplier: Sequence[float] = WEAPON_RARITY_MULTIPLIER,
                   armor_min_timing: float = ARMOR_FIT_MIN_TIMING) -> HeuristicFit:
     """Weapons: per series the minimum of ``H / (cd * sv)`` over simulated rows (the envelope row, always the
@@ -728,7 +728,7 @@ def heuristic_residuals(cfg: EvolutionConfig, fit: HeuristicFit) -> list[dict]:
     return out
 
 
-@implements("pending:balance.evolution_fitted_h", provenance=Provenance.FIT)
+@implements("balance.evolution_fitted_h", provenance=Provenance.FIT)
 def fitted_h(cfg: EvolutionConfig, fit: HeuristicFit | None = None, *, previous: str = "stored",
              **options) -> dict[Key, GeneratedLevel]:
     """Regenerate the 450 rows with the fitted ``H`` (sv = the stored ReferenceStatValue of each simulated

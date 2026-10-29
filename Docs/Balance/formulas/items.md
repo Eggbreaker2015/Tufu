@@ -74,8 +74,8 @@ Each item's stat is a two-phase piecewise-linear function of copies. Before the 
 | [`balance.evolution_island_fill_rule`](#balanceevolution_island_fill_rule) | Evolution island schedule fill rule | 编辑器工具缺失 | `editor_generator` |
 | [`balance.evolution_target_timings_from_islands`](#balanceevolution_target_timings_from_islands) | Evolution target timings from island schedule | 编辑器工具缺失 | `editor_generator` |
 | [`balance.interpolation_points_from_islands`](#balanceinterpolation_points_from_islands) | Interpolation timing points from island points (ApplyIslandTimings) | 编辑器工具缺失 | `editor_generator` |
-| [`balance.evolution_shards_capture`](#balanceevolution_shards_capture) | Evolution shard requirement capture | 编辑器工具缺失 | `simulation` |
-| [`balance.evolution_value_autobalance`](#balanceevolution_value_autobalance) | Evolution stat value auto-balance | 编辑器工具缺失 | `editor_generator` |
+| [`balance.evolution_shards_capture`](#balanceevolution_shards_capture) | Evolution shard requirement capture | 重建（无原生标注） | `simulation` |
+| [`balance.evolution_value_autobalance`](#balanceevolution_value_autobalance) | Evolution stat value auto-balance | 重建（无原生标注） | `editor_generator` |
 | [`balance.copy_value_rule`](#balancecopy_value_rule) | Per-copy value after evolution | 编辑器工具缺失 | `editor_generator` |
 | [`balance.mythical_evolution_curve`](#balancemythical_evolution_curve) | Mythical evolution curve | 编辑器工具缺失 | `editor_generator` |
 | [`balance.armor_base_reset`](#balancearmor_base_reset) | Armor base / item cost reset tools | 编辑器工具缺失 | `editor_generator` |
@@ -86,6 +86,8 @@ Each item's stat is a two-phase piecewise-linear function of copies. Before the 
 | [`items.equip_stat_modifiers`](#itemsequip_stat_modifiers) | Item stat modifiers applied on equip | 原生证据恢复 | `runtime_formula` |
 | [`items.auto_equip_and_starting_weapon`](#itemsauto_equip_and_starting_weapon) | Starting weapon and auto-equip policy | 原生证据恢复 | `runtime_formula` |
 | [`items.weapon_attack_timing_stub`](#itemsweapon_attack_timing_stub) | WeaponAttackTiming helper (windup/travel/hit ratios) | 空壳 | `runtime_formula` |
+| [`items.evolve_jump_ratio`](#itemsevolve_jump_ratio) | items.evolve jump ratio | 重建（无原生标注） | `rebuild_rule` |
+| [`items.infer_evolved`](#itemsinfer_evolved) | items.infer evolved | 重建（无原生标注） | `rebuild_rule` |
 
 ## 公式
 
@@ -952,7 +954,7 @@ TimingPoints = ConvertIslandTimingToDays(IslandPoints).
 
 **Evolution shard requirement capture**
 
-- 状态：**编辑器工具缺失**（`editor_only_missing`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`simulation`
 - 来源：子系统梳理
 
@@ -969,7 +971,7 @@ Shards[isArmor][r][k] = round_nice(copies of a reference item of rarity r the si
 
 **代码**：[Balance/CombatBalanceConfig.cs:13](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L13)；[Balance/CombatBalanceConfig.cs:123-125](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L123)；[Balance/CombatBalanceConfig.cs:239-246](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L239)
 
-**状态依据**：UpdateEvolutionShardsRequirements(playtime, items), TryCaptureShardsRequirement and SetShardsValue are empty. The exact capture/rounding rule is inferred from their signatures; only the output tables survive.
+**状态依据**：UpdateEvolutionShardsRequirements(playtime, items), TryCaptureShardsRequirement and SetShardsValue are empty. The exact capture/rounding rule is inferred from their signatures; only the output tables survive. Stage 5 reconstruction implements part of this rule.
 
 **由数据反推的生成规则**（拟合规则，详见 [Generation/ItemGrowth.md](../Generation/ItemGrowth.md)）：
 
@@ -991,7 +993,7 @@ Shards requirement at level L ~ copies of the most-copied item of that rarity at
 
 **Evolution stat value auto-balance**
 
-- 状态：**编辑器工具缺失**（`editor_only_missing`）
+- 状态：**重建（无原生标注）**（`reconstructed`）
 - 类型：`editor_generator`
 - 来源：子系统梳理
 
@@ -1011,7 +1013,7 @@ Value[t][r][L] ≈ round_nice(ReferenceHeuristicValue); ReferenceStatPercent = r
 
 **代码**：[Balance/CombatBalanceConfig.cs:206-208](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L206)；[Balance/CombatBalanceConfig.cs:217-227](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L217)；[Balance/CombatBalanceConfig.cs:115-121](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/CombatBalanceConfig.cs#L115)；[Balance/EvolutionCombatValue.cs:8-29](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Balance/EvolutionCombatValue.cs#L8)
 
-**状态依据**：ApplyEvolutionAutoBalance, SetEvolutionValue (both overloads), FillRemainingEvolutionValues and FillRemainingEvolutionsByLastValue are empty. The relations were fitted from data: ReferenceStatPercent matches exactly, and Value is a nice rounding of the heuristic (3461.8->3500, 20675->21000, 304372->300000).
+**状态依据**：ApplyEvolutionAutoBalance, SetEvolutionValue (both overloads), FillRemainingEvolutionValues and FillRemainingEvolutionsByLastValue are empty. The relations were fitted from data: ReferenceStatPercent matches exactly, and Value is a nice rounding of the heuristic (3461.8->3500, 20675->21000, 304372->300000). Stage 5 reconstruction implements part of this rule.
 
 **由数据反推的生成规则**（精确复现，详见 [Generation/ItemGrowth.md](../Generation/ItemGrowth.md)）：
 
@@ -1207,7 +1209,7 @@ Per ItemConfig: AttackCooldown is the runtime attack period of the weapon. Playe
 
 **输出**：item-specific multipliers, attack timing and stat routing
 
-**代码**：[Player/Inventory/ItemConfig.cs:11-47](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L11)；[Player/Inventory/ItemConfig.cs:51-59](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L51)；[Player/Inventory/ItemModel.cs:404](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L404)；[Player/Inventory/ItemModel.cs:482](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L482)；[Player/Inventory/ItemModel.cs:507](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L507)；[Services/Damage/DamageCalculator.cs:129-130](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L129)；[Simulation/Systems/SimulationSystem.cs:841-848](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L841)；[Simulation/Systems/SimulationSystem.cs:915-929](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L915)；[Player/Models/PlayerModel.cs:768-828](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Models/PlayerModel.cs#L768)；[Player/PlayerAttackSystem.cs:130-146](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L130)；[Player/PlayerAttackSystem.cs:168](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L168)；[Player/PlayerAttackSystem.cs:206-229](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L206)；[UI/Inventory/InventoryStatView.cs:54-65](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/UI/Inventory/InventoryStatView.cs#L54)
+**代码**：[Player/Inventory/ItemConfig.cs:11-47](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L11)；[Player/Inventory/ItemConfig.cs:51-59](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemConfig.cs#L51)；[Player/Inventory/ItemModel.cs:404](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L404)；[Player/Inventory/ItemModel.cs:482](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L482)；[Player/Inventory/ItemModel.cs:507](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Inventory/ItemModel.cs#L507)；[Services/Damage/DamageCalculator.cs:129-130](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Services/Damage/DamageCalculator.cs#L129)；[Simulation/Systems/SimulationSystem.cs:619-626](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L619)；[Simulation/Systems/SimulationSystem.cs:674-688](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L674)；[Player/Models/PlayerModel.cs:768-828](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Models/PlayerModel.cs#L768)；[Player/PlayerAttackSystem.cs:130-146](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L130)；[Player/PlayerAttackSystem.cs:168](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L168)；[Player/PlayerAttackSystem.cs:206-229](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/PlayerAttackSystem.cs#L206)；[UI/Inventory/InventoryStatView.cs:54-65](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/UI/Inventory/InventoryStatView.cs#L54)
 
 **状态依据**：Serialized config values. The only code on ItemConfig is the OnValidate stamping (native 0x146310c) and HitFrameAt60Fps (catalogued in items.hit_frame).
 
@@ -1379,6 +1381,53 @@ Constants: windup = travel = return = 1/3, hitElapsedRatio = 2/3, hitCooldownRat
 **备注**：The live hit threshold is the native PlayerAttackSystem.GetHitCooldownThreshold = castPoint * AttackCooldown (0x1440f74), so this stub does not change gameplay numbers. It is listed so nobody wires it in by mistake.
 
 **依赖图节点**：输入 `config:ItemConfig.AttackCooldown`、`config:WeaponAttackAnimationSettings.<AnimationDurationCap>k__BackingField`、`config:WeaponAttackAnimationSettings.<WindupRatio>k__BackingField`、`config:WeaponAttackAnimationSettings.<TravelRatio>k__BackingField`、`config:WeaponAttackAnimationSettings.<ReturnRatio>k__BackingField`、`config:WeaponAttackAnimationSettings.<OvertravelRatio>k__BackingField`、`constant:WeaponAttackTiming.WindupDurationRatio`、`constant:WeaponAttackTiming.TravelDurationRatio`、`constant:WeaponAttackTiming.ReturnDurationRatio`、`constant:WeaponAttackTiming.HitElapsedRatio`、`constant:WeaponAttackTiming.HitCooldownRatio`；输出 `value:weapon.attack_animation_timing`
+
+### `items.evolve_jump_ratio`
+
+**items.evolve jump ratio**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Stat right before and right after evolution E = 1..MaxEvolutionLevel when evolving exactly at the
+threshold: before holds ``LevelsToEvolve`` copies, after holds 0 (design 3.3 G18).
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5: data; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
+
+### `items.infer_evolved`
+
+**items.infer evolved**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Whether the item had evolved at each of its snapshot observations ``(Level, Copies)`` (time order).
+
+The snapshot stores ``Level = EffectiveLevel``, so ``Level != Copies`` means evolved. ``Level == Copies``
+fits both readings on its own (evolution level L with L copies left), so the item's whole history is
+used: the evolved flag switches once, at some change point ``k``; every ``k`` that passes
+:func:`_feasible` (copy conservation through the shards table) is kept, and an observation is decided
+when all kept ``k`` put it on the same side. Otherwise it is ``None`` with the reason.
+```
+
+**输出**：See implementation and tests.
+
+**状态依据**：Stage 5: inferred; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.item_emission_model`
 
 ## 配置参数
 

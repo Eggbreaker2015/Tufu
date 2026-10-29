@@ -143,7 +143,7 @@ def convert_island_timing_to_days(island_timing: float, itd: Sequence) -> np.flo
     return fadd(prev, fmul(frac, fsub(itd[n - 1], prev)))
 
 
-@implements("pending:timeline.days_to_island_timing", provenance=Provenance.INFERRED)
+@implements("timeline.days_to_island_timing", provenance=Provenance.INFERRED)
 def days_to_island_timing(day: float, itd: Sequence) -> float:
     """Inverse of :func:`convert_island_timing_to_days` (double): island ``k`` covers
     ``[start(k), ITD[k-1])``; days ``<= 0`` map to 1, days past the table to ``len(itd) + 1``."""

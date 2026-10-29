@@ -139,7 +139,7 @@ def test_every_fast_day_planned_once(run):
 
 def test_defaults_and_kill_gate_provenance(run):
     """KillLossMultiplier = 1.0, KillLossFromAb = false, diagnostics off by default (design 4.5, 7.3 C5); the kill gate
-    is Provenance.Inferred with pending:simulation.fast_kill_gate (read from the attribute by reflection)."""
+    is Provenance.Inferred with simulation.fast_kill_gate (read from the attribute by reflection)."""
     m = run.manifest("fast-405")["engine"]
     p = m["params"]
     assert p["KillLossMultiplier"] == 1.0 and p["KillLossFromAb"] is False and p["KillState"] == 0

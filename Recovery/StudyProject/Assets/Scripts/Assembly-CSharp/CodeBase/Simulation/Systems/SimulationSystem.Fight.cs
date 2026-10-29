@@ -11,7 +11,7 @@ namespace Codebase.Simulation.Systems
 	// rewards, charges and gates go through RebuildApplyClear, called only in SimulateFightWithSpawner's body.
 	public partial class SimulationSystem
 	{
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.slow_fight")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.slow_fight")]
 		private (double, double, string) GetUnlockTimingLogData(EnemySpawner spawner)
 		{
 			if (spawner == null) return default;
@@ -21,7 +21,7 @@ namespace Codebase.Simulation.Systems
 
 		// A death (CurrentHealth <= 0 after a fight): countRespawn, full health, back at the origin; DeathPolicy
 		// decides whether the spawner is skipped for the rest of the session. currentSpawner is where it happened.
-		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.slow_death")]
+		[SimulationRebuild(Provenance.Calibrated, "simulation.slow_death")]
 		private void ProcessDeath()
 		{
 			EnemySpawner spawner = currentSpawner;
@@ -39,7 +39,7 @@ namespace Codebase.Simulation.Systems
 		// (P and T += dt / 60 in float32), CurrentHealth += healthDelta, cooldowns run down, regen over dt, then the
 		// clear. A death (decided before regen) ends the sequence (ProcessDeath); only DeathPolicy.ClearThenRespawn
 		// still clears that spawner.
-		[SimulationRebuild(Provenance.Calibrated, "pending:simulation.slow_fight")]
+		[SimulationRebuild(Provenance.Calibrated, "simulation.slow_fight")]
 		private void SimulateFightWithSpawner(SpawnerData bestSpawner)
 		{
 			SimulationSlowPolicyState state = RebuildSlowState();
@@ -84,7 +84,7 @@ namespace Codebase.Simulation.Systems
 		}
 
 		// Loss over maximum health of `spawner` in the tick's data (difficulty heat map); NaN when it is not there.
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.slow_fight")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.slow_fight")]
 		private double CalcDifficultSpawner(EnemySpawner spawner, float secondsRegen = 0f)
 		{
 			if (spawner == null || !spawnerData.TryGetValue(spawner, out SpawnerData data)) return double.NaN;
@@ -92,7 +92,7 @@ namespace Codebase.Simulation.Systems
 			return (-data.healthDelta - GetRegen() * (double)secondsRegen) / System.Math.Max(1.0, health);
 		}
 
-		[SimulationRebuild(Provenance.DebugOnly, "pending:simulation.slow_fight")]
+		[SimulationRebuild(Provenance.DebugOnly, "simulation.slow_fight")]
 		private void LogSpawnerClear(EnemySpawner spawner, double healthDelta, double fightTime, double moveTime)
 		{
 			if (spawner == null) return;

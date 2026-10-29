@@ -87,5 +87,9 @@ cd Balance && .venv/bin/python -m tufu_balance.graph impact CutDamageGrowthPerLe
 - `Simulation Config` 有 712 条烘焙记录，全部能对上刷怪点（713 个刷怪点因重复 Key 共享一条）。
 - `Simulation Config` 里存的烘焙记录 `bake.Health` 与刷怪点实际 `stat.Health` 只有 8 个在 1% 以内，`OptimumTime` 则大多一致。这份记录不是场景数值的直接来源，不能假设相等。
 - 用已恢复的原生烘焙公式（[`simulation.bake_spawner_health`](../Docs/Balance/formulas/simulation.md)）基于 `Simulation Data` 重算，按分钟计时的刷怪点有 79 个血量完全一致；按"天"计时的 608 个没有一个完全一致（中位比 0.995）。说明后期刷怪点是用另一版模拟数据烘焙的。
-- `Simulation Data` 有 63 个早期快照（前 3 岛，约 248 分钟）和 46 个时间块快照（到第 17 岛，约 18,700 分钟）。代码中的"天"指 30 分钟游玩时间块（`TimeChunkDurationMinutes = 30`），不是自然日。
+- `Simulation Data` 有 63 个早期快照（前 3 岛，约 248 分钟）和 46 个时间块快照（到第 17 岛，约 18,700 分钟）。模拟日按总时间 T 的 1440 分钟划分；`TimeChunkDurationMinutes = 30` 只用于特定最佳时间计算，不是模拟时钟。
 - 运行时敌人血量、伤害、刷新冷却和充能会被 `ABTest Data Config` 的分组覆盖（见 `c_ABTestDataConfig__*`），场景值不一定是玩家实际遇到的值。
+
+## 阶段 5 模拟器
+
+使用独立单元工作树开发，Unity 由启动器在专用运行工作树串行执行；操作与守卫见 [Runbook](../Docs/Balance/Simulator/Runbook.md)。从 Balance 运行 `python -m tufu_balance.refresh --level 2 --rev HEAD` 执行完整刷新，详见[模拟器说明](../Docs/Balance/Simulator/README.md)。

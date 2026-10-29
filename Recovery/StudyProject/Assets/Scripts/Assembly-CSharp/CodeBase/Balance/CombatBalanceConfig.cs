@@ -126,7 +126,7 @@ namespace Codebase.Balance
 		{
 		}
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.evolution_fill_remaining")]
+        [SimulationRebuild(Provenance.Inferred, "balance.evolution_fill_remaining")]
 		public void FillRemainingEvolutionsByLastValue()
 		{
             foreach (bool armor in new[] { false, true })
@@ -138,7 +138,7 @@ namespace Codebase.Balance
 		{
 		}
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:balance.shards_capture")]
+        [SimulationRebuild(Provenance.Calibrated, "balance.shards_capture")]
 
 		public void UpdateEvolutionShardsRequirements(float playtime, List<ItemModel> items)
 		{
@@ -208,7 +208,7 @@ namespace Codebase.Balance
 			return ArmorBaseByRarity[(int)rarity];
 		}
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.armor_base")]
+        [SimulationRebuild(Provenance.Inferred, "balance.armor_base")]
 
 		public void TrySetArmorBaseValue(Rarity rarity, float value)
 		{
@@ -232,7 +232,7 @@ namespace Codebase.Balance
 			return EvolutionArmorValues.First(value => value.DamageType == damageType && value.Rarity == rarity && value.EvolutionLevel == existingLevel).CopyValue;
 		}
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.evolution_value")]
+        [SimulationRebuild(Provenance.Inferred, "balance.evolution_value")]
 
 		public void SetEvolutionValue(bool isArmor, WeaponType damageType, Rarity rarity, int evolutionLevel, float value, float copyValue, int referenceShardsRequirement, int referenceStatPercent)
 		{
@@ -247,7 +247,7 @@ namespace Codebase.Balance
 				.First(value => value.Rarity == rarity && value.EvolutionLevel == existingLevel).Value;
 		}
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:balance.evolution_generator")]
+        [SimulationRebuild(Provenance.Calibrated, "balance.evolution_generator")]
 
 		public void ApplyEvolutionAutoBalance(bool isArmor, WeaponType damageType, Rarity rarity, int evolutionLevel, double heuristicValue, double currentStatValue, int timeChunkIndex)
 		{
@@ -269,7 +269,7 @@ namespace Codebase.Balance
             RebuildGeneratedLevels[key] = Math.Max(last, evolutionLevel);
 		}
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.evolution_fill_remaining")]
+        [SimulationRebuild(Provenance.Inferred, "balance.evolution_fill_remaining")]
 		private void FillRemainingEvolutionValues(bool isArmor, WeaponType damageType, Rarity rarity)
 		{
             string key = isArmor + ":" + (int)damageType + ":" + (int)rarity;
@@ -289,7 +289,7 @@ namespace Codebase.Balance
             return Math.Round(value / step) * step;
         }
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.evolution_value")]
+        [SimulationRebuild(Provenance.Inferred, "balance.evolution_value")]
 
         private void SetEvolutionValue(List<EvolutionCombatValue> list, WeaponType damageType, Rarity rarity, int evolutionLevel, float value, float copyValue, int referenceShardsRequirement, int referenceStatPercent, int referenceTimeChunkIndex, float referenceStatValue, float referenceHeuristicValue)
         {
@@ -300,21 +300,21 @@ namespace Codebase.Balance
             if (index < 0) list.Add(row); else list[index] = row;
         }
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.evolution_targets")]
+        [SimulationRebuild(Provenance.Inferred, "balance.evolution_targets")]
 
 		private float[] GetEvolutionTargetTimings(Rarity rarity)
 		{
             return new[] { CommonEvolutionTargetTimings, UncommonEvolutionTargetTimings, RareEvolutionTargetTimings, EpicEvolutionTargetTimings, LegendaryEvolutionTargetTimings }[(int)rarity];
 		}
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.evolution_targets")]
+        [SimulationRebuild(Provenance.Inferred, "balance.evolution_targets")]
 
 		private float[] GetArmorEvolutionTargetTimings(Rarity rarity)
 		{
             return new[] { CommonArmorEvolutionTargetTimings, UncommonArmorEvolutionTargetTimings, RareArmorEvolutionTargetTimings, EpicArmorEvolutionTargetTimings, LegendaryArmorEvolutionTargetTimings }[(int)rarity];
 		}
 
-        [SimulationRebuild(Provenance.Calibrated, "pending:balance.shards_capture")]
+        [SimulationRebuild(Provenance.Calibrated, "balance.shards_capture")]
 
 		private void TryCaptureShardsRequirement(List<EvolutionShardsRequirement> list, Rarity rarity, int evolutionLevel, List<ItemModel> items, bool isArmor, float playtime, float targetTiming)
 		{
@@ -326,7 +326,7 @@ namespace Codebase.Balance
             RebuildCapturedShards.Add(key);
 		}
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.shards_capture")]
+        [SimulationRebuild(Provenance.Inferred, "balance.shards_capture")]
 
 		private void SetShardsValue(List<EvolutionShardsRequirement> list, Rarity rarity, int evolutionLevel, int value)
 		{
@@ -340,7 +340,7 @@ namespace Codebase.Balance
 			return null;
 		}
 
-        [SimulationRebuild(Provenance.Inferred, "pending:balance.island_timing")]
+        [SimulationRebuild(Provenance.Inferred, "balance.island_timing")]
 
 		public float ConvertIslandTimingToDays(float islandTiming)
 		{

@@ -9,7 +9,7 @@ namespace Codebase.Simulation.Systems
 	public partial class SimulationSystem
 	{
 		// The ads reward stat: the largest RPM weighted by statsBenefit, first in StatType order on ties.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.ads_reward_stat")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.ads_reward_stat")]
 		public StatType CalculateBestRewardStat()
 		{
 			StatType best = StatType.MovementSpeed;
@@ -58,7 +58,7 @@ namespace Codebase.Simulation.Systems
 
 		// Every AdsIntervalMinutes of active time: AdsRewardMultiplierInMinutes x RPM of the best stat. The shipped
 		// multiplier is 0, so it grants nothing.
-		[SimulationRebuild(Provenance.Inferred, "pending:simulation.ads")]
+		[SimulationRebuild(Provenance.Inferred, "simulation.ads")]
 		private void ProcessSimulateAds()
 		{
 			float interval = config.AdsIntervalMinutes;

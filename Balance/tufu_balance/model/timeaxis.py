@@ -129,7 +129,7 @@ def get_spawner_optimum_timing_for_current_mode(optimum_time, is_days: bool,
     return f32(optimum_time)
 
 
-@implements("pending:simulation.optimum_time_cap", provenance=Provenance.PORT,
+@implements("simulation.optimum_time_cap", provenance=Provenance.PORT,
             code_ref="CodeBase/Simulation/Systems/SimulationSystem.cs:647-651", va="0x13e6074")
 def optimum_time_over_cap(optimum_time, is_days: bool, current_playtime, day: int,
                           cfg: TimeAxisConfig = DEFAULT_CONFIG) -> bool:
@@ -141,7 +141,7 @@ def optimum_time_over_cap(optimum_time, is_days: bool, current_playtime, day: in
     return bool(f32(optimum_time) > f32(current_playtime))
 
 
-@implements("pending:simulation.bake_day", provenance=Provenance.PORT,
+@implements("simulation.bake_day", provenance=Provenance.PORT,
             code_ref="CodeBase/Simulation/SimulationConfig.cs:118")
 def bake_day(recalc_optimum_time, is_days: bool) -> np.float32:
     """``BuildSpawnerBakeReport``: ``day = isDays ? t : t / 60f``."""
