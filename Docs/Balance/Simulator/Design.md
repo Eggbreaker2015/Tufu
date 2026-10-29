@@ -61,7 +61,7 @@
   - 不用 `UnityEngine.Random`、`Time` 和墙钟。
   - 每天写一个状态摘要，用来比较两次运行。
 - **换天顺序已由数据确定**：先用旧修饰器重算 RPM 与 DpsData，再换 K2/K3 修饰器，再拍强制快照（`RpmFirst`）。依据是 G20 在这个顺序下 1380/1380 全中（4.4）。原来的三选一参数 P07 只保留作消融。
-- **插值的舍入方式是枚举**：`stepwise`、`fma`、`double_tail`、`double_all`。后三种在 109 个快照上都是 109/109，数据分不出来。预言机默认取编辑器 Mono 实测的那一种（DP3），游戏代码只在编辑器连 109/109 都达不到时才改（Q03）。
+- **插值的舍入方式是枚举**：`stepwise`、`fma`、`double_tail`、`double_all`。编辑器 Mono 实测为 `double_all`（DP3 109/109）；预言机默认取这一种，Q03 无需修改游戏代码。
 - **以期望值为主**：唯一的随机项是物品份数的小数部分。默认按物品分流做"进位取整"：结果是整数，长期无偏，没有噪声。另有固定种子的随机模式。
 - **参数不进代码**：可校准参数是一个 `[Serializable] partial class SimulationRebuildParams`。默认值放在资产 `Assets/Simulation/Simulation Rebuild Params.asset` 里（不在 `Resources/`，不进正式构建），由编辑器里的驱动读取；每次批处理运行由请求 JSON 整体覆盖。Python 拟合参数不用改代码。
 - **请求与旁路文件用 Newtonsoft.Json**（`Assets/Plugins` 里已有）。`JsonUtility` 读不了字典、可空值和多态的补丁值。
@@ -1934,7 +1934,7 @@ Python 单元的进度只受 C0b、C1 的数据格式约束，不受 Unity 车�
     - 各开关默认关闭，回归测试断言；
   - X5：每天的合格集合与 `model.simcalc.eligible_spawners` 完全相同；
   - T07：岛 5–17 每个都在区间内或偏差 ≤ 1 天；岛 4 由岛 3 门禁推出，结果写进黄金文件；T08 偏差 ≤ 1 天或落在区间内；
-  - T04（`FarmedTime`，κ = 0.245）：TC ≥ 11 中位 ≤ 2%、最大 ≤ 8%；TC 4–10 只报告；
+  - T04：NnTour 在 TC ≥ 11 达到中位 ≤ 2%、最大 ≤ 8%；FarmedTime 未达到（4.29%/8.59%，已登记）；TC 4–10 只报告；
   - 冲刷：每种属性每天只加一个合并后的 `Devoured` 修饰器；TC405 的 Value 与随包值的相对差 ≤ 1e-5，实际差值写进黄金文件；
   - 实测第 4–405 天 FastTick 的耗时，写进 Runbook；每个 FastTick 不超过 C3b 定下的预算。
 
@@ -2313,3 +2313,10 @@ cd Balance && .venv/bin/python -m tufu_balance.graph impact <节点> [--runtime-
 - **5、7.3（K3）**：以 TC4–103 的 T06 和 T20 硬筛选，基线 0.621%，H3 0.631%，选基线；TourA [0.9796,1.0535]、TourB [0.7433,0.8266]（seed 0，TC 区间块），CMove 不可辨识固定 1。T05 36/41、T07 11 个区间内且 1 次翻转、T15 后期 DPS 17.06% / defense 0.98% 的 ratchet 仅适用于 Carry；随机种子不满足部分 ratchet。自由运行 T03、T04、T06、T09、T12、T14、T16、T19 Health、岛 3 和早期物品失败，checkpoint 亦有失败，均已登记；闭环可信度未建立。T19 Health：Carry 138/383，seed-1 171/386，seed-2 120/386，A 为 162/469；分钟制 9/108 对 79/108；Damage 通过。X4 seed-1 为 716/717，其余 Carry/checkpoint/seed-2 为 717/717。
 - **补丁、导出与刷新（P9/P10/P11/P12/P13）**：143 个可补丁字段；add/mul 以 double 计算后转换，刷怪点键为 (scene,file_id)，新增 evolution_armor_sync；字典非 Python 可补丁节点透传并告警。缓存命中要求 asset_guard.json；X2 的 override 慢快照和 X5 override 有空检范围。diff 的资产版本模式限于安全的已有配置叶子，缓存索引由 diff --cache-base 建立；refresh L0 预算 60/90 秒原文冲突，实际 fail-fast。具体例外、测试缺口及测量见 Patch、CrossCheck、DiffTool、DriftCheck、Runbook 和 Calibration 文档。
 - **基线工具**：定义变化或序列化文本变化仍须通过现有 accept/loosen 流程登记；独立的无需 loosen 的纯重接受入口列为后续工作，不改变 ORIGINAL。
+
+### 其他交接修订与未闭合事项
+
+- **抽取和生成（P3/P5/P6/P7/P8）**：抽取器排除 Harness/Rebuild 枚举和重建参数资产。P3 的旧 docstring 中 656 已过时，尚无专门固定该转换逐步 float32 的测试；TimingPoints 用 format_points 复现。P5 的 R4 上下界按阶段 4 的六位精度，armor 中位系数 0.80356，Value 一步计算，nice() 中点有六个；拟合的每类型 armor 不保证 leader 同步，d≤T、T≥150 边界未测试。P7 的 G13 band 独立于匹配判断；四种舍入下 G13 集合相同。P8 的 R2b 在 TC13 给出两槽而拟合为一槽；AB 配置采用 Newtonsoft 类默认值合并，刷怪点按 (scene,file_id) 排序，dataclasses.replace 共享 SimCalcContext 缓存可能过时；随包数据的若干倍率为恒等值，不能验证 running max。
+- **运行与所有权（C0b/C1/C3a/C3c）**：Job 新字段均使用 JsonProperty 的 NullValueHandling.Ignore；受代理影响的网络探测和 Job 阶段心跳按帧而非纯 tick 检测仍是限制。退出后 Temp 被删除，常驻报告在 out/sim/serve。真实存档变化仅在干净退出及同一游戏副本编辑器、沙箱证据完整时归因；其他编辑器存在时禁止恢复，失败测试仍可能退出 2。曾发生将备份恢复覆盖另一编辑器写入的事故，后续启动器已修复。C1 导出对大整数 YAML 的规则仅适用 |x|<1e15；rebuild_coverage.json 尚未导出。C3a 有些原有方法虽有代码体却无 VA 注释，签名锁不应把它们称为 Native。参数散列对 Newtonsoft 的 -0.0→0.0 差异安全失败。
+- **补丁和校准（P9/P10/C5/C6）**：结构列只在 where 使用，直接设置与既有不一致保留并报告漂移；StatRewards 不可由 Python 打补丁，整数 NaN/inf、枚举小数或 bool 和 float32 where 比较仍有边界缺口。T07 的 2–3 岛按 P 区间日 ±1，T11 容许下一快照；T17 随包夹具 TC9 前已有 armor=1。快阶段门禁允许同日多轮；T04 的早期 FarmedTime 不合原限，忙机测得 405 天 p95 49.3ms、最大 60.8ms，不能把它当空闲中位数。C6 原版开武器槽方法是空壳，weapon_2 来自岛 1 pier boss 的 SlotReward；T12 mace 提前的 C5 单独归因已撤回。
+- **校验和基线（P11/P12/P13/K2/K3）**：P11 override 作业的 X2 慢快照与 X5 部分为空检；P12 曾将 reconstructed 计入未建模、readiness 路径影响缓存键，修订见 Enginefix。P13 的 L0 60 秒与 90 秒预算冲突，实际采用 fail-fast；LFS 离线 smudge 是环境限制。K2 的候选排序和 ORIGINAL 修正执行顺序偏离记录在 Calibration.md；H1/H2/H3 比较没有消除岛 3 与早期物品失败。K3 的 405 天作业 9.35 秒、冷启动约 25 秒；科学失败以证据和放宽记录保留，不能误读为科学验收通过。
