@@ -27,6 +27,9 @@ namespace Codebase.Pet.Systems
 			// While the player dies, RevivePlayerCommand revives every pet at the fountain.
 			if (player == null || player.IsDead)
 				return;
+			// RPG dungeons: fallen heroes stay down until the party leaves (or a revive skill brings them back).
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && global::Codebase.Rpg.Dungeon.RpgDungeonSystem.BlocksRevive)
+				return;
 			float now = Time.time;
 			Transform owner = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform;
 			foreach (PetModel pet in petsModel.Pets)

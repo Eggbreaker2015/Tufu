@@ -14,15 +14,25 @@ namespace Codebase.Rpg
 		private static void Reset() { Granted = null; }
 		public static void Kill(EnemyUnit enemy, EnemySpawnerConfig config)
 		{
+			Compute(enemy, config, out double xp, out int gold);
+			Grant(enemy.transform.position, xp, gold);
+		}
+		// Dungeon kills grant these on the spot too and also tally them for the clear bonus.
+		public static void Compute(EnemyUnit enemy, EnemySpawnerConfig config, out double xp, out int gold)
+		{
 			var progress = GameContext.Get<RpgProgressModel>();
 			var factors = RpgModeConfig.Instance.XpDifferenceFactors;
 			int difference = Math.Max(0, progress.Level - enemy.RpgLevel);
-			double xp = RpgNumbers.Xp(enemy.RpgLevel) * RpgSpawnerRules.XpMultiplier(config) * factors[Math.Min(difference, factors.Count - 1)];
-			int gold = RpgNumbers.GrantedGold(enemy.RpgLevel, config);
+			xp = RpgNumbers.Xp(enemy.RpgLevel) * RpgSpawnerRules.XpMultiplier(config) * factors[Math.Min(difference, factors.Count - 1)];
+			gold = RpgNumbers.GrantedGold(enemy.RpgLevel, config);
+		}
+		public static void Grant(Vector3 position, double xp, int gold)
+		{
+			var progress = GameContext.Get<RpgProgressModel>();
 			xp = progress.AddXp(xp);
 			GameContext.Get<CurrencyModel>().Add(CurrencyKeys.RpgGold, gold);
 			if (xp > 0 || gold > 0) GameContext.Get<IAudioPlayer>().PlaySoundOnce("devour");
-			Granted?.Invoke(enemy.transform.position, xp, gold);
+			Granted?.Invoke(position, xp, gold);
 		}
 		public static void Quest(int island, float multiplier, Vector3 position)
 		{

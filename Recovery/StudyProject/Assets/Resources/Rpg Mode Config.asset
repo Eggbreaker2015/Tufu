@@ -11,14 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b28bf8ca0faa4d16a39d394665276f37, type: 3}
   m_Name: Rpg Mode Config
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   enabled: 1
   Heroes:
   - Key: protagonist
     IsProtagonist: 1
     Role: 0
-    PetItemKey:
-    AttackItemKey:
+    PetItemKey: 
+    AttackItemKey: 
     HealthRatio: 1
     AttackRatio: 1
     DefenceFlat: 0
@@ -26,6 +26,7 @@ MonoBehaviour:
     AttackRangeOverride: 0
     DisplayName: Pudge
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   - Key: golem
     IsProtagonist: 0
     Role: 1
@@ -38,6 +39,7 @@ MonoBehaviour:
     AttackRangeOverride: 0
     DisplayName: Golem
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   - Key: cultist
     IsProtagonist: 0
     Role: 4
@@ -50,6 +52,7 @@ MonoBehaviour:
     AttackRangeOverride: 0
     DisplayName: Cultist
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   - Key: pick
     IsProtagonist: 0
     Role: 1
@@ -60,7 +63,7 @@ MonoBehaviour:
     DefenceFlat: 0
     DefenceRatio: 1.5
     AttackRangeOverride: 0
-    DisplayName: 重甲矛兵
+    DisplayName: "\u91CD\u7532\u77DB\u5175"
     Icon: {fileID: 0}
     ExtraSkillKeys:
     - rpg_group_taunt
@@ -74,8 +77,9 @@ MonoBehaviour:
     DefenceFlat: 0
     DefenceRatio: 1.2
     AttackRangeOverride: 0
-    DisplayName: 棍棒兵
+    DisplayName: "\u68CD\u68D2\u5175"
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   - Key: fork
     IsProtagonist: 0
     Role: 3
@@ -86,8 +90,9 @@ MonoBehaviour:
     DefenceFlat: 0
     DefenceRatio: 1.2
     AttackRangeOverride: 0
-    DisplayName: 矛卫
+    DisplayName: "\u77DB\u536B"
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   - Key: knife
     IsProtagonist: 0
     Role: 4
@@ -98,8 +103,9 @@ MonoBehaviour:
     DefenceFlat: 0
     DefenceRatio: 0.9
     AttackRangeOverride: 0
-    DisplayName: 斧头兵
+    DisplayName: "\u65A7\u5934\u5175"
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   - Key: minisaw
     IsProtagonist: 0
     Role: 5
@@ -110,8 +116,9 @@ MonoBehaviour:
     DefenceFlat: 0
     DefenceRatio: 0.8
     AttackRangeOverride: 0
-    DisplayName: 剑士
+    DisplayName: "\u5251\u58EB"
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   - Key: pike
     IsProtagonist: 0
     Role: 6
@@ -122,12 +129,13 @@ MonoBehaviour:
     DefenceFlat: 0
     DefenceRatio: 0.9
     AttackRangeOverride: 0
-    DisplayName: 长矛兵
+    DisplayName: "\u957F\u77DB\u5175"
     Icon: {fileID: 0}
+    ExtraSkillKeys: []
   NormalShards: 1
   EliteShards: 3
   BossShards: 10
-  StarCopyThresholds: 0a0000001e0000004600000096000000
+  StarCopyThresholds: 0a0000001e0000004600000096000000i
   StarStatBonus: 0.12
   TargetLockExtraRange: 4
   RetaliateWindow: 3
@@ -144,11 +152,10 @@ MonoBehaviour:
   XpDifferenceFactors:
   - 1
   - 0.9
-  - 0.75
-  - 0.55
-  - 0.35
-  - 0.15
-  - 0
+  - 0.8
+  - 0.7
+  - 0.6
+  - 0.5
   GoldIcon: {fileID: 21300000, guid: 50a40e3fa0e0463f8fe631ce7e88e27f, type: 3}
   GoldBase: 5
   GoldGrowth: 1.1
@@ -172,5 +179,53 @@ MonoBehaviour:
   StaticGoldMultiplier: 0.5
   QuestStepXpMultiplier: 5
   QuestChainXpMultiplier: 20
-  IslandStarts: 01000000050000000a0000000d0000001100000014000000170000001b0000001e0000002100000025000000280000002b0000002f000000320000003500000039000000
-  IslandEnds: 050000000a0000000d0000001100000014000000170000001b0000001e0000002100000025000000280000002b0000002f0000003200000035000000390000003c000000
+  IslandStarts: 01000000050000000a0000000d0000001100000014000000170000001b0000001e0000002100000025000000280000002b0000002f000000320000003500000039000000i
+  IslandEnds: 050000000a0000000d0000001100000014000000170000001b0000001e0000002100000025000000280000002b0000002f0000003200000035000000390000003c000000i
+  DungeonPortalRadius: 2
+  Dungeons:
+  - Key: dungeon.island1
+    DisplayName: "\u5E7D\u6697\u5730\u7A74"
+    Island: 1
+    PortalPosition: {x: 5, y: 0.05, z: -62}
+    PortalRotationY: 0
+    ArenaKey: atlantic
+    ExitAlong: -4
+    Packs:
+    - SpawnerKey: Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b
+      Along: 16
+      Side: 0
+      Count: 3
+      Level: 5
+    - SpawnerKey: Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723
+      Along: 30
+      Side: 0
+      Count: 2
+      Level: 5
+    - SpawnerKey: Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b
+      Along: 44
+      Side: 0
+      Count: 3
+      Level: 5
+    - SpawnerKey: Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723
+      Along: 56
+      Side: 0
+      Count: 3
+      Level: 5
+    - SpawnerKey: Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b
+      Along: 66
+      Side: -14
+      Count: 3
+      Level: 5
+    - SpawnerKey: Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723
+      Along: 66
+      Side: 14
+      Count: 2
+      Level: 5
+    Boss:
+      SpawnerKey: Spawner_boss_pier_common_slot_3a6eab0d4328bc3408bb980099f1c5ee
+      Along: 0
+      Side: 0
+      Count: 1
+      Level: 6
+    CooldownHours: 24
+    ClearBonusFraction: 0.5

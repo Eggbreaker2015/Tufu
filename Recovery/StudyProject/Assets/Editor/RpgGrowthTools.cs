@@ -7,6 +7,7 @@ using Codebase.Enemy;
 using Codebase.Rpg;
 using Codebase.Player.Inventory;
 using Codebase.Player.Models;
+using Scellecs.Morpeh;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -20,6 +21,38 @@ public static class RpgGrowthTools
 		var progress = GameContext.Get<RpgProgressModel>();
 		progress.AddXp(Math.Max(0, progress.XpToNext - progress.Xp));
 		GameContext.Get<CurrencyModel>().Add(CurrencyKeys.RpgGold, 1000);
+	}
+
+	[MenuItem("Tools/RPG/Dungeon/Teleport To Dungeon Portal")]
+	public static void TeleportToDungeonPortal()
+	{
+		if (!Application.isPlaying || !RpgModeConfig.Enabled || !GameContext.Has<PlayerModel>() || RpgModeConfig.Instance.Dungeons.Count == 0) return;
+		var def = RpgModeConfig.Instance.Dungeons[0];
+		Vector3 position = def.PortalPosition + Quaternion.Euler(0f, def.PortalRotationY, 0f) * Vector3.forward * (RpgModeConfig.Instance.DungeonPortalRadius + 3f);
+		var pudge = GameContext.Get<PlayerModel>().Unit;
+		if (pudge.Agent != null && pudge.Agent.enabled) pudge.Agent.Warp(position); else pudge.transform.position = position;
+		if (GameContext.Has<Codebase.Pet.PetsModel>()) GameContext.Get<Codebase.Pet.PetsModel>().ReviveAll(position, def.PortalRotationY, false);
+	}
+
+	[MenuItem("Tools/RPG/Dungeon/Reset Dungeon Cooldowns")]
+	public static void ResetDungeonCooldowns()
+	{
+		if (!Application.isPlaying || !RpgModeConfig.Enabled) return;
+		Codebase.Rpg.Dungeon.RpgDungeonSystem.ResetCooldowns();
+	}
+
+	[MenuItem("Tools/RPG/Dungeon/Kill All Dungeon Enemies Except Boss")]
+	public static void KillDungeonEnemies()
+	{
+		var dungeon = Codebase.Rpg.Dungeon.RpgDungeonSystem.Instance;
+		if (!Application.isPlaying || dungeon == null || !dungeon.InDungeon) return;
+		var died = World.Default.GetEvent<Codebase.Unit.Events.UnitDiedEvent>();
+		foreach (var enemy in dungeon.AliveEnemies.ToList())
+		{
+			if (enemy == dungeon.BossUnit) continue;
+			enemy.CurrentHealth = 0;
+			Codebase.Unit.Systems.UnitDamageSystem.ProcessEnemyDeath(enemy, false, died);
+		}
 	}
 
 	[MenuItem("Tools/RPG/Recruit Island 1-2 Heroes")]

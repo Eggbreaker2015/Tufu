@@ -46,7 +46,7 @@ namespace Codebase.Rpg
 		public double XpGrowth = 1.1;
 		public double XpNeedBase = 1.5;
 		public double XpNeedPerLevel = 0.3;
-		public List<float> XpDifferenceFactors = new List<float> { 1f, 0.9f, 0.75f, 0.55f, 0.35f, 0.15f, 0f };
+		public List<float> XpDifferenceFactors = new List<float> { 1f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f };
 		public Sprite GoldIcon;
 		public double GoldBase = 5;
 		public double GoldGrowth = 1.1;
@@ -62,6 +62,24 @@ namespace Codebase.Rpg
 		public float QuestStepXpMultiplier = 5f, QuestChainXpMultiplier = 20f;
 		public List<int> IslandStarts = new List<int> { 1, 5, 10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57 };
 		public List<int> IslandEnds = new List<int> { 5, 10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57, 60 };
+		public float DungeonPortalRadius = 2f;
+		public List<Dungeon.RpgDungeonDef> Dungeons = new List<Dungeon.RpgDungeonDef>
+		{
+			new Dungeon.RpgDungeonDef
+			{
+				Key = "dungeon.island1", DisplayName = "幽暗地穴", Island = 1, PortalPosition = new Vector3(5f, 0.05f, -62f), ArenaKey = "atlantic",
+				Packs = new List<Dungeon.RpgDungeonPack>
+				{
+					new Dungeon.RpgDungeonPack { SpawnerKey = "Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b", Along = 16f, Count = 3, Level = 5 },
+					new Dungeon.RpgDungeonPack { SpawnerKey = "Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723", Along = 30f, Count = 2, Level = 5 },
+					new Dungeon.RpgDungeonPack { SpawnerKey = "Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b", Along = 44f, Count = 3, Level = 5 },
+					new Dungeon.RpgDungeonPack { SpawnerKey = "Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723", Along = 56f, Count = 3, Level = 5 },
+					new Dungeon.RpgDungeonPack { SpawnerKey = "Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b", Along = 66f, Side = -14f, Count = 3, Level = 5 },
+					new Dungeon.RpgDungeonPack { SpawnerKey = "Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723", Along = 66f, Side = 14f, Count = 2, Level = 5 }
+				},
+				Boss = new Dungeon.RpgDungeonPack { SpawnerKey = "Spawner_boss_pier_common_slot_3a6eab0d4328bc3408bb980099f1c5ee", Count = 1, Level = 6 }
+			}
+		};
 
 		public static RpgModeConfig Instance
 		{
