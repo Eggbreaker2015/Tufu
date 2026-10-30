@@ -56,6 +56,8 @@ namespace Codebase.Rpg
 		public float EnemyDamageScale = 1f;
 		public float BaseHealthBonus = 20f;
 		public float BaseDefenceBonus = 2f;
+		// Pudge's model is about twice as wide as his NavMeshAgent body, which the level-up effect is sized from.
+		public float ProtagonistLevelUpVfxScale = 2f;
 		public float NormalCooldown = 45f, EliteCooldown = 180f, BossCooldown = 600f, StaticCooldown = 120f;
 		public float NormalXpMultiplier = 1f, EliteXpMultiplier = 5f, BossXpMultiplier = 20f, StaticXpMultiplier = 0.5f;
 		public float NormalGoldMultiplier = 1f, EliteGoldMultiplier = 5f, BossGoldMultiplier = 20f, StaticGoldMultiplier = 0.5f;

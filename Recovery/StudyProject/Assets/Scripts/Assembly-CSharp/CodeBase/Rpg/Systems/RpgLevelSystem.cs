@@ -41,12 +41,19 @@ namespace Codebase.Rpg.Systems
 				HeroStats.ApplyLevel(hero.Unit, level);
 				if (!hero.IsAlive || hero.Unit is PlayerUnit player && player.IsReviving) continue;
 				hero.Unit.CurrentHealth = hero.Unit.GetStatValue(Codebase.Unit.StatType.Health);
-				LevelUpVfx.Play(hero.Unit.transform);
+				PlayLevelUpVfx(hero);
 			}
 			if (controlled == null || !GameContext.Has<StatRewardContainer>()) return;
 			StatRewardContainer container = GameContext.Get<StatRewardContainer>();
 			ShowGain(container, StatType.Damage, controlled.GetStatValue(StatType.Damage) - damageBefore);
 			ShowGain(container, StatType.Health, controlled.GetStatValue(StatType.Health) - healthBefore);
+		}
+		private static void PlayLevelUpVfx(HeroModel hero)
+		{
+			float radius = -1f;
+			if (hero.Definition != null && hero.Definition.IsProtagonist && CharacterVfxScale.TryGetBody(hero.Unit.transform, out float bodyRadius, out _))
+				radius = bodyRadius * RpgModeConfig.Instance.ProtagonistLevelUpVfxScale;
+			LevelUpVfx.Play(hero.Unit.transform, radius);
 		}
 		private void ShowGain(StatRewardContainer container, StatType type, double amount)
 		{
