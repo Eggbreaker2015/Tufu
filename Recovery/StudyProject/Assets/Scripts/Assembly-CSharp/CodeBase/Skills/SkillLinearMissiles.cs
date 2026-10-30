@@ -45,6 +45,9 @@ namespace Codebase.Skills
 
 			public Vector3 WallFrom;
 
+			// RPG: flying over a ledge gap; wall checks resume once Travelled reaches this.
+			public float WallSkipUntil;
+
 			// The caster has been seen dead or pooled; if it comes back alive it is a new life and the missile ends.
 			public bool CasterDied;
 
@@ -53,6 +56,11 @@ namespace Codebase.Skills
 
 		// Ray origin re-snap after each clear step.
 		private const float WallResampleDistance = 1.5f;
+
+		// RPG ledges: how far past a NavMesh edge to look for ground to fly on to, and how close a sample must be to the probe.
+		private const float LedgeGapDistance = 2f;
+
+		private const float LedgeProbeStep = 0.2f;
 
 		private readonly List<Missile> missiles = new List<Missile>();
 
@@ -92,6 +100,7 @@ namespace Codebase.Skills
 				missile.DamageType = def.OverrideDamageType ? def.DamageType : (WeaponType?)null;
 				missile.WallCheck = wallCheck;
 				missile.WallFrom = ground.position;
+				missile.WallSkipUntil = 0f;
 				missile.CasterDied = false;
 				missile.Hit.Clear();
 				if (prefab != null)
@@ -131,12 +140,22 @@ namespace Codebase.Skills
 				Vector3 b = a + missile.Direction * step;
 				// End on the final step even when world-position rounding loses a tiny remaining distance.
 				bool ended = step >= remaining;
-				if (missile.WallCheck)
+				if (missile.WallCheck && missile.Travelled >= missile.WallSkipUntil)
 				{
 					if (NavMesh.Raycast(missile.WallFrom, new Vector3(b.x, missile.WallFrom.y, b.z), out NavMeshHit wall, NavMesh.AllAreas))
 					{
-						b = new Vector3(wall.position.x, a.y, wall.position.z);
-						ended = true;
+						// RPG: a low ledge (rock, stump, step) is a NavMesh edge too, but the missile flies over it at MissileHeight.
+						if (global::Codebase.Rpg.RpgModeConfig.Enabled && TryFindLanding(missile.WallFrom, wall.position, missile.Direction, out NavMeshHit landing))
+						{
+							b.y += landing.position.y - missile.WallFrom.y;
+							missile.WallFrom = landing.position;
+							missile.WallSkipUntil = missile.Travelled + Vector2.Distance(new Vector2(a.x, a.z), new Vector2(landing.position.x, landing.position.z));
+						}
+						else
+						{
+							b = new Vector3(wall.position.x, a.y, wall.position.z);
+							ended = true;
+						}
 					}
 					// Keep the next ray origin on the surface the missile is over (slopes, stairs, bridges).
 					else if (NavMesh.SamplePosition(new Vector3(b.x, missile.WallFrom.y, b.z), out NavMeshHit ground, WallResampleDistance, NavMesh.AllAreas))
@@ -207,6 +226,23 @@ namespace Codebase.Skills
 			impact.PrimaryTarget = unit;
 			impact.Point = unit.transform.position;
 			SkillService.Execute(missile.Def.OnImpact, impact);
+		}
+
+		// Walkable surface within LedgeGapDistance past the edge and within missile height of the current one
+		// = a rock, stump or step the missile flies over (the baked NavMesh leaves a gap around it). Else a wall.
+		private static bool TryFindLanding(Vector3 from, Vector3 edge, Vector3 direction, out NavMeshHit landing)
+		{
+			for (float distance = LedgeProbeStep; distance <= LedgeGapDistance + 0.001f; distance += LedgeProbeStep)
+			{
+				Vector3 probe = new Vector3(edge.x, from.y, edge.z) + direction * distance;
+				if (!NavMesh.SamplePosition(probe, out landing, SkillService.MissileHeight, NavMesh.AllAreas))
+					continue;
+				Vector3 offset = landing.position - probe;
+				if (Mathf.Abs(offset.y) < SkillService.MissileHeight && offset.x * offset.x + offset.z * offset.z <= LedgeProbeStep * LedgeProbeStep)
+					return true;
+			}
+			landing = default;
+			return false;
 		}
 
 		private void Recycle(int index)
