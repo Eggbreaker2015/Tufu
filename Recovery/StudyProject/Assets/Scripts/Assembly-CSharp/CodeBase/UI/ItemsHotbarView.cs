@@ -23,6 +23,7 @@ namespace Codebase.UI
 
 		private void Start()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { gameObject.SetActive(false); return; }
 			// Native ELF VA 0x15d6f94 and predicate 0x15f54a8.
 			PlayerModel player = GameContext.Get<PlayerModel>();
 			uiModel = GameContext.Get<UiModel>();

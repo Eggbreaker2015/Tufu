@@ -35,3 +35,5 @@ MonoBehaviour:
     Icon: {fileID: 21300000, guid: 9b8f5790425491041a7ac120d9d1f706, type: 2}
   - Key: pet.universal_shard
     Icon: {fileID: 21300000, guid: 061866c9ce4d4ea99e5d5f035dd658a0, type: 3}
+  - Key: rpg.gold
+    Icon: {fileID: 21300000, guid: 50a40e3fa0e0463f8fe631ce7e88e27f, type: 3}

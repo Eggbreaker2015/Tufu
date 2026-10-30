@@ -1,0 +1,63 @@
+Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507 | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507 | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+EventSpawner_Golem_7e65cdc0b256ba64cbd2582453fb62e3 | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+EventSpawner_Golem_ce1ad032a769cfd48a6852cb69f1c7d9 | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+Eventspawner_MiniBoss_ae45f65b28328c04abd43feb495413ee | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+Eventspawner_MiniBoss_cf6afea22c3937646951d9e2210526c3 | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+second_biome_door_0f7edb | island=1 | kind=Normal | rel=0.67 | level=4 | cooldown=45 | xp=26.62 | gold=7 | prefab=EnemyPlaceholder
+Spawner_1 (1)_e8eb48749381f114d9a39596d3fbfc8f | island=1 | kind=Normal | rel=0.23 | level=2 | cooldown=45 | xp=22 | gold=6 | prefab=cut_cut_easy
+Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b | island=1 | kind=Normal | rel=0.33 | level=2 | cooldown=45 | xp=22 | gold=6 | prefab=cut_cut_easy
+Spawner_1 (3)_09e2f503e0347364090ed5a72b1110fa | island=1 | kind=Normal | rel=0.33 | level=2 | cooldown=45 | xp=22 | gold=6 | prefab=cut_cut_easy
+Spawner_1 (4)_1b5174cd5b8c37441bcc427a6d08be35 | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+Spawner_1 (5)_e05c477c5fdf39749ab20e6d23ff5c6b | island=1 | kind=Normal | rel=0.17 | level=2 | cooldown=45 | xp=22 | gold=6 | prefab=cut_cut_easy
+Spawner_1_8dc2006722e6c994593946eef6f4f007 | island=1 | kind=Normal | rel=0 | level=1 | cooldown=45 | xp=20 | gold=5 | prefab=cut_cut_easy
+Spawner_boss_pier_common_slot_3a6eab0d4328bc3408bb980099f1c5ee | island=1 | kind=Boss | rel=1 | level=6 | cooldown=600 | xp=644.2 | gold=161 | prefab=cut_cut_boss
+Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723 | island=1 | kind=Normal | rel=0.17 | level=2 | cooldown=45 | xp=22 | gold=6 | prefab=cut_cut_medium
+Spawner_Dummy_b310762d24f050b4a8be8d6dcb3f77c0 | island=1 | kind=Static | rel=0.07 | level=1 | cooldown=120 | xp=0 | gold=3 | prefab=pier_cut_easy 1
+Spawner_elite_HP_cef4e24ff9718b24e8ad34034ac851fd | island=1 | kind=Elite | rel=1.33 | level=6 | cooldown=180 | xp=161.05 | gold=40 | prefab=elite_cut green
+Spawner_uncommon_cut (1)_18dae3bb28583e14891599c5187b63bf | island=1 | kind=Normal | rel=0.5 | level=3 | cooldown=45 | xp=24.2 | gold=6 | prefab=cut_cut_medium
+tree_1 (1)_cab2982e460073649a2f7dadc4bd33af | island=1 | kind=Static | rel=0 | level=1 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (10)_a68da335600538e45bc642d3cc861abe | island=1 | kind=Static | rel=0.33 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (11)_95791ab9307a4e9428c2925d2ee749bb | island=1 | kind=Static | rel=0.07 | level=1 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (12)_ef5013694cad0f74e9c00539a3dd25d3 | island=1 | kind=Static | rel=0.13 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (13)_f418a9d7f8e6fa14f86fb66223b62ec3 | island=1 | kind=Static | rel=0.53 | level=3 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (14)_1baeb1cfdda86ae47b336e9b12f65aec | island=1 | kind=Static | rel=0.17 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (15)_610b75fa8c835cb41a69f7c62268f444 | island=1 | kind=Static | rel=0 | level=1 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (16)_03cd4a27ff32d3f46b5bfe059cc56602 | island=1 | kind=Static | rel=0.23 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (2)_8664cc31e7d27eb43b8d55bcc5628ff5 | island=1 | kind=Static | rel=0 | level=1 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (3)_cb11e7328fefe70488ee26296721d71a | island=1 | kind=Static | rel=0.5 | level=3 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (4)_58a59c9cb18ad524d8144f4405529db0 | island=1 | kind=Static | rel=0.23 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (5)_8b2c996375e6bb94c91eed670a953ce6 | island=1 | kind=Static | rel=0.67 | level=4 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (6)_9d8979c866b01d74488059dd05f17173 | island=1 | kind=Static | rel=0.33 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (7)_85469a9085ff7cc4e89caab27b56bf71 | island=1 | kind=Static | rel=0.67 | level=4 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (8)_11a25dfdc96faf44c81cc663dd379a1b | island=1 | kind=Static | rel=0.33 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1 (9)_2dc52608b773d5a46ac053446068229c | island=1 | kind=Static | rel=0.27 | level=2 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+tree_1_c5d46e300c9ecdd4db0b6d7e30e85c91 | island=1 | kind=Static | rel=0 | level=1 | cooldown=120 | xp=0 | gold=3 | prefab=tree 1
+Spawner_1 (10)_e71a65e0f9aa5f14aa166b864998e967 | island=2 | kind=Normal | rel=0.18 | level=6 | cooldown=45 | xp=32.21 | gold=8 | prefab=pier_pier_easy
+Spawner_1 (11)_cff2f54afc87aa546be1ed12b741f939 | island=2 | kind=Normal | rel=0.18 | level=6 | cooldown=45 | xp=32.21 | gold=8 | prefab=pier_pier_easy
+Spawner_1 (12)_328a41ded420dc84e973de30eef5dd6d | island=2 | kind=Normal | rel=0 | level=5 | cooldown=45 | xp=29.28 | gold=7 | prefab=pier_pier_knight
+Spawner_1 (5)_dfbb92f71e19ab743b752e24f128bbed | island=2 | kind=Normal | rel=0 | level=5 | cooldown=45 | xp=29.28 | gold=7 | prefab=pier_pier_easy
+Spawner_1 (6)_4a3bf7b4d69a5e449a68c9f48618a8e3 | island=2 | kind=Normal | rel=0 | level=5 | cooldown=45 | xp=29.28 | gold=7 | prefab=pier_pier_easy
+Spawner_1 (8)_d6be6d57f23f34840bc6df085eadba3b | island=2 | kind=Normal | rel=0 | level=5 | cooldown=45 | xp=29.28 | gold=7 | prefab=pier_pier_easy
+Spawner_1_pierc_rare_e72fdc2b093b37b47b99ed8385a63a1b | island=2 | kind=Normal | rel=0.45 | level=7 | cooldown=45 | xp=35.43 | gold=9 | prefab=pier_immun
+Spawner_1_pierc_uncommon_3f7f605ca6efd8e41961a38ee6e74ad2 | island=2 | kind=Normal | rel=0.09 | level=5 | cooldown=45 | xp=29.28 | gold=7 | prefab=pier_pier_medium
+Spawner_boss_smash_uncommon_4c73a9d643e38264d9943f25dfa76569 | island=2 | kind=Boss | rel=1 | level=11 | cooldown=600 | xp=1037.5 | gold=259 | prefab=pier_pier_boss
+Spawner_elite_regen_f26d4d9599e8c23418b5a902e2182553 | island=2 | kind=Elite | rel=1.55 | level=11 | cooldown=180 | xp=259.37 | gold=65 | prefab=elite_pier
+tree_1 (11)_79702de2c5acd7349a27f0c43ba55caa | island=2 | kind=Static | rel=0 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (12)_3f279c24d7d625f42937a8429481a74e | island=2 | kind=Static | rel=0 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (13)_c796a8bbf791f2640a56b8c1042f52e4 | island=2 | kind=Static | rel=0 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (14)_dd4e815e24db8ff4abef625b8164d7a5 | island=2 | kind=Static | rel=0.09 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (15)_bf882ce4f9a6cec4fafe64e0208c71a8 | island=2 | kind=Static | rel=0 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (16)_e49c3ecc2533a7248a1e831ec9735430 | island=2 | kind=Static | rel=0.18 | level=6 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (18)_5fece5f2a8a737c458fa94de51f6f164 | island=2 | kind=Static | rel=0.09 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (19)_084b33231c390544ca99a575f77d39c3 | island=2 | kind=Static | rel=0.09 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (20)_1bc26a7ac241c2949affdb5d78ffceca | island=2 | kind=Static | rel=0 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (21)_32cbc72c977836540a0412fc1eb32de4 | island=2 | kind=Static | rel=0.18 | level=6 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (22)_29432dd3cde5b06458747fba9a9bdb4f | island=2 | kind=Static | rel=0.18 | level=6 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (23)_435a2d8a7df6609408370c47cf24b543 | island=2 | kind=Static | rel=0.18 | level=6 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (24)_fbe7530cf15eccb42beeebf7c692f8f0 | island=2 | kind=Static | rel=0.18 | level=6 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (25)_92325cd86b2a4684e9c9599ec74141d8 | island=2 | kind=Static | rel=0.09 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (26)_78e0610ddb18a394ba09f2a3562f3568 | island=2 | kind=Static | rel=0.18 | level=6 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (27)_1abeeafd0dcb6f147bd1ed6142d5da2d | island=2 | kind=Static | rel=0.18 | level=6 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (28)_c567a33aaec6c8d41a37a8822b81efb4 | island=2 | kind=Static | rel=0 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2
+tree_1 (29)_fd413ddd49ffd774ca6d4b474c2285bc | island=2 | kind=Static | rel=0 | level=5 | cooldown=120 | xp=0 | gold=4 | prefab=tree 2

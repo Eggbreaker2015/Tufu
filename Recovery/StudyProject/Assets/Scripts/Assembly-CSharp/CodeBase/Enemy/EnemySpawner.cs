@@ -420,6 +420,7 @@ namespace Codebase.Enemy
 
 		public void SetEnabled(bool value)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && (config.IsEvent || config.Prefab is CrystalUnit)) { IsEnabled = false; return; }
 			IsEnabled = value;
 		}
 
@@ -520,6 +521,7 @@ namespace Codebase.Enemy
 				spawnerData = spawnersUd.Spawners.CreateDetached(spawnerKey);
 			else
 				spawnerDataPersisted = true;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && (config.IsEvent || config.Prefab is CrystalUnit)) { enabled = false; IsEnabled = false; isInitialized = true; return; }
 			InitializePersistentState(NowUnixSeconds);
 			if (config.Prefab is CrystalUnit)
 			{
@@ -560,6 +562,7 @@ namespace Codebase.Enemy
 
 		private void InitializePersistentState(int now)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && NextBigSpawnTime > 0) NextBigSpawnTime = 0;
 			if (IsChargesEnabled && spawnerData.RemainingCharges.Value < 0)
 				RemainingCharges = GetEffectiveChargesBeforeBigRespawn() - SavedCount;
 			if (IsChargesEnabled && KnownMaxCharges < 0)
@@ -690,6 +693,7 @@ namespace Codebase.Enemy
 
 		private float GetBaseCooldown()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return global::Codebase.Rpg.RpgSpawnerRules.GetCooldownSeconds(config);
 			float seconds = CanUseSpawnerCooldownsAb() ? abTestService.GetSpawnerCooldownSeconds(config.IsEliteBoss, config.LocationNumber) : config.Cooldown;
 			return SpawnerTimerCalculator.Apply(seconds, config, metaStatsModel);
 		}
@@ -706,6 +710,7 @@ namespace Codebase.Enemy
 
 		private int ComputeEffectiveChargesBeforeBigRespawn()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return 0;
 			return CanUseSpawnerCooldownsAb() ? abTestService.GetSpawnerCharges(config.IsEliteBoss, config.LocationNumber, config.Count) : SpawnerChargesCalculator.GetTotalCharges(config, metaStatsModel);
 		}
 
@@ -919,9 +924,10 @@ namespace Codebase.Enemy
 
 		private bool TrySpawnUnit(SpawnMode mode)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && (config.IsEvent || config.Prefab is CrystalUnit)) return false;
 			if (config.IsDummy)
 				return false;
-			if (config.IsVip && playerModel.LastUnlockedLocation.Number < 2)
+			if (config.IsVip && playerModel.LastUnlockedLocation.Number < 2 && !global::Codebase.Rpg.RpgModeConfig.Enabled)
 				return false;
 			if (mode != SpawnMode.Restore && IsChargesEnabled)
 			{
@@ -967,7 +973,7 @@ namespace Codebase.Enemy
 #endif
 			unit.Initialize(Lifetime, config, transform.position);
 			float multiplier = abTestService.GetEnemyHpDamageMultiplier(config.LocationNumber);
-			if (!config.IsEvent && multiplier != 1f)
+			if (!config.IsEvent && multiplier != 1f && !global::Codebase.Rpg.RpgModeConfig.Enabled)
 			{
 				for (int i = 0; i < unit.Stats.Count; i++)
 				{
@@ -1188,15 +1194,18 @@ namespace Codebase.Enemy
 			int countBefore = units.Count;
 			int maxCount = config.Count;
 			enemy.SpawnerStatRewardMultiplier = ConsumeZeroCooldownStatRewardMultiplier(enemy);
+			if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
+			{
 			ItemSlotUnlockFlow? unlock = ItemSlotUnlockFlow.For(config.SlotReward);
 			App.ExecuteCommand<GrantSpawnerItemSlotRewardCommand, string>(new GrantSpawnerItemSlotRewardCommand { Spawner = this });
 			if (unlock.HasValue && unlock.Value.SlotType != ItemSlotType.Helmet)
 				App.InitiateFlow(unlock.Value, false).Forget();
+			}
 			ItemConfig item = enemy.ItemReward ?? config.ItemReward;
 			int additionalCharges = 0;
 			int copies = 0;
 			bool skippedItemGrant = true;
-			if (item != null)
+			if (item != null && !global::Codebase.Rpg.RpgModeConfig.Enabled)
 			{
 				if (IsChargesEnabled)
 				{
@@ -1214,6 +1223,7 @@ namespace Codebase.Enemy
 
 			App.ExecuteCommand(new GrantSpawnerGateRewardCommand { Spawner = this });
 			App.ExecuteCommand(new GrantSpawnerPortalGemRewardCommand { GemIndex = config.PortalGemReward, HasItemReward = HasItemReward });
+			if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
 			App.ExecuteCommand(new ReduceGeodeTimerOnKillCommand { KillCount = additionalCharges + enemy.SpawnerStatRewardMultiplier });
 			if (!skippedItemGrant && item != null)
 				enemy.SpawnerStatRewardMultiplier = copies;
@@ -1245,6 +1255,7 @@ namespace Codebase.Enemy
 				user.OptimumTime.Value = config.OptimumTime;
 			if (enemy.TryGetComponent<CreeperMobProvider>(out _))
 			{
+				if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgRewardService.Kill(enemy, config);
 				enemy.OnDevoured -= HandleDevour;
 				unitPool.Despawn(enemy);
 			}
@@ -1377,10 +1388,14 @@ namespace Codebase.Enemy
 			}
 
 			abilityExecuteEventSystem.ProcessEventImmediate(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnDevour, EnemySpawner = this, Target = enemy });
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgRewardService.Kill(enemy, config);
+			else
+			{
 			App.ExecuteCommand(new GrantSpawnerStatRewardCommand { Spawner = this, Unit = enemy });
 			App.ExecuteCommand(new GrantSpawnerEventCurrencyRewardCommand { Spawner = this, Unit = enemy });
 			App.ExecuteCommand(new GrantSpawnerSoulRewardCommand { Spawner = this });
 			App.ExecuteCommand(new GrantSpawnerCurrencyRewardCommand { Spawner = this });
+			}
 			CurrentDevourRewardMultiplier = 1;
 			unitPool.Despawn(enemy);
 			enemy.OnDevoured -= HandleDevour;

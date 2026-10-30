@@ -76,6 +76,17 @@ namespace Codebase.Quests.Commands
 			var step = config.GetStep(command.StepKey);
 			if (step == null)
 				return;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && step.StatRewards != null && step.StatRewards.Count > 0)
+			{
+				var player = GameContext.Get<global::Codebase.Player.Models.PlayerModel>().Unit;
+				global::Codebase.Rpg.RpgRewardService.Quest(step.LocationNumber, global::Codebase.Rpg.RpgModeConfig.Instance.QuestStepXpMultiplier, player != null ? player.transform.position : UnityEngine.Vector3.zero);
+				questModel.MarkStepRewardClaimed(command.StepKey);
+				analytics.Send(new Codebase.Analytics.Events.QuestsClaimEvent(command.StepKey));
+				TryStartChainRewardTimer(command.StepKey);
+				questModel.TryAdvanceToNextStep(command.StepKey);
+				command.OnComplete?.Invoke();
+				return;
+			}
 			var modifiers = BuildStatModifiers(step, command.StepKey);
 			if (modifiers.Count != 0)
 			{

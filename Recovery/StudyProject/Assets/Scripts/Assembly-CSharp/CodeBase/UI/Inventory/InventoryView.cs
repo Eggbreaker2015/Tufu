@@ -263,7 +263,7 @@ namespace Codebase.UI.Inventory
 			searchSoulButton.onClick.AddListener(HandleSearchSoul);
 			fillAmuletButton.onClick.AddListener(HandleFillAmulet);
 			// Pet mode: the 图鉴 entry button in the Stats panel.
-			if (global::Codebase.Pet.PetConfig.Enabled) global::Codebase.UI.Pets.PetUiBuilder.InstallInventoryEntry(this);
+			if (global::Codebase.Pet.PetConfig.Enabled && !global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.UI.Pets.PetUiBuilder.InstallInventoryEntry(this);
 		}
 
 		public void OpenForAmuletReveal()

@@ -274,6 +274,7 @@ namespace Codebase.UI.Map
 
 		private void UpdateIslandMedal()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { medalTierView.SetVisible(false); maxLevelMedalView.SetMapVisible(false); return; }
 			int location = playerModel.CurrentLocation.Number;
 			int version = islandMasteryModel.StateVersion;
 			if (medalLocation != location || medalStateVersion != version)

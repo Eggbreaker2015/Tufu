@@ -73,6 +73,7 @@ namespace Codebase.Core
 			RegisterSystem(new global::Codebase.Abilities.Systems.AbilityExecuteEventSystem());
 			RegisterSystem(new global::Codebase.Pet.Systems.PetCollectionBonusSystem());
 			RegisterSystem(new global::Codebase.Rpg.Systems.RpgHeroSpawnSystem());
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) RegisterSystem(new global::Codebase.Rpg.Systems.RpgLevelSystem());
 			RegisterSystem(new global::Codebase.Pet.Systems.PetSpawnSystem());
 			RegisterSystem(new global::Codebase.Pet.Systems.PetStatsSyncSystem());
 			RegisterSystem(new global::Codebase.Pet.Systems.PetMovementSystem());

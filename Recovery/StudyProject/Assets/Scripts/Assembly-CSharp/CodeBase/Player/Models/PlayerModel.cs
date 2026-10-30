@@ -648,6 +648,7 @@ namespace Codebase.Player.Models
 
 		private void LoadStats()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			// Native ELF VA 0x145c268. BaseValue is retained from PlayerConfig.
 			if (Data.Stats.Count == 0)
 				return;
@@ -682,6 +683,7 @@ namespace Codebase.Player.Models
 
 		private void SaveStats()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { Data.Stats.Clear(); return; }
 			// Native ELF VA 0x145d45c; original native source-selection and unsigned exclusion mask 0x50a.
 			Data.Stats.Clear();
 			foreach (Stat stat in Unit?.Stats ?? LastStats)

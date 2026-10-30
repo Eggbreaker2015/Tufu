@@ -189,6 +189,7 @@ namespace Codebase.Rewards.Commands
 
 		private void HandleStatReward(StatReward reward)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			StatType type = reward.Type;
 			float value = reward.Value;
 			var completed = eventsRepository.CompletedEvent;

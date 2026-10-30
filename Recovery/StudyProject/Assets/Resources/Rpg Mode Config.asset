@@ -21,6 +21,7 @@ MonoBehaviour:
     HealthRatio: 1
     AttackRatio: 1
     DefenceFlat: 0
+    DefenceRatio: 1
     AttackRangeOverride: 0
     DisplayName: Pudge
     Icon: {fileID: 0}
@@ -29,8 +30,9 @@ MonoBehaviour:
     PetItemKey: golem
     AttackItemKey: golem
     HealthRatio: 1.6
-    AttackRatio: 0.7
-    DefenceFlat: 2
+    AttackRatio: 0.6
+    DefenceFlat: 0
+    DefenceRatio: 1.5
     AttackRangeOverride: 0
     DisplayName: Golem
     Icon: {fileID: 0}
@@ -39,8 +41,9 @@ MonoBehaviour:
     PetItemKey: cultist
     AttackItemKey: cultist
     HealthRatio: 0.8
-    AttackRatio: 0.9
+    AttackRatio: 0.7
     DefenceFlat: 0
+    DefenceRatio: 0.8
     AttackRangeOverride: 0
     DisplayName: Cultist
     Icon: {fileID: 0}
@@ -52,3 +55,41 @@ MonoBehaviour:
   SwitchTeleportGrace: 1
   AiAcceleration: 20
   AiAngularSpeed: 720
+  LevelCap: 60
+  XpBase: 20
+  XpGrowth: 1.1
+  XpNeedBase: 15
+  XpNeedPerLevel: 3
+  XpDifferenceFactors:
+  - 1
+  - 0.9
+  - 0.75
+  - 0.55
+  - 0.35
+  - 0.15
+  - 0
+  GoldIcon: {fileID: 21300000, guid: 50a40e3fa0e0463f8fe631ce7e88e27f, type: 3}
+  GoldBase: 5
+  GoldGrowth: 1.1
+  HeroLevelGrowth: 1.08
+  EnemyLevelGrowth: 1.08
+  EnemyHealthScale: 1
+  EnemyDamageScale: 1
+  BaseHealthBonus: 20
+  BaseDefenceBonus: 2
+  NormalCooldown: 45
+  EliteCooldown: 180
+  BossCooldown: 600
+  StaticCooldown: 120
+  NormalXpMultiplier: 1
+  EliteXpMultiplier: 5
+  BossXpMultiplier: 20
+  StaticXpMultiplier: 0
+  NormalGoldMultiplier: 1
+  EliteGoldMultiplier: 5
+  BossGoldMultiplier: 20
+  StaticGoldMultiplier: 0.5
+  QuestStepXpMultiplier: 5
+  QuestChainXpMultiplier: 20
+  IslandStarts: 01000000050000000a0000000d0000001100000014000000170000001b0000001e0000002100000025000000280000002b0000002f000000320000003500000039000000
+  IslandEnds: 050000000a0000000d0000001100000014000000170000001b0000001e0000002100000025000000280000002b0000002f0000003200000035000000390000003c000000

@@ -156,6 +156,7 @@ namespace Codebase.Rage
 
 		public bool TryAddRage(float amount)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return false;
 			if (EffectiveMaxLevel <= 0)
 				return false;
 			TimeSinceLastRage = 0f;

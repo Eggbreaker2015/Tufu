@@ -40,6 +40,7 @@ namespace Codebase.Rpg.UI
 			PetUiBuilder.SetRect(root, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-30f, 0f), new Vector2(120f, 360f));
 			HeroSwitchHudView view = root.gameObject.AddComponent<HeroSwitchHudView>();
 			view.roster = roster;
+			if (RpgModeConfig.Enabled) RpgProgressHudView.Attach(view.gameObject, joystick);
 			return view;
 		}
 

@@ -252,6 +252,7 @@ namespace Codebase.UI.World
 
         private void RenderDrops()
         {
+            if (global::Codebase.Rpg.RpgModeConfig.Enabled && unit is EnemyUnit rpgEnemy) { RenderRpgDrops(rpgEnemy); return; }
             // Original ARM64 ELF VA 0x1600e5c. A preview never grants or multiplies rewards.
             // Pet mode: pets have no drops either; the original only returned for the player.
             if (!(unit is EnemyUnit)) return;
@@ -274,6 +275,24 @@ namespace Codebase.UI.World
             else if (enemy.HasSoul)
                 soul.text = "<sprite name=" + soulStyleConfig.GetIcon(enemy.SoulReward).name + ">";
             else soul.text = string.Empty;
+            resists.text = string.Empty;
+            if (enemy.Config.ArmorConfig == null) return;
+            foreach (var armor in enemy.Config.ArmorConfig.Armors)
+            {
+                var style = iconStyleConfig.ResistStyles.First(value => value.WeaponType == armor.Type);
+                double resist = armor.Resist;
+                Sprite sprite = resist < -0.6 ? style.Effective.High : resist < -0.3 ? style.Effective.Medium :
+                    resist < -0.1 ? style.Effective.Low : resist > 0.6 ? style.Ineffective.High :
+                    resist > 0.3 ? style.Ineffective.Medium : resist > 0.1 ? style.Ineffective.Low : null;
+                if (sprite != null) resists.text += "<sprite name=" + sprite.name + ">";
+            }
+        }
+
+        private void RenderRpgDrops(EnemyUnit enemy)
+        {
+            glow.SetActive(false);
+            drops.text = "Lv " + enemy.RpgLevel;
+            soul.text = string.Empty;
             resists.text = string.Empty;
             if (enemy.Config.ArmorConfig == null) return;
             foreach (var armor in enemy.Config.ArmorConfig.Armors)

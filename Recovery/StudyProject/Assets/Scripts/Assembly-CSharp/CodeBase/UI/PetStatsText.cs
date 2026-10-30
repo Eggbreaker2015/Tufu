@@ -62,7 +62,13 @@ namespace Codebase.UI
 		private static void ReleaseFonts()
 		{
 			foreach (TMP_FontAsset font in runtimeFonts)
-				if (font != null) Object.DestroyImmediate(font);
+				if (font != null)
+				{
+					// TMP destroys both on teardown, but the copy shares them with its source.
+					font.atlasTextures = new Texture2D[0];
+					font.material = null;
+					Object.DestroyImmediate(font);
+				}
 			if (systemFont != null)
 			{
 				// The wrapped copies share the source atlases; only the OS font asset owns its atlas and material.
@@ -70,6 +76,8 @@ namespace Codebase.UI
 					foreach (Texture2D atlas in systemFont.atlasTextures)
 						if (atlas != null) Object.DestroyImmediate(atlas);
 				if (systemFont.material != null) Object.DestroyImmediate(systemFont.material);
+				systemFont.atlasTextures = new Texture2D[0];
+				systemFont.material = null;
 				Object.DestroyImmediate(systemFont);
 			}
 			if (systemSourceFont != null) Object.DestroyImmediate(systemSourceFont);

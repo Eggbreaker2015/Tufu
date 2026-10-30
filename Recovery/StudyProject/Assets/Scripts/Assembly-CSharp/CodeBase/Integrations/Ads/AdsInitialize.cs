@@ -257,6 +257,7 @@ namespace Codebase.Integrations.Ads
 				}
 				isShown = false;
 			}
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			cooldown -= Time.deltaTime;
 			if (cooldown > 0f) return;
 			if (cooldown <= 0f && duration <= 0f) userModel.OfferedReward = false;

@@ -109,6 +109,7 @@ namespace Codebase.Map.Systems
 			    if (enemySpawnerStash.Has(entity))
 			    {
 			        var spawner = enemySpawnerStash.Get(entity).Spawner;
+			        if (global::Codebase.Rpg.RpgModeConfig.Enabled && (spawner.Config.IsEvent || spawner.Config.Prefab is global::Codebase.Crystals.Objective.CrystalUnit)) { poi.Color = invisible; continue; }
 			        int version = spawner.MinimapVersion;
 			        if (spawner.Config.IsEvent && spawner.Config.EventDef != null)
 			        {

@@ -62,6 +62,7 @@ namespace Codebase.UI.Pets
 
 		public static void OpenCollection()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			if (!PetConfig.Enabled) return;
 			UINavigator navigator = Find<UINavigator>();
 			PetCollectionView view = GetTemplate();
@@ -72,6 +73,7 @@ namespace Codebase.UI.Pets
 
 		public static void OpenAbilities(ItemModel item)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			if (!PetConfig.Enabled || item == null) return;
 			UINavigator navigator = Find<UINavigator>();
 			PetAbilitiesView view = GetAbilitiesTemplate();
@@ -110,6 +112,7 @@ namespace Codebase.UI.Pets
 		// The 图鉴 button left of the Stats panel header, mirroring its Info_Button.
 		public static void InstallInventoryEntry(InventoryView inventoryView)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			if (!PetConfig.Enabled || inventoryView == null) return;
 			Transform stats = inventoryView.transform.Find("Content/Stats");
 			if (stats == null)

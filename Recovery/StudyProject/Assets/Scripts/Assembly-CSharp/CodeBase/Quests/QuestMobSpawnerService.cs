@@ -84,6 +84,7 @@ namespace Codebase.Quests
 			var chain = config.GetChainOfStep(stepKey);
 			float fightTime = GetFightTime(stepKey, chain);
 			var spawnerConfig = BuildConfig(stepDef, fightTime, chain, referenceSpawner);
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgEnemyLevel.CopyLevel(spawnerConfig, referenceSpawner.Config);
 			if (!TryPickSpawnPosition(referenceSpawner.transform.position, spawnerConfig, out var position))
 				return;
 			var artificial = new QuestArtificialSpawner
@@ -117,7 +118,7 @@ namespace Codebase.Quests
 			instance.SetDeathState(false);
 			instance.Initialize(Lifetime.Eternal, spawnerConfig, position);
 			float multiplier = abTestService.GetEnemyHpDamageMultiplier(spawnerConfig.LocationNumber);
-			if (multiplier != 1f)
+			if (multiplier != 1f && !global::Codebase.Rpg.RpgModeConfig.Enabled)
 			{
 				for (int i = 0; i < instance.Stats.Count; i++)
 				{

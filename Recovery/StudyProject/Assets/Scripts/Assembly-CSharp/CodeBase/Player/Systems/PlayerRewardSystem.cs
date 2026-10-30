@@ -48,6 +48,7 @@ namespace Codebase.Player.Systems
 		[PublicAPI]
 		public void GrantStatReward(StatModifier modifier, double displayOverride = -1.0, int displayMultiplier = 1)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 // Original ELF VA 0x1456084 and three bounded predicate bodies 0x145704c/78/38.
             Stat stat = playerModel.Unit.Stats.First(value => value.Type == modifier.StatType);
             StatIconStyle style = iconStyleConfig.Styles.First(value => value.StatType == stat.Type);

@@ -71,6 +71,7 @@ namespace Codebase.Rpg.Systems
 			PetUnit unit = PetUnitFactory.Create(item, petDefinition, position, owner.rotation, speed);
 			unit.Stats = HeroStats.Build(definition);
 			unit.BuildStatLookup();
+			if (RpgModeConfig.Enabled) { HeroStats.ApplyBase(unit, definition); HeroStats.ApplyLevel(unit, GameContext.Get<RpgProgressModel>().Level); }
 			unit.CurrentHealth = unit.GetStatValue(StatType.Health);
 			PetModel pet = new PetModel(null, item, petDefinition, slotOrder);
 			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, item.Key);

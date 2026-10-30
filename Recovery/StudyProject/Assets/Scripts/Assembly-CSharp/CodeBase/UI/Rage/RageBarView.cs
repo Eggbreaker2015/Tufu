@@ -87,6 +87,7 @@ namespace Codebase.UI.Rage
 
 		protected override void Render()
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { root.SetActive(false); return; }
             // Native 0x1633ca8.
             int maxLevel = rageModel.EffectiveMaxLevel;
             bool visible = rageModel.RageLevel > 0 || rageModel.MaxAccessibleLevel > 0;

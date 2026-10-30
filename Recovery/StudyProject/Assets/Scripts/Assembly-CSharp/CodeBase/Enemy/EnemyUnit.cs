@@ -157,6 +157,7 @@ namespace Codebase.Enemy
 			}
 		}
 
+		public int RpgLevel { get; set; }
 		public float EventDamageRampTimer { get; private set; }
 		public ItemConfig ItemReward { get; private set; }
 		public List<StatModifier> StatRewards { get; private set; }
@@ -170,6 +171,7 @@ namespace Codebase.Enemy
 
 		public void Initialize(Lifetime lifetime, EnemySpawnerConfig config, Vector3 center, List<Stat> stats = null)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) RpgLevel = 0;
 			this.config = config;
 			patrolCenter = center;
 			EventDamageRampTimer = 0f;
@@ -217,6 +219,7 @@ namespace Codebase.Enemy
 			// Skills: every spawn path ends here; also resets the previous pooled life's cast and buffs.
 			if (GameContext.Has<global::Codebase.Skills.SkillService>())
 				GameContext.Get<global::Codebase.Skills.SkillService>().InstallForEnemy(this, config);
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgEnemyScaling.Apply(this, global::Codebase.Rpg.RpgEnemyLevel.Compute(config), lifetime);
 		}
 
 		private void OnDisable()

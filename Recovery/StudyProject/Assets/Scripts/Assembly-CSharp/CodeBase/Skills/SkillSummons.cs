@@ -90,6 +90,7 @@ namespace Codebase.Skills
 				return;
 			var stats = new List<Stat>();
 			List<Stat> sourceStats = caster.Stats != null && caster.Stats.Count > 0 ? caster.Stats : caster.Config.Stats;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) sourceStats = caster.Config.Stats;
 			if (sourceStats != null)
 				foreach (Stat stat in sourceStats)
 				{
@@ -116,6 +117,7 @@ namespace Codebase.Skills
 				AverageFightTime = source.AverageFightTime,
 				StatRewards = new List<StatModifier>()
 			};
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgEnemyLevel.CopyLevel(config, caster.Config);
 			Quaternion rotation = Quaternion.LookRotation(SkillTargetQuery.GetFlatDirection(caster, null), Vector3.up);
 			for (int i = 0; i < count; i++)
 			{

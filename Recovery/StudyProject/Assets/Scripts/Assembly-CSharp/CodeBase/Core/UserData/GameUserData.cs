@@ -81,6 +81,8 @@ namespace Codebase.Core.UserData
 
 		public PromoCodesUd PromoCodes { get; }
 
+		public global::Codebase.Rpg.RpgUd Rpg { get; }
+
 		public GameUserData(UdArgs args)
 			: base(args)
 		{
@@ -110,6 +112,7 @@ namespace Codebase.Core.UserData
 			Mines = new global::Codebase.Mines.MinesUd(Child("mines", true));
 			Notifications = new global::Codebase.Notifications.NotificationsUd(Child("notifications", true));
 			PromoCodes = new global::Codebase.PromoCodes.PromoCodesUd(Child("promo_codes", true));
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) Rpg = new global::Codebase.Rpg.RpgUd(Child("rpg", true));
 		}
 	}
 }

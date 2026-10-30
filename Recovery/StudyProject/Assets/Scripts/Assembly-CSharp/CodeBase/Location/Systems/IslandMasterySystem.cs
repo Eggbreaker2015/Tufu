@@ -28,6 +28,7 @@ namespace Codebase.Location.Systems
 
 		public override void OnUpdate(float deltaTime)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			if (enemiesModel.PendingBootstrap.Count > 0)
 			{
 				awaitingBootstrapCompletion = true;
