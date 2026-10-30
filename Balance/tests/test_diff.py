@@ -445,3 +445,38 @@ def test_html_simulation_curves_and_missing_data(island):
     text = html.render(c)
     assert "模拟已运行" in text and "活跃分钟" in text and "<polyline" in text
     assert "关键日 5" in text and "没有掉落数据" in text
+
+
+def test_html_island_designer_labels(island):
+    from html.parser import HTMLParser
+    from tufu_balance.diff import html
+
+    class Visible(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.skip = 0
+            self.parts = []
+        def handle_starttag(self, tag, attrs):
+            if tag in ('style', 'script', 'title'):
+                self.skip += 1
+        def handle_endtag(self, tag):
+            if tag in ('style', 'script', 'title'):
+                self.skip -= 1
+        def handle_data(self, data):
+            if not self.skip:
+                self.parts.append(data)
+
+    text = html.render(island)
+    visible = Visible()
+    labels = text.split('<h2>静态表变化</h2>', 1)[1].split('</section>', 1)[0]
+    visible.feed(labels)
+    content = ' '.join(visible.parts)
+    for field in ('derived', 'stored', 'regenerated', 'from_gates', 'tool_max', 'tool_min', 'start_day', 'mismatches', 'k2'):
+        assert field not in content
+    static = text.split('<h2>静态表变化</h2>', 1)[1].split('</section>', 1)[0]
+    assert '烘焙 · 差值分布' not in static
+    assert '插值曲线 #6' in static and '第 10 岛' in static
+    for heading in ('依赖图触及的规则', '警告'):
+        part = text.split('<h2>'+heading+'</h2>', 1)[1].split('</section>', 1)[0]
+        assert '{' not in part and '}' not in part
+    assert '规则状态' in text and '查看刷怪点' in text
