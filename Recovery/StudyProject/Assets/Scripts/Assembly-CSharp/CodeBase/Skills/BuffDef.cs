@@ -43,6 +43,9 @@ namespace Codebase.Skills
 		// Blocks skill casting (not basic attacks).
 		public bool Silence;
 
+		// Forces enemies to target the buff source.
+		public bool Taunt;
+
 		// 0 = no periodic effects.
 		public float TickInterval;
 

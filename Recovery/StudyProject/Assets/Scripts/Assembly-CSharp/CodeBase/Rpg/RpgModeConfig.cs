@@ -34,6 +34,9 @@ namespace Codebase.Rpg
 		public int NormalShards = 1, EliteShards = 3, BossShards = 10;
 		public List<int> StarCopyThresholds = new List<int> { 10, 30, 70, 150 };
 		public float StarStatBonus = 0.12f;
+		public float TargetLockExtraRange = 4f;
+		public float RetaliateWindow = 3f;
+		public float TauntEliteDurationScale = 0.5f;
 		public float SwitchCooldown = 0.3f;
 		public float SwitchTeleportGrace = 1f;
 		public float AiAcceleration = 20f;

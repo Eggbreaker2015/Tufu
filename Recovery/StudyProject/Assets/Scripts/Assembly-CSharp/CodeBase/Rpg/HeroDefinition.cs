@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Codebase.Rpg
@@ -20,5 +21,6 @@ namespace Codebase.Rpg
 		public float AttackRangeOverride;
 		public string DisplayName;
 		public Sprite Icon;
+		public List<string> ExtraSkillKeys = new List<string>();
 	}
 }

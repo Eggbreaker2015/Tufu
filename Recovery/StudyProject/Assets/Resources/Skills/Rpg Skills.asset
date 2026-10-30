@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fd6a91af1da48d4a0b61e418e84517c, type: 3}
+  m_Name: Rpg Skills
+  m_EditorClassIdentifier:
+  Skills:
+  - Key: rpg_group_taunt
+    IconKey:
+    TargetType: 0
+    Range: 0
+    CastPoint: 0.3
+    Backswing: 0.2
+    Cooldown: 12
+    InitialCooldown: 2
+    AnimationBool:
+    AnimationTrigger:
+    Telegraph:
+      Shape: 0
+      Radius: 0
+      Angle: 0
+      AnchorOnTarget: 0
+      Width: 0
+    AutoCast:
+      Priority: 20
+      Pick: 3
+      UseWhen:
+      - rid: 4001
+    LevelScale: []
+    Effects:
+    - rid: 4002
+    - rid: 4003
+  Buffs:
+  - Key: rpg_taunt
+    IconKey:
+    Duration: 3
+    IsDebuff: 1
+    Stack: 0
+    MaxStacks: 0
+    StatMods: []
+    Stun: 0
+    Silence: 0
+    Taunt: 1
+    TickInterval: 0
+    OnTick: []
+  Loadouts: []
+  Vfx: []
+  Summons: []
+  TelegraphTexture: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 4001
+      type: {class: EnemiesAttackingAlliesCondition, ns: Codebase.Skills.Conditions, asm: Assembly-CSharp}
+      data:
+        Radius: 6
+        MinCount: 1
+    - rid: 4002
+      type: {class: ApplyBuffEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        Area:
+          Mode: 2
+          Radius: 6
+          Angle: 90
+          Filter: 65
+          MaxTargets: 0
+          Length: 0
+          Width: 1
+        BuffKey: rpg_taunt
+    - rid: 4003
+      type: {class: SpawnVfxEffect, ns: Codebase.Skills.Effects, asm: Assembly-CSharp}
+      data:
+        VfxKey: slam_smash
+        Anchor: 0
+        Scale: 1
+        HeightOffset: 0

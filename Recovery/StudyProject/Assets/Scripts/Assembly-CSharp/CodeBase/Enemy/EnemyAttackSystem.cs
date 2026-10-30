@@ -131,6 +131,7 @@ namespace Codebase.Enemy
 				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
 			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
 			bool retreat = (distanceSquared > enemy.AggroRange * enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && TauntSource(enemy) != null) { retreat = false; if (!playerUnavailable) enemy.IsReturningHome = false; }
 			if (enemy.IsReturningHome || retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
 				if (enemy.InCombat)
@@ -218,6 +219,7 @@ namespace Codebase.Enemy
 
 		private void CheckLeash(EnemyUnit enemy, Entity entity)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && TauntSource(enemy) != null) return;
 			if (!enemy.InCombat || bossArenaUnitStash.Has(entity) || escapeMarkerStash.Has(entity) || vampireSpiritTagStash.Has(entity))
 				return;
 			Vector3 offset = enemy.transform.position - enemy.PatrolCenter;
@@ -355,6 +357,7 @@ namespace Codebase.Enemy
 				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
 			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
 			bool retreat = (distance > enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && TauntSource(enemy) != null) { retreat = false; if (!playerUnavailable) enemy.IsReturningHome = false; }
 			Vector3 target;
 			if (enemy.IsReturningHome || retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
@@ -592,6 +595,19 @@ namespace Codebase.Enemy
 		// (squared for ground enemies); the result is stored in enemy.AggroTarget.
 		private UnitCore SelectAggroTarget(EnemyUnit enemy, float playerDistance, bool squared, out float distance)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
+			{
+				UnitCore target = TauntSource(enemy);
+				float lockRange = Mathf.Max(enemy.AggroRange, GetAttackRange(enemy)) + global::Codebase.Rpg.RpgModeConfig.Instance.TargetLockExtraRange;
+				if (target == null && IsLivingHero(enemy.AggroTarget) && Distance(enemy, enemy.AggroTarget) <= lockRange) target = enemy.AggroTarget;
+				if (target == null && Time.time - enemy.RpgLastAttackTime <= global::Codebase.Rpg.RpgModeConfig.Instance.RetaliateWindow && IsLivingHero(enemy.RpgLastAttacker)) target = enemy.RpgLastAttacker;
+				if (target != null)
+				{
+					enemy.AggroTarget = target;
+					distance = squared ? SqrDistance(enemy, target) : Distance(enemy, target);
+					return target;
+				}
+			}
 			distance = playerDistance;
 			if (!PetConfig.Enabled || petsModel == null)
 				return PlayerUnit;
@@ -609,6 +625,26 @@ namespace Codebase.Enemy
 			}
 			enemy.AggroTarget = best;
 			return best;
+		}
+
+		private bool IsLivingHero(UnitCore unit)
+		{
+			if (unit == null || unit.IsDead) return false;
+			if (unit == PlayerUnit) return !PlayerUnit.IsDying;
+			if (petsModel != null) foreach (PetModel pet in petsModel.Pets) if (pet.Unit == unit && pet.IsAlive) return true;
+			return false;
+		}
+
+		private UnitCore TauntSource(EnemyUnit enemy)
+		{
+			if (enemy.EntityProvider == null || world.IsDisposed(enemy.EntityProvider.Entity)) return null;
+			var stash = world.GetStash<global::Codebase.Skills.Components.UnitBuffsComponent>();
+			var entity = enemy.EntityProvider.Entity;
+			if (!stash.Has(entity)) return null;
+			var buffs = stash.Get(entity).Buffs;
+			if (buffs != null) foreach (var buff in buffs)
+				if (buff != null && buff.Remaining > 0f && buff.Def != null && buff.Def.Taunt && IsLivingHero(buff.Source)) return buff.Source;
+			return null;
 		}
 
 		// Original: only the player's current target keeps aggro. Pet mode: any pet's target does too.

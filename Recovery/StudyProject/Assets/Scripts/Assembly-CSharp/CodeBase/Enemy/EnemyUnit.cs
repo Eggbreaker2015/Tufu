@@ -130,6 +130,9 @@ namespace Codebase.Enemy
 		}
 
 		public float AggroTimer { get; set; }
+
+		public UnitCore RpgLastAttacker { get; set; }
+		public float RpgLastAttackTime { get; set; }
 		// Pet mode: the unit (player or pet) this enemy is fighting; set by EnemyAttackSystem.
 		public UnitCore AggroTarget { get; set; }
 		public float RetreatTimer { get; set; }
@@ -184,6 +187,7 @@ namespace Codebase.Enemy
 				Stats.Add(new Stat(lifetime, stat.BaseValue, stat.Type));
 			CurrentHealth = Stats.First(stat => stat.Type == StatType.Health).Value;
 			AggroTimer = 0f;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { RpgLastAttacker = null; RpgLastAttackTime = 0f; AggroTarget = null; }
 			InCombat = false;
 			IsReturningHome = false;
 			AttackCooldown = 0f;

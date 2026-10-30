@@ -91,6 +91,13 @@ namespace Codebase.Rpg.Systems
 			HeroStats.ApplyStar(unit, star);
 			unit.CurrentHealth = unit.GetStatValue(StatType.Health);
 			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, item.Key);
+			if (RpgModeConfig.Enabled && definition.ExtraSkillKeys != null && definition.ExtraSkillKeys.Count > 0)
+			{
+				var combined = new UnitSkillLoadout();
+				if (loadout != null && loadout.Skills != null) combined.Skills.AddRange(loadout.Skills);
+				foreach (string key in definition.ExtraSkillKeys) combined.Skills.Add(new SkillSlotDef { SkillKey = key });
+				loadout = combined;
+			}
 			if (loadout != null && GameContext.Has<SkillService>()) GameContext.Get<SkillService>().Install(unit, unit.EntityProvider.Entity, loadout, levelOverride: star);
 			pet.SkillLevel = star;
 			pet.Unit = unit;

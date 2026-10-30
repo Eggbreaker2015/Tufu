@@ -250,6 +250,7 @@ namespace Codebase.Unit.Systems
 			}
 			bool wasDead = data.Source.IsDead;
 			data.Source.CurrentHealth -= damage;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && damage > 0 && data.Source is EnemyUnit reflectedEnemy) RecordRpgAttacker(reflectedEnemy, data.Target);
 			data.Source.LastDamageGet = Time.time;
 			ProcessEnemyDeath(data.Source, wasDead, unitDiedEvent);
 			enemyDamageEventsViewSystem.CreateReflection(damage, "#1EBBFE");
@@ -360,6 +361,7 @@ namespace Codebase.Unit.Systems
 			double oldHealth = data.Target.CurrentHealth;
 			bool wasDead = data.Target.IsDead;
 			data.Target.CurrentHealth -= damage;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && damage > 0) RecordRpgAttacker(enemy, data.Source);
 			data.Target.LastDamageGet = Time.time;
 			data.Source.LastDamageDealt = Time.time;
 			ProcessEnemyDeath(data.Target, wasDead, unitDiedEvent);
@@ -405,9 +407,19 @@ namespace Codebase.Unit.Systems
 			}
 			bool wasDead = enemy.IsDead;
 			enemy.CurrentHealth -= damage;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) RecordRpgAttacker(enemy, data.Source);
 			enemy.LastDamageGet = Time.time;
 			data.Source.LastDamageDealt = Time.time;
 			ProcessEnemyDeath(enemy, wasDead, unitDiedEvent);
+		}
+
+		private void RecordRpgAttacker(EnemyUnit enemy, UnitCore source)
+		{
+			if (source == playerModel.Unit || petsModel.Get(source as PetUnit) != null)
+			{
+				enemy.RpgLastAttacker = source;
+				enemy.RpgLastAttackTime = Time.time;
+			}
 		}
 
 		private void ApplyPlayerLifesteal(WeaponHitEvent data, Entity targetEntity)

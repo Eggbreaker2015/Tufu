@@ -441,6 +441,9 @@ namespace Codebase.Skills
 			if (def != null) forcedMovement.Blink(context, def);
 		}
 
+		// RPG: time of the last taunt popup.
+		private float rpgTauntPopupTime = -1f;
+
 		public void ApplyBuff(UnitCore target, BuffDef def, UnitCore source, float power = 1f)
 		{
 			if (def == null || !SkillTargetQuery.IsAlive(target) || target.EntityProvider == null)
@@ -470,9 +473,25 @@ namespace Codebase.Skills
 				buffsStash.Set(entity, new UnitBuffsComponent { Owner = target, Buffs = new List<BuffInstance>(2) });
 				buffs = ref buffsStash.Get(entity);
 			}
+			float rpgDuration = def.Duration;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && def.Taunt && target is EnemyUnit rpgEnemy)
+			{
+				if (rpgEnemy.Config != null)
+				{
+					var kind = global::Codebase.Rpg.RpgSpawnerRules.Kind(rpgEnemy.Config);
+					if (kind == global::Codebase.Rpg.RpgSpawnerKind.Elite || kind == global::Codebase.Rpg.RpgSpawnerKind.Boss) rpgDuration *= global::Codebase.Rpg.RpgModeConfig.Instance.TauntEliteDurationScale;
+				}
+				// One popup per cast, not one per taunted enemy.
+				if (Time.time - rpgTauntPopupTime > 0.5f && GameContext.Has<global::Codebase.UI.StatRewardContainer>())
+				{
+					rpgTauntPopupTime = Time.time;
+					GameContext.Get<global::Codebase.UI.StatRewardContainer>().Create("<color=#FF8A5C>嘲讽");
+				}
+			}
 			BuffInstance instance = def.Stack == BuffStackMode.Independent ? null : Find(buffs.Buffs, def, restricted, friendlyTarget);
 			if (instance != null)
 			{
+				float rpgPreviousRemaining = instance.Remaining;
 				instance.Source = source;
 				instance.Power = power;
 				switch (def.Stack)
@@ -493,10 +512,12 @@ namespace Codebase.Skills
 						instance.Remaining = def.Duration;
 						break;
 				}
+				if (global::Codebase.Rpg.RpgModeConfig.Enabled && def.Taunt && target is EnemyUnit) instance.Remaining = def.Stack == BuffStackMode.KeepLonger ? Mathf.Max(rpgPreviousRemaining, rpgDuration) : rpgDuration;
 				ApplyStun(target, entity, instance);
 				return;
 			}
 			instance = new BuffInstance { Def = def, Remaining = def.Duration, Stacks = 1, Power = power, Source = source, Restricted = restricted, FriendlyTarget = friendlyTarget };
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && def.Taunt && target is EnemyUnit) instance.Remaining = rpgDuration;
 			buffs.Buffs.Add(instance);
 			ApplyMods(target, instance);
 			ApplyStun(target, entity, instance);
