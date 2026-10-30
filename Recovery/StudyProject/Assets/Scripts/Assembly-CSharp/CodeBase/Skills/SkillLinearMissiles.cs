@@ -170,7 +170,10 @@ namespace Codebase.Skills
 				hitTimes.Clear();
 				try
 				{
+					// RPG: the missile also hits trees and other static enemies.
+					if (global::Codebase.Rpg.RpgModeConfig.Enabled) SkillTargetQuery.RpgHitStatic = true;
 					List<UnitCore> candidates = SkillTargetQuery.GetCandidates(caster);
+					if (global::Codebase.Rpg.RpgModeConfig.Enabled) SkillTargetQuery.RpgHitStatic = false;
 					for (int j = 0; j < candidates.Count; j++)
 					{
 						UnitCore unit = candidates[j];

@@ -21,6 +21,10 @@ namespace Codebase.Skills
 
 		private static Vector3 sortCenter;
 
+		// RPG: set around hero damage hit tests (damage areas, linear missiles) so they also hit static enemies such as trees.
+		// Target picks and cast conditions leave it off, so heroes never aim or cast at trees.
+		public static bool RpgHitStatic;
+
 		private static readonly Comparison<UnitCore> ByDistance = (a, b) => FlatSqrDistance(a.transform.position, sortCenter).CompareTo(FlatSqrDistance(b.transform.position, sortCenter));
 
 		// Effects collect into rented lists so nested resolution never shares one.
@@ -74,7 +78,7 @@ namespace Codebase.Skills
 			Candidates.Clear();
 			if (GameContext.Has<EnemiesModel>())
 				foreach (EnemyUnit enemy in GameContext.Get<EnemiesModel>().Enemies)
-					if (enemy != null && !enemy.IsStatic && (!enemy.IsFar || enemy == caster))
+					if (enemy != null && (!enemy.IsStatic || RpgHitStatic && global::Codebase.Rpg.RpgModeConfig.Enabled && (caster is PlayerUnit || caster is PetUnit)) && (!enemy.IsFar || enemy == caster))
 						Candidates.Add(enemy);
 			PlayerModel playerModel = GameContext.Has<PlayerModel>() ? GameContext.Get<PlayerModel>() : null;
 			PlayerUnit player = playerModel != null ? playerModel.Unit : null;
