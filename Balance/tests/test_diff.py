@@ -405,3 +405,78 @@ def test_supplied_driver_forwards_config_readiness_db(cached_sim, cfg, monkeypat
     assert backend.readiness_db == C.source_path(cfg)
     backend.submit(cached_sim.driver.template)
     assert calls[0]["readiness_db"] == C.source_path(cfg)
+
+@pytest.mark.parametrize("name", ["empty", "island10_later", "spawner_fight_time"])
+def test_html_report_examples(cfg, tmp_path, name):
+    from html.parser import HTMLParser
+    c = run(cfg, load(EXAMPLES / (name + ".yaml")), skip_sim=True)
+    report.write(c, tmp_path)
+    text = (tmp_path / "report.html").read_text(encoding="utf-8")
+    HTMLParser().feed(text)
+    assert "http://" not in text and "https://" not in text
+    for heading in ("改动摘要", "刷怪点散点图", "各岛变化范围", "静态表变化", "模拟", "依赖图触及的规则", "警告", "刷怪点明细"):
+        assert heading in text
+    assert "已跳过模拟" in text
+    if name == "empty":
+        assert "无变化" in text and "没有变化的刷怪点" in text and "静态表没有变化" in text
+    report.write(c, tmp_path)
+    assert text == (tmp_path / "report.html").read_text(encoding="utf-8")
+
+
+def test_html_escapes_data(island):
+    from tufu_balance.diff import html
+    from html.parser import HTMLParser
+    dangerous = '<img src="x" onerror="alert(1)"> &'
+    c = replace(island, patch=replace(island.patch, description=dangerous), warnings=[{"message": dangerous}])
+    text = html.render(c)
+    HTMLParser().feed(text)
+    assert dangerous not in text
+    assert '&lt;img src=&quot;x&quot; onerror=&quot;alert(1)&quot;&gt; &amp;' in text
+    row = {'key': [dangerous], 'field': dangerous, 'base': dangerous, 'patched': dangerous}
+    chart = html.static_chart('static/test.csv', [row])
+    assert dangerous not in chart and '&lt;img' in chart
+
+
+def test_html_simulation_curves_and_missing_data(island):
+    from tufu_balance.diff import html
+    data = {"daily": [{"day": 5, "active_minutes": 10}, {"day": 10, "active_minutes": 20}]}
+    c = replace(island, manifest={**island.manifest, "skip_sim": False, "simulation_label": "calibrated"},
+                simulation={"baseline": data, "patched": data, "vacuous_tables": {"sim/items.csv": "没有掉落数据"}})
+    text = html.render(c)
+    assert "模拟已运行" in text and "活跃分钟" in text and "<polyline" in text
+    assert "关键日 5" in text and "没有掉落数据" in text
+
+
+def test_html_island_designer_labels(island):
+    from html.parser import HTMLParser
+    from tufu_balance.diff import html
+
+    class Visible(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.skip = 0
+            self.parts = []
+        def handle_starttag(self, tag, attrs):
+            if tag in ('style', 'script', 'title'):
+                self.skip += 1
+        def handle_endtag(self, tag):
+            if tag in ('style', 'script', 'title'):
+                self.skip -= 1
+        def handle_data(self, data):
+            if not self.skip:
+                self.parts.append(data)
+
+    text = html.render(island)
+    visible = Visible()
+    labels = text.split('<h2>静态表变化</h2>', 1)[1].split('</section>', 1)[0]
+    visible.feed(labels)
+    content = ' '.join(visible.parts)
+    for field in ('derived', 'stored', 'regenerated', 'from_gates', 'tool_max', 'tool_min', 'start_day', 'mismatches', 'k2'):
+        assert field not in content
+    static = text.split('<h2>静态表变化</h2>', 1)[1].split('</section>', 1)[0]
+    assert '烘焙 · 差值分布' not in static
+    assert '插值曲线 #6' in static and '第 10 岛' in static
+    for heading in ('依赖图触及的规则', '警告'):
+        part = text.split('<h2>'+heading+'</h2>', 1)[1].split('</section>', 1)[0]
+        assert '{' not in part and '}' not in part
+    assert '规则状态' in text and '查看刷怪点' in text

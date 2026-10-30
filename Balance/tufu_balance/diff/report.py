@@ -137,6 +137,8 @@ def write(comp, out_dir, *, timings=None):
     if not comp.warnings:
         lines.append("无。")
     (out / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    from . import html
+    (out / "report.html").write_text(html.render(comp), encoding="utf-8")
     return out / "report.md"
 
 
