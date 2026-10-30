@@ -46,7 +46,7 @@ namespace Codebase.Rpg
 		public double XpGrowth = 1.1;
 		public double XpNeedBase = 1.5;
 		public double XpNeedPerLevel = 0.3;
-		public List<float> XpDifferenceFactors = new List<float> { 1f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f };
+		public List<float> XpDifferenceFactors = new List<float> { 1f };
 		public Sprite GoldIcon;
 		public double GoldBase = 5;
 		public double GoldGrowth = 1.1;

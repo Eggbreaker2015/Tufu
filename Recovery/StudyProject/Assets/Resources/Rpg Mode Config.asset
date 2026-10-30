@@ -151,11 +151,6 @@ MonoBehaviour:
   XpNeedPerLevel: 0.3
   XpDifferenceFactors:
   - 1
-  - 0.9
-  - 0.8
-  - 0.7
-  - 0.6
-  - 0.5
   GoldIcon: {fileID: 21300000, guid: 50a40e3fa0e0463f8fe631ce7e88e27f, type: 3}
   GoldBase: 5
   GoldGrowth: 1.1
