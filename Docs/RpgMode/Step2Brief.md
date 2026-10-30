@@ -21,7 +21,7 @@ With the toggle off, the original game and pet mode must behave exactly as today
 6. A code-built TMP label with Chinese text must go through `PetStatsText.SetText` / `ApplyCjkFont`, or it renders as boxes. Any new HUD is parented under `joystick.transform.parent` (HudContainer), never under the Joystick (it has its own full-screen canvas and drag handler). Set `raycastTarget = false` on graphics that should not block the joystick.
 
 ## Numbers (all in RpgModeConfig so they can be tuned without code)
-- Team level cap 60. `xp(L) = 20 × 1.1^(L−1)`; `need(L) = (15 + 3L) × xp(L)` to go from L to L+1. At cap, XP is set to 0 and further XP is discarded.
+- Team level cap 60. `xp(L) = 20 × 1.1^(L−1)`; `need(L) = (1.5 + 0.3L) × xp(L)` to go from L to L+1. At cap, XP is set to 0 and further XP is discarded.
 - Level-difference factor on XP, by `teamLevel − enemyLevel`: ≤0 → 1.0, 1 → 0.9, 2 → 0.75, 3 → 0.55, 4 → 0.35, 5 → 0.15, ≥6 → 0.
 - `gold(L) = 5 × 1.1^(L−1)`. Gold is not affected by the level difference. Round at grant time: `max(1, round(gold))`.
 - Spawner kinds, checked in this order (new static `RpgSpawnerRules`):

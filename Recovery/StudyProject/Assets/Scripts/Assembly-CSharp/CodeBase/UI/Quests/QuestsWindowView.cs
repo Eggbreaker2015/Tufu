@@ -481,6 +481,7 @@ namespace Codebase.UI.Quests
 			else
 				ListEntries = chain.Steps.Select(QuestWindowListEntry.FromStep).ToList();
 			ChainRewards = chain.ChainReward?.ToList() ?? new List<RewardBase>();
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) ChainRewards = global::Codebase.Rpg.RpgRewardFilter.Filter(ChainRewards);
 			Initialize();
 			ResetQuestsScroll().Forget();
 		}
@@ -783,6 +784,7 @@ namespace Codebase.UI.Quests
 
 		private ItemSlotUnlockFlow? ResolveItemSlotUnlockFlow(QuestChainDef chainDef)
 		{ // Original ELF 0x1638304; candidate only.
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return null;
 			var reward = FindItemSlotReward(chainDef.ChainReward);
 			return reward == null ? (ItemSlotUnlockFlow? )null : ItemSlotUnlockFlow.For(reward.SlotKey, true);
 		}

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Player.Inventory;
+using Codebase.Skills;
 using Codebase.Unit;
 using Codebase.Unit.Components;
 using Scellecs.Morpeh;
@@ -46,5 +47,29 @@ namespace Codebase.Pet
 			Injector.InjectInto(unit);
 			return unit;
 		}
+		public static void Destroy(PetUnit unit)
+		{
+			if (unit == null)
+				return;
+			if (unit.HealthBar != null)
+			{
+				unit.Dispose();
+				unit.HealthBar = null;
+			}
+			// The EntityProvider does not remove its entity on destroy; without this NavMeshSyncSystem
+			// keeps reading the destroyed NavMeshAgent (MissingReferenceException every frame).
+			Entity entity = unit.EntityProvider.Entity;
+			if (!World.Default.IsDisposed(entity))
+			{
+				if (GameContext.Has<SkillService>())
+				{
+					GameContext.Get<SkillService>().ClearBuffs(entity);
+					GameContext.Get<SkillService>().CancelCast(entity);
+				}
+				World.Default.RemoveEntity(entity);
+			}
+			Object.Destroy(unit.gameObject);
+		}
+
 	}
 }

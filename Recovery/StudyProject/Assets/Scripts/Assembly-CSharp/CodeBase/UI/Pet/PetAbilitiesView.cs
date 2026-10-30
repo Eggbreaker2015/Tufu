@@ -99,6 +99,7 @@ namespace Codebase.UI.Pets
 		// Every non-hidden ability, locked ones included (the inventory list keeps only the first locked one); the unlocked signature goes last.
 		public static List<int> GetAbilityIndices(ItemModel item)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return new List<int>();
 			var indices = new List<int>();
 			int sigIndex = -1;
 			var defs = item.Config.AbilityDefs;
@@ -168,6 +169,7 @@ namespace Codebase.UI.Pets
 			List<int> indices = GetAbilityIndices(item);
 			IReadOnlyList<SkillDef> skills = GetSpeciesSkills(item);
 			int skillLevel = skills.Count > 0 ? PetStats.GetSkillLevel(item) : 1;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) skillLevel = global::Codebase.Rpg.RpgStars.FromCopies(item.Copies);
 			int count = skills.Count + indices.Count;
 			bool changed = visibleCount != count;
 			while (rows.Count < count) rows.Add(CreateRow());

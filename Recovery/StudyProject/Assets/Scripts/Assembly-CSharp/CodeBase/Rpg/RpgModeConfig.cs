@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Pet;
+using Codebase.Player.Inventory;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,11 +21,19 @@ namespace Codebase.Rpg
 
 		public List<HeroDefinition> Heroes = new List<HeroDefinition>
 		{
-			new HeroDefinition { Key = "protagonist", IsProtagonist = true, DisplayName = "Pudge" },
-			new HeroDefinition { Key = "golem", PetItemKey = "golem", AttackItemKey = "golem", HealthRatio = 1.6f, AttackRatio = 0.6f, DefenceRatio = 1.5f, DisplayName = "Golem" },
-			new HeroDefinition { Key = "cultist", PetItemKey = "cultist", AttackItemKey = "cultist", HealthRatio = 0.8f, AttackRatio = 0.7f, DefenceRatio = 0.8f, DisplayName = "Cultist" }
+			new HeroDefinition { Key = "protagonist", IsProtagonist = true, Role = HeroRole.Protagonist, DisplayName = "Pudge" },
+			new HeroDefinition { Key = "golem", Role = HeroRole.Tank, PetItemKey = "golem", AttackItemKey = "golem", HealthRatio = 1.6f, AttackRatio = 0.6f, DefenceRatio = 1.5f, DisplayName = "Golem" },
+			new HeroDefinition { Key = "cultist", Role = HeroRole.MeleeDps, PetItemKey = "cultist", AttackItemKey = "cultist", HealthRatio = 0.8f, AttackRatio = 0.7f, DefenceRatio = 0.8f, DisplayName = "Cultist" },
+			new HeroDefinition { Key = "pick", PetItemKey = "pick", AttackItemKey = "pick", Role = HeroRole.Tank, HealthRatio = 1.6f, AttackRatio = 0.6f, DefenceRatio = 1.5f, DisplayName = "重甲矛兵" },
+			new HeroDefinition { Key = "mailbox", PetItemKey = "mailbox", AttackItemKey = "mailbox", Role = HeroRole.Bruiser, HealthRatio = 1.3f, AttackRatio = 0.85f, DefenceRatio = 1.2f, DisplayName = "棍棒兵" },
+			new HeroDefinition { Key = "fork", PetItemKey = "fork", AttackItemKey = "fork", Role = HeroRole.Guard, HealthRatio = 1.2f, AttackRatio = 0.8f, DefenceRatio = 1.2f, DisplayName = "矛卫" },
+			new HeroDefinition { Key = "knife", PetItemKey = "knife", AttackItemKey = "knife", Role = HeroRole.MeleeDps, HealthRatio = 1f, AttackRatio = 1.1f, DefenceRatio = 0.9f, DisplayName = "斧头兵" },
+			new HeroDefinition { Key = "minisaw", PetItemKey = "minisaw", AttackItemKey = "minisaw", Role = HeroRole.CritDps, HealthRatio = 0.9f, AttackRatio = 1.25f, DefenceRatio = 0.8f, DisplayName = "剑士" },
+			new HeroDefinition { Key = "pike", PetItemKey = "pike", AttackItemKey = "pike", Role = HeroRole.ReachDps, HealthRatio = 1f, AttackRatio = 1.15f, DefenceRatio = 0.9f, DisplayName = "长矛兵" }
 		};
-		public List<string> StartingHeroKeys = new List<string> { "protagonist", "golem", "cultist" };
+		public int NormalShards = 1, EliteShards = 3, BossShards = 10;
+		public List<int> StarCopyThresholds = new List<int> { 10, 30, 70, 150 };
+		public float StarStatBonus = 0.12f;
 		public float SwitchCooldown = 0.3f;
 		public float SwitchTeleportGrace = 1f;
 		public float AiAcceleration = 20f;
@@ -32,8 +41,8 @@ namespace Codebase.Rpg
 		public int LevelCap = 60;
 		public double XpBase = 20;
 		public double XpGrowth = 1.1;
-		public double XpNeedBase = 15;
-		public double XpNeedPerLevel = 3;
+		public double XpNeedBase = 1.5;
+		public double XpNeedPerLevel = 0.3;
 		public List<float> XpDifferenceFactors = new List<float> { 1f, 0.9f, 0.75f, 0.55f, 0.35f, 0.15f, 0f };
 		public Sprite GoldIcon;
 		public double GoldBase = 5;
@@ -45,7 +54,7 @@ namespace Codebase.Rpg
 		public float BaseHealthBonus = 20f;
 		public float BaseDefenceBonus = 2f;
 		public float NormalCooldown = 45f, EliteCooldown = 180f, BossCooldown = 600f, StaticCooldown = 120f;
-		public float NormalXpMultiplier = 1f, EliteXpMultiplier = 5f, BossXpMultiplier = 20f, StaticXpMultiplier = 0f;
+		public float NormalXpMultiplier = 1f, EliteXpMultiplier = 5f, BossXpMultiplier = 20f, StaticXpMultiplier = 0.5f;
 		public float NormalGoldMultiplier = 1f, EliteGoldMultiplier = 5f, BossGoldMultiplier = 20f, StaticGoldMultiplier = 0.5f;
 		public float QuestStepXpMultiplier = 5f, QuestChainXpMultiplier = 20f;
 		public List<int> IslandStarts = new List<int> { 1, 5, 10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57 };
@@ -62,6 +71,16 @@ namespace Codebase.Rpg
 				}
 				return instance;
 			}
+		}
+
+		public HeroDefinition ResolveHero(ItemConfig item)
+		{
+			return Heroes.Find(hero => hero != null && hero.PetItemKey == item.Key) ?? new HeroDefinition { Key = item.Key, PetItemKey = item.Key, AttackItemKey = item.Key, Role = HeroRole.MeleeDps };
+		}
+
+		public int ShardsFor(RpgSpawnerKind kind)
+		{
+			switch (kind) { case RpgSpawnerKind.Elite: return EliteShards; case RpgSpawnerKind.Boss: return BossShards; default: return NormalShards; }
 		}
 
 		public static bool Enabled => Instance != null && Instance.enabled && PetConfig.Enabled;

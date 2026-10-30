@@ -1221,6 +1221,8 @@ namespace Codebase.Enemy
 				}
 			}
 
+			if (item != null && global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgRecruitService.OnKill(item, config, enemy);
+
 			App.ExecuteCommand(new GrantSpawnerGateRewardCommand { Spawner = this });
 			App.ExecuteCommand(new GrantSpawnerPortalGemRewardCommand { GemIndex = config.PortalGemReward, HasItemReward = HasItemReward });
 			if (!global::Codebase.Rpg.RpgModeConfig.Enabled)

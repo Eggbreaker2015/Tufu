@@ -1,4 +1,5 @@
 using System;
+using CodeBase.Audio;
 using Codebase.Core;
 using Codebase.Economy;
 using Codebase.Enemy;
@@ -20,12 +21,14 @@ namespace Codebase.Rpg
 			int gold = RpgNumbers.GrantedGold(enemy.RpgLevel, config);
 			xp = progress.AddXp(xp);
 			GameContext.Get<CurrencyModel>().Add(CurrencyKeys.RpgGold, gold);
+			if (xp > 0 || gold > 0) GameContext.Get<IAudioPlayer>().PlaySoundOnce("devour");
 			Granted?.Invoke(enemy.transform.position, xp, gold);
 		}
 		public static void Quest(int island, float multiplier, Vector3 position)
 		{
 			double xp = multiplier * RpgNumbers.Xp(RpgEnemyLevel.End(island));
 			xp = GameContext.Get<RpgProgressModel>().AddXp(xp);
+			if (xp > 0) GameContext.Get<IAudioPlayer>().PlaySoundOnce("devour");
 			Granted?.Invoke(position, xp, 0);
 		}
 	}

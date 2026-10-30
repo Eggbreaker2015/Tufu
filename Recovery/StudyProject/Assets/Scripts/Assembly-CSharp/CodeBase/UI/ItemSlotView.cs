@@ -207,6 +207,7 @@ namespace Codebase.UI
 			inventory = GameContext.Get<InventoryView>();
 			playerModel = GameContext.Get<PlayerModel>();
 			this.model = model;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && GetComponentInParent<ItemsHotbarView>() != null) global::Codebase.Rpg.UI.RpgLineupCell.AddSlot(transform, model);
 			levelDefaultColor = levelField.color;
 			abilityVisualsDirty = true;
 			iconStyleConfig = GameContext.Get<IconStyleConfig>();
@@ -216,6 +217,11 @@ namespace Codebase.UI
 			    if (!this.model.IsEquipped) return;
 			    if (shouldBlockClick) { shouldBlockClick = false; return; }
 			    GameContext.Get<IAudioPlayer>().PlaySoundOnce("light_tap");
+			    if (global::Codebase.Rpg.RpgModeConfig.Enabled && GetComponentInParent<ItemsHotbarView>() != null && !inventory.IsOpened)
+			    {
+			        global::Codebase.Rpg.UI.RpgLineupCell.RequestSlot(this.model);
+			        return;
+			    }
 			    using (Atom.NoWatch) inventory.SelectItem(this.model.ItemModel);
 			});
 			fillBar.fillAmount = 0f;
@@ -229,6 +235,13 @@ namespace Codebase.UI
 			bool visible = model.IsPinned && inventory.IsOpened;
 			if (pinVisible != visible || abilityVisualsDirty) { pinVisible = visible; pin.SetActive(visible); }
 			UpdateAbilityVisuals();
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && GetComponentInParent<ItemsHotbarView>() != null)
+			{
+				typeAndRarity.enabled = false;
+				selected.enabled = inventory.IsOpened && model.ItemModel != null && playerModel.SelectedItem == model.ItemModel;
+				evolveNotification.SetActive(false);
+				if (model.ItemModel != null) PetStatsText.SetText(levelField, "★" + global::Codebase.Rpg.RpgStars.FromCopies(model.ItemModel.Copies));
+			}
 		}
 
 		private void UpdateAbilityVisuals()

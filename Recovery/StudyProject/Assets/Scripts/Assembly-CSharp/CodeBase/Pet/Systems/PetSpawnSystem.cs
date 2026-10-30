@@ -101,26 +101,7 @@ namespace Codebase.Pet.Systems
 			petsModel.Pets.Remove(pet);
 			PetUnit unit = pet.Unit;
 			pet.Unit = null;
-			if (unit == null)
-				return;
-			if (unit.HealthBar != null)
-			{
-				unit.Dispose();
-				unit.HealthBar = null;
-			}
-			// The EntityProvider does not remove its entity on destroy; without this NavMeshSyncSystem
-			// keeps reading the destroyed NavMeshAgent (MissingReferenceException every frame).
-			Entity entity = unit.EntityProvider.Entity;
-			if (!World.IsDisposed(entity))
-			{
-				if (GameContext.Has<SkillService>())
-				{
-					GameContext.Get<SkillService>().ClearBuffs(entity);
-					GameContext.Get<SkillService>().CancelCast(entity);
-				}
-				World.RemoveEntity(entity);
-			}
-			Object.Destroy(unit.gameObject);
+			PetUnitFactory.Destroy(unit);
 		}
 
 		private void DespawnAll()

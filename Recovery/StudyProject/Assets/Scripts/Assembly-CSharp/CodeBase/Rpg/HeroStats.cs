@@ -43,9 +43,11 @@ namespace Codebase.Rpg
 			return result;
 		}
 
-		public static void ApplyBase(UnitCore unit, HeroDefinition def)
+		public static void ApplyBase(UnitCore unit, HeroDefinition def) => ApplyBase(unit.Stats, def);
+
+		public static void ApplyBase(List<Stat> stats, HeroDefinition def)
 		{
-			foreach (Stat stat in unit.Stats)
+			foreach (Stat stat in stats)
 			{
 				Remove(stat, "rpg.base");
 				Remove(stat, "rpg.hero");
@@ -56,13 +58,27 @@ namespace Codebase.Rpg
 			}
 		}
 
-		public static void ApplyLevel(UnitCore unit, int level)
+		public static void ApplyLevel(UnitCore unit, int level) => ApplyLevel(unit.Stats, level);
+
+		public static void ApplyLevel(List<Stat> stats, int level)
 		{
-			foreach (Stat stat in unit.Stats)
+			foreach (Stat stat in stats)
 			{
 				Remove(stat, "rpg.level");
 				if (level > 1 && (stat.Type == StatType.Health || stat.Type == StatType.Damage || stat.Type == StatType.UniversalDefenceFlat))
 					AddNamed(stat, "rpg.level", ModifierType.PercentMultiplicative, (float)System.Math.Pow(RpgModeConfig.Instance.HeroLevelGrowth, level - 1));
+			}
+		}
+
+		public static void ApplyStar(UnitCore unit, int star) => ApplyStar(unit.Stats, star);
+
+		public static void ApplyStar(List<Stat> stats, int star)
+		{
+			foreach (Stat stat in stats)
+			{
+				Remove(stat, "rpg.star");
+				if (stat.Type == StatType.Health || stat.Type == StatType.Damage || stat.Type == StatType.UniversalDefenceFlat)
+					AddNamed(stat, "rpg.star", ModifierType.PercentMultiplicative, (float)System.Math.Pow(1f + RpgModeConfig.Instance.StarStatBonus, star - 1));
 			}
 		}
 

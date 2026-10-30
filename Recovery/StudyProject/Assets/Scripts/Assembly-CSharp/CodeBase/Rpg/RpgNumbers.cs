@@ -12,6 +12,16 @@ namespace Codebase.Rpg
 		public static double Gold(int level) => RpgModeConfig.Instance.GoldBase * Math.Pow(RpgModeConfig.Instance.GoldGrowth, level - 1);
 		public static int GrantedGold(int level, EnemySpawnerConfig config) => Math.Max(1, (int)Math.Round(Gold(level) * RpgSpawnerRules.GoldMultiplier(config), MidpointRounding.AwayFromZero));
 	}
+	public static class RpgStars
+	{
+		public static int FromCopies(int copies)
+		{
+			int star = 1;
+			foreach (int threshold in RpgModeConfig.Instance.StarCopyThresholds)
+				if (star < 5 && copies >= threshold) star++;
+			return star;
+		}
+	}
 	public static class RpgSpawnerRules
 	{
 		public static RpgSpawnerKind Kind(EnemySpawnerConfig config)

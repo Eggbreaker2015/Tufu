@@ -73,7 +73,6 @@ namespace Codebase.UI.Pets
 
 		public static void OpenAbilities(ItemModel item)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			if (!PetConfig.Enabled || item == null) return;
 			UINavigator navigator = Find<UINavigator>();
 			PetAbilitiesView view = GetAbilitiesTemplate();

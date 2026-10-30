@@ -16,6 +16,7 @@ MonoBehaviour:
   Heroes:
   - Key: protagonist
     IsProtagonist: 1
+    Role: 0
     PetItemKey:
     AttackItemKey:
     HealthRatio: 1
@@ -27,6 +28,7 @@ MonoBehaviour:
     Icon: {fileID: 0}
   - Key: golem
     IsProtagonist: 0
+    Role: 1
     PetItemKey: golem
     AttackItemKey: golem
     HealthRatio: 1.6
@@ -38,6 +40,7 @@ MonoBehaviour:
     Icon: {fileID: 0}
   - Key: cultist
     IsProtagonist: 0
+    Role: 4
     PetItemKey: cultist
     AttackItemKey: cultist
     HealthRatio: 0.8
@@ -47,10 +50,83 @@ MonoBehaviour:
     AttackRangeOverride: 0
     DisplayName: Cultist
     Icon: {fileID: 0}
-  StartingHeroKeys:
-  - protagonist
-  - golem
-  - cultist
+  - Key: pick
+    IsProtagonist: 0
+    Role: 1
+    PetItemKey: pick
+    AttackItemKey: pick
+    HealthRatio: 1.6
+    AttackRatio: 0.6
+    DefenceFlat: 0
+    DefenceRatio: 1.5
+    AttackRangeOverride: 0
+    DisplayName: 重甲矛兵
+    Icon: {fileID: 0}
+  - Key: mailbox
+    IsProtagonist: 0
+    Role: 2
+    PetItemKey: mailbox
+    AttackItemKey: mailbox
+    HealthRatio: 1.3
+    AttackRatio: 0.85
+    DefenceFlat: 0
+    DefenceRatio: 1.2
+    AttackRangeOverride: 0
+    DisplayName: 棍棒兵
+    Icon: {fileID: 0}
+  - Key: fork
+    IsProtagonist: 0
+    Role: 3
+    PetItemKey: fork
+    AttackItemKey: fork
+    HealthRatio: 1.2
+    AttackRatio: 0.8
+    DefenceFlat: 0
+    DefenceRatio: 1.2
+    AttackRangeOverride: 0
+    DisplayName: 矛卫
+    Icon: {fileID: 0}
+  - Key: knife
+    IsProtagonist: 0
+    Role: 4
+    PetItemKey: knife
+    AttackItemKey: knife
+    HealthRatio: 1
+    AttackRatio: 1.1
+    DefenceFlat: 0
+    DefenceRatio: 0.9
+    AttackRangeOverride: 0
+    DisplayName: 斧头兵
+    Icon: {fileID: 0}
+  - Key: minisaw
+    IsProtagonist: 0
+    Role: 5
+    PetItemKey: minisaw
+    AttackItemKey: minisaw
+    HealthRatio: 0.9
+    AttackRatio: 1.25
+    DefenceFlat: 0
+    DefenceRatio: 0.8
+    AttackRangeOverride: 0
+    DisplayName: 剑士
+    Icon: {fileID: 0}
+  - Key: pike
+    IsProtagonist: 0
+    Role: 6
+    PetItemKey: pike
+    AttackItemKey: pike
+    HealthRatio: 1
+    AttackRatio: 1.15
+    DefenceFlat: 0
+    DefenceRatio: 0.9
+    AttackRangeOverride: 0
+    DisplayName: 长矛兵
+    Icon: {fileID: 0}
+  NormalShards: 1
+  EliteShards: 3
+  BossShards: 10
+  StarCopyThresholds: 0a0000001e0000004600000096000000
+  StarStatBonus: 0.12
   SwitchCooldown: 0.3
   SwitchTeleportGrace: 1
   AiAcceleration: 20
@@ -58,8 +134,8 @@ MonoBehaviour:
   LevelCap: 60
   XpBase: 20
   XpGrowth: 1.1
-  XpNeedBase: 15
-  XpNeedPerLevel: 3
+  XpNeedBase: 1.5
+  XpNeedPerLevel: 0.3
   XpDifferenceFactors:
   - 1
   - 0.9
@@ -84,7 +160,7 @@ MonoBehaviour:
   NormalXpMultiplier: 1
   EliteXpMultiplier: 5
   BossXpMultiplier: 20
-  StaticXpMultiplier: 0
+  StaticXpMultiplier: 0.5
   NormalGoldMultiplier: 1
   EliteGoldMultiplier: 5
   BossGoldMultiplier: 20

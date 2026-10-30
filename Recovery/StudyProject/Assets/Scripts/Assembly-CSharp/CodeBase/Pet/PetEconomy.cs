@@ -22,6 +22,7 @@ namespace Codebase.Pet
 
 		public static void AddShards(int amount)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			if (!PetConfig.Enabled || amount <= 0)
 				return;
 			GameContext.Get<CurrencyModel>()?.Add(CurrencyKeys.PetUniversalShard, amount);

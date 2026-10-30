@@ -185,6 +185,7 @@ namespace Codebase.UI.Inventory
 			// Native ELF VA 0x164e22c; labels are original ELF literals, not new strings.
 			ItemModel item = playerModel.SelectedItem;
 			if (item == null) return;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { RenderRpg(item); return; }
 			float height = defaultHeight;
 			if (PetStats.TryGet(item, out _)) abilitiesView.gameObject.SetActive(false);
 			else
@@ -205,6 +206,52 @@ namespace Codebase.UI.Inventory
 			evolveButtonText.text = LocalizationStrings.Get("INVENTORY_EVOLVE") + " " + string.Format("{0}{1}<size=45><color=#DDC0FF>/{2}", item.CanEvolve ? "" : "<color=#FF4876>", item.Copies, item.LevelsToEvolve);
 			RenderItemPreview(item);
 			itemEvolveWarningText.text = LocalizationStrings.Get("INVENTORY_EVOLVE_REQUIREMENT").Replace("{value}", item.LevelsToEvolve.ToString());
+		}
+
+		private void RenderRpg(ItemModel item)
+		{
+			abilitiesView.gameObject.SetActive(false);
+			starsView.gameObject.SetActive(false);
+			evolveButton.gameObject.SetActive(false);
+			if (evolveNotification != null) evolveNotification.SetActive(false);
+			if (evolveButtonError != null) evolveButtonError.SetActive(false);
+			itemEvolveWarningText.gameObject.SetActive(false);
+			mainStatText.gameObject.SetActive(false);
+			itemPreview.Initialize(item);
+			PetStatsText.SetItemName(itemPreviewTitle, item.Config);
+			string action = inventoryView.UnequipState ? "取消" : playerModel.EquippedItems.Contains(item) ? "下阵" : "上阵";
+			PetStatsText.SetText(equipButtonText, action);
+			PetStatsText.SetText(itemPreviewEquipText, action);
+			equipButtonImage.sprite = inventoryView.UnequipState ? cancelButtonSprite : equipButtonSprite;
+			itemPreviewType.gameObject.SetActive(false);
+			itemPreviewRarity.gameObject.SetActive(false);
+			itemPreviewDamage.gameObject.SetActive(false);
+			itemPreviewDamageNext.gameObject.SetActive(false);
+			itemPreviewStatPerCopyLabel.gameObject.SetActive(false);
+			itemPreviewStatPerCopyValue.gameObject.SetActive(false);
+			itemPreviewAttackSpeedRoot.SetActive(false);
+			if (petStatsText == null)
+			{
+				abilitiesPosition = ((RectTransform)abilitiesView.transform).anchoredPosition;
+				petStatsText = PetStatsText.CreateBlock(mainStatText, RectTransform, "RpgHeroStats");
+				LocalizationFontApplier.RegisterLike(petStatsText, mainStatText);
+				petStatsText.textWrappingMode = TextWrappingModes.Normal;
+				petStatsText.fontSizeMax = 40f;
+				PetUiBuilder.SetRect(petStatsText.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(abilitiesPosition.x, abilitiesPosition.y + PetStatsOverlap), new Vector2(-2f * mainStatText.rectTransform.anchoredPosition.x, PetStatsHeight));
+			}
+			petStatsText.gameObject.SetActive(true);
+			PetStatsText.SetText(petStatsText, global::Codebase.Rpg.RpgHeroCard.Build(item));
+			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
+			if (shardRow != null) shardRow.gameObject.SetActive(false);
+			if (abilitySummary == null)
+			{
+				abilitySummary = PetAbilitySummaryRow.Create(RectTransform, "RpgAbilitySummary", evolveButtonText, equipButtonSprite);
+				RectTransform block = petStatsText.rectTransform;
+				PetUiBuilder.SetRect((RectTransform)abilitySummary.transform, block.anchorMin, block.anchorMax, new Vector2(0.5f, 1f), new Vector2(block.anchoredPosition.x, block.anchoredPosition.y - PetStatsHeight), new Vector2(block.sizeDelta.x, PetAbilitySummaryRow.Height));
+			}
+			abilitySummary.gameObject.SetActive(true);
+			abilitySummary.Render(item);
+			RectTransform.sizeDelta = new Vector2(RectTransform.sizeDelta.x, defaultHeight + PetStatsHeight - PetStatsOverlap + PetAbilitySummaryRow.Height);
 		}
 
 		private void RenderItemPreview(ItemModel item)
@@ -298,6 +345,7 @@ namespace Codebase.UI.Inventory
 		private void RefreshPetStats(ItemModel item)
 		{
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { if (item != null) PetStatsText.SetText(petStatsText, global::Codebase.Rpg.RpgHeroCard.Build(item)); return; }
 			if (!PetStats.TryGet(item, out PetStatsInfo pet)) return;
 			PetStatsText.SetText(petStatsText, BuildPetStats(pet, item));
 			RenderShardRow(item);

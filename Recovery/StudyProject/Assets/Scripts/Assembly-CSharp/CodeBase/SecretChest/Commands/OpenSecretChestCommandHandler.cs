@@ -75,6 +75,19 @@ namespace Codebase.SecretChest.Commands
                 await UniTask.Delay(TimeSpan.FromSeconds(RewardPopupDelay), false, (PlayerLoopTiming)8, token);
 
                 var rewards = chest.Rewards;
+                if (global::Codebase.Rpg.RpgModeConfig.Enabled)
+                {
+                    rewards = global::Codebase.Rpg.RpgRewardFilter.Filter(rewards);
+                    if (rewards.Count == 0)
+                    {
+                        collected = true;
+                        if (chest.ContentCube != null) chest.ContentCube.SetActive(false);
+                        secretChestModel.MarkOpened(chest.ChestKey);
+                        gameDataService.ForceSave();
+                        RestorePlayerState();
+                        return;
+                    }
+                }
                 popup = uiNavigator.Open<BossRaidRewardView>("Assets/Prefabs/UI/BossTower/BossRaidRewardView.prefab", false);
                 if (popup == null) throw new InvalidOperationException("Secret chest reward view could not be loaded.");
                 popup.Setup(rewards, () =>

@@ -23,6 +23,17 @@ namespace Codebase.Rpg
 		{
 		}
 
+		private HeroModel pendingRequest;
+
+		public void Request(HeroModel hero) { pendingRequest = hero; }
+		public HeroModel TakeRequest() { HeroModel result = pendingRequest; pendingRequest = null; return result; }
+		public void Remove(HeroModel hero)
+		{
+			if (Controlled == hero) ForceControl(Heroes.Find(candidate => candidate.IsProtagonist));
+			if (pendingRequest == hero) pendingRequest = null;
+			Heroes.Remove(hero);
+		}
+
 		public bool TrySwitch(HeroModel next)
 		{
 			if (!RpgModeConfig.Enabled || next == null || !Heroes.Contains(next) || next.Unit == null || !next.IsAlive || next == Controlled) return false;

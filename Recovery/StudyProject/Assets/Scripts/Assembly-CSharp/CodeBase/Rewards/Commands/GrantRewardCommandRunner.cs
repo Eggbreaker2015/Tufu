@@ -156,6 +156,7 @@ namespace Codebase.Rewards.Commands
 
 		private void HandleItemSlotReward(ItemSlotReward reward)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			var slot = playerModel.ItemSlots.FirstOrDefault(s => s.Key == reward.SlotKey);
 			if (slot != null && !slot.IsUnlocked)
 				slot.IsUnlocked = true;
@@ -255,6 +256,7 @@ namespace Codebase.Rewards.Commands
 
 		private void HandleChestReward(ChestReward reward)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			var chest = chestsConfig.Get(reward.Key);
 			if (chest == null)
 			{
@@ -268,6 +270,7 @@ namespace Codebase.Rewards.Commands
 
 		private void HandleItemReward(ItemReward reward)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			ItemConfig def;
 			if (!reward.IsRandom)
 				def = reward.Def;

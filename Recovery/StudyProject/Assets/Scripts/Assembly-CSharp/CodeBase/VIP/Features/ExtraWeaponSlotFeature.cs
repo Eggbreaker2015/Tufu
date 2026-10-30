@@ -21,6 +21,7 @@ namespace Codebase.VIP.Features
 
 		public override void OnUnlocked(int vipLevel)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			base.OnUnlocked(vipLevel);
 			var slot = GameContext.Get<PlayerModel>().ItemSlots.Find(item => item.Key == "weapon_5_vip");
 			if (slot == null)

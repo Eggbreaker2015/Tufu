@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Collections.Generic;
 using Codebase.Core;
 using Codebase.Economy;
 using Codebase.Player.Input;
@@ -23,6 +24,10 @@ namespace Codebase.Rpg.UI
 		private Transform firstBuyPack;
 		private RectTransform cheatsRect;
 		private Vector2 cheatsPosition;
+		private TMP_Text notice;
+		private float noticeUntil;
+		private float noticeStarted;
+		private readonly Queue<string> notices = new Queue<string>();
 
 		private class Owner : MonoBehaviour
 		{
@@ -36,18 +41,21 @@ namespace Codebase.Rpg.UI
 			if (view != null) owner.AddComponent<Owner>().View = view;
 		}
 
-		private static RpgProgressHudView Create(Joystick joystick)
+		public static RpgProgressHudView Create(Joystick joystick)
 		{
 			if (!RpgModeConfig.Enabled || joystick == null || joystick.transform.parent == null) return null;
 			Transform parent = joystick.transform.parent;
 			RectTransform root = PetUiBuilder.CreateRect(parent, "RpgProgressHud");
-			PetUiBuilder.SetRect(root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 110f), new Vector2(900f, 90f));
+			PetUiBuilder.SetRect(root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 350f), new Vector2(900f, 90f));
 			RpgProgressHudView view = root.gameObject.AddComponent<RpgProgressHudView>();
 			view.progress = GameContext.Get<RpgProgressModel>();
 			view.currency = GameContext.Get<CurrencyModel>();
 			view.Build();
 			view.Prune(parent);
 			RpgRewardService.Granted += view.ShowReward;
+			RpgRecruitService.Recruited += view.ShowRecruit;
+			RpgRecruitService.ShardsGained += view.ShowShards;
+			RpgRecruitService.StarChanged += view.ShowStar;
 			return view;
 		}
 
@@ -88,14 +96,63 @@ namespace Codebase.Rpg.UI
 			xpFill.fillAmount = need > 0 ? Mathf.Clamp01((float)(progress.Xp / need)) : 1f;
 			xpText.text = need > 0 ? Format(progress.Xp) + " / " + Format(need) + " XP" : "MAX";
 			goldText.text = Format(currency.Get(CurrencyKeys.RpgGold));
+			if (notice != null && notice.gameObject.activeSelf) notice.rectTransform.anchoredPosition = new Vector2(0f, 250f + (Time.unscaledTime - noticeStarted) * 18f);
+			if (notice != null && Time.unscaledTime >= noticeUntil)
+			{
+				notice.gameObject.SetActive(false);
+				if (notices.Count > 0) DisplayNotice(notices.Dequeue());
+			}
 		}
 
 		private void ShowReward(Vector3 position, double xp, int gold)
 		{
 			if (!RpgModeConfig.Enabled || !GameContext.Has<StatRewardContainer>()) return;
-			string value = xp > 0 ? "+" + Format(xp) + " XP" : string.Empty;
-			if (gold > 0) value += (value.Length > 0 ? "  " : string.Empty) + "+" + gold + " G";
-			if (value.Length > 0) GameContext.Get<StatRewardContainer>().Create(value);
+			StatRewardContainer container = GameContext.Get<StatRewardContainer>();
+			if (xp > 0) container.Create("<color=#80CFFF>+" + Format(xp) + "经验");
+			if (gold > 0) container.Create("<color=#FFCD38>+" + gold + "金币");
+		}
+
+		private void ShowRecruit(Codebase.Player.Inventory.ItemModel item)
+		{
+			var definition = RpgModeConfig.Instance.ResolveHero(item.Config);
+			bool deployed = GameContext.Get<Codebase.Player.Models.PlayerModel>().EquippedItems.Contains(item);
+			ShowNotice(RpgHeroCard.Name(item) + "（" + RpgHeroCard.Role(definition.Role) + "）加入队伍" + (deployed ? "" : "\n已进入名单"));
+		}
+
+		private void ShowShards(Codebase.Player.Inventory.ItemModel item, int amount, Vector3 position)
+		{
+			if (!RpgModeConfig.Enabled || amount <= 0 || !GameContext.Has<StatRewardContainer>()) return;
+			GameContext.Get<StatRewardContainer>().Create("<color=#C9A5FF>+" + amount + "碎片");
+		}
+
+		private void ShowStar(Codebase.Player.Inventory.ItemModel item, int star)
+		{
+			ShowNotice(RpgHeroCard.Name(item) + " 升至 ★" + star);
+		}
+
+		private void ShowNotice(string text)
+		{
+			if (notice != null && notice.gameObject.activeSelf)
+			{
+				if (notices.Count >= 5) notices.Dequeue();
+				notices.Enqueue(text);
+				return;
+			}
+			DisplayNotice(text);
+		}
+
+		private void DisplayNotice(string text)
+		{
+			if (notice == null)
+			{
+				notice = PetUiBuilder.CreateText(transform.parent, "RpgRecruitNotice", 42f, TextAlignmentOptions.Center);
+				PetUiBuilder.SetRect(notice.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 250f), new Vector2(900f, 130f));
+				notice.raycastTarget = false;
+			}
+			PetStatsText.SetText(notice, text);
+			notice.gameObject.SetActive(true);
+			noticeStarted = Time.unscaledTime;
+			noticeUntil = noticeStarted + 2.5f;
 		}
 
 		private static string Format(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
@@ -107,7 +164,7 @@ namespace Codebase.Rpg.UI
 			else if (cheats is RectTransform rect) { cheatsRect = rect; cheatsPosition = rect.anchoredPosition; rect.anchoredPosition += new Vector2(-150f, 0f); }
 			string[] paths = {
 				"SafeArea/ButtonsContainer/VipButton", "LeftSideContainer/EventButton", "LeftSideContainer/Rewarded", "LeftSideContainer/GemOffer",
-				"HudButtons/Container/InnerContainer/Crystals", "HudButtons/Container/InnerContainer/ShopButton", "HudButtons/Container/InnerContainer/InventoryButton",
+				"HudButtons/Container/InnerContainer/Crystals", "HudButtons/Container/InnerContainer/ShopButton",
 				"HudButtons/Container/InnerContainer/LevelPass", "HudButtons/Container/InnerContainer/FirstBuyPack"
 			};
 			foreach (string path in paths)
@@ -130,6 +187,10 @@ namespace Codebase.Rpg.UI
 		private void OnDestroy()
 		{
 			RpgRewardService.Granted -= ShowReward;
+			RpgRecruitService.Recruited -= ShowRecruit;
+			RpgRecruitService.ShardsGained -= ShowShards;
+			RpgRecruitService.StarChanged -= ShowStar;
+			if (notice != null) Destroy(notice.gameObject);
 			if (cheatsRect != null) cheatsRect.anchoredPosition = cheatsPosition;
 		}
 	}

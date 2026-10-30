@@ -5,6 +5,8 @@ using Codebase.Core;
 using Codebase.Economy;
 using Codebase.Enemy;
 using Codebase.Rpg;
+using Codebase.Player.Inventory;
+using Codebase.Player.Models;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -18,6 +20,24 @@ public static class RpgGrowthTools
 		var progress = GameContext.Get<RpgProgressModel>();
 		progress.AddXp(Math.Max(0, progress.XpToNext - progress.Xp));
 		GameContext.Get<CurrencyModel>().Add(CurrencyKeys.RpgGold, 1000);
+	}
+
+	[MenuItem("Tools/RPG/Recruit Island 1-2 Heroes")]
+	public static void RecruitHeroes()
+	{
+		if (!Application.isPlaying || !RpgModeConfig.Enabled || !GameContext.Has<PlayerModel>() || !GameContext.Has<ItemsProvider>()) return;
+		PlayerModel player = GameContext.Get<PlayerModel>();
+		ItemsProvider provider = GameContext.Get<ItemsProvider>();
+		foreach (string key in new[] { "pick", "mailbox", "fork", "knife", "minisaw", "pike" })
+			if (!player.Items.Any(item => item.Config.Key == key)) player.CreateItem(provider.Get(key), 1);
+	}
+
+	[MenuItem("Tools/RPG/Add 10 Hero Shards")]
+	public static void AddHeroShards()
+	{
+		if (!Application.isPlaying || !RpgModeConfig.Enabled || !GameContext.Has<PlayerModel>()) return;
+		foreach (ItemModel item in GameContext.Get<PlayerModel>().Items)
+			if (item.Config.SlotType == ItemSlotType.Weapon && Codebase.Pet.PetEconomy.FindSpecies(item.Config) != null) item.Copies += 10;
 	}
 
 	[MenuItem("Tools/RPG/Dump Spawner Levels")]

@@ -10,6 +10,7 @@ namespace Codebase.Rpg
 		public HeroUnit Unit;
 		public PetModel Pet;
 		public int SlotOrder;
+		public int AppliedStar;
 		public float PathFailTimer;
 		public EnemyUnit AiTarget;
 		public bool IsProtagonist;

@@ -18,7 +18,7 @@ namespace Codebase.Rpg.Systems
 		[Inject] private PlayerModel playerModel;
 		[Inject] private HeroRosterModel roster;
 		[Inject] private SkillService skillService;
-		private HeroSwitchHudView hud;
+		private RpgProgressHudView hud;
 		private EnemyUnit visualTarget;
 		private HeroUnit visualOwner;
 
@@ -27,10 +27,10 @@ namespace Codebase.Rpg.Systems
 		public override void OnUpdate(float deltaTime)
 		{
 			if (!RpgModeConfig.Enabled) return;
-			if (hud == null && GameContext.Has<Joystick>()) hud = HeroSwitchHudView.Create(GameContext.Get<Joystick>(), roster);
-			HeroModel request = hud != null ? hud.TakeRequest() : null;
+			if (hud == null && GameContext.Has<Joystick>()) hud = RpgProgressHudView.Create(GameContext.Get<Joystick>());
+			HeroModel request = roster.TakeRequest();
 			if (UnityEngine.Input.GetKeyDown(KeyCode.Tab)) request = NextLiving();
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 5; i++)
 				if (UnityEngine.Input.GetKeyDown(KeyCode.Alpha1 + i)) request = roster.Heroes.Find(hero => hero.SlotOrder == i);
 			PlayerUnit player = playerModel.Unit;
 			HeroModel protagonist = roster.Get(player);

@@ -540,6 +540,7 @@ namespace Codebase.Player.Inventory
 
 		public bool IsAbilityUnlocked(AbilityDef def)
 		{
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return false;
 			if (global::Codebase.Abilities.Conditions.PetModeCondition.IsHidden(def)) return false;
 			return Evolved ? def.UnlockLevel <= Level : def.UnlockLevel == 0;
 		}

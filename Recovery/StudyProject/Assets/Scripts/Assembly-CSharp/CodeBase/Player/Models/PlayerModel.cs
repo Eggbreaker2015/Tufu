@@ -739,7 +739,7 @@ namespace Codebase.Player.Models
 				PlayerAttackItem.AbilityCritMultiplier = 1f;
 			}
 			Unit.CurrentHealth = Unit.Stats.First(stat => stat.Type == StatType.Health).Value;
-			if (Items.Count == 0)
+			if (Items.Count == 0 && !global::Codebase.Rpg.RpgModeConfig.Enabled)
 			{
 				AddItem(startingWeapon);
 				EquipItem(startingWeapon);
@@ -801,7 +801,7 @@ namespace Codebase.Player.Models
 		public bool EquipItem(ItemModel item)
 		{
 			// Native ELF VA 0x145e26c, predicate 0x146194c.
-			ItemSlotModel slot = ItemSlots.FirstOrDefault(candidate => !candidate.IsEquipped && candidate.IsUnlocked && candidate.SlotType == item.Config.SlotType);
+			ItemSlotModel slot = ItemSlots.FirstOrDefault(candidate => !candidate.IsEquipped && candidate.IsUnlocked && candidate.SlotType == item.Config.SlotType && (!global::Codebase.Rpg.RpgModeConfig.Enabled || !candidate.IsVip));
 			return slot != null && TryEquipItemToSlot(item, slot);
 		}
 
@@ -820,6 +820,7 @@ namespace Codebase.Player.Models
 			if (slot == null)
 				return;
 			slot.Unequip();
+			if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
 			foreach (StatModifier modifier in item.Config.StatModifiers)
 				Unit.Stats.First(stat => stat.Type == modifier.StatType).RemoveModifier(modifier);
 			abilityExecuteEventSystem.FireEvent(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEquip, Item = item, ItemUnequipped = true });
@@ -830,6 +831,7 @@ namespace Codebase.Player.Models
 		public bool TryEquipItemToSlot(ItemModel item, ItemSlotModel slot)
 		{
 			// Native ELF VA 0x145fa20.
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && slot != null && (slot.IsVip || slot.SlotType != ItemSlotType.Weapon)) return false;
 			if (slot == null || item == null || !slot.IsUnlocked || slot.IsEquipped || slot.SlotType != item.Config.SlotType)
 				return false;
 			if (ItemSlots.FirstOrDefault(candidate => candidate.ItemModel == item) != null)
@@ -838,7 +840,7 @@ namespace Codebase.Player.Models
 			item.SlotIndex = ItemSlots.IndexOf(slot);
 			item.WearingTime = 0f;
 			item.ShowNotification = false;
-			if (Unit != null)
+			if (Unit != null && !global::Codebase.Rpg.RpgModeConfig.Enabled)
 				foreach (StatModifier modifier in item.Config.StatModifiers)
 					Unit.Stats.First(stat => stat.Type == modifier.StatType).AddModifier(modifier);
 			abilityExecuteEventSystem.FireEvent(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEquip, Item = item, ItemUnequipped = false });
@@ -866,6 +868,7 @@ namespace Codebase.Player.Models
 				ItemModel item = slot.ItemModel;
 				item.SlotIndex = ItemSlots.IndexOf(slot);
 				item.WearingTime = 0f;
+				if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
 				foreach (StatModifier modifier in item.Config.StatModifiers)
 					Unit.Stats.First(stat => stat.Type == modifier.StatType).AddModifier(modifier);
 				abilityExecuteEventSystem.FireEvent(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEquip, Item = item, ItemUnequipped = false });

@@ -28,6 +28,7 @@ namespace Codebase.UI.Inventory
 		{
 			// Native ELF VA 0x164c468; pooled category keeps its original source delegate binding.
 			titleText.text = LocalizationStrings.Get(titleLocKey);
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.UI.PetStatsText.SetText(titleText, "英雄");
 			currentSource = itemsSource;
 			if (itemsContainer != null) { itemsContainer.ForceRebuild(); return; }
 			itemsContainer = new ViewContainer<InventoryItemView, ItemModel>(itemsGrid, itemPrefab)

@@ -23,7 +23,16 @@ namespace Codebase.UI
 
 		private void Start()
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { gameObject.SetActive(false); return; }
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
+			{
+				uiModel = GameContext.Get<UiModel>();
+				separator.SetActive(false);
+				global::Codebase.Rpg.UI.RpgLineupCell.CreateProtagonist(transform);
+				foreach (ItemSlotModel slot in GameContext.Get<PlayerModel>().ItemSlots)
+					if (slot.Key == "weapon_1" || slot.Key == "weapon_2" || slot.Key == "weapon_3" || slot.Key == "weapon_4") Instantiate(prefab, transform).Initialize(slot);
+				canvasGroup.blocksRaycasts = true;
+				return;
+			}
 			// Native ELF VA 0x15d6f94 and predicate 0x15f54a8.
 			PlayerModel player = GameContext.Get<PlayerModel>();
 			uiModel = GameContext.Get<UiModel>();
@@ -36,7 +45,8 @@ namespace Codebase.UI
 			// Native ELF VA 0x15d735c; original desktop shortcuts and raycast block.
 			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
 			{
-				if (Input.GetKeyDown(KeyCode.Alpha4)) PressEquipButton((WeaponType)4, true);
+				canvasGroup.blocksRaycasts = true;
+				return;
 			}
 			else
 			if (Input.GetKeyDown(KeyCode.Alpha1)) PressEquipButton((WeaponType)1, false);

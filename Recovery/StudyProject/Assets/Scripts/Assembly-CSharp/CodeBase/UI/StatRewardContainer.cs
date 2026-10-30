@@ -63,6 +63,19 @@ namespace Codebase.UI
 			    pool.Despawn(view);
 			    TrySpawnFromQueue();
 			};
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled && (value.EndsWith("经验") || value.EndsWith("金币") || value.EndsWith("碎片")))
+			{
+				TMP_FontAsset originalFont = view.Text.font;
+				Material originalMaterial = view.Text.fontSharedMaterial;
+				PetStatsText.ApplyCjkFont(view.Text);
+				var onAnimationEnd = view.OnAnimationEnd;
+				view.OnAnimationEnd = () =>
+				{
+					view.Text.font = originalFont;
+					view.Text.fontSharedMaterial = originalMaterial;
+					onAnimationEnd();
+				};
+			}
 			activeRewards.Add(view);
 			Reposition();
 		}

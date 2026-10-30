@@ -269,6 +269,7 @@ namespace Codebase.UI.Inventory
 		public void OpenForAmuletReveal()
 		{
 			// Native ELF VA 0x1651638.
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { gameObject.SetActive(true); return; }
 			pendingFocusOnClose = NeedsGiantSoulForUnlock();
 			gameObject.SetActive(true);
 		}
@@ -276,6 +277,7 @@ namespace Codebase.UI.Inventory
 		public void OpenForEmptyAmuletReveal()
 		{
 			// Native ELF VA 0x16516f4.
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { gameObject.SetActive(true); return; }
 			showUnlockHelmetSlotAfter = true;
 			OpenForAmuletReveal();
 			PlayEmptyAmuletReveal().Forget();
@@ -300,6 +302,7 @@ namespace Codebase.UI.Inventory
 		private void HandleSearchSoul()
 		{
 			// Native ELF VA 0x16518b4.
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
 			gameObject.SetActive(false);
 			App.InitiateFlow(new FocusGiantSoulFlow()).Forget();
 		}
@@ -309,6 +312,7 @@ namespace Codebase.UI.Inventory
 			// Native ELF VA 0x1651954.
 			base.Cleanup();
 			uiModel.BlockItemsHotbar = true;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { pendingFocusOnClose = false; showUnlockHelmetSlotAfter = false; return; }
 			if (pendingFocusOnClose)
 			{
 			    pendingFocusOnClose = false;
@@ -338,6 +342,7 @@ namespace Codebase.UI.Inventory
 		{
 			// Native ELF VA 0x1651c48; preserve static category order.
 			List<ItemModel> items = unequippedItems;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return AllCategories.Where(category => category.SlotType == ItemSlotType.Weapon && items.Any(item => item.Config.SlotType == category.SlotType)).ToList();
 			return AllCategories.Where(category => items.Any(item => item.Config.SlotType == category.SlotType)).ToList();
 		}
 
@@ -378,6 +383,22 @@ namespace Codebase.UI.Inventory
 			itemPreviewMask.SetActive(selectedItem != null);
 			unequipMask.gameObject.SetActive(unequipState);
 			if (selectedItem == null) unequipState = false;
+			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
+			{
+				Transform amulet = transform.Find("Content/Amulet");
+				if (amulet != null) amulet.gameObject.SetActive(false);
+				Transform autoEquip = transform.Find("Content/Inventory_Storage/AutoEquipContainer");
+				if (autoEquip != null) autoEquip.gameObject.SetActive(false);
+				foreach (var button in GetComponentsInChildren<InventoryEquipAllButton>(true)) button.gameObject.SetActive(false);
+				foreach (string path in new[] { "Content/Stats/Image/Main_Stats (1)", "Content/Stats/Image/Main_Stats (2)" })
+				{
+					Transform row = transform.Find(path);
+					if (row != null) row.gameObject.SetActive(false);
+				}
+				searchSoulButton.gameObject.SetActive(false);
+				loadoutButton.SetActive(false);
+				return;
+			}
 			RenderAmuletStates();
 			loadoutButton.SetActive(metaStatsModel.Get("loadout_button").GetValue() > 0.0);
 		}
