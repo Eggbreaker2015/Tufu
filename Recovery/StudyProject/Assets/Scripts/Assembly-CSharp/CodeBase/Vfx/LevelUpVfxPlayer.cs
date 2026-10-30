@@ -64,7 +64,7 @@ namespace Codebase.Vfx
 			{
 				var unit = unitStash.Get(entity).Core;
 				if (unit == null || !unit.isActiveAndEnabled) continue;
-				return LevelUpVfx.Play(unit.transform, visualRoot: unit.VisualRoot) != null;
+				return LevelUpVfx.Play(unit.transform) != null;
 			}
 			return false;
 		}

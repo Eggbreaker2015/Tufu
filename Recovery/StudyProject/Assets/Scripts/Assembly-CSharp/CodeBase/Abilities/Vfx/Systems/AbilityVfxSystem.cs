@@ -2,6 +2,7 @@ using Codebase.Utilities.ObjectPool;
 using UnityEngine;
 using Codebase.Abilities.Vfx.Components;
 using Codebase.Core;
+using Codebase.Vfx;
 using Scellecs.Morpeh;
 
 namespace Codebase.Abilities.Vfx.Systems
@@ -27,7 +28,12 @@ namespace Codebase.Abilities.Vfx.Systems
 			    ref AbilityVfxComponent vfx = ref vfxStash.Get(entity);
 			    vfx.Elapsed += deltaTime;
 			    if (vfx.Target != null)
-			        vfx.ParticleSystem.transform.position = vfx.Target.position + Vector3.up * vfx.HeightOffset + vfx.PositionOffset;
+			    {
+			        // Deviation from native: follows the character's current size.
+			        float factor = vfx.BaseScale == Vector3.zero ? 1f : CharacterVfxScale.Factor(vfx.Target);
+			        vfx.ParticleSystem.transform.position = vfx.Target.position + Vector3.up * (vfx.HeightOffset * factor) + vfx.PositionOffset;
+			        if (vfx.BaseScale != Vector3.zero) vfx.ParticleSystem.transform.localScale = vfx.BaseScale * factor;
+			    }
 			    if (vfx.Elapsed >= vfx.Duration)
 			    {
 			        ObjectPoolUtility<ParticleSystem>.Despawn(vfx.ParticleSystem);

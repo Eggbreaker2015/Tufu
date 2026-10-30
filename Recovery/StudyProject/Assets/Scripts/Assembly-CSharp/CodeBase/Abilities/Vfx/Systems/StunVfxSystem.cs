@@ -7,6 +7,7 @@ using Codebase.Skills;
 using Codebase.Unit;
 using Codebase.Unit.Components;
 using Codebase.Utilities.ObjectPool;
+using Codebase.Vfx;
 using Scellecs.Morpeh;
 using UnityEngine;
 
@@ -84,12 +85,13 @@ namespace Codebase.Abilities.Vfx.Systems
 					visual = ObjectPoolUtility<ParticleSystem>.Spawn(prefab, position, rotation);
 					if (visual == null)
 						continue;
-					visual.transform.localScale = prefab.transform.localScale * (entry.Scale > 0f ? entry.Scale : 1f);
 					visual.Clear(true);
 					visual.Play(true);
 					activeVfx[entity] = visual;
 				}
 				visual.transform.SetPositionAndRotation(position, rotation);
+				// Sized by the stunned character, following later size changes.
+				visual.transform.localScale = prefab.transform.localScale * ((entry.Scale > 0f ? entry.Scale : 1f) * CharacterVfxScale.Factor(core.transform));
 			}
 		}
 

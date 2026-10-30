@@ -33,7 +33,7 @@ namespace Codebase.Rpg.Systems
 				HeroStats.ApplyLevel(hero.Unit, level);
 				if (!hero.IsAlive || hero.Unit is PlayerUnit player && player.IsReviving) continue;
 				hero.Unit.CurrentHealth = hero.Unit.GetStatValue(Codebase.Unit.StatType.Health);
-				LevelUpVfx.Play(hero.Unit.transform, visualRoot: hero.Unit.VisualRoot);
+				LevelUpVfx.Play(hero.Unit.transform);
 			}
 		}
 		public override void Dispose() { if (subscribed) progress.LevelChanged -= OnLevelChanged; }

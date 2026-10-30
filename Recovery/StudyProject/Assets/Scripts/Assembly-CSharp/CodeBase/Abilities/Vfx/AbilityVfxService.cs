@@ -4,6 +4,7 @@ using Scellecs.Morpeh;
 using UnityEngine.AddressableAssets;
 using System.Collections.Generic;
 using Codebase.Unit;
+using Codebase.Vfx;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -47,14 +48,21 @@ namespace Codebase.Abilities.Vfx
 			if (string.IsNullOrEmpty(data.Key) || target == null) return null;
 			ParticleSystem prefab = GetOrLoadPrefab(data.Key);
 			if (prefab == null) return null;
-			ParticleSystem instance = ObjectPoolUtility<ParticleSystem>.Spawn(prefab, target.position + Vector3.up * data.HeightOffset);
+			// Deviation from native: sized and offset by the character's size (CharacterVfxScale).
+			float factor = CharacterVfxScale.Factor(target);
+			ParticleSystem instance = ObjectPoolUtility<ParticleSystem>.Spawn(prefab, target.position + Vector3.up * (data.HeightOffset * factor));
+			Vector3 scale = prefab.transform.localScale * factor;
 			if (parent)
 			{
+			    // Parented: divide out the parent's scale, which keeps applying to later character growth.
 			    instance.transform.SetParent(target, true);
-			    instance.transform.localPosition = Vector3.up * data.HeightOffset;
+			    Vector3 parentScale = target.lossyScale;
+			    float parentY = Mathf.Max(Mathf.Abs(parentScale.y), 0.0001f);
+			    instance.transform.localPosition = Vector3.up * (data.HeightOffset * factor / parentY);
+			    scale = new Vector3(scale.x / Mathf.Max(Mathf.Abs(parentScale.x), 0.0001f), scale.y / parentY, scale.z / Mathf.Max(Mathf.Abs(parentScale.z), 0.0001f));
 			}
 			instance.transform.rotation = Quaternion.Euler(data.RotationX, data.RotationY, data.RotationZ);
-			instance.transform.localScale = prefab.transform.localScale;
+			instance.transform.localScale = scale;
 			instance.Clear(true);
 			instance.Play(true);
 			return instance;
@@ -86,13 +94,15 @@ namespace Codebase.Abilities.Vfx
 			if (string.IsNullOrEmpty(data.Key) || target == null) return;
 			ParticleSystem prefab = GetOrLoadPrefab(data.Key);
 			if (prefab == null) return;
-			ParticleSystem instance = ObjectPoolUtility<ParticleSystem>.Spawn(prefab, target.position + Vector3.up * data.HeightOffset + positionOffset);
+			// Deviation from native: sized and offset by the character's size; AbilityVfxSystem keeps it in step.
+			float factor = CharacterVfxScale.Factor(target);
+			ParticleSystem instance = ObjectPoolUtility<ParticleSystem>.Spawn(prefab, target.position + Vector3.up * (data.HeightOffset * factor) + positionOffset);
 			instance.transform.rotation = Quaternion.Euler(data.RotationX, rotationY, data.RotationZ);
-			instance.transform.localScale = prefab.transform.localScale;
+			instance.transform.localScale = prefab.transform.localScale * factor;
 			instance.Clear(true);
 			instance.Play(true);
 			World world = World.Default;
-			world.GetStash<AbilityVfxComponent>().Set(world.CreateEntity(), new AbilityVfxComponent { ParticleSystem = instance, Target = target, Duration = data.Duration, HeightOffset = data.HeightOffset, PositionOffset = positionOffset });
+			world.GetStash<AbilityVfxComponent>().Set(world.CreateEntity(), new AbilityVfxComponent { ParticleSystem = instance, Target = target, Duration = data.Duration, HeightOffset = data.HeightOffset, PositionOffset = positionOffset, BaseScale = prefab.transform.localScale });
 		}
 
 		public ParticleSystem SpawnAt(AbilityVfxData data, Vector3 position, float scaleMultiplier)

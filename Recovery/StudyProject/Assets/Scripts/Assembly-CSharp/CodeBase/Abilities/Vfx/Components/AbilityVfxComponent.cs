@@ -16,5 +16,8 @@ namespace Codebase.Abilities.Vfx.Components
 		public float HeightOffset;
 
 		public Vector3 PositionOffset;
+
+		// Prefab scale before the character-size factor; zero for fixed-position spawns.
+		public Vector3 BaseScale;
 	}
 }
