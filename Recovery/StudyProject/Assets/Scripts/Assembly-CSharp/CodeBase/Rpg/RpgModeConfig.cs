@@ -45,7 +45,7 @@ namespace Codebase.Rpg
 		public double XpBase = 20;
 		public double XpGrowth = 1.1;
 		public double XpNeedBase = 1.5;
-		public double XpNeedPerLevel = 0.3;
+		public double XpNeedPerLevel = 0.15;
 		public List<float> XpDifferenceFactors = new List<float> { 1f };
 		public Sprite GoldIcon;
 		public double GoldBase = 5;
@@ -59,8 +59,8 @@ namespace Codebase.Rpg
 		// Pudge's model is about twice as wide as his NavMeshAgent body, which the level-up effect is sized from.
 		public float ProtagonistLevelUpVfxScale = 2f;
 		public float NormalCooldown = 45f, EliteCooldown = 180f, BossCooldown = 600f, StaticCooldown = 120f;
-		public float NormalXpMultiplier = 1f, EliteXpMultiplier = 5f, BossXpMultiplier = 20f, StaticXpMultiplier = 0.5f;
-		public float NormalGoldMultiplier = 1f, EliteGoldMultiplier = 5f, BossGoldMultiplier = 20f, StaticGoldMultiplier = 0.5f;
+		public float NormalXpMultiplier = 1f, EliteXpMultiplier = 5f, BossXpMultiplier = 20f, StaticXpMultiplier = 1f;
+		public float NormalGoldMultiplier = 1f, EliteGoldMultiplier = 5f, BossGoldMultiplier = 20f, StaticGoldMultiplier = 1f;
 		public float QuestStepXpMultiplier = 5f, QuestChainXpMultiplier = 20f;
 		public List<int> IslandStarts = new List<int> { 1, 5, 10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57 };
 		public List<int> IslandEnds = new List<int> { 5, 10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 43, 47, 50, 53, 57, 60 };

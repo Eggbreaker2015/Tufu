@@ -148,7 +148,7 @@ MonoBehaviour:
   XpBase: 20
   XpGrowth: 1.1
   XpNeedBase: 1.5
-  XpNeedPerLevel: 0.3
+  XpNeedPerLevel: 0.15
   XpDifferenceFactors:
   - 1
   GoldIcon: {fileID: 21300000, guid: 50a40e3fa0e0463f8fe631ce7e88e27f, type: 3}
@@ -167,11 +167,11 @@ MonoBehaviour:
   NormalXpMultiplier: 1
   EliteXpMultiplier: 5
   BossXpMultiplier: 20
-  StaticXpMultiplier: 0.5
+  StaticXpMultiplier: 1
   NormalGoldMultiplier: 1
   EliteGoldMultiplier: 5
   BossGoldMultiplier: 20
-  StaticGoldMultiplier: 0.5
+  StaticGoldMultiplier: 1
   QuestStepXpMultiplier: 5
   QuestChainXpMultiplier: 20
   IslandStarts: 01000000050000000a0000000d0000001100000014000000170000001b0000001e0000002100000025000000280000002b0000002f000000320000003500000039000000i
