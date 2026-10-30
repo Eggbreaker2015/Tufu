@@ -18,6 +18,7 @@ namespace RecoveryTools
         private static readonly string[] SaveFiles = { "game_data.bin", "game_data_temp.bin", "game_data_backup.bin" };
         public static bool IsSwitching => SessionState.GetInt(PendingKey, 0) != 0;
         public static string LastStatus => SessionState.GetString(StatusKey, "");
+        public static string ActiveSaveDirectory => SaveFolder(StudyTestProfile.SaveDirectory);
 
         static StudyTestProfileController()
         {
@@ -59,7 +60,7 @@ namespace RecoveryTools
         public static string BackupCurrent()
         {
             SaveCurrent();
-            return BackupDirectory(StudyTestProfile.SaveDirectory, StudyTestProfile.IsEnabled ? "test" : "normal");
+            return BackupDirectory(ActiveSaveDirectory, StudyTestProfile.IsEnabled ? "test" : "normal");
         }
 
         private static void ProcessPending()
@@ -69,14 +70,14 @@ namespace RecoveryTools
             SessionState.SetInt(PendingKey, 0);
             try
             {
-                string testDirectory = CheckedTestDirectory();
+                string testDirectory = SaveFolder(CheckedTestDirectory());
                 bool useTest = request != Request.Normal;
                 if (request == Request.CloneNormal)
                 {
-                    string source = Path.Combine(StudyTestProfile.NormalDirectory, SaveFiles[0]);
+                    string source = Path.Combine(SaveFolder(StudyTestProfile.NormalDirectory), SaveFiles[0]);
                     if (!File.Exists(source) || new FileInfo(source).Length == 0)
                         throw new IOException("正常存档尚未生成，请先正常运行一次游戏。");
-                    BackupDirectory(StudyTestProfile.NormalDirectory, "normal-before-test");
+                    BackupDirectory(SaveFolder(StudyTestProfile.NormalDirectory), "normal-before-test");
                     BackupDirectory(testDirectory, "test-before-clone");
                     Directory.CreateDirectory(testDirectory);
                     File.Copy(source, Path.Combine(testDirectory, SaveFiles[0]), true);
@@ -112,6 +113,12 @@ namespace RecoveryTools
             return "StudyTest.TimeSkipSeconds." + Hash128.Compute(Application.dataPath);
         }
 
+        // RPG mode keeps its saves in an Rpg subfolder of each profile, matching GameDataService.
+        private static string SaveFolder(string profileDirectory)
+        {
+            return Codebase.Rpg.RpgModeConfig.Enabled ? Path.Combine(profileDirectory, "Rpg") : profileDirectory;
+        }
+
         private static string CheckedTestDirectory()
         {
             string normal = Path.GetFullPath(StudyTestProfile.NormalDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
@@ -123,7 +130,7 @@ namespace RecoveryTools
 
         private static void DeleteTestFile(string directory, string file)
         {
-            if (!string.Equals(Path.GetFullPath(directory), CheckedTestDirectory(), StringComparison.OrdinalIgnoreCase) || Array.IndexOf(SaveFiles, file) < 0)
+            if (!string.Equals(Path.GetFullPath(directory), SaveFolder(CheckedTestDirectory()), StringComparison.OrdinalIgnoreCase) || Array.IndexOf(SaveFiles, file) < 0)
                 throw new InvalidOperationException("拒绝修改测试存档以外的文件。");
             string path = Path.Combine(directory, file);
             if (File.Exists(path)) File.Delete(path);

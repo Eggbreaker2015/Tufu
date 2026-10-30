@@ -105,7 +105,7 @@ namespace RecoveryTools
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     if (GUILayout.Button("备份当前档")) Run(() => "存档备份：" + StudyTestProfileController.BackupCurrent());
-                    if (GUILayout.Button("打开存档目录")) EditorUtility.RevealInFinder(StudyTestProfile.SaveDirectory);
+                    if (GUILayout.Button("打开存档目录")) EditorUtility.RevealInFinder(StudyTestProfileController.ActiveSaveDirectory);
                 }
             }
         }
