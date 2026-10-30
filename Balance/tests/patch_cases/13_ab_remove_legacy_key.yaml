@@ -1,0 +1,12 @@
+name: ab_remove_legacy_key
+description: >-
+  AB spawnerCooldowns, variant A, elite cooldown minutes: the keyData cell is the legacy float of keys 1..4
+  (design 3.6 item 6). Removing island 4 rewrites it as a hex blob; island 4 falls back to the class default
+  150 minutes, not to defaultValue (180).
+overrides:
+  - node: ABTestDataConfig.spawnerCooldowns.variants[].data.elite.cooldownMinutes.overridesByLocation.keyData
+    where: {variant: A}
+    set: [1, 2, 3]
+  - node: ABTestDataConfig.spawnerCooldowns.variants[].data.elite.cooldownMinutes.overridesByLocation.valueData
+    where: {variant: A}
+    set: [60, 90, 120]

@@ -1,0 +1,933 @@
+{
+ "meta": {
+  "source": {
+   "path": "Balance/tests/golden/fixtures/generate.py",
+   "sha256": "e0a5e6886f141c5fdbcacb6e5b059b43c024c157dc251f2e1dc8188575c4bde2"
+  },
+  "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
+  "git_rev": "ffa2f973bd65b46a1f430fe6319e976a0ccf92bd",
+  "date": "2026-10-28",
+  "note": "comparison logic written for W0, not a survey port",
+  "main_db": {
+   "path": "/Users/joyfort/MyProjects/Tufu/Balance/out/balance.sqlite",
+   "sha256": "c10627ca65e52ec4fd37abe003b226046ef086a5d0b76def5a0a45403248f9ec",
+   "branch": "feature/pet-system (working tree incl. uncommitted changes)"
+  }
+ },
+ "tables_main": 538,
+ "tables_stage5": 536,
+ "tables_only_main": [
+  "c_PetConfig",
+  "c_PetConfig__Pets"
+ ],
+ "tables_only_stage5": [],
+ "tables_differ": [
+  "assets",
+  "c_ItemConfig",
+  "c_PlayerConfig",
+  "config_values",
+  "data_dictionary",
+  "enums",
+  "items"
+ ],
+ "unexplained": 0,
+ "verdict": "all differences are pet-related",
+ "deviation_from_design": "Design 2.10/7.3 expected only c_PetConfig* and PlayerConfig.PlayerAttackItem. The actual set is broader but still pet-only: pet item asset player_claw (rows in items, c_ItemConfig, assets, config_values; its empty AbilityDefs list adds the scalar column c_ItemConfig.AbilityDefs), Pet Config asset (assets, config_values), enums PetState and MissingHealthBonusReceiver, and data_dictionary nodes/statistics derived from these.",
+ "tables": [
+  {
+   "table": "assets",
+   "rows_main": 153,
+   "rows_stage5": 151,
+   "columns_only_main": [],
+   "columns_only_stage5": [],
+   "rows_only_one_side": [
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/Player Config.asset"
+     },
+     "cause": "Player Config data differs only in PlayerAttackItem"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset"
+     },
+     "cause": "pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset"
+     },
+     "cause": "pet asset"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "owner": "MonoBehaviour/Player Config.asset"
+     },
+     "cause": "Player Config data differs only in PlayerAttackItem"
+    }
+   ],
+   "rows_only_one_side_by_cause": {
+    "main: Player Config data differs only in PlayerAttackItem": 1,
+    "main: pet asset": 2,
+    "stage5: Player Config data differs only in PlayerAttackItem": 1
+   }
+  },
+  {
+   "table": "c_ItemConfig",
+   "rows_main": 89,
+   "rows_stage5": 88,
+   "columns_only_main": [
+    "AbilityDefs"
+   ],
+   "columns_only_stage5": [],
+   "column_values_only_main": {
+    "AbilityDefs": {
+     "non_null_rows": 1,
+     "non_null_assets": [
+      "MonoBehaviour/player_claw.asset"
+     ],
+     "cause": "pet column"
+    }
+   },
+   "rows_only_one_side": [
+    {
+     "side": "main",
+     "key": {
+      "asset": "MonoBehaviour/player_claw.asset",
+      "Key": "player_claw"
+     },
+     "cause": "row of pet item player_claw"
+    }
+   ],
+   "rows_only_one_side_by_cause": {
+    "main: row of pet item player_claw": 1
+   }
+  },
+  {
+   "table": "c_PlayerConfig",
+   "rows_main": 1,
+   "rows_stage5": 1,
+   "columns_only_main": [
+    "PlayerAttackItem"
+   ],
+   "columns_only_stage5": [],
+   "column_values_only_main": {
+    "PlayerAttackItem": {
+     "non_null_rows": 1,
+     "non_null_assets": [
+      "MonoBehaviour/Player Config.asset"
+     ],
+     "cause": "pet column"
+    }
+   },
+   "rows_only_one_side": [],
+   "rows_only_one_side_by_cause": {}
+  },
+  {
+   "table": "config_values",
+   "rows_main": 94995,
+   "rows_stage5": 94949,
+   "columns_only_main": [],
+   "columns_only_stage5": [],
+   "rows_only_one_side": [
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "AbilityDefs"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "AnimationBackPoint"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "AnimationCastPoint"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "AttackCooldown"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "DamageStatTypeFlat"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "DamageStatTypePercent"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "DamageType"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "DivineIcon"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "DivinePrefab"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "EngageRadius"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "FlatDamage"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "FollowSpeedMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "Icon"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "Key"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "LeashRadius"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "Number"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[0].AttackSpeedMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[0].DamageMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[0].DamageType"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[0].DefenceMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[0].HealthMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[0].ItemKey"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[0].Prefab"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[1].AttackSpeedMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[1].DamageMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[1].DamageType"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[1].DefenceMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[1].HealthMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[1].ItemKey"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[1].Prefab"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[2].AttackSpeedMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[2].DamageMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[2].DamageType"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[2].DefenceMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[2].HealthMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[2].ItemKey"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "Pets[2].Prefab"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/Player Config.asset",
+      "field_path": "PlayerAttackItem"
+     },
+     "cause": "PlayerConfig.PlayerAttackItem"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "Prefab"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "Rarity"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "ReviveCooldown"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "SimulationDpsWeaponMultiplier"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "SlotType"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "MonoBehaviour/player_claw.asset",
+      "field_path": "StatModifiers"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "TeleportDistance"
+     },
+     "cause": "config value of a pet asset"
+    },
+    {
+     "side": "main",
+     "key": {
+      "owner": "Resources/Pet Config.asset",
+      "field_path": "enabled"
+     },
+     "cause": "config value of a pet asset"
+    }
+   ],
+   "rows_only_one_side_by_cause": {
+    "main: PlayerConfig.PlayerAttackItem": 1,
+    "main: config value of a pet asset": 45
+   }
+  },
+  {
+   "table": "data_dictionary",
+   "rows_main": 3979,
+   "rows_stage5": 3964,
+   "columns_only_main": [],
+   "columns_only_stage5": [],
+   "rows_only_one_side": [
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.AbilityDefs"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.AnimationBackPoint"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.AnimationCastPoint"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.AttackCooldown"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.DamageStatTypeFlat"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.DamageStatTypePercent"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.DamageType"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.DivineIcon"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.DivinePrefab"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.FlatDamage"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.Icon"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.Key"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.Number"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.Prefab"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.Rarity"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.SimulationDpsWeaponMultiplier"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.SlotType"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "ItemConfig.StatModifiers"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.EngageRadius"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.FollowSpeedMultiplier"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.LeashRadius"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.Pets[].AttackSpeedMultiplier"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.Pets[].DamageMultiplier"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.Pets[].DamageType"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.Pets[].DefenceMultiplier"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.Pets[].HealthMultiplier"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.Pets[].ItemKey"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.Pets[].Prefab"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.ReviveCooldown"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.TeleportDistance"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PetConfig.enabled"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "main",
+     "key": {
+      "node": "PlayerConfig.PlayerAttackItem"
+     },
+     "cause": "dictionary node of a pet table/column"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.AnimationBackPoint"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.AnimationCastPoint"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.AttackCooldown"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.DamageStatTypeFlat"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.DamageStatTypePercent"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.DamageType"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.DivineIcon"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.DivinePrefab"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.FlatDamage"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.Icon"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.Key"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.Number"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.Prefab"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.Rarity"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.SimulationDpsWeaponMultiplier"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.SlotType"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    },
+    {
+     "side": "stage5",
+     "key": {
+      "node": "ItemConfig.StatModifiers"
+     },
+     "cause": "dictionary statistics shifted by the extra player_claw row"
+    }
+   ],
+   "rows_only_one_side_by_cause": {
+    "main: dictionary node of a pet table/column": 15,
+    "main: dictionary statistics shifted by the extra player_claw row": 17,
+    "stage5: dictionary statistics shifted by the extra player_claw row": 17
+   }
+  },
+  {
+   "table": "enums",
+   "rows_main": 459,
+   "rows_stage5": 455,
+   "columns_only_main": [],
+   "columns_only_stage5": [],
+   "rows_only_one_side": [
+    {
+     "side": "main",
+     "key": {
+      "enum": "MissingHealthBonusReceiver",
+      "member": "Player"
+     },
+     "cause": "enum added by the pet branch (7972f29)"
+    },
+    {
+     "side": "main",
+     "key": {
+      "enum": "MissingHealthBonusReceiver",
+      "member": "Self"
+     },
+     "cause": "enum added by the pet branch (7972f29)"
+    },
+    {
+     "side": "main",
+     "key": {
+      "enum": "PetState",
+      "member": "Alive"
+     },
+     "cause": "enum added by the pet branch (7972f29)"
+    },
+    {
+     "side": "main",
+     "key": {
+      "enum": "PetState",
+      "member": "Dead"
+     },
+     "cause": "enum added by the pet branch (7972f29)"
+    }
+   ],
+   "rows_only_one_side_by_cause": {
+    "main: enum added by the pet branch (7972f29)": 4
+   }
+  },
+  {
+   "table": "items",
+   "rows_main": 89,
+   "rows_stage5": 88,
+   "columns_only_main": [],
+   "columns_only_stage5": [],
+   "rows_only_one_side": [
+    {
+     "side": "main",
+     "key": {
+      "asset": "MonoBehaviour/player_claw.asset",
+      "Key": "player_claw"
+     },
+     "cause": "row of pet item player_claw"
+    }
+   ],
+   "rows_only_one_side_by_cause": {
+    "main: row of pet item player_claw": 1
+   }
+  }
+ ]
+}

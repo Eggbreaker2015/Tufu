@@ -1,0 +1,195 @@
+{
+ "meta": {
+  "source": {
+   "path": "Balance/tests/golden/fixtures/generate.py",
+   "sha256": "e0a5e6886f141c5fdbcacb6e5b059b43c024c157dc251f2e1dc8188575c4bde2",
+   "ported_from": [
+    {
+     "path": "/private/tmp/claude-501/-Users-joyfort-MyProjects-Tufu/f3201c8d-2463-46c4-95af-b416f6c1537d/scratchpad/stage5/model/golden_probe.py",
+     "sha256": "fdbc7e1c03a4ab1a09dd60f777fc5c1b0d053bd1df5161d55040c5f2d5bdb700"
+    }
+   ],
+   "imports": [
+    {
+     "path": "Balance/tufu_balance/model/bake.py",
+     "sha256": "e57930fee5d3fabd3919eb9c1e735be7c827d59a12b05c37a6a2e925ed1fafa9"
+    },
+    {
+     "path": "Balance/tufu_balance/model/data.py",
+     "sha256": "0f1b0a7fcfa92ce85fd3328e9949407fa7ade084a36d618a1ea476709a279c1d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/defense.py",
+     "sha256": "d4ac09c8ea24fa3bb5ed10c62fe7831eacabb496d3ba8467170d16fdb397d55d"
+    },
+    {
+     "path": "Balance/tufu_balance/model/enums.py",
+     "sha256": "168864954f9c169a116b71e4fdd18e54f5cc108ccccb76a099d9aadcde3d49c7"
+    },
+    {
+     "path": "Balance/tufu_balance/model/f32.py",
+     "sha256": "34adb1c00157d11378f31e03a7771647a007b5b75745873878b59cc906e330e6"
+    },
+    {
+     "path": "Balance/tufu_balance/model/interpolation.py",
+     "sha256": "519e45c55e20f99977e3f6901d7a09b3a93274308f92b4a781489ed9a0083764"
+    },
+    {
+     "path": "Balance/tufu_balance/model/snapshots.py",
+     "sha256": "608bb69ba2b9dd7cc757c90fe99fbab8ab9167dd4c421451c5e0544e9cc234bf"
+    },
+    {
+     "path": "Balance/tufu_balance/model/stats.py",
+     "sha256": "164f9b6433151505cff8878f847c9441943002634b4bd914cb16c47e63104f38"
+    }
+   ]
+  },
+  "db_sha256": "a7a2e3c5d048c57f9a77d3057dd0c35ed30cf799fe6612529961c44a18e3e098",
+  "git_rev": "ffa2f973bd65b46a1f430fe6319e976a0ccf92bd",
+  "date": "2026-10-28",
+  "note": "snapshot_composition uses the model's current Evaluate (stepwise rounding) with tolerances; its tf/tv counts equal the stepwise ablation of G11, see interpolation_rounding.json for the exact per-rounding counts"
+ },
+ "bake_minute_mode": {
+  "n": 108,
+  "hp_exact": 79,
+  "damage_exact": 104,
+  "both_exact": 79
+ },
+ "bake_day_mode": {
+  "n": 609,
+  "hp_exact": 1,
+  "damage_exact": 20
+ },
+ "bake_infos_minute_mode": {
+  "n": 108,
+  "health_eq_pred": 13,
+  "damage_eq_pred": 43
+ },
+ "minute_mode_hp_exact_set": {
+  "n": 79,
+  "sha256": "1bc7c7983bc93e1a214b6d3de59be280904c81ae0ed36cbc092df489227d94eb",
+  "keys": [
+   "Spawner_1 (1)_e8eb48749381f114d9a39596d3fbfc8f|Spawner_1 (1)",
+   "Spawner_1 (10)_e71a65e0f9aa5f14aa166b864998e967|Spawner_1 (10)",
+   "Spawner_1 (12)_328a41ded420dc84e973de30eef5dd6d|Spawner_1 (12)",
+   "Spawner_1 (13)_2f80b87f0c6303a409319bf0e767e002|Spawner_1 (13)",
+   "Spawner_1 (2)_b2760d4c1e30b1b478fc09098d1ce40b|Spawner_1 (2)",
+   "Spawner_1 (3)_09e2f503e0347364090ed5a72b1110fa|Spawner_1 (3)",
+   "Spawner_1 (4)_1b5174cd5b8c37441bcc427a6d08be35|Spawner_1 (4)",
+   "Spawner_1 (5)_dfbb92f71e19ab743b752e24f128bbed|Spawner_1 (5)",
+   "Spawner_1 (5)_e05c477c5fdf39749ab20e6d23ff5c6b|Spawner_1 (5)",
+   "Spawner_1 (6)_4a3bf7b4d69a5e449a68c9f48618a8e3|Spawner_1 (6)",
+   "Spawner_1 (8)_d6be6d57f23f34840bc6df085eadba3b|Spawner_1 (8)",
+   "Spawner_1_pierc_uncommon_3f7f605ca6efd8e41961a38ee6e74ad2|Spawner_1_pierc_uncommon",
+   "Spawner_boss_pier_common_slot_3a6eab0d4328bc3408bb980099f1c5ee|Spawner_boss_pier_common_slot",
+   "Spawner_boss_smash_uncommon_4c73a9d643e38264d9943f25dfa76569|Spawner_boss_smash_uncommon",
+   "Spawner_common_cut_1d67c9a6468702a45ba35061fec7f723|Spawner_common_cut",
+   "Spawner_elite smash_b9de753553e6a04438fa097a9eaf7636|Spawner_elite smash",
+   "Spawner_elite_HP_cef4e24ff9718b24e8ad34034ac851fd|Spawner_elite_HP",
+   "Spawner_elite_regen_f26d4d9599e8c23418b5a902e2182553|Spawner_elite_regen",
+   "Spawner_mid_smash_common_ad5f4301b782f47488393abd89d8cfc9|Spawner_mid_smash_common",
+   "Spawner_uncommon_cut (1)_18dae3bb28583e14891599c5187b63bf|Spawner_uncommon_cut (1)",
+   "Spawner_vip_3 (1)_df1e8a9d53ff1484b89c230a01eeab01|Spawner_vip_3 (1)",
+   "Spawner_vip_3 (2)_c8f8e260e3f23f945adb106f26492c4a|Spawner_vip_3 (2)",
+   "Spawner_vip_3 (3)_f1e0353e6aaa26b4599e49e5eb0c7d04|Spawner_vip_3 (3)",
+   "Spawner_vip_3 (4)_356f96918ed5cfa42831b2fa3a3c6e44|Spawner_vip_3 (4)",
+   "Spawner_vip_3 (5)_e70d19cf3d8e3e64d9b9db8aa059b8fc|Spawner_vip_3 (5)",
+   "tree_1 (1)_cab2982e460073649a2f7dadc4bd33af|tree_1 (1)",
+   "tree_1 (10)_a68da335600538e45bc642d3cc861abe|tree_1 (10)",
+   "tree_1 (11)_79702de2c5acd7349a27f0c43ba55caa|tree_1 (11)",
+   "tree_1 (11)_95791ab9307a4e9428c2925d2ee749bb|tree_1 (11)",
+   "tree_1 (12)_2fa9bed035a4aa84f8b2077aa62821f6|tree_1 (12)",
+   "tree_1 (12)_3f279c24d7d625f42937a8429481a74e|tree_1 (12)",
+   "tree_1 (12)_ef5013694cad0f74e9c00539a3dd25d3|tree_1 (12)",
+   "tree_1 (13)_6443293613957b6458af51123237c29e|tree_1 (13)",
+   "tree_1 (13)_c796a8bbf791f2640a56b8c1042f52e4|tree_1 (13)",
+   "tree_1 (13)_f418a9d7f8e6fa14f86fb66223b62ec3|tree_1 (13)",
+   "tree_1 (14)_1baeb1cfdda86ae47b336e9b12f65aec|tree_1 (14)",
+   "tree_1 (14)_63dbc7a44a4381045a479cc21c5810b0|tree_1 (14)",
+   "tree_1 (14)_dd4e815e24db8ff4abef625b8164d7a5|tree_1 (14)",
+   "tree_1 (15)_01f9d6bb7c1b8a043abe87cbc0f79e14|tree_1 (15)",
+   "tree_1 (15)_610b75fa8c835cb41a69f7c62268f444|tree_1 (15)",
+   "tree_1 (15)_bf882ce4f9a6cec4fafe64e0208c71a8|tree_1 (15)",
+   "tree_1 (16)_03cd4a27ff32d3f46b5bfe059cc56602|tree_1 (16)",
+   "tree_1 (16)_e49c3ecc2533a7248a1e831ec9735430|tree_1 (16)",
+   "tree_1 (18)_0fc1c5c163a60d54faaed7f9f9f236a6|tree_1 (18)",
+   "tree_1 (18)_5fece5f2a8a737c458fa94de51f6f164|tree_1 (18)",
+   "tree_1 (19)_084b33231c390544ca99a575f77d39c3|tree_1 (19)",
+   "tree_1 (19)_5c1ee0fcd403ad3429bdcbac035a8dd4|tree_1 (19)",
+   "tree_1 (2)_8664cc31e7d27eb43b8d55bcc5628ff5|tree_1 (2)",
+   "tree_1 (20)_1bc26a7ac241c2949affdb5d78ffceca|tree_1 (20)",
+   "tree_1 (20)_20209fe8704d9f84b9e30a093f2404c7|tree_1 (20)",
+   "tree_1 (21)_32cbc72c977836540a0412fc1eb32de4|tree_1 (21)",
+   "tree_1 (21)_8a9748acf01833e4f8beb144492d0eb3|tree_1 (21)",
+   "tree_1 (22)_29432dd3cde5b06458747fba9a9bdb4f|tree_1 (22)",
+   "tree_1 (22)_9050235f6c578d942ae9b040431eb8ba|tree_1 (22)",
+   "tree_1 (23)_435a2d8a7df6609408370c47cf24b543|tree_1 (23)",
+   "tree_1 (23)_e54d52721e496f7428a25481b5f4bda1|tree_1 (23)",
+   "tree_1 (24)_fbe7530cf15eccb42beeebf7c692f8f0|tree_1 (24)",
+   "tree_1 (25)_572656c104fd8ec43b7e01c863205a0c|tree_1 (25)",
+   "tree_1 (25)_92325cd86b2a4684e9c9599ec74141d8|tree_1 (25)",
+   "tree_1 (26)_78e0610ddb18a394ba09f2a3562f3568|tree_1 (26)",
+   "tree_1 (26)_94a194a726bb23b4c95f8b49b7df8e3a|tree_1 (26)",
+   "tree_1 (27)_1abeeafd0dcb6f147bd1ed6142d5da2d|tree_1 (27)",
+   "tree_1 (28)_9de59370b68a36342aee9d0de3ad6407|tree_1 (28)",
+   "tree_1 (28)_c567a33aaec6c8d41a37a8822b81efb4|tree_1 (28)",
+   "tree_1 (29)_c6544391f7896e84aa3b8feab7d29b52|tree_1 (29)",
+   "tree_1 (29)_fd413ddd49ffd774ca6d4b474c2285bc|tree_1 (29)",
+   "tree_1 (3)_cb11e7328fefe70488ee26296721d71a|tree_1 (3)",
+   "tree_1 (33)_af849bc7da84c314881189cd77c2bf73|tree_1 (33)",
+   "tree_1 (34)_fb989244e6fee3e4d9cfd330db81b628|tree_1 (34)",
+   "tree_1 (35)_f43028c52ddb0a143a65e7cc68db6ee4|tree_1 (35)",
+   "tree_1 (36)_8af20fb92025963499987f888fa43f21|tree_1 (36)",
+   "tree_1 (39)_67da3b1302f3ed44b8716e2c455cee76|tree_1 (39)",
+   "tree_1 (4)_58a59c9cb18ad524d8144f4405529db0|tree_1 (4)",
+   "tree_1 (5)_8b2c996375e6bb94c91eed670a953ce6|tree_1 (5)",
+   "tree_1 (6)_9d8979c866b01d74488059dd05f17173|tree_1 (6)",
+   "tree_1 (7)_85469a9085ff7cc4e89caab27b56bf71|tree_1 (7)",
+   "tree_1 (8)_11a25dfdc96faf44c81cc663dd379a1b|tree_1 (8)",
+   "tree_1 (9)_2dc52608b773d5a46ac053446068229c|tree_1 (9)",
+   "tree_1_c5d46e300c9ecdd4db0b6d7e30e85c91|tree_1"
+  ]
+ },
+ "snapshot_composition": {
+  "chunk": {
+   "n_snap": 46,
+   "sff_ok": 414,
+   "pm_ok": 414,
+   "tf_ok": 405,
+   "tv_ok": 393,
+   "n_stats": 414,
+   "other_ok": 966,
+   "n_other": 966
+  },
+  "playtime": {
+   "n_snap": 63,
+   "sff_ok": 567,
+   "pm_ok": 567,
+   "tf_ok": 567,
+   "tv_ok": 567,
+   "n_stats": 567,
+   "other_ok": 1323,
+   "n_other": 1323
+  }
+ },
+ "interpolation_knots": {
+  "n": 49,
+  "f32_exact": 45,
+  "le_5e-5": 49,
+  "max_err": 3.0517578125e-05,
+  "round4_exact": 45,
+  "round3_exact": 45
+ },
+ "evolution_target_timings": {
+  "n": 150,
+  "le_5e-5": 150,
+  "f32_exact": 150,
+  "round3_exact": 91
+ },
+ "island_target_days_tail": {
+  "islands": "16..99",
+  "n": 84,
+  "f32_exact": 84
+ },
+ "recalc_optimum_time_model_vs_f64_differ_gt_1e-3": 0
+}

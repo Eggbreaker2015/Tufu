@@ -1,0 +1,12 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.IslandTargetDays", "row": {}, "index": 0, "old": 0.5, "new": 1.0},
+    {"node": "CombatBalanceConfig.IslandTargetDays", "row": {}, "index": 1, "old": 1.8333333730697632, "new": 3.6666667461395264},
+    {"node": "CombatBalanceConfig.IslandTargetDays", "row": {}, "index": 2, "old": 4.0, "new": 8.0}
+  ],
+  "ops": [
+    {"source": "override", "node": "CombatBalanceConfig.IslandTargetDays", "rows": 1, "leaves": 3, "values": [{"row": {}, "index": 0, "old": 0.5, "new": 1.0}, {"row": {}, "index": 1, "old": 1.8333333730697632, "new": 3.6666667461395264}, {"row": {}, "index": 2, "old": 4.0, "new": 8.0}]}
+  ],
+  "warnings": [],
+  "passthrough": []
+}

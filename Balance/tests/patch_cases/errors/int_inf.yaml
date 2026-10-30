@@ -1,0 +1,3 @@
+name: int_inf
+overrides:
+  - {node: EnemySpawnerConfig.Count, where: {Key: BossTower_c296e152609ae5849bb7d52b03df895a}, set: .inf}

@@ -1,0 +1,26 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.IslandTargetDays", "row": {}, "index": 16, "old": 180.0, "new": 190.0},
+    {"node": "CombatBalanceConfig.CommonEvolutionTargetTimings", "row": {}, "index": 6, "old": 180.0, "new": 190.0},
+    {"node": "CombatBalanceConfig.CommonArmorEvolutionTargetTimings", "row": {}, "index": 6, "old": 195.83334350585938, "new": 200.83334350585938},
+    {"node": "CombatBalanceConfig.UncommonArmorEvolutionTargetTimings", "row": {}, "index": 4, "old": 165.0, "new": 170.0},
+    {"node": "CombatBalanceConfig.RareArmorEvolutionTargetTimings", "row": {}, "index": 3, "old": 195.83334350585938, "new": 200.83334350585938},
+    {"node": "CombatBalanceConfig.EpicArmorEvolutionTargetTimings", "row": {}, "index": 1, "old": 165.0, "new": 170.0},
+    {"node": "CombatBalanceConfig.LegendaryArmorEvolutionTargetTimings", "row": {}, "index": 0, "old": 195.83334350585938, "new": 200.83334350585938},
+    {"node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints", "row": {"idx": 2}, "index": null, "old": "110; 180", "new": "110; 190"},
+    {"node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints", "row": {"idx": 4}, "index": null, "old": "110; 180", "new": "110; 190"},
+    {"node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints", "row": {"idx": 11}, "index": null, "old": "1.833333; 90; 180", "new": "1.833333; 90; 190"}
+  ],
+  "ops": [
+    {"source": "base:regenerate_island17", "node": "CombatBalanceConfig.IslandTargetDays", "rows": 1, "leaves": 1},
+    {"source": "regenerate.evolution_target_timings", "node": "CombatBalanceConfig.CommonEvolutionTargetTimings", "rows": 1, "leaves": 1},
+    {"source": "regenerate.evolution_target_timings", "node": "CombatBalanceConfig.CommonArmorEvolutionTargetTimings", "rows": 1, "leaves": 1},
+    {"source": "regenerate.evolution_target_timings", "node": "CombatBalanceConfig.UncommonArmorEvolutionTargetTimings", "rows": 1, "leaves": 1},
+    {"source": "regenerate.evolution_target_timings", "node": "CombatBalanceConfig.RareArmorEvolutionTargetTimings", "rows": 1, "leaves": 1},
+    {"source": "regenerate.evolution_target_timings", "node": "CombatBalanceConfig.EpicArmorEvolutionTargetTimings", "rows": 1, "leaves": 1},
+    {"source": "regenerate.evolution_target_timings", "node": "CombatBalanceConfig.LegendaryArmorEvolutionTargetTimings", "rows": 1, "leaves": 1},
+    {"source": "regenerate.interpolation_timing_points", "node": "CombatBalanceConfig.Interpolations.Interpolations[].TimingPoints", "rows": 3, "leaves": 3}
+  ],
+  "warnings": [],
+  "passthrough": []
+}

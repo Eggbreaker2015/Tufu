@@ -1,0 +1,14 @@
+name: regenerate_island17
+description: >-
+  Island 17 ends 10 days later, every island-axis generator on. The tail generator keeps the edited ITD[16]
+  (set by this patch) and warns; the window, the island-17 OTs, the evolution target timings and the
+  interpolation knots inside island 17 are expanded into explicit sets.
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 16
+    add: 10
+regenerate:
+  island_target_days_tail: true
+  optimum_time_from_relative: true
+  evolution_target_timings: true
+  interpolation_timing_points: true

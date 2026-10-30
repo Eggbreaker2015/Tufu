@@ -1,0 +1,3 @@
+name: two_ops
+overrides:
+  - {node: CombatBalanceConfig.IslandTargetDays, index: 0, add: 1, mul: 2}

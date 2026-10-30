@@ -1,0 +1,5 @@
+name: add_on_string
+overrides:
+  - node: CombatBalanceConfig.Interpolations.Interpolations[].IslandPoints
+    where: {Name: Tower}
+    add: 1

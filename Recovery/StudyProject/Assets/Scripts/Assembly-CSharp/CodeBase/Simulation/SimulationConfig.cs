@@ -8,10 +8,11 @@ using System;
 using System.Linq;
 using Codebase.Unit;
 using Codebase.Services.Damage;
+using Codebase.Simulation.Rebuild;
 
 namespace Codebase.Simulation
 {
-	public class SimulationConfig : ScriptableObject
+	public partial class SimulationConfig : ScriptableObject
 	{
 		private const string GROUP_DEPENDENCIES = "Dependencies";
 		private const string BOT_PROFILE = "bot_profile";
@@ -79,25 +80,44 @@ namespace Codebase.Simulation
 		private bool canRebake => false;
 		private bool canApplyBalance => false;
 
+		[SimulationRebuild(Provenance.Null)]
 		public void ResetCombatConfigValues()
 		{
 		}
 
+		// Inspector button: one hand tick (SimulationSystem.OnUpdate consumes the flag).
+		[SimulationRebuild(Provenance.Inferred, "simulation.hand_tick")]
 		public void Tick()
 		{
+			handTick = true;
 		}
 
+		[SimulationRebuild(Provenance.Null)]
 		public void ResetAmuletLevelBalance(int levelsCount)
 		{
 		}
 
+		[SimulationRebuild(Provenance.Null)]
 		public void SetAmuletLevelBalance(int level, double experience, Dictionary<string, double> soulRewards)
 		{
 		}
 
+		// Day snapshots kept in the exported data (G19): day 0, then i_{n+1} = max(i_n + 1, ceil(1.1f * i_n)) in
+		// float32; the last day is kept only when the rule reaches it.
+		[SimulationRebuild(Provenance.Inferred, "simulation.snapshot_trim")]
 		private List<SimulationSnapshot> GetTrimmedTimeChunkSnapshots()
 		{
-			return null;
+			var trimmed = new List<SimulationSnapshot>();
+			if (TimeChunkSnapshots == null) return trimmed;
+			int next = 0;
+			foreach (SimulationSnapshot snapshot in TimeChunkSnapshots)
+			{
+				int day = snapshot.TimeChunkIndex;
+				if (day < next) continue;
+				trimmed.Add(snapshot);
+				next = Math.Max(day + 1, (int)Mathf.Ceil((float)(1.1f * day)));
+			}
+			return trimmed;
 		}
 
 		public SpawnerBakeReportData BuildSpawnerBakeReport(EnemySpawner spawner)

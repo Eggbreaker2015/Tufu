@@ -1,0 +1,3 @@
+name: zero_hit
+overrides:
+  - {node: EnemySpawnerConfig.AverageFightTime, where: {LocationNumber: 99}, mul: 2}

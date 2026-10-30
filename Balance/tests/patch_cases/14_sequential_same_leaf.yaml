@@ -1,0 +1,9 @@
+name: sequential_same_leaf
+description: overrides apply in order; the net leaf is base -> last
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 9
+    add: 2
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 9
+    mul: 0.5

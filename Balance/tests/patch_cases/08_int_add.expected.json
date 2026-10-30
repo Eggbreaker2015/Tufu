@@ -1,0 +1,8 @@
+{
+  "leaves": [
+    {"node": "EnemySpawnerConfig.Count", "row": {"scene": "Scenes/Main.unity", "file_id": 56955}, "index": null, "old": 0, "new": 1}
+  ],
+  "ops": [{"source": "override", "node": "EnemySpawnerConfig.Count", "rows": 1, "leaves": 1}],
+  "warnings": [],
+  "passthrough": []
+}

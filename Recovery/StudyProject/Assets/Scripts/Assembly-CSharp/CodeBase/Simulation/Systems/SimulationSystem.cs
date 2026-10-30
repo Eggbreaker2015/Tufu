@@ -21,7 +21,7 @@ using UnityEngine;
 
 namespace Codebase.Simulation.Systems
 {
-	public class SimulationSystem : SystemBase
+	public partial class SimulationSystem : SystemBase
 	{
 		private struct FastTickChunkStatReward
 		{
@@ -306,18 +306,6 @@ namespace Codebase.Simulation.Systems
             uiDisabled = config.DisableUi;
 		}
 
-		private void ExecuteTick()
-		{
-		}
-
-		private void PrepareSimulationRun()
-		{
-		}
-
-		private void CheckSimulationStopConditions()
-		{
-		}
-
 		public void CalculateSimulationData()
 		{
 // Original bounded 52-byte body, ELF VA 0x13e4444.
@@ -494,40 +482,12 @@ namespace Codebase.Simulation.Systems
             SoulRPMCalculatedValue[soulKey] = value;
 		}
 
-		public StatType CalculateBestRewardStat()
-		{
-			return StatType.MovementSpeed;
-		}
-
-		public EnemySpawner GetBestSpawnerForInfo()
-		{
-			return null;
-		}
-
-		private void Tick()
-		{
-		}
-
-		private void FastTick()
-		{
-		}
-
 		public float GetBalanceTimingMinutes()
 		{
 // Original ELF VA 0x13ebe60: original float FRINTM, not an integer cast.
             return config.UseSpawnerCharges
                 ? Mathf.Floor(config.CurrentTotalPlaytime / config.SpawnerChargesChunkMinutes)
                 : config.CurrentPlaytime / 60f;
-		}
-
-		public float GetNextLocationInterpolationTiming(int locationNumber)
-		{
-			return 0f;
-		}
-
-		public float ConvertIslandTimingToDays(float islandTiming)
-		{
-			return 0f;
 		}
 
 		private float GetSpawnerOptimumTimingForCurrentMode(EnemySpawner spawner)
@@ -538,86 +498,10 @@ namespace Codebase.Simulation.Systems
             return spawner.Config.OptimumTime;
 		}
 
-		private (double, double, string) GetUnlockTimingLogData(EnemySpawner spawner)
-		{
-			return default;
-		}
-
-		public int RollFractionalCount(double value)
-		{
-			return 0;
-		}
-
-		private static double GetChainedItemBaseCount(int baseItemsCount, float value)
-		{
-			return 0.0;
-		}
-
-		private void ProcessAFK(float minutes)
-		{
-		}
-
-		private void NextLifeCycle()
-		{
-		}
-
-		private void CheckLifeCycle()
-		{
-		}
-
-		private void ProcessSimulateAds()
-		{
-		}
-
-		private void ProcessCrystalSimulationChunk()
-		{
-		}
-
-		private void UpgradeCrystalsGreedy()
-		{
-		}
-
-		private void ResetCooldowns()
-		{
-		}
-
-		private void UpdateSpawnerChargesChunk()
-		{
-		}
-
-		private void RecalculateChunkRpmValues()
-		{
-		}
-
-		private void AccumulateFastTickSpawnerRewards(EnemySpawner spawner, int fightsCount)
-		{
-		}
-
-		private void FlushFastTickChunkRewards()
-		{
-		}
-
-		private void ResetAmuletAutoBalance()
-		{
-		}
-
-		private void ProcessAmuletAutoBalanceTargets(int chunkIndex)
-		{
-		}
-
 		private int GetSpawnerChargesLimit(EnemySpawner spawner)
 		{
 // Original ELF VA 0x13e83ec.
             return spawner.Config.DisableAfterFirstClear ? spawner.Config.Count : spawner.ChargesTotal;
-		}
-
-		private int GetSpawnerChargesPerClear(EnemySpawner spawner)
-		{
-			return 0;
-		}
-
-		private void CalculateSpawnerPaths(EnemySpawner A, EnemySpawner B)
-		{
 		}
 
 		private void CalculateSpawnerData(bool forGPMBot = false)
@@ -673,10 +557,6 @@ namespace Codebase.Simulation.Systems
             }
 		}
 
-		private void ProcessDeath()
-		{
-		}
-
 		private double GetRegen()
 		{
 // Original ELF VA 0x13efe28.
@@ -688,71 +568,6 @@ namespace Codebase.Simulation.Systems
 // Original ELF VA 0x13efd54.
             return global::Codebase.Services.Damage.DamageCalculator.GetBattleRegen(
                 GetForecastStatValue(StatType.HealthRegen), GetForecastStatValue(StatType.LifestealFlat), difficulty);
-		}
-
-		private void ApplyRegen(double seconds)
-		{
-		}
-
-		private double GetFightEfficiency(EnemySpawner spawner)
-		{
-			return 0.0;
-		}
-
-		private double GetTotalDPS()
-		{
-			return 0.0;
-		}
-
-		private double GetTotalArmor()
-		{
-			return 0.0;
-		}
-
-		private double CalculateFarmPotencial(EnemySpawner spawner, double totalPath, double totalDamage)
-		{
-			return 0.0;
-		}
-
-		private void CalculateStatBenefit()
-		{
-		}
-
-		private (Stat, StatModifier) ModifyFromItem(ItemModel item)
-		{
-			return default;
-		}
-
-		private void DrawSquare(Vector3 pos, float size, Color color)
-		{
-		}
-
-		private SpawnerData FindBestSpawner()
-		{
-			return null;
-		}
-
-		private void SimulateFightWithSpawner(SpawnerData bestSpawner)
-		{
-		}
-
-		private bool SimulateFightWithSpawnerFast(SpawnerData bestSpawner, int fightsCount)
-		{
-			return false;
-		}
-
-		private void UnlockSimulationWeaponSlot(int locationNumber)
-		{
-		}
-
-		private double CalcDifficultSpawner(EnemySpawner spawner, float secondsRegen = 0f)
-		{
-			return 0.0;
-		}
-
-		public int GetForecastUnlockedLocationNumber()
-		{
-			return 0;
 		}
 
 		public double GetResourceValue(EnemySpawner spawner)
@@ -784,43 +599,6 @@ namespace Codebase.Simulation.Systems
                 value = itemValue;
             }
             return value * (double)spawner.Config.Count;
-		}
-
-		public bool TryGetSpawnerPriority(EnemySpawner spawner, out string priorityInfo)
-		{
-			priorityInfo = null;
-			return false;
-		}
-
-		private void ProcessInventory()
-		{
-		}
-
-		private void TryApplyArmorBaseAutoBalance(ItemModel item)
-		{
-		}
-
-		private void ApplyAutoBalanceForEvolution(ItemModel item)
-		{
-		}
-
-		private int GetSpawnerItemRewardCopies(EnemySpawner spawner)
-		{
-			return 0;
-		}
-
-		private float GetItemEmissionCoefficient(float timing, ItemConfig item)
-		{
-			return 0f;
-		}
-
-		private bool IsPreferredItemEmissionType(ItemConfig item)
-		{
-			return false;
-		}
-
-		private void MakeSnapshot(bool force = false)
-		{
 		}
 
 		private double GetDpsAgainstSpawner(EnemySpawner spawner, bool isFast)
@@ -884,25 +662,6 @@ namespace Codebase.Simulation.Systems
 // Original ELF VA 0x13efd18.
             return (double)combatBalanceConfig.GetInterpolationCoefficient(
                 GetBalanceTimingMinutes(), BalanceInterpolationType.PlayerAblityEHPMult, Rarity.Rare) + 1.0;
-		}
-
-		public float GetSimulationInterpolationCoefficient(float timing, BalanceInterpolationType type, Rarity rarity = Rarity.Rare)
-		{
-			return 0f;
-		}
-
-		private void UpdateInterpolationStatModifier()
-		{
-		}
-
-		private double GetSimulationSnapshotStatValue(Stat stat)
-		{
-			return 0.0;
-		}
-
-		private bool UsesInterpolationStats(StatType statType)
-		{
-			return false;
 		}
 
 		private void CalculateDpsData()
@@ -1000,10 +759,6 @@ namespace Codebase.Simulation.Systems
 		{
 // Original ELF VA 0x13e686c.
             return playerModel.Unit.GetStatSpecificValue(type, true);
-		}
-
-		private void LogSpawnerClear(EnemySpawner spawner, double healthDelta, double fightTime, double moveTime)
-		{
 		}
 	}
 }

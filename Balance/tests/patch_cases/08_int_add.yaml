@@ -1,0 +1,6 @@
+name: int_add
+description: int field add, row selected by Key
+overrides:
+  - node: EnemySpawnerConfig.Count
+    where: {Key: BossTower_c296e152609ae5849bb7d52b03df895a}
+    add: 1

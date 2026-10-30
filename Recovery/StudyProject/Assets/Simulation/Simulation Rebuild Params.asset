@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385f01c3a2a1452ba6c6c35f21fcd3c9, type: 3}
+  m_Name: Simulation Rebuild Params
+  m_EditorClassIdentifier: 
+  Params:
+    KillState: 0
+    KillLossMultiplier: 1
+    KillLossFromAb: 0
+    ActiveMinutesModel: 1
+    Kappa: 0.25644097
+    TourA: 1.013373
+    TourB: 0.7881691
+    Tours: 3
+    PlanNewIslandsSameDay: 1
+    DiagnosticDisableKillPredicate: 0
+    DiagnosticPlayerDpsScale: 1
+    DiagnosticDefenseScale: 1
+    EmissionModel: 0
+    PreferredMapping: 0
+    EvolutionTrigger: 0
+    WeaponSlotUnlockLocations: 0400000008000000i
+    DayChangeInventoryOrder: 0
+    SlotRpmOrder: 0
+    WeaponHeuristicTypeMultipliers:
+    - 1
+    - 0.8
+    - 0.573
+    WeaponHeuristicRarityMultipliers:
+    - 1
+    - 1.25
+    - 1.5
+    - 1.875
+    - 2.5
+    ArmorHeuristicMultiplier: 0.8
+    HealthModel: 0
+    CapIdleAtSessionEnd: 0
+    BreakEnRouteAtBoundary: 0
+    PriorityFamily: 1
+    SmartPath: 1
+    SmartPathRadius: 5
+    TimeModel: 1
+    CMove: 1
+    CRegen: 1
+    SlowLethalityGate: 0
+    DeathPolicy: 0
+    StatBenefitModel: 0
+    StatBenefitCandidates: 5
+    SchemaVersion: 1
+    RollMode: 0
+    Seed: 1
+    DpsCacheProvenance: 0
+    EarlySnapshotIntervalStarts:
+    - 0
+    - 20
+    EarlySnapshotIntervals:
+    - 1
+    - 5
+    FastAfkStepMinutes: 120
+    AutoBalanceMode: 0

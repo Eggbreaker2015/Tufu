@@ -1,0 +1,455 @@
+{
+ "expectations": {
+  "arrivals": {
+   "kind": "exact",
+   "note": "",
+   "source": "unlock events; exact ranges independently reported",
+   "value": {
+    "2": {
+     "day": 0,
+     "p": 36.4807587
+    },
+    "3": {
+     "day": 2,
+     "p": 127.473541
+    },
+    "4": {
+     "day": 5,
+     "p": 266.905792
+    }
+   }
+  },
+  "choices": {
+   "kind": "exact",
+   "note": "",
+   "source": "T20 filter then training-only rank",
+   "value": {
+    "CMove": 1.0,
+    "CRegen": 1.0,
+    "DeathPolicy": "SkipSpawner",
+    "PriorityFamily": "Dynamic",
+    "SlowLethalityGate": "SameAsFast",
+    "SmartPath": true,
+    "TimeModel": "FarmedTimeMoveByDistance",
+    "_stage": "K2 round 2; see Calibration.md"
+   }
+  },
+  "design_failures": {
+   "kind": "exact",
+   "note": "",
+   "source": "failures are not design acceptance",
+   "value": [
+    "T03",
+    "T04",
+    "T16",
+    "island3",
+    "items"
+   ]
+  },
+  "holdout.ratio": {
+   "kind": "max",
+   "note": "",
+   "source": "5.5; train 0-1, holdout 2-3",
+   "value": 0.4262523617740285
+  },
+  "items": {
+   "kind": "exact",
+   "note": "",
+   "source": "TC1-4 item counts",
+   "value": [
+    4,
+    5,
+    7,
+    8
+   ]
+  },
+  "p14.CMove": {
+   "kind": "exact",
+   "note": "",
+   "source": "P14; Q34 registered fallback",
+   "value": 1.0
+  },
+  "p14.CRegen": {
+   "kind": "exact",
+   "note": "",
+   "source": "P14; Q34 registered fallback",
+   "value": 1.0
+  },
+  "t03.failures": {
+   "kind": "max",
+   "note": "",
+   "source": "all original T03 rules",
+   "value": 3
+  },
+  "t04.max_rel": {
+   "kind": "max",
+   "note": "",
+   "source": "T04 days 0-3",
+   "value": 0.046612296415906966
+  },
+  "t07.early_interval_miss": {
+   "kind": "max",
+   "note": "",
+   "source": "T07 original P ranges",
+   "value": 12.173541
+  },
+  "t07.island4_day": {
+   "kind": "exact",
+   "note": "",
+   "source": "T07 day5 unlock",
+   "value": 5
+  },
+  "t16.failures": {
+   "kind": "max",
+   "note": "",
+   "source": "T16 original 5%/one-clear thresholds",
+   "value": 4
+  },
+  "t16.main_max_rel": {
+   "kind": "max",
+   "note": "",
+   "source": "T16 main stats",
+   "value": 0.15384615384615385
+  },
+  "t20.all_candidates": {
+   "kind": "exact",
+   "note": "",
+   "source": "each death reported; no-lethality null model",
+   "value": {
+    "baseline": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 3,
+       "day": 0,
+       "death_events": 3
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 2,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    },
+    "h1-marginal": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 3,
+       "day": 0,
+       "death_events": 3
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 1,
+       "day": 2,
+       "death_events": 1
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    },
+    "h1-marginal-h2": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 0,
+       "day": 0,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 2,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    },
+    "h1-marginal-h2-h3": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 0,
+       "day": 0,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 2,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    },
+    "h1-rpm": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 4,
+       "day": 0,
+       "death_events": 4
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 2,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    },
+    "h1-rpm-h2": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 0,
+       "day": 0,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 2,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    },
+    "h1-rpm-h2-h3": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 0,
+       "day": 0,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 2,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    },
+    "h3": {
+     "day3": [],
+     "ok": true,
+     "respawns": [
+      {
+       "countRespawn": 3,
+       "day": 0,
+       "death_events": 3
+      },
+      {
+       "countRespawn": 0,
+       "day": 1,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 2,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 3,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 4,
+       "death_events": 0
+      },
+      {
+       "countRespawn": 0,
+       "day": 5,
+       "death_events": 0
+      }
+     ]
+    }
+   }
+  },
+  "t20.countRespawn": {
+   "kind": "exact",
+   "note": "",
+   "source": "daily.csv vs death events",
+   "value": [
+    {
+     "countRespawn": 3,
+     "day": 0,
+     "death_events": 3
+    },
+    {
+     "countRespawn": 0,
+     "day": 1,
+     "death_events": 0
+    },
+    {
+     "countRespawn": 0,
+     "day": 2,
+     "death_events": 0
+    },
+    {
+     "countRespawn": 0,
+     "day": 3,
+     "death_events": 0
+    },
+    {
+     "countRespawn": 0,
+     "day": 4,
+     "death_events": 0
+    },
+    {
+     "countRespawn": 0,
+     "day": 5,
+     "death_events": 0
+    }
+   ]
+  },
+  "t20.first_location4_tc": {
+   "kind": "exact",
+   "note": "",
+   "source": "T20 first visible TC6",
+   "value": 6
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "calib_slow"
+}

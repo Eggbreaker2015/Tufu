@@ -1,0 +1,10 @@
+{
+ "SchemaVersion": 1,
+ "RollMode": 0,
+ "Seed": 1,
+ "DpsCacheProvenance": 0,
+ "EarlySnapshotIntervalStarts": [0.0, 20.0],
+ "EarlySnapshotIntervals": [1.0, 5.0],
+ "FastAfkStepMinutes": 120.0,
+ "AutoBalanceMode": 0
+}

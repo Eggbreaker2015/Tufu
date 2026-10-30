@@ -1,0 +1,5 @@
+name: enum_bool
+overrides:
+  - node: LocationsConfig.Locations[].PreferredWeaponType
+    where: {Number: 4}
+    set: true

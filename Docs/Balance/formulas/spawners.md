@@ -75,6 +75,7 @@ Scene checks confirmed: all 717 spawners have stat types 0-5; 577 have one Flat/
 | [`spawners.full_or_depleted_wake_schedule`](#spawnersfull_or_depleted_wake_schedule) | Wake-up scheduling for full or charge-depleted spawners | 重建（无原生标注） | `runtime_formula` |
 | [`spawners.item_copies_reward_multiplier_coupling`](#spawnersitem_copies_reward_multiplier_coupling) | Item-drop copies become the devour stat and soul multiplier | 重建（无原生标注） | `runtime_formula` |
 | [`spawners.unconsumed_numeric_fields`](#spawnersunconsumed_numeric_fields) | Numeric config fields with no consumer | 纯数据 | `config_rule` |
+| [`spawners.ready_alive_new_save`](#spawnersready_alive_new_save) | spawners.ready alive new save | 重建（无原生标注） | `rebuild_rule` |
 
 ## 公式
 
@@ -813,7 +814,7 @@ on kill of a spawner whose config.Gates contains locked gates: for each gate, Un
 
 **输出**：PlayerModel.UnlockedLocationNumber, BossProgressLocationNumber
 
-**代码**：[Enemy/Commands/GrantSpawnerGateRewardCommandHandler.cs:18-27](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Commands/GrantSpawnerGateRewardCommandHandler.cs#L18)；[Gates/Gate.cs:47-71](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Gates/Gate.cs#L47)；../[Player/Models/PlayerModel.cs:840-852](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Models/PlayerModel.cs#L840)
+**代码**：[Enemy/Commands/GrantSpawnerGateRewardCommandHandler.cs:18-27](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/Commands/GrantSpawnerGateRewardCommandHandler.cs#L18)；[Gates/Gate.cs:47-71](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Gates/Gate.cs#L47)；[Player/Models/PlayerModel.cs:840-852](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Player/Models/PlayerModel.cs#L840)
 
 **状态依据**：Gate.cs and the handler have no VA. The PlayerModel unlock methods they call are native-annotated.
 
@@ -940,7 +941,7 @@ on kill: PoolIndex = max(PoolIndex, config.RewardedPoolIndex). If the enemy is n
 
 **输出**：UserModel.PoolIndex, UserModel.OptimumTime
 
-**代码**：[Enemy/EnemySpawner.cs:1237-1241](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L1237)；../[Integrations/Ads/AdsInitialize.cs:330](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Integrations/Ads/AdsInitialize.cs#L330)
+**代码**：[Enemy/EnemySpawner.cs:1237-1241](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L1237)；[Integrations/Ads/AdsInitialize.cs:330](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Integrations/Ads/AdsInitialize.cs#L330)
 
 **状态依据**：No native annotation in HandleDeath.
 
@@ -1231,7 +1232,7 @@ OptimumTime = the playtime at which the design expects this spawner to be farmed
 
 **输出**：bake snapshot selection; forecast availability
 
-**代码**：../[Simulation/SimulationConfig.cs:103-110](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L103)；../[Simulation/SimulationConfig.cs:219-239](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L219)；../[Simulation/Systems/SimulationSystem.cs:533-539](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L533)；../[Simulation/Systems/SimulationSystem.cs:647-652](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L647)；[Enemy/EnemySpawner.cs:1240-1241](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L1240)
+**代码**：[Simulation/SimulationConfig.cs:103-110](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L103)；[Simulation/SimulationConfig.cs:219-239](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/SimulationConfig.cs#L219)；[Simulation/Systems/SimulationSystem.cs:533-539](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L533)；[Simulation/Systems/SimulationSystem.cs:647-652](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L647)；[Enemy/EnemySpawner.cs:1240-1241](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L1240)
 
 **状态依据**：Live gameplay only uses it as a high-water mark (user.OptimumTime). Its main use is in Simulation.
 
@@ -1262,7 +1263,7 @@ PriorityMultiplier: probable multiplier on the bot's spawner priority (SpawnerDa
 
 **输出**：none at runtime
 
-**代码**：[Enemy/EnemySpawnerConfig.cs:84-86](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawnerConfig.cs#L84)；../[Simulation/Systems/SpawnerData.cs:49-67](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L49)
+**代码**：[Enemy/EnemySpawnerConfig.cs:84-86](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawnerConfig.cs#L84)；[Simulation/Systems/SpawnerData.cs:49-67](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SpawnerData.cs#L49)
 
 **状态依据**：Neither field is referenced anywhere in the recovered code. The likely consumers (SpawnerData priority methods, SimulationConfig bake/apply) are empty.
 
@@ -1293,7 +1294,7 @@ spawnsPerUTCday <= chargesTotal (+ alive at reset). statPerDay ~= chargesTotal *
 
 **输出**：per-day resource supply per spawner
 
-**代码**：[Enemy/EnemySpawner.cs:744-858](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L744)；[Enemy/EnemySpawner.cs:1056-1082](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L1056)；../[Simulation/Systems/SimulationSystem.cs:608-612](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)
+**代码**：[Enemy/EnemySpawner.cs:744-858](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L744)；[Enemy/EnemySpawner.cs:1056-1082](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L1056)；[Simulation/Systems/SimulationSystem.cs:608-612](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Systems/SimulationSystem.cs#L608)
 
 **状态依据**：Derived analytically from reconstructed spawn and charge logic. Not a single code method.
 
@@ -1458,6 +1459,32 @@ No formula reads these fields. EnemySpawnerConfig.WanderRadius, EnemySpawnerConf
 **备注**：Export them anyway, flagged inert, so impact analysis can say 'no effect'. Wander fields may have been consumed by an AI system that was not recovered.
 
 **依赖图节点**：输入 `config:EnemySpawnerConfig.WanderRadius`、`config:EnemySpawnerConfig.WanderDwellTime`、`config:EnemySpawnerConfig.NonSelectable`、`config:ItemConfig.Number`、`config:SimulationConfig.SnapshotInterval`、`config:SimulationConfig.TimeStep`、`config:SimulationConfig.SimulationSpeed`、`config:SimulationConfig.UseFastTick`、`config:SimulationConfig.FastTickStartChunkOffset`、`config:LocationsConfig.Locations[].PreferredArmorType`；输出 `value:spawner.unconsumed_config`
+
+### `spawners.ready_alive_new_save`
+
+**spawners.ready alive new save**
+
+- 状态：**重建（无原生标注）**（`reconstructed`）
+- 类型：`rebuild_rule`
+- 来源：合并核验
+
+```text
+Whether a registered spawner has units when the game is ready on a new save.
+
+Event spawners never initialize (``TryInitializeEventSpawner`` is a stub returning false), VIP
+spawners refuse below location 2, ``IsDummy`` refuses always, ``Count = 0`` (BossTower) spawns none.
+Every other spawner fills on bootstrap (Runbook 6.1: 699 of 716).
+```
+
+**输出**：See implementation and tests.
+
+**代码**：[Enemy/EnemySpawner.cs:746](../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Enemy/EnemySpawner.cs#L746),860-863,922-925
+
+**状态依据**：Stage 5: inferred; see cited implementation and tests.
+
+**备注**：Stage 5 implementation; realizes the listed stage-4 rule(s). This link indicates scope, not exhaustive field-level dependencies.
+
+**实现的原有规则**：`simulation.spawner_fight_model`
 
 ## 配置参数
 

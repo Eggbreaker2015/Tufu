@@ -1,0 +1,6 @@
+name: not_modeled_static
+description: a patchable field derive_static does not read (the C# simulation does)
+overrides:
+  - node: EnemySpawnerConfig.PriorityMultiplier
+    where: {go_name: Spawner_elite_HP}
+    mul: 2

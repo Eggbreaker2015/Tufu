@@ -60,8 +60,8 @@ cd Balance && .venv/bin/python -m tufu_balance.graph impact CombatBalanceConfig.
 | `constant` | 297 |
 | `state` | 18 |
 | `value` | 342 |
-| `formula` | 281 |
-| 边 | 2874 |
+| `formula` | 350 |
+| 边 | 2961 |
 
 ## 子系统之间的数值流
 
@@ -1125,5 +1125,5 @@ flowchart LR
 
 ## 校验
 
-- 未映射输入输出的公式：0
+- 未映射输入输出的公式：69（`ab.enemy_hp_damage_multiplier`、`balance.armor_base`、`balance.evolution_armor_sync_by_leader`、`balance.evolution_data_identities`、`balance.evolution_fill_remaining`、`balance.evolution_fitted_h`、`balance.evolution_generator`、`balance.evolution_heuristic_fit`、`balance.evolution_nice_rounding`、`balance.evolution_reference_stat_percent`、`balance.evolution_reference_stat_value`、`balance.evolution_reference_time_chunk`、`balance.evolution_replay_stored_inputs`、`balance.evolution_targets`、`balance.evolution_value`、`balance.island_timing`、`balance.shards_capture`、`items.evolve_jump_ratio`、`items.infer_evolved`、`simulation.ads`、`simulation.ads_reward_stat`、`simulation.amulet_auto_balance`、`simulation.apply_clear`、`simulation.armor_base_balance`、`simulation.bake_day`、`simulation.charges_per_clear`、`simulation.crystal_simulation`、`simulation.current_boss`、`simulation.day_change`、`simulation.day_change_order`、`simulation.eligible_spawners`、`simulation.evolution_balance`、`simulation.execute_tick`、`simulation.fast_accumulate`、`simulation.fast_day_advance`、`simulation.fast_flush`、`simulation.fast_kill_gate`、`simulation.fast_tick`、`simulation.forecast_unlocked_location`、`simulation.fractional_count`、`simulation.hand_tick`、`simulation.idle_step`、`simulation.item_chain`、`simulation.item_emission`、`simulation.item_preferred`、`simulation.make_snapshot`、`simulation.next_location_timing`、`simulation.optimum_time_cap`、`simulation.prepare_run`、`simulation.process_inventory`、`simulation.same_day_gates`、`simulation.slow_death`、`simulation.slow_fight`、`simulation.slow_item_reward`、`simulation.slow_move_time`、`simulation.slow_priority`、`simulation.slow_tick`、`simulation.smart_path`、`simulation.snapshot_current_gpm`、`simulation.stat_benefit`、`simulation.state_override`、`simulation.stop`、`simulation.tick_heartbeat`、`simulation.unlock_location`、`simulation.weapon_slot_unlocks`、`simulation.weapon_slots`、`spawners.ready_alive_new_save`、`timeline.days_to_island_timing`、`timeline.island_timing_to_days`）
 - 问题：0

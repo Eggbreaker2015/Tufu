@@ -1,0 +1,14 @@
+{
+  "leaves": [
+    {"node": "EnemySpawnerConfig.AverageFightTime", "row": {"scene": "Scenes/Main.unity", "file_id": 56226}, "index": null, "old": 5.0, "new": 10.0},
+    {"node": "EnemySpawnerConfig.AverageFightTime", "row": {"scene": "Scenes/Main.unity", "file_id": 57042}, "index": null, "old": 5.0, "new": 10.0},
+    {"node": "EnemySpawnerConfig.AverageFightTime", "row": {"scene": "Scenes/Main.unity", "file_id": 59034}, "index": null, "old": 5.0, "new": 10.0},
+    {"node": "EnemySpawnerConfig.AverageFightTime", "row": {"scene": "Scenes/Main.unity", "file_id": 59928}, "index": null, "old": 5.0, "new": 10.0},
+    {"node": "EnemySpawnerConfig.AverageFightTime", "row": {"scene": "Scenes/Main.unity", "file_id": 60553}, "index": null, "old": 5.0, "new": 10.0}
+  ],
+  "ops": [
+    {"source": "override", "node": "EnemySpawnerConfig.AverageFightTime", "rows": 5, "leaves": 5}
+  ],
+  "warnings": [],
+  "passthrough": []
+}

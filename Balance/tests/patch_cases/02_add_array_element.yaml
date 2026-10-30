@@ -1,0 +1,6 @@
+name: add_array_element
+description: island 10 ends 2 days later (float array element, add)
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 9
+    add: 2.0

@@ -1,0 +1,8 @@
+{
+  "leaves": [
+    {"node": "EnemySpawnerConfig.HandBalance", "row": {"scene": "Scenes/Main.unity", "file_id": 58941}, "index": null, "old": false, "new": true}
+  ],
+  "ops": [{"source": "override", "node": "EnemySpawnerConfig.HandBalance", "rows": 1, "leaves": 1}],
+  "warnings": [],
+  "passthrough": []
+}

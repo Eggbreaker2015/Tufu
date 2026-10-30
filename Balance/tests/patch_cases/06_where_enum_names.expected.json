@@ -1,0 +1,8 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.EvolutionDamageValues[].Value", "row": {"idx": 74}, "index": null, "old": 240000000.0, "new": 480000000.0}
+  ],
+  "ops": [{"source": "override", "node": "CombatBalanceConfig.EvolutionDamageValues[].Value", "rows": 1, "leaves": 1}],
+  "warnings": [],
+  "passthrough": []
+}

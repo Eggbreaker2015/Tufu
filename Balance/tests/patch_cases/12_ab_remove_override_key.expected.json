@@ -1,0 +1,13 @@
+{
+  "leaves": [
+    {"node": "ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.keyData", "row": {"idx": 0}, "index": 12, "old": 13, "new": null},
+    {"node": "ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.valueData", "row": {"idx": 0}, "index": 12, "old": 28.0, "new": null}
+  ],
+  "ops": [
+    {"source": "override", "node": "ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.valueData", "rows": 1, "leaves": 1},
+    {"source": "override", "node": "ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.keyData", "rows": 1, "leaves": 13},
+    {"source": "override", "node": "ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.valueData", "rows": 1, "leaves": 13}
+  ],
+  "warnings": [],
+  "passthrough": []
+}

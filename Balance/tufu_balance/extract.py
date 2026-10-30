@@ -6,6 +6,7 @@ Usage (from the repository root):
 
 import argparse
 import csv
+import dataclasses
 import json
 import math
 import re
@@ -26,7 +27,14 @@ REPO = Path(__file__).resolve().parents[2]
 ASSETS = REPO / "Recovery" / "StudyProject" / "Assets"
 OUT = REPO / "Balance" / "out"
 SCENES = ["Scenes/Main.unity", "Scenes/Boot.unity"]
+# The stage 5 simulator rebuild adds these directories; their types are tooling, not game data.
+REBUILD_SCRIPT_DIRS = ["Assembly-CSharp/CodeBase/Simulation/Harness", "Assembly-CSharp/CodeBase/Simulation/Rebuild"]
 SPAWNER_CLASS = "EnemySpawner"
+
+
+def is_rebuild_script(script_path):
+    """True for a script (path relative to Assets) under one of REBUILD_SCRIPT_DIRS."""
+    return bool(script_path) and any(script_path.startswith(f"Scripts/{d}/") for d in REBUILD_SCRIPT_DIRS)
 
 
 class Tables:
@@ -72,6 +80,22 @@ def sql_type(values):
 
 def table_name(*parts):
     return "__".join(re.sub(r"[^\w.]", "_", str(p)) for p in parts)
+
+
+# ---------------------------------------------------------------- document loading
+
+# UnitySerializedDictionary<int, T> writes its List<int> keys (and int values) as one hex blob of
+# little-endian int32s. A blob made only of digits (keys 1..4 -> 01000000020000000300000004000000)
+# would resolve as a YAML float, so keyData/valueData scalars are quoted before loading. Float values
+# are a YAML sequence and are not affected.
+KEY_DATA_SCALAR = re.compile(r"^([ \t-]*(?:keyData|valueData):[ \t]+)([0-9A-Fa-f]+)[ \t]*$", re.M)
+
+
+def load_document(doc):
+    """``Document.load`` with ``keyData``/``valueData`` hex blobs kept as text."""
+    if "Data:" in doc.text:
+        doc = dataclasses.replace(doc, text=KEY_DATA_SCALAR.sub(r"\1'\2'", doc.text))
+    return doc.load()
 
 
 # ---------------------------------------------------------------- generic records
@@ -157,8 +181,10 @@ def extract_assets(tables, index, types, unresolved):
         for doc in iter_documents(path):
             if doc.class_id != CLASS_MONO_BEHAVIOUR or not index.is_game_script(doc.script_guid()):
                 continue
+            if is_rebuild_script(index.path(doc.script_guid())):
+                continue
             class_name = index.script_class(doc.script_guid())
-            raw = doc.load()
+            raw = load_document(doc)
             name = raw.get("m_Name")
             data = resolve_refs(payload(raw), index, unresolved)
             decoded = types.decode(class_name, data)
@@ -268,7 +294,7 @@ def has_payload(doc):
 def extract_scene(tables, scene, index, types, unresolved, spawner_rows):
     hierarchy, behaviours = read_hierarchy_file(ASSETS / scene, index, has_payload)
     for doc, class_name in behaviours:
-        raw = doc.load()
+        raw = load_document(doc)
         go = (raw.get("m_GameObject") or {}).get("fileID")
         data = types.decode(class_name, resolve_refs(payload(raw), index, unresolved))
         go_path = hierarchy.path(go)
@@ -295,7 +321,7 @@ def extract_prefabs(tables, index, types, unresolved):
         rel = path.relative_to(ASSETS).as_posix()
         hierarchy, behaviours = read_hierarchy_file(path, index, has_payload)
         for doc, class_name in behaviours:
-            raw = doc.load()
+            raw = load_document(doc)
             go = (raw.get("m_GameObject") or {}).get("fileID")
             data = types.decode(class_name, resolve_refs(payload(raw), index, unresolved))
             keys = {"prefab": rel, "file_id": doc.file_id, "go_path": hierarchy.path(go)}
@@ -447,7 +473,7 @@ def main():
 
     started = time.monotonic()
     index = GuidIndex(ASSETS)
-    enum_rows = parse_enums(ASSETS / "Scripts")
+    enum_rows = parse_enums(ASSETS / "Scripts", exclude=REBUILD_SCRIPT_DIRS)
     decoder = EnumDecoder(enum_rows)
     types = FieldTypes(ASSETS / "Scripts", decoder)
     tables, unresolved = Tables(), set()

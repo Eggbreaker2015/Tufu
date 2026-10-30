@@ -1,0 +1,154 @@
+{
+ "expectations": {
+  "ab.fastRPMParams": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C0b",
+   "value": {
+    "fightTimeSeconds": 10,
+    "maxHealthLossMultiplier": 1
+   }
+  },
+  "ab.spawnerCooldowns": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C0b",
+   "value": {
+    "elite": {
+     "charges": {
+      "defaultValue": 2,
+      "overridesByLocation": {}
+     },
+     "cooldownMinutes": {
+      "defaultValue": 180,
+      "overridesByLocation": {
+       "1": 60,
+       "2": 90,
+       "3": 120,
+       "4": 150
+      }
+     }
+    },
+    "nonElite": {
+     "charges": {
+      "defaultValue": 3,
+      "overridesByLocation": {}
+     },
+     "cooldownMinutes": {
+      "defaultValue": 30,
+      "overridesByLocation": {
+       "1": 4,
+       "10": 22,
+       "11": 24,
+       "12": 26,
+       "13": 28,
+       "2": 6,
+       "3": 8,
+       "4": 10,
+       "5": 12,
+       "6": 14,
+       "7": 16,
+       "8": 18,
+       "9": 20
+      }
+     }
+    }
+   }
+  },
+  "ab.tests": {
+   "kind": "set",
+   "note": "",
+   "source": "C0b",
+   "value": [
+    "common_reward_multipliers=A",
+    "crystal_pass=A",
+    "enchant_failure_dust_cashback=A",
+    "enemy_hp_damage_mult_v3=A",
+    "fastRPMParams=A",
+    "level_pass=None",
+    "no_ads=A",
+    "offerwall=A",
+    "patch_compensation_gems=A",
+    "rewarded_delay_from_start=None",
+    "rpm_old_algorithm=A",
+    "soul_pass=A",
+    "spawner_cooldowns_v3=A"
+   ]
+  },
+  "ready.alive_enabled": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": 699
+  },
+  "ready.cooldowns_zeroed": {
+   "kind": "exact",
+   "note": "",
+   "source": "C0b",
+   "value": 698
+  },
+  "ready.exceptions": {
+   "better": "subset",
+   "kind": "set",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": [
+    "BossTower_c296e152609ae5849bb7d52b03df895a|other",
+    "EventSpawner_Golem_7e65cdc0b256ba64cbd2582453fb62e3|event",
+    "EventSpawner_Golem_ce1ad032a769cfd48a6852cb69f1c7d9|event",
+    "Eventspawner_Boss_79e49ca7fb46ec243a029656b3fa8507|event",
+    "Eventspawner_MiniBoss_ae45f65b28328c04abd43feb495413ee|event",
+    "Eventspawner_MiniBoss_cf6afea22c3937646951d9e2210526c3|event",
+    "Spawner_Dummy_b310762d24f050b4a8be8d6dcb3f77c0|dummy",
+    "Spawner_vip_3 (1)_df1e8a9d53ff1484b89c230a01eeab01|vip",
+    "Spawner_vip_3 (2)_c8f8e260e3f23f945adb106f26492c4a|vip",
+    "Spawner_vip_3 (3)_f1e0353e6aaa26b4599e49e5eb0c7d04|vip",
+    "Spawner_vip_3 (4)_356f96918ed5cfa42831b2fa3a3c6e44|vip",
+    "Spawner_vip_3 (5)_e70d19cf3d8e3e64d9b9db8aa059b8fc|vip",
+    "Spawner_vip_6 (1)_3345ab5ae0c7c464a8dd86a537cd4e7b|vip",
+    "Spawner_vip_6 (2)_2d8760af197e55b479c47335026c4eca|vip",
+    "Spawner_vip_6 (3)_580930aa017a6e449891063b97482f2e|vip",
+    "Spawner_vip_6 (4)_563705905f59ae749847a18e2c751ba8|vip",
+    "Spawner_vip_6 (5)_1276dc64a7eb1524da1d2aabbf873590|vip"
+   ]
+  },
+  "ready.registered": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": 716
+  },
+  "ready.registration_order_sha256": {
+   "kind": "exact",
+   "note": "",
+   "source": "C0b",
+   "value": "2c531b36fe768c7cc45c47263c9d71e935491d7e7ae8e2c090bf16148719b4b2"
+  },
+  "ready.remedy_complete_bootstrap": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.2",
+   "value": 0
+  },
+  "ready.scene_spawner_components": {
+   "kind": "exact",
+   "note": "",
+   "source": "Runbook 6.1",
+   "value": 717
+  },
+  "state.job_end_sha256": {
+   "kind": "exact",
+   "note": "",
+   "source": "C0b",
+   "value": "680716f9ae7861592c4e4c909927c7c68451b5ad17a753313721e352bc50b334"
+  },
+  "state.job_start_sha256": {
+   "kind": "exact",
+   "note": "",
+   "source": "C0b",
+   "value": "c10e5ced1dd80e7f64bddb2a7be8f6e88eddc31e99b03007dbf45e9681f8b232"
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "harness"
+}

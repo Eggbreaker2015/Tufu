@@ -1,0 +1,251 @@
+{
+ "expectations": {
+  "checkpoint405.day_change_gpm_carried": {
+   "kind": "exact",
+   "note": "day after each checkpoint",
+   "source": "design 4.6",
+   "value": 0
+  },
+  "checkpoint405.days": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": 46
+  },
+  "checkpoint405.recomputed_dps_differs_from_stored": {
+   "kind": "exact",
+   "note": "shipped days whose closed-loop DpsData (next day) differs from the stored one",
+   "source": "design 4.6",
+   "value": 44
+  },
+  "checkpoint405.rpm_cells_equal_fresh": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.6",
+   "value": 1656
+  },
+  "checkpoint405.state_mismatch_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": 0
+  },
+  "checkpoint405.total_value_shipped_max_ulp": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": 0.0
+  },
+  "checkpoint_from20.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": {
+    "cache_applications": 4,
+    "items_added": 28,
+    "slots_opened": 5
+   }
+  },
+  "evolved_flip.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.6",
+   "value": {
+    "cache_applications": 10,
+    "items_added": 20,
+    "slots_opened": 4,
+    "total_value_corrections": 18,
+    "total_value_corrections_inexact": 3,
+    "unevolved_level_ne_copies": 2
+   }
+  },
+  "evolved_flip.items": {
+   "kind": "exact",
+   "note": "knife (Key, Level, Copies, Evolved, EffectiveLevel) per day 17..21",
+   "source": "design 4.6",
+   "value": [
+    [
+     17,
+     [
+      "knife",
+      1,
+      90,
+      false,
+      90
+     ]
+    ],
+    [
+     18,
+     [
+      "knife",
+      117,
+      117,
+      true,
+      117
+     ]
+    ],
+    [
+     19,
+     [
+      "knife",
+      117,
+      117,
+      true,
+      117
+     ]
+    ],
+    [
+     20,
+     [
+      "knife",
+      1,
+      86,
+      false,
+      86
+     ]
+    ],
+    [
+     21,
+     [
+      "knife",
+      1,
+      86,
+      false,
+      86
+     ]
+    ]
+   ]
+  },
+  "recomputed.days_dps_differs_from_stored": {
+   "kind": "exact",
+   "note": "R2's recompute error on days 4-30, fixture slots",
+   "source": "design 4.6",
+   "value": 27
+  },
+  "replay405.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": {
+    "cache_applications": 804,
+    "items_added": 44,
+    "slots_opened": 5,
+    "total_value_corrections": 2840,
+    "total_value_corrections_inexact": 633
+   }
+  },
+  "replay405.day_change_gpm_carried": {
+   "kind": "exact",
+   "note": "nonzero cells whose observed-grid maximum equals the preceding day's maximum",
+   "source": "K1 round2 stored replay order",
+   "value": 1522
+  },
+  "replay405.day_change_gpm_cells": {
+   "kind": "exact",
+   "note": "nonzero CurrentGpm cells of forced snapshots 5..405",
+   "source": "design 4.6",
+   "value": 1604
+  },
+  "replay405.days": {
+   "kind": "exact",
+   "note": "one override per day 4..405",
+   "source": "design 7.3 C4",
+   "value": 402
+  },
+  "replay405.forced_dps_differs_from_stored": {
+   "kind": "exact",
+   "note": "forced day d caches vs stored day d, no one-day lag",
+   "source": "K1 round2 C4 before-RPM stored replay",
+   "value": 0
+  },
+  "replay405.rpm_cells_equal_fresh": {
+   "kind": "exact",
+   "note": "diagnostic equality with planning K(d); the before-RPM oracle validates the actual observed-grid maximum",
+   "source": "design 4.6",
+   "value": 13752
+  },
+  "replay405.state_mismatch_days": {
+   "kind": "exact",
+   "note": "Values, DpsData/DefenseData and their caches, items, slots bit for bit",
+   "source": "design 7.3 C4",
+   "value": 0
+  },
+  "replay405.total_value_compose_cells_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": 251
+  },
+  "replay405.total_value_compose_max_ulp": {
+   "kind": "exact",
+   "note": "Stat.FastValue vs (Value*(1+K2))*K3 at K(d), double_all K",
+   "source": "design 7.3 C4",
+   "value": 1.0
+  },
+  "replay405.total_value_interpolated_max_rel": {
+   "kind": "exact",
+   "note": "TotalValue is interpolated linearly, K2/K3 are not",
+   "source": "design 4.6",
+   "value": 0.019754978903476633
+  },
+  "replay405.total_value_shipped_max_ulp": {
+   "kind": "exact",
+   "note": "vs the shipped TotalValue on shipped day-snapshot days",
+   "source": "design 7.3 C4",
+   "value": 0.0
+  },
+  "replay405.total_value_snapshot_cells_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C4",
+   "value": 633
+  },
+  "replay405.total_value_snapshot_max_ulp": {
+   "kind": "exact",
+   "note": "total_value = snapshot: Stat.FastValue vs the interpolated snapshot's TotalValue",
+   "source": "design 7.3 C4",
+   "value": 1.0
+  },
+  "rpm_skip.day_change_gpm_carried": {
+   "kind": "exact",
+   "note": "",
+   "source": "K1 round2 stored replay order",
+   "value": 74
+  },
+  "slots_down.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.6",
+   "value": {
+    "cache_applications": 8,
+    "items_added": 8,
+    "slot_unequips": 4,
+    "slots_closed": 6,
+    "slots_missing": 1,
+    "slots_opened": 6
+   }
+  },
+  "unlock_snapshot.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.6",
+   "value": {
+    "cache_applications": 54,
+    "gates_opened": 13,
+    "items_added": 26,
+    "slot_rewards_opened": 3,
+    "total_value_corrections": 97,
+    "total_value_corrections_inexact": 34,
+    "unlocks": 8
+   }
+  },
+  "unlock_snapshot.final_location": {
+   "kind": "exact",
+   "note": "snapshot Location at day 30",
+   "source": "design 4.6",
+   "value": 9
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "sim_override"
+}

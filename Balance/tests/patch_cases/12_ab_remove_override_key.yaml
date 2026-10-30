@@ -1,0 +1,16 @@
+name: ab_remove_override_key
+description: >-
+  AB spawnerCooldowns, variant A, non-elite cooldown minutes: override island 13 (28 -> 40), then remove
+  island 13 from the asset dictionary. Newtonsoft merges the asset over the C# class-default overrides, so
+  island 13 falls back to the class default 2 * (13 + 1) = 28 minutes, not to defaultValue (30).
+overrides:
+  - node: ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.valueData
+    where: {variant: A}
+    index: 12
+    set: 40
+  - node: ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.keyData
+    where: {variant: A}
+    set: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  - node: ABTestDataConfig.spawnerCooldowns.variants[].data.nonElite.cooldownMinutes.overridesByLocation.valueData
+    where: {variant: A}
+    set: [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26]

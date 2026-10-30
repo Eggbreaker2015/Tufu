@@ -1,0 +1,10 @@
+{
+  "CMove": 1.0,
+  "CRegen": 1.0,
+  "DeathPolicy": "SkipSpawner",
+  "PriorityFamily": "Dynamic",
+  "SlowLethalityGate": "SameAsFast",
+  "SmartPath": true,
+  "TimeModel": "FarmedTimeMoveByDistance",
+  "_stage": "K2 round 2; see Calibration.md"
+}

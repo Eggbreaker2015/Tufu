@@ -13,7 +13,7 @@ public class ABTestModel : Model<ABTestUd>
     private readonly bool isNewUser;
     private readonly Dictionary<string,string> variantLists=new Dictionary<string,string>();
     public ABTestModel(Lifetime lifetime) : base(lifetime)
-    { analytics=GameContext.Get<IAnalyticsWrapper>(); isNewUser=PlayerPrefs.GetInt(FirstStart,0)==0; }
+    { analytics=GameContext.Get<IAnalyticsWrapper>(); isNewUser=Codebase.Simulation.Harness.SimulationSandbox.Active || PlayerPrefs.GetInt(FirstStart,0)==0; }
     public void Apply(Dictionary<string,string> tests,bool isRemote)
     { foreach (var test in tests) TryApply(test.Key,test.Value,isRemote); }
     public ABTestVariant Get(string testName) => new ABTestVariant(GetVariant(testName));
@@ -36,6 +36,7 @@ public class ABTestModel : Model<ABTestUd>
         return true;
     }
     private static string SelectVariant(string variants)
-    { return string.IsNullOrEmpty(variants) ? "A" : variants.Length == 1 ? variants : variants[UnityEngine.Random.Range(0,variants.Length)].ToString(); }
+    { if (Codebase.Simulation.Harness.SimulationSandbox.Active) return Codebase.Simulation.Harness.SimulationSandbox.SelectAbVariant(variants);
+      return string.IsNullOrEmpty(variants) ? "A" : variants.Length == 1 ? variants : variants[UnityEngine.Random.Range(0,variants.Length)].ToString(); }
 }
 }

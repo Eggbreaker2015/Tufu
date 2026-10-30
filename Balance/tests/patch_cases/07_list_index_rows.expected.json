@@ -1,0 +1,9 @@
+{
+  "leaves": [
+    {"node": "CombatBalanceConfig.EvolutionIslandFillRuleRows[].StartValue", "row": {"idx": 0}, "index": null, "old": 7.5, "new": 8.0},
+    {"node": "CombatBalanceConfig.EvolutionIslandFillRuleRows[].StartValue", "row": {"idx": 1}, "index": null, "old": 9.0, "new": 9.5}
+  ],
+  "ops": [{"source": "override", "node": "CombatBalanceConfig.EvolutionIslandFillRuleRows[].StartValue", "rows": 2, "leaves": 2}],
+  "warnings": [],
+  "passthrough": []
+}

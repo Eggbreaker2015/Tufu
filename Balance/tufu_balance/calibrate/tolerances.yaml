@@ -1,0 +1,243 @@
+# Calibration tolerances (design 5.1; unit P10). Read by tufu_balance.calibrate.metrics.evaluate.
+#
+# Per target:
+#   cells / cells_open / cells_closed: per-group cell criterion (mode-specific entries win):
+#     exact: residual == 0          abs_max: |residual| <= x       rel_max: relative residual <= x
+#     g20: x (G20's test, |sim-ref| <= x*max(1, |ref|), simcalc.gpm_matches)
+#     abs_or_rel: [a, r]            rel_or_bound: r  (|sim-ref| <= max(r*|ref|, the cell's bound))
+#     bound: true (|sim-ref| <= the cell's bound)                  window: [lo, hi] on the residual
+#     ranges: {island: [lo, hi]}, slack: s (the run's unlock interval within the range, or <= s away);
+#       day_ranges: {island: [lo, hi]}, slack_days: d (or the run's unlock day <= d days from that day range)
+#   open / closed: "n/a" (the design's "—"), or per group:
+#     all_ok, frac_ok_min, median_rel_max, rel_max_all, max_failing_units (null: frozen at the first run),
+#     report: true (verdicts are listed, the status is "report"), pending: <why> (set by a later unit),
+#     pending_clause: <why> (the rest of the rule is checked; when it holds the status is "pending", not "pass").
+#   A group missing from a mode entry is reported only. Cells of an "n/a" mode, and of a group the run does not
+#   export at all (status unavailable, e.g. T17 without slot columns), get no verdict (ok empty). A cell whose
+#   reference exists but the run never reached that state (island never unlocked, level never reached, item
+#   absent, day snapshot missing) has no residual and fails.
+# Closed-loop tolerances that the design freezes after a first run (T05, T07 count, T15) are "pending",
+# "pending_clause" or null here; K1/K3 set them (design 5.1 general rule: never stricter than the open-loop value).
+schema: tufu.calib.tolerances/1
+holdout_from_tc: 104
+targets:
+  T01:
+    title: 天快照的日序列
+    split: structure
+    cells: {days: {exact: true}}
+    open: n/a
+    closed: {days: {all_ok: true}}
+  T02:
+    title: 时间不变量（TC = floor(T/1440)、慢阶段离线是 230 的整数倍、period_end = P + 10、P/T）
+    split: structure
+    cells:
+      tc_floor: {exact: true}
+      offline_multiple: {exact: true}   # residual = excess over 0.005 minutes
+      session_rule: {exact: true}
+    open: n/a
+    closed:
+      tc_floor: {all_ok: true}
+      offline_multiple: {all_ok: true}
+      session_rule: {all_ok: true}
+      p_over_t: report
+  T03:
+    title: 早期快照的构成与节奏
+    split: structure
+    cells:
+      rows: {abs_max: 3}
+      last_row_tc: {exact: true}
+      fast_days_only_in_day_list: {exact: true}
+      cadence: {exact: true}            # residual = interval(P_prev) - dP, or dP - max(interval(P_prev), interval(P)) - 2 min, when positive (forced rows skipped; intervals = the run's P06)
+      forced_day_snapshot: {exact: true}
+    open: n/a
+    closed:
+      rows: {all_ok: true}
+      last_row_tc: {all_ok: true}
+      last_row_t: report
+      fast_days_only_in_day_list: {all_ok: true}
+      cadence: {all_ok: true}
+      forced_day_snapshot: {all_ok: true}
+  T04:
+    title: 每天活跃分钟
+    split: train TC < 104, holdout TC >= 104
+    cells:
+      tc_ge_11: {rel_max: 0.08}
+      day_0_3: {rel_max: 0.03}
+      p_final: {rel_max: 0.03}
+    open:
+      tc_ge_11: {all_ok: true, median_rel_max: 0.02}
+      tc_4_10: {report: true, note: known failure of both models}
+      day_0_3: report
+      p_final: report
+    closed:
+      tc_ge_11: {all_ok: true}
+      tc_4_10: {report: true, note: known failure of both models}
+      day_0_3: {all_ok: true}
+      p_final: {all_ok: true}
+  T05:
+    title: 区间属性增量（自 TC4）
+    split: post-hoc (kill rule fitted on all 41 intervals)
+    cells:
+      daily: {abs_or_rel: [0.5, 2.0e-5]}
+      multi_day: {abs_or_rel: [0.5, 2.0e-5]}
+    open:
+      daily: {all_ok: true}
+      # design: an interval explained by a spawner's first-kill day +-1 passes; not implemented (needs kill days
+      # from events.jsonl or C5's spawner_days), so every failing interval counts as unexplained for now
+      multi_day: {max_failing_units: null, note: unexplained intervals registered; count frozen at the first run}
+    closed:
+      daily: {all_ok: true}
+      multi_day: {max_failing_units: 5, note: first calibrated free run 36/41 exact}
+    max_unexplained: 3  # spawner-day evidence; see stage_full.check_t05_explanations
+  T06:
+    title: 累计 Value
+    split: train TC < 104, holdout TC >= 104
+    cells:
+      tc_5_23: {rel_or_bound: 0.02}
+      tc_ge_24: {rel_max: 0.005}
+    open: n/a
+    closed:
+      tc_1_4: {report: true, note: same target as T16}
+      tc_5_23: {all_ok: true}
+      tc_ge_24: {frac_ok_min: 0.95, rel_max_all: 0.02}
+  T07:
+    title: 解锁岛的日子
+    split: post-hoc (islands 5-17)
+    cells:
+      # islands 2-3 are measured in active minutes; the design's "<= 1 day" is on the unlock day: the shipped
+      # ranges lie in TC0 (P 31.2-37.4) and TC1 (P 110.2-115.3)
+      by_playtime: {ranges: {2: [31.2, 37.4], 3: [110.2, 115.3]}, slack: 0, day_ranges: {2: [0, 0], 3: [1, 1]},
+                    slack_days: 1}
+      island_4: {ranges: {4: [5, 5]}, slack: 1}
+      islands_5_17:
+        ranges: {5: [8, 8], 6: [11, 12], 7: [15, 16], 8: [21, 23], 9: [27, 29], 10: [34, 36], 11: [44, 45],
+                 12: [57, 62], 13: [71, 76], 14: [90, 93], 15: [110, 114], 16: [130, 139], 17: [150, 153]}
+        slack: 1
+    open:
+      by_playtime: report
+      island_4: {report: true, note: a result only once derived from the island-3 gate}
+      islands_5_17: {all_ok: true}
+    closed:
+      by_playtime: {all_ok: true}
+      island_4: {all_ok: true}
+      islands_5_17:
+        all_ok: true
+        min_in_range: 11
+  T09:
+    title: 天快照 CurrentGpm
+    split: validation
+    cells_open:
+      nonzero: {g20: 1.0e-4}            # G20's match criterion, |sim-ref| <= 1e-4*max(1, |ref|)
+      zero: {g20: 1.0e-4}
+    cells_closed:
+      nonzero: {rel_max: 0.01}
+    open:
+      nonzero: {all_ok: true}
+      zero: {all_ok: true}
+    closed:
+      nonzero: {frac_ok_min: 0.9}
+      zero: report
+  T10:
+    title: 早期 CurrentGpm 的含义（G19）
+    split: structure
+    cells:
+      gpm: {exact: true}                # residual = |stored - dValue/dP| beyond 1e-5 relative
+      nan: {exact: true}
+    open: {gpm: {all_ok: true}, nan: {all_ok: true}}
+    closed: {gpm: {all_ok: true}, nan: {all_ok: true}}
+  T11:
+    title: 各稀有度首次出现
+    split: report (post-hoc copy structure, see T12)
+    cells:
+      first_appearance: {window: [-1, 1]}   # residual in day snapshots
+    open: {first_appearance: {report: true}}
+    closed: {first_appearance: {report: true}}
+  T12:
+    title: 每个物品刷怪点每天的份数（稀有度 × 阶段）
+    split: post-hoc structure (Chain, Swapped, late plateau)
+    # Design: training <= 5%, holdout <= 7%, late plateau <= 2% (copies per charge). The design's 57-154 phase
+    # is cut at TC104 (a day snapshot), so every phase is wholly training (5%) or wholly holdout (7%). The 2%
+    # plateau is per charge and needs charge counts (events/spawner_days, C5); it is not checked yet. Cells are
+    # per (kind, rarity): design 7.3 K-units name weapon and armor separately.
+    cells:
+      daily: {rel_max: 0.05}  # retained diagnostic; infeasible on small integer totals
+      daily_expected: {bound: true}  # pre-roll expected copies: 5% + <1 integer copy per active item stream
+      phase_4_19: {rel_max: 0.05}
+      phase_19_57: {rel_max: 0.05}
+      phase_57_104: {rel_max: 0.05}
+      phase_104_154: {rel_max: 0.07}
+      phase_154_405: {rel_max: 0.07}
+    open:
+      daily: {report: true, note: integer-noise diagnostic; see Runbook 24.7 and calib_open loosening}
+      daily_expected: {all_ok: true}
+      phase_4_19: {all_ok: true}
+      phase_19_57: {all_ok: true}
+      phase_57_104: {all_ok: true}
+      phase_104_154: {all_ok: true}
+      phase_154_405: {all_ok: true}
+    closed:
+      daily: {report: true, note: integer-noise diagnostic; see Runbook 24.7 and calib_open loosening}
+      daily_expected: {all_ok: true}
+      phase_4_19: {all_ok: true}
+      phase_19_57: {all_ok: true}
+      phase_57_104: {all_ok: true}
+      phase_104_154: {all_ok: true}
+      phase_154_405: {all_ok: true}
+  T13:
+    title: 进化到达时间
+    split: train Common/Uncommon/Rare, holdout Epic/Legendary
+    cells:
+      train: {window: [-1, 1]}
+      holdout: {window: [-1, 1]}
+    open: {train: {frac_ok_min: 0.9}, holdout: {frac_ok_min: 0.9}}
+    closed: {train: {frac_ok_min: 0.9}, holdout: {frac_ok_min: 0.9}}
+  T14:
+    title: 物品 Level/Copies
+    split: validation
+    cells:
+      level: {exact: true}
+      copies: {rel_max: 0.05}
+    open: n/a
+    closed: {level: {frac_ok_min: 0.9}, copies: {frac_ok_min: 0.8}}
+  T16:
+    title: 慢阶段累计 Value（TC1–4）
+    split: train (slow phase)
+    cells:
+      main: {rel_max: 0.05}
+      small: {bound: true}             # one clear of the most rewarding spawner reachable that day
+    open: n/a
+    closed: {main: {all_ok: true}, small: {all_ok: true}}
+  T17:
+    title: 槽位
+    split: train (P12's fit target), not validation
+    cells:
+      weapon: {exact: true}
+      armor_before_9: {exact: true}
+    open: {weapon: {report: true, note: the reference is fitted}, armor_before_9: {all_ok: true}}
+    closed: {weapon: {report: true, note: the reference is fitted}, armor_before_9: {all_ok: true}}
+  T18:
+    title: 特征列（SFF = K2(d)，PM = K3(d)）
+    split: structure
+    cells: {composition: {exact: true}}
+    open: {composition: {all_ok: true}}
+    closed: {composition: {all_ok: true}}
+  # Not computable from sim.sqlite yet (need events.jsonl, R2b DpsData, the bake report):
+  T08: {title: 难打刷怪点的首杀日, split: diagnostic, open: report, closed: report}
+  T15:
+    title: DpsData/DefenseData
+    split: train TC1-24 (P12), validation TC >= 25
+    cells:
+      mid_dps: {rel_max: 0.15}
+      mid_defense: {rel_max: 0.15}
+      late_dps: {rel_max: 0.1706405195322352}
+      late_defense: {rel_max: 0.009840993197501419}
+    open: report
+    closed:
+      early_dps: report
+      early_defense: report
+      mid_dps: {all_ok: true}
+      mid_defense: {all_ok: true}
+      late_dps: {all_ok: true}
+      late_defense: {all_ok: true}
+  T19: {title: 下游烘焙（外部验证）, split: external validation, open: report, closed: report}
+  T20: {title: 慢阶段的致死与岛 4, split: structure (hard target), open: report, closed: report}

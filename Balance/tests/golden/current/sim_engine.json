@@ -1,0 +1,229 @@
+{
+ "expectations": {
+  "clock.day_snapshots": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C3b",
+   "value": 31
+  },
+  "clock.early_snapshots": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.5",
+   "value": 68
+  },
+  "clock.final_p_t": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 4.4",
+   "value": [
+    244.0,
+    43204.0
+   ]
+  },
+  "clock.offlines_slow_phase": {
+   "kind": "exact",
+   "note": "",
+   "source": "G22",
+   "value": 24
+  },
+  "clock.trimmed_days": {
+   "kind": "exact",
+   "note": "",
+   "source": "G19",
+   "value": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    15,
+    17,
+    19,
+    21,
+    24,
+    27,
+    30
+   ]
+  },
+  "engine30.counters": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C3b",
+   "value": {
+    "ads": 40,
+    "afk_calls": 336,
+    "day_changes": 30,
+    "fast_ticks": 26,
+    "idle_steps": 65,
+    "slow_ticks": 65,
+    "snapshots_day": 31,
+    "snapshots_early": 68
+   }
+  },
+  "engine30.simulation_data_sha256": {
+   "kind": "exact",
+   "note": "empty policy, days 0-30, trimmed export",
+   "source": "design 7.3 C3b",
+   "value": "4dab1fa12e810c9a31fdd2f23a79ac433fe558b04679d315b8eaf6893f103edf"
+  },
+  "engine30.timechunk_full_sha256": {
+   "kind": "exact",
+   "note": "",
+   "source": "design 7.3 C3b",
+   "value": "e8d563307bacf71f389c65ced906538ac24f0197b9d37dbcfc9c89d7091cb388"
+  },
+  "flat_stats.gpm_cells_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "X7",
+   "value": {
+    "double_all": 0,
+    "double_tail": 0,
+    "fma": 0,
+    "stepwise": 0
+   }
+  },
+  "flat_stats.lag0_days_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "X2",
+   "value": {
+    "double_all": 30,
+    "double_tail": 30,
+    "fma": 30,
+    "stepwise": 30
+   }
+  },
+  "flat_stats.lag1_days_off": {
+   "kind": "exact",
+   "note": "",
+   "source": "X2",
+   "value": {
+    "double_all": 0,
+    "double_tail": 2,
+    "fma": 2,
+    "stepwise": 2
+   }
+  },
+  "flat_stats.x1_mismatches_by_rounding": {
+   "kind": "exact",
+   "note": "",
+   "source": "X1",
+   "value": {
+    "double_all": 0,
+    "double_tail": 34,
+    "fma": 34,
+    "stepwise": 34
+   }
+  },
+  "q07.engine_zeroed_after_harness": {
+   "kind": "exact",
+   "note": "",
+   "source": "Q07",
+   "value": 0
+  },
+  "q07.engine_zeroed_without_harness": {
+   "kind": "exact",
+   "note": "",
+   "source": "Q07",
+   "value": 698
+  },
+  "snapshot0.dps_cut": {
+   "kind": "exact",
+   "note": "",
+   "source": "G21",
+   "value": 9.23076956935184
+  },
+  "snapshot0.health_gpm": {
+   "kind": "exact",
+   "note": "shipped TC0 Health CurrentGpm, bit for bit",
+   "source": "design 7.3 C3b",
+   "value": 2.8507132548166316
+  },
+  "snapshot0.stats": {
+   "kind": "exact",
+   "note": "design says 36 (the stat lookup size); Unit.Stats has 30",
+   "source": "design 7.3 C3b",
+   "value": 30
+  },
+  "write_points.back_gate_noops": {
+   "kind": "exact",
+   "note": "back-gates of islands 4, 11, 12, 13",
+   "source": "X6",
+   "value": 6
+  },
+  "x1.cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "X1",
+   "value": 11880
+  },
+  "x1.matching_roundings": {
+   "kind": "set",
+   "note": "roundings under which X1, X2 and X7 are bit-exact",
+   "source": "DP3",
+   "value": [
+    "double_all"
+   ]
+  },
+  "x1.mismatches_by_rounding": {
+   "kind": "exact",
+   "note": "C# columns against compose_stat under K(d)",
+   "source": "X1, DP3",
+   "value": {
+    "double_all": 0,
+    "double_tail": 26,
+    "fma": 26,
+    "stepwise": 26
+   }
+  },
+  "x7.gpm_cells": {
+   "kind": "exact",
+   "note": "",
+   "source": "X7",
+   "value": 930
+  },
+  "x7.modifier_first_mismatches": {
+   "kind": "exact",
+   "note": "",
+   "source": "G20 ablation",
+   "value": {
+    "double_all": [
+     [
+      25,
+      1
+     ]
+    ],
+    "double_tail": [
+     [
+      25,
+      1
+     ]
+    ],
+    "fma": [
+     [
+      25,
+      1
+     ]
+    ],
+    "stepwise": [
+     [
+      25,
+      1
+     ]
+    ]
+   }
+  }
+ },
+ "schema": "tufu.golden/1",
+ "suite": "sim_engine"
+}

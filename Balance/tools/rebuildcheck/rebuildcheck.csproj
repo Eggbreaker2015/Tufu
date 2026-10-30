@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Runs the UnityEngine-free rebuild sources (SimulationRandom, SimulationRebuildParams*) under .NET for
+       tests/test_random.py and tests/test_params_hash.py (unit C3c). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Rebuild>$(MSBuildThisFileDirectory)../../../Recovery/StudyProject/Assets/Scripts/Assembly-CSharp/CodeBase/Simulation/Rebuild/</Rebuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="$(Rebuild)../Harness/SimulationJson.cs" Link="Harness/SimulationJson.cs" />
+    <Compile Include="$(Rebuild)SimulationRandom.cs" Link="Rebuild/SimulationRandom.cs" />
+    <Compile Include="$(Rebuild)SimulationRebuildParams*.cs" Exclude="$(Rebuild)SimulationRebuildParamsAsset.cs" LinkBase="Rebuild" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(MSBuildThisFileDirectory)../../../Recovery/StudyProject/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

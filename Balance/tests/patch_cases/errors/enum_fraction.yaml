@@ -1,0 +1,5 @@
+name: enum_fraction
+overrides:
+  - node: LocationsConfig.Locations[].PreferredWeaponType
+    where: {Number: 4}
+    set: 1.5

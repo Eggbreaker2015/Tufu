@@ -1,0 +1,26 @@
+"""Headless Unity harness: requests, run worktree and launcher (design 1.4, 2; unit C0b).
+
+    from tufu_balance.unity import launcher, request
+    result = launcher.run(request.preset("selftest"))      # or launcher.selftest()
+    result.exit_code, result.manifest("selftest")
+
+Command line: ``python -m tufu_balance.unity open|selftest|run|serve|status`` (see ``__main__``).
+C1 adds ``simio``/``schema`` (ingest), C2 ``probes``, C3c ``paramsio``/``trace``/``simrandom``, C4 ``override``,
+C5 ``fasttick``, C7 ``slow_policy``, C8 ``bake_report``, C9 ``patcher``.
+"""
+
+from .launcher import (EXIT_NAMES, LauncherError, Options, RunResult, open_editor, run, selftest, serve_start,
+                       serve_status, serve_stop, serve_submit)
+from .request import RequestError, make_job, make_request, empty_job, preset
+from . import engine as _engine  # noqa: F401  registers C3b's request field and manifest key
+from . import trace as _trace  # noqa: F401  registers C3c's outputs, daily.csv columns, manifest keys, params_source
+from . import override as _override  # noqa: F401  registers C4's override field, output and manifest key
+from . import bake_report as _bake_report  # noqa: F401  registers C8's job.bake, manifest "bake", bake_report.csv
+from . import patcher as _patcher  # noqa: F401  registers C9's patch fields and manifest key
+from . import slow_policy as _slow_policy  # noqa: F401  registers C7's request field and events
+from . import inventory as _inventory  # noqa: F401  registers C6 inventory output
+from . import fasttick as _fasttick  # noqa: F401  registers C5's fast_tick_probe field and fasttick_days output
+
+__all__ = ["EXIT_NAMES", "LauncherError", "Options", "RequestError", "RunResult", "empty_job", "make_job",
+           "make_request", "open_editor", "preset", "run", "selftest", "serve_start", "serve_status", "serve_stop",
+           "serve_submit"]

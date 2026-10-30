@@ -1,0 +1,9 @@
+name: set_float_binary32
+description: set on float fields stores the binary32 value (array element and list row)
+overrides:
+  - node: CombatBalanceConfig.IslandTargetDays
+    index: 0
+    set: 0.1
+  - node: CombatBalanceConfig.EvolutionIslandFillRuleRows[].StartValue
+    index: 0
+    set: 7.3

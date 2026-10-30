@@ -201,8 +201,10 @@ namespace Codebase.Core
                 string guestId = existing.Value.Player.HubGuestId.Value;
                 if (!string.IsNullOrEmpty(guestId)) BackendAuthGuest.GuestDeviceId = guestId;
             }
-            BackendApi.Init(disposer, gameId, url);
-            await HubBackendBootstrap.TryLogin(GameContext.Get<AppMetricaAnalyticsWrapper>());
+            // Simulation sandbox (stage 5 C0b): skip backend, analytics and integration startup.
+            bool skipIntegrations = Codebase.Simulation.Harness.SimulationSandbox.Active && Codebase.Simulation.Harness.SimulationSandbox.Request.Sandbox.SkipIntegrations;
+            if (!skipIntegrations) BackendApi.Init(disposer, gameId, url);
+            if (!skipIntegrations) await HubBackendBootstrap.TryLogin(GameContext.Get<AppMetricaAnalyticsWrapper>());
             reporter.ReportStep("cloud_save");
             GameContext.Set(gameDataService);
             gameDataService.Initialize();
@@ -218,7 +220,7 @@ namespace Codebase.Core
             loadingScreen.ShowRandomTip();
             reporter.ReportStep("ab_tests");
             reporter.ReportStep("scene_preloaded_and_consent_started");
-            await UniTask.WhenAll(LoadMainSceneWithoutActivationAsync(), consentService.InitializeAndShowUserConsent());
+            await (skipIntegrations ? LoadMainSceneWithoutActivationAsync() : UniTask.WhenAll(LoadMainSceneWithoutActivationAsync(), consentService.InitializeAndShowUserConsent()));
             reporter.ReportStep("scene_preloaded_and_consent_finished");
             await InitializePostConsentAsync();
         }
@@ -248,12 +250,15 @@ namespace Codebase.Core
         private async UniTask InitializePostConsentAsync()
         {
             loadingScreen.SetProgress(0.82f);
+            if (!(Codebase.Simulation.Harness.SimulationSandbox.Active && Codebase.Simulation.Harness.SimulationSandbox.Request.Sandbox.SkipIntegrations))
+            {
             appMetricaTrackingUpdater.ApplyConsent();
             if (PlayerPrefs.GetInt("game_loaded_once", 0) == 0)
                 GameContext.Get<AppMetricaAnalyticsWrapper>().Send(new BootTimeEvent(0));
             adjustInitializer.InitializeAsync().Forget();
             firebaseInitializer.InitializeAsync().Forget();
             HubUpdateAttributesFlowRunner.CollectDeviceIdentifiers();
+            }
             loadingScreen.DisableAudioListener();
             mainSceneLoad.allowSceneActivation = true;
             while (!mainSceneLoad.isDone)

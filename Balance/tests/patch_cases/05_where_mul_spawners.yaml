@@ -1,0 +1,6 @@
+name: where_mul_spawners
+description: design 6.1 example - elite spawners of island 10 fight 20% longer (where on two fields, float mul)
+overrides:
+  - node: EnemySpawnerConfig.AverageFightTime
+    where: {LocationNumber: 10, IsEliteBoss: 1}
+    mul: 1.2
