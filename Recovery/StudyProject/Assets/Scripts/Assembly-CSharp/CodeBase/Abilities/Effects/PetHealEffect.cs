@@ -15,8 +15,6 @@ namespace Codebase.Abilities.Effects
 
 		public override void Execute(AbilityContext context)
 		{
-			if (!PetConfig.Enabled)
-				return;
 			float fraction = context.State.GetValue();
 			if (fraction <= 0f)
 				return;

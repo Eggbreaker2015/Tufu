@@ -36,7 +36,6 @@ namespace Codebase.Pet
 		// Ratios the pet's Health/Damage stats were last built with; changes with the item's level, copies and evolution.
 		public PetStatRatios SyncedRatios;
 
-		// Synergy tier the stats were last built with (PetStatsSyncSystem.GetSynergyKey); -1 = none.
 		public int SyncedSynergyKey = -1;
 
 		public bool IsAlive => State == PetState.Alive && Unit != null;

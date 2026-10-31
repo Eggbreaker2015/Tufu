@@ -547,7 +547,7 @@ namespace Codebase.Player.Models
 		// (LoadStats keeps PlayerConfig's), so this never persists or stacks.
 		private static double GetInitialBaseValue(Stat stat)
 		{
-			if (stat.Type == StatType.Damage && global::Codebase.Pet.PetConfig.Enabled)
+			if (stat.Type == StatType.Damage)
 				return stat.BaseValue + global::Codebase.Pet.PetConfig.Instance.PlayerBaseAttack;
 			return stat.BaseValue;
 		}
@@ -648,22 +648,7 @@ namespace Codebase.Player.Models
 
 		private void LoadStats()
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			// Native ELF VA 0x145c268. BaseValue is retained from PlayerConfig.
-			if (Data.Stats.Count == 0)
-				return;
-			foreach (StatDataUd saved in Data.Stats)
-			{
-				Stat stat = LastStats.FirstOrDefault(candidate => candidate.Type == saved.Stat.Value);
-				if (stat == null)
-					continue;
-				foreach (StatModifierUd modifier in saved.Modifiers)
-				{
-					if (IsRuntimeOnlySource(modifier.Source.Value))
-						continue;
-					stat.Modifiers.Add(new StatModifier { Name = modifier.Name.Value, Value = modifier.Value.Value, ModifierType = modifier.ModifierType.Value, Source = modifier.Source.Value });
-				}
-			}
+			return;
 		}
 
 		private void LoadPosition()
@@ -683,28 +668,7 @@ namespace Codebase.Player.Models
 
 		private void SaveStats()
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { Data.Stats.Clear(); return; }
-			// Native ELF VA 0x145d45c; original native source-selection and unsigned exclusion mask 0x50a.
-			Data.Stats.Clear();
-			foreach (Stat stat in Unit?.Stats ?? LastStats)
-			{
-				StatDataUd saved = Data.Stats.Create();
-				saved.Stat.Value = stat.Type;
-				saved.BaseValue.Value = stat.BaseValue;
-				foreach (StatModifier modifier in stat.Modifiers)
-				{
-					uint source = (uint)modifier.Source;
-					if (source <= 10u && ((1u << (int)source) & 0x50au) != 0u)
-						continue;
-					if (IsRuntimeOnlySource(modifier.Source))
-						continue;
-					StatModifierUd target = saved.Modifiers.Create();
-					target.Name.Value = modifier.Name;
-					target.Value.Value = modifier.Value;
-					target.ModifierType.Value = modifier.ModifierType;
-					target.Source.Value = modifier.Source;
-				}
-			}
+			{ Data.Stats.Clear(); return; }
 		}
 
 		// Pet collection/synergy bonuses are re-applied by their systems every session; skill buffs are timed.
@@ -727,7 +691,7 @@ namespace Codebase.Player.Models
 		{
 			// Native ELF VA 0x145dbbc. Injection occurs in the original scene bootstrap.
 			Unit = unit;
-			Unit.Stats = LastStats.Select(stat => new Stat(Lifetime, stat.BaseValue, stat.Type, stat.Modifiers)).ToList();
+			Unit.Stats = global::Codebase.Rpg.HeroStats.Build(null);
 			Unit.BuildStatLookup();
 			ItemModel startingWeapon = new ItemModel(Lifetime, config.StartingWeapon);
 			// Pet mode: build the player's own attack item; it is not added to Items.
@@ -739,13 +703,7 @@ namespace Codebase.Player.Models
 				PlayerAttackItem.AbilityCritMultiplier = 1f;
 			}
 			Unit.CurrentHealth = Unit.Stats.First(stat => stat.Type == StatType.Health).Value;
-			if (Items.Count == 0 && !global::Codebase.Rpg.RpgModeConfig.Enabled)
-			{
-				AddItem(startingWeapon);
-				EquipItem(startingWeapon);
-			}
-			else
-				ApplyEquippedItemsToUnit();
+			ApplyEquippedItemsToUnit();
 			crystalModel.ApplyAllEquippedToUnit();
 			Unit.SetupHealthBar(config.HealthBarPrefab);
 		}
@@ -801,7 +759,7 @@ namespace Codebase.Player.Models
 		public bool EquipItem(ItemModel item)
 		{
 			// Native ELF VA 0x145e26c, predicate 0x146194c.
-			ItemSlotModel slot = ItemSlots.FirstOrDefault(candidate => !candidate.IsEquipped && candidate.IsUnlocked && candidate.SlotType == item.Config.SlotType && (!global::Codebase.Rpg.RpgModeConfig.Enabled || !candidate.IsVip));
+			ItemSlotModel slot = ItemSlots.FirstOrDefault(candidate => !candidate.IsEquipped && candidate.IsUnlocked && candidate.SlotType == item.Config.SlotType && (!candidate.IsVip));
 			return slot != null && TryEquipItemToSlot(item, slot);
 		}
 
@@ -820,9 +778,6 @@ namespace Codebase.Player.Models
 			if (slot == null)
 				return;
 			slot.Unequip();
-			if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
-			foreach (StatModifier modifier in item.Config.StatModifiers)
-				Unit.Stats.First(stat => stat.Type == modifier.StatType).RemoveModifier(modifier);
 			abilityExecuteEventSystem.FireEvent(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEquip, Item = item, ItemUnequipped = true });
 			SyncRageAccessFromEquipment();
 			version.Invalidate();
@@ -831,7 +786,7 @@ namespace Codebase.Player.Models
 		public bool TryEquipItemToSlot(ItemModel item, ItemSlotModel slot)
 		{
 			// Native ELF VA 0x145fa20.
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && slot != null && (slot.IsVip || slot.SlotType != ItemSlotType.Weapon)) return false;
+			if (slot != null && (slot.IsVip || slot.SlotType != ItemSlotType.Weapon)) return false;
 			if (slot == null || item == null || !slot.IsUnlocked || slot.IsEquipped || slot.SlotType != item.Config.SlotType)
 				return false;
 			if (ItemSlots.FirstOrDefault(candidate => candidate.ItemModel == item) != null)
@@ -840,9 +795,6 @@ namespace Codebase.Player.Models
 			item.SlotIndex = ItemSlots.IndexOf(slot);
 			item.WearingTime = 0f;
 			item.ShowNotification = false;
-			if (Unit != null && !global::Codebase.Rpg.RpgModeConfig.Enabled)
-				foreach (StatModifier modifier in item.Config.StatModifiers)
-					Unit.Stats.First(stat => stat.Type == modifier.StatType).AddModifier(modifier);
 			abilityExecuteEventSystem.FireEvent(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEquip, Item = item, ItemUnequipped = false });
 			SyncRageAccessFromEquipment();
 			version.Invalidate();
@@ -868,9 +820,6 @@ namespace Codebase.Player.Models
 				ItemModel item = slot.ItemModel;
 				item.SlotIndex = ItemSlots.IndexOf(slot);
 				item.WearingTime = 0f;
-				if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
-				foreach (StatModifier modifier in item.Config.StatModifiers)
-					Unit.Stats.First(stat => stat.Type == modifier.StatType).AddModifier(modifier);
 				abilityExecuteEventSystem.FireEvent(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEquip, Item = item, ItemUnequipped = false });
 			}
 

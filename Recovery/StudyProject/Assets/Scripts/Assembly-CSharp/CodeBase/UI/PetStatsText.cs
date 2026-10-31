@@ -209,7 +209,7 @@ namespace Codebase.UI
 		// Item title: in pet mode the item is its pet species, so the species name replaces the weapon name.
 		public static void SetItemName(TMP_Text text, ItemConfig config)
 		{
-			PetDefinition definition = PetConfig.Enabled && config != null && config.SlotType != ItemSlotType.Helmet && config.SlotType != ItemSlotType.Shield ? PetConfig.Instance.Find(config) : null;
+			PetDefinition definition = config != null && config.SlotType != ItemSlotType.Helmet && config.SlotType != ItemSlotType.Shield ? PetConfig.Instance.Find(config) : null;
 			if (definition != null && !string.IsNullOrEmpty(definition.DisplayName))
 				SetText(text, definition.DisplayName);
 			else
@@ -289,7 +289,7 @@ namespace Codebase.UI
 		public static string SynergyLine(ItemModel item)
 		{
 			PetConfig config = PetConfig.Instance;
-			if (!PetConfig.Enabled || item == null || item.IsArmor || config == null) return string.Empty;
+			if (item == null || item.IsArmor || config == null) return string.Empty;
 			WeaponType type = PetCollection.GetDamageType(item, config);
 			int count = PetCollection.CountEquippedOfType(type);
 			PetSynergyTier tier = PetCollection.GetSynergyTier(count);

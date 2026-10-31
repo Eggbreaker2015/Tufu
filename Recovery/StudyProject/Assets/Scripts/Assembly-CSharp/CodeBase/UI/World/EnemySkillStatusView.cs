@@ -226,7 +226,7 @@ namespace Codebase.UI.World
 				skillName.fontSharedMaterial = fontSource.fontSharedMaterial;
 			}
 			LocalizationFontApplier.RegisterLike(skillName, fontSource);
-			if (PetConfig.Enabled || LocalizationService.CurrentLocale == "zh") PetStatsText.ApplyCjkFont(skillName);
+			PetStatsText.ApplyCjkFont(skillName);
 			appliedLocaleVersion = localeVersion;
 		}
 

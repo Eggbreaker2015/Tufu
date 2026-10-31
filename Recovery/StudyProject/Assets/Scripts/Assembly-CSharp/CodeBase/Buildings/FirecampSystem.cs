@@ -49,31 +49,26 @@ namespace Codebase.Buildings
 
 		private void Update()
 		{
-			var unit = playerModel.Unit;
-			if (unit.IsDying) return;
-			if (PetConfig.Enabled) UpdatePets(unit);
-			if (Vector3.Distance(unit.transform.position, transform.position) >= Radius) return;
-			if ((double)Time.time <= unit.LastDamageGet + 4.0) return;
-			double maximum = unit.GetStatValue(StatType.Health);
-			unit.CurrentHealth = Math.Min(unit.CurrentHealth + maximum * Regen * Time.deltaTime, maximum);
-		}
-
-		// Pet mode: the player at the fountain revives dead pets; living pets inside it heal like the player.
-		private void UpdatePets(PlayerUnit unit)
-		{
-			Vector3 center = transform.position;
-			Transform owner = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel).transform;
-			if (Vector3.Distance(owner.position, center) < Radius)
-				petsModel.ReviveDead(owner.position, owner.eulerAngles.y);
-			foreach (PetModel pet in petsModel.Pets)
+			var roster = GameContext.Get<global::Codebase.Rpg.HeroRosterModel>();
+			if (roster.InWipe) return;
+			var owner = global::Codebase.Rpg.RpgControl.ControlledUnitOrNull(playerModel);
+			if (owner == null) return;
+			if (Vector3.Distance(owner.transform.position, transform.position) < Radius)
 			{
-				if (!pet.IsAlive) continue;
-				PetUnit petUnit = pet.Unit;
-				if (petUnit.IsDead) continue;
-				if (Vector3.Distance(petUnit.transform.position, center) >= Radius) continue;
-				if ((double)Time.time <= petUnit.LastDamageGet + 4.0) continue;
-				double maximum = petUnit.GetStatValue(StatType.Health);
-				petUnit.CurrentHealth = Math.Min(petUnit.CurrentHealth + maximum * Regen * Time.deltaTime, maximum);
+				float yaw = owner.transform.eulerAngles.y;
+				foreach (var hero in roster.Heroes) if (hero.IsDown && hero.Unit != null)
+				{
+					float fraction = PetConfig.Instance != null && PetConfig.Instance.ReviveHealthFraction > 0f ? PetConfig.Instance.ReviveHealthFraction : 0.2f;
+					Vector3 pos = owner.transform.position;
+					if (hero.IsProtagonist) PetsModel.TrySamplePosition(PetsModel.GetFollowPosition(pos, yaw, hero.SlotOrder), pos, out pos);
+					GameContext.Get<global::Codebase.Rpg.HeroDeathService>().Revive(hero, pos, yaw, hero.Unit.GetStatValue(StatType.Health) * fraction);
+				}
+			}
+			foreach (var hero in roster.Heroes)
+			{
+				if (!hero.IsAlive || Vector3.Distance(hero.Unit.transform.position, transform.position) >= Radius || (double)Time.time <= hero.Unit.LastDamageGet + 4.0) continue;
+				double maximum = hero.Unit.GetStatValue(StatType.Health);
+				hero.Unit.CurrentHealth = Math.Min(hero.Unit.CurrentHealth + maximum * Regen * Time.deltaTime, maximum);
 			}
 		}
 

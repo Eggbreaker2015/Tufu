@@ -57,8 +57,7 @@ namespace Codebase.BossTower.Commands
 			unit.CurrentHealth = unit.GetStatValue(StatType.Health, true);
 			unit.Agent.Warp(playerPosition);
 			// Pet mode: pets enter with the player, revived and at full health.
-			if (PetConfig.Enabled)
-				petsModel.ReviveAll(playerPosition, arena.PlayerSpawnPoint.eulerAngles.y, true);
+			petsModel.ReviveAll(playerPosition, arena.PlayerSpawnPoint.eulerAngles.y, true);
 			var bossUnit = bossSpawnService.SpawnBoss(boss, bossPosition);
 			if (bossUnit == null)
 			{
@@ -84,7 +83,7 @@ namespace Codebase.BossTower.Commands
 
 			// Pet mode: the player's own attack is not in Items.
 			var claw = playerModel.PlayerAttackItem;
-			if (PetConfig.Enabled && claw != null)
+			if (claw != null)
 			{
 				claw.Cooldown = 0f;
 				claw.AttackInProgress = false;

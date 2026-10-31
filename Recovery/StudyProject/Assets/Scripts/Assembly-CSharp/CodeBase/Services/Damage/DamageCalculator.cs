@@ -81,15 +81,13 @@ namespace Codebase.Services.Damage
 			    if (attacker != null && attacker.Config != null && attacker.Config.IsBossFightPart)
 			        attack /= meta.Get("tower_damage_reduction").Value + 1.0;
 			    // Pet mode: a pet target gets no helmet/shield armor and no rage reduction; its defence is scaled by its defence ratio.
-			    PetUnit petTarget = PetConfig.Enabled ? data.Target as PetUnit : null;
+			    PetUnit petTarget = data.Target as PetUnit;
 			    PlayerModel player = GameContext.Get<PlayerModel>();
-			    double armor = petTarget != null ? 0.0 : player.EquippedArmors.Where(item => item.Config.DamageType == WeaponType.Universal || item.Config.DamageType == data.DamageType).Sum(item => item.Armor);
+			    double armor = data.Target is HeroUnit ? 0.0 : player.EquippedArmors.Where(item => item.Config.DamageType == WeaponType.Universal || item.Config.DamageType == data.DamageType).Sum(item => item.Armor);
 			    double typedFlat = data.Target.GetStatValue(flatType);
 			    double typedPercent = data.Target.GetStatValue(percentType);
 			    double flatScale = fromSimulation ? simulationFlatDefenceMultiplier : 1.0;
 			    double defence = flatScale * (universalFlat + armor + typedFlat) * typedPercent;
-			    if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
-			    if (petTarget != null && petTarget.Item != null) defence *= PetStats.GetRatios(petTarget.Item, petTarget.Definition).Defence;
 			    // Skills: defence buffs and debuffs on the hero and pets are read here, never in simulations.
 			    if (!fromSimulation) defence *= global::Codebase.Skills.FriendlyDebuffs.DefenceFactor(data.Target);
 			    double incoming = ApplyDamageDefense(attack, defence);
@@ -110,7 +108,7 @@ namespace Codebase.Services.Damage
 			        }
 			        if (incoming > 0.0)
 			        {
-			            int rage = petTarget != null ? 0 : GameContext.Get<RageModel>().ActiveRageLevel;
+			            int rage = data.Target is HeroUnit ? 0 : GameContext.Get<RageModel>().ActiveRageLevel;
 			            if (rage > 0)
 			            {
 			                double reduction = meta.Get("rage_damage_reduce").Value;
@@ -128,6 +126,8 @@ namespace Codebase.Services.Damage
 			    return result;
 			}
 
+			if (data.Source is HeroUnit) return CalculateHeroHit(data, enemy, fromSimulation);
+
 			PlayerModel owner = GameContext.Get<PlayerModel>();
 			MetaStatsModel metaStats = GameContext.Get<MetaStatsModel>();
 			Armor resistance = data.Armor ?? enemy.ArmorConfig.Armors.First(armor => armor.Type == data.DamageType);
@@ -135,9 +135,8 @@ namespace Codebase.Services.Damage
 			double baseAttack = data.Source.GetStatValue(StatType.Damage);
 			double weaponDamage = data.Weapon.Damage;
 			// Pet mode: a pet hits with its own attack (a scaled share of the weapon damage); the player attack comes in through
-			// its Damage and typed flat stats, which PetStatsSyncSystem scales by the attack ratio.
-			if (PetConfig.Enabled && data.Source is PetUnit petSource) weaponDamage = PetStats.GetOwnAttack(weaponDamage, petSource.Definition, petSource.Item != null ? PetStats.GetLevelProgress(petSource.Item) : 1);
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && data.Source is HeroUnit) weaponDamage = 0.0;
+			if (data.Source is PetUnit petSource) weaponDamage = PetStats.GetOwnAttack(weaponDamage, petSource.Definition, petSource.Item != null ? PetStats.GetLevelProgress(petSource.Item) : 1);
+			if (data.Source is HeroUnit) weaponDamage = 0.0;
 			double flatDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypeFlat);
 			double percentDamage = data.Source.GetStatValue(data.Weapon.Config.DamageStatTypePercent);
 			double universalDefense = data.Target.GetStatValue(StatType.UniversalDefencePercent);
@@ -217,6 +216,32 @@ namespace Codebase.Services.Damage
 			}
 			else result.Damage = Math.Round(damage * GetEventGolemDamageMultiplier(enemy, metaStats));
 			result.Resist = resist;
+			return result;
+		}
+
+		private static DamageResult CalculateHeroHit(WeaponHitEvent data, EnemyUnit enemy, bool fromSimulation)
+		{
+			var result = new DamageResult();
+			Armor resistance = data.Armor ?? enemy.ArmorConfig.Armors.First(armor => armor.Type == data.DamageType);
+			double critChance = enemy.SpecialAdditionalCritChancePercent + data.Source.GetStatSpecificValue(StatType.CritChance);
+			double critDamage = data.Source.GetStatSpecificValue(StatType.CritDamagePercent);
+			result.IsCrit = critChance.Roll();
+			result.IsSuperCrit = result.IsCrit && data.Source.GetStatSpecificValue(StatType.SuperCritChance).Roll();
+			double damage = (data.Source.GetStatValue(StatType.Damage) + data.Source.GetStatValue(data.Weapon.Config.DamageStatTypeFlat)) * data.Source.GetStatValue(data.Weapon.Config.DamageStatTypePercent);
+			damage *= 1.0 - resistance.Resist;
+			damage *= Math.Max(0.0, 1.0 - enemy.GetStatValue(StatType.UniversalDefencePercent));
+			if (fromSimulation) damage *= (critDamage - 1.0) * critChance + 1.0;
+			else if (result.IsCrit) damage *= critDamage;
+			if (result.IsSuperCrit && !fromSimulation) damage *= data.Source.GetStatSpecificValue(StatType.SuperCritDamagePercent);
+			damage *= GetGlobalAttackMultiplier(data.Source);
+			if (!fromSimulation)
+			{
+				if (!data.Undodgeable && enemy.GetStatSpecificValue(StatType.Evasion).Roll()) { damage = 0.0; result.HasDodged = true; }
+				damage *= global::Codebase.Skills.FriendlyDebuffs.OutgoingDamageFactor(data.Source);
+				damage /= global::Codebase.Skills.FriendlyDebuffs.EnemyDefenceFactor(enemy);
+			}
+			result.Damage = Math.Round(Math.Max(0.0, damage));
+			result.Resist = resistance.Resist;
 			return result;
 		}
 

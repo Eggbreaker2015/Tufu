@@ -36,7 +36,7 @@ namespace Codebase.Player.Systems
 				if (offNavMeshTime < OffNavMeshTimeout) return;
 				agent.Warp(firecampSystem.transform.position);
 				// Pet mode: pets follow the player to the fountain.
-				if (PetConfig.Enabled) petsModel.WarpAll(firecampSystem.transform.position);
+				petsModel.WarpAll(firecampSystem.transform.position);
 			}
 			offNavMeshTime = 0f;
 		}

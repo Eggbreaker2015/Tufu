@@ -138,7 +138,7 @@ namespace Codebase.UI.Inventory
 			    .First(style => style.WeaponType == model.Config.DamageType).Sprite;
 			typeAndRarity.color = GameContext.Get<ItemsProvider>().RarityColors[(int)rarity];
 			typeAndRarity.enabled = rarity != Rarity.Mythical;
-			notification.SetActive((model.ShowNotification || (model.CanEvolve && !global::Codebase.Rpg.RpgModeConfig.Enabled)) && enableNotification && !isPreview);
+			notification.SetActive((model.ShowNotification) && enableNotification && !isPreview);
 			info.SetActive(showInfo && showInfoDynamic);
 		}
 

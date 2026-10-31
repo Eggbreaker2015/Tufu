@@ -15,6 +15,7 @@ namespace Codebase.Rpg
 	{
 		public List<HeroModel> Heroes = new List<HeroModel>();
 		public HeroModel Controlled { get; private set; }
+		public bool InWipe => GameContext.Get<PlayerModel>().Unit != null && (GameContext.Get<PlayerModel>().Unit.IsDying || GameContext.Get<PlayerModel>().Unit.IsReviving);
 		public event Action<HeroModel, HeroModel> ControlledChanged;
 		public float LastSwitchTime;
 		public float GraceUntil;
@@ -27,18 +28,26 @@ namespace Codebase.Rpg
 
 		public void Request(HeroModel hero) { pendingRequest = hero; }
 		public HeroModel TakeRequest() { HeroModel result = pendingRequest; pendingRequest = null; return result; }
+		public HeroModel FirstLiving()
+		{
+			HeroModel best = null;
+			foreach (var hero in Heroes) if (hero.IsAlive && (best == null || hero.SlotOrder < best.SlotOrder)) best = hero;
+			return best;
+		}
+
 		public void Remove(HeroModel hero)
 		{
-			if (Controlled == hero) ForceControl(Heroes.Find(candidate => candidate.IsProtagonist));
+			bool wasControlled = Controlled == hero;
 			if (pendingRequest == hero) pendingRequest = null;
 			Heroes.Remove(hero);
+			if (wasControlled) ForceControl(InWipe ? Heroes.Find(candidate => candidate.IsProtagonist) : FirstLiving());
 		}
 
 		public bool TrySwitch(HeroModel next)
 		{
-			if (!RpgModeConfig.Enabled || next == null || !Heroes.Contains(next) || next.Unit == null || !next.IsAlive || next == Controlled) return false;
+			if (next == null || !Heroes.Contains(next) || next.Unit == null || !next.IsAlive || next == Controlled) return false;
 			PlayerModel player = GameContext.Get<PlayerModel>();
-			if (player.Unit == null || !player.CanMove || player.Unit.IsDying || player.Unit.IsReviving || GameContext.Get<CameraFollowSystem>().IsOverriding || Time.time - LastSwitchTime < RpgModeConfig.Instance.SwitchCooldown) return false;
+			if (player.Unit == null || !player.CanMove || InWipe || GameContext.Get<CameraFollowSystem>().IsOverriding || Time.time - LastSwitchTime < RpgModeConfig.Instance.SwitchCooldown) return false;
 			Apply(next);
 			return true;
 		}

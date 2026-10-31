@@ -30,8 +30,6 @@ namespace Codebase.Abilities.Effects
 
 		public override void Execute(AbilityContext context)
 		{
-			if (!PetConfig.Enabled)
-				return;
 			double damage = context.Damage * context.State.GetValue();
 			if (damage <= 0.0)
 				return;

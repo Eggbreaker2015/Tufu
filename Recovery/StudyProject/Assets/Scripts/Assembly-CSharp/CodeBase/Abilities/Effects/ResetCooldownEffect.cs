@@ -19,8 +19,7 @@ namespace Codebase.Abilities.Effects
             {
                 // Pet mode: only weapons whose pet is alive can be picked.
                 List<ItemModel> weapons = context.PlayerModel.EquippedWeapons;
-                if (PetConfig.Enabled)
-                    weapons = Codebase.Core.GameContext.Get<PetsModel>().GetAliveWeapons(weapons);
+                weapons = Codebase.Core.GameContext.Get<PetsModel>().GetAliveWeapons(weapons);
                 weapon = FindHighestDamageWeapon(weapons);
                 if (weapon == null) return;
                 weapon.ResetCooldown = true;
@@ -31,7 +30,7 @@ namespace Codebase.Abilities.Effects
                 weapon = context.Owner as ItemModel;
                 if (weapon == null) return;
                 // Pet mode: a weapon whose pet is dead does not reset.
-                if (PetConfig.Enabled && weapon.Config.SlotType == ItemSlotType.Weapon && !Codebase.Core.GameContext.Get<PetsModel>().IsPetAlive(weapon)) return;
+                if (weapon.Config.SlotType == ItemSlotType.Weapon && !Codebase.Core.GameContext.Get<PetsModel>().IsPetAlive(weapon)) return;
                 weapon.ResetCooldown = true;
             }
             else return;

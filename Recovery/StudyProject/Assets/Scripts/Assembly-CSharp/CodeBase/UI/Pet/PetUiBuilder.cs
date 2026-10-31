@@ -62,18 +62,12 @@ namespace Codebase.UI.Pets
 
 		public static void OpenCollection()
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			if (!PetConfig.Enabled) return;
-			UINavigator navigator = Find<UINavigator>();
-			PetCollectionView view = GetTemplate();
-			if (navigator == null || view == null) return;
-			PlayTap();
-			navigator.OpenTemplate(view, true);
+			return;
 		}
 
 		public static void OpenAbilities(ItemModel item)
 		{
-			if (!PetConfig.Enabled || item == null) return;
+			if (item == null) return;
 			UINavigator navigator = Find<UINavigator>();
 			PetAbilitiesView view = GetAbilitiesTemplate();
 			if (navigator == null || view == null) return;
@@ -111,38 +105,7 @@ namespace Codebase.UI.Pets
 		// The 图鉴 button left of the Stats panel header, mirroring its Info_Button.
 		public static void InstallInventoryEntry(InventoryView inventoryView)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			if (!PetConfig.Enabled || inventoryView == null) return;
-			Transform stats = inventoryView.transform.Find("Content/Stats");
-			if (stats == null)
-			{
-				Debug.LogWarning("[Pet] Inventory Stats panel not found; no collection entry button.");
-				return;
-			}
-			if (stats.Find(EntryButtonName) != null) return;
-			PetConfig config = PetConfig.Instance;
-			RectTransform info = stats.Find("Info_Button") as RectTransform;
-			Image infoImage = info != null ? info.GetComponent<Image>() : null;
-			Sprite buttonSprite = config.ButtonSprite != null ? config.ButtonSprite : infoImage != null ? infoImage.sprite : null;
-			Image image = CreateImage(stats, EntryButtonName, buttonSprite, ButtonColor);
-			RectTransform rect = image.rectTransform;
-			Vector2 size = info != null ? info.sizeDelta : new Vector2(84f, 92f);
-			Vector2 position = info != null ? new Vector2(-info.anchoredPosition.x, info.anchoredPosition.y) : new Vector2(78f, -4f);
-			SetRect(rect, new Vector2(0f, 1f), new Vector2(0f, 1f), info != null ? info.pivot : new Vector2(0.5f, 0.5f), position, size);
-			Button button = image.gameObject.AddComponent<Button>();
-			button.targetGraphic = image;
-			if (config.BookIconSprite != null)
-			{
-				Image icon = CreateImage(rect, "Icon", config.BookIconSprite, Color.white);
-				icon.preserveAspect = true;
-				icon.raycastTarget = false;
-				SetRect(icon.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 9f), new Vector2(64f, 64f));
-			}
-			// Label beside the button; a child, so tapping it also presses the button.
-			TMP_Text label = CreateText(rect, "Label", 38f, TextAlignmentOptions.Left);
-			label.raycastTarget = true;
-			SetRect(label.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, 0.5f), new Vector2(10f, 4f), new Vector2(120f, 64f));
-			image.gameObject.AddComponent<PetCollectionEntryButton>().Setup(button, label);
+			return;
 		}
 
 		private static PetCollectionView BuildCollectionView(Transform parent)

@@ -311,8 +311,7 @@ namespace Codebase.BossTower.Systems
 			}
 
 			// Pet mode: pets leave the arena with the player.
-			if (PetConfig.Enabled)
-				petsModel.WarpAll(portal.playerSpawnPosition.position, portal.playerSpawnPosition.eulerAngles.y);
+			petsModel.WarpAll(portal.playerSpawnPosition.position, portal.playerSpawnPosition.eulerAngles.y);
 		}
 
 		public void EndRaid(bool victory)

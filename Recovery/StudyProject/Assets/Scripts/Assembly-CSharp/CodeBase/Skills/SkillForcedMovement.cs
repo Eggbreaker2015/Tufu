@@ -134,7 +134,7 @@ namespace Codebase.Skills
 			{
 				UnitCore unit = state.Unit;
 				if (!Current(state) || !SkillTargetQuery.IsAlive(unit) || unit.EntityProvider == null || !unit.EntityProvider.Entity.Equals(state.Entity) ||
-					world.GetStash<UnitDeadMarker>().Has(state.Entity) || unit is PlayerUnit hero && hero.IsDying || unit is PetUnit && !PetConfig.Enabled ||
+					world.GetStash<UnitDeadMarker>().Has(state.Entity) || unit is PlayerUnit hero && hero.IsDying ||
 					state.Kind == Kind.Dash && service.IsStunned(unit))
 				{
 					End(state);

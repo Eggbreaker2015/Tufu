@@ -33,7 +33,7 @@ namespace Codebase.Abilities.Systems
             foreach (var hit in hitEvent.ScheduledChanges) {
                 // Pet mode: pet hits also mark.
                 // Skills: weaponless skill hits (Weapon == null) do not mark, like other on-hit effects.
-                if (hit.Weapon == null || !(hit.Source is PlayerUnit || PetConfig.Enabled && hit.Source is PetUnit) || hit.DamageType != WeaponType.Stabbing || !(hit.Target is EnemyUnit target) || target.IsDead || !HasPiercingMarkAbility()) continue;
+                if (hit.Weapon == null || !(hit.Source is PlayerUnit || hit.Source is PetUnit) || hit.DamageType != WeaponType.Stabbing || !(hit.Target is EnemyUnit target) || target.IsDead || !HasPiercingMarkAbility()) continue;
                 if (UnityEngine.Random.value < .1f + playerModel.BonusMarkChance) ApplyMarkEffect.ApplyMark(markStash, World, target, playerModel);
             }
         }

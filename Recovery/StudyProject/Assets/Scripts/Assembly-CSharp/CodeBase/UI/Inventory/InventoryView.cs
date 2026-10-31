@@ -262,25 +262,18 @@ namespace Codebase.UI.Inventory
 			amuletGraphButton.onClick.AddListener(OpenAmuletGraph);
 			searchSoulButton.onClick.AddListener(HandleSearchSoul);
 			fillAmuletButton.onClick.AddListener(HandleFillAmulet);
-			// Pet mode: the 图鉴 entry button in the Stats panel.
-			if (global::Codebase.Pet.PetConfig.Enabled && !global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.UI.Pets.PetUiBuilder.InstallInventoryEntry(this);
 		}
 
 		public void OpenForAmuletReveal()
 		{
 			// Native ELF VA 0x1651638.
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { gameObject.SetActive(true); return; }
-			pendingFocusOnClose = NeedsGiantSoulForUnlock();
-			gameObject.SetActive(true);
+			{ gameObject.SetActive(true); return; }
 		}
 
 		public void OpenForEmptyAmuletReveal()
 		{
 			// Native ELF VA 0x16516f4.
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { gameObject.SetActive(true); return; }
-			showUnlockHelmetSlotAfter = true;
-			OpenForAmuletReveal();
-			PlayEmptyAmuletReveal().Forget();
+			{ gameObject.SetActive(true); return; }
 		}
 
 		private async UniTaskVoid PlayEmptyAmuletReveal()
@@ -302,9 +295,7 @@ namespace Codebase.UI.Inventory
 		private void HandleSearchSoul()
 		{
 			// Native ELF VA 0x16518b4.
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			gameObject.SetActive(false);
-			App.InitiateFlow(new FocusGiantSoulFlow()).Forget();
+			return;
 		}
 
 		public override void Cleanup()
@@ -312,16 +303,7 @@ namespace Codebase.UI.Inventory
 			// Native ELF VA 0x1651954.
 			base.Cleanup();
 			uiModel.BlockItemsHotbar = true;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { pendingFocusOnClose = false; showUnlockHelmetSlotAfter = false; return; }
-			if (pendingFocusOnClose)
-			{
-			    pendingFocusOnClose = false;
-			    if (NeedsGiantSoulForUnlock())
-			    {
-			        App.InitiateFlow(new FocusGiantSoulFlow { showUnlockHelmetSlotAfter = showUnlockHelmetSlotAfter }).Forget();
-			        showUnlockHelmetSlotAfter = false;
-			    }
-			}
+			{ pendingFocusOnClose = false; showUnlockHelmetSlotAfter = false; return; }
 		}
 
 		private void OpenAmuletGraph()
@@ -342,8 +324,7 @@ namespace Codebase.UI.Inventory
 		{
 			// Native ELF VA 0x1651c48; preserve static category order.
 			List<ItemModel> items = unequippedItems;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return AllCategories.Where(category => category.SlotType == ItemSlotType.Weapon && items.Any(item => item.Config.SlotType == category.SlotType)).ToList();
-			return AllCategories.Where(category => items.Any(item => item.Config.SlotType == category.SlotType)).ToList();
+			return AllCategories.Where(category => category.SlotType == ItemSlotType.Weapon && items.Any(item => item.Config.SlotType == category.SlotType)).ToList();
 		}
 
 		private List<ItemModel> GetCategoryItems(ItemSlotType slotType)
@@ -383,7 +364,6 @@ namespace Codebase.UI.Inventory
 			itemPreviewMask.SetActive(selectedItem != null);
 			unequipMask.gameObject.SetActive(unequipState);
 			if (selectedItem == null) unequipState = false;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
 			{
 				Transform amulet = transform.Find("Content/Amulet");
 				if (amulet != null) amulet.gameObject.SetActive(false);
@@ -399,8 +379,6 @@ namespace Codebase.UI.Inventory
 				loadoutButton.SetActive(false);
 				return;
 			}
-			RenderAmuletStates();
-			loadoutButton.SetActive(metaStatsModel.Get("loadout_button").GetValue() > 0.0);
 		}
 
 		private void RenderAmuletStates()

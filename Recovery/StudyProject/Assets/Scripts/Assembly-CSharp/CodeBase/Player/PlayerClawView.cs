@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace Codebase.Player
 {
-	// Pet mode: swings Pudge's right hand for the player's own attack item; added at runtime by PetAttackSystem.
 	public class PlayerClawView : MonoBehaviour
 	{
 		private const string HandSlotKey = "weapon_1";
@@ -47,40 +46,25 @@ namespace Codebase.Player
 			}
 		}
 
-		private void Update()
+		public void SetAttackAnimation(bool attacking, float speed)
 		{
-			if (!PetConfig.Enabled || animator == null || playerModel == null)
-				return;
-			ItemModel item = playerModel.PlayerAttackItem;
-			if (item == null)
-				return;
-			if (!string.IsNullOrEmpty(handSpeedKey))
-				animator.SetFloat(handSpeedKey, GetHandSpeed(item));
-			if (item.JustStartedAttack && !string.IsNullOrEmpty(attackAnimationKey))
-			{
-				animator.SetFloat(AttackType, (float)ToAttackType(item.Config.DamageType));
-				animator.SetTrigger(attackAnimationKey);
-			}
-		}
-
-		private float GetHandSpeed(ItemModel item)
-		{
-			// Same curve as the weapon_1 hand in PlayerWeaponView.Update.
-			if (global::Codebase.Skills.FriendlyDebuffs.IsStunned(playerModel.Unit))
-				return 0f;
-			float multiplier = 1f;
-			foreach (var ability in item.AbilityStates)
-				multiplier *= ability.GetWeaponStatMultiplier(WeaponBuffType.AttackSpeed);
-			multiplier *= item.AbilityAttackSpeedMultiplier;
-			multiplier /= global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(playerModel.Unit);
+			if (animator == null || playerModel == null) return;
+			var hero = GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(playerModel.Unit);
+			if (hero == null || hero.AttackItem == null) return;
+			ItemModel item = hero.AttackItem;
 			float cooldown = item.Config.AttackCooldown;
-			float attackStart = PlayerAttackSystem.GetAnimationCastPoint(item) * cooldown;
+			float multiplier = speed * cooldown;
+			float attackStart = item.Config.AnimationCastPoint * cooldown;
 			float remaining = cooldown - attackStart;
 			float hitPoint = PlayerWeaponView.GetAttackHitPoint(item.Config.DamageType);
-			float speed = remaining <= multiplier * LongHandCastThreshold ? multiplier * hitPoint / remaining : (item.Cooldown <= multiplier * HandCastFastHalfDuration + attackStart ? hitPoint / LongHandCastThreshold : multiplier * hitPoint * .5f / (remaining - multiplier * HandCastFastHalfDuration));
-			if (item.Cooldown <= cooldown * item.Config.AnimationBackPoint)
-				speed = multiplier * attackEndSpeed;
-			return Mathf.Min(speed, MaxHandSpeed);
+			float handSpeed = remaining <= 0f ? multiplier * attackEndSpeed : remaining <= multiplier * LongHandCastThreshold ? multiplier * hitPoint / remaining : (item.Cooldown <= multiplier * HandCastFastHalfDuration + attackStart ? hitPoint / LongHandCastThreshold : multiplier * hitPoint * .5f / (remaining - multiplier * HandCastFastHalfDuration));
+			if (item.Cooldown <= cooldown * item.Config.AnimationBackPoint) handSpeed = multiplier * attackEndSpeed;
+			if (!string.IsNullOrEmpty(handSpeedKey)) animator.SetFloat(handSpeedKey, Mathf.Min(handSpeed, MaxHandSpeed));
+			if (hero.AttackItem.JustStartedAttack && !string.IsNullOrEmpty(attackAnimationKey))
+			{
+				animator.SetFloat(AttackType, (float)ToAttackType(hero.AttackItem.Config.DamageType));
+				animator.SetTrigger(attackAnimationKey);
+			}
 		}
 
 		private static WeaponAttackType ToAttackType(WeaponType damageType)

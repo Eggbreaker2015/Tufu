@@ -118,15 +118,14 @@ namespace Codebase.BossTower.Systems
 			if (Mathf.Sqrt(dx * dx + dz * dz) <= radius)
 				World.GetEvent<WeaponHitEvent>().NextFrame(new WeaponHitEvent { Source = enemy, Target = playerModel.Unit, DamageType = enemy.DamageType, Undodgeable = true, HasSpecialMultiplier = true, SpecialMultiplier = 10.0 });
 			// Pet mode: living pets inside the radius are hit the same way.
-			if (PetConfig.Enabled)
-				foreach (PetModel pet in petsModel.Pets)
+			foreach (var hero in GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes)
 				{
-					if (!pet.IsAlive)
+					if (hero.IsProtagonist || !hero.IsAlive)
 						continue;
-					Vector3 petPosition = pet.Unit.transform.position;
+					Vector3 petPosition = hero.Unit.transform.position;
 					float px = petPosition.x - bossPosition.x, pz = petPosition.z - bossPosition.z;
 					if (Mathf.Sqrt(px * px + pz * pz) <= radius)
-						World.GetEvent<WeaponHitEvent>().NextFrame(new WeaponHitEvent { Source = enemy, Target = pet.Unit, DamageType = enemy.DamageType, Undodgeable = true, HasSpecialMultiplier = true, SpecialMultiplier = 10.0 });
+						World.GetEvent<WeaponHitEvent>().NextFrame(new WeaponHitEvent { Source = enemy, Target = hero.Unit, DamageType = enemy.DamageType, Undodgeable = true, HasSpecialMultiplier = true, SpecialMultiplier = 10.0 });
 				}
 			if (crab.HealOnExplosion)
 			{

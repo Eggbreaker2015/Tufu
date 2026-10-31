@@ -84,8 +84,8 @@ namespace Codebase.Unit
 
 		public void BuildStatLookup()
 		{
-			// Native ELF VA 0x15cb8d4: fixed 36 entries; first duplicate wins.
-			statLookup = new Stat[36];
+			// First duplicate wins.
+			statLookup = new Stat[(int)StatType.AttackSpeed + 1];
 			foreach (Stat stat in Stats)
 				if (statLookup[(int)stat.Type] == null) statLookup[(int)stat.Type] = stat;
 		}

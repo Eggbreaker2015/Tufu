@@ -16,6 +16,7 @@ namespace Codebase.Rpg.Systems
 		[Inject] private PlayerModel playerModel;
 		[Inject] private HeroRosterModel roster;
 		[Inject] private PetsModel petsModel;
+		[Inject] private ItemsProvider itemsProvider;
 		private readonly List<HeroModel> removed = new List<HeroModel>();
 		private bool unlocked;
 
@@ -23,7 +24,6 @@ namespace Codebase.Rpg.Systems
 
 		public override void OnUpdate(float deltaTime)
 		{
-			if (!RpgModeConfig.Enabled) return;
 			PlayerUnit player = playerModel.Unit;
 			if (player == null) return;
 			if (!unlocked)
@@ -36,30 +36,32 @@ namespace Codebase.Rpg.Systems
 			if (protagonist == null)
 			{
 				HeroDefinition definition = RpgModeConfig.Instance.Heroes.Find(hero => hero != null && hero.IsProtagonist);
-				protagonist = new HeroModel { Definition = definition, Unit = player, SlotOrder = 0, IsProtagonist = true };
+				protagonist = new HeroModel { Definition = definition, Unit = player, SlotOrder = 0, IsProtagonist = true, AppliedStar = 1 };
+				InitializeHero(protagonist, 1);
 				roster.Heroes.Add(protagonist);
 				roster.ForceControl(protagonist);
 			}
 			else if (protagonist.Unit != player)
 			{
 				protagonist.Unit = player;
+				InitializeHero(protagonist, 1);
 				if (roster.Controlled == protagonist) player.IsControlled = true;
 			}
 			removed.Clear();
 			foreach (HeroModel hero in roster.Heroes)
-				if (!hero.IsProtagonist && (hero.Pet == null || hero.Pet.Unit == null || hero.Pet.Slot == null || !hero.Pet.Slot.IsEquipped || hero.Pet.Slot.ItemModel != hero.Pet.Item)) removed.Add(hero);
+				if (!hero.IsProtagonist && (hero.Unit == null || hero.Slot == null || !hero.Slot.IsEquipped || hero.Slot.ItemModel != hero.Item)) removed.Add(hero);
 			foreach (HeroModel hero in removed) DespawnCompanion(hero);
 			int order = 1;
 			foreach (ItemSlotModel slot in playerModel.ItemSlots)
 			{
 				if (slot.SlotType != ItemSlotType.Weapon || slot.IsVip) continue;
 				int slotOrder = order++;
-				if (slot.IsEquipped && petsModel.GetBySlot(slot) == null) SpawnCompanion(slot, slotOrder, player);
+				if (slot.IsEquipped && roster.Heroes.Find(hero => hero.Slot == slot) == null) SpawnCompanion(slot, slotOrder, player);
 			}
 			foreach (HeroModel hero in roster.Heroes)
 			{
 				if (hero.IsProtagonist || hero.Unit == null || hero.Pet == null) continue;
-				int star = RpgStars.FromCopies(hero.Pet.Item.Copies);
+				int star = RpgStars.FromCopies(hero.Item.Copies);
 				if (star != hero.AppliedStar) { HeroStats.ApplyStar(hero.Unit, star); hero.AppliedStar = star; }
 				if (star != hero.Pet.SkillLevel)
 				{
@@ -83,15 +85,32 @@ namespace Codebase.Rpg.Systems
 			PetsModel.TrySamplePosition(PetsModel.GetFollowPosition(owner.position, owner.eulerAngles.y, order), owner.position, out Vector3 position);
 			float speed = (float)player.GetStatSpecificValue(StatType.MovementSpeed) * PetConfig.Instance.FollowSpeedMultiplier;
 			PetUnit unit = PetUnitFactory.Create(item, petDefinition, position, owner.rotation, speed);
+			HeroModel hero = new HeroModel { Definition = definition, Unit = unit, Pet = pet, Item = item, Slot = slot, SlotOrder = order };
+			int star = RpgStars.FromCopies(item.Copies);
+			InitializeHero(hero, star);
+			pet.SkillLevel = star;
+			pet.Unit = unit;
+			if (petsModel.RestoreDeath(pet)) { unit.CurrentHealth = 0; hero.IsDown = true; hero.ReviveAt = pet.ReviveAt; }
+			roster.Heroes.Add(hero);
+		}
+
+		private void InitializeHero(HeroModel hero, int star)
+		{
+			HeroUnit unit = hero.Unit;
+			HeroDefinition definition = hero.Definition;
+			ItemConfig attackConfig = itemsProvider.Items.Find(item => item != null && item.Key == definition.AttackItemKey);
+			if (attackConfig == null && hero.IsProtagonist && playerModel.PlayerAttackItem != null) attackConfig = playerModel.PlayerAttackItem.Config;
+			if (attackConfig == null && hero.Item != null) attackConfig = hero.Item.Config;
+			if (attackConfig != null) hero.AttackItem = new ItemModel(roster.Lifetime, attackConfig, false);
 			unit.Stats = HeroStats.Build(definition);
 			unit.BuildStatLookup();
 			HeroStats.ApplyBase(unit, definition);
 			HeroStats.ApplyLevel(unit, GameContext.Get<RpgProgressModel>().Level);
-			int star = RpgStars.FromCopies(item.Copies);
 			HeroStats.ApplyStar(unit, star);
+			hero.AppliedStar = star;
 			unit.CurrentHealth = unit.GetStatValue(StatType.Health);
-			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, item.Key);
-			if (RpgModeConfig.Enabled && definition.ExtraSkillKeys != null && definition.ExtraSkillKeys.Count > 0)
+			UnitSkillLoadout loadout = hero.IsProtagonist ? SkillLibrary.FindLoadout(SkillOwnerKind.Hero, "hero") : SkillLibrary.FindLoadout(SkillOwnerKind.Pet, hero.Item.Key);
+			if (definition.ExtraSkillKeys != null && definition.ExtraSkillKeys.Count > 0)
 			{
 				var combined = new UnitSkillLoadout();
 				if (loadout != null && loadout.Skills != null) combined.Skills.AddRange(loadout.Skills);
@@ -99,11 +118,7 @@ namespace Codebase.Rpg.Systems
 				loadout = combined;
 			}
 			if (loadout != null && GameContext.Has<SkillService>()) GameContext.Get<SkillService>().Install(unit, unit.EntityProvider.Entity, loadout, levelOverride: star);
-			pet.SkillLevel = star;
-			pet.Unit = unit;
-			petsModel.Pets.Add(pet);
-			if (petsModel.RestoreDeath(pet)) unit.CurrentHealth = 0;
-			roster.Heroes.Add(new HeroModel { Definition = definition, Unit = unit, Pet = pet, SlotOrder = order, AppliedStar = star });
+
 		}
 
 		private void DespawnCompanion(HeroModel hero)
@@ -112,7 +127,6 @@ namespace Codebase.Rpg.Systems
 			PetModel pet = hero.Pet;
 			if (pet == null) return;
 			petsModel.RememberRevive(pet);
-			petsModel.Pets.Remove(pet);
 			PetUnit unit = pet.Unit;
 			pet.Unit = null;
 			PetUnitFactory.Destroy(unit);

@@ -16,8 +16,6 @@ namespace Codebase.BossTower.Systems
 		[Inject]
 		private VikingsBuffSystem vikingsBuffSystem;
 		[Inject]
-		private VikingsRageDebuffSystem vikingsRageDebuffSystem;
-		[Inject]
 		private VikingsGhostSystem vikingsGhostSystem;
 		[Inject]
 		private Stash<VikingsBossComponent> vikingsStash;
@@ -46,7 +44,6 @@ namespace Codebase.BossTower.Systems
 				EnemyUnit unit = (EnemyUnit)unitStash.Get(entity).Core;
 				int count = IncrementDeadAlliesCount();
 				vikingsBuffSystem.OnVikingDied(data.GroupId, data, count, unit.transform, data.BuffVfxPrefab, data.BuffForceFieldPrefab);
-				vikingsRageDebuffSystem.OnVikingDied();
 				vikingsGhostSystem.OnVikingDied(unit, data, count);
 			}
 		}

@@ -18,7 +18,7 @@ namespace Codebase.Rpg
 		private static void Reset() { Recruited = null; ShardsGained = null; StarChanged = null; }
 		public static void OnKill(ItemConfig item, EnemySpawnerConfig config, EnemyUnit enemy)
 		{
-			if (!RpgModeConfig.Enabled || item == null || item.SlotType != ItemSlotType.Weapon || PetEconomy.FindSpecies(item) == null) return;
+			if (item == null || item.SlotType != ItemSlotType.Weapon || PetEconomy.FindSpecies(item) == null) return;
 			PlayerModel player = GameContext.Get<PlayerModel>();
 			ItemModel owned = player.Items.FirstOrDefault(candidate => candidate.Config.Key == item.Key);
 			if (owned == null)

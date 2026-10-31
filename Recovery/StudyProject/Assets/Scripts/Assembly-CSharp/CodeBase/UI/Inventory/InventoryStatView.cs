@@ -54,7 +54,7 @@ namespace Codebase.UI.Inventory
 		private void LateUpdate()
 		{
 			// Pet mode: the pets' attack uses player stats the render reaction does not track, so the DPS is polled.
-			if (!PetConfig.Enabled || statType != StatType.Damage || !IsInitialized || Time.unscaledTime < petRefreshTime) return;
+			if (statType != StatType.Damage || !IsInitialized || Time.unscaledTime < petRefreshTime) return;
 			petRefreshTime = Time.unscaledTime + global::Codebase.UI.PetStatsText.RefreshInterval;
 			Render();
 		}
@@ -65,10 +65,10 @@ namespace Codebase.UI.Inventory
 			if (statType == StatType.Damage) {
 			    double total = 0.0;
 			    // Pet mode: each weapon counts as its pet, and the player's own claw is added with the original terms.
-			    if (PetConfig.Enabled) total += RenderPetDps();
+			    total += RenderPetDps();
 			    foreach (var item in playerModel.EquippedItems)
 			    {
-			        if (PetConfig.Enabled && PetStats.TryGet(item, out _)) continue;
+			        if (PetStats.TryGet(item, out _)) continue;
 			        total += playerModel.GetStatValue(item.Config.DamageStatTypePercent) *
 			            (playerModel.GetStatValue(item.Config.DamageStatTypeFlat) + item.Damage + (double)item.AbilityDamageFlat + (double)playerModel.AbilityDamageFlat) *
 			            (double)item.AbilityDamageMultiplier * (double)item.AbilityAttackSpeedMultiplier * (double)playerModel.AbilityDamageMultiplier / (double)item.Config.AttackCooldown;

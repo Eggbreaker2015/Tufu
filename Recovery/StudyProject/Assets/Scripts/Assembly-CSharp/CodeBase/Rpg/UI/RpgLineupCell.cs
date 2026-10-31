@@ -19,6 +19,7 @@ namespace Codebase.Rpg.UI
 		private Image health;
 		private Image icon;
 		private TMP_Text label;
+		private TMP_Text countdown;
 		private static Sprite whiteSprite;
 
 		public static void CreateProtagonist(Transform parent)
@@ -43,8 +44,10 @@ namespace Codebase.Rpg.UI
 			PetUiBuilder.Stretch(cell.label.rectTransform, new Vector2(8f, 20f), new Vector2(-8f, -12f));
 			PetStatsText.SetText(cell.label, sprite == null ? (definition != null && !string.IsNullOrEmpty(definition.DisplayName) ? definition.DisplayName : "主角") : string.Empty);
 			cell.BuildOverlay();
+			cell.countdown = PetUiBuilder.CreateText(frame.transform, "Countdown", 26f, TextAlignmentOptions.Center);
+			PetUiBuilder.Stretch(cell.countdown.rectTransform, Vector2.zero, Vector2.zero);
 			button.onClick.AddListener(() => {
-				if (!GameContext.Get<InventoryView>().IsOpened) cell.roster.Request(cell.FindHero());
+				if (!GameContext.Get<InventoryView>().IsOpened && cell.FindHero()?.IsAlive == true) cell.roster.Request(cell.FindHero());
 			});
 		}
 
@@ -61,12 +64,13 @@ namespace Codebase.Rpg.UI
 		public static void RequestSlot(ItemSlotModel slot)
 		{
 			HeroRosterModel roster = GameContext.Get<HeroRosterModel>();
-			roster.Request(roster.Heroes.Find(hero => hero.Pet != null && hero.Pet.Slot == slot));
+			var hero = roster.Heroes.Find(candidate => candidate.Slot == slot);
+			if (hero != null && hero.IsAlive) roster.Request(hero);
 		}
 
 		private HeroModel FindHero()
 		{
-			return roster.Heroes.Find(hero => protagonist ? hero.IsProtagonist : hero.Pet != null && hero.Pet.Slot == slot);
+			return roster.Heroes.Find(hero => protagonist ? hero.IsProtagonist : hero.Slot == slot);
 		}
 
 		private void BuildOverlay()
@@ -93,6 +97,7 @@ namespace Codebase.Rpg.UI
 			HeroModel hero = FindHero();
 			highlight.enabled = hero != null && roster.Controlled == hero;
 			health.transform.parent.gameObject.SetActive(hero != null);
+			if (countdown != null) PetStatsText.SetText(countdown, hero != null && hero.IsDown ? Mathf.CeilToInt(Mathf.Max(0f, hero.ReviveAt - Time.time)).ToString() : string.Empty);
 			if (hero == null) return;
 			double maximum = hero.Unit != null ? hero.Unit.GetStatValue(StatType.Health) : 0;
 			health.fillAmount = maximum > 0 && hero.IsAlive ? Mathf.Clamp01((float)(hero.Unit.CurrentHealth / maximum)) : 0f;

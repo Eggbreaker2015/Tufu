@@ -58,7 +58,7 @@ namespace Codebase.UI.Pets
 
 		public static IReadOnlyList<SkillDef> GetSpeciesSkills(ItemModel item)
 		{
-			if (item == null || !PetConfig.Enabled || string.IsNullOrEmpty(item.Config?.Key)) return Array.Empty<SkillDef>();
+			if (item == null || string.IsNullOrEmpty(item.Config?.Key)) return Array.Empty<SkillDef>();
 			string key = item.Config.Key;
 			if (speciesSkills.TryGetValue(key, out IReadOnlyList<SkillDef> cached)) return cached;
 			UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Pet, key);
@@ -99,19 +99,7 @@ namespace Codebase.UI.Pets
 		// Every non-hidden ability, locked ones included (the inventory list keeps only the first locked one); the unlocked signature goes last.
 		public static List<int> GetAbilityIndices(ItemModel item)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return new List<int>();
-			var indices = new List<int>();
-			int sigIndex = -1;
-			var defs = item.Config.AbilityDefs;
-			for (int i = 0; i < defs.Count; i++)
-			{
-				AbilityDef def = defs[i];
-				if (global::Codebase.Abilities.Conditions.PetModeCondition.IsHidden(def)) continue;
-				if (sigIndex < 0 && global::Codebase.Abilities.Conditions.PetModeCondition.IsPetOnly(def) && item.IsAbilityUnlocked(def)) { sigIndex = i; continue; }
-				indices.Add(i);
-			}
-			if (sigIndex >= 0) indices.Add(sigIndex);
-			return indices;
+			return new List<int>();
 		}
 
 		protected override void Awake()
@@ -169,7 +157,7 @@ namespace Codebase.UI.Pets
 			List<int> indices = GetAbilityIndices(item);
 			IReadOnlyList<SkillDef> skills = GetSpeciesSkills(item);
 			int skillLevel = skills.Count > 0 ? PetStats.GetSkillLevel(item) : 1;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) skillLevel = global::Codebase.Rpg.RpgStars.FromCopies(item.Copies);
+			skillLevel = global::Codebase.Rpg.RpgStars.FromCopies(item.Copies);
 			int count = skills.Count + indices.Count;
 			bool changed = visibleCount != count;
 			while (rows.Count < count) rows.Add(CreateRow());

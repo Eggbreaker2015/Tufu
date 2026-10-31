@@ -76,11 +76,7 @@ namespace Codebase.Shop
 
 		public void EnqueueChest(ChestDef chestDef, int count)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			bool wasEmpty = queue.Count == 0;
-			queue.Enqueue(new ChestQueueEntry { Type = ChestQueueEntryType.Chest, ChestDef = chestDef, Count = count });
-			if (wasEmpty)
-				OnQueueBecameNonEmpty();
+			return;
 		}
 
 		public void EnqueueRewards(List<RewardBase> rewards, string chestKey)

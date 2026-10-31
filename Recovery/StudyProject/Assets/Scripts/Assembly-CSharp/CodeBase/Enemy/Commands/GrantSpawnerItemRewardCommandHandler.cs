@@ -23,13 +23,7 @@ namespace Codebase.Enemy.Commands
 
 		public void Execute(GrantSpawnerItemRewardCommand command)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-            var item = command.Unit != null && command.Unit.ItemReward != null ? command.Unit.ItemReward : command.Spawner.Config.ItemReward;
-            if (item == null) return;
-            int copies = command.Copies;
-            if (copies < 1) copies = ItemDropAmountCalculator.CalculatePerKill(item, metaStatsModel);
-            playerModel.CreateItem(item, copies);
-            audioPlayer.PlaySoundOnce("upgrade_weapon");
+			return;
         }
 	}
 }

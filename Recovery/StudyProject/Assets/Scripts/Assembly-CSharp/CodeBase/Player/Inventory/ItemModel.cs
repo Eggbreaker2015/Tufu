@@ -188,7 +188,7 @@ namespace Codebase.Player.Inventory
 		{
 			get
 			{
-				if (!PetConfig.Enabled || IsArmor)
+				if (IsArmor)
 					return false;
 				int max = CombatBalanceConfig.MaxEvolutionLevel;
 				return max > 0 && NextEvolutionLevel > max;
@@ -540,12 +540,10 @@ namespace Codebase.Player.Inventory
 
 		public bool IsAbilityUnlocked(AbilityDef def)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return false;
-			if (global::Codebase.Abilities.Conditions.PetModeCondition.IsHidden(def)) return false;
-			return Evolved ? def.UnlockLevel <= Level : def.UnlockLevel == 0;
+			return false;
 		}
 
-		public ItemModel(Lifetime lifetime, ItemConfig config)
+		public ItemModel(Lifetime lifetime, ItemConfig config, bool installAbilities = true)
 			: base(lifetime)
 		{
 			activeAbilityDefs = new List<AbilityDef>();
@@ -553,7 +551,7 @@ namespace Codebase.Player.Inventory
 			Config = config;
 			level = 1;
 			copies = 1;
-			RebuildAbilityStates();
+			if (installAbilities) RebuildAbilityStates();
 		}
 
 		public bool TryEvolve()

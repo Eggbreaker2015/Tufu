@@ -107,78 +107,29 @@ namespace Codebase.Unit.Systems
 
 		private void ApplyDamage(WeaponHitEvent data)
 		{
-			// Native ELF VA 0x15cd754. Pet mode: pets (only spawned in pet mode) get their own branch before the player fallback.
 			if (data.Target is EnemyUnit) ApplyDamageToEnemy(data);
-			else if (data.Target is PetUnit pet) ApplyDamageToPet(data, pet);
-			else ApplyDamageToPlayer(data);
+			else if (data.Target is HeroUnit hero) ApplyDamageToHero(data, hero);
 		}
 
-		private void ApplyDamageToPet(WeaponHitEvent data, PetUnit pet)
+		private void ApplyDamageToHero(WeaponHitEvent data, HeroUnit unit)
 		{
-			// No player-only side effects: block/evasion triggers, thorns, hits taken, lethal ignore, death events.
-			PetModel model = petsModel.Get(pet);
-			if (model == null || !model.IsAlive || pet.IsDead) return;
+			var hero = GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(unit);
+			if (hero == null || !hero.IsAlive || unit.IsDying || unit.IsDead) return;
 			DamageResult result = DamageCalculator.Calculate(data);
 			if (data.HasFixedDamage) result.Damage = data.FixedDamage;
 			double damage = cheatsModel.GodMode ? 0.0 : result.Damage;
 			result.Damage = damage;
-			if (result.HasDodged) pet.LastDamageGet = Time.time;
-			else pet.ApplyHitAnimation();
-			if (unitDamageViewSystem != null) unitDamageViewSystem.Create(data, damage, result.Resist);
+			if (unit is PlayerUnit) enemyDamageEventsViewSystem.Create(result);
+			else if (unitDamageViewSystem != null) unitDamageViewSystem.Create(data, damage, result.Resist);
+			if (result.HasDodged) unit.LastDamageGet = Time.time;
+			else if (!(unit is PlayerUnit)) unit.ApplyHitAnimation();
 			if (damage <= 0.0) return;
-			pet.CurrentHealth -= damage;
-			pet.LastDamageGet = Time.time;
+			unit.CurrentHealth -= damage;
+			unit.LastDamageGet = Time.time;
 			ApplyLifesteal(data.Source);
-			if (pet.CurrentHealth <= 0.01)
-			{
-			    pet.CurrentHealth = 0.0;
-			    petsModel.OnPetDied(model);
-			}
-		}
-
-		private void ApplyDamageToPlayer(WeaponHitEvent data)
-		{
-			// Native ELF VA 0x15cdf10.
-			if (data.Target.IsDying) return;
-			DamageResult result = DamageCalculator.Calculate(data);
-			if (data.HasFixedDamage) result.Damage = data.FixedDamage;
-			double damage = cheatsModel.GodMode ? 0.0 : result.Damage;
-			EnemyUnit sourceEnemy = data.Source as EnemyUnit;
-			if (result.HasBlocked)
-			{
-			    float bonus = (float)metaStatsModel.Get("block_to_supercrit").Value;
-			    if (bonus > 0f) playerModel.BlockSuperCritChanceBonus += bonus;
-			    abilityExecuteEventSystem.ProcessEventImmediate(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnBlock, Target = sourceEnemy });
-			}
-			if (playerModel.ThornsDamage > 0f) ApplyThornsReflection(data);
-			if (result.HasDodged)
-			{
-			    data.Target.LastDamageGet = Time.time;
-			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEvasion });
-			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnEvasionProc, Target = sourceEnemy });
-			    int marks = (int)metaStatsModel.Get("evasion_mark").Value;
-			    if (marks > 0 && sourceEnemy != null && HasEquippedPierceWeapon())
-			        ApplyMarkEffect.ApplyMark(markStash, World, sourceEnemy, playerModel, marks, false);
-			}
-			result.Damage = damage;
-			if (damage <= 0.0)
-			{
-			    enemyDamageEventsViewSystem.Create(result);
-			    return;
-			}
-			playerModel.HitsTakenCount++;
-			playerModel.HitsTakenLastUpdate = Time.time;
-			data.Target.CurrentHealth -= damage;
-			data.Target.LastDamageGet = Time.time;
-			ApplyLifesteal(data.Source);
-			if (data.Target.IsDead && TryIgnoreLethalDamage(data)) data.Target.CurrentHealth = 1.0;
-			else enemyDamageEventsViewSystem.Create(result);
-			if (data.Target.CurrentHealth <= 0.01 && !data.Target.IsDying)
-			{
-			    ProcessPlayerDeath(data.Source.name, (PlayerUnit)data.Target);
-			    return;
-			}
-			abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnGetHitLowHealth, Target = sourceEnemy, Damage = damage });
+			if (unit.CurrentHealth > 0.01) return;
+			unit.CurrentHealth = 0.0;
+			GameContext.Get<global::Codebase.Rpg.HeroDeathService>().OnHealthDepleted(hero, data.Source != null ? data.Source.name : "Unknown");
 		}
 
 		private void ApplyLifesteal(UnitCore unit)
@@ -197,7 +148,8 @@ namespace Codebase.Unit.Systems
 			playerUnit.IsDying = true;
 			Scellecs.Morpeh.World.Default.GetRequest<HapticRequest>().Publish(new HapticRequest { preset = (HapticPatterns.PresetType)3 }, true);
 			deadStash.Set(playerUnit.EntityProvider.Entity);
-			if (!playerUnit.IsDeathAnimationActive) playerUnit.StartDeathAnimation(playerModel).Forget();
+			if (playerUnit.Agent != null && playerUnit.Agent.enabled) { if (!playerUnit.IsDeathAnimationActive) playerUnit.StartDeathAnimation(playerModel).Forget(); }
+			else { playerUnit.IsDeathAnimationActive = false; playerModel.CanMove = false; playerUnit.PrepareDownWipe(playerModel); }
 			playerUnit.KillerName = sourceName;
 			playerDeathEvent.NextFrame(new PlayerDeathEvent { KillerName = sourceName });
 		}
@@ -250,7 +202,7 @@ namespace Codebase.Unit.Systems
 			}
 			bool wasDead = data.Source.IsDead;
 			data.Source.CurrentHealth -= damage;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && damage > 0 && data.Source is EnemyUnit reflectedEnemy) RecordRpgAttacker(reflectedEnemy, data.Target);
+			if (damage > 0 && data.Source is EnemyUnit reflectedEnemy) RecordRpgAttacker(reflectedEnemy, data.Target);
 			data.Source.LastDamageGet = Time.time;
 			ProcessEnemyDeath(data.Source, wasDead, unitDiedEvent);
 			enemyDamageEventsViewSystem.CreateReflection(damage, "#1EBBFE");
@@ -324,14 +276,14 @@ namespace Codebase.Unit.Systems
 			// Native ELF VA 0x15cd840; original outgoing path does not apply HasFixedDamage.
 			// Pet mode: OnPreHit and OnOneshot carry the attacker (data.Source).
 			EnemyUnit enemy = (EnemyUnit)data.Target;
-			abilityExecuteEventSystem.ProcessEventImmediate(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPreHit, Target = enemy, Item = data.Weapon, Attacker = data.Source });
+			if (!(data.Source is HeroUnit)) abilityExecuteEventSystem.ProcessEventImmediate(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnPreHit, Target = enemy, Item = data.Weapon, Attacker = data.Source });
 			DamageResult result = DamageCalculator.Calculate(data);
 			if (cheatsModel.OneHitMode) result.Damage = data.Target.GetStatValue(StatType.Health) * 0.9;
 			double damage = cheatsModel.OneDamageMode ? 1.0 : result.Damage;
 			if (!result.HasDodged)
 			{
 			    // Pet mode: only the player's own hits play the impact sound, so pet hits do not stack.
-			    if (!PetConfig.Enabled || global::Codebase.Rpg.RpgControl.IsControlled(data.Source)) PlayPlayerWeaponImpactSound(data);
+			    if (global::Codebase.Rpg.RpgControl.IsControlled(data.Source)) PlayPlayerWeaponImpactSound(data);
 			    data.Target.ApplyHitAnimation();
 			}
 			Entity entity = data.Target.EntityProvider.Entity;
@@ -348,7 +300,7 @@ namespace Codebase.Unit.Systems
 			data.IsEmpowered = result.IsEmpowered;
 			if (!result.HasDodged) SpawnHitVfx(data);
 			result.Damage = damage;
-			FireHitTriggerEvents(data, result);
+			if (!(data.Source is HeroUnit)) FireHitTriggerEvents(data, result);
 			if (isDummy)
 			{
 			    dummy.Data.RecordHit(damage);
@@ -361,12 +313,12 @@ namespace Codebase.Unit.Systems
 			double oldHealth = data.Target.CurrentHealth;
 			bool wasDead = data.Target.IsDead;
 			data.Target.CurrentHealth -= damage;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && damage > 0) RecordRpgAttacker(enemy, data.Source);
+			if (damage > 0) RecordRpgAttacker(enemy, data.Source);
 			data.Target.LastDamageGet = Time.time;
 			data.Source.LastDamageDealt = Time.time;
 			ProcessEnemyDeath(data.Target, wasDead, unitDiedEvent);
-			if (!result.HasDodged) ApplyEnemyReflection(data);
-			if (data.Target.IsDead && !wasDead && oldHealth >= maxHealth - 0.0001)
+			if (!result.HasDodged && !(data.Source is HeroUnit)) ApplyEnemyReflection(data);
+			if (!(data.Source is HeroUnit) && data.Target.IsDead && !wasDead && oldHealth >= maxHealth - 0.0001)
 			    abilityTriggerEvent.NextFrame(new AbilityTriggerEvent { Trigger = AbilityTrigger.OnOneshot, Target = enemy, Damage = damage, Item = data.Weapon, Attacker = data.Source });
 			ApplyPlayerLifesteal(data, entity);
 			playerDamageEventsViewSystem.Create(data, result);
@@ -407,7 +359,7 @@ namespace Codebase.Unit.Systems
 			}
 			bool wasDead = enemy.IsDead;
 			enemy.CurrentHealth -= damage;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) RecordRpgAttacker(enemy, data.Source);
+			RecordRpgAttacker(enemy, data.Source);
 			enemy.LastDamageGet = Time.time;
 			data.Source.LastDamageDealt = Time.time;
 			ProcessEnemyDeath(enemy, wasDead, unitDiedEvent);
@@ -415,7 +367,7 @@ namespace Codebase.Unit.Systems
 
 		private void RecordRpgAttacker(EnemyUnit enemy, UnitCore source)
 		{
-			if (source == playerModel.Unit || petsModel.Get(source as PetUnit) != null)
+			if (GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(source) != null)
 			{
 				enemy.RpgLastAttacker = source;
 				enemy.RpgLastAttackTime = Time.time;
@@ -427,7 +379,7 @@ namespace Codebase.Unit.Systems
 			// Native ELF VA 0x15d00cc.
 			double flat = data.Source.GetStatValue(StatType.LifestealFlat);
 			double percent = data.Source.GetStatValue(StatType.LifestealPercent);
-			if (markStash.Has(targetEntity))
+			if (!(data.Source is HeroUnit) && markStash.Has(targetEntity))
 			{
 			    int stacks = markStash.Get(targetEntity).Stacks;
 			    if (stacks > 0)
@@ -441,9 +393,9 @@ namespace Codebase.Unit.Systems
 			        }
 			    }
 			}
-			if (flat > 0.0 && hydraStash.Has(targetEntity) && markStash.Has(targetEntity) && markStash.Get(targetEntity).Stacks > 0)
+			if (!(data.Source is HeroUnit) && flat > 0.0 && hydraStash.Has(targetEntity) && markStash.Has(targetEntity) && markStash.Get(targetEntity).Stacks > 0)
 			    flat *= 1.0 + markStash.Get(targetEntity).Stacks * 0.1;
-			if (playerModel.NextHitLifestealFlatBonus > 0f)
+			if (!(data.Source is HeroUnit) && playerModel.NextHitLifestealFlatBonus > 0f)
 			{
 			    float bonus = playerModel.NextHitLifestealFlatBonus;
 			    playerModel.NextHitLifestealFlatBonus = 0f;

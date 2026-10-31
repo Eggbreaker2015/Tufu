@@ -43,7 +43,7 @@ namespace Codebase.Rpg.UI
 
 		public static RpgProgressHudView Create(Joystick joystick)
 		{
-			if (!RpgModeConfig.Enabled || joystick == null || joystick.transform.parent == null) return null;
+			if (joystick == null || joystick.transform.parent == null) return null;
 			Transform parent = joystick.transform.parent;
 			RectTransform root = PetUiBuilder.CreateRect(parent, "RpgProgressHud");
 			PetUiBuilder.SetRect(root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 350f), new Vector2(900f, 90f));
@@ -90,7 +90,6 @@ namespace Codebase.Rpg.UI
 
 		private void Update()
 		{
-			if (!RpgModeConfig.Enabled) { Destroy(gameObject); return; }
 			levelText.text = "Lv " + progress.Level;
 			double need = progress.XpToNext;
 			xpFill.fillAmount = need > 0 ? Mathf.Clamp01((float)(progress.Xp / need)) : 1f;
@@ -106,7 +105,7 @@ namespace Codebase.Rpg.UI
 
 		private void ShowReward(Vector3 position, double xp, int gold)
 		{
-			if (!RpgModeConfig.Enabled || !GameContext.Has<StatRewardContainer>()) return;
+			if (!GameContext.Has<StatRewardContainer>()) return;
 			StatRewardContainer container = GameContext.Get<StatRewardContainer>();
 			if (xp > 0) container.Create("<color=#80CFFF>+" + Format(xp) + "经验");
 			if (gold > 0) container.Create("<color=#FFCD38>+" + gold + "金币");
@@ -121,7 +120,7 @@ namespace Codebase.Rpg.UI
 
 		private void ShowShards(Codebase.Player.Inventory.ItemModel item, int amount, Vector3 position)
 		{
-			if (!RpgModeConfig.Enabled || amount <= 0 || !GameContext.Has<StatRewardContainer>()) return;
+			if (amount <= 0 || !GameContext.Has<StatRewardContainer>()) return;
 			GameContext.Get<StatRewardContainer>().Create("<color=#C9A5FF>+" + amount + "碎片");
 		}
 
@@ -179,7 +178,6 @@ namespace Codebase.Rpg.UI
 
 		private void LateUpdate()
 		{
-			if (!RpgModeConfig.Enabled) return;
 			if (levelPass != null && levelPass.gameObject.activeSelf) levelPass.gameObject.SetActive(false);
 			if (firstBuyPack != null && firstBuyPack.gameObject.activeSelf) firstBuyPack.gameObject.SetActive(false);
 		}

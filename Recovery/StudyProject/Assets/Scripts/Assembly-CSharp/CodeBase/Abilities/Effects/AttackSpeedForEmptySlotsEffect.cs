@@ -11,7 +11,7 @@ namespace Codebase.Abilities.Effects
 		{
             // Original ELF VA 0x15ee360; use actual unlocked empty slots, not the treat-as-empty flag.
             // Pet mode: counts empty pet slots only.
-            int count = PetConfig.Enabled ? context.PlayerModel.EmptyPetSlots.Count : context.PlayerModel.EmptyItemSlots.Count;
+            int count = context.PlayerModel.EmptyPetSlots.Count;
             float value = context.State.GetValue();
             if (context.Owner is Codebase.Player.Inventory.ItemModel weapon)
                 weapon.AbilityAttackSpeedMultiplier = (value * count + 1f) * weapon.AbilityAttackSpeedMultiplier;

@@ -18,8 +18,7 @@ namespace Codebase.Abilities.Conditions
             var unit = context.PlayerModel.Unit;
             var last = Math.Max(unit.LastDamageGet, unit.LastDamageDealt);
             // Pet mode: an alive pet's hits also count as combat.
-            if (PetConfig.Enabled)
-                foreach (PetModel pet in GameContext.Get<PetsModel>().AlivePets)
+            foreach (PetModel pet in GameContext.Get<PetsModel>().AlivePets)
                     last = Math.Max(last, pet.Unit.LastDamageDealt);
             bool inCombat = (double)UnityEngine.Time.time - last < Timeout;
             return inCombat != ((int)Mode != 0);

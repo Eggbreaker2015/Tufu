@@ -167,20 +167,7 @@ namespace Codebase.Player
 
 		private void HandleDeathPhase(DeathPhase phase, float duration)
 		{
-			if (PetConfig.Enabled)
-				return;
-			switch (phase)
-			{
-				case DeathPhase.Hiding:
-					HideForDeath(duration);
-					break;
-				case DeathPhase.Vanishing:
-					VanishForWarp(duration);
-					break;
-				case DeathPhase.Reviving:
-					RestoreFromDeath(duration);
-					break;
-			}
+			return;
 		}
 
 		private void HideForDeath(float duration)
@@ -341,45 +328,10 @@ namespace Codebase.Player
 			if (currentSlot == null)
 				return;
 			// Pet mode: weapons are pets, so the weapon view stays hidden.
-			if (PetConfig.Enabled)
 			{
 				HideForPets();
 				return;
 			}
-			if (!currentSlot.IsEquipped)
-			{
-				if (view != null)
-					Destroy(view.gameObject);
-				if (!HasAnimator)
-					tentacle.enabled = false;
-				if (HasAnimator && handSpeedKey != string.Empty)
-					animator.SetFloat(handSpeedKey, 1);
-				return;
-			}
-
-			bool missing = view == null;
-			ItemModel item = currentSlot.ItemModel;
-			bool changed = currentWeaponKey != item.Key;
-			currentWeaponKey = item.Key;
-			if (HasAnimator && handSpeedKey != string.Empty)
-			{
-				float multiplier = 1;
-				foreach (var ability in item.AbilityStates)
-					multiplier *= ability.GetWeaponStatMultiplier((Codebase.Abilities.Effects.WeaponBuffType)1);
-				multiplier *= item.AbilityAttackSpeedMultiplier;
-				multiplier /= global::Codebase.Skills.FriendlyDebuffs.AttackIntervalFactor(player.Unit);
-				float castPoint = PlayerAttackSystem.GetAnimationCastPoint(item);
-				float attackStart = castPoint * item.Config.AttackCooldown;
-				float remaining = item.Config.AttackCooldown - attackStart;
-				float hitPoint = GetAttackHitPoint(item.Config.DamageType);
-				float speed = remaining <= multiplier * LongHandCastThreshold ? multiplier * hitPoint / remaining : (item.Cooldown <= multiplier * HandCastFastHalfDuration + attackStart ? hitPoint / LongHandCastThreshold : multiplier * hitPoint * .5f / (remaining - multiplier * HandCastFastHalfDuration));
-				if (item.Cooldown <= item.Config.AttackCooldown * item.Config.AnimationBackPoint)
-					speed = multiplier * attackEndSpeed;
-				animator.SetFloat(handSpeedKey, global::Codebase.Skills.FriendlyDebuffs.IsStunned(player.Unit) ? 0f : Mathf.Min(speed, 4));
-			}
-
-			if ((missing || changed) && !deferViewCreation)
-				BuildView();
 		}
 
 		private void HideForPets()

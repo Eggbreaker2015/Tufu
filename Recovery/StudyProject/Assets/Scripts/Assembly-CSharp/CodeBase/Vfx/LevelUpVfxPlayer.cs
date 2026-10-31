@@ -46,14 +46,7 @@ namespace Codebase.Vfx
 
 		private void OnRageLevelUp(FastList<RageLevelUpEvent> changes)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			// One visual for the batch, including a hit which crosses several thresholds.
-			for (int i = 0; i < changes.length; i++)
-			{
-				if (changes[i].RageLevel <= 0) continue;
-				PlayOnPlayer();
-				break;
-			}
+			return;
 		}
 
 		public bool PlayOnPlayer()

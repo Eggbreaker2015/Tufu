@@ -9,5 +9,7 @@ namespace Codebase.Unit
 		public bool IsControlled { get; internal set; }
 
 		public abstract void SetWalking(bool value);
+
+		public abstract void SetAttackAnimation(bool attacking, float speed);
 	}
 }

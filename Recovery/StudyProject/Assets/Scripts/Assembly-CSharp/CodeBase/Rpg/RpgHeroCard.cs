@@ -23,7 +23,7 @@ namespace Codebase.Rpg
    var definition = RpgModeConfig.Instance.ResolveHero(item.Config);
    int level = GameContext.Get<RpgProgressModel>().Level;
    int star = RpgStars.FromCopies(item.Copies);
-   var hero = GameContext.Get<HeroRosterModel>().Heroes.Find(h => h.Pet != null && h.Pet.Item == item && h.Unit != null);
+   var hero = GameContext.Get<HeroRosterModel>().Heroes.Find(h => h.Item == item && h.Unit != null);
    List<Stat> stats;
    if (hero != null) stats = hero.Unit.Stats;
    else { stats = HeroStats.Build(definition); HeroStats.ApplyBase(stats, definition); HeroStats.ApplyLevel(stats, level); HeroStats.ApplyStar(stats, star); }

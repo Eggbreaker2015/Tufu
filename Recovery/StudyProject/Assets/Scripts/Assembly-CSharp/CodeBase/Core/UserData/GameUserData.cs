@@ -112,7 +112,7 @@ namespace Codebase.Core.UserData
 			Mines = new global::Codebase.Mines.MinesUd(Child("mines", true));
 			Notifications = new global::Codebase.Notifications.NotificationsUd(Child("notifications", true));
 			PromoCodes = new global::Codebase.PromoCodes.PromoCodesUd(Child("promo_codes", true));
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) Rpg = new global::Codebase.Rpg.RpgUd(Child("rpg", true));
+			Rpg = new global::Codebase.Rpg.RpgUd(Child("rpg", true));
 		}
 	}
 }

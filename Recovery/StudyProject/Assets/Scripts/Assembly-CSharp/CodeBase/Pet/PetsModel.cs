@@ -29,6 +29,15 @@ namespace Codebase.Pet
 
 		public List<PetModel> Pets { get; } = new List<PetModel>();
 
+		private IEnumerable<PetModel> RosterPets
+		{
+			get
+			{
+				foreach (var hero in GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes)
+					if (hero.Pet != null) yield return hero.Pet;
+			}
+		}
+
 		// Revive times of dead pets whose unit was despawned (item unequipped or moved), so re-equipping keeps the cooldown.
 		private readonly Dictionary<ItemModel, float> pendingRevives = new Dictionary<ItemModel, float>();
 
@@ -49,7 +58,7 @@ namespace Codebase.Pet
 		{
 			get
 			{
-				foreach (PetModel pet in Pets)
+				foreach (PetModel pet in RosterPets)
 					if (pet.IsAlive)
 						yield return pet;
 			}
@@ -64,7 +73,7 @@ namespace Codebase.Pet
 		{
 			if (item == null)
 				return null;
-			foreach (PetModel pet in Pets)
+			foreach (PetModel pet in RosterPets)
 				if (pet.Item == item)
 					return pet;
 			return null;
@@ -74,7 +83,7 @@ namespace Codebase.Pet
 		{
 			if (unit == null)
 				return null;
-			foreach (PetModel pet in Pets)
+			foreach (PetModel pet in RosterPets)
 				if (pet.Unit == unit)
 					return pet;
 			return null;
@@ -98,7 +107,7 @@ namespace Codebase.Pet
 
 		public PetModel GetBySlot(ItemSlotModel slot)
 		{
-			foreach (PetModel pet in Pets)
+			foreach (PetModel pet in RosterPets)
 				if (pet.Slot == slot)
 					return pet;
 			return null;
@@ -246,7 +255,7 @@ namespace Codebase.Pet
 		public void ReviveDead(Vector3 center, float yaw)
 		{
 			pendingRevives.Clear();
-			foreach (PetModel pet in Pets)
+			foreach (PetModel pet in RosterPets)
 				if (pet.State == PetState.Dead)
 					Revive(pet, center, yaw);
 		}
@@ -256,7 +265,7 @@ namespace Codebase.Pet
 		public void ReviveAll(Vector3 center, float yaw, bool restoreHealth)
 		{
 			pendingRevives.Clear();
-			foreach (PetModel pet in Pets)
+			foreach (PetModel pet in RosterPets)
 			{
 				PetUnit unit = pet.Unit;
 				if (unit == null)
@@ -297,7 +306,7 @@ namespace Codebase.Pet
 
 		public void WarpAll(Vector3 center, float yaw = 0f)
 		{
-			foreach (PetModel pet in Pets)
+			foreach (PetModel pet in RosterPets)
 			{
 				if (pet.Unit == null)
 					continue;

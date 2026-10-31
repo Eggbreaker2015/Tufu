@@ -76,7 +76,7 @@ namespace Codebase.Quests.Commands
 			var step = config.GetStep(command.StepKey);
 			if (step == null)
 				return;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && step.StatRewards != null && step.StatRewards.Count > 0)
+			if (step.StatRewards != null && step.StatRewards.Count > 0)
 			{
 				var player = GameContext.Get<global::Codebase.Player.Models.PlayerModel>().Unit;
 				global::Codebase.Rpg.RpgRewardService.Quest(step.LocationNumber, global::Codebase.Rpg.RpgModeConfig.Instance.QuestStepXpMultiplier, player != null ? player.transform.position : UnityEngine.Vector3.zero);

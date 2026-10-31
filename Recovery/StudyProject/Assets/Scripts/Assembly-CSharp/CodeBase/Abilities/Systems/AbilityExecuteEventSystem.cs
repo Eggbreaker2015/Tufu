@@ -73,7 +73,7 @@ namespace Codebase.Abilities.Systems
 			}
 
 			// Pet mode: the player's own attack item is never equipped, so its tick factors are reset here.
-			if (PetConfig.Enabled && playerModel.PlayerAttackItem != null)
+			if (playerModel.PlayerAttackItem != null)
 				ResetPlayerAttackItem(playerModel.PlayerAttackItem, deltaTime);
 
 			playerModel.AbilityHealthRegenMultiplier = 1f;

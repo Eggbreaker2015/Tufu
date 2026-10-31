@@ -316,13 +316,7 @@ namespace Codebase.Skills
 				{
 					if (item == null)
 						item = pet.Item;
-					if (item != null)
-						if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
-						attack += PetStats.GetOwnAttack(item, pet.Definition);
 				}
-				else if (attacker is PlayerUnit && item != null && !item.IsArmor)
-					if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
-					attack += item.Damage;
 				hitEvent.NextFrame(new WeaponHitEvent
 				{
 					Source = attacker, Target = enemy, Weapon = null, DamageType = damageType ?? GetDamageType(attacker, item), Undodgeable = undodgeable,
@@ -474,7 +468,7 @@ namespace Codebase.Skills
 				buffs = ref buffsStash.Get(entity);
 			}
 			float rpgDuration = def.Duration;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && def.Taunt && target is EnemyUnit rpgEnemy)
+			if (def.Taunt && target is EnemyUnit rpgEnemy)
 			{
 				if (rpgEnemy.Config != null)
 				{
@@ -512,12 +506,12 @@ namespace Codebase.Skills
 						instance.Remaining = def.Duration;
 						break;
 				}
-				if (global::Codebase.Rpg.RpgModeConfig.Enabled && def.Taunt && target is EnemyUnit) instance.Remaining = def.Stack == BuffStackMode.KeepLonger ? Mathf.Max(rpgPreviousRemaining, rpgDuration) : rpgDuration;
+				if (def.Taunt && target is EnemyUnit) instance.Remaining = def.Stack == BuffStackMode.KeepLonger ? Mathf.Max(rpgPreviousRemaining, rpgDuration) : rpgDuration;
 				ApplyStun(target, entity, instance);
 				return;
 			}
 			instance = new BuffInstance { Def = def, Remaining = def.Duration, Stacks = 1, Power = power, Source = source, Restricted = restricted, FriendlyTarget = friendlyTarget };
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && def.Taunt && target is EnemyUnit) instance.Remaining = rpgDuration;
+			if (def.Taunt && target is EnemyUnit) instance.Remaining = rpgDuration;
 			buffs.Buffs.Add(instance);
 			ApplyMods(target, instance);
 			ApplyStun(target, entity, instance);

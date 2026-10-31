@@ -54,7 +54,6 @@ namespace Codebase.Pet
 		// Typed percent damage stat; multiplies the whole attack, not scaled by a ratio.
 		public double AttackPercent;
 
-		// The player's actual speed in m/s (equipment included), like PetMovementSystem.
 		public double PlayerMoveSpeed;
 
 		public float AttacksPerSecond;
@@ -233,7 +232,6 @@ namespace Codebase.Pet
 			return GetOwnAttack(item.Damage, definition, GetLevelProgress(item));
 		}
 
-		// The weapon's ability attack-speed multipliers (PetAttackSystem adds the target-dependent weak-enemy factor).
 		public static float GetAttackSpeedMultiplier(ItemModel item)
 		{
 			float attackSpeed = 1f;
@@ -253,7 +251,7 @@ namespace Codebase.Pet
 		public static bool TryGet(ItemModel item, out PetStatsInfo info)
 		{
 			info = default;
-			if (!PetConfig.Enabled || item == null || item.IsArmor)
+			if (item == null || item.IsArmor)
 				return false;
 			PetDefinition definition = FindDefinition(item);
 			PlayerModel playerModel = GameContext.Get<PlayerModel>();
@@ -284,7 +282,6 @@ namespace Codebase.Pet
 			return true;
 		}
 
-		// Value the pet's copy of this player stat has before ratios (PetStatsSyncSystem.Build without the ratio modifier).
 		public static double GetInheritedValue(List<Stat> stats, StatType type, PetStatInheritance inheritance)
 		{
 			Stat source = FindStat(stats, type);

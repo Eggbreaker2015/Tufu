@@ -18,7 +18,7 @@ MonoBehaviour:
     IsProtagonist: 1
     Role: 0
     PetItemKey: 
-    AttackItemKey: 
+    AttackItemKey: player_claw
     HealthRatio: 1
     AttackRatio: 1
     DefenceFlat: 0

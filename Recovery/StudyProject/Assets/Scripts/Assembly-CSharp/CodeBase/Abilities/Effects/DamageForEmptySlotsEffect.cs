@@ -12,7 +12,7 @@ namespace Codebase.Abilities.Effects
 		{
             // Native 0x15ef2c4: original actual empty-slot count, applied only when owner is an ItemModel.
             // Pet mode: counts empty pet slots only.
-            int empty = PetConfig.Enabled ? context.PlayerModel.EmptyPetSlots.Count : context.PlayerModel.EmptyItemSlots.Count;
+            int empty = context.PlayerModel.EmptyPetSlots.Count;
             float value = context.State.GetValue();
             if (context.Owner is ItemModel item) item.AbilityDamageMultiplier *= 1f + value * empty;
         }

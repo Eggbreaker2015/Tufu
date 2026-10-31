@@ -182,7 +182,6 @@ namespace Codebase.UI.Shop
 		{
 			// Pet mode: show the unlocked signature (else the first unlocked ability), never a locked 'unlocks at level 1' row.
 			var defs = model.Config.AbilityDefs;
-			if (!global::Codebase.Pet.PetConfig.Enabled) return 0; // original behaviour
 			int firstUnlocked = -1;
 			for (int i = 0; i < defs.Count; i++)
 			{

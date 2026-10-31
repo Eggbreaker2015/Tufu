@@ -207,7 +207,7 @@ namespace Codebase.UI
 			inventory = GameContext.Get<InventoryView>();
 			playerModel = GameContext.Get<PlayerModel>();
 			this.model = model;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && GetComponentInParent<ItemsHotbarView>() != null) global::Codebase.Rpg.UI.RpgLineupCell.AddSlot(transform, model);
+			if (GetComponentInParent<ItemsHotbarView>() != null) global::Codebase.Rpg.UI.RpgLineupCell.AddSlot(transform, model);
 			levelDefaultColor = levelField.color;
 			abilityVisualsDirty = true;
 			iconStyleConfig = GameContext.Get<IconStyleConfig>();
@@ -217,7 +217,7 @@ namespace Codebase.UI
 			    if (!this.model.IsEquipped) return;
 			    if (shouldBlockClick) { shouldBlockClick = false; return; }
 			    GameContext.Get<IAudioPlayer>().PlaySoundOnce("light_tap");
-			    if (global::Codebase.Rpg.RpgModeConfig.Enabled && GetComponentInParent<ItemsHotbarView>() != null && !inventory.IsOpened)
+			    if (GetComponentInParent<ItemsHotbarView>() != null && !inventory.IsOpened)
 			    {
 			        global::Codebase.Rpg.UI.RpgLineupCell.RequestSlot(this.model);
 			        return;
@@ -235,7 +235,7 @@ namespace Codebase.UI
 			bool visible = model.IsPinned && inventory.IsOpened;
 			if (pinVisible != visible || abilityVisualsDirty) { pinVisible = visible; pin.SetActive(visible); }
 			UpdateAbilityVisuals();
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && GetComponentInParent<ItemsHotbarView>() != null)
+			if (GetComponentInParent<ItemsHotbarView>() != null)
 			{
 				typeAndRarity.enabled = false;
 				selected.enabled = inventory.IsOpened && model.ItemModel != null && playerModel.SelectedItem == model.ItemModel;
@@ -249,7 +249,7 @@ namespace Codebase.UI
 			// Native ELF VA 0x15f5eb8; first cooldown state in original order. Buffs are drawn by buffIcons.
 			ItemModel item = model.ItemModel;
 			// Pet mode: a dead pet's slot shows its revive countdown instead.
-			if (PetConfig.Enabled && TryRenderPetRevive(item)) { buffIcons.Clear(); return; }
+			if (TryRenderPetRevive(item)) { buffIcons.Clear(); return; }
 			if (item == null || !item.HasAbility) { ApplyOverlayVisibility(false, false); buffIcons.Clear(); ApplyLevelAndRarityVisibility(item, false); return; }
 			// Every timed or stacked buff gets its own icon above the slot (the single yellow bar showed only the first one).
 			AbilityState cooling = null;
@@ -282,10 +282,11 @@ namespace Codebase.UI
 		{
 			if (item == null) return false;
 			if (petsModel == null) petsModel = GameContext.Get<PetsModel>();
-			PetModel pet = petsModel != null ? petsModel.Get(item) : null;
+			var hero = GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes.Find(value => value.Item == item);
+			PetModel pet = hero != null ? hero.Pet : null;
 			if (pet == null || pet.State != PetState.Dead) return false;
-			float remaining = Mathf.Max(0f, pet.ReviveAt - Time.time);
-			float total = PetConfig.Instance.ReviveCooldown;
+			float remaining = Mathf.Max(0f, hero.ReviveAt - Time.time);
+			float total = PetConfig.Instance.ReviveCooldown > 0f ? PetConfig.Instance.ReviveCooldown : 15f;
 			ApplyOverlayVisibility(true, false);
 			if (cooldownIcon.sprite != item.CurrentIcon) cooldownIcon.sprite = item.CurrentIcon;
 			cooldownFill.fillAmount = total > 0f ? Mathf.Clamp01(remaining / total) : 0f;

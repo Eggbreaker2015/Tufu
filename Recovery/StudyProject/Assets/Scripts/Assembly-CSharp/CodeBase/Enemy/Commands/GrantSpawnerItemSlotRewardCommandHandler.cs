@@ -16,18 +16,7 @@ namespace Codebase.Enemy.Commands
 
 		public string Execute(GrantSpawnerItemSlotRewardCommand command)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return null;
-            string key = command.Spawner.Config.SlotReward;
-            if (string.IsNullOrWhiteSpace(key)) return null;
-            var slot = playerModel.ItemSlots.FirstOrDefault(value => value.Key == key);
-            if (slot == null)
-            {
-                UnityEngine.Debug.LogError("Slot " + key + " does not exits", command.Spawner);
-                return null;
-            }
-            if (slot.IsUnlocked) return null;
-            slot.IsUnlocked = true;
-            return slot.Key;
+			return null;
         }
 	}
 }

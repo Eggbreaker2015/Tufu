@@ -39,7 +39,8 @@ namespace Codebase.Core
             RegisterModel(new global::Codebase.Player.Models.PlayerModel(Lifetime, playerConfig));
             RegisterModel(new global::Codebase.Pet.PetsModel(Lifetime));
             RegisterModel(new global::Codebase.Rpg.HeroRosterModel(Lifetime));
-            if (global::Codebase.Rpg.RpgModeConfig.Enabled) RegisterModel(new global::Codebase.Rpg.RpgProgressModel(Lifetime));
+            GameContext.Set(new global::Codebase.Rpg.HeroDeathService());
+            RegisterModel(new global::Codebase.Rpg.RpgProgressModel(Lifetime));
             RegisterModel(new global::Codebase.Analytics.UserModel(Lifetime));
             RegisterModel(new global::Codebase.Gates.GatesModel(Lifetime));
             RegisterModel(new global::Codebase.Services.Cheats.CheatsModel(Lifetime));

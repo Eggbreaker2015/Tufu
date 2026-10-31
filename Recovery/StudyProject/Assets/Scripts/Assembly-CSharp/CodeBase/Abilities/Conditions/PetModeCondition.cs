@@ -10,7 +10,7 @@ namespace Codebase.Abilities.Conditions
 	{
 		public override bool Evaluate(AbilityContext context)
 		{
-			return PetConfig.Enabled;
+			return true;
 		}
 
 		public static bool IsPetOnly(AbilityDef def)
@@ -23,10 +23,10 @@ namespace Codebase.Abilities.Conditions
 			return false;
 		}
 
-		// True for a pet-only ability while pet mode is off: it should neither unlock nor be listed.
+		// Pet-only abilities are available in pet mode.
 		public static bool IsHidden(AbilityDef def)
 		{
-			return !PetConfig.Enabled && IsPetOnly(def);
+			return false;
 		}
 	}
 }

@@ -84,7 +84,7 @@ namespace Codebase.Quests
 			var chain = config.GetChainOfStep(stepKey);
 			float fightTime = GetFightTime(stepKey, chain);
 			var spawnerConfig = BuildConfig(stepDef, fightTime, chain, referenceSpawner);
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgEnemyLevel.CopyLevel(spawnerConfig, referenceSpawner.Config);
+			global::Codebase.Rpg.RpgEnemyLevel.CopyLevel(spawnerConfig, referenceSpawner.Config);
 			if (!TryPickSpawnPosition(referenceSpawner.transform.position, spawnerConfig, out var position))
 				return;
 			var artificial = new QuestArtificialSpawner
@@ -118,39 +118,6 @@ namespace Codebase.Quests
 			instance.SetDeathState(false);
 			instance.Initialize(Lifetime.Eternal, spawnerConfig, position);
 			float multiplier = abTestService.GetEnemyHpDamageMultiplier(spawnerConfig.LocationNumber);
-			if (multiplier != 1f && !global::Codebase.Rpg.RpgModeConfig.Enabled)
-			{
-				for (int i = 0; i < instance.Stats.Count; i++)
-				{
-					var stat = instance.Stats[i];
-					if (stat.Type == StatType.Health || stat.Type == StatType.Damage)
-					{
-						double product = stat.BaseValue * (double)multiplier;
-						double integral = System.Math.Truncate(product);
-						double fraction = product - integral;
-						double rounded;
-						if (product >= 0d)
-						{
-							if (fraction == .5d)
-								rounded = (((long)integral & 1L) == 0L) ? integral : integral + 1d;
-							else
-								rounded = System.Math.Floor(product + .5d);
-						}
-						else
-						{
-							if (fraction == -.5d)
-								rounded = (((long)integral & 1L) == 0L) ? integral : integral - 1d;
-							else
-								rounded = System.Math.Ceiling(product - .5d);
-						}
-
-						instance.Stats[i] = new Stat(Lifetime.Eternal, rounded, stat.Type);
-					}
-				}
-
-				instance.BuildStatLookup();
-				instance.CurrentHealth = instance.GetStatValue(StatType.Health);
-			}
 
 			ApplyChainMobSettings(instance, chain);
 			if (!spawnerConfig.IsStatic && !instance.IsFlying)

@@ -28,39 +28,7 @@ namespace Codebase.Location.Systems
 
 		public override void OnUpdate(float deltaTime)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			if (enemiesModel.PendingBootstrap.Count > 0)
-			{
-				awaitingBootstrapCompletion = true;
-				return;
-			}
-
-			bool resumedBootstrap = awaitingBootstrapCompletion;
-			if (resumedBootstrap)
-			{
-				awaitingBootstrapCompletion = false;
-				islandMasteryModel.BumpStateVersion();
-			}
-
-			if (!metaStatSynchronized)
-			{
-				islandMasteryModel.SyncMetaStatModifiers(islandMasteryModel.Resolver.GetTrackedLocationNumbers());
-				metaStatSynchronized = true;
-			}
-
-			if (!islandMasteryModel.IsLegacyMigrationComplete)
-			{
-				RunLegacyMigration(islandMasteryModel.Resolver.GetTrackedLocationNumbers());
-				return;
-			}
-
-			int locationNumber = playerModel.CurrentLocation.Number;
-			timeSinceLastCheck += deltaTime;
-			if (!resumedBootstrap && locationNumber == lastCheckedLocationNumber && timeSinceLastCheck < CheckInterval)
-				return;
-			timeSinceLastCheck = 0f;
-			lastCheckedLocationNumber = locationNumber;
-			ProcessLocation(locationNumber);
+			return;
 		}
 
 		private void RunLegacyMigration(IReadOnlyList<int> trackedLocationNumbers)

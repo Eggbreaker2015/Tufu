@@ -4,7 +4,7 @@ using Codebase.Unit;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Codebase.Pet
+namespace Codebase.Rpg
 {
 	public static class HeroAi
 	{

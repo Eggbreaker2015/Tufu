@@ -21,15 +21,7 @@ namespace Codebase.VIP.Features
 
 		public override void OnUnlocked(int vipLevel)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			base.OnUnlocked(vipLevel);
-			var slot = GameContext.Get<PlayerModel>().ItemSlots.Find(item => item.Key == "weapon_5_vip");
-			if (slot == null)
-				return;
-			bool wasUnlocked = slot.IsUnlocked;
-			slot.IsUnlocked = true;
-			if (!wasUnlocked)
-				App.InitiateFlow(new ShowVipSlotUnlockViewFlow()).Forget();
+			return;
 		}
 	}
 }

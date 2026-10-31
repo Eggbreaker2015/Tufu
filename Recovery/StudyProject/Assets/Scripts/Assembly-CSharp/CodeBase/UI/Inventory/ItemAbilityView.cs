@@ -171,8 +171,7 @@ namespace Codebase.UI.Inventory
 		// Pet mode: the pet abilities' zh texts need the CJK fallback font, reapplied on every render (locale reapply resets it).
 		private static void SetLabel(TMP_Text label, string value)
 		{
-			if (global::Codebase.Pet.PetConfig.Enabled) PetStatsText.SetText(label, value);
-			else label.text = value;
+			PetStatsText.SetText(label, value);
 		}
 	}
 }

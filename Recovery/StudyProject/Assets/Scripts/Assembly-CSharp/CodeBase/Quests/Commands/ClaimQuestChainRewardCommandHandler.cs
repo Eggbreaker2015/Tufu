@@ -65,8 +65,7 @@ namespace Codebase.Quests.Commands
 			}
 
 			var rewards = new List<Codebase.Rewards.RewardBase>(chain.ChainReward);
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
-            {
+			{
                 rewards = global::Codebase.Rpg.RpgRewardFilter.Filter(rewards);
                 if (rewards.Count == 0)
                 {
@@ -83,7 +82,7 @@ namespace Codebase.Quests.Commands
 			var completion = new UniTaskCompletionSource();
 			view.Setup(rewards, () =>
 			{
-				if (global::Codebase.Rpg.RpgModeConfig.Enabled && chain.ChainReward.Exists(reward => reward is Codebase.Rewards.StatReward) && chain.Steps != null && chain.Steps.Count > 0)
+				if (chain.ChainReward.Exists(reward => reward is Codebase.Rewards.StatReward) && chain.Steps != null && chain.Steps.Count > 0)
 				{
 					var player = GameContext.Get<global::Codebase.Player.Models.PlayerModel>().Unit;
 					global::Codebase.Rpg.RpgRewardService.Quest(chain.Steps[chain.Steps.Count - 1].LocationNumber, global::Codebase.Rpg.RpgModeConfig.Instance.QuestChainXpMultiplier, player != null ? player.transform.position : UnityEngine.Vector3.zero);

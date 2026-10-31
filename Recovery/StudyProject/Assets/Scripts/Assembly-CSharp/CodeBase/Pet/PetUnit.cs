@@ -7,7 +7,6 @@ using UnityEngine.AI;
 
 namespace Codebase.Pet
 {
-	// Built at runtime by PetSpawnSystem; must not declare Awake/Start, UnitCore's private ones register the entity.
 	public class PetUnit : HeroUnit
 	{
 		private const string VisualChildName = "Visual";
@@ -204,7 +203,7 @@ namespace Codebase.Pet
 		}
 
 		// Like EnemyUnit.Tick: the animator runs at attack speed only while the attack bool is set.
-		public void SetAttackAnimation(bool attacking, float speed)
+		public override void SetAttackAnimation(bool attacking, float speed)
 		{
 			if (Animator == null)
 				return;

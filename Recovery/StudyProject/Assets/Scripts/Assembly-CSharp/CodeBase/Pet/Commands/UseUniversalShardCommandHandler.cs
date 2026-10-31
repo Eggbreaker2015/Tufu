@@ -14,7 +14,7 @@ namespace Codebase.Pet.Commands
 		public void Execute(UseUniversalShardCommand command)
 		{
 			ItemModel item = command.Item;
-			if (!PetConfig.Enabled || item == null || item.IsArmor || command.Amount <= 0 || PetEconomy.IsEvolutionCapped(item))
+			if (item == null || item.IsArmor || command.Amount <= 0 || PetEconomy.IsEvolutionCapped(item))
 				return;
 			if (!currencyModel.TrySpend(CurrencyKeys.PetUniversalShard, command.Amount))
 				return;

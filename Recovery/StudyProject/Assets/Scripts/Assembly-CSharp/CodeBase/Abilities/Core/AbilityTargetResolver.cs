@@ -21,8 +21,6 @@ namespace Codebase.Abilities.Core
 		public static EnemyUnit ResolveAttackerTarget(AbilityContext context)
 		{
 			PlayerUnit player = context.PlayerModel != null ? context.PlayerModel.Unit : null;
-			if (!PetConfig.Enabled)
-				return player != null ? player.CurrentTarget : null;
 			// A known attacker decides, even without a target; passive contexts have none and use the owner pet.
 			if (context.Attacker is PetUnit pet && pet != null)
 				return pet.CurrentTarget;
@@ -37,7 +35,7 @@ namespace Codebase.Abilities.Core
 		// The alive pet of a weapon owner; null for armor owners, dead pets and with pet mode off.
 		public static PetUnit GetOwnerPetUnit(IAbilityOwner owner)
 		{
-			if (!PetConfig.Enabled || !(owner is ItemModel item) || item.Config.SlotType != ItemSlotType.Weapon)
+			if (!(owner is ItemModel item) || item.Config.SlotType != ItemSlotType.Weapon)
 				return null;
 			PetModel pet = GameContext.Get<PetsModel>().Get(item);
 			return pet != null && pet.IsAlive ? pet.Unit : null;

@@ -75,7 +75,6 @@ namespace Codebase.SecretChest.Commands
                 await UniTask.Delay(TimeSpan.FromSeconds(RewardPopupDelay), false, (PlayerLoopTiming)8, token);
 
                 var rewards = chest.Rewards;
-                if (global::Codebase.Rpg.RpgModeConfig.Enabled)
                 {
                     rewards = global::Codebase.Rpg.RpgRewardFilter.Filter(rewards);
                     if (rewards.Count == 0)

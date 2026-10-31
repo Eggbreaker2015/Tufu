@@ -15,12 +15,7 @@ namespace Codebase.Pet.Commands
 
 		public void Execute(UnlockPetSpeciesCommand command)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			if (!PetConfig.Enabled || !PetEconomy.CanUnlock(command.Config))
-				return;
-			if (!currencyModel.TrySpend(CurrencyKeys.PetUniversalShard, PetEconomy.GetUnlockCost(command.Config)))
-				return;
-			playerModel.CreateItem(command.Config, 1);
+			return;
 		}
 	}
 }

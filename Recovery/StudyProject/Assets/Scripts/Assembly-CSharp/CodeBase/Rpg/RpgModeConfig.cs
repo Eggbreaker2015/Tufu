@@ -21,7 +21,7 @@ namespace Codebase.Rpg
 
 		public List<HeroDefinition> Heroes = new List<HeroDefinition>
 		{
-			new HeroDefinition { Key = "protagonist", IsProtagonist = true, Role = HeroRole.Protagonist, DisplayName = "Pudge" },
+			new HeroDefinition { Key = "protagonist", AttackItemKey = "player_claw", IsProtagonist = true, Role = HeroRole.Protagonist, DisplayName = "Pudge" },
 			new HeroDefinition { Key = "golem", Role = HeroRole.Tank, PetItemKey = "golem", AttackItemKey = "golem", HealthRatio = 1.6f, AttackRatio = 0.6f, DefenceRatio = 1.5f, DisplayName = "Golem" },
 			new HeroDefinition { Key = "cultist", Role = HeroRole.MeleeDps, PetItemKey = "cultist", AttackItemKey = "cultist", HealthRatio = 0.8f, AttackRatio = 0.7f, DefenceRatio = 0.8f, DisplayName = "Cultist" },
 			new HeroDefinition { Key = "pick", PetItemKey = "pick", AttackItemKey = "pick", Role = HeroRole.Tank, HealthRatio = 1.6f, AttackRatio = 0.6f, DefenceRatio = 1.5f, DisplayName = "重甲矛兵" },
@@ -106,7 +106,7 @@ namespace Codebase.Rpg
 			switch (kind) { case RpgSpawnerKind.Elite: return EliteShards; case RpgSpawnerKind.Boss: return BossShards; default: return NormalShards; }
 		}
 
-		public static bool Enabled => Instance != null && Instance.enabled && PetConfig.Enabled;
+		public static bool Enabled => true;
 
 		[StaticReset]
 		private static void ResetStaticState()

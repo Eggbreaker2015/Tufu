@@ -48,8 +48,6 @@ namespace Codebase.Skills.Systems
 		[Inject]
 		private Stash<UnitDeadMarker> deadStash;
 
-		private PlayerUnit installedHero;
-
 		private bool heroWasDown;
 
 		private Filter casterFilter;
@@ -67,18 +65,8 @@ namespace Codebase.Skills.Systems
 			PlayerUnit hero = playerModel.Unit;
 			if (hero != null && hero.EntityProvider != null && !World.IsDisposed(hero.EntityProvider.Entity))
 			{
-				if (hero != installedHero)
-				{
-					UnitSkillLoadout loadout = SkillLibrary.FindLoadout(SkillOwnerKind.Hero, "hero");
-					Entity entity = hero.EntityProvider.Entity;
-					if (loadout != null)
-						skillService.Install(hero, entity, loadout);
-					else if (casterStash.Has(entity))
-						casterStash.Remove(entity);
-					installedHero = hero;
-					heroWasDown = false;
-				}
-				bool down = hero.IsDying || hero.IsDead;
+
+				bool down = GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(hero)?.IsAlive != true;
 				if (down)
 					skillService.CancelCast(hero);
 				else if (heroWasDown)
@@ -96,7 +84,9 @@ namespace Codebase.Skills.Systems
 				UnitCore unit = caster.Owner;
 				if (unit == null || unit.IsDead || unit.IsFar || !unit.gameObject.activeInHierarchy)
 					continue;
-				if (unit is PetUnit && (!PetConfig.Enabled || deadStash.Has(entity)))
+				if (unit is HeroUnit && GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(unit) == null)
+					continue;
+				if (unit is PetUnit && (deadStash.Has(entity)))
 					continue;
 				bool engaged = IsEngaged(unit);
 				if (engaged && !caster.Engaged)
@@ -134,7 +124,11 @@ namespace Codebase.Skills.Systems
 		{
 			if (!(unit is EnemyUnit enemy))
 				return true;
-			return !enemy.IsReturningHome && (enemy.AggroTimer > 0f || playerModel.Unit != null && playerModel.Unit.CurrentTarget == enemy);
+			if (enemy.IsReturningHome) return false;
+			if (enemy.AggroTimer > 0f) return true;
+			foreach (var hero in GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes)
+				if (hero.IsAlive && hero.Unit.CurrentTarget == enemy) return true;
+			return false;
 		}
 
 		private bool CanThink(Entity entity, UnitCore unit)
@@ -146,19 +140,19 @@ namespace Codebase.Skills.Systems
 				if (enemy.IsCasting || enemyCastSystem.IsCasting(entity) || spawnActiveStash.Has(entity) || waitingStash.Has(entity) || enemy.RetreatTimer > 0f)
 					return false;
 				PlayerUnit player = playerModel.Unit;
-				if (player == null || player.IsDying || player.IsSleeping || !playerModel.CanMove)
+				if (player == null || GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().InWipe || player.IsSleeping || !playerModel.CanMove)
 					return false;
 			}
 			if (unit is PetUnit)
 				return !deadStash.Has(entity) && CanFriendlyAct(playerModel.Unit);
 			if (unit is PlayerUnit hero)
-				return CanFriendlyAct(hero);
+				return CanFriendlyAct(hero) && GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(hero)?.IsAlive == true;
 			return true;
 		}
 
 		private bool CanFriendlyAct(PlayerUnit hero)
 		{
-			return hero != null && playerModel.CanMove && !hero.IsDying && !hero.IsDead && !hero.IsSleeping;
+			return hero != null && playerModel.CanMove && !hero.IsSleeping && !GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().InWipe;
 		}
 
 		private void Think(Entity entity, in SkillCasterComponent caster, UnitCore unit)
@@ -219,7 +213,7 @@ namespace Codebase.Skills.Systems
 		{
 			UnitCore target;
 			if (unit is EnemyUnit enemy)
-				target = PetConfig.Enabled && enemy.AggroTarget != null ? enemy.AggroTarget : playerModel.Unit;
+				target = enemy.AggroTarget != null ? enemy.AggroTarget : playerModel.Unit;
 			else if (unit is PetUnit pet)
 				target = pet.CurrentTarget;
 			else if (unit is PlayerUnit player)
@@ -302,10 +296,10 @@ namespace Codebase.Skills.Systems
 			UnitCore unit = cast.Caster;
 			if (unit == null || unit.IsDead || !unit.gameObject.activeInHierarchy || unit.EntityProvider == null ||
 				!unit.EntityProvider.Entity.Equals(entity) || cast.Slot == null || deadStash.Has(entity)) return true;
-			if (unit is PlayerUnit dying && dying.IsDying || unit is PetUnit && !PetConfig.Enabled) return true;
+			if (unit is PlayerUnit dying && dying.IsDying) return true;
 			if (cast.Fired && !cast.Channeling) return false;
 			return stunStash.Has(entity) || skillService.IsSilenced(entity) ||
-				unit is PetUnit && !CanFriendlyAct(playerModel.Unit) || unit is PlayerUnit hero && !CanFriendlyAct(hero);
+				unit is PetUnit && !CanFriendlyAct(playerModel.Unit) || unit is PlayerUnit hero && (!CanFriendlyAct(hero) || GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(hero)?.IsAlive != true);
 		}
 
 		private void UpdateCasts(float deltaTime)

@@ -22,15 +22,7 @@ namespace Codebase.Abilities.Effects
 
 		public static void RecalculateMaxLevel(IEnumerable<ItemModel> equippedItems, RageModel rageModel)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { rageModel.MaxAccessibleLevel = 0; rageModel.RageLevel = 0; rageModel.RagePoints = 0f; return; }
-			// Native 0x15efb00: inspect actual active states, then effects, taking the maximum grant.
-			int maximum = 0;
-			foreach (ItemModel item in equippedItems)
-				foreach (AbilityState state in item.AbilityStates)
-					foreach (IAbilityEffect effect in state.Def.Effects)
-						if (effect is GrantRageAccessEffect access) maximum = Math.Max(maximum, access.Level);
-			rageModel.MaxAccessibleLevel = maximum;
-			rageModel.SyncToWeaponAccess();
+			{ rageModel.MaxAccessibleLevel = 0; rageModel.RageLevel = 0; rageModel.RagePoints = 0f; return; }
 		}
 	}
 }

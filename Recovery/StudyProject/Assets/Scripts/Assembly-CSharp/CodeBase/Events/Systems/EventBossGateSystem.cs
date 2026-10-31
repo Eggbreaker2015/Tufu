@@ -179,7 +179,7 @@ namespace Codebase.Events.Systems
 				{
 					playerModel.Unit.Agent.Warp(firecampSystem.transform.position);
 					// Pet mode: keep pets from being shut behind the gate.
-					if (PetConfig.Enabled) petsModel.WarpAll(firecampSystem.transform.position);
+					petsModel.WarpAll(firecampSystem.transform.position);
 				}
 			}
 		}

@@ -37,6 +37,7 @@ namespace Codebase.Unit
 		LifestealPercent = 32,
 		BlockChance = 33,
 		BlockAmount = 34,
-		VisualScaleMultiplier = 35
+		VisualScaleMultiplier = 35,
+		AttackSpeed = 36
 	}
 }

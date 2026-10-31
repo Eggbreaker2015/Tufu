@@ -10,16 +10,16 @@ namespace Codebase.Rpg
 		private RpgUd data;
 		public int Level => data == null ? 1 : data.TeamLevel.Value;
 		public double Xp => data == null ? 0 : data.Xp.Value;
-		public double XpToNext => !RpgModeConfig.Enabled || Level >= RpgModeConfig.Instance.LevelCap ? 0 : RpgNumbers.Need(Level);
+		public double XpToNext => Level >= RpgModeConfig.Instance.LevelCap ? 0 : RpgNumbers.Need(Level);
 		public event Action<int> LevelChanged;
 		public RpgProgressModel(Lifetime lifetime) : base(lifetime) { }
 		public override void Initialize()
 		{
-			if (RpgModeConfig.Enabled) data = GameContext.Get<GameDataService>().Data.Rpg;
+			data = GameContext.Get<GameDataService>().Data.Rpg;
 		}
 		public double AddXp(double amount)
 		{
-			if (!RpgModeConfig.Enabled || data == null || amount <= 0 || double.IsNaN(amount) || Level >= RpgModeConfig.Instance.LevelCap) return 0;
+			if (data == null || amount <= 0 || double.IsNaN(amount) || Level >= RpgModeConfig.Instance.LevelCap) return 0;
 			int level = Level;
 			int old = level;
 			double previousXp = Xp;

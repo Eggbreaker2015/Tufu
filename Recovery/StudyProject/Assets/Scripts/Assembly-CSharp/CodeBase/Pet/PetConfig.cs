@@ -130,8 +130,7 @@ namespace Codebase.Pet
 			}
 		}
 
-		// Pet mode switch; without the asset the game runs the original weapon logic.
-		public static bool Enabled => Instance != null && Instance.enabled;
+		public static bool Enabled => true;
 
 		[StaticReset]
 		private static void ResetStaticState()

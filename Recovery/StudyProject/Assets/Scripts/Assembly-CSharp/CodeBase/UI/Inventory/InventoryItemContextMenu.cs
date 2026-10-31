@@ -185,27 +185,7 @@ namespace Codebase.UI.Inventory
 			// Native ELF VA 0x164e22c; labels are original ELF literals, not new strings.
 			ItemModel item = playerModel.SelectedItem;
 			if (item == null) return;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { RenderRpg(item); return; }
-			float height = defaultHeight;
-			if (PetStats.TryGet(item, out _)) abilitiesView.gameObject.SetActive(false);
-			else
-			{
-				abilitiesView.gameObject.SetActive(true);
-				abilitiesView.Setup(item, int.MaxValue, false);
-				if (item.HasUnlockableAbility) height += abilitiesView.GetHeight();
-			}
-			if (item.HasStars) starsView.Setup(item);
-			else height -= ((RectTransform)starsView.transform).sizeDelta.y * 0.25f;
-			height += RenderPetStats(item);
-			mainStatText.text = LocalizationStrings.Get(item.IsArmor ? "STAT_Armor" : "STAT_Damage");
-			starsView.gameObject.SetActive(item.HasStars);
-			RectTransform.sizeDelta = new Vector2(RectTransform.sizeDelta.x, height);
-			evolveButton.gameObject.SetActive(true);
-			if (evolveNotification != null) evolveNotification.SetActive(item.CanEvolve);
-			equipButtonText.text = LocalizationStrings.Get(playerModel.EquippedItems.Contains(item) ? "INVENTORY_UNEQUIP" : "INVENTORY_EQUIP");
-			evolveButtonText.text = LocalizationStrings.Get("INVENTORY_EVOLVE") + " " + string.Format("{0}{1}<size=45><color=#DDC0FF>/{2}", item.CanEvolve ? "" : "<color=#FF4876>", item.Copies, item.LevelsToEvolve);
-			RenderItemPreview(item);
-			itemEvolveWarningText.text = LocalizationStrings.Get("INVENTORY_EVOLVE_REQUIREMENT").Replace("{value}", item.LevelsToEvolve.ToString());
+			{ RenderRpg(item); return; }
 		}
 
 		private void RenderRpg(ItemModel item)
@@ -345,16 +325,7 @@ namespace Codebase.UI.Inventory
 		private void RefreshPetStats(ItemModel item)
 		{
 			petStatsRefreshTime = Time.unscaledTime + PetStatsText.RefreshInterval;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { if (item != null) PetStatsText.SetText(petStatsText, global::Codebase.Rpg.RpgHeroCard.Build(item)); return; }
-			if (!PetStats.TryGet(item, out PetStatsInfo pet)) return;
-			PetStatsText.SetText(petStatsText, BuildPetStats(pet, item));
-			RenderShardRow(item);
-			if (abilitySummary != null) abilitySummary.Render(item);
-			IconStyleConfig styles = GameContext.Get<IconStyleConfig>();
-			string iconName = styles.WeaponTypeStyles.First(style => style.WeaponType == item.Config.DamageType).Sprite.name;
-			itemPreviewDamage.text = "<sprite name=" + iconName + ">" + pet.Attack.Format();
-			itemPreviewDamageNext.text = pet.NextAttack.Format();
-			itemPreviewStatPerCopyValue.text = "<sprite name=" + iconName + "> " + PetStatsText.AttackPerCopy(pet).Format();
+			{ if (item != null) PetStatsText.SetText(petStatsText, global::Codebase.Rpg.RpgHeroCard.Build(item)); return; }
 		}
 
 		private static string BuildPetStats(PetStatsInfo pet, ItemModel item)

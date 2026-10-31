@@ -66,6 +66,7 @@ namespace Codebase.UI.Rage
             // Native 0x16339f8.
             base.Start();
             Initialize();
+            root.SetActive(false);
             subscription = Scellecs.Morpeh.World.Default.GetEvent<RageLevelUpEvent>().Subscribe(ShowReactAnimIfNeeded);
 		}
 
@@ -87,23 +88,7 @@ namespace Codebase.UI.Rage
 
 		protected override void Render()
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { root.SetActive(false); return; }
-            // Native 0x1633ca8.
-            int maxLevel = rageModel.EffectiveMaxLevel;
-            bool visible = rageModel.RageLevel > 0 || rageModel.MaxAccessibleLevel > 0;
-            if (rageModel.EffectiveMaxLevel != previousMaxRageLevel)
-            {
-                previousMaxRageLevel = rageModel.EffectiveMaxLevel;
-                SetRagesMaxLevel(rageModel.EffectiveMaxLevel);
-            }
-            root.SetActive(visible);
-            if (!visible) return;
-            int segments = rageModel.EffectiveMaxLevel > 3 ? 4 : 3;
-            int level = Mathf.Clamp(rageModel.RageLevel, 0, maxLevel);
-            float progress = Mathf.Clamp01(rageModel.RagePoints / rageModel.GetThreshold(level));
-            slider.DOFillAmount((float)level / segments + progress / segments, 0.2f);
-            for (int index = 0; index < levelIcons.Length; index++) levelIcons[index].SetActive(index == level);
-            for (int index = 0; index < maxLevelParticles.Length; index++) maxLevelParticles[index].SetActive(level >= segments);
+			root.SetActive(false);
 		}
 
 		private void LateUpdate()

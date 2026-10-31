@@ -156,31 +156,7 @@ namespace Codebase.Rage
 
 		public bool TryAddRage(float amount)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return false;
-			if (EffectiveMaxLevel <= 0)
-				return false;
-			TimeSinceLastRage = 0f;
-			World.Default.GetEvent<RageGainedEvent>().NextFrame(new RageGainedEvent { Amount = amount });
-			if (RageLevel >= EffectiveMaxLevel)
-			{
-				RagePoints = 0f;
-				return false;
-			}
-
-			RagePoints += amount;
-			bool leveledUp = false;
-			float threshold = GetThreshold(RageLevel);
-			while (RagePoints >= threshold && RageLevel < EffectiveMaxLevel)
-			{
-				RagePoints -= threshold;
-				RageLevel++;
-				leveledUp = true;
-				threshold = GetThreshold(RageLevel);
-			}
-
-			if (RageLevel >= EffectiveMaxLevel)
-				RagePoints = 0f;
-			return leveledUp;
+			return false;
 		}
 
 		public void ResetRage()

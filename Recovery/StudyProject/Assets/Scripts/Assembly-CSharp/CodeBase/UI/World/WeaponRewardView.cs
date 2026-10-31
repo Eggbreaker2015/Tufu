@@ -53,7 +53,7 @@ namespace Codebase.UI.World
 
 		private void Awake()
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) Disabled = true;
+			Disabled = true;
             global::Codebase.Core.GameContext.Set(this);
             textStartPos = levelUpText.rectTransform.anchoredPosition;
         }

@@ -356,6 +356,13 @@ namespace Codebase.Player
 
 		public override void SetWalking(bool v) => animator.SetBool(IsWalking, v);
 
+		public override void SetAttackAnimation(bool attacking, float speed)
+		{
+			PlayerClawView view = GetComponent<PlayerClawView>();
+			if (view == null) view = gameObject.AddComponent<PlayerClawView>();
+			view.SetAttackAnimation(attacking, speed);
+		}
+
 		public bool IsSleeping { get; private set; }
 
 		public DeathPhase CurrentPhase { get; private set; }
@@ -393,10 +400,9 @@ namespace Codebase.Player
 		private void Update()
 		{
 			// Native ELF VA 0x1445358. Walking reflects input, with the original 0.15 audio scale.
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && !IsControlled && !IsDying)
+			if (!IsControlled && !IsDying)
 			{
 				float velocity = Agent.enabled ? Agent.velocity.magnitude : 0f;
-				animator.SetBool(IsWalking, Agent.enabled && Agent.velocity.sqrMagnitude > 0.01f);
 				animator.speed = 1f;
 				audioSource.volume = 0.15f * Mathf.Clamp01(velocity / Mathf.Max(Agent.speed, 0.01f));
 				rig.localScale = Vector3.one * 1.35f;
@@ -405,7 +411,6 @@ namespace Codebase.Player
 			if (!IsDying)
 			{
 				float input = GameContext.Get<PlayerModel>().CanMove && !global::Codebase.Skills.FriendlyDebuffs.IsStunned(this) ? GameContext.Get<Joystick>().GetInput().magnitude : 0f;
-				animator.SetBool(IsWalking, input > 0f);
 				animator.speed = 1f;
 				audioSource.volume = input * 0.15f;
 			}
@@ -421,6 +426,32 @@ namespace Codebase.Player
 		}
 
 		
+		public void PrepareDownWipe(PlayerModel model) { currentPlayerModel = model; }
+
+		public void EnterDown()
+		{
+			CurrentHealth = 0;
+			CurrentTarget = null;
+			if (Agent != null && Agent.enabled) { if (Agent.isOnNavMesh) { Agent.isStopped = true; Agent.ResetPath(); } Agent.enabled = false; }
+			World.Default.GetStash<NavMeshAgentActiveMarker>().Remove(EntityProvider.Entity);
+			SetWalking(false);
+			animator.SetTrigger(DieTrigger);
+			if (deathEffect) deathEffect.Play();
+			if (HealthBar != null) HealthBar.gameObject.SetActive(false);
+		}
+
+		public void ReviveFromDown(Vector3 position, float yaw, double health)
+		{
+			transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
+			Agent.enabled = true;
+			Agent.Warp(position);
+			World.Default.GetStash<NavMeshAgentActiveMarker>().Set(EntityProvider.Entity);
+			animator.Rebind(); animator.Update(0f);
+			if (HealthBar != null) HealthBar.gameObject.SetActive(true);
+			if (aliveParticles) aliveParticles.Play();
+			CurrentHealth = health;
+		}
+
 		public async UniTask StartDeathAnimation(PlayerModel playerModel)
 		{
 // Native async state body ELF VA 0x1446d64 uses the MonoBehaviour coroutine runner.

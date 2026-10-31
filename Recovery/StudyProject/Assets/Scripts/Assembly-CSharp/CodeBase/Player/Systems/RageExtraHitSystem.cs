@@ -42,16 +42,15 @@ namespace Codebase.Player.Systems
 
 		private void ResetHighestDamageWeaponCooldown()
 		{
-			// Pet mode: only living pets compete, and the player's own attack also gets the extra hit.
-			bool petMode = PetConfig.Enabled;
-			PetsModel petsModel = petMode ? GameContext.Get<PetsModel>() : null;
-			if (petMode && playerModel.PlayerAttackItem != null)
+			// Only living pets compete, and the player's own attack also gets the extra hit.
+			PetsModel petsModel = GameContext.Get<PetsModel>();
+			if (playerModel.PlayerAttackItem != null)
 				playerModel.PlayerAttackItem.ResetCooldown = true;
 			ItemModel best = null;
 			double bestDamage = double.MinValue;
 			foreach (ItemModel item in playerModel.EquippedWeapons)
 			{
-				if (petMode && !petsModel.IsPetAlive(item))
+				if (!petsModel.IsPetAlive(item))
 					continue;
 				if (item.Damage > bestDamage)
 				{

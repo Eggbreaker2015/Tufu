@@ -127,11 +127,11 @@ namespace Codebase.Enemy
 			float playerDistanceSquared = SqrDistance(enemy, PlayerUnit);
 			// Pet mode: the nearest of the player and the living pets is fought; the 30 m reset stays player-based.
 			UnitCore aggroTarget = SelectAggroTarget(enemy, playerDistanceSquared, true, out float distanceSquared);
-			if (playerDistanceSquared > 900f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
+			if (NearestHeroDistance(enemy, true) > 900f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
 				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
-			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
+			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().InWipe || GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().FirstLiving() == null;
 			bool retreat = (distanceSquared > enemy.AggroRange * enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && TauntSource(enemy) != null) { retreat = false; if (!playerUnavailable) enemy.IsReturningHome = false; }
+			if (TauntSource(enemy) != null) { retreat = false; if (!playerUnavailable) enemy.IsReturningHome = false; }
 			if (enemy.IsReturningHome || retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
 				if (enemy.InCombat)
@@ -219,7 +219,7 @@ namespace Codebase.Enemy
 
 		private void CheckLeash(EnemyUnit enemy, Entity entity)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && TauntSource(enemy) != null) return;
+			if (TauntSource(enemy) != null) return;
 			if (!enemy.InCombat || bossArenaUnitStash.Has(entity) || escapeMarkerStash.Has(entity) || vampireSpiritTagStash.Has(entity))
 				return;
 			Vector3 offset = enemy.transform.position - enemy.PatrolCenter;
@@ -353,11 +353,11 @@ namespace Codebase.Enemy
 			float playerDistance = Distance(enemy, PlayerUnit);
 			// Pet mode: as for ground enemies, the nearest candidate is fought and the 30 m reset stays player-based.
 			UnitCore aggroTarget = SelectAggroTarget(enemy, playerDistance, false, out float distance);
-			if (playerDistance > 30f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
+			if (NearestHeroDistance(enemy, false) > 30f && !enemy.IsDead && !bossArenaUnitStash.Has(entity))
 				enemy.CurrentHealth = enemy.GetStatValue(StatType.Health);
-			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || player.Unit.IsDying;
+			bool playerUnavailable = player.Unit.IsSleeping || !player.CanMove || GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().InWipe || GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().FirstLiving() == null;
 			bool retreat = (distance > enemy.AggroRange && enemy.AggroTimer <= 0f && !IsTargetedByAllies(enemy)) || enemy.RetreatTimer > 0f;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled && TauntSource(enemy) != null) { retreat = false; if (!playerUnavailable) enemy.IsReturningHome = false; }
+			if (TauntSource(enemy) != null) { retreat = false; if (!playerUnavailable) enemy.IsReturningHome = false; }
 			Vector3 target;
 			if (enemy.IsReturningHome || retreat || playerUnavailable || waitingMarkerStash.Has(entity))
 			{
@@ -449,7 +449,7 @@ namespace Codebase.Enemy
 			if (enemy.AttackCooldown > 0f)
 				return;
 			// Pet mode: the hit goes to the unit this enemy is fighting (player or pet).
-			UnitCore target = PetConfig.Enabled && enemy.AggroTarget != null ? enemy.AggroTarget : playerModel.Unit;
+			UnitCore target = enemy.AggroTarget != null ? enemy.AggroTarget : playerModel.Unit;
 			// Ranged enemies: the basic attack is a projectile; its impact raises the same hit (no melee fallback).
 			if (enemy.Ranged != null)
 			{
@@ -595,7 +595,6 @@ namespace Codebase.Enemy
 		// (squared for ground enemies); the result is stored in enemy.AggroTarget.
 		private UnitCore SelectAggroTarget(EnemyUnit enemy, float playerDistance, bool squared, out float distance)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled)
 			{
 				UnitCore target = TauntSource(enemy);
 				float lockRange = Mathf.Max(enemy.AggroRange, GetAttackRange(enemy)) + global::Codebase.Rpg.RpgModeConfig.Instance.TargetLockExtraRange;
@@ -608,30 +607,34 @@ namespace Codebase.Enemy
 					return target;
 				}
 			}
-			distance = playerDistance;
-			if (!PetConfig.Enabled || petsModel == null)
-				return PlayerUnit;
-			UnitCore best = PlayerUnit;
-			foreach (PetModel pet in petsModel.Pets)
+			distance = float.MaxValue;
+			UnitCore best = null;
+			foreach (var hero in GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes)
 			{
-				if (!pet.IsAlive || pet.Unit.IsDead)
+				if (!hero.IsAlive)
 					continue;
-				float petDistance = squared ? SqrDistance(enemy, pet.Unit) : Distance(enemy, pet.Unit);
+				float petDistance = squared ? SqrDistance(enemy, hero.Unit) : Distance(enemy, hero.Unit);
 				if (petDistance < distance)
 				{
 					distance = petDistance;
-					best = pet.Unit;
+					best = hero.Unit;
 				}
 			}
 			enemy.AggroTarget = best;
 			return best;
 		}
 
+		private float NearestHeroDistance(EnemyUnit enemy, bool squared)
+		{
+			float result = float.MaxValue;
+			foreach (var hero in GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes) if (hero.IsAlive) result = Mathf.Min(result, squared ? SqrDistance(enemy, hero.Unit) : Distance(enemy, hero.Unit));
+			return result;
+		}
+
 		private bool IsLivingHero(UnitCore unit)
 		{
 			if (unit == null || unit.IsDead) return false;
-			if (unit == PlayerUnit) return !PlayerUnit.IsDying;
-			if (petsModel != null) foreach (PetModel pet in petsModel.Pets) if (pet.Unit == unit && pet.IsAlive) return true;
+			if (GameContext.Has<global::Codebase.Rpg.HeroRosterModel>()) { var hero = GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(unit); if (hero != null && hero.IsAlive) return true; }
 			return false;
 		}
 
@@ -652,18 +655,17 @@ namespace Codebase.Enemy
 		{
 			if (playerModel.Unit.CurrentTarget == enemy)
 				return true;
-			if (!PetConfig.Enabled || petsModel == null)
+			if (petsModel == null)
 				return false;
-			foreach (PetModel pet in petsModel.Pets)
-				if (pet.IsAlive && pet.Unit.CurrentTarget == enemy)
+			foreach (var hero in GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes)
+				if (hero.IsAlive && hero.Unit.CurrentTarget == enemy)
 					return true;
 			return false;
 		}
 
 		private static void ClearAggroTarget(EnemyUnit enemy)
 		{
-			if (PetConfig.Enabled)
-				enemy.AggroTarget = null;
+			enemy.AggroTarget = null;
 		}
 
 		private static float Distance(UnitCore u1, UnitCore u2)

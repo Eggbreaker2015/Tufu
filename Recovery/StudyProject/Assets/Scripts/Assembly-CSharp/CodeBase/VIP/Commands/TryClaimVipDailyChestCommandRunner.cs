@@ -45,7 +45,6 @@ namespace Codebase.VIP.Commands
             if (levelConfig == null || levelConfig.Rewards == null || levelConfig.Rewards.Count == 0) return;
             App.ExecuteCommand(new BakeRewardsCommand { Rewards = levelConfig.Rewards, ForceBake = true, Multiplier = level });
             List<RewardBase> rewards = levelConfig.Rewards.Where(CanGrantReward).ToList();
-            if (global::Codebase.Rpg.RpgModeConfig.Enabled)
             {
                 rewards = global::Codebase.Rpg.RpgRewardFilter.Filter(rewards);
                 if (rewards.Count == 0) { GrantRewards(rewards, vipModel, timeService, audioPlayer); return; }

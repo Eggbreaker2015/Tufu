@@ -150,8 +150,6 @@ namespace Codebase.Shop.Flows
 					display.SetInitialCopies(dropCopies);
 				var granted = new ItemModel(playerModel.Lifetime, selected);
 				granted.SetInitialCopies(dropCopies);
-				if (!global::Codebase.Rpg.RpgModeConfig.Enabled)
-				playerModel.AddItem(granted, false, true);
 				droppedItems.Add(display);
 			}
 

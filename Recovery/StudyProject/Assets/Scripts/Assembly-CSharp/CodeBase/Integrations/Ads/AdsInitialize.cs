@@ -257,45 +257,7 @@ namespace Codebase.Integrations.Ads
 				}
 				isShown = false;
 			}
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			cooldown -= Time.deltaTime;
-			if (cooldown > 0f) return;
-			if (cooldown <= 0f && duration <= 0f) userModel.OfferedReward = false;
-			if (!userModel.NoAdsPurchased.Value && !IsRewardedAdReady)
-			{
-				// Original LoadRewardedAd/Requested transport point: there is no SDK load.
-				return;
-			}
-			if (!userModel.RewardedDelayFromStartUnlocked.Value)
-			{
-				float threshold = abTestService.GetRewardedDelayFromStartMinutes() +
-					abTestService.GetRewardedDelayFromStartMinutesPerUsdSpent() * userModel.InAppsBoughtValueInRewarded.Value;
-				if (threshold > 0f && userModel.Minutes.Value + timeService.CheatOffset.TotalMinutes < threshold)
-				{
-					if (!quickStartForStudy) return;
-				}
-				else userModel.RewardedDelayFromStartUnlocked.Value = true;
-			}
-			NoAdsData noAds = abTestService.GetNoAdsData();
-			if (noAds.maxAdsPerDay > 0 && !userModel.CanWatchAd(noAds.maxAdsPerDay)) return;
-			if (userModel.OfferedReward) return;
-			isShown = true;
-			userModel.OfferedReward = true;
-			duration = noAds.rewardedOfferDuration;
-			cooldown = GetAdCooldown();
-			MaxDuration = duration;
-			// Preserve the original indexed RewardedConfig pool contract.
-			WeightedReward reward = GetRewardWithDynamicWeights();
-			float density = userModel.GetRewardedDensity(abTestService.GetTotalRewardedDelayMinutes());
-			double denominator = Math.Exp(density * 0.1);
-			bool doubled = userModel.Minutes.Value >= 30 && (1.0 / denominator - 0.5).Roll();
-			double multiplier = doubled ? 2.0 : 1.0;
-			double value = multiplier * abTestService.GetRewardedValueMultiplierForEnemyHpDamageMultTest() *
-				SimulationSystem.Instance.RPMCalculatedValue[reward.Type] * 6.0 *
-				abTestService.GetRewardedStatValueMultiplier(playerModel.LastUnlockedLocation.Number);
-			userModel.CurrentRewardKey = reward.Type.ToString();
-			userModel.CurrentRewardValue = Math.Round(value);
-			userModel.IsDoubleValue = doubled;
+			return;
 		}
 
 		public void OnAdClicked()

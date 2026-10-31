@@ -12,7 +12,7 @@ namespace Codebase.Player.Inventory
 		public List<Color> RarityColors;
 
 		// Random pick filter: pet-only species drop only in pet mode.
-		public static bool IsAvailable(ItemConfig item) => item != null && (!item.PetOnly || PetConfig.Enabled);
+		public static bool IsAvailable(ItemConfig item) => item != null;
 
 		public ItemConfig Get(string key)
 		{

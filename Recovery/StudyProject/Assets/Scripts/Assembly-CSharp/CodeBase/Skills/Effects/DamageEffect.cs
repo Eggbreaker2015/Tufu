@@ -27,9 +27,9 @@ namespace Codebase.Skills.Effects
 				return;
 			SkillService service = GameContext.Get<SkillService>();
 			List<UnitCore> targets = SkillTargetQuery.RentList();
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) SkillTargetQuery.RpgHitStatic = true;
+			SkillTargetQuery.RpgHitStatic = true;
 			Area.Collect(context, targets);
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) SkillTargetQuery.RpgHitStatic = false;
+			SkillTargetQuery.RpgHitStatic = false;
 			float power = Power * context.Power;
 			WeaponType? type = OverrideDamageType ? DamageType : (WeaponType?)null;
 			foreach (UnitCore target in targets)

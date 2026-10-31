@@ -145,7 +145,7 @@ namespace Codebase.Skills
 					if (NavMesh.Raycast(missile.WallFrom, new Vector3(b.x, missile.WallFrom.y, b.z), out NavMeshHit wall, NavMesh.AllAreas))
 					{
 						// RPG: a low ledge (rock, stump, step) is a NavMesh edge too, but the missile flies over it at MissileHeight.
-						if (global::Codebase.Rpg.RpgModeConfig.Enabled && TryFindLanding(missile.WallFrom, wall.position, missile.Direction, out NavMeshHit landing))
+						if (TryFindLanding(missile.WallFrom, wall.position, missile.Direction, out NavMeshHit landing))
 						{
 							b.y += landing.position.y - missile.WallFrom.y;
 							missile.WallFrom = landing.position;
@@ -171,9 +171,9 @@ namespace Codebase.Skills
 				try
 				{
 					// RPG: the missile also hits trees and other static enemies.
-					if (global::Codebase.Rpg.RpgModeConfig.Enabled) SkillTargetQuery.RpgHitStatic = true;
+					SkillTargetQuery.RpgHitStatic = true;
 					List<UnitCore> candidates = SkillTargetQuery.GetCandidates(caster);
-					if (global::Codebase.Rpg.RpgModeConfig.Enabled) SkillTargetQuery.RpgHitStatic = false;
+					SkillTargetQuery.RpgHitStatic = false;
 					for (int j = 0; j < candidates.Count; j++)
 					{
 						UnitCore unit = candidates[j];

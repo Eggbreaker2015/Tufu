@@ -78,16 +78,12 @@ namespace Codebase.Skills
 			Candidates.Clear();
 			if (GameContext.Has<EnemiesModel>())
 				foreach (EnemyUnit enemy in GameContext.Get<EnemiesModel>().Enemies)
-					if (enemy != null && (!enemy.IsStatic || RpgHitStatic && global::Codebase.Rpg.RpgModeConfig.Enabled && (caster is PlayerUnit || caster is PetUnit)) && (!enemy.IsFar || enemy == caster))
+					if (enemy != null && (!enemy.IsStatic || RpgHitStatic && (caster is PlayerUnit || caster is PetUnit)) && (!enemy.IsFar || enemy == caster))
 						Candidates.Add(enemy);
-			PlayerModel playerModel = GameContext.Has<PlayerModel>() ? GameContext.Get<PlayerModel>() : null;
-			PlayerUnit player = playerModel != null ? playerModel.Unit : null;
-			if (player != null && !player.IsDying)
-				Candidates.Add(player);
-			if (PetConfig.Enabled && GameContext.Has<PetsModel>())
-				foreach (PetModel pet in GameContext.Get<PetsModel>().Pets)
-					if (pet.IsAlive && pet.Unit != null)
-						Candidates.Add(pet.Unit);
+			if (GameContext.Has<global::Codebase.Rpg.HeroRosterModel>())
+				foreach (var hero in GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Heroes)
+					if (hero.IsAlive && hero.Unit != null)
+						Candidates.Add(hero.Unit);
 			return Candidates;
 		}
 

@@ -31,11 +31,11 @@ namespace Codebase.Player.Systems
 
 		private void KillPlayer()
 		{
-			var unit = playerModel.Unit;
+			var unit = global::Codebase.Rpg.RpgControl.ControlledUnit(playerModel);
 			if (unit == null || unit.IsDead)
 				return;
 			unit.CurrentHealth = 0.0;
-			unitDamageSystem.ProcessPlayerDeath("Unstack", unit);
+			GameContext.Get<global::Codebase.Rpg.HeroDeathService>().OnHealthDepleted(GameContext.Get<global::Codebase.Rpg.HeroRosterModel>().Get(unit), "Unstack");
 		}
 	}
 }

@@ -21,7 +21,6 @@ namespace Codebase.Rpg.Systems
 		public override void OnAwake() { }
 		public override void OnUpdate(float deltaTime)
 		{
-			if (!RpgModeConfig.Enabled) return;
 			if (!subscribed) { progress.LevelChanged += OnLevelChanged; subscribed = true; }
 			if (playerModel.Unit == null || playerModel.Unit == lastUnit) return;
 			lastUnit = playerModel.Unit;

@@ -21,7 +21,7 @@ namespace Codebase.Abilities.Effects
 		{
             // Native 0x15ef3cc: no clamp on missing-health percentage or resulting multiplier.
             // Pet mode: a weapon owner uses its own pet's missing health; armor owners keep the original rule.
-            if (PetConfig.Enabled && context.Owner is ItemModel owner && owner.Config.SlotType == ItemSlotType.Weapon)
+            if (context.Owner is ItemModel owner && owner.Config.SlotType == ItemSlotType.Weapon)
             {
                 ApplyPetOwned(context, owner);
                 return;
@@ -40,7 +40,6 @@ namespace Codebase.Abilities.Effects
 			ItemModel receiver = Receiver == MissingHealthBonusReceiver.Player ? context.PlayerModel.PlayerAttackItem : owner;
 			if (receiver == null || AffectSpecificWeaponType && receiver.Config.DamageType != WeaponType)
 				return;
-			// The pet's max health, as PetStatsSyncSystem caps it.
 			double maximum = pet.Unit.GetStatValue(Codebase.Unit.StatType.Health);
 			if (maximum <= 0.0)
 				return;

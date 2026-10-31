@@ -26,8 +26,7 @@ namespace Codebase.Abilities.Core
 				case AbilityValueScaling.PerRageLevel: return ResolveRageLevel(context);
 				case AbilityValueScaling.PerEmptySlot:
 					// Pet mode: pet (weapon) slots only.
-					if (PetConfig.Enabled)
-						return context.PlayerModel.TreatAsAllSlotsEmpty ? CountWeaponSlots(context) : context.PlayerModel.EmptyPetSlots.Count;
+					return context.PlayerModel.TreatAsAllSlotsEmpty ? CountWeaponSlots(context) : context.PlayerModel.EmptyPetSlots.Count;
 					return context.PlayerModel.TreatAsAllSlotsEmpty ? context.PlayerModel.ItemSlots.Count : context.PlayerModel.EmptyItemSlots.Count;
 				case AbilityValueScaling.PerConsumedShockOnTarget: return ResolveConsumedShock(context);
 				case AbilityValueScaling.PerHitsTaken:

@@ -80,13 +80,13 @@ namespace Codebase.Rpg.Dungeon
 
 		public override void OnUpdate(float deltaTime)
 		{
-			if (!RpgModeConfig.Enabled || playerModel.Unit == null) return;
+			if (playerModel.Unit == null) return;
 			EnsurePortals();
 			labelTimer -= deltaTime;
 			if (labelTimer <= 0f) { labelTimer = 0.25f; UpdateLabels(); }
 			if (run == null) { CheckEntry(); return; }
 			PlayerUnit pudge = playerModel.Unit;
-			if (run.ResultTimer < 0f && (pudge.IsDying || pudge.IsDead)) { Wipe(); return; }
+			if (run.ResultTimer < 0f && (roster.InWipe || roster.FirstLiving() == null)) { Wipe(); return; }
 			if (run.ResultTimer >= 0f)
 			{
 				if (dialog != RpgDungeonDialogState.Result && (run.ResultTimer -= deltaTime) <= 0f) ShowResult();
@@ -211,7 +211,7 @@ namespace Codebase.Rpg.Dungeon
 		{
 			RpgDungeonDef def = RpgModeConfig.Instance.Dungeons.Find(item => item != null && item.Key == key);
 			PlayerUnit pudge = playerModel.Unit;
-			if (def == null || run != null || pudge == null || pudge.IsDying || pudge.IsDead || pudge.IsReviving) return false;
+			if (def == null || run != null || pudge == null || roster.InWipe || roster.FirstLiving() == null) return false;
 			if (CooldownRemaining(key) > TimeSpan.Zero) return false;
 			if (arenaSystem == null || !arenaSystem.TryGet(def.ArenaKey, out BossArenaComponent arena) || arena.PlayerSpawnPoint == null || arena.BossSpawnPoint == null)
 			{
@@ -306,18 +306,29 @@ namespace Codebase.Rpg.Dungeon
 		private void Collect()
 		{
 			PlayerUnit pudge = playerModel.Unit;
-			if (pudge != null && (pudge.IsDying || pudge.IsDead)) EndRun();
+			if (roster.InWipe || roster.FirstLiving() == null) EndRun();
 			else Leave();
 		}
 
 		private void WarpParty(Vector3 position, float yaw, bool restoreHealth)
 		{
-			PlayerUnit pudge = playerModel.Unit;
-			if (restoreHealth) pudge.CurrentHealth = pudge.GetStatValue(StatType.Health);
-			pudge.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
-			if (pudge.Agent != null && pudge.Agent.enabled) { pudge.Agent.Warp(position); pudge.Agent.ResetPath(); }
-			else pudge.transform.position = position;
-			if (PetConfig.Enabled) petsModel.ReviveAll(position, yaw, restoreHealth);
+			var leader = roster.Controlled;
+			foreach (var hero in roster.Heroes)
+			{
+				if (hero.Unit == null) continue;
+				Vector3 target = position;
+				if (hero != leader) PetsModel.TrySamplePosition(PetsModel.GetFollowPosition(position, yaw, hero.SlotOrder), position, out target);
+				if (hero.IsDown)
+				{
+					GameContext.Get<HeroDeathService>().Revive(hero, hero.Pet != null ? position : target, yaw, hero.Unit.GetStatValue(StatType.Health) * (restoreHealth ? 1.0 : 0.2));
+					continue;
+				}
+				if (!hero.IsAlive) continue;
+				if (restoreHealth) hero.Unit.CurrentHealth = hero.Unit.GetStatValue(StatType.Health);
+				hero.Unit.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+				if (hero.Unit.Agent != null && hero.Unit.Agent.enabled) { hero.Unit.Agent.Warp(target); if (hero.Unit.Agent.isOnNavMesh) hero.Unit.Agent.ResetPath(); }
+				else hero.Unit.transform.position = target;
+			}
 		}
 
 		// ---- Enemies ----

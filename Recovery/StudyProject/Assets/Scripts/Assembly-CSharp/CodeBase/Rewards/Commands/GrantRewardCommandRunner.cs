@@ -156,10 +156,7 @@ namespace Codebase.Rewards.Commands
 
 		private void HandleItemSlotReward(ItemSlotReward reward)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			var slot = playerModel.ItemSlots.FirstOrDefault(s => s.Key == reward.SlotKey);
-			if (slot != null && !slot.IsUnlocked)
-				slot.IsUnlocked = true;
+			return;
 		}
 
 		private void HandleMineUnlockReward(MineUnlockReward reward)
@@ -190,110 +187,17 @@ namespace Codebase.Rewards.Commands
 
 		private void HandleStatReward(StatReward reward)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			StatType type = reward.Type;
-			float value = reward.Value;
-			var completed = eventsRepository.CompletedEvent;
-			bool resolveDynamic = false;
-			if (completed != null && !completed.IsProgressComplete)
-			{
-				if (reward.BakedData == null && (reward.IsRandom || reward.UseGpm) && !string.IsNullOrEmpty(reward.SaveKey) && BakedRewardStorage.Has(reward.SaveKey))
-					reward.BakedData = BakedRewardStorage.Load(reward.SaveKey);
-				if (reward.BakedData != null)
-				{
-					type = reward.BakedData.Type;
-					value = reward.BakedData.Value;
-				}
-				else
-					resolveDynamic = true;
-			}
-			else if ((reward.IsRandom || reward.UseGpm) && !string.IsNullOrEmpty(reward.SaveKey))
-			{
-				if (BakedRewardStorage.Has(reward.SaveKey))
-				{
-					var baked = BakedRewardStorage.Load(reward.SaveKey);
-					if (baked != null)
-					{
-						type = baked.Type;
-						value = baked.Value;
-					}
-				}
-			}
-			else
-				resolveDynamic = true;
-			if (resolveDynamic)
-			{
-				if (reward.IsRandom)
-					type = randomStats[UnityEngine.Random.Range(0, randomStats.Count)];
-				if (reward.UseGpm)
-					value *= (float)simulationSystem.RPMCalculatedValue[type];
-			}
-
-			value *= cheatsModel.DropMultiplier;
-			if (value <= 0f)
-				return;
-			var modifier = new StatModifier
-			{
-				StatType = type,
-				Value = value,
-				Param = 0,
-				Name = reward.CustomModifier ? reward.Name : sourcePath,
-				ModifierType = reward.CustomModifier ? reward.ModifierType : ModifierType.Flat,
-				Source = reward.CustomModifier ? reward.Source : (sourceOverride ?? ModifierSource.Reward)
-			};
-			Stat stat = playerModel.Unit.Stats.First(s => s.Type == modifier.StatType);
-			stat.AddModifier(modifier);
-			cashbackModel.AddEarnedStat(modifier);
-			bool percent = modifier.ModifierType == ModifierType.PercentAdditive || modifier.ModifierType == ModifierType.PercentMultiplicative || modifier.ModifierType == ModifierType.PreAdditivePostMultiplicative || modifier.ModifierType == ModifierType.PostFormulaMultiplicative;
-			bool eventPercent = modifier.ModifierType == ModifierType.EventPercentModifier;
-			float display = percent ? modifier.Value * 100f : modifier.Value;
-			string formatted = ((double)display).Format();
-			if (!percent && !eventPercent && stat.Type == StatType.Health)
-				playerModel.Unit.CurrentHealth += modifier.Value;
-			StatIconStyle style = iconStyle.Styles.First(s => s.StatType == modifier.StatType);
-			statRewardContainer.Create(string.Concat(eventPercent ? "<color=yellow>" : "<color=green>", "+", formatted, percent || eventPercent ? "%" : string.Empty, "<sprite name=", style.Sprite.name, ">"), false);
+			return;
 		}
 
 		private void HandleChestReward(ChestReward reward)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			var chest = chestsConfig.Get(reward.Key);
-			if (chest == null)
-			{
-				UnityEngine.Debug.LogError("Chest with key " + reward.Key + " not found");
-				return;
-			}
-
-			chestQueue.EnqueueChest(chest, reward.Amount);
-			App.RequestAppUpdateFlow();
+			return;
 		}
 
 		private void HandleItemReward(ItemReward reward)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			ItemConfig def;
-			if (!reward.IsRandom)
-				def = reward.Def;
-			else
-			{
-				if (reward.BakedData != null && !string.IsNullOrEmpty(reward.BakedData.ItemKey))
-					def = itemsProvider.Get(reward.BakedData.ItemKey);
-				else if (!string.IsNullOrEmpty(reward.SaveKey) && BakedRewardStorage.HasItem(reward.SaveKey))
-				{
-					reward.BakedData = BakedRewardStorage.LoadItem(reward.SaveKey);
-					def = itemsProvider.Get(reward.BakedData.ItemKey);
-				}
-				else
-				{
-					var candidates = itemsProvider.Items.Where(item => ItemsProvider.IsAvailable(item) && item.SlotType == reward.SlotType && item.Rarity == reward.Rarity).ToList();
-					if (candidates.Count == 0)
-						return;
-					def = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-				}
-			}
-
-			if (def != null)
-				playerModel.CreateItem(def, reward.Level);
+			return;
 		}
 
 		private void HandleEventReward(EventReward reward)

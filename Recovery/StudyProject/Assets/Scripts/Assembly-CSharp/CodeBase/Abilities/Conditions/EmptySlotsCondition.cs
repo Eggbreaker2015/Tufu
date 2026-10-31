@@ -12,7 +12,7 @@ namespace Codebase.Abilities.Conditions
 		public override bool Evaluate(AbilityContext context)
         {
             // Native ELF VA 0x15f4788. Pet mode: counts empty pet slots only.
-            int empty = PetConfig.Enabled ? context.PlayerModel.EmptyPetSlots.Count : context.PlayerModel.EmptyItemSlots.Count;
+            int empty = context.PlayerModel.EmptyPetSlots.Count;
             return empty >= MinEmptySlots;
         }
 	}

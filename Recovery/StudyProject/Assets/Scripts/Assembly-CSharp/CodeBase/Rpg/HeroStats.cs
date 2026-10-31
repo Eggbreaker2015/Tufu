@@ -10,37 +10,36 @@ namespace Codebase.Rpg
 	{
 		public static List<Stat> Build(HeroDefinition definition)
 		{
-			if (RpgModeConfig.Enabled) return BuildRpg();
-			PlayerConfig config = GameContext.Get<PlayerConfig>();
-			PetsModel pets = GameContext.Get<PetsModel>();
-			List<Stat> stats = new List<Stat>(config.Stats.Count);
-			foreach (Stat baseStat in config.Stats)
+			HeroRosterModel roster = GameContext.Get<HeroRosterModel>();
+			List<Stat> stats = new List<Stat>();
+			for (int i = 0; i <= (int)StatType.AttackSpeed; i++)
 			{
-				double baseValue = baseStat.BaseValue;
-				if (baseStat.Type == StatType.Damage)
-					baseValue += PetConfig.Instance.PlayerBaseAttack;
-				Stat stat = new Stat(pets.Lifetime, baseValue, baseStat.Type);
-				if (stat.Type == StatType.Health && definition.HealthRatio != 1f)
-					Add(stat, ModifierType.PercentMultiplicative, definition.HealthRatio);
-				if (stat.Type == StatType.Damage && definition.AttackRatio != 1f)
-					Add(stat, ModifierType.PercentMultiplicative, definition.AttackRatio);
-				if (stat.Type == StatType.UniversalDefenceFlat && definition.DefenceFlat != 0f)
-					Add(stat, ModifierType.Flat, definition.DefenceFlat);
-				if (stat.Type == StatType.AttackRange && definition.AttackRangeOverride != 0f)
-					Add(stat, ModifierType.Flat, definition.AttackRangeOverride - (float)baseValue);
-				stats.Add(stat);
+				StatType type = (StatType)i;
+				if (type == StatType.MagicDamageFlat || type == StatType.MagicDamagePercent || type == StatType.MagicDefenceFlat || type == StatType.MagicDefencePercent || type == StatType.LifestealPercent || type == StatType.VisualScaleMultiplier) continue;
+				double value = 0;
+				switch (type)
+				{
+					case StatType.Health: value = 120; break;
+					case StatType.Damage: value = 10; break;
+					case StatType.UniversalDefenceFlat: value = 2; break;
+					case StatType.HealthRegen: value = 0.5; break;
+					case StatType.AttackRange: value = 3.4; break;
+					case StatType.MovementSpeed:
+					case StatType.StabDefencePercent:
+					case StatType.CutDefencePercent:
+					case StatType.BuckshotDefencePercent:
+					case StatType.StabDamagePercent:
+					case StatType.CutDamagePercent:
+					case StatType.BuckshotDamagePercent:
+					case StatType.CritChance:
+					case StatType.CritDamagePercent:
+					case StatType.SuperCritDamagePercent:
+					case StatType.BlockAmount:
+					case StatType.AttackSpeed: value = 1; break;
+				}
+				stats.Add(new Stat(roster.Lifetime, value, type));
 			}
 			return stats;
-		}
-
-		private static List<Stat> BuildRpg()
-		{
-			PlayerConfig config = GameContext.Get<PlayerConfig>();
-			PetsModel pets = GameContext.Get<PetsModel>();
-			List<Stat> result = new List<Stat>();
-			foreach (Stat stat in config.Stats)
-				result.Add(new Stat(pets.Lifetime, stat.BaseValue + (stat.Type == StatType.Damage ? PetConfig.Instance.PlayerBaseAttack : 0), stat.Type));
-			return result;
 		}
 
 		public static void ApplyBase(UnitCore unit, HeroDefinition def) => ApplyBase(unit.Stats, def);
@@ -51,9 +50,9 @@ namespace Codebase.Rpg
 			{
 				Remove(stat, "rpg.base");
 				Remove(stat, "rpg.hero");
-				if (stat.Type == StatType.Health) { AddNamed(stat, "rpg.base", ModifierType.Flat, RpgModeConfig.Instance.BaseHealthBonus); if (def != null && def.HealthRatio != 1f) Add(stat, ModifierType.PercentMultiplicative, def.HealthRatio); }
+				if (stat.Type == StatType.Health) { if (def != null && def.HealthRatio != 1f) Add(stat, ModifierType.PercentMultiplicative, def.HealthRatio); }
 				if (stat.Type == StatType.Damage && def != null && def.AttackRatio != 1f) Add(stat, ModifierType.PercentMultiplicative, def.AttackRatio);
-				if (stat.Type == StatType.UniversalDefenceFlat) { AddNamed(stat, "rpg.base", ModifierType.Flat, RpgModeConfig.Instance.BaseDefenceBonus); if (def != null && def.DefenceRatio != 1f) Add(stat, ModifierType.PercentMultiplicative, def.DefenceRatio); }
+				if (stat.Type == StatType.UniversalDefenceFlat) { if (def != null && def.DefenceRatio != 1f) Add(stat, ModifierType.PercentMultiplicative, def.DefenceRatio); }
 				if (stat.Type == StatType.AttackRange && def != null && def.AttackRangeOverride != 0f) Add(stat, ModifierType.Flat, def.AttackRangeOverride - (float)stat.BaseValue);
 			}
 		}

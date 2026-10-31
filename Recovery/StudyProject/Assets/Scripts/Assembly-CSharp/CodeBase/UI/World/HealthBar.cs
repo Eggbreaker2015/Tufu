@@ -252,7 +252,7 @@ namespace Codebase.UI.World
 
         private void RenderDrops()
         {
-            if (global::Codebase.Rpg.RpgModeConfig.Enabled && unit is EnemyUnit rpgEnemy) { RenderRpgDrops(rpgEnemy); return; }
+            if (unit is EnemyUnit rpgEnemy) { RenderRpgDrops(rpgEnemy); return; }
             // Original ARM64 ELF VA 0x1600e5c. A preview never grants or multiplies rewards.
             // Pet mode: pets have no drops either; the original only returned for the player.
             if (!(unit is EnemyUnit)) return;

@@ -174,7 +174,7 @@ namespace Codebase.Enemy
 
 		public void Initialize(Lifetime lifetime, EnemySpawnerConfig config, Vector3 center, List<Stat> stats = null)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) RpgLevel = 0;
+			RpgLevel = 0;
 			this.config = config;
 			patrolCenter = center;
 			EventDamageRampTimer = 0f;
@@ -187,7 +187,7 @@ namespace Codebase.Enemy
 				Stats.Add(new Stat(lifetime, stat.BaseValue, stat.Type));
 			CurrentHealth = Stats.First(stat => stat.Type == StatType.Health).Value;
 			AggroTimer = 0f;
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { RpgLastAttacker = null; RpgLastAttackTime = 0f; AggroTarget = null; }
+			{ RpgLastAttacker = null; RpgLastAttackTime = 0f; AggroTarget = null; }
 			InCombat = false;
 			IsReturningHome = false;
 			AttackCooldown = 0f;
@@ -223,7 +223,7 @@ namespace Codebase.Enemy
 			// Skills: every spawn path ends here; also resets the previous pooled life's cast and buffs.
 			if (GameContext.Has<global::Codebase.Skills.SkillService>())
 				GameContext.Get<global::Codebase.Skills.SkillService>().InstallForEnemy(this, config);
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) global::Codebase.Rpg.RpgEnemyScaling.Apply(this, global::Codebase.Rpg.RpgEnemyLevel.Compute(config), lifetime);
+			global::Codebase.Rpg.RpgEnemyScaling.Apply(this, global::Codebase.Rpg.RpgEnemyLevel.Compute(config), lifetime);
 		}
 
 		private void OnDisable()

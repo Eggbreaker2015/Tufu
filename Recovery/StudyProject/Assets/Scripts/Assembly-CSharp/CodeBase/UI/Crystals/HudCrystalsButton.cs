@@ -35,9 +35,7 @@ namespace Codebase.UI.Crystals
 
 		protected override void Render()
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) { content.SetActive(false); notification.SetActive(false); return; }
-            // Native ELF0x13bbbb4.
-            content.SetActive(crystalModel.IsUnlocked); notification.SetActive(crystalModel.IsUnlocked && crystalModel.GeodesCount > 0.0);
+			{ content.SetActive(false); notification.SetActive(false); return; }
         }
 
 		private void OnButtonClick()

@@ -22,15 +22,12 @@ namespace Codebase.Pet
 
 		public static void AddShards(int amount)
 		{
-			if (global::Codebase.Rpg.RpgModeConfig.Enabled) return;
-			if (!PetConfig.Enabled || amount <= 0)
-				return;
-			GameContext.Get<CurrencyModel>()?.Add(CurrencyKeys.PetUniversalShard, amount);
+			return;
 		}
 
 		public static void OnChestsOpened(int chestCount)
 		{
-			if (!PetConfig.Enabled || chestCount <= 0)
+			if (chestCount <= 0)
 				return;
 			AddShards(PetConfig.Instance.ShardsPerChest * chestCount);
 		}
@@ -61,7 +58,7 @@ namespace Codebase.Pet
 		// 0: not unlockable with shards.
 		public static int GetUnlockCost(ItemConfig config)
 		{
-			if (!PetConfig.Enabled || FindSpecies(config) == null)
+			if (FindSpecies(config) == null)
 				return 0;
 			int[] costs = PetConfig.Instance.UnlockShardCost;
 			int index = (int)config.Rarity;
@@ -79,7 +76,7 @@ namespace Codebase.Pet
 		// Shards the 万能碎片 button spends: what is missing to the next evolution, at least one, at most what the player has.
 		public static int GetShardSpendAmount(ItemModel item)
 		{
-			if (!PetConfig.Enabled || item == null || item.IsArmor || IsEvolutionCapped(item))
+			if (item == null || item.IsArmor || IsEvolutionCapped(item))
 				return 0;
 			int have = Shards;
 			if (have <= 0)
@@ -101,7 +98,7 @@ namespace Codebase.Pet
 		// Boss Tower victory in pet mode: shards and copies of the boss's own pet, granted with the victory rewards.
 		public static void AppendBossWinRewards(List<RewardBase> rewards, string bossKey, ItemsProvider itemsProvider)
 		{
-			if (!PetConfig.Enabled || rewards == null)
+			if (rewards == null)
 				return;
 			PetConfig petConfig = PetConfig.Instance;
 			PetDefinition definition = FindBossPet(bossKey);
