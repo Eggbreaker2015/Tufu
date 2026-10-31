@@ -144,6 +144,7 @@ MonoBehaviour:
   SwitchTeleportGrace: 1
   AiAcceleration: 20
   AiAngularSpeed: 720
+  CompanionSlotUnlockLocations: 01000000020000000300000004000000i
   LevelCap: 60
   XpBase: 20
   XpGrowth: 1.1
@@ -160,6 +161,7 @@ MonoBehaviour:
   EnemyDamageScale: 1
   BaseHealthBonus: 20
   BaseDefenceBonus: 2
+  ProtagonistLevelUpVfxScale: 2
   NormalCooldown: 45
   EliteCooldown: 180
   BossCooldown: 600

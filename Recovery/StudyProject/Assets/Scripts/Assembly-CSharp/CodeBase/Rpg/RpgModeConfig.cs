@@ -41,6 +41,7 @@ namespace Codebase.Rpg
 		public float SwitchTeleportGrace = 1f;
 		public float AiAcceleration = 20f;
 		public float AiAngularSpeed = 720f;
+		public List<int> CompanionSlotUnlockLocations = new List<int> { 1, 2, 3, 4 };
 		public int LevelCap = 60;
 		public double XpBase = 20;
 		public double XpGrowth = 1.1;
@@ -94,6 +95,11 @@ namespace Codebase.Rpg
 				}
 				return instance;
 			}
+		}
+
+		public int OpenCompanionSlots(int bossProgressLocation)
+		{
+			return CompanionSlotUnlockLocations.FindAll(location => location <= bossProgressLocation).Count;
 		}
 
 		public HeroDefinition ResolveHero(ItemConfig item)

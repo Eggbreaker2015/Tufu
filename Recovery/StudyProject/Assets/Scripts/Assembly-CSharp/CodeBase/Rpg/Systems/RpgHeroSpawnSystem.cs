@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Codebase.Core;
 using Codebase.Pet;
 using Codebase.Player;
@@ -18,7 +19,7 @@ namespace Codebase.Rpg.Systems
 		[Inject] private PetsModel petsModel;
 		[Inject] private ItemsProvider itemsProvider;
 		private readonly List<HeroModel> removed = new List<HeroModel>();
-		private bool unlocked;
+		private int lastOpen = -1;
 
 		public override void OnAwake() { }
 
@@ -26,11 +27,26 @@ namespace Codebase.Rpg.Systems
 		{
 			PlayerUnit player = playerModel.Unit;
 			if (player == null) return;
-			if (!unlocked)
+			int open = RpgModeConfig.Instance.OpenCompanionSlots(playerModel.Data.BossProgressLocationNumber.Value);
+			if (open != lastOpen)
 			{
-				foreach (ItemSlotModel slot in playerModel.ItemSlots)
-					if (slot.Key == "weapon_1" || slot.Key == "weapon_2" || slot.Key == "weapon_3" || slot.Key == "weapon_4") slot.IsUnlocked = true;
-				unlocked = true;
+				var slots = playerModel.ItemSlots.Where(slot => slot.SlotType == ItemSlotType.Weapon && !slot.IsVip).ToList();
+				for (int i = 0; i < slots.Count; i++)
+				{
+					slots[i].IsUnlocked = i < open;
+					if (!slots[i].IsUnlocked && slots[i].IsEquipped) playerModel.UnequipItem(slots[i].ItemModel);
+				}
+				if (lastOpen >= 0 && open > lastOpen)
+				{
+					for (int i = lastOpen; i < open && i < slots.Count; i++)
+					{
+						if (slots[i].IsEquipped) continue;
+						ItemModel best = playerModel.Items.Where(item => item.Config.SlotType == ItemSlotType.Weapon && PetEconomy.FindSpecies(item.Config) != null && playerModel.ItemSlots.All(slot => slot.ItemModel != item)).OrderByDescending(item => RpgStars.FromCopies(item.Copies)).FirstOrDefault();
+						if (best != null) playerModel.TryEquipItemToSlot(best, slots[i]);
+					}
+					RpgLineup.Invoke(1 + open);
+				}
+				lastOpen = open;
 			}
 			HeroModel protagonist = roster.Heroes.Find(hero => hero.IsProtagonist);
 			if (protagonist == null)

@@ -1,5 +1,7 @@
 using Codebase.Core;
 using Codebase.Player.Inventory;
+using Codebase.Player.Models;
+using System.Linq;
 using Codebase.UI;
 using Codebase.UI.Inventory;
 using Codebase.UI.Pets;
@@ -20,6 +22,7 @@ namespace Codebase.Rpg.UI
 		private Image icon;
 		private TMP_Text label;
 		private TMP_Text countdown;
+		private TMP_Text unlockHint;
 		private static Sprite whiteSprite;
 
 		public static void CreateProtagonist(Transform parent)
@@ -59,6 +62,14 @@ namespace Codebase.Rpg.UI
 			cell.roster = GameContext.Get<HeroRosterModel>();
 			cell.slot = slot;
 			cell.BuildOverlay();
+			int index = GameContext.Get<PlayerModel>().ItemSlots.Where(candidate => candidate.SlotType == ItemSlotType.Weapon && !candidate.IsVip).ToList().IndexOf(slot);
+			if (index >= 0 && index < RpgModeConfig.Instance.CompanionSlotUnlockLocations.Count)
+			{
+				cell.unlockHint = PetUiBuilder.CreateText(root, "UnlockHint", 24f, TextAlignmentOptions.Center);
+				PetUiBuilder.SetRect(cell.unlockHint.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+				cell.unlockHint.raycastTarget = false;
+				PetStatsText.SetText(cell.unlockHint, "第" + (RpgModeConfig.Instance.CompanionSlotUnlockLocations[index] - 1) + "岛\nBoss");
+			}
 		}
 
 		public static void RequestSlot(ItemSlotModel slot)
@@ -95,6 +106,7 @@ namespace Codebase.Rpg.UI
 		private void Update()
 		{
 			HeroModel hero = FindHero();
+			if (unlockHint != null) unlockHint.gameObject.SetActive(!slot.IsUnlocked);
 			highlight.enabled = hero != null && roster.Controlled == hero;
 			health.transform.parent.gameObject.SetActive(hero != null);
 			if (countdown != null) PetStatsText.SetText(countdown, hero != null && hero.IsDown ? Mathf.CeilToInt(Mathf.Max(0f, hero.ReviveAt - Time.time)).ToString() : string.Empty);

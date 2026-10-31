@@ -54,6 +54,7 @@ namespace Codebase.Rpg.UI
 			view.Prune(parent);
 			RpgRewardService.Granted += view.ShowReward;
 			RpgRecruitService.Recruited += view.ShowRecruit;
+			RpgLineup.SlotOpened += view.ShowSlotOpened;
 			RpgRecruitService.ShardsGained += view.ShowShards;
 			RpgRecruitService.StarChanged += view.ShowStar;
 			return view;
@@ -117,6 +118,8 @@ namespace Codebase.Rpg.UI
 			bool deployed = GameContext.Get<Codebase.Player.Models.PlayerModel>().EquippedItems.Contains(item);
 			ShowNotice(RpgHeroCard.Name(item) + "（" + RpgHeroCard.Role(definition.Role) + "）加入队伍" + (deployed ? "" : "\n已进入名单"));
 		}
+
+		private void ShowSlotOpened(int size) { ShowNotice("队伍格子解锁（" + size + "/5）"); }
 
 		private void ShowShards(Codebase.Player.Inventory.ItemModel item, int amount, Vector3 position)
 		{
@@ -186,6 +189,7 @@ namespace Codebase.Rpg.UI
 		{
 			RpgRewardService.Granted -= ShowReward;
 			RpgRecruitService.Recruited -= ShowRecruit;
+			RpgLineup.SlotOpened -= ShowSlotOpened;
 			RpgRecruitService.ShardsGained -= ShowShards;
 			RpgRecruitService.StarChanged -= ShowStar;
 			if (notice != null) Destroy(notice.gameObject);

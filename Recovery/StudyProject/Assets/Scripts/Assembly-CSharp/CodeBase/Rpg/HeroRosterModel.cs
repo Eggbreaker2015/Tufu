@@ -40,7 +40,7 @@ namespace Codebase.Rpg
 			bool wasControlled = Controlled == hero;
 			if (pendingRequest == hero) pendingRequest = null;
 			Heroes.Remove(hero);
-			if (wasControlled) ForceControl(InWipe ? Heroes.Find(candidate => candidate.IsProtagonist) : FirstLiving());
+			if (wasControlled) ForceControl((InWipe ? null : FirstLiving()) ?? Heroes.Find(candidate => candidate.IsProtagonist));
 		}
 
 		public bool TrySwitch(HeroModel next)
